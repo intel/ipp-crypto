@@ -1,0 +1,232 @@
+/*******************************************************************************
+* Copyright 2002-2018 Intel Corporation
+* All Rights Reserved.
+*
+* If this  software was obtained  under the  Intel Simplified  Software License,
+* the following terms apply:
+*
+* The source code,  information  and material  ("Material") contained  herein is
+* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
+* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
+* Material  contains  proprietary  information  of  Intel or  its suppliers  and
+* licensors.  The Material is protected by  worldwide copyright  laws and treaty
+* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
+* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
+* in any way without Intel's prior express written permission.  No license under
+* any patent,  copyright or other  intellectual property rights  in the Material
+* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
+* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
+* property rights must be express and approved by Intel in writing.
+*
+* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
+* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
+* suppliers or licensors in any way.
+*
+*
+* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
+* "License"), the following terms apply:
+*
+* You may  not use this  file except  in compliance  with  the License.  You may
+* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+*
+*
+* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
+* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*
+* See the   License  for the   specific  language   governing   permissions  and
+* limitations under the License.
+*******************************************************************************/
+
+/* 
+//               Intel(R) Integrated Performance Primitives
+//                   Cryptographic Primitives (ippcp)
+// 
+// 
+// 
+*/
+
+#if !defined(_CP_BN_H)
+#define _CP_BN_H
+
+#include "pcpbnuimpl.h"
+#include "pcpbnuarith.h"
+#include "pcpbnumisc.h"
+#include "pcpbnu32arith.h"
+#include "pcpbnu32misc.h"
+
+/*
+// Big Number context
+*/
+struct _cpBigNum
+{
+   IppCtxId      idCtx;    /* BigNum ctx id                 */
+   IppsBigNumSGN sgn;      /* sign                          */
+   cpSize        size;     /* BigNum size (BNU_CHUNK_T)     */
+   cpSize        room;     /* BigNum max size (BNU_CHUNK_T) */
+   BNU_CHUNK_T*  number;   /* BigNum value                  */
+   BNU_CHUNK_T*  buffer;   /* temporary buffer              */
+};
+
+/* BN accessory macros */
+#define BN_ID(pBN)         ((pBN)->idCtx)
+#define BN_SIGN(pBN)       ((pBN)->sgn)
+#define BN_POSITIVE(pBN)   (BN_SIGN(pBN)==ippBigNumPOS)
+#define BN_NEGATIVE(pBN)   (BN_SIGN(pBN)==ippBigNumNEG)
+#define BN_NUMBER(pBN)     ((pBN)->number)
+#define BN_BUFFER(pBN)     ((pBN)->buffer)
+#define BN_ROOM(pBN)       ((pBN)->room)
+#define BN_SIZE(pBN)       ((pBN)->size)
+#define BN_SIZE32(pBN)     ((pBN)->size*(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u)))
+//#define BN_SIZE32(pBN)     (BITS2WORD32_SIZE( BITSIZE_BNU(BN_NUMBER((pBN)),BN_SIZE((pBN)))))
+
+#define BN_VALID_ID(pBN)   (BN_ID((pBN))==idCtxBigNum)
+
+#define INVERSE_SIGN(s)    (((s)==ippBigNumPOS)? ippBigNumNEG : ippBigNumPOS)
+
+#define BN_ALIGNMENT       ((int)sizeof(void*))
+
+
+/* pack-unpack context */
+#define cpPackBigNumCtx OWNAPI(cpPackBigNumCtx)
+   void cpPackBigNumCtx(const IppsBigNumState* pBN, Ipp8u* pBuffer);
+#define cpUnpackBigNumCtx OWNAPI(cpUnpackBigNumCtx)
+   void cpUnpackBigNumCtx(const Ipp8u* pBuffer, IppsBigNumState* pBN);
+
+/* copy BN */
+__INLINE IppsBigNumState* cpBN_copy(IppsBigNumState* pDst, const IppsBigNumState* pSrc)
+{
+   BN_SIGN(pDst) = BN_SIGN(pSrc);
+   BN_SIZE(pDst) = BN_SIZE(pSrc);
+   ZEXPAND_COPY_BNU(BN_NUMBER(pDst), BN_ROOM(pDst), BN_NUMBER(pSrc), BN_SIZE(pSrc));
+   return pDst;
+}
+/* set BN to zero */
+__INLINE IppsBigNumState* cpBN_zero(IppsBigNumState* pBN)
+{
+   BN_SIGN(pBN)   = ippBigNumPOS;
+   BN_SIZE(pBN)   = 1;
+   ZEXPAND_BNU(BN_NUMBER(pBN),0, (int)BN_ROOM(pBN));
+   return pBN;
+}
+/* fixup BN */
+__INLINE IppsBigNumState* cpBN_fix(IppsBigNumState* pBN)
+{
+   cpSize len = BN_SIZE(pBN);
+   FIX_BNU(BN_NUMBER(pBN), len);
+   BN_SIZE(pBN) = len;
+   return pBN;
+}
+/* set BN to chunk */
+__INLINE IppsBigNumState* cpBN_chunk(IppsBigNumState* pBN, BNU_CHUNK_T a)
+{
+   BN_SIGN(pBN)   = ippBigNumPOS;
+   BN_SIZE(pBN)   = 1;
+   ZEXPAND_BNU(BN_NUMBER(pBN),0, (int)BN_ROOM(pBN));
+   BN_NUMBER(pBN)[0] = a;
+   return pBN;
+}
+/* set BN to 2^m */
+__INLINE IppsBigNumState* cpBN_power2(IppsBigNumState* pBN, int power)
+{
+   cpSize size = BITS_BNU_CHUNK(power+1);
+   if(BN_ROOM(pBN) >= size) {
+      BN_SIGN(pBN) = ippBigNumPOS;
+      BN_SIZE(pBN) = size;
+      ZEXPAND_BNU(BN_NUMBER(pBN),0, BN_ROOM(pBN));
+      SET_BIT(BN_NUMBER(pBN), power);
+      return pBN;
+   }
+   else return NULL;
+}
+
+/* bitsize of BN */
+__INLINE int cpBN_bitsize(const IppsBigNumState* pA)
+{
+   int bitsize =  BITSIZE_BNU(BN_NUMBER(pA), BN_SIZE(pA));
+   return bitsize;
+}
+
+/* returns -1/0/+1 depemding on A~B comparison */
+__INLINE int cpBN_cmp(const IppsBigNumState* pA, const IppsBigNumState* pB)
+{
+   IppsBigNumSGN signA = BN_SIGN(pA);
+   IppsBigNumSGN signB = BN_SIGN(pB);
+
+   if(signA==signB) {
+      int result = cpCmp_BNU(BN_NUMBER(pA), BN_SIZE(pA), BN_NUMBER(pB), BN_SIZE(pB));
+      return (ippBigNumPOS==signA)? result : -result;
+   }
+   return (ippBigNumPOS==signA)? 1 : -1;
+}
+
+/* returns -1/0/+1 depemding on A comparison  0</==0/>0 */
+__INLINE int cpBN_tst(const IppsBigNumState* pA)
+{
+   if(1==BN_SIZE(pA) && 0==BN_NUMBER(pA)[0])
+      return 0;
+   else
+      return BN_POSITIVE(pA)? 1 : -1;
+}
+
+
+// some addtition functions
+__INLINE int IsZero_BN(const IppsBigNumState* pA)
+{
+   return ( BN_SIZE(pA)==1 ) && ( BN_NUMBER(pA)[0]==0 );
+}
+__INLINE int IsOdd_BN(const IppsBigNumState* pA)
+{
+   return BN_NUMBER(pA)[0] & 1;
+}
+
+__INLINE IppsBigNumState* BN_Word(IppsBigNumState* pBN, BNU_CHUNK_T w)
+{
+   BN_SIGN(pBN)   = ippBigNumPOS;
+   BN_SIZE(pBN)   = 1;
+   ZEXPAND_BNU(BN_NUMBER(pBN),0, BN_ROOM(pBN));
+   BN_NUMBER(pBN)[0] = w;
+   return pBN;
+}
+__INLINE IppsBigNumState* BN_Set(const BNU_CHUNK_T* pData, cpSize len, IppsBigNumState* pBN)
+{
+   BN_SIGN(pBN)   = ippBigNumPOS;
+   BN_SIZE(pBN)   = len;
+   ZEXPAND_COPY_BNU(BN_NUMBER(pBN), BN_ROOM(pBN), pData, len);
+   return pBN;
+}
+__INLINE IppsBigNumState* BN_Make(BNU_CHUNK_T* pData, BNU_CHUNK_T* pBuffer, cpSize len, IppsBigNumState* pBN)
+{
+   BN_ID(pBN)   = idCtxBigNum;
+   BN_SIGN(pBN) = ippBigNumPOS;
+   BN_SIZE(pBN) = 1;
+   BN_ROOM(pBN) = len;
+   BN_NUMBER(pBN) = pData;
+   BN_BUFFER(pBN) = pBuffer;
+   return pBN;
+}
+
+
+
+/*
+// fixed single chunk BN
+*/
+typedef struct _ippcpBigNumChunk {
+   IppsBigNumState   bn;
+   BNU_CHUNK_T       value;
+   BNU_CHUNK_T       temporary;
+} IppsBigNumStateChunk;
+
+/* reference to BN(1) and BN(2) */
+#define          cpBN_OneRef OWNAPI(cpBN_OneRef)
+IppsBigNumState* cpBN_OneRef(void);
+#define          cpBN_TwoRef OWNAPI(cpBN_TwoRef)
+IppsBigNumState* cpBN_TwoRef(void);
+#define          cpBN_ThreeRef OWNAPI(cpBN_ThreeRef)
+IppsBigNumState* cpBN_ThreeRef(void);
+
+#define BN_ONE_REF()   cpBN_OneRef()
+#define BN_TWO_REF()   cpBN_TwoRef()
+#define BN_THREE_REF() cpBN_ThreeRef()
+
+#endif /* _CP_BN_H */
