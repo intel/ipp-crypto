@@ -52,6 +52,7 @@
 #include "owncp.h"
 #include "pcpbn.h"
 #include "pcpmontgomery.h"
+#include "pcpmask_ct.h"
 
 //tbcd: temporary excluded: #include <assert.h>
 
@@ -86,7 +87,6 @@
 /       dataY        the Montgomery exponentation result.
 //
 *F*/
-
 cpSize cpMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
                        const BNU_CHUNK_T* dataX, cpSize nsX,
                        const BNU_CHUNK_T* dataE, cpSize nsE,
@@ -99,10 +99,10 @@ cpSize cpMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
    //    x^0 = 1
    //    0^e = 0
    */
-   if( cpEqu_BNU_CHUNK(dataE, nsE, 0) ) {
+   if( cpIsGFpElemEquChunk_ct(dataE, nsE, 0) ) {
       COPY_BNU(dataY, MOD_MNT_R(pMont), nsM);
    }
-      else if( cpEqu_BNU_CHUNK(dataX, nsX, 0) ) {
+   else if( cpIsGFpElemEquChunk_ct(dataX, nsX, 0) ) {
       ZEXPAND_BNU(dataY, 0, nsM);
    }
 
@@ -110,36 +110,33 @@ cpSize cpMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
    else {
       /* Montgomery engine buffers */
       const int usedPoolLen = 2;
-      BNU_CHUNK_T* dataT      = gsModPoolAlloc(pMont, usedPoolLen);
-      BNU_CHUNK_T* sscmBuffer = dataT + nsM;
+      BNU_CHUNK_T* dataT = gsModPoolAlloc(pMont, usedPoolLen);
+      BNU_CHUNK_T* sscmB = dataT + nsM;
       //tbcd: temporary excluded: assert(NULL!=dataT);
 
-      int back_step = 0;
+      /* mont(1) */
+      BNU_CHUNK_T* pR = MOD_MNT_R(pMont);
 
       /* copy base */
       ZEXPAND_COPY_BNU(dataT, nsM, dataX, nsX);
       /* init result, Y=1 */
-      COPY_BNU(dataY, MOD_MNT_R(pMont), nsM);
+      COPY_BNU(dataY, pR, nsM);
 
-     /* execute bits of E */
-     for(; nsE>0; nsE--) {
+      /* execute bits of E */
+      for(; nsE>0; nsE--) {
          BNU_CHUNK_T eValue = dataE[nsE-1];
 
-         int j;
-         for(j=BNU_CHUNK_BITS-1; j>=0; j--) {
-            BNU_CHUNK_T mask_pattern = (BNU_CHUNK_T)(back_step-1);
+         int n;
+         for(n=BNU_CHUNK_BITS; n>0; n--) {
+            /* sscmB = ( msb(eValue) )? X : mont(1) */
+            BNU_CHUNK_T mask = cpIsMsb_ct(eValue);
+            eValue <<= 1;
+            cpMaskedCopyBNU_ct(sscmB, mask, dataT, pR, nsM);
 
-            /* safeBuffer = (Y[] and mask_pattern) or (X[] and ~mask_pattern) */
-            int i;
-            for(i=0; i<nsM; i++)
-               sscmBuffer[i] = (dataY[i] & mask_pattern) | (dataT[i] & ~mask_pattern);
-
-            /* squaring/multiplication: R = R*T mod Modulus */
-            cpMontMul_BNU(dataY, dataY, sscmBuffer, pMont);
-
-            /* update back_step and j */
-            back_step = ((eValue>>j) & 0x1) & (back_step^1);
-            j += back_step;
+            /* squaring Y = Y^2 */
+            MOD_METHOD(pMont)->sqr(dataY, dataY, pMont);
+            /* and multiplication: Y = Y * sscmB */
+            MOD_METHOD(pMont)->mul(dataY, dataY, sscmB, pMont);
          }
       }
 
@@ -148,4 +145,5 @@ cpSize cpMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
 
    return nsM;
 }
+
 #endif /* _USE_IPP_OWN_CBA_MITIGATION_ */

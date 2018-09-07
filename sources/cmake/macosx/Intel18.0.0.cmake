@@ -43,7 +43,7 @@
 #
 
 # linker
-set(LINK_FLAG_DYNAMIC_MACOSX "-Wl,-dynamic -Wl,-noall_load -Wl,-single_module -Wl,-flat_namespace -Wl,-headerpad_max_install_names")
+set(LINK_FLAG_DYNAMIC_MACOSX "-Wl,-dynamic -Wl,-single_module -Wl,-flat_namespace -Wl,-headerpad_max_install_names")
 set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-current_version,2019.0.0 -Wl,-compatibility_version,2019.0 -Wl,-macosx_version_min,10.7")
 set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -nostdlib -Wl,-lgcc_s.1 -Wl,-lm")
 if(${ARCH} MATCHES "ia32")
@@ -58,7 +58,7 @@ set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "-fasm-blocks -use_msasm -w -m32 -fomit-frame-
 
 set(CC_FLAGS_INLINE_ASM_UNIX_INTEL64 "-fasm-blocks -use_msasm -ffixed-rdi -ffixed-rsi -ffixed-rbx -ffixed-rcx -ffixed-rdx -ffixed-rbp -ffixed-r8 -ffixed-r9 -ffixed-r12 -ffixed-r13 -ffixed-r14 -ffixed-r15")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} ${LIBRARY_DEFINES}")
+set(CMAKE_C_FLAGS "${LIBRARY_DEFINES}")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -restrict -qopt-report2 -qopt-report-phase:vec -std=c99 -falign-functions=32 -falign-loops=32 -diag-error 266 -diag-disable 13366 -Wformat -Wformat-security -fstack-protector")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic -fPIC")
@@ -74,3 +74,16 @@ if(${ARCH} MATCHES "ia32")
 else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch x86_64")
 endif(${ARCH} MATCHES "ia32")
+
+set(w7_opt "${w7_opt} -xSSE2")
+set(s8_opt "${s8_opt} -xSSE3")
+set(p8_opt "${p8_opt} -xSSE4.2")
+set(g9_opt "${g9_opt} -xAVX")
+set(h9_opt "${h9_opt} -xCORE-AVX2")
+set(m7_opt "${m7_opt} -xSSE3")
+set(n8_opt "${n8_opt} -xSSSE3")
+set(y8_opt "${y8_opt} -xSSE4.2")
+set(e9_opt "${e9_opt} -xAVX")
+set(l9_opt "${l9_opt} -xCORE-AVX2")
+set(n0_opt "${n0_opt} -xMIC-AVX512")
+set(k0_opt "${k0_opt} -xCORE-AVX512")

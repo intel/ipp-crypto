@@ -70,7 +70,8 @@
 //                               illegal pSignR->idCtx
 //                               illegal pSignS->idCtx
 //
-//    ippStsMessageErr           Msg < 0
+//    ippStsMessageErr           0> MsgDigest
+//                               order<= MsgDigest
 //
 //    ippStsRangeErr             SignR < 0 or SignS < 0
 //
@@ -139,6 +140,9 @@ IPPFUN(IppStatus, ippsGFpECVerifySM2,(const IppsBigNumState* pMsgDigest,
       BNU_CHUNK_T* pOrder = MOD_MODULUS(pMontR);
       int orderLen = MOD_LEN(pMontR);
 
+      /* test mesage: msg<order */
+      IPP_BADARG_RET((0<=cpCmp_BNU(BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest), pOrder, orderLen)), ippStsMessageErr);
+
       /* test signature value */
       if(!cpEqu_BNU_CHUNK(BN_NUMBER(pSignR), BN_SIZE(pSignR), 0) &&
          !cpEqu_BNU_CHUNK(BN_NUMBER(pSignS), BN_SIZE(pSignS), 0) &&
@@ -152,14 +156,6 @@ IPPFUN(IppStatus, ippsGFpECVerifySM2,(const IppsBigNumState* pMsgDigest,
          BNU_CHUNK_T* s = r+orderLen;
          BNU_CHUNK_T* t = s+orderLen;
          BNU_CHUNK_T* f = t+orderLen;
-
-         /* reduce message */
-         BNU_CHUNK_T* pMsgDigestData = BN_NUMBER(pMsgDigest);
-         BNU_CHUNK_T* pMsgDigestBuff = BN_BUFFER(pMsgDigest);
-         int msgLen = BN_SIZE(pMsgDigest);
-         COPY_BNU(pMsgDigestBuff, pMsgDigestData, msgLen);
-         msgLen = cpMod_BNU(pMsgDigestBuff, msgLen, pOrder, orderLen);
-         cpGFpElementPadd(pMsgDigestBuff+msgLen, orderLen-msgLen, 0);
 
          /* expand signatire's components */
          cpGFpElementCopyPadd(r, orderLen, BN_NUMBER(pSignR), BN_SIZE(pSignR));
@@ -186,7 +182,8 @@ IPPFUN(IppStatus, ippsGFpECVerifySM2,(const IppsBigNumState* pMsgDigest,
          }
 
          /* t = (msg+t) mod order */
-         cpModAdd_BNU(t, t, pMsgDigestBuff, pOrder, orderLen, f);
+         cpGFpElementCopyPadd(f, orderLen, BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest));
+         cpModAdd_BNU(t, t, f, pOrder, orderLen, f);
 
          if(GFP_EQ(t, r, orderLen))
             vResult = ippECValid;

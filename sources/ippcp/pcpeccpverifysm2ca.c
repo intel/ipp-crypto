@@ -74,7 +74,10 @@
 //                               illegal pSignR->idCtx
 //                               illegal pSignS->idCtx
 //
-//    ippStsMessageErr           MsgDigest >= order
+//    ippStsMessageErr           0> MsgDigest
+//                               order<= MsgDigest
+//
+//    ippStsRangeErr             SignR < 0 or SignS < 0
 //
 //    ippStsNoErr                no errors
 //
@@ -133,6 +136,12 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
       BNU_CHUNK_T* pOrder = MOD_MODULUS(pMontR);
       int orderLen = MOD_LEN(pMontR);
 
+      BNU_CHUNK_T* pMsgData = BN_NUMBER(pMsgDigest);
+      int msgLen = BN_SIZE(pMsgDigest);
+
+      /* test message value */
+      IPP_BADARG_RET(0<=cpCmp_BNU(pMsgData, msgLen, pOrder, orderLen), ippStsMessageErr);
+
       /* test signature value */
       if(!cpEqu_BNU_CHUNK(BN_NUMBER(pSignR), BN_SIZE(pSignR), 0) &&
          !cpEqu_BNU_CHUNK(BN_NUMBER(pSignS), BN_SIZE(pSignS), 0) &&
@@ -147,14 +156,6 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
          BNU_CHUNK_T* t = s+orderLen;
          BNU_CHUNK_T* f = t+orderLen;
 
-         /* reduce message */
-         BNU_CHUNK_T* pMsgData = BN_NUMBER(pMsgDigest);
-         BNU_CHUNK_T* pMsgBuff = BN_BUFFER(pMsgDigest);
-         int msgLen = BN_SIZE(pMsgDigest);
-         COPY_BNU(pMsgBuff, pMsgData, msgLen);
-         msgLen = cpMod_BNU(pMsgBuff, msgLen, pOrder, orderLen);
-         cpGFpElementPadd(pMsgBuff+msgLen, orderLen-msgLen, 0);
-
          /* expand signatire's components */
          cpGFpElementCopyPadd(r, orderLen, BN_NUMBER(pSignR), BN_SIZE(pSignR));
          cpGFpElementCopyPadd(s, orderLen, BN_NUMBER(pSignS), BN_SIZE(pSignS));
@@ -168,9 +169,6 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
             cpEcGFpInitPoint(&P, cpEcGFpGetPool(1, pEC),0, pEC);
             cpEcGFpInitPoint(&G, ECP_G(pEC), ECP_AFFINE_POINT|ECP_FINITE_POINT, pEC);
 
-            //gfec_PointProduct(&P,
-            //                  &G, s, orderLen, pRegPublic, t, orderLen,
-            //                  pEC, (Ipp8u*)ECP_SBUFFER(pEC));
             gfec_BasePointProduct(&P,
                                   s, orderLen, pRegPublic, t, orderLen,
                                   pEC, (Ipp8u*)ECP_SBUFFER(pEC));
@@ -183,7 +181,8 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
          }
 
          /* t = (msg+t) mod order */
-         cpModAdd_BNU(t, t, pMsgBuff, pOrder, orderLen, f);
+         cpGFpElementCopyPadd(f, orderLen, pMsgData, msgLen);
+         cpModAdd_BNU(t, t, f, pOrder, orderLen, f);
 
          if(GFP_EQ(t, r, orderLen))
             vResult = ippECValid;

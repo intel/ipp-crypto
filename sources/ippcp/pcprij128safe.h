@@ -51,6 +51,8 @@
 #define _PCP_RIJ_SAFE_H
 
 #include "owncp.h"
+#include "pcprijtables.h"
+#include "pcpbnuimpl.h"
 
 #if defined _PCP_RIJ_SAFE_OLD
 /* old version */
@@ -98,6 +100,42 @@ __INLINE Ipp8u AddLogGF16(Ipp8u loga, Ipp8u logb)
    s -= delta;
    s |= 0-(s>>7);
    return s & (0xF);
+}
+#endif
+
+#define SELECTION_BITS  ((sizeof(BNU_CHUNK_T)/sizeof(Ipp8u)) -1)
+
+#if defined(__INTEL_COMPILER)
+__INLINE Ipp8u getSboxValue(Ipp8u x)
+{
+  BNU_CHUNK_T selection = 0;
+  const BNU_CHUNK_T* SboxEntry = (BNU_CHUNK_T*)RijEncSbox;
+
+  BNU_CHUNK_T i_sel = x / sizeof(BNU_CHUNK_T);  /* selection index */
+  BNU_CHUNK_T i;
+  for (i = 0; i<sizeof(RijEncSbox) / sizeof(BNU_CHUNK_T); i++) {
+    BNU_CHUNK_T mask = (i == i_sel) ? (BNU_CHUNK_T)(-1) : 0;  /* ipp and IPP build specific avoid jump instruction here */
+    selection |= SboxEntry[i] & mask;
+  }
+  selection >>= (x & SELECTION_BITS) * 8;
+  return (Ipp8u)(selection & 0xFF);
+}
+
+#else
+#include "pcpmask_ct.h"
+__INLINE Ipp8u getSboxValue(Ipp8u x)
+{
+  BNU_CHUNK_T selection = 0;
+  const BNU_CHUNK_T* SboxEntry = (BNU_CHUNK_T*)RijEncSbox;
+
+  Ipp32u _x = x / sizeof(BNU_CHUNK_T);
+  Ipp32u i;
+  for (i = 0; i<sizeof(RijEncSbox) / sizeof(BNU_CHUNK_T); i++) {
+    BNS_CHUNK_T mask = cpIsEqu_ct(_x, i);
+    selection |= SboxEntry[i] & mask;
+  }
+  selection >>= (x & SELECTION_BITS) * 8;
+  return (Ipp8u)(selection & 0xFF);
 }
 #endif
 

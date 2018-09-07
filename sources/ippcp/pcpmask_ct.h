@@ -78,6 +78,24 @@ __INLINE BNU_CHUNK_T cpIsMsb_ct(BNU_CHUNK_T a)
    return (BNU_CHUNK_T)0 - (a >> (sizeof(a) * 8 - 1));
 }
 
+/* tests if LSB(a)==1 */
+__INLINE BNU_CHUNK_T cpIsLsb_ct(BNU_CHUNK_T a)
+{
+   return (BNU_CHUNK_T)0 - (a & 1);
+}
+
+/* tests if a is odd */
+__INLINE BNU_CHUNK_T cpIsOdd_ct(BNU_CHUNK_T a)
+{
+   return cpIsLsb_ct(a);
+}
+
+/* tests if a is even */
+__INLINE BNU_CHUNK_T cpIsEven_ct(BNU_CHUNK_T a)
+{
+   return ~cpIsLsb_ct(a);
+}
+
 /* tests if a==0 */
 __INLINE BNU_CHUNK_T cpIsZero_ct(BNU_CHUNK_T a)
 {

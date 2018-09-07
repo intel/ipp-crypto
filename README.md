@@ -1,4 +1,4 @@
-Intel(R) Integrated Performance Primitives Cryptography
+﻿Intel(R) Integrated Performance Primitives Cryptography
 =======================================================
 
 Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
@@ -92,6 +92,8 @@ Yasm 1.2.2
 
 -   Microsoft Visual Studio\* 2015
 
+-   Microsoft Visual Studio\* 2017
+
 ### Binary Tools for Linux\* OS:
 
 GNU binutils 2.27
@@ -174,14 +176,25 @@ with the options described in [CMake Arguments](#cmake-arguments).
     -   On Windows\* OS: open the Microsoft Visual Studio\* solution and
         run a build.
 
+        **Important:** the process used to build the Microsoft Visual Studio solutions results
+        in debug information being generated for assembly files by default for both Debug and
+        Release configurations. To build Intel IPP Cryptography library binaries without debug
+        information in the Release configuration, follow these steps:
+
+        1. Right-click a project file and select **Properties**.
+        2. In the **Configuration** drop-down list, select **Release**.
+        3. Select the **Microsoft Macro Assembler** tab.
+        4. Set the value of the **Generate Debug Information** option to **No**.
+        5. Repeat steps 1-3 for all projects you want to build.
+
     -   On Linux\* OS or macOS\*: start a build using makefiles.
-    
+
     At this point, you can shoose to build either static or dynamic libraries.
     Depending on the value of the `-DMERGED_BLD:BOOL` option in the `cmake` call in
     step 4, you will get a set of separate self-contained libraries optimized
     for particular platforms, or a dispatched library with all optimizations.
     See the description of `-DMERGED_BLD:BOOL` in [CMake Arguments](#cmake-arguments)
-    for more information. 
+    for more information.
 
     Built libraries are located in
     the `<build_dir>/.build/lib` directory.
@@ -202,11 +215,11 @@ with the options described in [CMake Arguments](#cmake-arguments).
 -   `-DMERGED_BLD:BOOL=<on|off>` - optional. Defines the configuration
     of the Intel IPP Cryptography library to build:
 
-    -   `-DMERGED_BLD:BOOL=on`: default configuration. Build of a dispatched 
+    -   `-DMERGED_BLD:BOOL=on`: default configuration. Build of a dispatched
         static library with all available optimizations; build of dynamic
         libraries with a dynamic dispatcher library.
 
-    -   `-DMERGED_BLD:BOOL=off`: Build of one static library per
+    -   `-DMERGED_BLD:BOOL=off`: build of one static library per
         optimization; build of one dynamic library per optimization.
 
 -   `-DTHREADED_LIB:BOOL=<off|on>` - optional. Defines the threading
@@ -218,7 +231,7 @@ with the options described in [CMake Arguments](#cmake-arguments).
     -   `-DTHREADED_LIB:BOOL=on`: build multi-threaded Intel IPP Cryptography
         library.
 
--   `-DPLATFORM_LIST="<platform list>"` -- optional, works only if
+-   `-DPLATFORM_LIST="<platform list>"` - optional, works only if
     `-DMERGED_BLD:BOOL=off` is set. Sets target platforms for the code
     to be compiled. See the supported platform list at
     <https://software.intel.com/en-us/ipp-dev-guide-dispatching>.
@@ -248,12 +261,12 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
 -   `-T<Compiler>` - defines the compiler for building, for example,
     `-T"Intel C++ Compiler 18.0"` defines Intel(R) Compiler 18.0 for
     building.
-    
+
 **Note:** Refer to CMake documentation for more information on these options.
 
 #### Linux\* OS CMake Arguments:
 
--   `-DNONPIC_LIB:BOOL=<off|on>` -optional. Defines whether the built
+-   `-DNONPIC_LIB:BOOL=<off|on>` - optional. Defines whether the built
     library will be position-dependent or not:
 
     -   `-DNONPIC_LIB:BOOL=off:` default. Position-independent code.
@@ -271,7 +284,7 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
     `"x86_64-linux-android-"` defines the prefix for x86_64 GNU compiler
     tools.
 
-    Note: Before running CMake scripts for cross-platform build for
+    **Note:** Before running CMake scripts for cross-platform build for
     Android\* OS, you need to do the following:
 
     1.  Set the following environment variables for Android\* NDK:
@@ -294,7 +307,7 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
 
 -   `-DUSEYASM=<path to Yasm* assembly>` - defines the path to the
     Yasm\* assembly compiler.
-    
+
 
 See Also
 --------
@@ -305,12 +318,12 @@ See Also
 
 Legal Information
 -----------------
-No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document. 
-Intel disclaims all express and implied warranties, including without limitation, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement, as well as any warranty arising from course of performance, course of dealing, or usage in trade. 
+No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document.
+Intel disclaims all express and implied warranties, including without limitation, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement, as well as any warranty arising from course of performance, course of dealing, or usage in trade.
 
-This document contains information on products, services and/or processes in development.  All information provided here is subject to change without notice. Contact your Intel representative to obtain the latest forecast, schedule, specifications and roadmaps. 
+This document contains information on products, services and/or processes in development.  All information provided here is subject to change without notice. Contact your Intel representative to obtain the latest forecast, schedule, specifications and roadmaps.
 
-The products and services described may contain defects or errors known as errata which may cause deviations from published specifications. Current characterized errata are available on request. 
+The products and services described may contain defects or errors known as errata which may cause deviations from published specifications. Current characterized errata are available on request.
 
 Intel, and the Intel logo are trademarks of Intel Corporation in the U.S. and/or other countries.
 

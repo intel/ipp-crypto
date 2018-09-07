@@ -53,6 +53,6 @@
 #define IPP_VERSION_MINOR  0
 #define IPP_VERSION_UPDATE 0
 
-#define IPP_VERSION_STR "2019.0.0 Beta Refresh"
+#define IPP_VERSION_STR "2019.0.0"
 
 #endif /* IPPVERSION_H__ */

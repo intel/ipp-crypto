@@ -138,7 +138,7 @@ IppStatus owncpSetCpuFeaturesAndIdx( Ipp64u cpuFeatures, int* index );
 typedef IppStatus (IPP_STDCALL *DYN_RELOAD)( int );
 
 void owncpRegisterLib( DYN_RELOAD reload );
-void owncpUnregisterLib( void );
+void owncpUnregisterLib(void);
 
 #ifdef IPPAPI
 #undef IPPAPI
@@ -146,15 +146,19 @@ void owncpUnregisterLib( void );
 
 
 #if defined( _WIN32 ) && !defined( _WIN64 )
-  #define IPPAPI( type, name, arg )   \
+#define IPPAPI( type, name, arg )   \
     static FARPROC  d##name;          \
     __declspec( naked dllexport ) type IPP_STDCALL name arg { __asm jmp d##name }
 
 #elif defined( _WIN32E )
-  #define IPPAPI( type, name, arg )   \
-    static FARPROC  d##name;          \
-    __declspec( naked dllexport ) type IPP_STDCALL name arg { __asm jmp d##name }
-
+#if defined(__INTEL_COMPILER)
+#define IPPAPI( type, name, arg )   \
+      static FARPROC  d##name;          \
+      __declspec( naked dllexport ) type IPP_STDCALL name arg { __asm jmp d##name }
+#else
+#define IPPAPI( type, name, arg )   \
+      FARPROC  d##name;
+  #endif
 #elif defined( OSX32 )
 
   #define IPPAPI( type, name, arg )   \
@@ -211,13 +215,6 @@ static IPP_Desc_t IPP_Desc[] = {
 #include IPP_INC_NAME()
     { 0, 0 }                                    /* Terminate init */
 };
-
-
-
-
-#ifndef _IPP_VERSION
-#define _IPP_VERSION ""
-#endif
 
 
 /* /////////////////////////////////////////////////////////////////////////////

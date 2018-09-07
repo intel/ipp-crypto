@@ -164,14 +164,19 @@ BNU_CHUNK_T* gsModGetPool(gsModEngine* pME);
 /*
 // advanced operations
 */
+typedef int (*alm_inv)(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA);
+
 #define alm_mont_inv OWNAPI(alm_mont_inv)
 int     alm_mont_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA);
 
+#define alm_mont_inv_ct OWNAPI(alm_mont_inv_ct)
+int     alm_mont_inv_ct(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA);
+
 #define      gs_mont_inv OWNAPI(gs_mont_inv)
-BNU_CHUNK_T* gs_mont_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA);
+BNU_CHUNK_T* gs_mont_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA, alm_inv invf);
 
 #define      gs_inv OWNAPI(gs_inv)
-BNU_CHUNK_T* gs_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA);
+BNU_CHUNK_T* gs_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA, alm_inv invf);
 
 /*
 // Pack/Unpack methods

@@ -71,7 +71,8 @@
 //                               illegal pSignR->idCtx
 //                               illegal pSignS->idCtx
 //
-//    ippStsMessageErr           Msg < 0, Msg >= order
+//    ippStsMessageErr           0> MsgDigest
+//                               order<= MsgDigest
 //
 //    ippStsRangeErr             SignR < 0 or SignS < 0
 //
@@ -114,6 +115,7 @@ IPPFUN(IppStatus, ippsGFpECVerifyNR,(const IppsBigNumState* pMsgDigest,
    IPP_BAD_PTR1_RET(pMsgDigest);
    pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
+   IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
 
    /* test regular public key */
    IPP_BAD_PTR1_RET(pRegPublic);
@@ -139,9 +141,9 @@ IPPFUN(IppStatus, ippsGFpECVerifyNR,(const IppsBigNumState* pMsgDigest,
       BNU_CHUNK_T* pOrder = MOD_MODULUS(pMontR);
       int orderLen = MOD_LEN(pMontR);
 
-      /* test mesage: 0<msg<order */
-      IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest) ||
-                     (0<=cpCmp_BNU(BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest), pOrder, orderLen)), ippStsMessageErr);
+      /* test mesage: msg<order */
+      IPP_BADARG_RET((0<=cpCmp_BNU(BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest), pOrder, orderLen)), ippStsMessageErr);
+
       /* test signature value */
       if(!cpEqu_BNU_CHUNK(BN_NUMBER(pSignR), BN_SIZE(pSignR), 0) &&
          !cpEqu_BNU_CHUNK(BN_NUMBER(pSignS), BN_SIZE(pSignS), 0) &&

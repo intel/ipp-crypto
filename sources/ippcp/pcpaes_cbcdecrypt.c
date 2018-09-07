@@ -120,8 +120,11 @@ IPPFUN(IppStatus, ippsAESDecryptCBC,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
          int blksThreadTail;
 
          Ipp8u locIV[MBS_RIJ128*DEFAULT_CPU_NUM];
+#if defined(__INTEL_COMPILER)
          Ipp8u* pLocIV = nThreads>DEFAULT_CPU_NUM? kmp_malloc(nThreads*MBS_RIJ128) : locIV;
-
+#else
+         Ipp8u* pLocIV = nThreads>DEFAULT_CPU_NUM ? malloc(nThreads*MBS_RIJ128) : locIV;
+#endif
          if(pLocIV) {
             #pragma omp parallel IPPCP_OMP_LIMIT_MAX_NUM_THREADS(nThreads)
             {
@@ -148,7 +151,11 @@ IPPFUN(IppStatus, ippsAESDecryptCBC,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
             }
 
             if(pLocIV != locIV)
-               kmp_free(pLocIV);
+#if defined(__INTEL_COMPILER)
+              kmp_free(pLocIV);
+#else
+              free(pLocIV);
+#endif
          }
          else
             return ippStsMemAllocErr;

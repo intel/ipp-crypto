@@ -74,7 +74,11 @@
 //                               illegal pSignX->idCtx
 //                               illegal pSignY->idCtx
 //
+//    ippStsIvalidPrivateKey     0 >= Private
+//                               Private >= order
+//
 //    ippStsMessageErr           MsgDigest >= order
+//                               MsgDigest <  0
 //
 //    ippStsRangeErr             not enough room for:
 //                               signX
@@ -110,6 +114,7 @@ IPPFUN(IppStatus, ippsECCPSignDSA,(const IppsBigNumState* pMsgDigest,
    IPP_BAD_PTR1_RET(pPrivate);
    pPrivate = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrivate, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrivate), ippStsContextMatchErr);
+   IPP_BADARG_RET(BN_NEGATIVE(pPrivate), ippStsIvalidPrivateKey);
 
    /* test message representative */
    IPP_BAD_PTR1_RET(pMsgDigest);
@@ -129,90 +134,88 @@ IPPFUN(IppStatus, ippsECCPSignDSA,(const IppsBigNumState* pMsgDigest,
    {
       gsModEngine* pMontR = ECP_MONT_R(pEC);
       BNU_CHUNK_T* pOrder = MOD_MODULUS(pMontR);
-      int orderLen = MOD_LEN(pMontR);
+      int ordLen = MOD_LEN(pMontR);
+
+      BNU_CHUNK_T* pPriData = BN_NUMBER(pPrivate);
+      int priLen = BN_SIZE(pPrivate);
 
       BNU_CHUNK_T* pMsgData = BN_NUMBER(pMsgDigest);
       int msgLen = BN_SIZE(pMsgDigest);
-      IPP_BADARG_RET(0<=cpCmp_BNU(pMsgData, msgLen, pOrder, orderLen), ippStsMessageErr);
 
-      /* signY = ephPrivate^-1 mod Order*/
-      {
-         __ALIGN8 IppsBigNumState R;
-         BNU_CHUNK_T* buffer = ECP_SBUFFER(pEC);
-         /* BN(order) */
-         BN_Make(buffer, buffer+orderLen+1, orderLen, &R);
-         BN_Set(pOrder, orderLen, &R);
-
-         BN_Set(ECP_PRIVAT_E(pEC), orderLen, pSignX);
-         ippsModInv_BN(pSignX, &R, pSignY);
-      }
+      /* make sure regular 0 < private < order */
+      IPP_BADARG_RET(cpEqu_BNU_CHUNK(pPriData, priLen, 0) ||
+                  0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsIvalidPrivateKey);
+      /* make sure msg <order */
+      IPP_BADARG_RET(0<=cpCmp_BNU(pMsgData, msgLen, pOrder, ordLen), ippStsMessageErr);
 
       {
-         IppStatus sts = ippStsEphemeralKeyErr;
-
          IppsGFpState* pGF = ECP_GFP(pEC);
-         gsModEngine* pGFE = GFP_PMA(pGF);
+         gsModEngine* pMontP = GFP_PMA(pGF);
+         int elmLen = GFP_FELEN(pMontP);
 
-         int elmLen = GFP_FELEN(pGFE);
-         int pelmLen = GFP_PELEN(pGFE);
-
-         BNU_CHUNK_T* pC = cpGFpGetPool(3, pGFE);
-         BNU_CHUNK_T* pF = pC + pelmLen;
-         BNU_CHUNK_T* pS = pF + pelmLen;
+         BNU_CHUNK_T* dataC = BN_NUMBER(pSignX);
+         BNU_CHUNK_T* dataD = BN_NUMBER(pSignY);
+         BNU_CHUNK_T* buffF = BN_BUFFER(pSignX);
+         BNU_CHUNK_T* buffT = BN_BUFFER(pSignY);
+         int ns;
 
          /* ephemeral public */
          IppsGFpECPoint  ephPublic;
          cpEcGFpInitPoint(&ephPublic, ECP_PUBLIC_E(pEC), ECP_FINITE_POINT|ECP_AFFINE_POINT, pEC);
 
-         /* ephPublic.x  */
-         gfec_GetPoint(pC, NULL, &ephPublic, pEC);
-         GFP_METHOD(pGFE)->decode(pC, pC, pGFE);
+         /*
+         // signX = int(ephPublic.x) (mod order)
+         */
+         {
+            BNU_CHUNK_T* buffer = gsModPoolAlloc(pMontP, 1);
+            gfec_GetPoint(buffer, NULL, &ephPublic, pEC);
+            GFP_METHOD(pMontP)->decode(buffer, buffer, pMontP);
+            ns = cpMod_BNU(buffer, elmLen, pOrder, ordLen);
+            cpGFpElementCopyPadd(dataC, ordLen, buffer, ns);
+            gsModPoolFree(pMontP, 1);
+         }
 
-         /* signX = int(ephPublic.x) (mod order) */
-         elmLen = cpMod_BNU(pC, elmLen, pOrder, orderLen);
-         cpGFpElementPadd(pC+elmLen, orderLen-elmLen, 0);
-         if(!GFP_IS_ZERO(pC, orderLen)) {
-
+         if(!GFP_IS_ZERO(dataC, ordLen)) {
             /*
             // signY = (1/ephPrivate)*(pMsgDigest + private*signX) (mod order)
             */
-            /* S = mont(private) * mont(signX) */
-            cpMontEnc_BNU_EX(pF, pC, orderLen, pMontR);
-            cpMontEnc_BNU_EX(pS, BN_NUMBER(pPrivate), BN_SIZE(pPrivate), pMontR);
-            cpMontMul_BNU(pS, pS, pF, pMontR);
-            /* S = (S+ mont(msg) mod order */
-            cpGFpElementCopyPadd(pF, orderLen, pMsgData, msgLen);
-            cpMontEnc_BNU_EX(pF, pF, orderLen, pMontR);
-            cpModAdd_BNU(pS, pS, pF, pOrder, orderLen, pF);
 
-            /* S = S*(ephPrivate^-1) */
-            cpGFpElementCopyPadd(pF, orderLen, BN_NUMBER(pSignY), BN_SIZE(pSignY));
-            cpMontMul_BNU(pS, pS, pF, pMontR);
+            /* copy and expand message is being signed */
+            ZEXPAND_COPY_BNU(buffF, ordLen, pMsgData, msgLen);
 
-            if(!GFP_IS_ZERO(pS, orderLen)) {
-               BNU_CHUNK_T* pSignXdata = BN_NUMBER(pSignX);
-               BNU_CHUNK_T* pSignYdata = BN_NUMBER(pSignY);
+            /* private representation in Montgomery domain */
+            ZEXPAND_COPY_BNU(dataD, ordLen, pPriData, priLen);
+            GFP_METHOD(pMontR)->encode(dataD, dataD, pMontR);
+
+            /* (private*signX) in regular domain */
+            GFP_METHOD(pMontR)->mul(dataD, dataD, dataC, pMontR);
+
+            /* pMsgDigest + private*signX */
+            cpModAdd_BNU(dataD, dataD, buffF, pOrder, ordLen, buffT);
+
+            if(!GFP_IS_ZERO(dataD, ordLen)) {
+               /* (1/ephPrivate) in Montgomery domain  */
+               gs_mont_inv(buffT, ECP_PRIVAT_E(pEC), pMontR, alm_mont_inv_ct);
+
+               /* (1/ephPrivate)*(pMsgDigest + private*signX) */
+               GFP_METHOD(pMontR)->mul(dataD, dataD, buffT, pMontR);
 
                /* signX */
-               elmLen = orderLen;
-               FIX_BNU(pC, elmLen);
+               ns = ordLen;
+               FIX_BNU(dataC, ns);
                BN_SIGN(pSignX) = ippBigNumPOS;
-               BN_SIZE(pSignX) = elmLen;
-               cpGFpElementCopy(pSignXdata, pC, elmLen);
-
+               BN_SIZE(pSignX) = ns;
                /* signY */
-               elmLen = orderLen;
-               FIX_BNU(pS, elmLen);
+               ns = ordLen;
+               FIX_BNU(dataD, ns);
                BN_SIGN(pSignY) = ippBigNumPOS;
-               BN_SIZE(pSignY) = elmLen;
-               cpGFpElementCopy(pSignYdata, pS, elmLen);
+               BN_SIZE(pSignY) = ns;
 
-               sts = ippStsNoErr;
+               return ippStsNoErr;
             }
          }
 
-         cpGFpReleasePool(3, pGFE);
-         return sts;
+         return ippStsEphemeralKeyErr;
       }
    }
 }

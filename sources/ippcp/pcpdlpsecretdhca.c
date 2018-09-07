@@ -113,15 +113,26 @@ IPPFUN(IppStatus, ippsDLPSharedSecretDH,(const IppsBigNumState* pPrvKeyA,
 
    cpMontEnc_BN(pSecret, pPubKeyB, DLP_MONTP0(pDL));
 
-   #if !defined(_USE_WINDOW_EXP_)
-   cpMontExpBin_BN_sscm(pSecret, pSecret, pPrvKeyA, DLP_MONTP0(pDL));
-   #else
-   (DLP_EXPMETHOD(pDL)==BINARY) || (1==cpMontExp_WinSize(BITSIZE_BNU(BN_NUMBER(pPrvKeyA), BN_SIZE(pPrvKeyA))))?
-      cpMontExpBin_BN_sscm(pSecret, pSecret, pPrvKeyA, DLP_MONTP0(pDL)) :
-      cpMontExpWin_BN_sscm(pSecret, pSecret, pPrvKeyA, DLP_MONTP0(pDL), DLP_BNUCTX0(pDL));
-   #endif
+   {
+      gsModEngine* pMEorder = DLP_MONTR(pDL);
+      int ordLen = MOD_LEN(pMEorder);
 
-   cpMontDec_BN(pSecret, pSecret, DLP_MONTP0(pDL));
+      /* expand privKeyA */
+      BigNumNode* pList = DLP_BNCTX(pDL);
+      IppsBigNumState* pTmpPrivKey = cpBigNumListGet(&pList);
+      ZEXPAND_COPY_BNU(BN_NUMBER(pTmpPrivKey), ordLen, BN_NUMBER(pPrvKeyA), BN_SIZE(pPrvKeyA));
+      BN_SIZE(pTmpPrivKey) = ordLen;
+
+      #if !defined(_USE_WINDOW_EXP_)
+      cpMontExpBin_BN_sscm(pSecret, pSecret, pTmpPrivKey, DLP_MONTP0(pDL));
+      #else
+      (DLP_EXPMETHOD(pDL)==BINARY) || (1==cpMontExp_WinSize(BITSIZE_BNU(BN_NUMBER(pTmpPrivKey), BN_SIZE(pTmpPrivKey))))?
+         cpMontExpBin_BN_sscm(pSecret, pSecret, pTmpPrivKey, DLP_MONTP0(pDL)) :
+         cpMontExpWin_BN_sscm(pSecret, pSecret, pTmpPrivKey, DLP_MONTP0(pDL), DLP_BNUCTX0(pDL));
+      #endif
+
+      cpMontDec_BN(pSecret, pSecret, DLP_MONTP0(pDL));
+   }
 
    return ippStsNoErr;
 }

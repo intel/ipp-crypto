@@ -58,46 +58,9 @@
 #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
 #pragma message("_ALG_AES_SAFE_COMPACT_SBOX_ enabled")
 
+#include "pcprij128safe.h"
 #include "pcprij128safe2.h"
 #include "pcprijtables.h"
-
-
-#include "pcpbnuimpl.h"
-#define SELECTION_BITS  ((sizeof(BNU_CHUNK_T)/sizeof(Ipp8u)) -1)
-
-#if defined(__INTEL_COMPILER)
-__INLINE Ipp8u getSboxValue(Ipp8u x)
-{
-   BNU_CHUNK_T selection = 0;
-   const BNU_CHUNK_T* SboxEntry = (BNU_CHUNK_T*)RijEncSbox;
-
-   BNU_CHUNK_T i_sel = x/sizeof(BNU_CHUNK_T);  /* selection index */
-   BNU_CHUNK_T i;
-   for(i=0; i<sizeof(RijEncSbox)/sizeof(BNU_CHUNK_T); i++) {
-      BNU_CHUNK_T mask = (i==i_sel)? (BNU_CHUNK_T)(-1) : 0;  /* ipp and IPP build specific avoid jump instruction here */
-      selection |= SboxEntry[i] & mask;
-   }
-   selection >>= (x & SELECTION_BITS)*8;
-   return (Ipp8u)(selection & 0xFF);
-}
-
-#else
-#include "pcpmask_ct.h"
-__INLINE Ipp8u getSboxValue(Ipp8u x)
-{
-   BNU_CHUNK_T selection = 0;
-   const BNU_CHUNK_T* SboxEntry = (BNU_CHUNK_T*)RijEncSbox;
-
-   Ipp32u _x = x/sizeof(BNU_CHUNK_T);
-   Ipp32u i;
-   for(i=0; i<sizeof(RijEncSbox)/sizeof(BNU_CHUNK_T); i++) {
-      BNS_CHUNK_T mask = cpIsEqu_ct(_x, i);
-      selection |= SboxEntry[i] & mask;
-   }
-   selection >>= (x & SELECTION_BITS)*8;
-   return (Ipp8u)(selection & 0xFF);
-}
-#endif
 
 __INLINE void SubBytes(Ipp8u state[])
 {

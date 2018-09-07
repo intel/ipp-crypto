@@ -75,6 +75,8 @@
 //    ippStsMessageErr           0> MsgDigest
 //                               order<= MsgDigest
 //
+//    ippStsRangeErr             SignX < 0 or SignY < 0
+//
 //    ippStsNoErr                no errors
 //
 // Parameters:
@@ -113,11 +115,11 @@ IPPFUN(IppStatus, ippsECCPVerifyNR,(const IppsBigNumState* pMsgDigest,
    IPP_BAD_PTR1_RET(pMsgDigest);
    pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
+   IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
 
    pMsgData = BN_NUMBER(pMsgDigest);
    msgLen = BN_SIZE(pMsgDigest);
-   IPP_BADARG_RET(cpEqu_BNU_CHUNK(pMsgData, msgLen, 0)
-            || 0<=cpCmp_BNU(pMsgData, msgLen, pOrder, orderLen), ippStsMessageErr);
+   IPP_BADARG_RET(0<=cpCmp_BNU(pMsgData, msgLen, pOrder, orderLen), ippStsMessageErr);
 
    /* test result */
    IPP_BAD_PTR1_RET(pResult);
@@ -128,6 +130,8 @@ IPPFUN(IppStatus, ippsECCPVerifyNR,(const IppsBigNumState* pMsgDigest,
    pSignY = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignY, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pSignX), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pSignY), ippStsContextMatchErr);
+   IPP_BADARG_RET(BN_NEGATIVE(pSignX), ippStsRangeErr);
+   IPP_BADARG_RET(BN_NEGATIVE(pSignY), ippStsRangeErr);
 
    {
       IppECResult vResult = ippECInvalidSignature;
@@ -159,9 +163,6 @@ IPPFUN(IppStatus, ippsECCPVerifyNR,(const IppsBigNumState* pMsgDigest,
          cpGFpElementCopyPadd(pH2, orderLen, BN_NUMBER(pSignX), BN_SIZE(pSignX));
 
          /* compute H1*BasePoint + H2*publicKey */
-         //gfec_PointProduct(&P,
-         //                  &G, pH1, orderLen, &Public, pH2, orderLen,
-         //                  pEC, (Ipp8u*)ECP_SBUFFER(pEC));
          gfec_BasePointProduct(&P,
                                pH1, orderLen, &Public, pH2, orderLen,
                                pEC, (Ipp8u*)ECP_SBUFFER(pEC));

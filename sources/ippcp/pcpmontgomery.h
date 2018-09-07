@@ -53,7 +53,7 @@
 
 //tbcd: temporary excluded: #include <assert.h>
 
-#define MONT_DEFAULT_POOL_LENGTH 4
+#define MONT_DEFAULT_POOL_LENGTH (6)
 
 /*
 // Montgomery spec structure

@@ -76,16 +76,17 @@
 //                               illegal pSignR->idCtx
 //                               illegal pSignS->idCtx
 //
+//    ippStsIvalidPrivateKey     (1 + regPrivate) >= order
+//
 //    ippStsMessageErr           MsgDigest >= order
+//                               MsgDigest <  0
 //
 //    ippStsRangeErr             not enough room for:
 //                               signR
 //                               signS
 //
-//    ippECInvalidSignature      (0==signR)
-//                               (0==signS)
-//                               (signR + ephPrivate) == order
-//                               (1 + regPrivate) == order
+//    ippStsEphemeralKeyErr      (signR + ephPrivate) == order
+//                               (0==signR) || (0==signS)
 //
 //    ippStsNoErr                no errors
 //
@@ -112,123 +113,8 @@ IPPFUN(IppStatus, ippsECCPSignSM2,(const IppsBigNumState* pMsgDigest,
    pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
    IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
 
-   /* test private keys */
-   IPP_BAD_PTR2_RET(pRegPrivate, pEphPrivate);
-   pRegPrivate = (IppsBigNumState*)( IPP_ALIGNED_PTR(pRegPrivate, ALIGN_VAL) );
-   IPP_BADARG_RET(!BN_VALID_ID(pRegPrivate), ippStsContextMatchErr);
-   pEphPrivate = (IppsBigNumState*)( IPP_ALIGNED_PTR(pEphPrivate, ALIGN_VAL) );
-   IPP_BADARG_RET(!BN_VALID_ID(pEphPrivate), ippStsContextMatchErr);
-
-   /* test message representative */
-   IPP_BAD_PTR1_RET(pMsgDigest);
-   pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, ALIGN_VAL) );
-   IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
-   IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
-
-   /* test signature */
-   IPP_BAD_PTR2_RET(pSignS, pSignR);
-   pSignR = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignR, ALIGN_VAL) );
-   pSignS = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignS, ALIGN_VAL) );
-   IPP_BADARG_RET(!BN_VALID_ID(pSignR), ippStsContextMatchErr);
-   IPP_BADARG_RET(!BN_VALID_ID(pSignS), ippStsContextMatchErr);
-   IPP_BADARG_RET((BN_ROOM(pSignR)*BITSIZE(BNU_CHUNK_T)<ECP_ORDBITSIZE(pEC)), ippStsRangeErr);
-   IPP_BADARG_RET((BN_ROOM(pSignS)*BITSIZE(BNU_CHUNK_T)<ECP_ORDBITSIZE(pEC)), ippStsRangeErr);
-
-   {
-      IppStatus sts = ippStsErr;
-
-      gsModEngine* pMonEngine = ECP_MONT_R(pEC);
-      BNU_CHUNK_T* pOrder = MOD_MODULUS(pMonEngine);
-      int orderLen = MOD_LEN(pMonEngine);
-      int ns;
-
-      IppsGFpState* pGF = ECP_GFP(pEC);
-      gsModEngine* pGFE = GFP_PMA(pGF);
-      int elmLen = GFP_FELEN(pGFE);
-
-      BNU_CHUNK_T* dataR = BN_NUMBER(pSignR);
-      BNU_CHUNK_T* dataS = BN_NUMBER(pSignS);
-      BNU_CHUNK_T* buffR = BN_BUFFER(pSignR);
-      BNU_CHUNK_T* buffS = BN_BUFFER(pSignS);
-
-      BNU_CHUNK_T* pMsgData = BN_NUMBER(pMsgDigest);
-      BNU_CHUNK_T* pMsgBuff = BN_BUFFER(pMsgDigest);
-      int msgLen = BN_SIZE(pMsgDigest);
-
-      /* reduce message */
-      COPY_BNU(pMsgBuff, pMsgData, msgLen);
-      ns = cpMod_BNU(pMsgBuff, msgLen, pOrder, orderLen);
-      cpGFpElementPadd(pMsgBuff+ns, orderLen-ns, 0);
-
-      /* signS = (1+regPrivate)^-1 mod Order*/
-      {
-         __ALIGN8 IppsBigNumState R;
-         BNU_CHUNK_T* buffer = ECP_SBUFFER(pEC);
-         /* BN(order) */
-         BN_Make(buffer, buffer+orderLen+1, orderLen, &R);
-         BN_Set(pOrder, orderLen, &R);
-
-         ippsAdd_BN((IppsBigNumState*)pRegPrivate, cpBN_OneRef(), pSignR);
-         if(ippStsNoErr != ippsModInv_BN(pSignR, &R, pSignS))
-            return sts;
-         cpGFpElementPadd(dataS+BN_SIZE(pSignS), orderLen-BN_SIZE(pSignS), 0);
-      }
-
-      /* set up ephemeral public key */
-      {
-         IppsGFpECPoint  ephPublic;
-         cpEcGFpInitPoint(&ephPublic, ECP_PUBLIC_E(pEC), 0, pEC);
-         gfec_MulBasePoint(&ephPublic,
-                           BN_NUMBER(pEphPrivate), BN_SIZE(pEphPrivate),
+   return ippsGFpECSignSM2(pMsgDigest,
+                           pRegPrivate, pEphPrivate,
+                           pSignR, pSignS,
                            pEC, (Ipp8u*)ECP_SBUFFER(pEC));
-
-         /* r = (ephPublic.x) mod order */
-         gfec_GetPoint(dataR, NULL, &ephPublic, pEC);
-         GFP_METHOD(pGFE)->decode(dataR, dataR, pGFE);
-         ns = cpMod_BNU(dataR, elmLen, pOrder, orderLen);
-         cpGFpElementPadd(dataR+ns, orderLen-ns, 0);
-      }
-
-      /*
-      // r sign component: r = (msg+ephPublic.x) mod order
-      */
-      cpModAdd_BNU(dataR, dataR, pMsgBuff, pOrder, orderLen, pMsgBuff);
-      /* t = (r+ephPrivate) mod order */
-      cpModAdd_BNU(buffR, dataR, ECP_PRIVAT_E(pEC), pOrder, orderLen, pMsgBuff);
-
-      /*
-      // s sign component: s = (1+regPrivate)^1 *(ephPrivate-r*regPrivate) mod order
-      */
-      if(!GFP_IS_ZERO(dataR, orderLen) && !GFP_IS_ZERO(buffR, orderLen)) {
-         /* t = (ephPrivate-r*regPrivate) mod order */
-         cpMontEnc_BNU_EX(buffR, dataR, orderLen, pMonEngine); /* r */
-         cpGFpElementCopyPadd(buffS, orderLen, BN_NUMBER(pRegPrivate), BN_SIZE(pRegPrivate)); /* regPrivate */
-         cpMontMul_BNU(buffR, buffR, buffS, pMonEngine);
-         cpGFpElementCopyPadd(buffS, orderLen, BN_NUMBER(pEphPrivate), BN_SIZE(pEphPrivate)); /* ephPrivate */
-         cpModSub_BNU(buffS, buffS, buffR, pOrder, orderLen, buffR);
-
-         cpMontEnc_BNU_EX(buffS, buffS, orderLen, pMonEngine); /* t */
-
-         /* s = s * t mod order */
-         cpMontMul_BNU(dataS, dataS, buffS, pMonEngine);
-
-         if(!GFP_IS_ZERO(dataS, orderLen)) {
-            /* signR */
-            ns = orderLen;
-            FIX_BNU(dataR, ns);
-            BN_SIGN(pSignR) = ippBigNumPOS;
-            BN_SIZE(pSignR) = ns;
-
-            /* signS */
-            ns = orderLen;
-            FIX_BNU(dataS, ns);
-            BN_SIGN(pSignS) = ippBigNumPOS;
-            BN_SIZE(pSignS) = ns;
-
-            sts = ippStsNoErr;
-         }
-      }
-
-      return sts;
-   }
 }

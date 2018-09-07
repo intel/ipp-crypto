@@ -42,26 +42,44 @@
 # Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
 #
 
-# linker
-set(LINK_FLAG_DYNAMIC_LINUX "-nostdlib -Wl,-shared -Wl,-z,defs -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,-call_shared,-lc -Wl,-call_shared,-lm")
+# Linker flags
+
+# Security flags
+set(LINK_FLAG_SECURITY "") 
+# Disallows undefined symbols in object files. Undefined symbols in shared libraries are still allowed
+set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,defs")
+# Stack execution protection
+set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,noexecstack")
+# Data relocation and protection (RELRO)
+set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,relro -Wl,-z,now")
+
+set(LINK_FLAG_DYNAMIC_LINUX "${LINK_FLAG_SECURITY} -nostdlib -Wl,-shared -Wl,-call_shared,-lc -Wl,-call_shared,-lm")
 if(${ARCH} MATCHES "ia32")
   set(LINK_FLAG_DYNAMIC_LINUX "${LINK_FLAG_DYNAMIC_LINUX} -Wl,-m,elf_i386")
 endif(${ARCH} MATCHES "ia32")
 
-set(LINK_FLAG_PCS_LINUX "-nostdlib -Wl,-call_shared,-ldl -Wl,-call_shared,-lc -Wl,-call_shared,-lm") #check lm lc
+set(LINK_FLAG_PCS_LINUX "${LINK_FLAG_SECURITY} -nostdlib -Wl,-shared -Wl,-call_shared,-ldl -Wl,-call_shared,-lc -Wl,-call_shared,-lm")
 if(${ARCH} MATCHES "ia32")
   set(LINK_FLAG_PCS_LINUX "${LINK_FLAG_PCS_LINUX} -Wl,-m,elf_i386")
 endif(${ARCH} MATCHES "ia32")
 
-# compiler
+# Compiler flags
 set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "-fasm-blocks -use_msasm -w -m32 -fomit-frame-pointer")
 
 set(CC_FLAGS_INLINE_ASM_UNIX_INTEL64 "-fasm-blocks -use_msasm -ffixed-rdi -ffixed-rsi -ffixed-rbx -ffixed-rcx -ffixed-rdx -ffixed-rbp -ffixed-r8 -ffixed-r9 -ffixed-r12 -ffixed-r13 -ffixed-r14 -ffixed-r15")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} ${LIBRARY_DEFINES}")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -restrict -qopt-report2 -qopt-report-phase:vec -std=c99 -falign-functions=32 -falign-loops=32 -diag-error 266 -diag-disable 13366 -Wformat -Wformat-security -fstack-protector")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -restrict -qopt-report2 -qopt-report-phase:vec -std=c99 -falign-functions=32 -falign-loops=32 -diag-error 266 -diag-disable 13366")
+
+# Stack-based Buffer Overrun Detection
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
+
+# Format string vulnerabilities
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wformat -Wformat-security")
+
 if(NOT NONPIC_LIB)
+  # Position Independent Execution (PIE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic -fPIC")
 endif()
 if(THREADED_LIB)
@@ -71,8 +89,26 @@ if(CODE_COVERAGE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -prof-gen:srcpos -prof-dir ${PROF_DATA_DIR}")
 endif()
 
+set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_RELEASE_INIT " -O3 -DNDEBUG" CACHE STRING "" FORCE)
+
 if(${ARCH} MATCHES "ia32")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-sox  -Zp16 -gcc -falign-stack=maintain-16-byte -Wa,--32 -no-use-asm -m32")
 else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-sox  -Zp16 -gcc")
 endif(${ARCH} MATCHES "ia32")
+
+set(px_opt "${px_opt} -mia32")
+set(w7_opt "${w7_opt} -xSSE2")
+set(s8_opt "${s8_opt} -xATOM_SSSE3 -minstruction=nomovbe")
+set(p8_opt "${p8_opt} -xATOM_SSE4.2 -minstruction=nomovbe")
+set(g9_opt "${g9_opt} -xAVX")
+set(h9_opt "${h9_opt} -xCORE-AVX2")
+set(mx_opt "${mx_opt} -march=pentium")
+set(m7_opt "${m7_opt} -xSSE3")
+set(n8_opt "${n8_opt} -xATOM_SSSE3 -minstruction=nomovbe")
+set(y8_opt "${y8_opt} -xATOM_SSE4.2 -minstruction=nomovbe")
+set(e9_opt "${e9_opt} -xAVX")
+set(l9_opt "${l9_opt} -xCORE-AVX2")
+set(n0_opt "${n0_opt} -xMIC-AVX512")
+set(k0_opt "${k0_opt} -xCORE-AVX512")

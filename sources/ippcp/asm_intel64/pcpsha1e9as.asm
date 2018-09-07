@@ -58,10 +58,10 @@ IF (_IPP32E EQ _IPP32E_E9 )
 
 ;;
 ;; SHA1 constants K[i]
-K1 equ (05a827999h)
-K2 equ (06ed9eba1h)
-K3 equ (08f1bbcdch)
-K4 equ (0ca62c1d6h)
+SHA1_K1 equ (05a827999h)
+SHA1_K2 equ (06ed9eba1h)
+SHA1_K3 equ (08f1bbcdch)
+SHA1_K4 equ (0ca62c1d6h)
 
 ;;
 ;; Magic functions defined in FIPS 180-1
@@ -270,10 +270,10 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 
 ALIGN IPP_ALIGN_FACTOR
 
-K_XMM_AR       dd K1, K1, K1, K1
-               dd K2, K2, K2, K2
-               dd K3, K3, K3, K3
-               dd K4, K4, K4, K4
+K_XMM_AR       dd SHA1_K1, SHA1_K1, SHA1_K1, SHA1_K1
+               dd SHA1_K2, SHA1_K2, SHA1_K2, SHA1_K2
+               dd SHA1_K3, SHA1_K3, SHA1_K3, SHA1_K3
+               dd SHA1_K4, SHA1_K4, SHA1_K4, SHA1_K4
 
 shuffle_mask   DD 00010203h
                DD 04050607h

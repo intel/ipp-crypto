@@ -684,4 +684,15 @@ __INLINE Ipp32u IsFeatureEnabled(Ipp64u niMmask)
    for(i=0; i<(len); i++) (dst)[i] = ((mask) & (src1)[i]) | (~(mask) & (src2)[i]); \
 }
 
+#if !defined( _M_X64 ) && defined ( _MSC_VER ) && !defined(__INTEL_COMPILER)
+__inline __m128i
+_mm_cvtsi64_si128(__int64 a)
+{
+  __m128i x;
+  x.m128i_i64[0] = a;
+  x.m128i_i64[1] = 0;
+  return x;
+}
+#endif
+
 #endif /* __OWNCP_H__ */

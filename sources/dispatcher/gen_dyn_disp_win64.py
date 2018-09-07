@@ -42,17 +42,11 @@
 # Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
 #
 
-import re
 import sys
 import os
-import hashlib
 
-Header  = sys.argv[1]    ## Intel(R) IPP Crypto dispatcher will be generated for fucntions in Header 
+Header  = sys.argv[1]    ## Intel(R) IPP Crypto dispatcher will be generated for fucntions in Header
 OutDir  = sys.argv[2]    ## Output folder for generated files
-cpulist = sys.argv[3]    ## Actual CPU list: semicolon separated string
-
-cpulist = cpulist.split(';')
-
 headerID= False      ## Header ID define to avoid multiple include like: #if !defined( __IPPCP_H__ )
 
 from gen_disp_common import readNextFunction
@@ -61,75 +55,36 @@ HDR= open( Header, 'r' )
 h= HDR.readlines()
 HDR.close()
 
-
-## keep filename only
-(incdir, Header)= os.path.split(Header)
-
-## original header name to declare external functions as internal for dispatcher
-OrgH= Header
-
 isFunctionFound = True
 curLine = 0
-FunType = ""
 FunName = ""
-FunArg = ""
+filename = "jmp_dynamic_lib"
+
+DISP= open( os.sep.join([OutDir, filename + ".asm"]), 'w' )
+DISP.write("""
+option casemap :none
+
+.code
+
+IPPAPI MACRO  name:req
+extrn d&name&:qword
+name proc public
+   jmp d&name&
+name endp
+ENDM
+
+""")
 
 while (isFunctionFound == True):
 
   result = readNextFunction(h, curLine, headerID)
-  
+
   curLine         = result['curLine']
-  FunType         = result['FunType']
   FunName         = result['FunName']
-  FunArg          = result['FunArg']
   isFunctionFound = result['success']
-  
+
   if (isFunctionFound == True):
+      DISP.write("IPPAPI {}\n".format(FunName))
 
-      ##################################################
-      ## create dispatcher files: C file with inline asm
-      ##################################################
-      DISP= open( os.sep.join([OutDir, "jmp_"+FunName+"_" + hashlib.sha512(FunName.encode('utf-8')).hexdigest()[:8] + ".c"]), 'w' )
-
-      DISP.write("""#include "ippcp.h"\n\n#pragma warning(disable : 1478) // deprecated\n\n""")
-
-      DISP.write("typedef "+FunType+" (*IPP_PROC)"+FunArg+";\n\n")
-      DISP.write("extern int ippcpJumpIndexForMergedLibs;\n")
-      DISP.write("extern IppStatus ippcpSafeInit( void );\n\n")
-
-      DISP.write("extern "+FunType+" in_"+FunName+FunArg+";\n")
-
-      for cpu in cpulist:
-         DISP.write("extern "+FunType+" "+cpu+"_"+FunName+FunArg+";\n")
-
-      DISP.write("static IPP_PROC arraddr[] =\n{{\n	(IPP_PROC)in_{}".format(FunName))
-
-      for cpu in cpulist:
-         DISP.write(",\n	(IPP_PROC)"+cpu+"_"+FunName+"")
-
-      DISP.write("\n};")
-
-      DISP.write("""
-#undef  IPPAPI
-#define IPPAPI(type,name,arg) __declspec(naked) type name arg
-
-IPPAPI({FunType}, {FunName},{FunArg})
-{{
-
-    register unsigned long long i __asm__("rax");
-    i = (unsigned long long)arraddr[ippcpJumpIndexForMergedLibs+1];
-    __asm{{ jmp rax }}
-}};
-
-IPPAPI({FunType}, in_{FunName},{FunArg})
-{{
-    __asm{{
-        call ippcpSafeInit
-        mov  rax, qword ptr [{FunName}]
-        jmp  rax
-  }}
-}};
-""".format(FunType=FunType, FunName=FunName, FunArg=FunArg))
-
-      DISP.close()
-
+DISP.write("end\n")
+DISP.close()

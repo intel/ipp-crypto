@@ -107,11 +107,23 @@ IPPFUN(IppStatus, ippsDLPPublicKey,(const IppsBigNumState* pPrvKey,
    /* test public key's room */
    IPP_BADARG_RET(BN_ROOM(pPubKey)<BITS_BNU_CHUNK(DLP_BITSIZEP(pDL)), ippStsRangeErr);
 
-   /*
-   // compute public key:  G^prvKey (mod P)
-   */
-   cpMontExpBin_BN_sscm(pPubKey, DLP_GENC(pDL), pPrvKey, DLP_MONTP0(pDL));
-   cpMontDec_BN(pPubKey, pPubKey, DLP_MONTP0(pDL));
+   {
+      gsModEngine* pME= DLP_MONTP0(pDL);
+      int nsM = MOD_LEN(pME);
 
-   return ippStsNoErr;
+      gsModEngine* pMEorder = DLP_MONTR(pDL);
+      int ordLen = MOD_LEN(pMEorder);
+
+      /* expand privKeyA */
+      BigNumNode* pList = DLP_BNCTX(pDL);
+      IppsBigNumState* pTmpPrivKey = cpBigNumListGet(&pList);
+      ZEXPAND_COPY_BNU(BN_NUMBER(pTmpPrivKey), ordLen, BN_NUMBER(pPrvKey), BN_SIZE(pPrvKey));
+      BN_SIZE(pTmpPrivKey) = ordLen;
+
+      /* compute public key:  G^prvKey (mod P) */
+      cpMontExpBin_BN_sscm(pPubKey, DLP_GENC(pDL), pTmpPrivKey, pME);
+      cpMontDec_BN(pPubKey, pPubKey, pME);
+
+      return ippStsNoErr;
+   }
 }

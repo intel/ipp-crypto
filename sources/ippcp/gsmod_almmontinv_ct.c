@@ -44,7 +44,7 @@
 //     Cryptography Primitive. Modular Arithmetic Engine. General Functionality
 // 
 //  Contents:
-//        alm_mont_inv()
+//        alm_mont_inv_ct()
 //
 */
 
@@ -60,13 +60,15 @@
 //
 // returns (k,r), r = (1/a)*(2^k) mod m
 //
+// (constant-execution-time version)
 */
-int alm_mont_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+int alm_mont_inv_ct(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    int mLen = MOD_LEN(pME);
+   int modulusBitSize = MOD_BITSIZE(pME);
 
-   const int polLength  = 4;
+   const int polLength  = 6;
    BNU_CHUNK_T* pBuffer = gsModPoolAlloc(pME, polLength);
 
    BNU_CHUNK_T* pu = pBuffer;
@@ -74,54 +76,83 @@ int alm_mont_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
    BNU_CHUNK_T* pv = ps+mLen;
    BNU_CHUNK_T* pt = pv+mLen;
 
+   BNU_CHUNK_T* px = pt+mLen;
+   BNU_CHUNK_T* py = px+mLen;
+
    int k = 0;
+   int i;
    BNU_CHUNK_T ext = 0;
 
-   //gres: temporary excluded: assert(NULL!=pBuffer);
+   //tbcd: temporary excluded: assert(NULL!=pBuffer);
 
-   // u=modulus, v=a, t=0, s=1
+   // u=modulus, s=1 and v=a, t=0,
    COPY_BNU(pu, pm, mLen);
    ZEXPAND_BNU(ps, 0, mLen); ps[0] = 1;
    COPY_BNU(pv, pa, mLen);
    ZEXPAND_BNU(pt, 0, mLen);
 
-   while(!cpEqu_BNU_CHUNK(pv, mLen, 0)) {             // while(v>0) {
-      if(0==(pu[0]&1)) {                              //    if(isEven(u)) {
-         cpLSR_BNU(pu, pu, mLen, 1);                  //       u = u/2;
-         cpAdd_BNU(ps, ps, ps, mLen);                 //       s = 2*s;
-      }                                               //    }
-      else if(0==(pv[0]&1)) {                         //    else if(isEven(v)) {
-         cpLSR_BNU(pv, pv, mLen, 1);                  //       v = v/2;
-         /*ext +=*/ cpAdd_BNU(pt, pt, pt, mLen);      //       t = 2*t;
-      }                                               //    }
-      else {
-         int cmpRes = cpCmp_BNU(pu, mLen, pv, mLen);
-         if(cmpRes>0) {                               //    else if (u>v) {
-            cpSub_BNU(pu, pu, pv, mLen);              //       u = (u-v);
-            cpLSR_BNU(pu, pu, mLen, 1);               //       u = u/2;
-            /*ext +=*/ cpAdd_BNU(pt, pt, ps, mLen);   //       t = t+s;
-            cpAdd_BNU(ps, ps, ps, mLen);              //       s = 2*s;
-         }                                            //    }
-         else {                                       //    else if(v>=u) {
-            cpSub_BNU(pv, pv, pu, mLen);              //       v = (v-u);
-            cpLSR_BNU(pv, pv, mLen, 1);               //       v = v/2;
-            cpAdd_BNU(ps, ps, pt, mLen);              //       s = s+t;
-            ext += cpAdd_BNU(pt, pt, pt, mLen);       //       t = 2*t;
-         }                                            //    }
-      }
-      k++;                                            //    k += 1;
-   }                                                  // }
+   for(i=0; i<2*modulusBitSize; i++) {
+      /* update mask - update = (v==0)? 0xFF : 0 */
+      BNU_CHUNK_T update = ~cpIsGFpElemEquChunk_ct(pv, mLen, 0);
+      /* temporary masks */
+      BNU_CHUNK_T m, mm;
 
-   // test
-   if(1!=cpEqu_BNU_CHUNK(pu, mLen, 1)) {
-      k = 0; /* inversion not found */
+      /* compute in advance r = s+t */
+      cpAdd_BNU(pr, ps, pt, mLen);
+
+      /*
+      // update or keep current u, s, v, t
+      */
+
+      /* if(isEven(u)) { u=u/2; s=2*s; } 1-st branch */
+      m = update & cpIsEven_ct(pu[0]);
+      cpLSR_BNU(px, pu, mLen, 1);
+      cpAdd_BNU(py, ps, ps, mLen);
+      cpMaskedReplace_ct(pu, px, mLen, m);
+      cpMaskedReplace_ct(ps, py, mLen, m);
+
+      /* else if(isEven(v)) { v=v/2; t=2*t; } 2-nd branch */
+      mm = update & ~m & cpIsEven_ct(pv[0]);
+      cpLSR_BNU(px, pv, mLen, 1);
+      cpAdd_BNU(py, pt, pt, mLen);
+      cpMaskedReplace_ct(pv, px, mLen, mm);
+      cpMaskedReplace_ct(pt, py, mLen, mm);
+
+      m |= mm; /* if fall in the 1-st of 2-nf branches m=FF.. else m=0 */
+
+      /* else if(v>=u) { v=(v-u)/2; s=s+t; t=2*t;} 3-st branch */
+      mm = cpSub_BNU(px, pv, pu, mLen);
+      mm = cpIsZero_ct(mm);
+      mm = update & ~m & mm;
+      cpLSR_BNU(px, px, mLen, 1);
+      ext += cpAdd_BNU(py, pt, pt, mLen) & mm;
+      cpMaskedReplace_ct(pv, px, mLen, mm);
+      cpMaskedReplace_ct(ps, pr, mLen, mm);
+      cpMaskedReplace_ct(pt, py, mLen, mm);
+
+      /* else { u=(u-v)/2; t= t+s; s=2*s; } 4-rd branch*/
+      cpSub_BNU(px, pu, pv, mLen);
+      mm = update & ~m & ~mm;
+      cpLSR_BNU(px, px, mLen, 1);
+      cpAdd_BNU(py, ps, ps, mLen);
+      cpMaskedReplace_ct(pu, px, mLen, mm);
+      cpMaskedReplace_ct(pt, pr, mLen, mm);
+      cpMaskedReplace_ct(ps, py, mLen, mm);
+
+      /* update or keep current k */
+      k = ((k+1) & update) | (k & ~update);
    }
 
-   else {
-      ext -= cpSub_BNU(pr, pt, pm, mLen);             // if(t>mod) r = t-mod;
-      cpMaskMove_gs(pr, pt, mLen, cpIsNonZero(ext));  // else r = t;
-      cpSub_BNU(pr, pm, pr, mLen);                    // return  r= (mod - r) and k
-   }
+   /*
+   // r = (t>mod)? t-mod : t;
+   // r = mod - t;
+   */
+   ext -= cpSub_BNU(pr, pt, pm, mLen);
+   cpMaskedReplace_ct(pr, pt, mLen, ~cpIsZero_ct(ext));
+   cpSub_BNU(pr, pm, pr, mLen);
+
+   /* test if inversion not found (k=0) */
+   k &= cpIsGFpElemEquChunk_ct(pu, mLen, 1);
 
    gsModPoolFree(pME, polLength);
    return k;

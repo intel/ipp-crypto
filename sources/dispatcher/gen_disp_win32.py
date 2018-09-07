@@ -71,13 +71,15 @@ OrgH= Header
 isFunctionFound = True
 curLine = 0
 FunName = ""
+FunType = ""
 FunArg = ""
 
 while (isFunctionFound == True):
 
   result = readNextFunction(h, curLine, headerID)
-  
+
   curLine         = result['curLine']
+  FunType         = result['FunType']
   FunName         = result['FunName']
   FunArg          = result['FunArg']
   isFunctionFound = result['success']
@@ -91,14 +93,14 @@ while (isFunctionFound == True):
 
       DISP.write("""#include "ippcpdefs.h" """)
 
-      DISP.write("\n\ntypedef void (*IPP_PROC)(void);\n\n")
+      DISP.write("\n\ntypedef " + FunType + "(*IPP_PROC)(void);\n\n")
       DISP.write("extern int ippcpJumpIndexForMergedLibs;\n")
       DISP.write("extern IppStatus IPP_STDCALL ippcpInit();\n\n")
 
-      DISP.write("extern IppStatus IPP_STDCALL in_"+FunName+FunArg+";\n")
+      DISP.write("extern " + FunType + " IPP_STDCALL in_"+FunName+FunArg+";\n")
 
       for cpu in cpulist:
-         DISP.write("extern IppStatus IPP_STDCALL "+cpu+"_"+FunName+FunArg+";\n")
+         DISP.write("extern " + FunType + " IPP_STDCALL "+cpu+"_"+FunName+FunArg+";\n")
  
       DISP.write("static IPP_PROC arraddr[] =\n{{\n	(IPP_PROC)in_{}".format(FunName))
 
@@ -109,20 +111,20 @@ while (isFunctionFound == True):
 
       DISP.write("""
 #undef  IPPAPI
-#define IPPAPI(type,name,arg) __declspec(naked) void __stdcall name arg
-IPPAPI(IppStatus, {FunName},{FunArg})
+#define IPPAPI(type,name,arg) __declspec(naked) type __stdcall name arg
+IPPAPI({FunType}, {FunName},{FunArg})
 {{
   __asm {{mov eax, dword ptr ippcpJumpIndexForMergedLibs}}
   __asm {{jmp arraddr[eax*4+4]}}
 }};
 
-IPPAPI(IppStatus, in_{FunName},{FunArg})
+IPPAPI({FunType}, in_{FunName},{FunArg})
 {{
   __asm {{call ippcpInit}}
   __asm {{mov eax, dword ptr ippcpJumpIndexForMergedLibs }}
   __asm {{jmp arraddr[eax*4+4]}}
 }};
-""".format(FunName=FunName, FunArg=FunArg))
+""".format(FunType=FunType, FunName=FunName, FunArg=FunArg))
 
       DISP.close()
 

@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2018 Intel Corporation
+# Copyright 2018 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -43,55 +43,42 @@
 #
 
 # linker
-set(LINK_FLAG_STATIC_WINDOWS "")
+set(LINK_FLAG_STATIC_WINDOWS " ")
 set(LINK_FLAG_DYNAMIC_WINDOWS "/nologo /VERBOSE:SAFESEH /INCREMENTAL:NO /NXCOMPAT /DYNAMICBASE")
-
-# supress warning LNK4221:
-# "This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library"
-set(LINK_FLAG_STATIC_WINDOWS  "${LINK_FLAG_STATIC_WINDOWS} /ignore:4221")
-set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /ignore:4221")
-
 if(${ARCH} MATCHES "ia32")
   set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /SAFESEH")
 endif(${ARCH} MATCHES "ia32")
 
-set(LINK_LIB_STATIC_RELEASE_VS2015 libcmt kernel32 user32 gdi32 uuid advapi32 vfw32 shell32) # check
-set(LINK_LIB_STATIC_DEBUG_VS2015 libcmtd kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
+set(LINK_LIB_STATIC_RELEASE_VS2017 libcmt kernel32 user32 gdi32 uuid advapi32 vfw32 shell32) # check
+set(LINK_LIB_STATIC_DEBUG_VS2017 libcmtd kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
 
-set(LINK_LIB_STATIC_RELEASE  ${LINK_LIB_STATIC_RELEASE_VS2015})
-set(LINK_LIB_STATIC_DEBUG  ${LINK_LIB_STATIC_DEBUG_VS2015})
+set(LINK_LIB_STATIC_RELEASE  ${LINK_LIB_STATIC_RELEASE_VS2017})
+set(LINK_LIB_STATIC_DEBUG  ${LINK_LIB_STATIC_DEBUG_VS2017})
 
 # compiler
 set(CMAKE_C_FLAGS "${LIBRARY_DEFINES}")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nologo -Qfp-speculation:safe -Qfreestanding -X /W4 -GS -Qdiag-error:266 -Qdiag-disable:13366 /Qfnalign:32 /Qalign-loops:32 -Qrestrict -Zp16 -Qvc12 -Qopt-report2 -Qopt-report-phase:vec -Qopt-report-stdout -Qsox- /Gy -Qstd=c99")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nologo -X /W4 -GS -Zp16 /Gy")
+
 if(THREADED_LIB)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Qopenmp -Qopenmp-lib:compat")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /openmp")
 endif()
-if(CODE_COVERAGE)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qrof-gen:srcpos /Qprof-dir:${PROF_DATA_DIR}")
-endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBRARY_DEFINES}")
 
 set(CMAKE_C_FLAGS_DEBUG "/MTd /Zi /Od /Ob2 /DDEBUG" CACHE STRING "" FORCE)
-set(CMAKE_C_FLAGS_RELEASE "/MT /Zl /O3 /Ob2 /DNDEBUG" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "/MT /Zl /O2 /Ob2 /DNDEBUG" CACHE STRING "" FORCE)
 
-set (CMAKE_C_FLAGS_DEBUG_INIT "/MDd /Zi /Ob0 /Od /RTC1" CACHE STRING "" FORCE)
-set (CMAKE_C_FLAGS_RELEASE_INIT "-DNDEBUG /MD /Zl /O3 /Ob2 /DNDEBUG" CACHE STRING "" FORCE)
+set(w7_opt "${w7_opt} /arch:SSE2")
+set(s8_opt "${s8_opt} /arch:SSE2")
+set(p8_opt "${p8_opt} /arch:SSE2")
+set(g9_opt "${g9_opt} /arch:AVX")
+set(h9_opt "${h9_opt} /arch:AVX2")
 
-# supress warning #10120: overriding '/O2' with '/O3' 
-# CMake bug: cmake cannot change the property "Optimization" to /O3 in MSVC project
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -wd10120")
-
-set(w7_opt "${w7_opt} -QxSSE2")
-set(s8_opt "${s8_opt} -QxATOM_SSSE3 -Qinstruction=nomovbe")
-set(p8_opt "${p8_opt} -QxATOM_SSE4.2 -Qinstruction=nomovbe")
-set(g9_opt "${g9_opt} -QxAVX")
-set(h9_opt "${h9_opt} -QxCORE-AVX2")
-set(m7_opt "${m7_opt} -QxSSE3")
-set(n8_opt "${n8_opt} -QxATOM_SSSE3 -Qinstruction=nomovbe")
-set(y8_opt "${y8_opt} -QxATOM_SSE4.2 -Qinstruction=nomovbe")
-set(e9_opt "${e9_opt} -QxAVX")
-set(l9_opt "${l9_opt} -QxCORE-AVX2")
-set(n0_opt "${n0_opt} -QxMIC-AVX512")
-set(k0_opt "${k0_opt} -QxCORE-AVX512")
-
+set(m7_opt "${m7_opt}")
+set(n8_opt "${n8_opt}")
+set(y8_opt "${y8_opt}")
+set(e9_opt "${e9_opt} /arch:AVX")
+set(l9_opt "${l9_opt} /arch:AVX2")
+set(n0_opt "${n0_opt} /arch:AVX2")
+set(k0_opt "${k0_opt} /arch:AVX2")

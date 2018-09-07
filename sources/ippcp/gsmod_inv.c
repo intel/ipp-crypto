@@ -61,14 +61,14 @@
 //    a in desidue domain
 //    r in desidue domain
 */
-BNU_CHUNK_T* gs_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+BNU_CHUNK_T* gs_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME, alm_inv alm_inversion)
 {
-   int k = alm_mont_inv(pr, pa, pME);
+   int k = alm_inversion(pr, pa, pME);
 
    if(0==k)
-      pr = NULL;
+      return NULL;
 
-   else {
+   {
       int mLen = MOD_LEN(pME);
       int m = mLen*BNU_CHUNK_BITS;
       mod_mul mon_mul = MOD_METHOD(pME)->mul;
@@ -87,7 +87,7 @@ BNU_CHUNK_T* gs_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
       mon_mul(pr, pr, t, pME);
 
       gsModPoolFree(pME, 1);
-   }
 
-   return pr;
+      return pr;
+   }
 }

@@ -49,3 +49,6 @@ if(${ARCH} MATCHES "ia32")
 else()
   set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DWIN32 -DWIN32E -D_WIN32 -D_WIN32E -D_ARCH_EM64T")
 endif(${ARCH} MATCHES "ia32")
+
+# clear flags for asm
+set (CMAKE_ASM_MASM_FLAGS "")

@@ -56,8 +56,8 @@
 #include "pcprij.h"
 #include "pcprijtables.h"
 #include "pcptool.h"
-
-
+#include "pcprij128safe.h"
+#include "pcprij128safe2.h"
 /*
 // Pseudo Code for Key Expansion
 // was shown in Sec 5.2 of FIPS-197
@@ -165,20 +165,36 @@ static const Ipp32u RconTbl[] = {
    BYTE0_TO_WORD(0xC5)
 };
 
-/* precomputed table for InvMixColumn() operation */
-static const Ipp32u InvMixCol_Tbl[4][256] = {
-   { LINE(inv_t0) },
-   { LINE(inv_t1) },
-   { LINE(inv_t2) },
-   { LINE(inv_t3) }
-};
+/// commented due to mitigation
+//
+///* precomputed table for InvMixColumn() operation */ 
+//static const Ipp32u InvMixCol_Tbl[4][256] = {
+//   { LINE(inv_t0) },
+//   { LINE(inv_t1) },
+//   { LINE(inv_t2) },
+//   { LINE(inv_t3) }
+//};
+//
+//#define InvMixColumn(x, tbl) \
+//   ( (tbl)[0][ EBYTE((x),0) ] \
+//    ^(tbl)[1][ EBYTE((x),1) ] \
+//    ^(tbl)[2][ EBYTE((x),2) ] \
+//    ^(tbl)[3][ EBYTE((x),3) ] )
 
-#define InvMixColumn(x, tbl) \
-   ( (tbl)[0][ EBYTE((x),0) ] \
-    ^(tbl)[1][ EBYTE((x),1) ] \
-    ^(tbl)[2][ EBYTE((x),2) ] \
-    ^(tbl)[3][ EBYTE((x),3) ] )
+__INLINE Ipp32u InvMixColumn(Ipp32u x)
+{
+  Ipp32u x_mul_2 = xtime4(x);
+  Ipp32u x_mul_4 = xtime4(x_mul_2);
+  Ipp32u x_mul_8 = xtime4(x_mul_4);
 
+  Ipp32u x_mul_9 = x_mul_8 ^ x;
+  Ipp32u x_mul_B = x_mul_8 ^ x_mul_2 ^ x;
+  Ipp32u x_mul_D = x_mul_8 ^ x_mul_4 ^ x;
+  Ipp32u x_mul_E = x_mul_8 ^ x_mul_4 ^ x_mul_2;
+
+  x = x_mul_E ^ ROR32(x_mul_B, 8) ^ ROR32(x_mul_D, 16) ^ ROR32(x_mul_9, 24);
+  return x;
+}
 
 /*
 // Expansion of key for Rijndael's Encryption
@@ -203,15 +219,10 @@ void ExpandRijndaelKey(const Ipp8u* pKey, int NK, int NB, int NR, int nKeys,
 
       for(n=NK128; n<nKeys; n+=NK128) {
          /* key expansion: extract bytes, substitute via Sbox and rorate */
-         #if(_IPP>_IPP_M5 || _IPP32E>_IPP32E_PX )
-         k0 ^= ROR32(Touch_SubsDword_8uT(k3, RijEncSbox, sizeof(RijEncSbox)), 8) ^ *rtbl++;
-         #else
-         k0 ^= BYTES_TO_WORD( RijEncSbox[EBYTE(k3,1)],
-                              RijEncSbox[EBYTE(k3,2)],
-                              RijEncSbox[EBYTE(k3,3)],
-                              RijEncSbox[EBYTE(k3,0)] ) ^ *rtbl++;
-         #endif
-
+         k0 ^= BYTES_TO_WORD(getSboxValue(EBYTE(k3, 1)),
+                             getSboxValue(EBYTE(k3, 2)),
+                             getSboxValue(EBYTE(k3, 3)),
+                             getSboxValue(EBYTE(k3, 0))) ^ *rtbl++;
          k1 ^= k0;
          k2 ^= k1;
          k3 ^= k2;
@@ -236,14 +247,10 @@ void ExpandRijndaelKey(const Ipp8u* pKey, int NK, int NB, int NR, int nKeys,
 
       for(n=NK192; n<nKeys; n+=NK192) {
          /* key expansion: extract bytes, substitute via Sbox and rorate */
-         #if(_IPP>_IPP_M5 || _IPP32E>_IPP32E_PX)
-         k0 ^= ROR32(Touch_SubsDword_8uT(k5, RijEncSbox, sizeof(RijEncSbox)), 8) ^ *rtbl++;
-         #else
-         k0 ^= BYTES_TO_WORD( RijEncSbox[EBYTE(k5,1)],
-                              RijEncSbox[EBYTE(k5,2)],
-                              RijEncSbox[EBYTE(k5,3)],
-                              RijEncSbox[EBYTE(k5,0)] ) ^ *rtbl++;
-         #endif
+         k0 ^= BYTES_TO_WORD(getSboxValue(EBYTE(k5, 1)),
+                             getSboxValue(EBYTE(k5, 2)),
+                             getSboxValue(EBYTE(k5, 3)),
+                             getSboxValue(EBYTE(k5, 0))) ^ *rtbl++;
          k1 ^= k0;
          k2 ^= k1;
          k3 ^= k2;
@@ -274,26 +281,17 @@ void ExpandRijndaelKey(const Ipp8u* pKey, int NK, int NB, int NR, int nKeys,
 
       for(n=NK256; n<nKeys; n+=NK256) {
          /* key expansion: extract bytes, substitute via Sbox and rorate */
-         #if(_IPP>_IPP_M5 || _IPP32E>_IPP32E_PX)
-         k0 ^= ROR32(Touch_SubsDword_8uT(k7, RijEncSbox, sizeof(RijEncSbox)), 8) ^ *rtbl++;
-         #else
-         k0 ^= BYTES_TO_WORD( RijEncSbox[EBYTE(k7,1)],
-                              RijEncSbox[EBYTE(k7,2)],
-                              RijEncSbox[EBYTE(k7,3)],
-                              RijEncSbox[EBYTE(k7,0)] ) ^ *rtbl++;
-         #endif
+         k0 ^= BYTES_TO_WORD(getSboxValue(EBYTE(k7, 1)),
+                             getSboxValue(EBYTE(k7, 2)),
+                             getSboxValue(EBYTE(k7, 3)),
+                             getSboxValue(EBYTE(k7, 0))) ^ *rtbl++;
          k1 ^= k0;
          k2 ^= k1;
          k3 ^= k2;
-
-         #if(_IPP>_IPP_M5 || _IPP32E>_IPP32E_PX)
-         k4 ^= Touch_SubsDword_8uT(k3, RijEncSbox, sizeof(RijEncSbox));
-         #else
-         k4 ^= BYTES_TO_WORD( RijEncSbox[EBYTE(k3,0)],
-                              RijEncSbox[EBYTE(k3,1)],
-                              RijEncSbox[EBYTE(k3,2)],
-                              RijEncSbox[EBYTE(k3,3)] );
-         #endif
+         k4 ^= BYTES_TO_WORD(getSboxValue(EBYTE(k3, 0)),
+                             getSboxValue(EBYTE(k3, 1)),
+                             getSboxValue(EBYTE(k3, 2)),
+                             getSboxValue(EBYTE(k3, 3)));
          k5 ^= k4;
          k6 ^= k5;
          k7 ^= k6;
@@ -322,6 +320,6 @@ void ExpandRijndaelKey(const Ipp8u* pKey, int NK, int NB, int NR, int nKeys,
       #if ((_IPP>=_IPP_W7) || (_IPP32E==_IPP32E_M7))
       _mm_lfence(); /* lfence added because of potential exploit of speculative execution (KW); lfence accessible on SSE2 and above */
       #endif
-      dec_keys[n] = InvMixColumn(dec_keys[n], InvMixCol_Tbl);
+      dec_keys[n] = InvMixColumn(dec_keys[n]);
    }
 }

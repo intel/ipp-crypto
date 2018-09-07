@@ -71,6 +71,9 @@
 //                               illegal pSignY->idCtx
 //
 //    ippStsMessageErr           MsgDigest >= order
+//                               MsgDigest <  0
+//
+//    ippStsRangeErr             SignX < 0 or SignY < 0
 //
 //    ippStsNoErr                no errors
 //

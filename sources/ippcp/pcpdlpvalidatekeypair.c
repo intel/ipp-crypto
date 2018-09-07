@@ -133,8 +133,13 @@ IPPFUN(IppStatus, ippsDLPValidateKeyPair,(const IppsBigNumState* pPrvKey,
 
          /* addition test: pPubKey = G^pPrvKey (mod P) */
          if(pPrvKey) {
+            int ordLen = MOD_LEN( DLP_MONTR(pDL) );
+            IppsBigNumState* pTmpPrivate = cpBigNumListGet(&pList);
+            ZEXPAND_COPY_BNU(BN_NUMBER(pTmpPrivate), ordLen, BN_NUMBER(pPrvKey), BN_SIZE(pPrvKey));
+            BN_SIZE(pTmpPrivate) = ordLen;
+
             /* recompute public key */
-            cpMontExpBin_BN_sscm(pTmp, DLP_GENC(pDL), pPrvKey, DLP_MONTP0(pDL));
+            cpMontExpBin_BN_sscm(pTmp, DLP_GENC(pDL), pTmpPrivate, DLP_MONTP0(pDL));
             cpMontDec_BN(pTmp, pTmp, DLP_MONTP0(pDL));
 
             /* and compare */

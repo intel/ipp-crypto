@@ -71,7 +71,8 @@
 //                               illegal pSignR->idCtx
 //                               illegal pSignS->idCtx
 //
-//    ippStsMessageErr           Msg < 0
+//    ippStsMessageErr           0> MsgDigest
+//                               order<= MsgDigest
 //
 //    ippStsRangeErr             SignR < 0 or SignS < 0
 //
@@ -140,6 +141,9 @@ IPPFUN(IppStatus, ippsGFpECVerifyDSA,(const IppsBigNumState* pMsgDigest,
       BNU_CHUNK_T* pOrder = MOD_MODULUS(pMontR);
       int orderLen = MOD_LEN(pMontR);
 
+      /* test mesage: msg<order */
+      IPP_BADARG_RET((0<=cpCmp_BNU(BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest), pOrder, orderLen)), ippStsMessageErr);
+
       /* test signature value */
       if(!cpEqu_BNU_CHUNK(BN_NUMBER(pSignR), BN_SIZE(pSignR), 0) &&
          !cpEqu_BNU_CHUNK(BN_NUMBER(pSignS), BN_SIZE(pSignS), 0) &&
@@ -153,20 +157,17 @@ IPPFUN(IppStatus, ippsGFpECVerifyDSA,(const IppsBigNumState* pMsgDigest,
          BNU_CHUNK_T* h2 = h1+pelmLen;
          BNU_CHUNK_T* h  = h2+pelmLen;
 
-         BNU_CHUNK_T* buffMsg = BN_BUFFER(pMsgDigest);
+         //BNU_CHUNK_T* buffMsg = BN_BUFFER(pMsgDigest);
 
          IppsGFpECPoint P;
          cpEcGFpInitPoint(&P, cpEcGFpGetPool(1, pEC),0, pEC);
 
-         /* reduce message: h1 = msg mod ordfer */
-         COPY_BNU(buffMsg, BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest));
-         ns = cpMod_BNU(buffMsg, BN_SIZE(pMsgDigest), pOrder, orderLen);
-         ZEXPAND_COPY_BNU(h1, orderLen, buffMsg, ns);
+         /* copy message */
+         ZEXPAND_COPY_BNU(h1, orderLen, BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest));
 
          /* h = d^-1, h1 = msg*h, h2 = c*h */
          ZEXPAND_COPY_BNU(h, orderLen, BN_NUMBER(pSignS),BN_SIZE(pSignS));
-         //cpMontInv_BNU(h, h, pMontR);
-         gs_mont_inv(h, h, pMontR);
+         gs_mont_inv(h, h, pMontR, alm_mont_inv);
 
          cpMontMul_BNU(h1, h, h1, pMontR);
          ZEXPAND_COPY_BNU(h2, orderLen, BN_NUMBER(pSignR),BN_SIZE(pSignR));

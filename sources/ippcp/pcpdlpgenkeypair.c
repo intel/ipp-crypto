@@ -110,27 +110,23 @@ IPPFUN(IppStatus, ippsDLPGenKeyPair,(IppsBigNumState* pPrvKey, IppsBigNumState* 
 
    {
       /*
-      // generate random private key X:  1 < X < (R-1)
-      //    note:
-      //       DH algorithm really need the condition above
-      //      DSA algorithm need sightly different condition: 0 < X < R
+      // generate random private key X:  0 < X < R
       */
+      BNU_CHUNK_T* pOrder = DLP_R(pDL);
       cpSize ordBitSize = DLP_BITSIZER(pDL);
       cpSize ordLen = BITS_BNU_CHUNK(ordBitSize);
-      BNU_CHUNK_T* pX = BN_NUMBER(pPrvKey);
-      BNU_CHUNK_T* pT = BN_BUFFER(pPrvKey);
       BNU_CHUNK_T xMask = MASK_BNU_CHUNK(ordBitSize);
-      cpSize xLen;
 
-      cpDec_BNU(pT, DLP_R(pDL), ordLen, 1); /* temporary R-1 */
+      BNU_CHUNK_T* pY = BN_NUMBER(pPubKey);
+      BNU_CHUNK_T* pX = BN_NUMBER(pPrvKey);
+
+      gsModEngine* pME = DLP_MONTP0(pDL);
 
       do {
-         xLen = ordLen;
          rndFunc((Ipp32u*)pX, ordBitSize, pRndParam);
-         pX[xLen-1] &= xMask;
-         FIX_BNU(pX, xLen);
-      } while( 0>=cpCmp_BNU(pX,xLen, BN_NUMBER(cpBN_OneRef()),1) || cpCmp_BNU(pX,xLen, pT,ordLen)>=0 );
-      BN_SIZE(pPrvKey) = xLen;
+         pX[ordLen-1] &= xMask;
+      } while( cpEqu_BNU_CHUNK(pX, ordLen, 0) || cpCmp_BNU(pX,ordLen, pOrder,ordLen)>=0 );
+      BN_SIZE(pPrvKey) = ordLen;
       BN_SIGN(pPrvKey) = ippBigNumPOS;
 
       /*

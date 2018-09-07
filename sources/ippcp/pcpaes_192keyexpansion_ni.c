@@ -53,7 +53,6 @@
 #include "pcpaesm.h"
 #include "pcpaes_keys_ni.h"
 
-
 #if (_AES_NI_ENABLING_==_FEATURE_ON_) || (_AES_NI_ENABLING_==_FEATURE_TICKTOCK_)
 
 //////////////////////////////////////////////////////////////////////

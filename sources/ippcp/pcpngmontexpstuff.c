@@ -48,6 +48,7 @@
 #include "owncp.h"
 #include "pcpngmontexpstuff.h"
 #include "gsscramble.h"
+#include "pcpmask_ct.h"
 
 
 cpSize gsMontExpBinBuffer(int modulusBits)
@@ -168,13 +169,12 @@ cpSize gsModExpBin_BNU(BNU_CHUNK_T* dataY,
 
 cpSize gsMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
                   const BNU_CHUNK_T* dataX, cpSize nsX,
-                  const BNU_CHUNK_T* dataE, cpSize bitsizeE,
+                  const BNU_CHUNK_T* dataE, cpSize nsE,
                   gsModEngine* pMont,
                   BNU_CHUNK_T* pBuffer)
 {
 
     cpSize nsM = MOD_LEN(pMont);
-    cpSize nsE = BITS_BNU_CHUNK(bitsizeE);
 
     /*
     // test for special cases:
@@ -191,45 +191,41 @@ cpSize gsMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
     /* general case */
     else {
 
-        /* allocate buffers */
-        BNU_CHUNK_T* dataT = pBuffer;
-        BNU_CHUNK_T* sscmB = dataT + nsM;
+      /* allocate buffers */
+      BNU_CHUNK_T* dataT = pBuffer;
+      BNU_CHUNK_T* sscmB = dataT + nsM;
 
-        int back_step = 0;
+      /* mont(1) */
+      BNU_CHUNK_T* pR = MOD_MNT_R(pMont);
 
-        /* copy and expand base to the modulus length */
-        ZEXPAND_COPY_BNU(dataT, nsM, dataX, nsX);
+      /* copy and expand base to the modulus length */
+       ZEXPAND_COPY_BNU(dataT, nsM, dataX, nsX);
+       /* init resulty */
+       COPY_BNU(dataY, MOD_MNT_R(pMont), nsM);
 
-        /* init resulty */
-        COPY_BNU(dataY, MOD_MNT_R(pMont), nsM);
+      /* execute bits of E */
+      for (; nsE>0; nsE--) {
+         BNU_CHUNK_T eValue = dataE[nsE-1];
 
-        /* execute bits of E */
-        for (--nsE; nsE>0; nsE--) {
-            BNU_CHUNK_T eValue = dataE[nsE - 1];
+         int n;
+         for(n=BNU_CHUNK_BITS; n>0; n--) {
+            /* sscmB = ( msb(eValue) )? X : mont(1) */
+            BNU_CHUNK_T mask = cpIsMsb_ct(eValue);
+            eValue <<= 1;
+            cpMaskedCopyBNU_ct(sscmB, mask, dataT, pR, nsM);
 
-            int j;
-            for (j = BNU_CHUNK_BITS - 1; j >= 0; j--) {
-                BNU_CHUNK_T mask_pattern = (BNU_CHUNK_T)(back_step - 1);
+            /* squaring Y = Y^2 */
+            MOD_METHOD(pMont)->sqr(dataY, dataY, pMont);
+            /* and multiplication: Y = Y * sscmB */
+            MOD_METHOD(pMont)->mul(dataY, dataY, sscmB, pMont);
+         }
+      }
+   }
 
-                /* safeBuffer = (Y[] and mask_pattern) or (X[] and ~mask_pattern) */
-                int i;
-                for (i = 0; i<nsM; i++)
-                    sscmB[i] = (dataY[i] & mask_pattern) | (dataT[i] & ~mask_pattern);
-
-                /* squaring/multiplication: R = R*T mod Modulus */
-                MOD_METHOD(pMont)->mul(dataY, dataY, sscmB, pMont);
-
-                /* update back_step and j */
-                back_step = ((eValue >> j) & 0x1) & (back_step ^ 1);
-                j += back_step;
-            }
-        }
-    }
-
-    return nsM;
+   return nsM;
 }
-
 //tbcd DLP #if !defined(_USE_WINDOW_EXP_)
+
 /*
 // "safe" binary montgomery exponentiation
 //
@@ -246,20 +242,21 @@ cpSize gsModExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
                              gsModEngine* pMont,
                              BNU_CHUNK_T* pBuffer)
 {
-    cpSize nsM = MOD_LEN(pMont);
+   cpSize nsM = MOD_LEN(pMont);
 
-    /* copy and expand base to the modulus length */
-    ZEXPAND_COPY_BNU(dataY, nsM, dataX, nsX);
-    /* convert base to Montgomery domain */
-    MOD_METHOD(pMont)->encode(dataY, dataY, pMont);
+   /* copy and expand base to the modulus length */
+   ZEXPAND_COPY_BNU(dataY, nsM, dataX, nsX);
 
-    /* exponentiation */
-    gsMontExpBin_BNU_sscm(dataY, dataY, nsM, dataE, bitsizeE, pMont, pBuffer);
+   /* convert base to Montgomery domain */
+   MOD_METHOD(pMont)->encode(dataY, dataY, pMont);
 
-    /* convert result back to regular domain */
-    MOD_METHOD(pMont)->decode(dataY, dataY, pMont);
+   /* exponentiation */
+   gsMontExpBin_BNU_sscm(dataY, dataY, nsM, dataE, BITS_BNU_CHUNK(bitsizeE), pMont, pBuffer);
 
-    return nsM;
+   /* convert result back to regular domain */
+   MOD_METHOD(pMont)->decode(dataY, dataY, pMont);
+
+   return nsM;
 }
 //tbcd DLP #endif /* !_USE_WINDOW_EXP_ */
 
@@ -371,6 +368,7 @@ cpSize gsModExpWin_BNU(BNU_CHUNK_T* dataY,
 
    /* copy and expand base to the modulus length */
    ZEXPAND_COPY_BNU(dataY, nsM, dataX, nsX);
+
    /* convert base to Montgomery domain */
    MOD_METHOD(pMont)->encode(dataY, dataY, pMont);
 
@@ -495,6 +493,7 @@ cpSize gsModExpWin_BNU_sscm(BNU_CHUNK_T* dataY,
 
    /* copy and expand base to the modulus length */
    ZEXPAND_COPY_BNU(dataY, nsM, dataX, nsX);
+
    /* convert base to Montgomery domain */
    MOD_METHOD(pMont)->encode(dataY, dataY, pMont);
 

@@ -44,7 +44,9 @@
 #define STR2(x)           #x
 #define STR(x)       STR2(x)
 
+#ifndef _IPP_VERSION
 #define _IPP_VERSION ""
+#endif
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION VERSION()
