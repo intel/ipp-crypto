@@ -83,7 +83,8 @@ static int cpGFExGetSize(int elemLen, int pelmLen, int numpe)
 //     pGroundGF      Pointer to the context of the finite field GF(p) being extended.
 //     degree         Degree of the extension.
 //     pSize          Pointer to the buffer size, in bytes, needed for the IppsGFpState
-//                    context.//
+//                    context.
+//
 *F*/
 
 IPPFUN(IppStatus, ippsGFpxGetSize, (const IppsGFpState* pGroundGF, int degree, int* pSize))

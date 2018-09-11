@@ -146,25 +146,25 @@ with the options described in [CMake Arguments](#cmake-arguments).
 
 4.  Run CMake\* on the command line. Example CMake lines for different
     operating systems:
-
+    
     **Windows\* OS**:
-
+    
     ```
     cmake CMakeLists.txt -Bbuild -G"Visual Studio 14 2015 Win64" -T"Intel C++ Compiler 18.0"
     ```
-
+    
     **Linux\* OS**:
-
+    
     ```
     CC=icc CXX=icpc cmake CMakeLists.txt -Bbuild -DARCH=intel64
     ```
-
+    
     **macOS\***:
-
+    
     ```
     CC=icc CXX=icpc cmake CMakeLists.txt -Bbuild -DARCH=intel64 -DUSEYASM=<path to Yasm compiler>
     ```
-
+    
     The list of supported CMake arguments is available in the
     [CMake Arguments](#cmake-arguments) section.
 
@@ -173,6 +173,17 @@ with the options described in [CMake Arguments](#cmake-arguments).
 
     -   On Windows\* OS: open the Microsoft Visual Studio\* solution and
         run a build.
+        
+        **Important:** the process used to build the Microsoft Visual Studio solutions results
+		in debug information being generated for assembly files by default for both Debug and
+		Release configurations. To build Intel IPP Cryptography library binaries without debug
+		information in the Release configuration, follow these steps:
+
+        1. Right-click a project file and select **Properties**.
+        2. In the **Configuration** drop-down list, select **Release**.
+        3. Select the **Microsoft Macro Assembler** tab.
+        4. Set the value of the **Generate Debug Information** option to **No**.
+        5. Repeat steps 1-3 for all projects you want to build.
 
     -   On Linux\* OS or macOS\*: start a build using makefiles.
     
@@ -206,7 +217,7 @@ with the options described in [CMake Arguments](#cmake-arguments).
         static library with all available optimizations; build of dynamic
         libraries with a dynamic dispatcher library.
 
-    -   `-DMERGED_BLD:BOOL=off`: Build of one static library per
+    -   `-DMERGED_BLD:BOOL=off`: build of one static library per
         optimization; build of one dynamic library per optimization.
 
 -   `-DTHREADED_LIB:BOOL=<off|on>` - optional. Defines the threading
@@ -218,7 +229,7 @@ with the options described in [CMake Arguments](#cmake-arguments).
     -   `-DTHREADED_LIB:BOOL=on`: build multi-threaded Intel IPP Cryptography
         library.
 
--   `-DPLATFORM_LIST="<platform list>"` -- optional, works only if
+-   `-DPLATFORM_LIST="<platform list>"` - optional, works only if
     `-DMERGED_BLD:BOOL=off` is set. Sets target platforms for the code
     to be compiled. See the supported platform list at
     <https://software.intel.com/en-us/ipp-dev-guide-dispatching>.
@@ -253,7 +264,7 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
 
 #### Linux\* OS CMake Arguments:
 
--   `-DNONPIC_LIB:BOOL=<off|on>` -optional. Defines whether the built
+-   `-DNONPIC_LIB:BOOL=<off|on>` - optional. Defines whether the built
     library will be position-dependent or not:
 
     -   `-DNONPIC_LIB:BOOL=off:` default. Position-independent code.
@@ -271,7 +282,7 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
     `"x86_64-linux-android-"` defines the prefix for x86_64 GNU compiler
     tools.
 
-    Note: Before running CMake scripts for cross-platform build for
+    **Note:** Before running CMake scripts for cross-platform build for
     Android\* OS, you need to do the following:
 
     1.  Set the following environment variables for Android\* NDK:

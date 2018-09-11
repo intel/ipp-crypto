@@ -355,16 +355,24 @@ IPPAPI(IppStatus, ippsAES_CMACGetTag,(Ipp8u* pMD, int mdLen, const IppsAES_CMACS
 // RC4 Stream Ciphers
 // =========================================================
 */
+IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases") \
 IPPAPI(IppStatus, ippsARCFourCheckKey, (const Ipp8u *pKey, int keyLen, IppBool* pIsWeak))
 
+IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases") \
 IPPAPI(IppStatus, ippsARCFourGetSize, (int* pSize))
+IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases") \
 IPPAPI(IppStatus, ippsARCFourInit, (const Ipp8u *pKey, int keyLen, IppsARCFourState *pCtx))
+IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases") \
 IPPAPI(IppStatus, ippsARCFourReset, (IppsARCFourState* pCtx))
 
+IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases") \
 IPPAPI(IppStatus, ippsARCFourPack,(const IppsARCFourState* pCtx, Ipp8u* pBuffer))
+IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases") \
 IPPAPI(IppStatus, ippsARCFourUnpack,(const Ipp8u* pBuffer, IppsARCFourState* pCtx))
 
+IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases") \
 IPPAPI(IppStatus, ippsARCFourEncrypt, (const Ipp8u *pSrc, Ipp8u *pDst, int length, IppsARCFourState *pCtx))
+IPP_DEPRECATED("is deprecated. This function is obsolete and will be removed in one of the future IPP releases") \
 IPPAPI(IppStatus, ippsARCFourDecrypt, (const Ipp8u *pSrc, Ipp8u *pDst, int length, IppsARCFourState *pCtx))
 
 

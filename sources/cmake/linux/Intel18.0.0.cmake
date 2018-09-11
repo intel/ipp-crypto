@@ -42,26 +42,44 @@
 # Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
 #
 
-# linker
-set(LINK_FLAG_DYNAMIC_LINUX "-nostdlib -Wl,-shared -Wl,-z,defs -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,-call_shared,-lc -Wl,-call_shared,-lm")
+# Linker flags
+
+# Security flags
+set(LINK_FLAG_SECURITY "") 
+# Disallows undefined symbols in object files. Undefined symbols in shared libraries are still allowed
+set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,defs")
+# Stack execution protection
+set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,noexecstack")
+# Data relocation and protection (RELRO)
+set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,relro -Wl,-z,now")
+
+set(LINK_FLAG_DYNAMIC_LINUX "${LINK_FLAG_SECURITY} -nostdlib -Wl,-shared -Wl,-call_shared,-lc -Wl,-call_shared,-lm")
 if(${ARCH} MATCHES "ia32")
   set(LINK_FLAG_DYNAMIC_LINUX "${LINK_FLAG_DYNAMIC_LINUX} -Wl,-m,elf_i386")
 endif(${ARCH} MATCHES "ia32")
 
-set(LINK_FLAG_PCS_LINUX "-nostdlib -Wl,-call_shared,-ldl -Wl,-call_shared,-lc -Wl,-call_shared,-lm") #check lm lc
+set(LINK_FLAG_PCS_LINUX "${LINK_FLAG_SECURITY} -nostdlib -Wl,-shared -Wl,-call_shared,-ldl -Wl,-call_shared,-lc -Wl,-call_shared,-lm")
 if(${ARCH} MATCHES "ia32")
   set(LINK_FLAG_PCS_LINUX "${LINK_FLAG_PCS_LINUX} -Wl,-m,elf_i386")
 endif(${ARCH} MATCHES "ia32")
 
-# compiler
+# Compiler flags
 set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "-fasm-blocks -use_msasm -w -m32 -fomit-frame-pointer")
 
 set(CC_FLAGS_INLINE_ASM_UNIX_INTEL64 "-fasm-blocks -use_msasm -ffixed-rdi -ffixed-rsi -ffixed-rbx -ffixed-rcx -ffixed-rdx -ffixed-rbp -ffixed-r8 -ffixed-r9 -ffixed-r12 -ffixed-r13 -ffixed-r14 -ffixed-r15")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} ${LIBRARY_DEFINES}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBRARY_DEFINES}")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -restrict -qopt-report2 -qopt-report-phase:vec -std=c99 -falign-functions=32 -falign-loops=32 -diag-error 266 -diag-disable 13366 -Wformat -Wformat-security -fstack-protector")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -restrict -qopt-report2 -qopt-report-phase:vec -std=c99 -falign-functions=32 -falign-loops=32 -diag-error 266 -diag-disable 13366")
+
+# Stack-based Buffer Overrun Detection
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
+
+# Format string vulnerabilities
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wformat -Wformat-security")
+
 if(NOT NONPIC_LIB)
+  # Position Independent Execution (PIE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic -fPIC")
 endif()
 if(THREADED_LIB)
