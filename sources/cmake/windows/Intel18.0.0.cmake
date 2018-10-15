@@ -44,7 +44,7 @@
 
 # linker
 set(LINK_FLAG_STATIC_WINDOWS "")
-set(LINK_FLAG_DYNAMIC_WINDOWS "/nologo /VERBOSE:SAFESEH /INCREMENTAL:NO /NXCOMPAT /DYNAMICBASE")
+set(LINK_FLAG_DYNAMIC_WINDOWS "/nologo /NODEFAULTLIB /VERBOSE:SAFESEH /INCREMENTAL:NO /NXCOMPAT /DYNAMICBASE")
 
 # supress warning LNK4221:
 # "This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library"
@@ -55,11 +55,19 @@ if(${ARCH} MATCHES "ia32")
   set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /SAFESEH")
 endif(${ARCH} MATCHES "ia32")
 
-set(LINK_LIB_STATIC_RELEASE_VS2015 libcmt kernel32 user32 gdi32 uuid advapi32 vfw32 shell32) # check
-set(LINK_LIB_STATIC_DEBUG_VS2015 libcmtd kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
+set(LINK_LIB_STATIC_RELEASE_VS2013 libcmt kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
+set(LINK_LIB_STATIC_DEBUG_VS2013 libcmtd kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
 
+set(LINK_LIB_STATIC_RELEASE_VS2015 libcmt libucrt libvcruntime kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
+set(LINK_LIB_STATIC_DEBUG_VS2015 libcmtd libucrtd libvcruntimed kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
+
+if (MSVC12)
+set(LINK_LIB_STATIC_RELEASE  ${LINK_LIB_STATIC_RELEASE_VS2013})
+set(LINK_LIB_STATIC_DEBUG  ${LINK_LIB_STATIC_DEBUG_VS2013})
+else()
 set(LINK_LIB_STATIC_RELEASE  ${LINK_LIB_STATIC_RELEASE_VS2015})
 set(LINK_LIB_STATIC_DEBUG  ${LINK_LIB_STATIC_DEBUG_VS2015})
+endif(MSVC12)
 
 # compiler
 set(CMAKE_C_FLAGS "${LIBRARY_DEFINES}")

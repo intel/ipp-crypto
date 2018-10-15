@@ -70,7 +70,10 @@
 #if defined( _WIN32 ) || defined( _WIN64 ) || defined( _WIN32E )
   #define STRICT
   #define WIN32_LEAN_AND_MEAN
+#pragma warning(push)
+#pragma warning(disable : 3199 1879 344 161) // unsupported pragmas, retypedefs and always-false-defines
   #include <windows.h>
+#pragma warning(pop)
   #include <stdio.h>
   #include <tchar.h>
 #elif defined( linux ) || defined( OSX32 ) || defined( OSXEM64T )
@@ -148,13 +151,13 @@ void owncpUnregisterLib(void);
 #if defined( _WIN32 ) && !defined( _WIN64 )
 #define IPPAPI( type, name, arg )   \
     static FARPROC  d##name;          \
-    __declspec( naked dllexport ) type IPP_STDCALL name arg { __asm jmp d##name }
+    __declspec( naked ) type IPP_STDCALL name arg { __asm jmp d##name }
 
 #elif defined( _WIN32E )
 #if defined(__INTEL_COMPILER)
 #define IPPAPI( type, name, arg )   \
       static FARPROC  d##name;          \
-      __declspec( naked dllexport ) type IPP_STDCALL name arg { __asm jmp d##name }
+      __declspec( naked ) type IPP_STDCALL name arg { __asm jmp d##name }
 #else
 #define IPPAPI( type, name, arg )   \
       FARPROC  d##name;
@@ -249,8 +252,8 @@ static HINSTANCE SysLoadLibrary( const _TCHAR* libname )
     if( ptr != NULL )
     {
         *ptr = 0;
-        _tcscat( buf, _T("\\")  );
-        _tcscat( buf, libname );
+        _tcscat_s( buf, MAX_PATH, _T("\\")  );
+        _tcscat_s( buf, MAX_PATH, libname );
         hLib= LoadLibrary( buf );
         if( hLib ) return hLib;
     }

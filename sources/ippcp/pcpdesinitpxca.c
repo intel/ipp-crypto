@@ -127,7 +127,7 @@ void SetKey_DES(const Ipp8u* pKey, IppsDESSpec* pCtx)
    }
 
    /*
-   // key schedule for encription
+   // key schedule for encryption
    */
    for(nkey=0; nkey<16; nkey++) {
       Ipp64u tmp = 0;

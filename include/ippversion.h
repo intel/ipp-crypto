@@ -38,11 +38,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
+/*
 //              Intel(R) Integrated Performance Primitives (Intel(R) IPP)
 //              Purpose: Describes the Intel(R) IPP version
-// 
-// 
+//
+//
 */
 
 
@@ -51,8 +51,8 @@
 
 #define IPP_VERSION_MAJOR  2019
 #define IPP_VERSION_MINOR  0
-#define IPP_VERSION_UPDATE 0
+#define IPP_VERSION_UPDATE 1
 
-#define IPP_VERSION_STR "2019.0.0"
+#define IPP_VERSION_STR "2019.0.1 Gold"
 
 #endif /* IPPVERSION_H__ */

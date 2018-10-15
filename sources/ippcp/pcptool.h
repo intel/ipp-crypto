@@ -50,6 +50,8 @@
 #if !defined(_CP_TOOL_H)
 #define _CP_TOOL_H
 
+#include "pcpmask_ct.h"
+
 #define _NEW_COPY16_
 #define _NEW_XOR16_
 
@@ -213,12 +215,13 @@ __INLINE int EquBlock(const void* pSrc1, const void* pSrc2, int len)
 
 
 /* addition functions for CTR mode of diffenent block ciphers */
+#if 0
 __INLINE void StdIncrement(Ipp8u* pCounter, int blkSize, int numSize)
 {
    int maskPosition = (blkSize-numSize)/8;
    Ipp8u mask = (Ipp8u)( 0xFF >> (blkSize-numSize)%8 );
 
-   /* save crytical byte */
+   /* save critical byte */
    Ipp8u save  = (Ipp8u)( pCounter[maskPosition] & ~mask );
 
    int len = BITS2WORD8_SIZE(blkSize);
@@ -232,6 +235,29 @@ __INLINE void StdIncrement(Ipp8u* pCounter, int blkSize, int numSize)
    /* update crytical byte */
    pCounter[maskPosition] &= mask;
    pCounter[maskPosition] |= save;
+}
+#endif
+
+/* const-exe-time version */
+__INLINE void StdIncrement(Ipp8u* pCounter, int blkBitSize, int numSize)
+{
+   int maskPosition = (blkBitSize -numSize)/8;
+   Ipp8u maskVal = (Ipp8u)( 0xFF >> (blkBitSize -numSize)%8 );
+
+   int i;
+   Ipp32u carry = 1;
+   for(i=BITS2WORD8_SIZE(blkBitSize)-1; i>=0; i--) {
+      int d = maskPosition - i;
+      Ipp8u mask = maskVal | cpIsMsb_ct(d);
+
+      Ipp32u x = pCounter[i] + carry;
+      Ipp8u y = pCounter[i];
+      pCounter[i] = (Ipp8u)((y & ~mask) | (x & mask));
+
+      maskVal &= cpIsMsb_ct(d);
+
+      carry = (x>>8) & 0x1;
+   }
 }
 
 /* vb */
@@ -382,7 +408,7 @@ __INLINE void ompStdIncrement128( void* pInitCtrVal, void* pCurrCtrVal,
   #endif
 }
 
-
+#if 0
 /* vb */
 __INLINE void ompStdIncrement192( void* pInitCtrVal, void* pCurrCtrVal,
                                 int ctrNumBitSize, int n )
@@ -506,8 +532,9 @@ __INLINE void ompStdIncrement192( void* pInitCtrVal, void* pCurrCtrVal,
     }
   #endif
 }
+#endif
 
-
+#if 0
 /* vb */
 __INLINE void ompStdIncrement256( void* pInitCtrVal, void* pCurrCtrVal,
                                  int ctrNumBitSize, int n )
@@ -677,5 +704,6 @@ __INLINE void ompStdIncrement256( void* pInitCtrVal, void* pCurrCtrVal,
     }
   #endif
 }
+#endif
 
 #endif /* _CP_TOOL_H */

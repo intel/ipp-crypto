@@ -43,6 +43,54 @@
  
 .text
 .p2align 5, 0x90
+_CONST_DATA: 
+ 
+_INIT_IDX:
+.word    0x0,  0x1,  0x2,  0x3,  0x4,  0x5,  0x6,  0x7 
+ 
+_INCR_IDX:
+.word    0x8,  0x8,  0x8,  0x8,  0x8,  0x8,  0x8,  0x8 
+.p2align 5, 0x90
+ 
+.globl getAesGcmConst_table_ct
+.type getAesGcmConst_table_ct, @function
+ 
+getAesGcmConst_table_ct:
+    push         %ebx
+    lea          _CONST_DATA, %ebx
+    pxor         %xmm2, %xmm2
+    mov          %ecx, %eax
+    shl          $(16), %ecx
+    or           %eax, %ecx
+    movd         %ecx, %xmm3
+    pshufd       $(0), %xmm3, %xmm3
+    movdqa       ((_INIT_IDX-_CONST_DATA))(%ebx), %xmm6
+    xor          %eax, %eax
+.p2align 5, 0x90
+.Lsearch_loopgas_1: 
+    movdqa       %xmm6, %xmm7
+    paddw        ((_INCR_IDX-_CONST_DATA))(%ebx), %xmm6
+    pcmpeqw      %xmm3, %xmm7
+    pand         (%edx,%eax,2), %xmm7
+    add          $(8), %eax
+    cmp          $(256), %eax
+    por          %xmm7, %xmm2
+    jl           .Lsearch_loopgas_1
+    movdqa       %xmm2, %xmm3
+    psrldq       $(8), %xmm2
+    por          %xmm3, %xmm2
+    movdqa       %xmm2, %xmm3
+    psrldq       $(4), %xmm2
+    por          %xmm3, %xmm2
+    movd         %xmm2, %eax
+    pop          %ebx
+    and          $(3), %ecx
+    shl          $(4), %ecx
+    shr          %cl, %eax
+    ret
+.Lfe1:
+.size getAesGcmConst_table_ct, .Lfe1-(getAesGcmConst_table_ct)
+.p2align 5, 0x90
  
 .globl AesGcmMulGcm_table2K
 .type AesGcmMulGcm_table2K, @function
@@ -161,18 +209,22 @@ AesGcmMulGcm_table2K:
     pxor         %xmm2, %xmm5
     psrldq       $(15), %xmm0
     movd         %xmm0, %ecx
-    movzwl       (%edx,%ecx,2), %eax
+    call         getAesGcmConst_table_ct
     shl          $(8), %eax
     movdqa       %xmm5, %xmm0
     pslldq       $(1), %xmm5
     pxor         %xmm5, %xmm4
     psrldq       $(15), %xmm1
     movd         %xmm1, %ecx
-    xorw         (%edx,%ecx,2), %ax
+    mov          %eax, %ebx
+    call         getAesGcmConst_table_ct
+    xor          %ebx, %eax
     shl          $(8), %eax
     psrldq       $(15), %xmm0
     movd         %xmm0, %ecx
-    xorw         (%edx,%ecx,2), %ax
+    mov          %eax, %ebx
+    call         getAesGcmConst_table_ct
+    xor          %ebx, %eax
     movd         %eax, %xmm0
     pxor         %xmm4, %xmm0
     movdqu       %xmm0, (%edi)
@@ -181,8 +233,8 @@ AesGcmMulGcm_table2K:
     pop          %ebx
     pop          %ebp
     ret
-.Lfe1:
-.size AesGcmMulGcm_table2K, .Lfe1-(AesGcmMulGcm_table2K)
+.Lfe2:
+.size AesGcmMulGcm_table2K, .Lfe2-(AesGcmMulGcm_table2K)
 .p2align 5, 0x90
  
 .globl AesGcmAuth_table2K
@@ -198,11 +250,11 @@ AesGcmAuth_table2K:
     movl         (8)(%ebp), %edi
     movdqu       (%edi), %xmm0
     movl         (20)(%ebp), %esi
-    movl         (12)(%ebp), %edx
-    movl         (24)(%ebp), %edi
+    movl         (12)(%ebp), %edi
+    movl         (24)(%ebp), %edx
 .p2align 5, 0x90
-.Lauth_loopgas_2: 
-    movdqu       (%edx), %xmm4
+.Lauth_loopgas_3: 
+    movdqu       (%edi), %xmm4
     pxor         %xmm4, %xmm0
     movd         %xmm0, %ebx
     mov          $(4042322160), %eax
@@ -307,23 +359,27 @@ AesGcmAuth_table2K:
     pxor         %xmm2, %xmm5
     psrldq       $(15), %xmm0
     movd         %xmm0, %ecx
-    movzwl       (%edi,%ecx,2), %eax
+    call         getAesGcmConst_table_ct
     shl          $(8), %eax
     movdqa       %xmm5, %xmm0
     pslldq       $(1), %xmm5
     pxor         %xmm5, %xmm4
     psrldq       $(15), %xmm1
     movd         %xmm1, %ecx
-    xorw         (%edi,%ecx,2), %ax
+    mov          %eax, %ebx
+    call         getAesGcmConst_table_ct
+    xor          %ebx, %eax
     shl          $(8), %eax
     psrldq       $(15), %xmm0
     movd         %xmm0, %ecx
-    xorw         (%edi,%ecx,2), %ax
+    mov          %eax, %ebx
+    call         getAesGcmConst_table_ct
+    xor          %ebx, %eax
     movd         %eax, %xmm0
     pxor         %xmm4, %xmm0
-    add          $(16), %edx
+    add          $(16), %edi
     subl         $(16), (16)(%ebp)
-    jnz          .Lauth_loopgas_2
+    jnz          .Lauth_loopgas_3
     movl         (8)(%ebp), %edi
     movdqu       %xmm0, (%edi)
     pop          %edi
@@ -331,6 +387,6 @@ AesGcmAuth_table2K:
     pop          %ebx
     pop          %ebp
     ret
-.Lfe2:
-.size AesGcmAuth_table2K, .Lfe2-(AesGcmAuth_table2K)
+.Lfe3:
+.size AesGcmAuth_table2K, .Lfe3-(AesGcmAuth_table2K)
  

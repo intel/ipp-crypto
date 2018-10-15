@@ -130,9 +130,14 @@ set(k0_opt "-D_K0")
 
 # define defaults for every supported compiler
 set(DEFAULT_Intel_COMPILER_VER 18.0.0)
-set(DEFAULT_MSVC_COMPILER_VER 19.14.26433)
+set(DEFAULT_MSVC_COMPILER_VER 19.14)
+
+set(DEFAULT_Intel18_COMPILER_VER 18.0.0)
+set(DEFAULT_Intel19_COMPILER_VER 19.0.0)
+set(DEFAULT_MSVC19_COMPILER_VER 19.14)
 
 string(REGEX REPLACE "^([0-9]+)\\.([0-9]+)\\.([0-9]+).*$" "\\1.\\2.\\3" CMAKE_C_COMPILER_VERSION_SHORT ${CMAKE_C_COMPILER_VERSION})
+string(REGEX REPLACE "^([0-9]+)\\..*$" "\\1" CMAKE_C_COMPILER_VERSION_MAJOR ${CMAKE_C_COMPILER_VERSION})
 
 if(UNIX)
   if(APPLE)
@@ -148,18 +153,27 @@ endif()
 
 include("${CMAKE_SOURCE_DIR}/sources/cmake/${OS_STRING}/common.cmake") # common build options and ${OS_DEFAULT_COMPILER}
 
+cmake_policy(SET CMP0054 NEW)
+if(("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC") AND (CMAKE_C_COMPILER_VERSION VERSION_LESS DEFAULT_MSVC_COMPILER_VER))
+  message(FATAL_ERROR "Microsoft Visual C++ Compiler version must be 14.14 or higher (MSVC 19.14 or higher)")
+endif()
+
 set(COMPILER_OPTIONS_FILE "${CMAKE_SOURCE_DIR}/sources/cmake/${OS_STRING}")
 if (EXISTS "${COMPILER_OPTIONS_FILE}/${CMAKE_C_COMPILER_ID}${CMAKE_C_COMPILER_VERSION_SHORT}.cmake")
   set(COMPILER_OPTIONS_FILE "${COMPILER_OPTIONS_FILE}/${CMAKE_C_COMPILER_ID}${CMAKE_C_COMPILER_VERSION_SHORT}.cmake")
 else()
-  if ("${DEFAULT_${CMAKE_C_COMPILER_ID}_COMPILER_VER}" STREQUAL "")
-    set(COMPILER_OPTIONS_FILE "${COMPILER_OPTIONS_FILE}/${OS_DEFAULT_COMPILER}.cmake")
-    message(WARNING "Unknown compiler, using options from the OS default one: ${OS_DEFAULT_COMPILER}")
-  else()
-    set(COMPILER_OPTIONS_FILE "${COMPILER_OPTIONS_FILE}/${CMAKE_C_COMPILER_ID}${DEFAULT_${CMAKE_C_COMPILER_ID}_COMPILER_VER}.cmake")
-    if(CMAKE_C_COMPILER_VERSION VERSION_LESS ${DEFAULT_${CMAKE_C_COMPILER_ID}_COMPILER_VER})
-      message(WARNING "Version of the compiler is lower than default, using options from: ${DEFAULT_${CMAKE_C_COMPILER_ID}_COMPILER_VER}")
+  if ("${DEFAULT_${CMAKE_C_COMPILER_ID}${CMAKE_C_COMPILER_VERSION_MAJOR}_COMPILER_VER}" STREQUAL "")
+    if ("${DEFAULT_${CMAKE_C_COMPILER_ID}_COMPILER_VER}" STREQUAL "")
+      set(COMPILER_OPTIONS_FILE "${COMPILER_OPTIONS_FILE}/${OS_DEFAULT_COMPILER}.cmake")
+      message(WARNING "Unknown compiler, using options from the OS default one: ${OS_DEFAULT_COMPILER}")
+    else()
+      set(COMPILER_OPTIONS_FILE "${COMPILER_OPTIONS_FILE}/${CMAKE_C_COMPILER_ID}${DEFAULT_${CMAKE_C_COMPILER_ID}_COMPILER_VER}.cmake")
+      if(CMAKE_C_COMPILER_VERSION VERSION_LESS ${DEFAULT_${CMAKE_C_COMPILER_ID}_COMPILER_VER})
+        message(WARNING "Version of the compiler is lower than default, using options from: ${DEFAULT_${CMAKE_C_COMPILER_ID}_COMPILER_VER}")
+      endif()
     endif()
+  else()
+    set(COMPILER_OPTIONS_FILE "${COMPILER_OPTIONS_FILE}/${CMAKE_C_COMPILER_ID}${DEFAULT_${CMAKE_C_COMPILER_ID}${CMAKE_C_COMPILER_VERSION_MAJOR}_COMPILER_VER}.cmake")
   endif()
 endif()
 
@@ -325,7 +339,7 @@ if(NOT MERGED_BLD)
   set(IPPCP_LIB_DYNAMIC "")
 endif(NOT MERGED_BLD)
 
-cmake_policy(SET CMP0054 NEW)
+
 set(ADD_CPINITAS_MERGEDSTATIC on)
 foreach(opt ${PLATFORM_LIST})
   if(UNIX)
@@ -339,12 +353,6 @@ foreach(opt ${PLATFORM_LIST})
     set(IPPCP_DYN_ITER ${TARGET_NAME}_dyn_${opt})
     if(WIN32)
       add_library(${IPPCP_DYN_ITER} SHARED ippcp.def ${HEADERS} ${SOURCES} ${ASM_SOURCES} pcpver.rc)
-      GENERATE_EXPORT_HEADER( ${IPPCP_DYN_ITER}
-               BASE_NAME ${IPPCP_DYN_ITER}
-               EXPORT_MACRO_NAME ${IPPCP_DYN_ITER}_EXPORT
-               EXPORT_FILE_NAME ${IPPCP_DYN_ITER}_Export.h
-               STATIC_DEFINE ${IPPCP_DYN_ITER}_BUILT_AS_STATIC
-      )
       set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_WINDOWS})
       foreach(link ${LINK_LIB_STATIC_DEBUG})
         target_link_libraries(${IPPCP_DYN_ITER} debug ${link})
@@ -364,8 +372,7 @@ foreach(opt ${PLATFORM_LIST})
     else()
       add_library(${IPPCP_DYN_ITER} SHARED  ${HEADERS} ${SOURCES} ${ASM_SOURCES})
       if(APPLE)
-        set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -install_name @rpath/libippcp${opt}.dylib")
-        set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_MACOSX})
+        set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS "${LINK_FLAG_DYNAMIC_MACOSX} -install_name @rpath/libippcp${opt}.dylib")
       else()
         set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_LINUX})
       endif()
@@ -515,13 +522,7 @@ if(MERGED_BLD)
         )
         set(ASM_SOURCES_PCS ${ASM_SOURCES_PCS} ${CMAKE_BINARY_DIR}/dispatcher_dyn/jmp_dynamic_lib.asm)
       endif()
-      add_library(${IPPCP_LIB_PCS} SHARED pcpmain.c cpinit.c ${ASM_SOURCES_PCS} ippcp.def pcpver.rc)
-      generate_export_header(${IPPCP_LIB_PCS}
-               BASE_NAME ${IPPCP_LIB_PCS}
-               EXPORT_MACRO_NAME ${IPPCP_LIB_PCS}_EXPORT
-               EXPORT_FILE_NAME ${IPPCP_LIB_PCS}_Export.h
-               STATIC_DEFINE ${TARGET_NAME}_dyn_BUILT_AS_STATIC
-      )
+      add_library(${IPPCP_LIB_PCS} SHARED ippcp.def pcpmain.c cpinit.c ${ASM_SOURCES_PCS} pcpver.rc)
       set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_WINDOWS})
       set_target_properties(${IPPCP_LIB_PCS} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
     else()
@@ -542,10 +543,6 @@ if(MERGED_BLD)
     endif(WIN32)
     set_target_properties(${IPPCP_LIB_PCS} PROPERTIES OUTPUT_NAME "${TARGET_NAME}")
 
-    foreach(opt ${PLATFORM_LIST})
-      add_dependencies(${IPPCP_LIB_PCS} ${TARGET_NAME}_dyn_${opt})
-      target_link_libraries(${IPPCP_LIB_PCS} ${TARGET_NAME}_dyn_${opt})
-    endforeach()
     set_target_properties(${IPPCP_LIB_PCS} PROPERTIES COMPILE_FLAGS "-D_PCS -D_IPP_DYNAMIC -D_IPP_DATA")
     if(WIN32)
       foreach(link ${LINK_LIB_STATIC_DEBUG})

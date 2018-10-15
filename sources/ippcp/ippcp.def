@@ -479,6 +479,8 @@ ippsGFpECSetPointHash
 ippsGFpECSetPointHash_rmf
 ippsGFpECGetPoint
 ippsGFpECGetPointRegular
+ippsGFpECSetPointOctString
+ippsGFpECGetPointOctString
 ippsGFpECTstPoint
 ippsGFpECTstPointInSubgroup
 ippsGFpECCpyPoint
@@ -497,3 +499,11 @@ ippsGFpECSignNR
 ippsGFpECVerifyNR
 ippsGFpECSignSM2
 ippsGFpECVerifySM2
+ippsGFpECESGetSize_SM2
+ippsGFpECESInit_SM2
+ippsGFpECESSetKey_SM2
+ippsGFpECESStart_SM2
+ippsGFpECESEncrypt_SM2
+ippsGFpECESDecrypt_SM2
+ippsGFpECESFinal_SM2
+ippsGFpECESGetBuffersSize_SM2

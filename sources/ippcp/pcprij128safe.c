@@ -127,7 +127,7 @@ Ipp8u InverseComposite(Ipp8u x)
 */
 
 /* GF(2^128) -> GF((2^4)^2) isomorphous transformation matrix Ipp8u Native2CompositeTransformation[] = {0x01,0x2E,0x49,0x43,0x35,0xD0,0x3D,0xE9};
-/* is defined in reference code, see doc for details */
+   is defined in reference code, see doc for details */
 static Ipp8u Native2CompositeTransformationLO[] = { /* defived from Native2CompositeTransformation[i], i=0,1,2,3 */
    /* 0 */      0x00,
    /* 1 */      0x01,
@@ -182,7 +182,7 @@ void TransformNative2Composite(Ipp8u out[16], const Ipp8u inp[16])
 }
 
 /* GF((2^4)^2) -> GF(2^128) isomorphous transformation matrix Ipp8u Composite2NativeTransformation[] = {0x01,0x5C,0xE0,0x50,0x1F,0xEE,0x55,0x6A};
-/* is defined in reference code, see doc for details */
+   is defined in reference code, see doc for details */
 static Ipp8u Composite2NativeTransformationLO[] = { /* defived from Composite2NativeTransformation[i], i=0,1,2,3 */
    /* 0 */      0x00,
    /* 1 */      0x01,

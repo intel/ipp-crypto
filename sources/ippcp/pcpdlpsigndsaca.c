@@ -53,6 +53,7 @@
 #include "owndefs.h"
 #include "owncp.h"
 #include "pcpdlp.h"
+#include "pcpeccp.h"
 
 
 /*F*
@@ -75,11 +76,13 @@
 //                                  illegal pSignS->idCtx
 //
 //    ippStsIncompleteContextErr
-//                                  incomplete context
+//                                  incomplete context: P and/or R and/or G is not set
 //
-//    ippStsMessageErr              MsgDigest < 0
+//    ippStsMessageErr              MsgDigest >= R
+//                                  MsgDigest <  0
 //
-//    ippStsIvalidPrivateKey        !(0 < PrvKey < DLP_R())
+//    ippStsIvalidPrivateKey        PrvKey >= R
+//                                  PrvKey < 0
 //
 //    ippStsRangeErr                not enough room for:
 //                                  signR
@@ -117,14 +120,13 @@ IPPFUN(IppStatus, ippsDLPSignDSA,(const IppsBigNumState* pMsgDigest,
    IPP_BAD_PTR1_RET(pMsgDigest);
    pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
-   IPP_BADARG_RET((0<cpBN_cmp(cpBN_OneRef(), pMsgDigest)), ippStsMessageErr);
+   IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
 
    /* test regular private key */
    IPP_BAD_PTR1_RET(pPrvKey);
    pPrvKey = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrvKey, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrvKey), ippStsContextMatchErr);
-   IPP_BADARG_RET(0<cpBN_cmp(cpBN_OneRef(), pPrvKey)||
-                  0<=cpCmp_BNU(BN_NUMBER(pPrvKey),BN_SIZE(pPrvKey), DLP_R(pDL), BITS_BNU_CHUNK(DLP_BITSIZER(pDL))), ippStsIvalidPrivateKey);
+   IPP_BADARG_RET(BN_NEGATIVE(pPrvKey), ippStsIvalidPrivateKey);
 
    /* test signature */
    IPP_BAD_PTR2_RET(pSignR,pSignS);
@@ -136,51 +138,83 @@ IPPFUN(IppStatus, ippsDLPSignDSA,(const IppsBigNumState* pMsgDigest,
    IPP_BADARG_RET(BITSIZE(BNU_CHUNK_T)*BN_ROOM(pSignS)<DLP_BITSIZER(pDL), ippStsRangeErr);
 
    {
-      /* allocate BN resources */
-      BigNumNode* pList = DLP_BNCTX(pDL);
-      IppsBigNumState* pT = cpBigNumListGet(&pList);
-      IppsBigNumState* pU = cpBigNumListGet(&pList);
-      IppsBigNumState* pW = cpBigNumListGet(&pList);
+      gsModEngine* pMontR = DLP_MONTR(pDL);
+      BNU_CHUNK_T* pOrder = MOD_MODULUS(pMontR);
+      int ordLen = MOD_LEN(pMontR);
 
-      IppsBigNumState* pOrder = cpBigNumListGet(&pList);
-      ippsSet_BN(ippBigNumPOS, BITS2WORD32_SIZE(DLP_BITSIZER(pDL)), (Ipp32u*)DLP_R(pDL), pOrder);
+      BNU_CHUNK_T* pPriData = BN_NUMBER(pPrvKey);
+      int priLen = BN_SIZE(pPrvKey);
 
-      /* reduct pMsgDigest if necessary */
-      if(0 < cpBN_cmp(pMsgDigest, pOrder))
-         ippsMod_BN((IppsBigNumState*)pMsgDigest, pOrder, pW);
-      else
-         cpBN_copy(pW, pMsgDigest);
+      BNU_CHUNK_T* pMsgData = BN_NUMBER(pMsgDigest);
+      int msgLen = BN_SIZE(pMsgDigest);
 
-      /*
-      // compute  component of signature:
-      // signR = (G^eX (mod P)) (mod R), eX = ephemeral private key
-      // or
-      // signR = eY (mod R), eY = ephemeral public key (already set up)
-      */
-      cpMontDec_BN(pT, DLP_YENC(pDL), DLP_MONTP0(pDL));
-      BN_SIZE(pT) = cpMod_BNU(BN_NUMBER(pT), BN_SIZE(pT),
-                              BN_NUMBER(pOrder), BN_SIZE(pOrder));
-      cpBN_copy(pSignR, pT);
+      /* make sure regular 0 < private < order */
+      IPP_BADARG_RET(cpEqu_BNU_CHUNK(pPriData, priLen, 0) ||
+                  0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsIvalidPrivateKey);
+      /* make sure msg <order */
+      IPP_BADARG_RET(0<=cpCmp_BNU(pMsgData, msgLen, pOrder, ordLen), ippStsMessageErr);
 
-      /*
-      // compute signS component of signature:
-      // signS = ((1/eX)*(MsgDigest + X*signR)) (mod R)
-      */
-      /* compute T = enc( 1/eX mod(R) ) */
-      ippsModInv_BN(DLP_X(pDL), pOrder, pT);
-      cpMontEnc_BN(pT, pT, DLP_MONTR(pDL));
+      {
+         gsModEngine* pMontP = DLP_MONTP0(pDL);
+         int elmLen = MOD_LEN(pMontP);
 
-      cpMontMul_BN(pSignS, pT, pW, DLP_MONTR(pDL));
+         BNU_CHUNK_T* dataR = BN_NUMBER(pSignR);
+         BNU_CHUNK_T* dataS = BN_NUMBER(pSignS);
+         BNU_CHUNK_T* buffR = BN_BUFFER(pSignR);
+         BNU_CHUNK_T* buffS = BN_BUFFER(pSignS);
+         int ns;
 
-      cpMontEnc_BN(pU, pPrvKey, DLP_MONTR(pDL));
-      cpMontMul_BN(pT, pU, pT, DLP_MONTR(pDL));
-      cpMontMul_BN(pT, pSignR, pT, DLP_MONTR(pDL));
+         /*
+         // signR = eY (mod R), eY = ephemeral public key (already set up)
+         */
+         BNU_CHUNK_T* buffer = gsModPoolAlloc(pMontP, 1);
+         ZEXPAND_COPY_BNU(buffer, elmLen, BN_NUMBER(DLP_YENC(pDL)), BN_SIZE(DLP_YENC(pDL)));
+         MOD_METHOD(pMontP)->decode(buffer, buffer, pMontP);
+         ns = cpMod_BNU(buffer, elmLen, pOrder, ordLen);
+         ZEXPAND_COPY_BNU(dataR, ordLen, buffer, ns);
+         gsModPoolFree(pMontP, 1);
 
-      ippsAdd_BN(pT, pSignS, pT);
-      if(0 <= cpBN_cmp(pT, pOrder))
-         ippsSub_BN(pT, pOrder, pT);
-      cpBN_copy(pSignS, pT);
+         if(!cpEqu_BNU_CHUNK(dataR, ordLen, 0)) {
+            /*
+            // signS = ((1/eX)*(MsgDigest + X*signR)) (mod R)
+            */
 
-      return ippStsNoErr;
+            /* private representation in Montgomery domain */
+            ZEXPAND_COPY_BNU(dataS, ordLen, pPriData, priLen);
+            MOD_METHOD(pMontR)->encode(dataS, dataS, pMontR);
+
+            /* (X*signR) in regular domain */
+            MOD_METHOD(pMontR)->mul(dataS, dataS, dataR, pMontR);
+
+            /* pMsgDigest + (X*signR) */
+            ZEXPAND_COPY_BNU(buffS, ordLen, pMsgData, msgLen);
+            cpModAdd_BNU(dataS, dataS, buffS, pOrder, ordLen, buffS);
+
+            if(!cpEqu_BNU_CHUNK(dataS, ordLen, 0)) {
+
+               ZEXPAND_COPY_BNU(buffS, ordLen, BN_NUMBER(DLP_X(pDL)), BN_SIZE(DLP_X(pDL)));
+               /* (1/eX) in Montgomery domain  */
+               gs_mont_inv(buffS, buffS, pMontR, alm_mont_inv_ct);
+
+               /* signS = (1/eX)*(MsgDigest + X*signR) */
+               MOD_METHOD(pMontR)->mul(dataS, dataS, buffS, pMontR);
+
+               /* signR */
+               ns = ordLen;
+               FIX_BNU(dataR, ns);
+               BN_SIGN(pSignR) = ippBigNumPOS;
+               BN_SIZE(pSignR) = ns;
+               /* signS */
+               ns = ordLen;
+               FIX_BNU(dataS, ns);
+               BN_SIGN(pSignS) = ippBigNumPOS;
+               BN_SIZE(pSignS) = ns;
+
+               return ippStsNoErr;
+            }
+         }
+
+         return ippStsEphemeralKeyErr;
+      }
    }
 }

@@ -56,13 +56,14 @@
 Ipp8u* cpGFpGetOctString(Ipp8u* pStr, int strSize, const BNU_CHUNK_T* pElm, gsModEngine* pGFE)
 {
    int elemLen = GFP_FELEN(pGFE);
+   int error;
 
    BNU_CHUNK_T* pTmp = cpGFpGetPool(1, pGFE);
    //tbcd: temporary excluded: assert(pTmp !=NULL);
 
    GFP_METHOD(pGFE)->decode(pTmp, pElm, pGFE);
-   cpToOctStr_BNU(pStr, strSize, pTmp, elemLen);
+   error = (0 == cpToOctStr_BNU(pStr, strSize, pTmp, elemLen));
 
    cpGFpReleasePool(1, pGFE);
-   return pStr;
+   return error ? NULL : pStr;
 }

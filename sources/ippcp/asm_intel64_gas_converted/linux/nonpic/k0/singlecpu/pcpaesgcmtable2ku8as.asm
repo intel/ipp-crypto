@@ -44,6 +44,41 @@
 .text
 .p2align 6, 0x90
  
+INIT_IDX:
+.word    0x0,  0x1,  0x2,  0x3,  0x4,  0x5,  0x6,  0x7 
+ 
+INCR_IDX:
+.word    0x8,  0x8,  0x8,  0x8,  0x8,  0x8,  0x8,  0x8 
+.p2align 6, 0x90
+getAesGcmConst_table_ct: 
+    pxor         %xmm2, %xmm2
+    mov          %rcx, %rax
+    shl          $(16), %rcx
+    or           %rax, %rcx
+    movd         %rcx, %xmm3
+    pshufd       $(0), %xmm3, %xmm3
+    movdqa       INIT_IDX(%rip), %xmm6
+    xor          %rax, %rax
+.p2align 6, 0x90
+search_loop: 
+    movdqa       %xmm6, %xmm7
+    paddw        INCR_IDX(%rip), %xmm6
+    pcmpeqw      %xmm3, %xmm7
+    pand         (%r9,%rax,2), %xmm7
+    add          $(8), %rax
+    cmp          $(256), %rax
+    por          %xmm7, %xmm2
+    jl           search_loop
+    movdqa       %xmm2, %xmm3
+    psrldq       $(8), %xmm2
+    por          %xmm3, %xmm2
+    movd         %xmm2, %rax
+    and          $(3), %rcx
+    shl          $(4), %rcx
+    shr          %cl, %rax
+    ret
+.p2align 6, 0x90
+ 
 .globl AesGcmMulGcm_table2K
 .type AesGcmMulGcm_table2K, @function
  
@@ -157,18 +192,22 @@ AesGcmMulGcm_table2K:
     pxor         %xmm2, %xmm5
     psrldq       $(15), %xmm0
     movd         %xmm0, %ecx
-    movzwl       (%r9,%rcx,2), %eax
+    call         getAesGcmConst_table_ct
     shl          $(8), %eax
     movdqa       %xmm5, %xmm0
     pslldq       $(1), %xmm5
     pxor         %xmm5, %xmm4
     psrldq       $(15), %xmm1
     movd         %xmm1, %ecx
-    xorw         (%r9,%rcx,2), %ax
+    mov          %rax, %rbx
+    call         getAesGcmConst_table_ct
+    xor          %rbx, %rax
     shl          $(8), %eax
     psrldq       $(15), %xmm0
     movd         %xmm0, %ecx
-    xorw         (%r9,%rcx,2), %ax
+    mov          %rax, %rbx
+    call         getAesGcmConst_table_ct
+    xor          %rbx, %rax
     movd         %eax, %xmm0
     pxor         %xmm4, %xmm0
     movdqu       %xmm0, (%rdi)
@@ -298,18 +337,22 @@ AesGcmAuth_table2K:
     pxor         %xmm2, %xmm5
     psrldq       $(15), %xmm0
     movd         %xmm0, %ecx
-    movzwl       (%r9,%rcx,2), %eax
+    call         getAesGcmConst_table_ct
     shl          $(8), %eax
     movdqa       %xmm5, %xmm0
     pslldq       $(1), %xmm5
     pxor         %xmm5, %xmm4
     psrldq       $(15), %xmm1
     movd         %xmm1, %ecx
-    xorw         (%r9,%rcx,2), %ax
+    mov          %rax, %rbx
+    call         getAesGcmConst_table_ct
+    xor          %rbx, %rax
     shl          $(8), %eax
     psrldq       $(15), %xmm0
     movd         %xmm0, %ecx
-    xorw         (%r9,%rcx,2), %ax
+    mov          %rax, %rbx
+    call         getAesGcmConst_table_ct
+    xor          %rbx, %rax
     movd         %eax, %xmm0
     pxor         %xmm4, %xmm0
     add          $(16), %rsi

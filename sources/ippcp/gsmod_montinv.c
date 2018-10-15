@@ -53,6 +53,22 @@
 #include "pcpbnumisc.h"
 #include "pcpbnuarith.h"
 #include "gsmodstuff.h"
+#include "pcpmask_ct.h"
+
+__INLINE BNU_CHUNK_T* cpPow2_ct(int bit, BNU_CHUNK_T* dst, int len)
+{
+   int slot = bit/BNU_CHUNK_BITS;
+   BNU_CHUNK_T value = (BNU_CHUNK_T)1 << (bit%BNU_CHUNK_BITS);
+
+   int i;
+   len -= cpIsEqu_ct(slot, len);
+   for(i=0; i<len; i++) {
+      BNU_CHUNK_T mask = cpIsEqu_ct(slot, i);
+      dst[i] = value & mask;
+   }
+
+   return dst;
+}
 
 /*
 // returns r = mont(a^-1)
@@ -79,8 +95,9 @@ BNU_CHUNK_T* gs_mont_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pM
          k += m;
       }
 
-      ZEXPAND_BNU(t, 0, mLen);
-      SET_BIT(t, 2*m-k); /* t = 2^(2*m-k) */
+      //ZEXPAND_BNU(t, 0, mLen);
+      //SET_BIT(t, 2*m-k); /* t = 2^(2*m-k) */
+      cpPow2_ct(2*m-k, t, mLen);
       mon_mul(pr, pr, t, pME);
 
       gsModPoolFree(pME, 1);

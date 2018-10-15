@@ -204,7 +204,7 @@ static Ipp8u GF16_exp[]    = {0x01,0x02,0x04,0x08,0x03,0x06,0x0C,0x0B,
                               0x05,0x0A,0x07,0x0E,0x0F,0x0D,0x09,0x00};   /* exp[15]= 0!!! */
 
 /* affine transformation matrix Ipp8u AffineMatrix[] = {0x50,0x36,0x15,0x82,0x01,0x34,0x40,0x3E};
-/* is defined in reference code, see doc for details */
+   is defined in reference code, see doc for details */
 static Ipp8u InvAffineMatrixLO[] = { /* defived from AffineMatrix[i], i=0,1,2,3 */
    /* 0 */      0x00,
    /* 1 */      0x50,

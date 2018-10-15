@@ -99,7 +99,7 @@ IPPFUN(IppStatus, ippsHMACMessage_rmf,(const Ipp8u* pMsg, int msgLen,
    IPP_BADARG_RET(0>=mdLen || mdLen>pMethod->hashLen, ippStsLengthErr);
 
    {
-      IppsHMACState_rmf ctx;
+      __ALIGN8 IppsHMACState_rmf ctx;
       IppStatus sts;
 
       ippsHMACInit_rmf(pKey, keyLen, &ctx, pMethod);

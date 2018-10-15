@@ -1,7 +1,6 @@
 EXTERN (ippcpGetLibVersion)
 EXTERN (ippcpInit)
 EXTERN (cpGetReg)
-EXTERN (cpGetReg)
 EXTERN (cpStartTscp)
 EXTERN (cpStopTscp)
 EXTERN (cpStartTsc)
@@ -496,6 +495,16 @@ EXTERN (ippsGFpECSignNR)
 EXTERN (ippsGFpECVerifyNR)
 EXTERN (ippsGFpECSignSM2)
 EXTERN (ippsGFpECVerifySM2)
+EXTERN (ippsGFpECESGetSize_SM2)
+EXTERN (ippsGFpECESInit_SM2)
+EXTERN (ippsGFpECESSetKey_SM2)
+EXTERN (ippsGFpECESStart_SM2)
+EXTERN (ippsGFpECESEncrypt_SM2)
+EXTERN (ippsGFpECESDecrypt_SM2)
+EXTERN (ippsGFpECESFinal_SM2)
+EXTERN (ippsGFpECESGetBuffersSize_SM2)
+EXTERN (ippsGFpECSetPointOctString)
+EXTERN (ippsGFpECGetPointOctString)
 
 VERSION {
  {
@@ -997,6 +1006,16 @@ VERSION {
    ippsGFpECVerifyNR;
    ippsGFpECSignSM2;
    ippsGFpECVerifySM2;
+   ippsGFpECESGetSize_SM2;
+   ippsGFpECESInit_SM2;
+   ippsGFpECESSetKey_SM2;
+   ippsGFpECESStart_SM2;
+   ippsGFpECESEncrypt_SM2;
+   ippsGFpECESDecrypt_SM2;
+   ippsGFpECESFinal_SM2;
+   ippsGFpECESGetBuffersSize_SM2;
+   ippsGFpECSetPointOctString;
+   ippsGFpECGetPointOctString;
   local: *;
  };
 }

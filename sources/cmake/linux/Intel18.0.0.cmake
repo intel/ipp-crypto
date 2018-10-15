@@ -44,7 +44,7 @@
 
 # Linker flags
 
-# Security flags
+# Security Linker flags
 set(LINK_FLAG_SECURITY "") 
 # Disallows undefined symbols in object files. Undefined symbols in shared libraries are still allowed
 set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,defs")
@@ -68,9 +68,20 @@ set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "-fasm-blocks -use_msasm -w -m32 -fomit-frame-
 
 set(CC_FLAGS_INLINE_ASM_UNIX_INTEL64 "-fasm-blocks -use_msasm -ffixed-rdi -ffixed-rsi -ffixed-rbx -ffixed-rcx -ffixed-rdx -ffixed-rbp -ffixed-r8 -ffixed-r9 -ffixed-r12 -ffixed-r13 -ffixed-r14 -ffixed-r15")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} ${LIBRARY_DEFINES}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBRARY_DEFINES}")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -restrict -qopt-report2 -qopt-report-phase:vec -std=c99 -falign-functions=32 -falign-loops=32 -diag-error 266 -diag-disable 13366")
+# Ensures that compilation takes place in a freestanding environment
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding")
+# Determines whether pointer disambiguation is enabled with the restrict qualifier
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -restrict")
+# Tells the compiler to generate an optimization report
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qopt-report2 -qopt-report-phase:vec")
+# Tells the compiler to align functions and loops
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -falign-functions=32 -falign-loops=32")
+# Other flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -diag-error 266 -diag-disable 13366")
+
+# Security Compiler flags
 
 # Stack-based Buffer Overrun Detection
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
@@ -89,8 +100,8 @@ if(CODE_COVERAGE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -prof-gen:srcpos -prof-dir ${PROF_DATA_DIR}")
 endif()
 
-set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG" CACHE STRING "" FORCE)
-set (CMAKE_C_FLAGS_RELEASE_INIT " -O3 -DNDEBUG" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -w3" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_RELEASE_INIT " -O3 -DNDEBUG -w3" CACHE STRING "" FORCE)
 
 if(${ARCH} MATCHES "ia32")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-sox  -Zp16 -gcc -falign-stack=maintain-16-byte -Wa,--32 -no-use-asm -m32")

@@ -1,4 +1,4 @@
-﻿Intel(R) Integrated Performance Primitives Cryptography
+Intel(R) Integrated Performance Primitives Cryptography
 =======================================================
 
 Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
@@ -60,19 +60,28 @@ only on the operating systems and tools listed below:
 
 -   Red Hat\* Enterprise Linux\* 6
 
--   macOS\* 10.8\*
+-   macOS\* 10.12\*
 
 ### C/C++\* Compilers for Windows\* OS:
 
-Intel(R) C++ Compiler 18.0 for Windows\* OS
+-   Intel(R) C++ Compiler 18.0 for Windows\* OS
+
+-   Intel(R) C++ Compiler 19.0 for Windows\* OS
+
+-   Microsoft Visual C++ Compiler\* version 14.14 or higher
+    provided by Microsoft Visual Studio\* 2017 version 15.7 or higher
 
 ### C/C++\* Compilers for Linux\* OS:
 
-Intel(R) C++ Compiler 18.0 for Linux\* OS
+-   Intel(R) C++ Compiler 18.0 for Linux\* OS
+
+-   Intel(R) C++ Compiler 19.0 for Linux\* OS
 
 ### C/C++\* Compilers for macOS\*:
 
-Intel(R) C++ Compiler 18.0 for OS X\*
+-   Intel(R) C++ Compiler 18.0 for OS X\*
+
+-   Intel(R) C++ Compiler 19.0 for OS X\* OS
 
 ### Assembly Compilers for Windows\* OS:
 

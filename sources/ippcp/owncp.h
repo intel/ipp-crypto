@@ -516,6 +516,8 @@
 #define ippsGFpECSetPointHash_rmf    OWNAPI(ippsGFpECSetPointHash_rmf)
 #define ippsGFpECGetPoint            OWNAPI(ippsGFpECGetPoint)
 #define ippsGFpECGetPointRegular     OWNAPI(ippsGFpECGetPointRegular)
+#define ippsGFpECSetPointOctString   OWNAPI(ippsGFpECSetPointOctString)
+#define ippsGFpECGetPointOctString   OWNAPI(ippsGFpECGetPointOctString)
 #define ippsGFpECTstPoint            OWNAPI(ippsGFpECTstPoint)
 #define ippsGFpECTstPointInSubgroup  OWNAPI(ippsGFpECTstPointInSubgroup)
 #define ippsGFpECCpyPoint            OWNAPI(ippsGFpECCpyPoint)
@@ -534,6 +536,14 @@
 #define ippsGFpECVerifyNR            OWNAPI(ippsGFpECVerifyNR)
 #define ippsGFpECSignSM2             OWNAPI(ippsGFpECSignSM2)
 #define ippsGFpECVerifySM2           OWNAPI(ippsGFpECVerifySM2)
+#define ippsGFpECESGetSize_SM2       OWNAPI(ippsGFpECESGetSize_SM2)
+#define ippsGFpECESInit_SM2          OWNAPI(ippsGFpECESInit_SM2)
+#define ippsGFpECESSetKey_SM2        OWNAPI(ippsGFpECESSetKey_SM2)
+#define ippsGFpECESStart_SM2         OWNAPI(ippsGFpECESStart_SM2)
+#define ippsGFpECESEncrypt_SM2       OWNAPI(ippsGFpECESEncrypt_SM2)
+#define ippsGFpECESDecrypt_SM2       OWNAPI(ippsGFpECESDecrypt_SM2)
+#define ippsGFpECESFinal_SM2         OWNAPI(ippsGFpECESFinal_SM2)
+#define ippsGFpECESGetBuffersSize_SM2 OWNAPI(ippsGFpECESGetBuffersSize_SM2)
 
   #include "ippcp.h"
 #endif

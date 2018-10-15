@@ -74,11 +74,17 @@ IPPFUN(IppStatus, ippsHMAC_Pack,(const IppsHMACState* pCtx, Ipp8u* pBuffer, int 
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
+   pCtx = (IppsHMACState*)( IPP_ALIGNED_PTR(pCtx, HASH_ALIGNMENT) );
    /* test the context */
    IPP_BADARG_RET(!HMAC_VALID_ID(pCtx), ippStsContextMatchErr);
-   /* test buffer length */
-   IPP_BADARG_RET((int)(sizeof(IppsHMACState))>bufSize, ippStsNoMemErr);
 
-   CopyBlock(pCtx, pBuffer, sizeof(IppsHMACState));
-   return ippStsNoErr;
+   {
+      int ctxSize;
+      ippsHMAC_GetSize(&ctxSize);
+      /* test buffer length */
+      IPP_BADARG_RET(ctxSize>bufSize, ippStsNoMemErr);
+
+      CopyBlock(pCtx, pBuffer, ctxSize);
+      return ippStsNoErr;
+   }
 }

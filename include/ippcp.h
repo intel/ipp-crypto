@@ -1159,6 +1159,8 @@ IPPAPI(IppStatus, ippsGFpECSetPointHash,(Ipp32u hdr, const Ipp8u* pMsg, int msgL
 IPPAPI(IppStatus, ippsGFpECSetPointHash_rmf,(Ipp32u hdr, const Ipp8u* pMsg, int msgLen, IppsGFpECPoint* pPoint, IppsGFpECState* pEC, const IppsHashMethod* pMethod, Ipp8u* pScratchBuffer))
 IPPAPI(IppStatus, ippsGFpECGetPoint,(const IppsGFpECPoint* pPoint, IppsGFpElement* pX, IppsGFpElement* pY, IppsGFpECState* pEC))
 IPPAPI(IppStatus, ippsGFpECGetPointRegular,(const IppsGFpECPoint* pPoint, IppsBigNumState* pX, IppsBigNumState* pY, IppsGFpECState* pEC))
+IPPAPI(IppStatus, ippsGFpECSetPointOctString,(const Ipp8u* pStr, int strLen, IppsGFpECPoint* pPoint, IppsGFpECState* pEC))
+IPPAPI(IppStatus, ippsGFpECGetPointOctString,(const IppsGFpECPoint* pPoint, Ipp8u* pStr, int strLen, IppsGFpECState* pEC))
 
 IPPAPI(IppStatus, ippsGFpECTstPoint,(const IppsGFpECPoint* pP, IppECResult* pResult, IppsGFpECState* pEC))
 IPPAPI(IppStatus, ippsGFpECTstPointInSubgroup,(const IppsGFpECPoint* pP, IppECResult* pResult, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
@@ -1218,6 +1220,23 @@ IPPAPI(IppStatus, ippsGFpECVerifySM2,(const IppsBigNumState* pMsgDigest,
                         const IppsBigNumState* pSignR, const IppsBigNumState* pSignS,
                         IppECResult* pResult,
                         IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+
+IPPAPI(IppStatus, ippsGFpECESGetSize_SM2, (const IppsGFpECState* pEC, int* pSize))
+IPPAPI(IppStatus, ippsGFpECESInit_SM2, (IppsGFpECState* pEC,
+                        IppsECESState_SM2* pState, int avaliableCtxSize))
+IPPAPI(IppStatus, ippsGFpECESSetKey_SM2, (const IppsBigNumState* pPrivate,
+                        const IppsGFpECPoint* pPublic,
+                        IppsECESState_SM2* pState,
+                        IppsGFpECState* pEC,
+                        Ipp8u* pEcScratchBuffer))
+IPPAPI(IppStatus, ippsGFpECESStart_SM2, (IppsECESState_SM2* pState))
+IPPAPI(IppStatus, ippsGFpECESEncrypt_SM2, (const Ipp8u* pInput, Ipp8u* pOutput,
+                        int dataLen, IppsECESState_SM2* pState))
+IPPAPI(IppStatus, ippsGFpECESDecrypt_SM2, (const Ipp8u* pInput, Ipp8u* pOutput,
+                        int dataLen, IppsECESState_SM2* pState))
+IPPAPI(IppStatus, ippsGFpECESFinal_SM2, (Ipp8u* pTag, int tagLen, IppsECESState_SM2* pState))
+IPPAPI(IppStatus, ippsGFpECESGetBuffersSize_SM2, (int* pPublicKeySize,
+                        int* pMaximumTagSize, const IppsECESState_SM2* pState))
 
 #ifdef  __cplusplus
 }

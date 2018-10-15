@@ -77,6 +77,7 @@ IPPFUN(IppStatus, ippsHMACUpdate_rmf,(const Ipp8u* pSrc, int len, IppsHMACState_
 {
    /* test state pointers */
    IPP_BAD_PTR1_RET(pCtx);
+   pCtx = (IppsHMACState_rmf*)(IPP_ALIGNED_PTR(pCtx, HASH_ALIGNMENT));
 
    /* test state ID */
    IPP_BADARG_RET(!HMAC_VALID_ID(pCtx), ippStsContextMatchErr);

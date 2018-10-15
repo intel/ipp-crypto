@@ -495,3 +495,13 @@ _ippsGFpECSignNR
 _ippsGFpECVerifyNR
 _ippsGFpECSignSM2
 _ippsGFpECVerifySM2
+_ippsGFpECESGetSize_SM2
+_ippsGFpECESInit_SM2
+_ippsGFpECESSetKey_SM2
+_ippsGFpECESStart_SM2
+_ippsGFpECESEncrypt_SM2
+_ippsGFpECESDecrypt_SM2
+_ippsGFpECESFinal_SM2
+_ippsGFpECESGetBuffersSize_SM2
+_ippsGFpECSetPointOctString
+_ippsGFpECGetPointOctString

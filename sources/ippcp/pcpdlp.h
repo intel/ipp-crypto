@@ -134,7 +134,7 @@ struct _cpDLP {
 #define DLP_ALIGNMENT ((int)(sizeof(void*)))
 
 /* pool size for gsModEngine */
-#define DLP_MONT_POOL_LENGTH 4
+#define DLP_MONT_POOL_LENGTH (6)
 
 #define cpPackDLPCtx OWNAPI(cpPackDLPCtx)
    void cpPackDLPCtx(const IppsDLPState* pDLP, Ipp8u* pBuffer);

@@ -68,7 +68,13 @@
 //                               invalid pPubKey->idCtx
 //
 //    ippStsIncompleteContextErr
-//                               incomplete context
+//                               incomplete context: P and/or R and/or G is not set
+//
+//    ippStsIvalidPrivateKey     PrvKey >= R
+//                               PrvKey <  0
+//
+//    ippStsRangeErr             PubKey >= P
+//                               PubKey < 0
 //
 //    ippStsNoErr                no error
 //
@@ -93,16 +99,43 @@ IPPFUN(IppStatus, ippsDLPSetKeyPair,(const IppsBigNumState* pPrvKey,
    if(pPrvKey) {
       pPrvKey  = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrvKey, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pPrvKey), ippStsContextMatchErr);
-      IPP_BADARG_RET(BN_ROOM(DLP_X(pDL)) < BN_SIZE(pPrvKey), ippStsRangeErr);
-      cpBN_copy(DLP_X(pDL), pPrvKey);
+      IPP_BADARG_RET(BN_NEGATIVE(pPrvKey), ippStsIvalidPrivateKey);
+      {
+         gsModEngine* pMontR = DLP_MONTR(pDL);
+         BNU_CHUNK_T* pOrder = MOD_MODULUS(pMontR);
+         int ordLen = MOD_LEN(pMontR);
+
+         BNU_CHUNK_T* pPriData = BN_NUMBER(pPrvKey);
+         int priLen = BN_SIZE(pPrvKey);
+
+         /* make sure regular 0 < private < order */
+         IPP_BADARG_RET(cpEqu_BNU_CHUNK(pPriData, priLen, 0) ||
+                     0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsIvalidPrivateKey);
+
+         cpBN_copy(DLP_X(pDL), pPrvKey);
+         BN_SIZE(DLP_X(pDL)) = ordLen;
+      }
    }
 
    /* set up public key */
    if(pPubKey) {
       pPubKey  = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPubKey, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pPubKey), ippStsContextMatchErr);
+      IPP_BADARG_RET(BN_NEGATIVE(pPubKey), ippStsRangeErr);
+      {
+         gsModEngine* pMontP = DLP_MONTP0(pDL);
+         BNU_CHUNK_T* pPrime = MOD_MODULUS(pMontP);
+         int primeLen = MOD_LEN(pMontP);
 
-      cpMontEnc_BN(DLP_YENC(pDL), pPubKey, DLP_MONTP0(pDL));
+         BNU_CHUNK_T* pPubData = BN_NUMBER(pPubKey);
+         int pubLen = BN_SIZE(pPubKey);
+
+         /* make sure regular 0 < public < prime */
+         IPP_BADARG_RET(cpEqu_BNU_CHUNK(pPubData, pubLen, 0) ||
+                     0<=cpCmp_BNU(pPubData, pubLen, pPrime, primeLen), ippStsRangeErr);
+
+         cpMontEnc_BN(DLP_YENC(pDL), pPubKey, DLP_MONTP0(pDL));
+      }
    }
 
    return ippStsNoErr;

@@ -57,6 +57,7 @@
 
 #include "pcpaesauthgcm.h"
 #include "pcptool.h"
+#include "pcpmask_ct.h"
 
 #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
 #  pragma message("_ALG_AES_SAFE_COMPOSITE_GF_ enabled")
@@ -82,6 +83,23 @@ typedef struct{
 //
 // Ghash = Ghash * HKey mod G()
 */
+__INLINE Ipp16u getAesGcmConst_table_ct(int idx)
+{
+   #define TBL_SLOTS_REP_READ  (sizeof(BNU_CHUNK_T)/sizeof(AesGcmConst_table[0]))
+   const BNU_CHUNK_T* TblEntry = (BNU_CHUNK_T*)AesGcmConst_table;
+
+   BNU_CHUNK_T idx_sel = idx / TBL_SLOTS_REP_READ;  /* selection index */
+   BNU_CHUNK_T i;
+   BNU_CHUNK_T selection = 0;
+   for (i = 0; i<sizeof(AesGcmConst_table) / sizeof(BNU_CHUNK_T); i++) {
+      BNU_CHUNK_T mask = cpIsEqu_ct(i, idx_sel);
+      selection |= TblEntry[i] & mask;
+   }
+   selection >>= (idx & (TBL_SLOTS_REP_READ-1)) * sizeof(Ipp16u)*8;
+   return (Ipp16u)(selection & 0xFFffFF);
+   #undef TBL_SLOTS_REP_READ
+}
+
 void AesGcmMulGcm_table2K(Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const void* pParam)
 {
    __ALIGN16 Ipp8u t5[BLOCK_SIZE];
@@ -126,13 +144,16 @@ void AesGcmMulGcm_table2K(Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const voi
    XorBlock(t4+1, t5, t4+1, BLOCK_SIZE-1);
 
    nw = t3[BLOCK_SIZE-1];
-   a = (Ipp32u)AesGcmConst_table[nw];
+   //a = (Ipp32u)AesGcmConst_table[nw];
+   a = (Ipp32u)getAesGcmConst_table_ct(nw);
    a <<= 8;
    nw = t2[BLOCK_SIZE-1];
-   a ^= (Ipp32u)AesGcmConst_table[nw];
+   //a ^= (Ipp32u)AesGcmConst_table[nw];
+   a ^= (Ipp32u)getAesGcmConst_table_ct(nw);
    a <<= 8;
    nw = t5[BLOCK_SIZE-1];
-   a ^= (Ipp32u)AesGcmConst_table[nw];
+   //a ^= (Ipp32u)AesGcmConst_table[nw];
+   a ^= (Ipp32u)getAesGcmConst_table_ct(nw);
 
    XorBlock(t4, &a, t4, sizeof(Ipp32u));
    CopyBlock16(t4, pGhash);

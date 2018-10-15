@@ -75,7 +75,8 @@
 //    ippStsIncompleteContextErr
 //                                  incomplete context
 //
-//    ippStsMessageErr              MsgDigest < 0
+//    ippStsMessageErr              MsgDigest >= R
+//                                  MsgDigest <  0
 //
 //    ippStsNoErr                   no errors
 //
@@ -107,7 +108,10 @@ IPPFUN(IppStatus, ippsDLPVerifyDSA,(const IppsBigNumState* pMsgDigest,
    IPP_BAD_PTR1_RET(pMsgDigest);
    pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
-   IPP_BADARG_RET((0<cpBN_cmp(cpBN_OneRef(), pMsgDigest)), ippStsMessageErr);
+   IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
+   /* make sure msg <order */
+   IPP_BADARG_RET(0<=cpCmp_BNU(BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest),
+                               DLP_R(pDL), BITS_BNU_CHUNK(DLP_BITSIZER(pDL))), ippStsMessageErr);
 
    /* test signature */
    IPP_BAD_PTR2_RET(pSignR,pSignS);
@@ -231,6 +235,9 @@ IPPFUN(IppStatus, ippsDLPVerifyDSA,(const IppsBigNumState* pMsgDigest,
    pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
    IPP_BADARG_RET((0>cpBN_tst(pMsgDigest)), ippStsMessageErr);
+   /* make sure msg <order */
+   IPP_BADARG_RET(0<=cpCmp_BNU(BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest),
+                               DLP_R(pDL), BITS_BNU_CHUNK(DLP_BITSIZER(pDL))), ippStsMessageErr);
 
    /* test signature */
    IPP_BAD_PTR2_RET(pSignR,pSignS);

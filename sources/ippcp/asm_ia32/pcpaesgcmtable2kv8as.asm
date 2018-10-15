@@ -55,10 +55,89 @@ INCLUDE asmdefs.inc
 INCLUDE ia_emm.inc
 
 
+IFDEF IPP_PIC
+LD_ADDR MACRO reg:REQ, addr:REQ
+LOCAL LABEL
+        call     LABEL
+LABEL:  pop      reg
+        sub      reg, LABEL-addr
+ENDM
+ELSE
+LD_ADDR MACRO reg:REQ, addr:REQ
+        lea      reg, addr
+ENDM
+ENDIF
+
 IF _IPP GE _IPP_V8
 
 IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 
+;
+; getAesGcmConst_table_ct provides c-e-t access to pre-computed Ipp16u AesGcmConst_table[256]
+;
+;  input:
+;  edx: address of the AesGcmConst_table
+;  ecx: index in the table
+;
+;  output:
+;  eax
+;
+;  register  ecx destoyed
+;  registers mmx2, mmx3, mmx6, and mmx7 destoyed
+;
+ALIGN IPP_ALIGN_FACTOR
+_CONST_DATA:
+_INIT_IDX   DW    000h,001h,002h,003h,004h,005h,006h,007h   ;; initial search inx = {0:1:2:3:4:5:6:7}
+_INCR_IDX   DW    008h,008h,008h,008h,008h,008h,008h,008h   ;; index increment = {8:8:8:8:8:8:8:8}
+
+INIT_IDX equ [ebx+(_INIT_IDX - _CONST_DATA)]
+INCR_IDX equ [ebx+(_INCR_IDX - _CONST_DATA)]
+
+ALIGN IPP_ALIGN_FACTOR
+IPPASM getAesGcmConst_table_ct PROC NEAR PRIVATE
+   push     ebx
+   LD_ADDR  ebx, _CONST_DATA
+
+   pxor     xmm2, xmm2                 ;; accumulator xmm2 = 0
+
+   mov      eax, ecx                   ;; broadcast inx into dword
+   shl      ecx, 16
+   or       ecx, eax
+   movd     xmm3, ecx
+   pshufd   xmm3, xmm3, 00b            ;; search index xmm3 = broadcast(idx)
+
+   movdqa   xmm6, xmmword ptr INIT_IDX ;; current indexes
+
+   xor      eax, eax
+ALIGN IPP_ALIGN_FACTOR
+search_loop:
+   movdqa   xmm7, xmm6                             ;; copy current indexes
+   paddw    xmm6, xmmword ptr INCR_IDX             ;; advance current indexes
+
+   pcmpeqw  xmm7, xmm3                             ;; selection mask
+   pand     xmm7, xmmword ptr[edx+eax*sizeof(word)];; mask data
+
+   add      eax, 8
+   cmp      eax, 256
+
+   por      xmm2, xmm7                             ;; and accumulate
+   jl       search_loop
+
+   movdqa   xmm3, xmm2                 ;; pack result in qword
+   psrldq   xmm2, sizeof(xmmword)/2
+   por      xmm2, xmm3
+   movdqa   xmm3, xmm2                 ;; pack result in dword
+   psrldq   xmm2, sizeof(xmmword)/4
+   por      xmm2, xmm3
+   movd     eax, xmm2
+
+   pop      ebx
+
+   and      ecx, 3                     ;; select tbl[idx] value
+   shl      ecx, 4                     ;; rcx *=16 = sizeof(word)*8
+   shr      eax, cl
+   ret
+IPPASM getAesGcmConst_table_ct ENDP
 
 ;
 ; void AesGcmMulGcm_table2K(Ipp8u* pHash, const Ipp8u* pPrecomputedData, , const void* pParam))
@@ -194,7 +273,7 @@ IPPASM AesGcmMulGcm_table2K PROC NEAR C PUBLIC \
 
    psrldq   xmm0, 15
    movd     ecx, xmm0
-   movzx    eax, word ptr [edx + ecx*sizeof(word)]
+   CALLASM  getAesGcmConst_table_ct ;;movzx    eax, word ptr [edx + ecx*sizeof(word)]
    shl      eax, 8
 
    movdqa   xmm0, xmm5
@@ -203,12 +282,16 @@ IPPASM AesGcmMulGcm_table2K PROC NEAR C PUBLIC \
 
    psrldq   xmm1, 15
    movd     ecx, xmm1
-   xor      ax, word ptr [edx + ecx*sizeof(word)]
+   mov      ebx, eax                ;;xor      ax, word ptr [edx + ecx*sizeof(word)]
+   CALLASM  getAesGcmConst_table_ct ;;
+   xor      eax, ebx                ;;
    shl      eax, 8
 
    psrldq   xmm0, 15
    movd     ecx, xmm0
-   xor      ax, word ptr [edx + ecx*sizeof(word)]
+   mov      ebx, eax                ;;xor      ax, word ptr [edx + ecx*sizeof(word)]
+   CALLASM  getAesGcmConst_table_ct ;;
+   xor      eax, ebx                ;;
 
    movd     xmm0, eax
    pxor     xmm0, xmm4
@@ -234,13 +317,13 @@ IPPASM AesGcmAuth_table2K PROC NEAR C PUBLIC \
    movdqu   xmm0, [edi]                ; hash value
 
    mov      esi, pMulTbl
-   mov      edx, pSrc
+   mov      edi, pSrc
 
-   mov      edi, pParam                ; pointer to the fixed table
+   mov      edx, pParam                ; pointer to the fixed table
 
 ALIGN IPP_ALIGN_FACTOR
 auth_loop:
-   movdqu   xmm4, [edx]       ; get src[]
+   movdqu   xmm4, [edi]       ; get src[]
    pxor     xmm0, xmm4        ; hash ^= src[]
 
    movd     ebx, xmm0         ; ebx = hash.0
@@ -361,22 +444,30 @@ auth_loop:
    psrldq   xmm0, 15
 
    movd     ecx, xmm0
-   movzx    eax, word ptr [edi + ecx*sizeof(word)]
+   CALLASM  getAesGcmConst_table_ct ;;movzx    eax, word ptr [edx + ecx*sizeof(word)]
    shl      eax, 8
+
    movdqa   xmm0, xmm5
    pslldq   xmm5, 1
    pxor     xmm4, xmm5
+
    psrldq   xmm1, 15
    movd     ecx, xmm1
-   xor      ax, word ptr [edi + ecx*sizeof(word)]
+   mov      ebx, eax                ;;xor      ax, word ptr [edx + ecx*sizeof(word)]
+   CALLASM  getAesGcmConst_table_ct ;;
+   xor      eax, ebx                ;;
    shl      eax, 8
+
    psrldq   xmm0, 15
    movd     ecx, xmm0
-   xor      ax, word ptr [edi + ecx*sizeof(word)]
+   mov      ebx, eax                ;;xor      ax, word ptr [edx + ecx*sizeof(word)]
+   CALLASM  getAesGcmConst_table_ct ;;
+   xor      eax, ebx                ;;
+
    movd     xmm0, eax
    pxor     xmm0, xmm4
 
-   add      edx, sizeof(oword)      ; advance src address
+   add      edi, sizeof(oword)      ; advance src address
    sub      len, sizeof(oword)      ; decrease counter
    jnz      auth_loop               ; process next block
 

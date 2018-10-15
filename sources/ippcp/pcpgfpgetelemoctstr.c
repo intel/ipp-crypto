@@ -99,17 +99,17 @@ IPPFUN(IppStatus, ippsGFpGetElementOctString,(const IppsGFpElement* pA, Ipp8u* p
          int basicSize = BITS2WORD8_SIZE(BITSIZE_BNU(GFP_MODULUS(pBasicGFE),GFP_FELEN(pBasicGFE)));
 
          BNU_CHUNK_T* pDataElm = GFPE_DATA(pA);
-         int deg;
-         for(deg=0; deg<basicDeg; deg++) {
+         int deg, error;
+         for(deg=0, error=0; deg<basicDeg && !error; deg++) {
             int size = IPP_MIN(strSize, basicSize);
-            cpGFpGetOctString(pStr, size, pDataElm, pBasicGFE);
+            error = (NULL == cpGFpGetOctString(pStr, size, pDataElm, pBasicGFE));
 
             pDataElm += basicElemLen;
             pStr += size;
             strSize -= size;
          }
 
-         return ippStsNoErr;
+         return error ? ippStsSizeErr : ippStsNoErr;
       }
    }
 }

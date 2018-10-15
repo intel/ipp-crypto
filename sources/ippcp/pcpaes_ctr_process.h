@@ -91,6 +91,22 @@
 //    counter will updated on return
 //
 */
+__INLINE void MaskCounter128(Ipp8u* pMaskIV, int ctrBtSize)
+{
+   /* construct ctr mask */
+   int maskPosition = (MBS_RIJ128*8-ctrBtSize)/8;
+   Ipp8u maskValue = (Ipp8u)(0xFF >> (MBS_RIJ128*8-ctrBtSize)%8 );
+
+   Ipp8u maskIV[MBS_RIJ128];
+   int n;
+   for(n=0; n<MBS_RIJ128; n++) {
+      int d = n - maskPosition;
+      Ipp8u storedMaskValue = maskValue & ~cpIsMsb_ct(d);
+      pMaskIV[n] = storedMaskValue;
+      maskValue |= ~cpIsMsb_ct(d);
+   }
+}
+
 static
 IppStatus cpProcessAES_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
                            const IppsAESSpec* pCtx,
@@ -115,6 +131,7 @@ IppStatus cpProcessAES_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
    /* use pipelined version if possible */
    if(AES_NI_ENABLED==RIJ_AESNI(pCtx)) {
       /* construct ctr mask */
+      #if 0
       int maskPosition = (MBS_RIJ128*8-ctrNumBitSize)/8;
       Ipp8u maskValue = (Ipp8u)(0xFF >> (MBS_RIJ128*8-ctrNumBitSize)%8 );
 
@@ -125,6 +142,10 @@ IppStatus cpProcessAES_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
       maskIV[maskPosition] = maskValue;
       for(n=maskPosition+1; n<MBS_RIJ128; n++)
          maskIV[n] = 0xFF;
+      #endif
+
+      Ipp8u maskIV[MBS_RIJ128];
+      MaskCounter128(maskIV, ctrNumBitSize); /* const-exe-time version */
 
       EncryptCTR_RIJ128pipe_AES_NI(pSrc, pDst, RIJ_NR(pCtx), RIJ_EKEYS(pCtx), dataLen, pCtrValue, maskIV);
       return ippStsNoErr;

@@ -550,7 +550,7 @@ typedef struct _cpAES_CMAC          IppsAES_CMACState;
 // Big Number Integer Arithmetic
 // =========================================================
 */
-#define BN_MAXBITSIZE      (32*1024)   /* bn max size (bits) */
+#define BN_MAXBITSIZE      (16*1024)   /* bn max size (bits) */
 
 
 typedef enum {
@@ -782,6 +782,8 @@ typedef struct {
    int   groundGFdegree;
    int   elementLen;
 } IppsGFpInfo;
+
+typedef struct _cpStateECES_SM2 IppsECESState_SM2;
 
 #endif /* !defined( _OWN_BLDPCS ) */
 

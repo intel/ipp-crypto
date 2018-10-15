@@ -73,6 +73,7 @@ IPPFUN(IppStatus, ippsHMAC_Unpack,(const Ipp8u* pBuffer, IppsHMACState* pCtx))
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
+   pCtx = (IppsHMACState*)( IPP_ALIGNED_PTR(pCtx, HASH_ALIGNMENT) );
 
    CopyBlock(pBuffer, pCtx, sizeof(IppsHMACState));
    return ippStsNoErr;

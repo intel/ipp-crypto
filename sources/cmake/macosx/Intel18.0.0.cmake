@@ -44,7 +44,7 @@
 
 # linker
 set(LINK_FLAG_DYNAMIC_MACOSX "-Wl,-dynamic -Wl,-single_module -Wl,-flat_namespace -Wl,-headerpad_max_install_names")
-set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-current_version,2019.0.0 -Wl,-compatibility_version,2019.0 -Wl,-macosx_version_min,10.7")
+set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-current_version,2019.0.1 -Wl,-compatibility_version,2019.0 -Wl,-macosx_version_min,10.7")
 set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -nostdlib -Wl,-lgcc_s.1 -Wl,-lm")
 if(${ARCH} MATCHES "ia32")
   set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-arch,i386 -Wl,-read_only_relocs,warning")
@@ -60,8 +60,28 @@ set(CC_FLAGS_INLINE_ASM_UNIX_INTEL64 "-fasm-blocks -use_msasm -ffixed-rdi -ffixe
 
 set(CMAKE_C_FLAGS "${LIBRARY_DEFINES}")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -restrict -qopt-report2 -qopt-report-phase:vec -std=c99 -falign-functions=32 -falign-loops=32 -diag-error 266 -diag-disable 13366 -Wformat -Wformat-security -fstack-protector")
+# Ensures that compilation takes place in a freestanding environment
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding")
+# Determines whether pointer disambiguation is enabled with the restrict qualifier
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -restrict")
+# Tells the compiler to generate an optimization report
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qopt-report2 -qopt-report-phase:vec")
+# Tells the compiler to align functions and loops
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -falign-functions=32 -falign-loops=32")
+# Other flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -diag-error 266 -diag-disable 13366")
+
+# Security Compiler flags
+
+# Stack-based Buffer Overrun Detection
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
+
+# Format string vulnerabilities
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wformat -Wformat-security")
+
+# Position Independent Execution (PIE)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic -fPIC")
+
 if(THREADED_LIB)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qopenmp -qopenmp-lib compat")
 endif()
@@ -69,10 +89,13 @@ if(CODE_COVERAGE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -prof-gen:srcpos -prof-dir ${PROF_DATA_DIR}")
 endif()
 
+set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -w3" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_RELEASE_INIT " -O3 -DNDEBUG -w3" CACHE STRING "" FORCE)
+
 if(${ARCH} MATCHES "ia32")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch i386")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch_only i386")
 else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch x86_64")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch_only x86_64")
 endif(${ARCH} MATCHES "ia32")
 
 set(w7_opt "${w7_opt} -xSSE2")

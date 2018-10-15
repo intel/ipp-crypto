@@ -258,7 +258,7 @@ __INLINE int gfec_IsPointAtInfinity(const IppsGFpECPoint* pPoint)
 /* signed encode */
 __INLINE void booth_recode(Ipp8u* sign, Ipp8u* digit, Ipp8u in, int w)
 {
-   Ipp8u s = ~((in >> w) - 1);
+   Ipp8u s = (Ipp8u)(~((in >> w) - 1));
    int d = (1 << (w+1)) - in - 1;
    d = (d & s) | (in & ~s);
    d = (d >> 1) + (d & 1);

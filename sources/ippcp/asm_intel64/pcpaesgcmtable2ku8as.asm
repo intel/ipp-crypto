@@ -58,12 +58,66 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 
 
 ;
+; getAesGcmConst_table_ct provides c-e-t access to pre-computed Ipp16u AesGcmConst_table[256]
+;
+;  input:
+;   r9: address of the AesGcmConst_table
+;  rcx: index in the table
+;
+;  output:
+;  rax
+;
+;  register  rcx destoyed
+;  registers mmx2, mmx3, mmx6, and mmx7 destoyed
+;
+ALIGN IPP_ALIGN_FACTOR
+INIT_IDX    DW    000h,001h,002h,003h,004h,005h,006h,007h   ;; initial search inx = {0:1:2:3:4:5:6:7}
+INCR_IDX    DW    008h,008h,008h,008h,008h,008h,008h,008h   ;; index increment = {8:8:8:8:8:8:8:8}
+
+ALIGN IPP_ALIGN_FACTOR
+getAesGcmConst_table_ct:
+   pxor     xmm2, xmm2                 ;; accumulator xmm2 = 0
+
+   mov      rax, rcx                   ;; broadcast inx into dword
+   shl      rcx, 16
+   or       rcx, rax
+   movd     xmm3, rcx
+   pshufd   xmm3, xmm3, 00b            ;; search index xmm3 = broadcast(idx)
+
+   movdqa   xmm6, xmmword ptr INIT_IDX ;; current indexes
+
+   xor      rax, rax
+ALIGN IPP_ALIGN_FACTOR
+search_loop:
+   movdqa   xmm7, xmm6                             ;; copy current indexes
+   paddw    xmm6, xmmword ptr INCR_IDX             ;; advance current indexes
+
+   pcmpeqw  xmm7, xmm3                             ;; selection mask
+   pand     xmm7, xmmword ptr[r9+rax*sizeof(word)] ;; mask data
+
+   add      rax, 8
+   cmp      rax, 256
+
+   por      xmm2, xmm7                             ;; and accumulate
+   jl       search_loop
+
+   movdqa   xmm3, xmm2                 ;; pack result in qword
+   psrldq   xmm2, sizeof(xmmword)/2
+   por      xmm2, xmm3
+   movd     rax, xmm2
+
+   and      rcx, 3                     ;; select tbl[idx] value
+   shl      rcx, 4                     ;; rcx *=16 = sizeof(word)*8
+   shr      rax, cl
+   ret
+
+;
 ; void AesGcmMulGcm_table2K(Ipp8u* pHash, const Ipp8u* pPrecomputedData, const void* pParam)
 ;
 ALIGN IPP_ALIGN_FACTOR
 IPPASM AesGcmMulGcm_table2K PROC PUBLIC FRAME
       USES_GPR rsi,rdi,rbx
-      USES_XMM
+      USES_XMM xmm6,xmm7
       COMP_ABI 3
 
    movdqu   xmm0, [rdi]                ; hash value
@@ -189,18 +243,22 @@ IPPASM AesGcmMulGcm_table2K PROC PUBLIC FRAME
    psrldq   xmm0, 15
 
    movd     ecx, xmm0
-   movzx    eax, word ptr [r9 + rcx*sizeof(word)]
+   call     getAesGcmConst_table_ct ;;movzx    eax, word ptr [r9 + rcx*sizeof(word)]
    shl      eax, 8
    movdqa   xmm0, xmm5
    pslldq   xmm5, 1
    pxor     xmm4, xmm5
    psrldq   xmm1, 15
    movd     ecx, xmm1
-   xor      ax, word ptr [r9 + rcx*sizeof(word)]
+   mov      rbx, rax                ;;xor      ax, word ptr [r9 + rcx*sizeof(word)]
+   call     getAesGcmConst_table_ct ;;
+   xor      rax, rbx                ;;
    shl      eax, 8
    psrldq   xmm0, 15
    movd     ecx, xmm0
-   xor      ax, word ptr [r9 + rcx*sizeof(word)]
+   mov      rbx, rax                ;;xor      ax, word ptr [r9 + rcx*sizeof(word)]
+   call     getAesGcmConst_table_ct ;;
+   xor      rax, rbx                ;;
    movd     xmm0, eax
    pxor     xmm0, xmm4
 
@@ -217,7 +275,7 @@ IPPASM AesGcmMulGcm_table2K ENDP
 ALIGN IPP_ALIGN_FACTOR
 IPPASM AesGcmAuth_table2K PROC PUBLIC FRAME
       USES_GPR rsi,rdi,rbx
-      USES_XMM
+      USES_XMM xmm6,xmm7
       COMP_ABI 5
 
    mov      r9, r8                     ; pointer to the fixed table (pParam)
@@ -348,18 +406,22 @@ auth_loop:
    psrldq   xmm0, 15
 
    movd     ecx, xmm0
-   movzx    eax, word ptr [r9 + rcx*sizeof(word)]
+   call     getAesGcmConst_table_ct ;;movzx    eax, word ptr [r9 + rcx*sizeof(word)]
    shl      eax, 8
    movdqa   xmm0, xmm5
    pslldq   xmm5, 1
    pxor     xmm4, xmm5
    psrldq   xmm1, 15
    movd     ecx, xmm1
-   xor      ax, word ptr [r9 + rcx*sizeof(word)]
+   mov      rbx, rax                ;;xor      ax, word ptr [r9 + rcx*sizeof(word)]
+   call     getAesGcmConst_table_ct ;;
+   xor      rax, rbx                ;;
    shl      eax, 8
    psrldq   xmm0, 15
    movd     ecx, xmm0
-   xor      ax, word ptr [r9 + rcx*sizeof(word)]
+   mov      rbx, rax                ;;xor      ax, word ptr [r9 + rcx*sizeof(word)]
+   call     getAesGcmConst_table_ct ;;
+   xor      rax, rbx                ;;
    movd     xmm0, eax
    pxor     xmm0, xmm4
 
