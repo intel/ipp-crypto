@@ -91,7 +91,7 @@ while (isFunctionFound == True):
       ##################################################
       DISP= open( os.sep.join([OutDir, "jmp_"+FunName+"_" + hashlib.sha512(FunName.encode('utf-8')).hexdigest()[:8] + ".c"]), 'w' )
 
-      DISP.write("""#include "ippcp.h"\n\n#pragma warning(disable : 1478 1786) // deprecated\n\n""")
+      DISP.write("""#include "ippcp.h"\n\n#pragma warning(disable : 1478) // deprecated\n\n""")
 
       DISP.write("typedef "+FunType+" (*IPP_PROC)"+FunArg+";\n\n")
       DISP.write("extern int ippcpJumpIndexForMergedLibs;\n")

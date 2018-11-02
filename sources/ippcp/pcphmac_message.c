@@ -102,7 +102,7 @@ IPPFUN(IppStatus, ippsHMAC_Message,(const Ipp8u* pMsg, int msgLen,
    IPP_BADARG_RET(0>=mdLen || mdLen>cpHashSize(hashAlg), ippStsLengthErr);
 
    {
-      __ALIGN8 IppsHMACState ctx;
+      IppsHMACState ctx;
       IppStatus sts = ippsHMAC_Init(pKey, keyLen, &ctx, hashAlg);
       if(ippStsNoErr!=sts) goto exit;
 

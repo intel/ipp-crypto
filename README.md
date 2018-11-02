@@ -68,7 +68,7 @@ only on the operating systems and tools listed below:
 
 -   Intel(R) C++ Compiler 19.0 for Windows\* OS
 
--   Microsoft Visual C++ Compiler\* version 14.14 or higher
+-   Microsoft Visual C++ Compiler\* version 14.14 or higher 
     provided by Microsoft Visual Studio\* 2017 version 15.7 or higher
 
 ### C/C++\* Compilers for Linux\* OS:
@@ -81,7 +81,7 @@ only on the operating systems and tools listed below:
 
 -   Intel(R) C++ Compiler 18.0 for OS X\*
 
--   Intel(R) C++ Compiler 19.0 for OS X\* OS
+-   Intel(R) C++ Compiler 19.0 for OS X\*
 
 ### Assembly Compilers for Windows\* OS:
 

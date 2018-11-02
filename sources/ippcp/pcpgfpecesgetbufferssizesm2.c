@@ -58,7 +58,7 @@
 // Purpose: Returns sizes of used buffers
 //
 // Returns:                   Reason:
-//    ippStsNullPtrErr           pState == NULL if pPublicKeySize != NULL or all the pointers are NULLs
+//    ippStsNullPtrErr           pState == NULL if pPublicKeySize != NULL
 //    ippStsContextMatchErr      pState invalid context if pPublicKeySize != NULL
 //    ippStsNoErr                no errors
 //
@@ -70,7 +70,6 @@
 *F*/
 IPPFUN(IppStatus, ippsGFpECESGetBuffersSize_SM2, (int* pPublicKeySize,
    int* pMaximumTagSize, const IppsECESState_SM2* pState)) {
-   IPP_BADARG_RET(pPublicKeySize == NULL && pMaximumTagSize == NULL && pState == NULL, ippStsNullPtrErr);
 
    if (pMaximumTagSize)
       *pMaximumTagSize = IPP_SM3_DIGEST_BITSIZE / BYTESIZE;

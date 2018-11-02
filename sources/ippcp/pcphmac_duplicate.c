@@ -79,8 +79,6 @@ IPPFUN(IppStatus, ippsHMAC_Duplicate,(const IppsHMACState* pSrcCtx, IppsHMACStat
    /* test state pointers */
    IPP_BAD_PTR2_RET(pSrcCtx, pDstCtx);
    /* test states ID */
-   pSrcCtx = (IppsHMACState*)( IPP_ALIGNED_PTR(pSrcCtx, HASH_ALIGNMENT) );
-   pDstCtx = (IppsHMACState*)( IPP_ALIGNED_PTR(pDstCtx, HASH_ALIGNMENT) );
    IPP_BADARG_RET(!HMAC_VALID_ID(pSrcCtx), ippStsContextMatchErr);
 
    /* copy HMAC state */

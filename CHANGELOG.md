@@ -2,14 +2,12 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
-## 2018-10-15
-- Added the new SM2 encryption scheme.
-- Added the ability to build the Intel(R) IPP Cryptography library with the Microsoft* Visual C++ Compiler 2017.
-- Added the ability to build the Intel(R) IPP Cryptography library with the Intel(R) C++ Compiler 19.
-- Changed the range of the message being signed or verified by EC and DLP.
+## YYYY-MM-DD
+- Added new functionality: the SM2 encryption scheme.
+- Added the ability to build the Intel IPP Cryptography library with the Microsoft* Visual C++ Compiler 2017.
+- Changed the range of the message being signed/verified by EC and DLP.
 - Fixed a potential security problem in the DLP signing and key generation functions.
 - Fixed a potential security problem in the AES-CTR cipher functions.
-- Fixed a potential security problem in the AES-GCM cipher functions.
 
 ## 2018-09-07
 - Deprecated the ARCFour functionality.

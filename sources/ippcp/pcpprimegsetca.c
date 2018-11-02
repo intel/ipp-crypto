@@ -85,14 +85,13 @@ IPPFUN(IppStatus, ippsPrimeSet, (const Ipp32u* pPrime, int nBits, IppsPrimeState
    ZEXPAND_BNU(PRIME_NUMBER(pCtx), 0, BITS_BNU_CHUNK(PRIME_MAXBITSIZE(pCtx)));
 
    {
-      Ipp32u* pValue = (Ipp32u*)PRIME_NUMBER(pCtx);
-
       cpSize len32 = BITS2WORD32_SIZE(nBits);
       Ipp32u mask = MAKEMASK32(nBits);
-      FIX_BNU(pPrime, len32);
+      Ipp32u* pPrime = (Ipp32u*)PRIME_NUMBER(pCtx);
 
-      ZEXPAND_COPY_BNU(pValue, BITS2WORD32_SIZE(PRIME_MAXBITSIZE(pCtx)), pPrime, len32);
-      pValue[len32-1] &= mask;
+      FIX_BNU(pPrime, len32);
+      ZEXPAND_COPY_BNU(pPrime, BITS2WORD32_SIZE(PRIME_MAXBITSIZE(pCtx)), pPrime, len32);
+      pPrime[len32-1] &= mask;
 
       return ippStsNoErr;
    }
