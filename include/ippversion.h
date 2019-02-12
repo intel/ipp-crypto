@@ -51,8 +51,8 @@
 
 #define IPP_VERSION_MAJOR  2019
 #define IPP_VERSION_MINOR  0
-#define IPP_VERSION_UPDATE 1
+#define IPP_VERSION_UPDATE 2
 
-#define IPP_VERSION_STR "2019.0.1 Gold"
+#define IPP_VERSION_STR "2019.0.2"
 
 #endif /* IPPVERSION_H__ */

@@ -66,7 +66,7 @@
 __INLINE int cpSizeofCtx_AES(void)
 {
    return sizeof(IppsAESSpec)
-        + AES_ALIGNMENT;
+         +(AES_ALIGNMENT-1);
 }
 
 #endif /* _PCP_AES_H */
