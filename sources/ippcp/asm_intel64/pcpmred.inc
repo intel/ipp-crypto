@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2014-2018 Intel Corporation
+; Copyright 2014-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -50,14 +50,6 @@ _PCPMRED_INC_ = 1
 
 include pcpmred_basic.inc
 
-IF _IPP32E EQ _IPP32E_K0
-  mred_8N EQU k0_mred_8N
-  mred_N  EQU k0_mred_N
-ENDIF
-IF _IPP32E EQ _IPP32E_N0
-  mred_8N EQU n0_mred_8N
-  mred_N  EQU n0_mred_N
-ENDIF
 
 ;
 ;  r15 - reduction
@@ -65,7 +57,7 @@ ENDIF
 ;  rsi - modulus
 ;  rdx - modulus legth
 ;  r8  - m'
-ALIGN 16
+ALIGN IPP_ALIGN_FACTOR
 mred_8N PROC PRIVATE
    push     r15      ; save reduction address
 
@@ -209,7 +201,7 @@ mred_8N ENDP
 ;  rsi - modulus
 ;  rdx - modulus legth
 ;  r8  - m'
-ALIGN 16
+ALIGN IPP_ALIGN_FACTOR
 mred_N PROC PRIVATE
    push     r15      ; save reduction address
 

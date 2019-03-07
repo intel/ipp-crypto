@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -100,9 +100,9 @@ int cpDiv_BNU32(Ipp32u* pQ, cpSize* sizeQ,
       int i;
       Ipp32u r = 0;
       for(i=(int)sizeX-1; i>=0; i--) {
-         Ipp64u tmp = MAKEDWORD(pX[i],r);
-         Ipp32u q = LODWORD(tmp / pY[0]);
-         r = LODWORD(tmp - q*pY[0]);
+         Ipp64u tmp = IPP_MAKEDWORD(pX[i],r);
+         Ipp32u q = IPP_LODWORD(tmp / pY[0]);
+         r = IPP_LODWORD(tmp - q*pY[0]);
          if(pQ) pQ[i] = q;
       }
 
@@ -149,16 +149,16 @@ int cpDiv_BNU32(Ipp32u* pQ, cpSize* sizeQ,
             Ipp32u extend;
 
             /* estimate digit of quotient */
-            Ipp64u tmp = MAKEDWORD(pX[i+sizeY-1], pX[i+sizeY]);
+            Ipp64u tmp = IPP_MAKEDWORD(pX[i+sizeY-1], pX[i+sizeY]);
             Ipp64u q = tmp / yHi;
             Ipp64u r = tmp - q*yHi;
 
             /* tune estimation above */
-            //for(; (q>=CONST_64(0x100000000)) || (Ipp64u)q*pY[sizeY-2] > MAKEDWORD(pX[i+sizeY-2],r); ) {
-            for(; HIDWORD(q) || (Ipp64u)q*pY[sizeY-2] > MAKEDWORD(pX[i+sizeY-2],r); ) {
+            //for(; (q>=CONST_64(0x100000000)) || (Ipp64u)q*pY[sizeY-2] > IPP_MAKEDWORD(pX[i+sizeY-2],r); ) {
+            for(; IPP_HIDWORD(q) || (Ipp64u)q*pY[sizeY-2] > IPP_MAKEDWORD(pX[i+sizeY-2],r); ) {
                q -= 1;
                r += yHi;
-               if( HIDWORD(r) )
+               if( IPP_HIDWORD(r) )
                   break;
             }
 
@@ -173,7 +173,7 @@ int cpDiv_BNU32(Ipp32u* pQ, cpSize* sizeQ,
             }
 
             /* store quotation digit */
-            if(pQ) pQ[i] = LODWORD(q);
+            if(pQ) pQ[i] = IPP_LODWORD(q);
          }
       }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -107,10 +107,10 @@ IPPFUN(IppStatus, ippsAES_GCMGetTag,(Ipp8u* pDstTag, int tagLen, const IppsAES_G
       }
 
       /* process lengths of AAD and text */
-      U32_TO_HSTRING(tmpCntr,   HIDWORD(aadBitLen));
-      U32_TO_HSTRING(tmpCntr+4, LODWORD(aadBitLen));
-      U32_TO_HSTRING(tmpCntr+8, HIDWORD(txtBitLen));
-      U32_TO_HSTRING(tmpCntr+12,LODWORD(txtBitLen));
+      U32_TO_HSTRING(tmpCntr,   IPP_HIDWORD(aadBitLen));
+      U32_TO_HSTRING(tmpCntr+4, IPP_LODWORD(aadBitLen));
+      U32_TO_HSTRING(tmpCntr+8, IPP_HIDWORD(txtBitLen));
+      U32_TO_HSTRING(tmpCntr+12,IPP_LODWORD(txtBitLen));
 
       XorBlock16(tmpHash, tmpCntr, tmpHash);
       hashFunc(tmpHash, AESGCM_HKEY(pState), AesGcmConst_table);

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2018 Intel Corporation
+* Copyright 2014-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -141,9 +141,9 @@ void UpdateSHA512(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniPra
          Ipp32u hiX = data[2*t];
          Ipp32u loX = data[2*t+1];
          #if (IPP_ENDIAN == IPP_BIG_ENDIAN)
-         W[t] = MAKEDWORD(loX, hiX);
+         W[t] = IPP_MAKEDWORD(loX, hiX);
          #else
-         W[t] = MAKEDWORD( ENDIANNESS(loX), ENDIANNESS(hiX) );
+         W[t] = IPP_MAKEDWORD( ENDIANNESS(loX), ENDIANNESS(hiX) );
          #endif
       }
       for(; t<80; t++)
@@ -198,9 +198,9 @@ void UpdateSHA512(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniPra
          Ipp32u hiX = data[2*j];
          Ipp32u loX = data[2*j+1];
          #if (IPP_ENDIAN == IPP_BIG_ENDIAN)
-         wdat[j] = MAKEDWORD(loX, hiX);
+         wdat[j] = IPP_MAKEDWORD(loX, hiX);
          #else
-         wdat[j] = MAKEDWORD( ENDIANNESS(loX), ENDIANNESS(hiX) );
+         wdat[j] = IPP_MAKEDWORD( ENDIANNESS(loX), ENDIANNESS(hiX) );
          #endif
       }
 

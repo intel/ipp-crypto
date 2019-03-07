@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -40,6 +40,7 @@
 
  
 .text
+.p2align 5, 0x90
  
 .globl _cpGetReg
 
@@ -60,6 +61,8 @@ _cpGetReg:
     pop          %esi
     pop          %ebx
     ret
+ 
+.p2align 5, 0x90
  
 .globl _cp_is_avx_extension
 
@@ -93,6 +96,8 @@ _cp_is_avx_extension:
     pop          %ebp
     ret
  
+.p2align 5, 0x90
+ 
 .globl _cp_is_avx512_extension
 
  
@@ -125,12 +130,16 @@ _cp_is_avx512_extension:
     pop          %ebp
     ret
  
+.p2align 5, 0x90
+ 
 .globl _cp_get_pentium_counter
 
  
 _cp_get_pentium_counter:
     rdtsc
     ret
+ 
+.p2align 5, 0x90
  
 .globl _cpStartTscp
 
@@ -142,6 +151,8 @@ _cpStartTscp:
     pop          %ebx
 rdtscp 
     ret
+ 
+.p2align 5, 0x90
  
 .globl _cpStopTscp
 
@@ -158,6 +169,8 @@ rdtscp
     pop          %eax
     ret
  
+.p2align 5, 0x90
+ 
 .globl _cpStartTsc
 
  
@@ -168,6 +181,8 @@ _cpStartTsc:
     pop          %ebx
     rdtsc
     ret
+ 
+.p2align 5, 0x90
  
 .globl _cpStopTsc
 
@@ -184,6 +199,8 @@ _cpStopTsc:
     pop          %eax
     ret
  
+.p2align 5, 0x90
+ 
 .globl _cpGetCacheSize
 
  
@@ -193,7 +210,7 @@ _cpGetCacheSize:
     push         %ebx
     push         %ebp
     sub          $(16), %esp
-    mov          (13)(%esp), %edi
+    mov          (36)(%esp), %edi
     mov          %esp, %ebp
     xor          %esi, %esi
     mov          $(2), %eax

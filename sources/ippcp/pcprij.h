@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -241,7 +241,17 @@ struct _cpRijndael256 {
    void cpAESEncryptXTS_AES_NI(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak);
 #define cpAESDecryptXTS_AES_NI OWNAPI(cpAESDecryptXTS_AES_NI)
    void cpAESDecryptXTS_AES_NI(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak);
-#endif
+
+#if 0 // gres: temporary switched off
+#if (_IPP32E>=_IPP32E_K0)
+#define vaes_ecb_enc OWNAPI(vaes_ecb_enc)
+   void vaes_ecb_enc(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx);
+#define vaes_ecb_dec OWNAPI(vaes_ecb_dec)
+   void vaes_ecb_dec(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx);
+#endif /* _IPP32E>=_IPP32E_K0 */
+#endif // grea
+
+#endif /* _IPP>=_IPP_P8 || _IPP32E>=_IPP32E_Y8 */
 
 #define ExpandRijndaelKey OWNAPI(ExpandRijndaelKey)
    void ExpandRijndaelKey(const Ipp8u* pKey, int NK, int NB, int NR, int nKeys,

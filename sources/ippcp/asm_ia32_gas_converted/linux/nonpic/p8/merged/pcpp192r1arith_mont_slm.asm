@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -49,7 +49,7 @@ _prime192r1:
  
 .p2align 4, 0x90
  
-.globl p8_add_192
+
 .type p8_add_192, @function
  
 p8_add_192:
@@ -78,7 +78,7 @@ p8_add_192:
 .size p8_add_192, .Lfe1-(p8_add_192)
 .p2align 4, 0x90
  
-.globl p8_sub_192
+
 .type p8_sub_192, @function
  
 p8_sub_192:
@@ -107,7 +107,7 @@ p8_sub_192:
 .size p8_sub_192, .Lfe2-(p8_sub_192)
 .p2align 4, 0x90
  
-.globl p8_shl_192
+
 .type p8_shl_192, @function
  
 p8_shl_192:
@@ -132,7 +132,7 @@ p8_shl_192:
 .size p8_shl_192, .Lfe3-(p8_shl_192)
 .p2align 4, 0x90
  
-.globl p8_shr_192
+
 .type p8_shr_192, @function
  
 p8_shr_192:

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2018 Intel Corporation
+* Copyright 2017-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -101,11 +101,11 @@ static
 Ipp8u* CounterEnc(Ipp32u* pBuffer, int fmt, Ipp64u counter)
 {
    #if (IPP_ENDIAN == IPP_LITTLE_ENDIAN)
-   pBuffer[0] = ENDIANNESS(HIDWORD(counter));
-   pBuffer[1] = ENDIANNESS(LODWORD(counter));
+   pBuffer[0] = ENDIANNESS(IPP_HIDWORD(counter));
+   pBuffer[1] = ENDIANNESS(IPP_LODWORD(counter));
    #else
-   pBuffer[0] = HIDWORD(counter);
-   pBuffer[1] = LODWORD(counter);
+   pBuffer[0] = IPP_HIDWORD(counter);
+   pBuffer[1] = IPP_LODWORD(counter);
    #endif
    return (Ipp8u*)pBuffer + 8 - fmt;
 }

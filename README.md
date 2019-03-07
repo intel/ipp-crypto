@@ -338,7 +338,7 @@ Intel, and the Intel logo are trademarks of Intel Corporation in the U.S. and/or
 
 *Other names and brands may be claimed as the property of others.
 
-© 2018 Intel Corporation.
+© 2019 Intel Corporation.
 
 |Optimization Notice|
 |:------------------|

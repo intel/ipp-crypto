@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -90,7 +90,7 @@ IPPFUN(IppStatus, ippsSMS4DecryptCBC_CS2,(const Ipp8u* pSrc, Ipp8u* pDst, int le
    /* test source, target buffers and initialization pointers */
    IPP_BAD_PTR3_RET(pSrc, pIV, pDst);
    /* test stream length */
-   IPP_BADARG_RET((len<=MBS_SMS4), ippStsLengthErr);
+   IPP_BADARG_RET((len<MBS_SMS4), ippStsLengthErr);
 
    ////////////////////////////////////////////////////////////////
    {

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -157,13 +157,13 @@ Ipp64u Cipher_DES(Ipp64u inpBlk, const RoundKeyDES* pRKey, const Ipp32u sbox[])
    const Ipp8u* sbox8 = (const Ipp8u*)sbox;
 
    #if (IPP_ENDIAN == IPP_BIG_ENDIAN)
-   Ipp32u q0 = LODWORD(inpBlk);
-   Ipp32u q1 = HIDWORD(inpBlk);
+   Ipp32u q0 = IPP_LODWORD(inpBlk);
+   Ipp32u q1 = IPP_HIDWORD(inpBlk);
    q0 = ENDIANNESS(q0);
    q1 = ENDIANNESS(q1);
    #else
-   Ipp32u q0 = HIDWORD(inpBlk);
-   Ipp32u q1 = LODWORD(inpBlk);
+   Ipp32u q0 = IPP_HIDWORD(inpBlk);
+   Ipp32u q1 = IPP_LODWORD(inpBlk);
    #endif
 
    /* apply inverse permutation IP */
@@ -193,8 +193,8 @@ Ipp64u Cipher_DES(Ipp64u inpBlk, const RoundKeyDES* pRKey, const Ipp32u sbox[])
    #if (IPP_ENDIAN == IPP_BIG_ENDIAN)
    q0 = ENDIANNESS(q0);
    q1 = ENDIANNESS(q1);
-   return MAKEDWORD(q1,q0);
+   return IPP_MAKEDWORD(q1,q0);
    #else
-   return MAKEDWORD(q0,q1);
+   return IPP_MAKEDWORD(q0,q1);
    #endif
 }

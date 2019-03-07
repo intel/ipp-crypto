@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -85,24 +85,31 @@
 *F*/
 static void AES_CMAC_processing(Ipp8u* pDigest, const Ipp8u* pSrc, int processedLen, const IppsAESSpec* pAES)
 {
-   /* setup encoder method */
-   RijnCipher encoder = RIJ_ENCODER(pAES);
+#if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
+   if(AES_NI_ENABLED==RIJ_AESNI(pAES)) {
+      cpAESCMAC_Update_AES_NI(pDigest, pSrc, processedLen, RIJ_NR(pAES), RIJ_EKEYS(pAES));
+   }
+   else
+#endif
+   {
+      /* setup encoder method */
+      RijnCipher encoder = RIJ_ENCODER(pAES);
 
-   while(processedLen) {
-      ((Ipp32u*)pDigest)[0] ^= ((Ipp32u*)pSrc)[0];
-      ((Ipp32u*)pDigest)[1] ^= ((Ipp32u*)pSrc)[1];
-      ((Ipp32u*)pDigest)[2] ^= ((Ipp32u*)pSrc)[2];
-      ((Ipp32u*)pDigest)[3] ^= ((Ipp32u*)pSrc)[3];
+      while(processedLen) {
+         ((Ipp32u*)pDigest)[0] ^= ((Ipp32u*)pSrc)[0];
+         ((Ipp32u*)pDigest)[1] ^= ((Ipp32u*)pSrc)[1];
+         ((Ipp32u*)pDigest)[2] ^= ((Ipp32u*)pSrc)[2];
+         ((Ipp32u*)pDigest)[3] ^= ((Ipp32u*)pSrc)[3];
 
-      //encoder(pDigest, pDigest, RIJ_NR(pAES), RIJ_EKEYS(pAES), (const Ipp32u (*)[256])RIJ_ENC_SBOX(pAES));
-      #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-      encoder(pDigest, pDigest, RIJ_NR(pAES), RIJ_EKEYS(pAES), RijEncSbox/*NULL*/);
-      #else
-      encoder(pDigest, pDigest, RIJ_NR(pAES), RIJ_EKEYS(pAES), NULL);
-      #endif
+         #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
+         encoder(pDigest, pDigest, RIJ_NR(pAES), RIJ_EKEYS(pAES), RijEncSbox/*NULL*/);
+         #else
+         encoder(pDigest, pDigest, RIJ_NR(pAES), RIJ_EKEYS(pAES), NULL);
+         #endif
 
-      pSrc += MBS_RIJ128;
-      processedLen -= MBS_RIJ128;
+         pSrc += MBS_RIJ128;
+         processedLen -= MBS_RIJ128;
+      }
    }
 }
 

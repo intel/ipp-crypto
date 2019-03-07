@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -50,6 +50,9 @@
 
 #include "pcpname.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4206) // empty unit
+#endif
 #ifdef _PCS
 
 #if !defined( _WIN32 ) && !defined( _WIN64 ) && !defined( _WIN32E ) && !defined( linux32 ) && !defined( linux64 ) && !defined( linux32e ) && !defined( OSX32 ) && !defined( OSXEM64T )
@@ -71,11 +74,14 @@
   #define STRICT
   #define WIN32_LEAN_AND_MEAN
 #pragma warning(push)
+#if defined(__INTEL_COMPILER)
 #pragma warning(disable : 3199 1879 344 161) // unsupported pragmas, retypedefs and always-false-defines
+#endif
   #include <windows.h>
 #pragma warning(pop)
   #include <stdio.h>
   #include <tchar.h>
+  #include <stdlib.h>
 #elif defined( linux ) || defined( OSX32 ) || defined( OSXEM64T )
   typedef int (*FARPROC)();
   #define _T(str) str
@@ -90,6 +96,7 @@
 
 #include "ippcpdefs.h"
 #include "dispatcher.h"
+#include "ippversion.h"
 
 #define IPP_MSG_SIZE (256)
 static _TCHAR LOAD_DLL_ERR[ IPP_MSG_SIZE ] = _T("Error at loading of ") _T(IPP_LIB_SHORTNAME()) _T(" library");
@@ -322,52 +329,83 @@ static void SysFreeLibrary( HINSTANCE hLib )
 }
 
 static int firstTime = 1;
-
-static IppStatus ipp_LoadLibrary( int index, HINSTANCE* phLib )
+#define IPP_WATERFALL_MSG (2 * IPP_MSG_SIZE)
+static IppStatus ipp_LoadLibrary(int index, HINSTANCE* phLib)
 {
-    HINSTANCE hLib = 0;
-    int i;
-    /* some processor could work with DLL for old cpus, get pointer to list */
-    const dll_enum* dllList = dllUsage[ index ];
+   HINSTANCE hLib = 0;
+   int i;
+   /* some processor could work with DLL for old cpus, get pointer to list */
+   const dll_enum* dllList = dllUsage[index];
+   _TCHAR errMsg[IPP_WATERFALL_MSG];
+   _TCHAR libVer[IPP_MSG_SIZE];
+   size_t retVal;
 
-    (*phLib) = 0;
-    /* waterfall, try to load an available DLL from the list */
-    for( i = 0; dllList[i] != DLL_NOMORE; i++ ) {
-        hLib = SysLoadLibrary( dllNames[ dllList[i] ] );
-        if( hLib ) {
-           (*phLib) = hLib;
-           firstTime = 0;
-           if( 0 != i ){
-              return ippStsWaterfall;
-           } else {
-              return ippStsNoErr;
-           }
-        }
-    }
+   (*phLib) = 0;
+   /* waterfall, try to load an available DLL from the list */
+   for (i = 0; dllList[i] != DLL_NOMORE; i++) {
+      hLib = SysLoadLibrary(dllNames[dllList[i]]);
+      if (hLib) {
+         (*phLib) = hLib;
+         firstTime = 0;
+         if (0 != i) {
+            return ippStsWaterfall;
+         }
+         else {
+            return ippStsNoErr;
+         }
+      }
+   }
 
-    if( firstTime ) {
-        firstTime = 0;
-       /* initially loading, cannot provide status to the user in this case, so error will be output */
-    #if defined( _WIN32 ) || defined ( _WIN64 ) || defined( _WIN32E )
-        swprintf_s( LOAD_DLL_ERR, IPP_MSG_SIZE, _T("Error at loading of %s library"), _T(IPP_LIB_SHORTNAME()) );
-        MessageBeep( MB_ICONSTOP );
-        MessageBox( 0, _T("No DLLs were found in the Waterfall procedure"), LOAD_DLL_ERR, MB_ICONSTOP | MB_OK );
-        return MSG_NO_DLL;
-    #elif defined( linux ) || defined( OSX32 ) || defined ( OSXEM64T )
-        sprintf( LOAD_DLL_ERR, _T("Error at loading of %s library"), _T(IPP_LIB_SHORTNAME()) );
-        fputs( _T(LOAD_DLL_ERR), stderr );
-        fputs( ": ", stderr );
-        fputs( _T("No shared libraries were found in the Waterfall procedure"), stderr );
-        fputs( "\n", stderr );
-        return MSG_NO_SHARED;
-    #endif
-    } else {
-    #if defined( _WIN32 ) || defined ( _WIN64 ) || defined( _WIN32E )
-        return MSG_NO_DLL;
-    #elif defined( linux ) || defined( OSX32 ) || defined ( OSXEM64T )
-        return MSG_NO_SHARED;
-    #endif 
-    } 
+   if (firstTime) {
+      firstTime = 0;
+      /* initially loading, cannot provide status to the user in this case, so error will be output */
+#if defined( _WIN32 ) || defined ( _WIN64 ) || defined( _WIN32E )
+      swprintf_s(errMsg, IPP_WATERFALL_MSG, _T("Your application is dynamically linked with Intel(R) Integrated Performance Primitives libraries version "));
+      mbstowcs_s(&retVal, libVer, IPP_MSG_SIZE, IPP_VERSION_STR, strlen(IPP_VERSION_STR));
+      wcscat_s(errMsg, IPP_WATERFALL_MSG, libVer);
+      wcscat_s(errMsg, IPP_WATERFALL_MSG, _T("\nNo DLL from the list below is found on the system search path:"));
+      for (i = 0; dllList[i] != DLL_NOMORE; i++) {
+         wcscat_s(errMsg, IPP_WATERFALL_MSG, _T("\n"));
+         wcscat_s(errMsg, IPP_WATERFALL_MSG, dllNames[dllList[i]]);
+         if (0 == i)
+            wcscat_s(errMsg, IPP_WATERFALL_MSG, _T(" (the most suitable for your CPU)"));
+         else
+            wcscat_s(errMsg, IPP_WATERFALL_MSG, _T(" (optional)"));
+      }
+      wcscat_s(errMsg, IPP_WATERFALL_MSG, _T("\nPlease provide a path to at least one of them"));
+      swprintf_s(LOAD_DLL_ERR, IPP_MSG_SIZE, _T("Error at loading of %s library"), _T(IPP_LIB_SHORTNAME()));
+      MessageBeep(MB_ICONSTOP);
+      MessageBox(0, errMsg, LOAD_DLL_ERR, MB_ICONSTOP | MB_OK);
+      return MSG_NO_DLL;
+#elif defined( linux ) || defined( OSX32 ) || defined ( OSXEM64T )
+      sprintf(LOAD_DLL_ERR, _T("Error at loading of %s library"), _T(IPP_LIB_SHORTNAME()));
+      fputs(_T(LOAD_DLL_ERR), stderr);
+      fputs(":\n", stderr);
+
+      sprintf(errMsg, _T("Your application is dynamically linked with Intel(R) Integrated Performance Primitives libraries version "));
+      strcat(errMsg, IPP_VERSION_STR);
+      strcat(errMsg, _T("\nNo DLL from the list below is found on the system search path:"));
+      for (i = 0; dllList[i] != DLL_NOMORE; i++) {
+         strcat(errMsg, _T("\n"));
+         strcat(errMsg, dllNames[dllList[i]]);
+         if (0 == i)
+            strcat(errMsg, _T(" (the most suitable for your CPU)"));
+         else
+            strcat(errMsg, _T(" (optional)"));
+      }
+      strcat(errMsg, _T("\nPlease provide a path to at least one of them"));
+      fputs(errMsg, stderr);
+      fputs("\n", stderr);
+      return MSG_NO_SHARED;
+#endif
+   }
+   else {
+#if defined( _WIN32 ) || defined ( _WIN64 ) || defined( _WIN32E )
+      return MSG_NO_DLL;
+#elif defined( linux ) || defined( OSX32 ) || defined ( OSXEM64T )
+      return MSG_NO_SHARED;
+#endif
+   }
 }
 
 
@@ -402,6 +440,8 @@ static IppStatus IPP_STDCALL DynReload( int index )          /* library index fr
 #if defined( _WIN32 ) || defined( _WIN32E )
     int WINAPI DllMain( HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved )
     {
+        UNREFERENCED_PARAMETER(lpvReserved);
+
         int       index;
         Ipp64u    cpuFeatures;
 
@@ -428,12 +468,14 @@ static IppStatus IPP_STDCALL DynReload( int index )          /* library index fr
         return 1;
     }
 
-    static int ipp_LoadFunction( HMODULE hLibModule,const void* func, char* funcname, int index )
+    static int ipp_LoadFunction( HMODULE hLib,const void* func, char* funcname, int index )
     {
+        UNREFERENCED_PARAMETER(index);
+
         FARPROC* funcadr=(FARPROC*)func;
 
         /* assign function pointers to static variable */
-        (*funcadr)=GetProcAddress( hLibModule, funcname );
+        (*funcadr)=GetProcAddress( hLib, funcname );
 
         if( !(*funcadr) ) {
             _TCHAR msg[128];
@@ -473,12 +515,12 @@ static IppStatus IPP_STDCALL DynReload( int index )          /* library index fr
         }
     }
 
-    static int ipp_LoadFunction( void* hLibModule, const void* func, char* funcname, int index )
+    static int ipp_LoadFunction( void* hLib, const void* func, char* funcname, int index )
     {
         FARPROC *funcadr=(FARPROC*)func;
         const char* error;
         /* assign function pointers to static variable */
-        (*funcadr)=(FARPROC)dlsym( hLibModule, funcname );
+        (*funcadr)=(FARPROC)dlsym( hLib, funcname );
 
         if( (error = dlerror()) != 0 ) {
             fputs( "dlsym: ", stderr );
@@ -512,12 +554,12 @@ static IppStatus IPP_STDCALL DynReload( int index )          /* library index fr
     }
 
 
-    static int ipp_LoadFunction( void* hLibModule, const void* func, char* funcname, int index )
+    static int ipp_LoadFunction( void* hLib, const void* func, char* funcname, int index )
     {
         FARPROC *funcadr=(FARPROC*)func;
         const char* error;
         /* assign function pointers to static variable */
-        (*funcadr)=(FARPROC)dlsym( hLibModule, funcname );
+        (*funcadr)=(FARPROC)dlsym( hLib, funcname );
 
         if( (error = dlerror()) != 0 ) {
             fputs( "dlsym: ", stderr );
@@ -532,27 +574,27 @@ static IppStatus IPP_STDCALL DynReload( int index )          /* library index fr
 #endif
 
 
-static int ipp_LoadFunctions( HMODULE hLibModule, int index )
+static int ipp_LoadFunctions( HMODULE hLib, int index )
 {
     int i = 0;
     while(( IPP_Desc[i].pFuncAdr )&&( IPP_Desc[i].FuncName ))
     {
-        if( !ipp_LoadFunction( hLibModule, IPP_Desc[i].pFuncAdr, IPP_Desc[i].FuncName, index ))
+        if( !ipp_LoadFunction( hLib, IPP_Desc[i].pFuncAdr, IPP_Desc[i].FuncName, index ))
         {
             return 0;
         }
         i = i + 1;
     }
-
-    if( !ipp_LoadFunction( hLibModule, (const void*)&pcpSetCpuFeatures,       ippcpSetCpuFeaturesName,       index )  ||
-        !ipp_LoadFunction( hLibModule, (const void*)&pcpSetNumThreads,        ippcpSetNumThreadsName,        index )  ||
-        !ipp_LoadFunction( hLibModule, (const void*)&pcpGetNumThreads,        ippcpGetNumThreadsName,        index ))
-    {
-        pcpSetCpuFeatures        = 0;
-        pcpSetNumThreads         = 0;
-        pcpGetNumThreads         = 0;
-        return 0;
-    }
+  // gres
+  //if( !ipp_LoadFunction( hLib, (const void*)&pcpSetCpuFeatures,       ippcpSetCpuFeaturesName,       index )  ||
+  //    !ipp_LoadFunction( hLib, (const void*)&pcpSetNumThreads,        ippcpSetNumThreadsName,        index )  ||
+  //    !ipp_LoadFunction( hLib, (const void*)&pcpGetNumThreads,        ippcpGetNumThreadsName,        index ))
+  //{
+  //    pcpSetCpuFeatures        = 0;
+  //    pcpSetNumThreads         = 0;
+  //    pcpGetNumThreads         = 0;
+  //    return 0;
+  //}
     return 1;
 }
 
@@ -564,18 +606,26 @@ static int ipp_LoadFunctions( HMODULE hLibModule, int index )
 /* Include DllMain function to all Windows Intel(R) Integrated Performance Primitives (Intel(R) IPP) dll's for i_malloc initialization */
 #if defined( _IPP_DYNAMIC )
 
-#include "ippcpdefs.h"
-#include "ippcp.h"
-
 /* int ippJumpIndexForMergedDLL= 0; */   /* index for merged DLL (SSSE3+Atome) */
 
-#if defined( _WIN32 ) || defined( _WIN32E ) 
-
+#if defined( _WIN32 ) || defined( _WIN64 ) || defined( _WIN32E )
+#define STRICT
+#define WIN32_LEAN_AND_MEAN
+#pragma warning(push)
+#if defined(__INTEL_COMPILER)
+#pragma warning(disable : 3199 1879 344 161) // unsupported pragmas, retypedefs and always-false-defines
+#endif
 #include <windows.h>
+#pragma warning(pop)
+
+#include "owndefs.h"
 
 int WINAPI DllMain( HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved )
 {
-   Ipp64u     pFeaturesMask;
+ //Ipp64u     pFeaturesMask;
+
+   IPP_UNREFERENCED_PARAMETER(hinstDLL);
+   IPP_UNREFERENCED_PARAMETER(lpvReserved);
 
    switch( fdwReason ) {
     case DLL_PROCESS_ATTACH:
@@ -586,8 +636,6 @@ int WINAPI DllMain( HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved )
     default: break;
    }
    return 1;
-   UNREFERENCED_PARAMETER(hinstDLL);
-   UNREFERENCED_PARAMETER(lpvReserved);
 }
 #elif defined( linux )
 // __attribute__ ((constructor)) void my_init(void)
@@ -614,7 +662,6 @@ __attribute__((destructor)) void destructor()
 #endif
 #endif  /* WIN32 && IMALLOC */
 #endif
-
 
 /* ////////////////////////////// End of file /////////////////////////////// */
 

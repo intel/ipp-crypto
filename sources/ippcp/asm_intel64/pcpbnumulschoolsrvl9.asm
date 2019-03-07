@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2015-2018 Intel Corporation
+; Copyright 2015-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -64,34 +64,6 @@ _xEMULATION_ = 1
 
 IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 
-ALIGN IPP_ALIGN_FACTOR
-sub_N:
-   xor      rax, rax    ; cf = 0
-sub_next:
-   lea      rdi, [rdi+sizeof(qword)]
-   mov      r8, qword ptr[rsi]
-   mov      r9, qword ptr[rcx]
-   lea      rsi, [rsi+sizeof(qword)]
-   lea      rcx, [rcx+sizeof(qword)]
-   sbb      r8, r9
-   mov      qword ptr[rdi-sizeof(qword)], r8
-   dec      rdx
-   jnz      sub_next
-   adc      rax, 0
-   ret
-
-ALIGN IPP_ALIGN_FACTOR
-copy_ae_N:
-   lea      rdi, [rdi+sizeof(qword)]
-   mov      r8, qword ptr[rsi]      ; src1[]
-   mov      r9, qword ptr[rcx]      ; src2[]
-   lea      rsi, [rsi+sizeof(qword)]
-   lea      rcx, [rcx+sizeof(qword)]
-   cmovae   r8, r9
-   mov      qword ptr[rdi-sizeof(qword)], r8
-   dec      rdx
-   jnz      copy_ae_N
-   ret
 
 include pcpbnumul.inc
 include pcpbnusqr.inc
@@ -187,8 +159,8 @@ test_8N_case:
 ;; general case multiplier
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 general_mul:
-   call  mul_NxM
-   jmp   quit
+   call    mul_NxM
+   jmp     quit
 
 quit:
    REST_XMM

@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -42,6 +42,7 @@
  .section .note.GNU-stack,"",%progbits 
  
 .text
+.p2align 5, 0x90
  
 .globl cpGetReg
 .type cpGetReg, @function
@@ -64,6 +65,8 @@ cpGetReg:
     ret
 .Lfe1:
 .size cpGetReg, .Lfe1-(cpGetReg)
+ 
+.p2align 5, 0x90
  
 .globl cp_is_avx_extension
 .type cp_is_avx_extension, @function
@@ -91,6 +94,7 @@ cp_is_avx_extension:
     ret
 .Lfe2:
 .size cp_is_avx_extension, .Lfe2-(cp_is_avx_extension)
+.p2align 5, 0x90
  
 .globl cp_is_avx512_extension
 .type cp_is_avx512_extension, @function
@@ -118,6 +122,20 @@ cp_is_avx512_extension:
     ret
 .Lfe3:
 .size cp_is_avx512_extension, .Lfe3-(cp_is_avx512_extension)
+.p2align 5, 0x90
+ 
+.globl cp_issue_avx512_instruction
+.type cp_issue_avx512_instruction, @function
+ 
+cp_issue_avx512_instruction:
+ 
+
+.byte   0x62, 0xf1, 0x7d, 0x48, 0xef, 0xc0 
+    xor          %eax, %eax
+    ret
+.Lfe4:
+.size cp_issue_avx512_instruction, .Lfe4-(cp_issue_avx512_instruction)
+.p2align 5, 0x90
  
 .globl ippcpSafeInit
 .type ippcpSafeInit, @function
@@ -137,8 +155,9 @@ ippcpSafeInit:
     pop          %rdx
     pop          %rcx
     ret
-.Lfe4:
-.size ippcpSafeInit, .Lfe4-(ippcpSafeInit)
+.Lfe5:
+.size ippcpSafeInit, .Lfe5-(ippcpSafeInit)
+.p2align 5, 0x90
  
 .globl cp_get_pentium_counter
 .type cp_get_pentium_counter, @function
@@ -148,8 +167,9 @@ cp_get_pentium_counter:
     sal          $(32), %rdx
     or           %rdx, %rax
     ret
-.Lfe5:
-.size cp_get_pentium_counter, .Lfe5-(cp_get_pentium_counter)
+.Lfe6:
+.size cp_get_pentium_counter, .Lfe6-(cp_get_pentium_counter)
+.p2align 5, 0x90
  
 .globl cpStartTscp
 .type cpStartTscp, @function
@@ -163,8 +183,9 @@ rdtscp
     sal          $(32), %rdx
     or           %rdx, %rax
     ret
-.Lfe6:
-.size cpStartTscp, .Lfe6-(cpStartTscp)
+.Lfe7:
+.size cpStartTscp, .Lfe7-(cpStartTscp)
+.p2align 5, 0x90
  
 .globl cpStopTscp
 .type cpStopTscp, @function
@@ -180,8 +201,9 @@ rdtscp
     pop          %rbx
     pop          %rax
     ret
-.Lfe7:
-.size cpStopTscp, .Lfe7-(cpStopTscp)
+.Lfe8:
+.size cpStopTscp, .Lfe8-(cpStopTscp)
+.p2align 5, 0x90
  
 .globl cpStartTsc
 .type cpStartTsc, @function
@@ -195,8 +217,9 @@ cpStartTsc:
     sal          $(32), %rdx
     or           %rdx, %rax
     ret
-.Lfe8:
-.size cpStartTsc, .Lfe8-(cpStartTsc)
+.Lfe9:
+.size cpStartTsc, .Lfe9-(cpStartTsc)
+.p2align 5, 0x90
  
 .globl cpStopTsc
 .type cpStopTsc, @function
@@ -212,8 +235,9 @@ cpStopTsc:
     pop          %rbx
     pop          %rax
     ret
-.Lfe9:
-.size cpStopTsc, .Lfe9-(cpStopTsc)
+.Lfe10:
+.size cpStopTsc, .Lfe10-(cpStopTsc)
+.p2align 5, 0x90
  
 .globl cpGetCacheSize
 .type cpGetCacheSize, @function
@@ -231,64 +255,64 @@ cpGetCacheSize:
     mov          $(2), %eax
     cpuid
     cmp          $(1), %al
-    jne          .LGetCacheSize_11gas_10
+    jne          .LGetCacheSize_11gas_11
     test         $(2147483648), %eax
-    jz           .LGetCacheSize_00gas_10
+    jz           .LGetCacheSize_00gas_11
     xor          %eax, %eax
-.LGetCacheSize_00gas_10: 
+.LGetCacheSize_00gas_11: 
     test         $(2147483648), %ebx
-    jz           .LGetCacheSize_01gas_10
+    jz           .LGetCacheSize_01gas_11
     xor          %ebx, %ebx
-.LGetCacheSize_01gas_10: 
+.LGetCacheSize_01gas_11: 
     test         $(2147483648), %ecx
-    jz           .LGetCacheSize_02gas_10
+    jz           .LGetCacheSize_02gas_11
     xor          %ecx, %ecx
-.LGetCacheSize_02gas_10: 
+.LGetCacheSize_02gas_11: 
     test         $(2147483648), %edx
-    jz           .LGetCacheSize_03gas_10
+    jz           .LGetCacheSize_03gas_11
     xor          %edx, %edx
-.LGetCacheSize_03gas_10: 
+.LGetCacheSize_03gas_11: 
     test         %eax, %eax
-    jz           .LGetCacheSize_04gas_10
+    jz           .LGetCacheSize_04gas_11
     mov          %eax, (%rbp)
     add          $(4), %rbp
     add          $(3), %esi
-.LGetCacheSize_04gas_10: 
+.LGetCacheSize_04gas_11: 
     test         %ebx, %ebx
-    jz           .LGetCacheSize_05gas_10
+    jz           .LGetCacheSize_05gas_11
     mov          %ebx, (%rbp)
     add          $(4), %rbp
     add          $(4), %esi
-.LGetCacheSize_05gas_10: 
+.LGetCacheSize_05gas_11: 
     test         %ecx, %ecx
-    jz           .LGetCacheSize_06gas_10
+    jz           .LGetCacheSize_06gas_11
     mov          %ecx, (%rbp)
     add          $(4), %rbp
     add          $(4), %esi
-.LGetCacheSize_06gas_10: 
+.LGetCacheSize_06gas_11: 
     test         %edx, %edx
-    jz           .LGetCacheSize_07gas_10
+    jz           .LGetCacheSize_07gas_11
     mov          %edx, (%rbp)
     add          $(4), %esi
-.LGetCacheSize_07gas_10: 
+.LGetCacheSize_07gas_11: 
     test         %esi, %esi
-    jz           .LGetCacheSize_11gas_10
+    jz           .LGetCacheSize_11gas_11
     mov          $(-1), %eax
-.LGetCacheSize_08gas_10: 
+.LGetCacheSize_08gas_11: 
     xor          %edx, %edx
     add          (%rdi), %edx
-    jz           .LExitGetCacheSize00gas_10
+    jz           .LExitGetCacheSize00gas_11
     add          $(8), %rdi
     mov          %esi, %ecx
-.LGetCacheSize_09gas_10: 
+.LGetCacheSize_09gas_11: 
     cmpb         (%rsp,%rcx), %dl
-    je           .LGetCacheSize_10gas_10
+    je           .LGetCacheSize_10gas_11
     dec          %ecx
-    jnz          .LGetCacheSize_09gas_10
-    jmp          .LGetCacheSize_08gas_10
-.LGetCacheSize_10gas_10: 
+    jnz          .LGetCacheSize_09gas_11
+    jmp          .LGetCacheSize_08gas_11
+.LGetCacheSize_10gas_11: 
     mov          (-4)(%rdi), %eax
-.LExitGetCacheSize00gas_10: 
+.LExitGetCacheSize00gas_11: 
     add          $(24), %rsp
 vzeroupper 
  
@@ -297,9 +321,9 @@ vzeroupper
     pop          %rbx
  
     ret
-.LGetCacheSize_11gas_10: 
+.LGetCacheSize_11gas_11: 
     mov          $(-1), %eax
-    jmp          .LExitGetCacheSize00gas_10
-.Lfe10:
-.size cpGetCacheSize, .Lfe10-(cpGetCacheSize)
+    jmp          .LExitGetCacheSize00gas_11
+.Lfe11:
+.size cpGetCacheSize, .Lfe11-(cpGetCacheSize)
  

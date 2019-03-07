@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -123,8 +123,8 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
                Ipp64u ivBitLen = AESGCM_IV_LEN(pState)*BYTESIZE;
                Ipp8u tmp[BLOCK_SIZE];
                PaddBlock(0, tmp, BLOCK_SIZE-8);
-               U32_TO_HSTRING(tmp+8,  HIDWORD(ivBitLen));
-               U32_TO_HSTRING(tmp+12, LODWORD(ivBitLen));
+               U32_TO_HSTRING(tmp+8,  IPP_HIDWORD(ivBitLen));
+               U32_TO_HSTRING(tmp+12, IPP_LODWORD(ivBitLen));
                XorBlock16(tmp, AESGCM_COUNTER(pState), AESGCM_COUNTER(pState));
                hashFunc(AESGCM_COUNTER(pState), AESGCM_HKEY(pState), AesGcmConst_table);
             }

@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -50,7 +50,7 @@ _prime384r1:
  
 .p2align 5, 0x90
  
-.globl _g9_add_384
+
 
  
 _g9_add_384:
@@ -96,7 +96,7 @@ _g9_add_384:
  
 .p2align 5, 0x90
  
-.globl _g9_sub_384
+
 
  
 _g9_sub_384:
@@ -142,7 +142,7 @@ _g9_sub_384:
  
 .p2align 5, 0x90
  
-.globl _g9_shl_384
+
 
  
 _g9_shl_384:
@@ -173,7 +173,7 @@ _g9_shl_384:
  
 .p2align 5, 0x90
  
-.globl _g9_shr_384
+
 
  
 _g9_shr_384:

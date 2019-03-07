@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2015-2018 Intel Corporation
+; Copyright 2015-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -137,6 +137,40 @@ IPPASM macro x:req, y:VARARG
   ENDIF
  ELSE
     @CatStr(<>, <x>)
+ ENDIF
+endm
+
+CALLASM macro x:req
+ IFDEF _OWN_MERGED_BLD
+  IF _IPP32E EQ _IPP32E_PX
+    @CatStr(<call mx_>, <x>)
+  ENDIF
+  IF _IPP32E EQ _IPP32E_M7
+    @CatStr(<call m7_>, <x>)
+  ENDIF
+  IF _IPP32E EQ _IPP32E_U8
+    @CatStr(<call u8_>, <x>)
+  ENDIF
+  IF _IPP32E EQ _IPP32E_N8
+    @CatStr(<call n8_>, <x>)
+  ENDIF
+  IF _IPP32E EQ _IPP32E_Y8
+    @CatStr(<call y8_>, <x>)
+  ENDIF
+  IF _IPP32E EQ _IPP32E_E9
+    @CatStr(<call e9_>, <x>)
+  ENDIF
+  IF _IPP32E EQ _IPP32E_L9 
+    @CatStr(<call l9_>, <x>)
+  ENDIF
+  IF _IPP32E EQ _IPP32E_N0 
+    @CatStr(<call n0_>, <x>)
+  ENDIF
+  IF _IPP32E EQ _IPP32E_K0
+    @CatStr(<call k0_>, <x>)
+  ENDIF
+ ELSE
+    @CatStr(<call >, <x>)
  ENDIF
 endm
 

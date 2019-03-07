@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -40,36 +40,13 @@
 
  
 .text
-.p2align 5, 0x90
-sub_N: 
-    xor          %rax, %rax
-sub_next: 
-    lea          (8)(%rdi), %rdi
-    movq         (%rsi), %r8
-    movq         (%rcx), %r9
-    lea          (8)(%rsi), %rsi
-    lea          (8)(%rcx), %rcx
-    sbb          %r9, %r8
-    movq         %r8, (-8)(%rdi)
-    dec          %rdx
-    jnz          sub_next
-    adc          $(0), %rax
-    ret
-.p2align 5, 0x90
-copy_ae_N: 
-    lea          (8)(%rdi), %rdi
-    movq         (%rsi), %r8
-    movq         (%rcx), %r9
-    lea          (8)(%rsi), %rsi
-    lea          (8)(%rcx), %rcx
-    cmovae       %r9, %r8
-    movq         %r8, (-8)(%rdi)
-    dec          %rdx
-    jnz          copy_ae_N
-    ret
  
-.p2align 4, 0x90
-mla_1x1: 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_1x1:
     movq         (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -77,15 +54,25 @@ mla_1x1:
     mov          %rax, (%rdi)
     mov          %rbx, %r8
     ret
-.p2align 4, 0x90
-mul_1x1: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_1x1:
     movq         (%rcx), %rdx
     mulxq        (%rsi), %rax, %rdx
     movq         %rax, (%rdi)
     movq         %rdx, (8)(%rdi)
     ret
-.p2align 4, 0x90
-mla_2x2: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_2x2:
     movq         (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -109,14 +96,24 @@ mla_2x2:
     adc          $(0), %rbp
     mov          %rbp, %r9
     ret
-.p2align 4, 0x90
-mul_2x2: 
-    call         mla_2x2
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_2x2:
+    call         _mla_2x2
     movq         %r8, (16)(%rdi)
     movq         %r9, (24)(%rdi)
     ret
-.p2align 4, 0x90
-mla_3x3: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_3x3:
     movq         (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -166,15 +163,25 @@ mla_3x3:
     adc          $(0), %rbx
     mov          %rbx, %r10
     ret
-.p2align 4, 0x90
-mul_3x3: 
-    call         mla_3x3
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_3x3:
+    call         _mla_3x3
     movq         %r8, (24)(%rdi)
     movq         %r9, (32)(%rdi)
     movq         %r10, (40)(%rdi)
     ret
-.p2align 4, 0x90
-mla_4x2: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_4x2:
     movq         (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -218,25 +225,40 @@ mla_4x2:
     adc          $(0), %rbp
     mov          %rbp, %r11
     ret
-.p2align 4, 0x90
-mla_4x4: 
-    call         mla_4x2
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_4x4:
+    call         _mla_4x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_4x2
+    call         _mla_4x2
     sub          $(16), %rdi
     sub          $(16), %rcx
     ret
-.p2align 4, 0x90
-mul_4x4: 
-    call         mla_4x4
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_4x4:
+    call         _mla_4x4
     movq         %r8, (32)(%rdi)
     movq         %r9, (40)(%rdi)
     movq         %r10, (48)(%rdi)
     movq         %r11, (56)(%rdi)
     ret
-.p2align 4, 0x90
-mla_5x2: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_5x2:
     mov          (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -290,8 +312,13 @@ mla_5x2:
     adc          $(0), %rbx
     mov          %rbx, %r12
     ret
-.p2align 4, 0x90
-mla_5x5: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_5x5:
     mov          (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -320,24 +347,34 @@ mla_5x5:
     mov          %rbx, %r12
     add          $(8), %rdi
     add          $(8), %rcx
-    call         mla_5x2
+    call         _mla_5x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_5x2
+    call         _mla_5x2
     sub          $(24), %rdi
     sub          $(24), %rcx
     ret
-.p2align 4, 0x90
-mul_5x5: 
-    call         mla_5x5
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_5x5:
+    call         _mla_5x5
     movq         %r8, (40)(%rdi)
     movq         %r9, (48)(%rdi)
     movq         %r10, (56)(%rdi)
     movq         %r11, (64)(%rdi)
     movq         %r12, (72)(%rdi)
     ret
-.p2align 4, 0x90
-mla_6x2: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_6x2:
     mov          (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -401,21 +438,31 @@ mla_6x2:
     adc          $(0), %rbp
     mov          %rbp, %r13
     ret
-.p2align 4, 0x90
-mla_6x6: 
-    call         mla_6x2
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_6x6:
+    call         _mla_6x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_6x2
+    call         _mla_6x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_6x2
+    call         _mla_6x2
     sub          $(32), %rdi
     sub          $(32), %rcx
     ret
-.p2align 4, 0x90
-mul_6x6: 
-    call         mla_6x6
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_6x6:
+    call         _mla_6x6
     movq         %r8, (48)(%rdi)
     movq         %r9, (56)(%rdi)
     movq         %r10, (64)(%rdi)
@@ -423,8 +470,13 @@ mul_6x6:
     movq         %r12, (80)(%rdi)
     movq         %r13, (88)(%rdi)
     ret
-.p2align 4, 0x90
-mla_7x2: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_7x2:
     mov          (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -498,8 +550,13 @@ mla_7x2:
     adc          $(0), %rbx
     mov          %rbx, %r14
     ret
-.p2align 4, 0x90
-mla_7x7: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_7x7:
     mov          (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -538,19 +595,24 @@ mla_7x7:
     mov          %rbx, %r14
     add          $(8), %rdi
     add          $(8), %rcx
-    call         mla_7x2
+    call         _mla_7x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_7x2
+    call         _mla_7x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_7x2
+    call         _mla_7x2
     sub          $(40), %rdi
     sub          $(40), %rcx
     ret
-.p2align 4, 0x90
-mul_7x7: 
-    call         mla_7x7
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_7x7:
+    call         _mla_7x7
     movq         %r8, (56)(%rdi)
     movq         %r9, (64)(%rdi)
     movq         %r10, (72)(%rdi)
@@ -559,8 +621,13 @@ mul_7x7:
     movq         %r13, (96)(%rdi)
     movq         %r14, (104)(%rdi)
     ret
-.p2align 4, 0x90
-mla_8x1: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_8x1:
     mov          (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -603,8 +670,13 @@ mla_8x1:
     adc          $(0), %rbp
     mov          %rbp, %r15
     ret
-.p2align 4, 0x90
-mla_8x2: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_8x2:
     mov          (%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -688,69 +760,104 @@ mla_8x2:
     adc          $(0), %rbp
     mov          %rbp, %r15
     ret
-.p2align 4, 0x90
-mla_8x3: 
-    call         mla_8x1
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_8x3:
+    call         _mla_8x1
     add          $(8), %rdi
     add          $(8), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     sub          $(8), %rdi
     sub          $(8), %rcx
     ret
-.p2align 4, 0x90
-mla_8x4: 
-    call         mla_8x2
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_8x4:
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     sub          $(16), %rdi
     sub          $(16), %rcx
     ret
-.p2align 4, 0x90
-mla_8x5: 
-    call         mla_8x1
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_8x5:
+    call         _mla_8x1
     add          $(8), %rdi
     add          $(8), %rcx
-    call         mla_8x4
+    call         _mla_8x4
     sub          $(8), %rdi
     sub          $(8), %rcx
     ret
-.p2align 4, 0x90
-mla_8x6: 
-    call         mla_8x2
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_8x6:
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x4
+    call         _mla_8x4
     sub          $(16), %rdi
     sub          $(16), %rcx
     ret
-.p2align 4, 0x90
-mla_8x7: 
-    call         mla_8x1
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_8x7:
+    call         _mla_8x1
     add          $(8), %rdi
     add          $(8), %rcx
-    call         mla_8x6
+    call         _mla_8x6
     sub          $(8), %rdi
     sub          $(8), %rcx
     ret
-.p2align 4, 0x90
-mla_8x8: 
-    call         mla_8x2
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_8x8:
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     sub          $(48), %rdi
     sub          $(48), %rcx
     ret
-.p2align 4, 0x90
-mul_8x8: 
-    call         mla_8x8
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_8x8:
+    call         _mla_8x8
     movq         %r8, (64)(%rdi)
     movq         %r9, (72)(%rdi)
     movq         %r10, (80)(%rdi)
@@ -760,9 +867,14 @@ mul_8x8:
     movq         %r14, (112)(%rdi)
     movq         %r15, (120)(%rdi)
     ret
-.p2align 4, 0x90
-mul_9x9: 
-    call         mla_8x8
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_9x9:
+    call         _mla_8x8
     mov          (64)(%rcx), %rdx
     mulx         (%rsi), %rax, %rbx
     add          %r8, %rax
@@ -863,12 +975,17 @@ mul_9x9:
     movq         %r14, (128)(%rdi)
     movq         %r15, (136)(%rdi)
     ret
-.p2align 4, 0x90
-mul_10x10: 
-    call         mla_8x8
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_10x10:
+    call         _mla_8x8
     add          $(64), %rdi
     add          $(64), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     push         %r15
     push         %r14
     add          $(64), %rsi
@@ -884,7 +1001,7 @@ mul_10x10:
     mov          %r8, %r10
     movq         (8)(%rdi), %r9
     movq         (%rdi), %r8
-    call         mla_8x2
+    call         _mla_8x2
     movq         %r8, (16)(%rdi)
     movq         %r9, (24)(%rdi)
     movq         %r10, (32)(%rdi)
@@ -902,19 +1019,24 @@ mul_10x10:
     xor          %rcx, %rsi
     xor          %rsi, %rcx
     add          $(64), %rcx
-    call         mla_2x2
+    call         _mla_2x2
     add          $(16), %rdi
     add          %r10, %r8
     adc          $(0), %r9
     movq         %r8, (%rdi)
     movq         %r9, (8)(%rdi)
     ret
-.p2align 4, 0x90
-mul_11x11: 
-    call         mla_8x8
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_11x11:
+    call         _mla_8x8
     add          $(64), %rdi
     add          $(64), %rcx
-    call         mla_8x3
+    call         _mla_8x3
     push         %r15
     push         %r14
     push         %r13
@@ -931,7 +1053,7 @@ mul_11x11:
     movq         (16)(%rdi), %r10
     movq         (8)(%rdi), %r9
     movq         (%rdi), %r8
-    call         mla_8x3
+    call         _mla_8x3
     movq         %r8, (24)(%rdi)
     movq         %r9, (32)(%rdi)
     movq         %r10, (40)(%rdi)
@@ -950,7 +1072,7 @@ mul_11x11:
     xor          %rcx, %rsi
     xor          %rsi, %rcx
     add          $(64), %rcx
-    call         mla_3x3
+    call         _mla_3x3
     add          $(24), %rdi
     add          %r11, %r8
     adc          $(0), %r9
@@ -959,12 +1081,17 @@ mul_11x11:
     movq         %r9, (8)(%rdi)
     movq         %r10, (16)(%rdi)
     ret
-.p2align 4, 0x90
-mul_12x12: 
-    call         mla_8x8
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_12x12:
+    call         _mla_8x8
     add          $(64), %rdi
     add          $(64), %rcx
-    call         mla_8x4
+    call         _mla_8x4
     push         %r15
     push         %r14
     push         %r13
@@ -982,7 +1109,7 @@ mul_12x12:
     movq         (16)(%rdi), %r10
     movq         (8)(%rdi), %r9
     movq         (%rdi), %r8
-    call         mla_8x4
+    call         _mla_8x4
     movq         %r8, (32)(%rdi)
     movq         %r9, (40)(%rdi)
     movq         %r10, (48)(%rdi)
@@ -1003,7 +1130,7 @@ mul_12x12:
     xor          %rcx, %rsi
     xor          %rsi, %rcx
     add          $(64), %rcx
-    call         mla_4x4
+    call         _mla_4x4
     add          $(32), %rdi
     pop          %rax
     add          %rax, %r8
@@ -1015,12 +1142,17 @@ mul_12x12:
     movq         %r10, (16)(%rdi)
     movq         %r11, (24)(%rdi)
     ret
-.p2align 4, 0x90
-mul_13x13: 
-    call         mla_8x8
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_13x13:
+    call         _mla_8x8
     add          $(64), %rdi
     add          $(64), %rcx
-    call         mla_8x5
+    call         _mla_8x5
     push         %r15
     push         %r14
     push         %r13
@@ -1039,7 +1171,7 @@ mul_13x13:
     movq         (16)(%rdi), %r10
     movq         (8)(%rdi), %r9
     movq         (%rdi), %r8
-    call         mla_8x5
+    call         _mla_8x5
     movq         %r8, (40)(%rdi)
     movq         %r9, (48)(%rdi)
     movq         %r10, (56)(%rdi)
@@ -1063,7 +1195,7 @@ mul_13x13:
     xor          %rcx, %rsi
     xor          %rsi, %rcx
     add          $(64), %rcx
-    call         mla_5x5
+    call         _mla_5x5
     add          $(40), %rdi
     pop          %rax
     add          %rax, %r8
@@ -1077,12 +1209,17 @@ mul_13x13:
     movq         %r11, (24)(%rdi)
     movq         %r12, (32)(%rdi)
     ret
-.p2align 4, 0x90
-mul_14x14: 
-    call         mla_7x7
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_14x14:
+    call         _mla_7x7
     add          $(56), %rdi
     add          $(56), %rsi
-    call         mla_7x7
+    call         _mla_7x7
     movq         %r8, (56)(%rdi)
     movq         %r9, (64)(%rdi)
     movq         %r10, (72)(%rdi)
@@ -1099,7 +1236,7 @@ mul_14x14:
     movq         (48)(%rdi), %r14
     add          $(56), %rcx
     sub          $(56), %rsi
-    call         mla_7x7
+    call         _mla_7x7
     xor          %rdx, %rdx
     movq         (56)(%rdi), %rax
     add          %rax, %r8
@@ -1119,7 +1256,7 @@ mul_14x14:
     push         %rdx
     add          $(56), %rdi
     add          $(56), %rsi
-    call         mla_7x7
+    call         _mla_7x7
     sub          $(112), %rdi
     sub          $(56), %rsi
     sub          $(56), %rcx
@@ -1139,12 +1276,17 @@ mul_14x14:
     movq         %r13, (208)(%rdi)
     movq         %r14, (216)(%rdi)
     ret
-.p2align 4, 0x90
-mul_15x15: 
-    call         mla_8x8
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_15x15:
+    call         _mla_8x8
     add          $(64), %rdi
     add          $(64), %rcx
-    call         mla_8x7
+    call         _mla_8x7
     movq         %r8, (56)(%rdi)
     movq         %r9, (64)(%rdi)
     movq         %r10, (72)(%rdi)
@@ -1166,7 +1308,7 @@ mul_15x15:
     movq         (40)(%rdi), %r13
     movq         (48)(%rdi), %r14
     movq         (56)(%rdi), %r15
-    call         mla_8x7
+    call         _mla_8x7
     movq         %r8, (56)(%rdi)
     add          $(64), %rdi
     xor          %rsi, %rcx
@@ -1197,7 +1339,7 @@ mul_15x15:
     adc          %rax, %r14
     adc          $(0), %rdx
     push         %rdx
-    call         mla_7x7
+    call         _mla_7x7
     add          $(56), %rdi
     pop          %rax
     add          %rax, %r8
@@ -1215,12 +1357,17 @@ mul_15x15:
     movq         %r13, (40)(%rdi)
     movq         %r14, (48)(%rdi)
     ret
-.p2align 4, 0x90
-mul_16x16: 
-    call         mla_8x8
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mul_16x16:
+    call         _mla_8x8
     add          $(64), %rdi
     add          $(64), %rsi
-    call         mla_8x8
+    call         _mla_8x8
     movq         %r8, (64)(%rdi)
     movq         %r9, (72)(%rdi)
     movq         %r10, (80)(%rdi)
@@ -1239,7 +1386,7 @@ mul_16x16:
     movq         (56)(%rdi), %r15
     add          $(64), %rcx
     sub          $(64), %rsi
-    call         mla_8x8
+    call         _mla_8x8
     xor          %rdx, %rdx
     movq         (64)(%rdi), %rax
     add          %rax, %r8
@@ -1261,7 +1408,7 @@ mul_16x16:
     push         %rdx
     add          $(64), %rdi
     add          $(64), %rsi
-    call         mla_8x8
+    call         _mla_8x8
     sub          $(128), %rdi
     sub          $(64), %rsi
     sub          $(64), %rcx
@@ -1285,97 +1432,97 @@ mul_16x16:
     ret
  
 mul_lxl_basic:
-.quad  mul_1x1 - mul_lxl_basic 
+.quad  _mul_1x1 - mul_lxl_basic 
  
 
-.quad  mul_2x2 - mul_lxl_basic 
+.quad  _mul_2x2 - mul_lxl_basic 
  
 
-.quad  mul_3x3 - mul_lxl_basic 
+.quad  _mul_3x3 - mul_lxl_basic 
  
 
-.quad  mul_4x4 - mul_lxl_basic 
+.quad  _mul_4x4 - mul_lxl_basic 
  
 
-.quad  mul_5x5 - mul_lxl_basic 
+.quad  _mul_5x5 - mul_lxl_basic 
  
 
-.quad  mul_6x6 - mul_lxl_basic 
+.quad  _mul_6x6 - mul_lxl_basic 
  
 
-.quad  mul_7x7 - mul_lxl_basic 
+.quad  _mul_7x7 - mul_lxl_basic 
  
 
-.quad  mul_8x8 - mul_lxl_basic 
+.quad  _mul_8x8 - mul_lxl_basic 
  
 
-.quad  mul_9x9 - mul_lxl_basic 
+.quad  _mul_9x9 - mul_lxl_basic 
  
 
-.quad  mul_10x10-mul_lxl_basic 
+.quad  _mul_10x10-mul_lxl_basic 
  
 
-.quad  mul_11x11-mul_lxl_basic 
+.quad  _mul_11x11-mul_lxl_basic 
  
 
-.quad  mul_12x12-mul_lxl_basic 
+.quad  _mul_12x12-mul_lxl_basic 
  
 
-.quad  mul_13x13-mul_lxl_basic 
+.quad  _mul_13x13-mul_lxl_basic 
  
 
-.quad  mul_14x14-mul_lxl_basic 
+.quad  _mul_14x14-mul_lxl_basic 
  
 
-.quad  mul_15x15-mul_lxl_basic 
+.quad  _mul_15x15-mul_lxl_basic 
  
 
-.quad  mul_16x16-mul_lxl_basic 
+.quad  _mul_16x16-mul_lxl_basic 
  
 mla_lxl_short:
-.quad  mla_1x1 - mla_lxl_short 
+.quad  _mla_1x1 - mla_lxl_short 
  
 
-.quad  mla_2x2 - mla_lxl_short 
+.quad  _mla_2x2 - mla_lxl_short 
  
 
-.quad  mla_3x3 - mla_lxl_short 
+.quad  _mla_3x3 - mla_lxl_short 
  
 
-.quad  mla_4x4 - mla_lxl_short 
+.quad  _mla_4x4 - mla_lxl_short 
  
 
-.quad  mla_5x5 - mla_lxl_short 
+.quad  _mla_5x5 - mla_lxl_short 
  
 
-.quad  mla_6x6 - mla_lxl_short 
+.quad  _mla_6x6 - mla_lxl_short 
  
 
-.quad  mla_7x7 - mla_lxl_short 
+.quad  _mla_7x7 - mla_lxl_short 
  
 mla_8xl_tail:
-.quad  mla_8x1 - mla_8xl_tail 
+.quad  _mla_8x1 - mla_8xl_tail 
  
 
-.quad  mla_8x2 - mla_8xl_tail 
+.quad  _mla_8x2 - mla_8xl_tail 
  
 
-.quad  mla_8x3 - mla_8xl_tail 
+.quad  _mla_8x3 - mla_8xl_tail 
  
 
-.quad  mla_8x4 - mla_8xl_tail 
+.quad  _mla_8x4 - mla_8xl_tail 
  
 
-.quad  mla_8x5 - mla_8xl_tail 
+.quad  _mla_8x5 - mla_8xl_tail 
  
 
-.quad  mla_8x6 - mla_8xl_tail 
+.quad  _mla_8x6 - mla_8xl_tail 
  
 
-.quad  mla_8x7 - mla_8xl_tail 
-.p2align 4, 0x90
+.quad  _mla_8x7 - mla_8xl_tail 
+.p2align 5, 0x90
  
-.globl _mul_8Nx8M
+
 
  
 _mul_8Nx8M:
@@ -1383,14 +1530,14 @@ _mul_8Nx8M:
     push         %rdi
     push         %rsi
     push         %rdx
-.Lmul_loopAgas_1: 
+.Lmul_loopAgas_36: 
     push         %rdx
-    call         mla_8x8
+    call         _mla_8x8
     add          $(64), %rdi
     add          $(64), %rsi
     pop          %rdx
     sub          $(8), %rdx
-    jnz          .Lmul_loopAgas_1
+    jnz          .Lmul_loopAgas_36
     movq         %r8, (%rdi)
     movq         %r9, (8)(%rdi)
     movq         %r10, (16)(%rdi)
@@ -1399,8 +1546,8 @@ _mul_8Nx8M:
     movq         %r13, (40)(%rdi)
     movq         %r14, (48)(%rdi)
     movq         %r15, (56)(%rdi)
-    jmp          .Lmla_enrtygas_1
-.Lmla_loopBgas_1: 
+    jmp          .Lmla_enrtygas_36
+.Lmla_loopBgas_36: 
     push         %rbx
     push         %rdi
     push         %rsi
@@ -1415,14 +1562,14 @@ _mul_8Nx8M:
     movq         (40)(%rdi), %r13
     movq         (48)(%rdi), %r14
     movq         (56)(%rdi), %r15
-.LloopAgas_1: 
+.LloopAgas_36: 
     push         %rdx
-    call         mla_8x8
+    call         _mla_8x8
     add          $(64), %rdi
     add          $(64), %rsi
     pop          %rdx
     sub          $(8), %rdx
-    jz           .Lexit_loopAgas_1
+    jz           .Lexit_loopAgas_36
     pop          %rax
     neg          %rax
     movq         (%rdi), %rax
@@ -1443,8 +1590,8 @@ _mul_8Nx8M:
     adc          %rax, %r15
     sbb          %rax, %rax
     push         %rax
-    jmp          .LloopAgas_1
-.Lexit_loopAgas_1: 
+    jmp          .LloopAgas_36
+.Lexit_loopAgas_36: 
     pop          %rax
     neg          %rax
     adc          $(0), %r8
@@ -1463,7 +1610,7 @@ _mul_8Nx8M:
     movq         %r14, (48)(%rdi)
     adc          $(0), %r15
     movq         %r15, (56)(%rdi)
-.Lmla_enrtygas_1: 
+.Lmla_enrtygas_36: 
     pop          %rdx
     pop          %rsi
     pop          %rdi
@@ -1471,23 +1618,27 @@ _mul_8Nx8M:
     add          $(64), %rcx
     pop          %rbx
     sub          $(8), %rbx
-    jnz          .Lmla_loopBgas_1
+    jnz          .Lmla_loopBgas_36
     ret
  
-.p2align 4, 0x90
-mla_simple: 
+.p2align 5, 0x90
+ 
+
+
+ 
+_mla_simple:
     xor          %rax, %rax
     mov          %rdx, %r11
     cmp          %rbx, %r11
-    jge          ms_mla_entry
+    jge          .Lms_mla_entrygas_37
     xor          %rbx, %r11
     xor          %r11, %rbx
     xor          %rbx, %r11
     xor          %rcx, %rsi
     xor          %rsi, %rcx
     xor          %rcx, %rsi
-    jmp          ms_mla_entry
-ms_loopB: 
+    jmp          .Lms_mla_entrygas_37
+.Lms_loopBgas_37: 
     push         %rbx
     push         %rdi
     push         %rsi
@@ -1495,7 +1646,7 @@ ms_loopB:
     push         %rax
     movq         (%rcx), %rdx
     xor          %r10, %r10
-ms_loopA: 
+.Lms_loopAgas_37: 
     mulxq        (%rsi), %r8, %r9
     add          $(8), %rdi
     add          $(8), %rsi
@@ -1506,7 +1657,7 @@ ms_loopA:
     movq         %r8, (-8)(%rdi)
     mov          %r9, %r10
     sub          $(1), %r11
-    jnz          ms_loopA
+    jnz          .Lms_loopAgas_37
     pop          %rax
     shr          $(1), %rax
     adcq         (%rdi), %r10
@@ -1518,34 +1669,35 @@ ms_loopA:
     pop          %rbx
     add          $(8), %rdi
     add          $(8), %rcx
-ms_mla_entry: 
+.Lms_mla_entrygas_37: 
     sub          $(1), %rbx
-    jnc          ms_loopB
+    jnc          .Lms_loopBgas_37
     ret
-.p2align 4, 0x90
  
-.globl _mul_NxM
+.p2align 5, 0x90
+ 
+
 
  
 _mul_NxM:
  
     sub          $(56), %rsp
     cmp          $(8), %rbx
-    jge          .Lregular_entrygas_2
+    jge          .Lregular_entrygas_38
     cmp          $(8), %rdx
-    jge          .Lirregular_entrygas_2
+    jge          .Lirregular_entrygas_38
     mov          %rdx, %r8
     add          %rbx, %r8
     mov          %rdi, %rbp
     xor          %rax, %rax
-.L__0000gas_2: 
+.L__0000gas_38: 
     movq         %rax, (%rbp)
     add          $(8), %rbp
     sub          $(1), %r8
-    jnz          .L__0000gas_2
-    call         mla_simple
-    jmp          .Lquitgas_2
-.Lirregular_entrygas_2: 
+    jnz          .L__0000gas_38
+    call         _mla_simple
+    jmp          .Lquitgas_38
+.Lirregular_entrygas_38: 
     mov          %rbx, (%rsp)
     mov          %rdx, (24)(%rsp)
     mov          %rdx, (32)(%rsp)
@@ -1553,8 +1705,8 @@ _mul_NxM:
     mov          (-8)(%rax,%rbx,8), %rbp
     add          %rbp, %rax
     mov          %rax, (48)(%rsp)
-    jmp          .Lirr_init_entrygas_2
-.Lirr_init_loopgas_2: 
+    jmp          .Lirr_init_entrygas_38
+.Lirr_init_loopgas_38: 
     mov          %rdx, (32)(%rsp)
     call         *%rax
     mov          (%rsp), %rbx
@@ -1578,42 +1730,42 @@ _mul_NxM:
     xor          %r15, %r15
     movq         (%rdi), %r8
     cmp          $(1), %rbx
-    jz           .Lcontinuegas_2
+    jz           .Lcontinuegas_38
     movq         (8)(%rdi), %r9
     cmp          $(2), %rbx
-    jz           .Lcontinuegas_2
+    jz           .Lcontinuegas_38
     movq         (16)(%rdi), %r10
     cmp          $(3), %rbx
-    jz           .Lcontinuegas_2
+    jz           .Lcontinuegas_38
     movq         (24)(%rdi), %r11
     cmp          $(4), %rbx
-    jz           .Lcontinuegas_2
+    jz           .Lcontinuegas_38
     movq         (32)(%rdi), %r12
     cmp          $(5), %rbx
-    jz           .Lcontinuegas_2
+    jz           .Lcontinuegas_38
     movq         (40)(%rdi), %r13
     cmp          $(6), %rbx
-    jz           .Lcontinuegas_2
+    jz           .Lcontinuegas_38
     movq         (48)(%rdi), %r14
-.Lcontinuegas_2: 
+.Lcontinuegas_38: 
     mov          (32)(%rsp), %rdx
-.Lirr_init_entrygas_2: 
+.Lirr_init_entrygas_38: 
     sub          $(8), %rdx
     mov          (48)(%rsp), %rax
-    jnc          .Lirr_init_loopgas_2
+    jnc          .Lirr_init_loopgas_38
     add          $(8), %rdx
-    jz           .Lquitgas_2
+    jz           .Lquitgas_38
     lea          (%rdi,%rbx,8), %rbp
     xor          %rax, %rax
-.L__0001gas_2: 
+.L__0001gas_38: 
     movq         %rax, (%rbp)
     add          $(8), %rbp
     sub          $(1), %rdx
-    jnz          .L__0001gas_2
+    jnz          .L__0001gas_38
     mov          (32)(%rsp), %rdx
-    call         mla_simple
-    jmp          .Lquitgas_2
-.Lregular_entrygas_2: 
+    call         _mla_simple
+    jmp          .Lquitgas_38
+.Lregular_entrygas_38: 
     sub          $(8), %rbx
     xor          %rax, %rax
     mov          %rbx, (%rsp)
@@ -1629,16 +1781,16 @@ _mul_NxM:
     add          %rbp, %rax
     mov          %rax, (48)(%rsp)
     sub          $(8), %rdx
-.Linit_loopAgas_2: 
+.Linit_loopAgas_38: 
     mov          %rdx, (32)(%rsp)
-    call         mla_8x8
+    call         _mla_8x8
     mov          (32)(%rsp), %rdx
     add          $(64), %rdi
     add          $(64), %rsi
     sub          $(8), %rdx
-    jnc          .Linit_loopAgas_2
+    jnc          .Linit_loopAgas_38
     add          $(8), %rdx
-    jz           .Linit_completegas_2
+    jz           .Linit_completegas_38
     mov          %rdx, (32)(%rsp)
     mov          (48)(%rsp), %rax
     xor          %rsi, %rcx
@@ -1650,7 +1802,7 @@ _mul_NxM:
     xor          %rsi, %rcx
     mov          (32)(%rsp), %rdx
     lea          (%rdi,%rdx,8), %rdi
-.Linit_completegas_2: 
+.Linit_completegas_38: 
     movq         %r8, (%rdi)
     movq         %r9, (8)(%rdi)
     movq         %r10, (16)(%rdi)
@@ -1659,8 +1811,8 @@ _mul_NxM:
     movq         %r13, (40)(%rdi)
     movq         %r14, (48)(%rdi)
     movq         %r15, (56)(%rdi)
-    jmp          .Lmla_enrtygas_2
-.Lmla_loopBgas_2: 
+    jmp          .Lmla_enrtygas_38
+.Lmla_loopBgas_38: 
     mov          %rbx, (%rsp)
     mov          %rdi, (8)(%rsp)
     xor          %rax, %rax
@@ -1674,14 +1826,14 @@ _mul_NxM:
     movq         (48)(%rdi), %r14
     movq         (56)(%rdi), %r15
     sub          $(8), %rdx
-.LloopAgas_2: 
+.LloopAgas_38: 
     mov          %rdx, (32)(%rsp)
-    call         mla_8x8
+    call         _mla_8x8
     mov          (32)(%rsp), %rdx
     add          $(64), %rdi
     add          $(64), %rsi
     sub          $(8), %rdx
-    jc           .Lexit_loopAgas_2
+    jc           .Lexit_loopAgas_38
     mov          (40)(%rsp), %rax
     shr          $(1), %rax
     movq         (%rdi), %rbx
@@ -1702,17 +1854,17 @@ _mul_NxM:
     adc          %rbx, %r15
     adc          $(0), %rax
     mov          %rax, (40)(%rsp)
-    jmp          .LloopAgas_2
-.Lexit_loopAgas_2: 
+    jmp          .LloopAgas_38
+.Lexit_loopAgas_38: 
     add          $(8), %rdx
-    jz           .Lcomplete_reg_loopBgas_2
+    jz           .Lcomplete_reg_loopBgas_38
     mov          %rdx, (32)(%rsp)
     xor          %rax, %rax
-.Lput_zerogas_2: 
+.Lput_zerogas_38: 
     movq         %rax, (%rdi,%rdx,8)
     add          $(1), %rdx
     cmp          $(8), %rdx
-    jl           .Lput_zerogas_2
+    jl           .Lput_zerogas_38
     mov          (40)(%rsp), %rax
     shr          $(1), %rax
     mov          (%rdi), %rbx
@@ -1746,30 +1898,30 @@ _mul_NxM:
     mov          (40)(%rsp), %rax
     shr          $(1), %rax
     dec          %rdx
-    jz           .Lmt_1gas_2
+    jz           .Lmt_1gas_38
     dec          %rdx
-    jz           .Lmt_2gas_2
+    jz           .Lmt_2gas_38
     dec          %rdx
-    jz           .Lmt_3gas_2
+    jz           .Lmt_3gas_38
     dec          %rdx
-    jz           .Lmt_4gas_2
+    jz           .Lmt_4gas_38
     dec          %rdx
-    jz           .Lmt_5gas_2
+    jz           .Lmt_5gas_38
     dec          %rdx
-    jz           .Lmt_6gas_2
-.Lmt_7gas_2:
+    jz           .Lmt_6gas_38
+.Lmt_7gas_38:
     adc          $(0), %r9
-.Lmt_6gas_2:
+.Lmt_6gas_38:
     adc          $(0), %r10
-.Lmt_5gas_2:
+.Lmt_5gas_38:
     adc          $(0), %r11
-.Lmt_4gas_2:
+.Lmt_4gas_38:
     adc          $(0), %r12
-.Lmt_3gas_2:
+.Lmt_3gas_38:
     adc          $(0), %r13
-.Lmt_2gas_2:
+.Lmt_2gas_38:
     adc          $(0), %r14
-.Lmt_1gas_2:
+.Lmt_1gas_38:
     adc          $(0), %r15
     movq         %r8, (%rdi)
     movq         %r9, (8)(%rdi)
@@ -1779,8 +1931,8 @@ _mul_NxM:
     movq         %r13, (40)(%rdi)
     movq         %r14, (48)(%rdi)
     movq         %r15, (56)(%rdi)
-    jmp          .Lmla_enrtygas_2
-.Lcomplete_reg_loopBgas_2: 
+    jmp          .Lmla_enrtygas_38
+.Lcomplete_reg_loopBgas_38: 
     mov          (40)(%rsp), %rax
     add          %rax, %r8
     adc          $(0), %r9
@@ -1798,7 +1950,7 @@ _mul_NxM:
     movq         %r13, (40)(%rdi)
     movq         %r14, (48)(%rdi)
     movq         %r15, (56)(%rdi)
-.Lmla_enrtygas_2: 
+.Lmla_enrtygas_38: 
     mov          (%rsp), %rbx
     mov          (8)(%rsp), %rdi
     mov          (24)(%rsp), %rdx
@@ -1806,9 +1958,9 @@ _mul_NxM:
     add          $(64), %rcx
     add          $(64), %rdi
     sub          $(8), %rbx
-    jnc          .Lmla_loopBgas_2
+    jnc          .Lmla_loopBgas_38
     add          $(8), %rbx
-    jz           .Lquitgas_2
+    jz           .Lquitgas_38
     mov          %rbx, (%rsp)
     lea          mla_8xl_tail(%rip), %rax
     mov          (-8)(%rax,%rbx,8), %rbp
@@ -1816,15 +1968,15 @@ _mul_NxM:
     mov          %rax, (48)(%rsp)
     lea          (%rdi,%rdx,8), %rbp
     xor          %rax, %rax
-.L__0002gas_2: 
+.L__0002gas_38: 
     movq         %rax, (%rbp)
     add          $(8), %rbp
     sub          $(1), %rbx
-    jnz          .L__0002gas_2
+    jnz          .L__0002gas_38
     xor          %rax, %rax
     mov          %rax, (40)(%rsp)
     sub          $(8), %rdx
-.Ltail_loopAgas_2: 
+.Ltail_loopAgas_38: 
     movq         (%rdi), %r8
     movq         (8)(%rdi), %r9
     movq         (16)(%rdi), %r10
@@ -1836,7 +1988,7 @@ _mul_NxM:
     mov          %rdx, (32)(%rsp)
     mov          (48)(%rsp), %rax
     call         *%rax
-.Lenrty_tail_loopAgas_2: 
+.Lenrty_tail_loopAgas_38: 
     mov          (40)(%rsp), %rax
     shr          $(1), %rax
     adc          $(0), %r8
@@ -1851,36 +2003,36 @@ _mul_NxM:
     mov          (%rsp), %rbx
     mov          %rbx, %rbp
     dec          %rbp
-    jz           .Ltt_1gas_2
+    jz           .Ltt_1gas_38
     dec          %rbp
-    jz           .Ltt_2gas_2
+    jz           .Ltt_2gas_38
     dec          %rbp
-    jz           .Ltt_3gas_2
+    jz           .Ltt_3gas_38
     dec          %rbp
-    jz           .Ltt_4gas_2
+    jz           .Ltt_4gas_38
     dec          %rbp
-    jz           .Ltt_5gas_2
+    jz           .Ltt_5gas_38
     dec          %rbp
-    jz           .Ltt_6gas_2
-.Ltt_7gas_2:  
+    jz           .Ltt_6gas_38
+.Ltt_7gas_38:  
     mov          (8)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r9
-.Ltt_6gas_2:  
+.Ltt_6gas_38:  
     mov          (16)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r10
-.Ltt_5gas_2:  
+.Ltt_5gas_38:  
     mov          (24)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r11
-.Ltt_4gas_2:  
+.Ltt_4gas_38:  
     mov          (32)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r12
-.Ltt_3gas_2:  
+.Ltt_3gas_38:  
     mov          (40)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r13
-.Ltt_2gas_2:  
+.Ltt_2gas_38:  
     mov          (48)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r14
-.Ltt_1gas_2:  
+.Ltt_1gas_38:  
     mov          (56)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r15
     adc          $(0), %rax
@@ -1897,60 +2049,69 @@ _mul_NxM:
     add          $(64), %rsi
     add          $(64), %rdi
     sub          $(8), %rdx
-    jnc          .Ltail_loopAgas_2
+    jnc          .Ltail_loopAgas_38
     add          $(8), %rdx
-    jz           .Lquitgas_2
+    jz           .Lquitgas_38
     mov          (40)(%rsp), %rax
     mov          %rbx, %rbp
     dec          %rbp
     movq         (%rdi,%rbx,8), %r8
     add          %rax, %r8
     movq         %r8, (%rdi,%rbx,8)
-    jz           .Lsimplegas_2
+    jz           .Lsimplegas_38
     dec          %rbp
     movq         (8)(%rdi,%rbx,8), %r9
     adc          $(0), %r9
     movq         %r9, (8)(%rdi,%rbx,8)
-    jz           .Lsimplegas_2
+    jz           .Lsimplegas_38
     dec          %rbp
     movq         (16)(%rdi,%rbx,8), %r10
     adc          $(0), %r10
     movq         %r10, (16)(%rdi,%rbx,8)
-    jz           .Lsimplegas_2
+    jz           .Lsimplegas_38
     dec          %rbp
     movq         (24)(%rdi,%rbx,8), %r11
     adc          $(0), %r11
     movq         %r11, (24)(%rdi,%rbx,8)
-    jz           .Lsimplegas_2
+    jz           .Lsimplegas_38
     dec          %rbp
     movq         (32)(%rdi,%rbx,8), %r12
     adc          $(0), %r12
     movq         %r12, (32)(%rdi,%rbx,8)
-    jz           .Lsimplegas_2
+    jz           .Lsimplegas_38
     dec          %rbp
     movq         (40)(%rdi,%rbx,8), %r13
     adc          $(0), %r13
     movq         %r13, (40)(%rdi,%rbx,8)
-    jz           .Lsimplegas_2
+    jz           .Lsimplegas_38
     dec          %rbp
     movq         (48)(%rdi,%rbx,8), %r14
     adc          $(0), %r14
     movq         %r14, (48)(%rdi,%rbx,8)
-.Lsimplegas_2: 
-    call         mla_simple
-.Lquitgas_2: 
+.Lsimplegas_38: 
+    call         _mla_simple
+.Lquitgas_38: 
     add          $(56), %rsp
     ret
  
-.p2align 4, 0x90
-sqr_1: 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_1:
     movq         (%rsi), %rdx
     mulx         %rdx, %rax, %rdx
     movq         %rax, (%rdi)
     movq         %rdx, (8)(%rdi)
     ret
-.p2align 4, 0x90
-sqr_2: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_2:
     movq         (%rsi), %rdx
     mulxq        (8)(%rsi), %r8, %r9
     mulx         %rdx, %r10, %r11
@@ -1968,8 +2129,13 @@ sqr_2:
     adc          %rcx, %rdx
     movq         %rdx, (24)(%rdi)
     ret
-.p2align 4, 0x90
-sqr_3: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_3:
     mov          (%rsi), %rdx
     mulx         (8)(%rsi), %r8, %r9
     mulx         (16)(%rsi), %rax, %r10
@@ -2003,8 +2169,13 @@ sqr_3:
     adc          %rax, %rcx
     mov          %rcx, (40)(%rdi)
     ret
-.p2align 4, 0x90
-sqr_4: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_4:
     mov          (%rsi), %rdx
     mulx         (8)(%rsi), %r8, %r9
     mulx         (16)(%rsi), %rax, %r10
@@ -2058,8 +2229,13 @@ sqr_4:
     adc          %rax, %rcx
     mov          %rcx, (56)(%rdi)
     ret
-.p2align 4, 0x90
-sqr_5: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_5:
     mov          (%rsi), %rdx
     mulx         (8)(%rsi), %r8, %r9
     mulx         (16)(%rsi), %rax, %r10
@@ -2142,8 +2318,13 @@ sqr_5:
     adc          %rax, %rcx
     mov          %rcx, (72)(%rdi)
     ret
-.p2align 4, 0x90
-sqr_6: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_6:
     mov          (%rsi), %rdx
     mulx         (8)(%rsi), %r8, %r9
     mulx         (16)(%rsi), %rax, %r10
@@ -2259,8 +2440,13 @@ sqr_6:
     adc          %rax, %rcx
     mov          %rcx, (88)(%rdi)
     ret
-.p2align 4, 0x90
-sqr_7: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_7:
     mov          (%rsi), %rdx
     mulx         (8)(%rsi), %r8, %r9
     mulx         (16)(%rsi), %rax, %r10
@@ -2422,8 +2608,13 @@ sqr_7:
     adc          %rax, %r11
     mov          %r11, (104)(%rdi)
     ret
-.p2align 4, 0x90
-sqr_8: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_8:
     mov          (%rsi), %rdx
     mulx         (8)(%rsi), %r8, %r9
     mulx         (16)(%rsi), %rax, %r10
@@ -2632,8 +2823,13 @@ sqr_8:
     adc          %rax, %r13
     mov          %r13, (120)(%rdi)
     ret
-.p2align 4, 0x90
-add_diag_4: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_add_diag_4:
     movq         (%rdi), %r8
     movq         (8)(%rdi), %r9
     movq         (16)(%rdi), %r10
@@ -2681,8 +2877,13 @@ add_diag_4:
     movq         %r14, (48)(%rdi)
     movq         %r15, (56)(%rdi)
     ret
-.p2align 4, 0x90
-sqr8_triangle: 
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr8_triangle:
     mov          (%rsi), %rdx
     mov          %r8, (%rdi)
     mulx         (8)(%rsi), %rax, %rbp
@@ -2824,14 +3025,19 @@ sqr8_triangle:
     add          %rax, %r13
     adc          $(0), %r14
     ret
-.p2align 4, 0x90
-sqr_9: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_9:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
     xor          %r15, %r15
-    call         mla_8x1
+    call         _mla_8x1
     movq         %r8, (8)(%rdi)
     movq         %r9, (16)(%rdi)
     movq         %r10, (24)(%rdi)
@@ -2843,10 +3049,10 @@ sqr_9:
     xor          %rbx, %rbx
     movq         %rbx, (72)(%rdi)
     sub          $(64), %rdi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
     movq         (%rdi), %r8
@@ -2868,14 +3074,19 @@ sqr_9:
     sub          $(64), %rsi
     sub          $(128), %rdi
     ret
-.p2align 4, 0x90
-sqr_10: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_10:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
     xor          %r15, %r15
-    call         mla_8x2
+    call         _mla_8x2
     movq         %r8, (16)(%rdi)
     movq         %r9, (24)(%rdi)
     movq         %r10, (32)(%rdi)
@@ -2892,10 +3103,10 @@ sqr_10:
     movq         %r8, (80)(%rdi)
     movq         %rbx, (88)(%rdi)
     sub          $(64), %rdi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
     movq         (%rdi), %r8
@@ -2927,17 +3138,22 @@ sqr_10:
     sub          $(64), %rsi
     sub          $(128), %rdi
     ret
-.p2align 4, 0x90
-sqr_11: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_11:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
     xor          %r15, %r15
-    call         mla_8x1
+    call         _mla_8x1
     add          $(8), %rdi
     add          $(8), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     sub          $(8), %rdi
     sub          $(8), %rcx
     movq         %r8, (24)(%rdi)
@@ -2966,10 +3182,10 @@ sqr_11:
     movq         %r9, (96)(%rdi)
     movq         %rbx, (104)(%rdi)
     sub          $(64), %rdi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
     movq         (%rdi), %r8
@@ -3011,17 +3227,22 @@ sqr_11:
     sub          $(64), %rsi
     sub          $(128), %rdi
     ret
-.p2align 4, 0x90
-sqr_12: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_12:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
     xor          %r15, %r15
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     sub          $(16), %rdi
     sub          $(16), %rcx
     movq         %r8, (32)(%rdi)
@@ -3065,30 +3286,35 @@ sqr_12:
     movq         %r10, (112)(%rdi)
     movq         %rbx, (120)(%rdi)
     sub          $(64), %rdi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     sub          $(64), %rsi
     sub          $(128), %rdi
     ret
-.p2align 4, 0x90
-sqr_13: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_13:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
     xor          %r15, %r15
-    call         mla_8x1
+    call         _mla_8x1
     add          $(8), %rdi
     add          $(8), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     sub          $(24), %rdi
     sub          $(24), %rcx
     movq         %r8, (40)(%rdi)
@@ -3152,13 +3378,13 @@ sqr_13:
     movq         %r11, (128)(%rdi)
     movq         %rbx, (136)(%rdi)
     sub          $(64), %rdi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
     movq         (%rdi), %r8
@@ -3180,20 +3406,25 @@ sqr_13:
     sub          $(96), %rsi
     sub          $(192), %rdi
     ret
-.p2align 4, 0x90
-sqr_14: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_14:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
     xor          %r15, %r15
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     sub          $(32), %rdi
     sub          $(32), %rcx
     movq         %r8, (48)(%rdi)
@@ -3282,13 +3513,13 @@ sqr_14:
     movq         %r12, (144)(%rdi)
     movq         %rbx, (152)(%rdi)
     sub          $(64), %rdi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
     movq         (%rdi), %r8
@@ -3320,23 +3551,28 @@ sqr_14:
     sub          $(96), %rsi
     sub          $(192), %rdi
     ret
-.p2align 4, 0x90
-sqr_15: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_15:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
     xor          %r15, %r15
-    call         mla_8x1
+    call         _mla_8x1
     add          $(8), %rdi
     add          $(8), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     sub          $(40), %rdi
     sub          $(40), %rcx
     movq         %r8, (56)(%rdi)
@@ -3455,13 +3691,13 @@ sqr_15:
     movq         %r13, (160)(%rdi)
     movq         %rbx, (168)(%rdi)
     sub          $(64), %rdi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
     movq         (%rdi), %r8
@@ -3503,28 +3739,33 @@ sqr_15:
     sub          $(96), %rsi
     sub          $(192), %rdi
     ret
-.p2align 4, 0x90
-sqr_16: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr_16:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     mov          %rsi, %rcx
     add          $(64), %rsi
     add          $(64), %rdi
     xor          %r15, %r15
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     add          $(16), %rdi
     add          $(16), %rcx
-    call         mla_8x2
+    call         _mla_8x2
     sub          $(48), %rdi
     sub          $(48), %rcx
     add          $(64), %rdi
-    call         sqr8_triangle
+    call         _sqr8_triangle
     xor          %rbx, %rbx
     movq         %r15, (56)(%rdi)
     movq         %r8, (64)(%rdi)
@@ -3537,27 +3778,32 @@ sqr_16:
     movq         %rbx, (120)(%rdi)
     sub          $(64), %rsi
     sub          $(128), %rdi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
-    call         add_diag_4
+    call         _add_diag_4
     sub          $(96), %rsi
     sub          $(192), %rdi
     ret
-.p2align 4, 0x90
-sqr9_triangle: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr9_triangle:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     xor          %r15, %r15
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
-    call         mla_8x1
+    call         _mla_8x1
     xor          %rax, %rax
     movq         %r8, (8)(%rdi)
     movq         %r9, (16)(%rdi)
@@ -3570,14 +3816,19 @@ sqr9_triangle:
     movq         %rax, (72)(%rdi)
     sub          $(64), %rdi
     ret
-.p2align 4, 0x90
-sqr10_triangle: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr10_triangle:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     xor          %r15, %r15
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
-    call         mla_8x2
+    call         _mla_8x2
     movq         %r8, (16)(%rdi)
     movq         %r9, (24)(%rdi)
     movq         %r10, (32)(%rdi)
@@ -3595,14 +3846,19 @@ sqr10_triangle:
     movq         %rax, (88)(%rdi)
     sub          $(64), %rdi
     ret
-.p2align 4, 0x90
-sqr11_triangle: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr11_triangle:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     xor          %r15, %r15
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
-    call         mla_8x3
+    call         _mla_8x3
     movq         %r8, (24)(%rdi)
     movq         %r9, (32)(%rdi)
     movq         %r10, (40)(%rdi)
@@ -3630,14 +3886,19 @@ sqr11_triangle:
     movq         %rax, (104)(%rdi)
     sub          $(64), %rdi
     ret
-.p2align 4, 0x90
-sqr12_triangle: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr12_triangle:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     xor          %r15, %r15
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
-    call         mla_8x4
+    call         _mla_8x4
     movq         %r8, (32)(%rdi)
     movq         %r9, (40)(%rdi)
     movq         %r10, (48)(%rdi)
@@ -3680,14 +3941,19 @@ sqr12_triangle:
     movq         %rax, (120)(%rdi)
     sub          $(64), %rdi
     ret
-.p2align 4, 0x90
-sqr13_triangle: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr13_triangle:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     xor          %r15, %r15
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
-    call         mla_8x5
+    call         _mla_8x5
     movq         %r8, (40)(%rdi)
     movq         %r9, (48)(%rdi)
     movq         %r10, (56)(%rdi)
@@ -3750,14 +4016,19 @@ sqr13_triangle:
     movq         %rax, (136)(%rdi)
     sub          $(64), %rdi
     ret
-.p2align 4, 0x90
-sqr14_triangle: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr14_triangle:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     xor          %r15, %r15
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
-    call         mla_8x6
+    call         _mla_8x6
     movq         %r8, (48)(%rdi)
     movq         %r9, (56)(%rdi)
     movq         (64)(%rsi), %rdx
@@ -3845,14 +4116,19 @@ sqr14_triangle:
     movq         %rax, (152)(%rdi)
     sub          $(64), %rdi
     ret
-.p2align 4, 0x90
-sqr15_triangle: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr15_triangle:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     xor          %r15, %r15
     lea          (64)(%rsi), %rcx
     add          $(64), %rdi
-    call         mla_8x7
+    call         _mla_8x7
     movq         %r8, (56)(%rdi)
     movq         (64)(%rsi), %rdx
     mov          %r9, (64)(%rdi)
@@ -3970,17 +4246,22 @@ sqr15_triangle:
     movq         %rax, (168)(%rdi)
     sub          $(64), %rdi
     ret
-.p2align 4, 0x90
-sqr16_triangle: 
-    call         sqr8_triangle
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_sqr16_triangle:
+    call         _sqr8_triangle
     movq         %r15, (56)(%rdi)
     xor          %r15, %r15
     mov          %rsi, %rcx
     add          $(64), %rsi
     add          $(64), %rdi
-    call         mla_8x8
+    call         _mla_8x8
     add          $(64), %rdi
-    call         sqr8_triangle
+    call         _sqr8_triangle
     xor          %rax, %rax
     movq         %r15, (56)(%rdi)
     movq         %r8, (64)(%rdi)
@@ -3996,79 +4277,79 @@ sqr16_triangle:
     ret
  
 sqr_l_basic:
-.quad  sqr_1 - sqr_l_basic 
+.quad  _sqr_1 - sqr_l_basic 
  
 
-.quad  sqr_2 - sqr_l_basic 
+.quad  _sqr_2 - sqr_l_basic 
  
 
-.quad  sqr_3 - sqr_l_basic 
+.quad  _sqr_3 - sqr_l_basic 
  
 
-.quad  sqr_4 - sqr_l_basic 
+.quad  _sqr_4 - sqr_l_basic 
  
 
-.quad  sqr_5 - sqr_l_basic 
+.quad  _sqr_5 - sqr_l_basic 
  
 
-.quad  sqr_6 - sqr_l_basic 
+.quad  _sqr_6 - sqr_l_basic 
  
 
-.quad  sqr_7 - sqr_l_basic 
+.quad  _sqr_7 - sqr_l_basic 
  
 
-.quad  sqr_8 - sqr_l_basic 
+.quad  _sqr_8 - sqr_l_basic 
  
 
-.quad  sqr_9 - sqr_l_basic 
+.quad  _sqr_9 - sqr_l_basic 
  
 
-.quad  sqr_10- sqr_l_basic 
+.quad  _sqr_10- sqr_l_basic 
  
 
-.quad  sqr_11- sqr_l_basic 
+.quad  _sqr_11- sqr_l_basic 
  
 
-.quad  sqr_12- sqr_l_basic 
+.quad  _sqr_12- sqr_l_basic 
  
 
-.quad  sqr_13- sqr_l_basic 
+.quad  _sqr_13- sqr_l_basic 
  
 
-.quad  sqr_14- sqr_l_basic 
+.quad  _sqr_14- sqr_l_basic 
  
 
-.quad  sqr_15- sqr_l_basic 
+.quad  _sqr_15- sqr_l_basic 
  
 
-.quad  sqr_16- sqr_l_basic 
+.quad  _sqr_16- sqr_l_basic 
  
 sqrN_triangle:
-.quad  sqr9_triangle - sqrN_triangle 
+.quad  _sqr9_triangle - sqrN_triangle 
  
 
-.quad  sqr10_triangle - sqrN_triangle 
+.quad  _sqr10_triangle - sqrN_triangle 
  
 
-.quad  sqr11_triangle - sqrN_triangle 
+.quad  _sqr11_triangle - sqrN_triangle 
  
 
-.quad  sqr12_triangle - sqrN_triangle 
+.quad  _sqr12_triangle - sqrN_triangle 
  
 
-.quad  sqr13_triangle - sqrN_triangle 
+.quad  _sqr13_triangle - sqrN_triangle 
  
 
-.quad  sqr14_triangle - sqrN_triangle 
+.quad  _sqr14_triangle - sqrN_triangle 
  
 
-.quad  sqr15_triangle - sqrN_triangle 
+.quad  _sqr15_triangle - sqrN_triangle 
  
 
-.quad  sqr16_triangle - sqrN_triangle 
-.p2align 4, 0x90
+.quad  _sqr16_triangle - sqrN_triangle 
+.p2align 5, 0x90
  
-.globl _sqr_8N
+
 
  
 _sqr_8N:
@@ -4079,7 +4360,7 @@ _sqr_8N:
     push         %rsi
     push         %rdx
     push         %rdx
-    call         sqr8_triangle
+    call         _sqr8_triangle
     pop          %rdx
     movq         %r15, (56)(%rdi)
     xor          %r15, %r15
@@ -4087,14 +4368,14 @@ _sqr_8N:
     sub          $(8), %rdx
     mov          %rsi, %rcx
     add          $(64), %rsi
-.LinitLoopgas_3: 
+.LinitLoopgas_65: 
     push         %rdx
-    call         mla_8x8
+    call         _mla_8x8
     pop          %rdx
     add          $(64), %rsi
     add          $(64), %rdi
     sub          $(8), %rdx
-    jnz          .LinitLoopgas_3
+    jnz          .LinitLoopgas_65
     movq         %r8, (%rdi)
     movq         %r9, (8)(%rdi)
     movq         %r10, (16)(%rdi)
@@ -4103,8 +4384,8 @@ _sqr_8N:
     movq         %r13, (40)(%rdi)
     movq         %r14, (48)(%rdi)
     movq         %r15, (56)(%rdi)
-    jmp          .Lupdate_Trianglegas_3
-.LouterLoopgas_3: 
+    jmp          .Lupdate_Trianglegas_65
+.LouterLoopgas_65: 
     push         %rdi
     push         %rsi
     push         %rdx
@@ -4118,18 +4399,18 @@ _sqr_8N:
     movq         (40)(%rdi), %r13
     movq         (48)(%rdi), %r14
     movq         (56)(%rdi), %r15
-.LinnerLoop_entrygas_3: 
+.LinnerLoop_entrygas_65: 
     push         %rdx
-    call         sqr8_triangle
+    call         _sqr8_triangle
     pop          %rdx
     movq         %r15, (56)(%rdi)
     xor          %r15, %r15
     add          $(64), %rdi
     sub          $(8), %rdx
-    jz           .LskipInnerLoopgas_3
+    jz           .LskipInnerLoopgas_65
     mov          %rsi, %rcx
     add          $(64), %rsi
-.LinnerLoopgas_3: 
+.LinnerLoopgas_65: 
     pop          %rax
     neg          %rax
     movq         (%rdi), %rax
@@ -4151,13 +4432,13 @@ _sqr_8N:
     sbb          %rax, %rax
     push         %rax
     push         %rdx
-    call         mla_8x8
+    call         _mla_8x8
     pop          %rdx
     add          $(64), %rsi
     add          $(64), %rdi
     sub          $(8), %rdx
-    jnz          .LinnerLoopgas_3
-.LskipInnerLoopgas_3: 
+    jnz          .LinnerLoopgas_65
+.LskipInnerLoopgas_65: 
     pop          %rax
     neg          %rax
     adc          $(0), %r8
@@ -4176,29 +4457,29 @@ _sqr_8N:
     movq         %r14, (48)(%rdi)
     adc          $(0), %r15
     movq         %r15, (56)(%rdi)
-.Lupdate_Trianglegas_3: 
+.Lupdate_Trianglegas_65: 
     pop          %rdx
     pop          %rsi
     pop          %rdi
     add          $(64), %rsi
     add          $(128), %rdi
     sub          $(8), %rdx
-    jnz          .LouterLoopgas_3
+    jnz          .LouterLoopgas_65
     pop          %rcx
     pop          %rsi
     pop          %rdi
     xor          %rbx, %rbx
-.Lupdate_loopgas_3: 
-    call         add_diag_4
+.Lupdate_loopgas_65: 
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
     sub          $(4), %rcx
-    jnz          .Lupdate_loopgas_3
+    jnz          .Lupdate_loopgas_65
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _sqr_N
+
 
  
 _sqr_N:
@@ -4216,7 +4497,7 @@ _sqr_N:
     push         %rax
     sub          $(8), %rdx
     push         %rdx
-    call         sqr8_triangle
+    call         _sqr8_triangle
     pop          %rdx
     movq         %r15, (56)(%rdi)
     add          $(64), %rdi
@@ -4224,14 +4505,14 @@ _sqr_N:
     mov          %rsi, %rcx
     add          $(64), %rsi
     sub          $(8), %rdx
-.LinitLoopgas_4: 
+.LinitLoopgas_66: 
     push         %rdx
-    call         mla_8x8
+    call         _mla_8x8
     pop          %rdx
     add          $(64), %rsi
     add          $(64), %rdi
     sub          $(8), %rdx
-    jnc          .LinitLoopgas_4
+    jnc          .LinitLoopgas_66
     add          $(8), %rdx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
@@ -4249,8 +4530,8 @@ _sqr_N:
     movq         %r13, (40)(%rdi)
     movq         %r14, (48)(%rdi)
     movq         %r15, (56)(%rdi)
-    jmp          .Lupdate_Trianglegas_4
-.LouterLoopgas_4: 
+    jmp          .Lupdate_Trianglegas_66
+.LouterLoopgas_66: 
     push         %rdi
     push         %rsi
     push         %rdx
@@ -4267,7 +4548,7 @@ _sqr_N:
     movq         (56)(%rdi), %r15
     sub          $(8), %rdx
     push         %rdx
-    call         sqr8_triangle
+    call         _sqr8_triangle
     pop          %rdx
     movq         %r15, (56)(%rdi)
     add          $(64), %rdi
@@ -4275,7 +4556,7 @@ _sqr_N:
     mov          %rsi, %rcx
     add          $(64), %rsi
     sub          $(8), %rdx
-.LinnerLoopgas_4: 
+.LinnerLoopgas_66: 
     pop          %rax
     neg          %rax
     movq         (%rdi), %rax
@@ -4297,12 +4578,12 @@ _sqr_N:
     sbb          %rax, %rax
     push         %rax
     push         %rdx
-    call         mla_8x8
+    call         _mla_8x8
     pop          %rdx
     add          $(64), %rsi
     add          $(64), %rdi
     sub          $(8), %rdx
-    jnc          .LinnerLoopgas_4
+    jnc          .LinnerLoopgas_66
     add          $(8), %rdx
     pxor         %xmm0, %xmm0
     movdqu       %xmm0, (%rdi,%rdx,8)
@@ -4363,7 +4644,7 @@ _sqr_N:
     movq         (56)(%rdi), %rax
     adc          %rax, %r15
     movq         %r15, (56)(%rdi)
-.Lupdate_Trianglegas_4: 
+.Lupdate_Trianglegas_66: 
     pop          %rax
     pop          %rdx
     pop          %rsi
@@ -4372,7 +4653,7 @@ _sqr_N:
     add          $(128), %rdi
     sub          $(8), %rdx
     cmp          $(16), %rdx
-    jg           .LouterLoopgas_4
+    jg           .LouterLoopgas_66
     mov          %rdx, %rbp
     sub          $(8), %rbp
     lea          sqrN_triangle(%rip), %rax
@@ -4406,7 +4687,7 @@ _sqr_N:
     add          $(64), %rdi
     lea          (-8)(%rdx), %rax
     xor          %rbx, %rbx
-.Lupdate1gas_4: 
+.Lupdate1gas_66: 
     movq         (%rsi), %r8
     movq         (%rdi), %r9
     add          $(8), %rsi
@@ -4416,8 +4697,8 @@ _sqr_N:
     movq         %r8, (%rdi)
     add          $(8), %rdi
     sub          $(1), %rax
-    jg           .Lupdate1gas_4
-.Lupdate2gas_4: 
+    jg           .Lupdate1gas_66
+.Lupdate2gas_66: 
     movq         (%rsi), %r8
     add          $(8), %rsi
     neg          %rbx
@@ -4426,23 +4707,23 @@ _sqr_N:
     movq         %r8, (%rdi)
     add          $(8), %rdi
     sub          $(1), %rdx
-    jg           .Lupdate2gas_4
+    jg           .Lupdate2gas_66
     add          $(256), %rsp
-.Ladd_diagonalsgas_4: 
+.Ladd_diagonalsgas_66: 
     pop          %rcx
     pop          %rsi
     pop          %rdi
     sub          $(4), %rcx
     xor          %rbx, %rbx
-.Ladd_diagonal_loopgas_4: 
-    call         add_diag_4
+.Ladd_diagonal_loopgas_66: 
+    call         _add_diag_4
     add          $(64), %rdi
     add          $(32), %rsi
     sub          $(4), %rcx
-    jnc          .Ladd_diagonal_loopgas_4
+    jnc          .Ladd_diagonal_loopgas_66
     add          $(4), %rcx
-    jz           .Lquitgas_4
-.Ladd_diagonal_restgas_4: 
+    jz           .Lquitgas_66
+.Ladd_diagonal_restgas_66: 
     movq         (%rdi), %r8
     movq         (8)(%rdi), %r9
     xor          %rbp, %rbp
@@ -4462,13 +4743,50 @@ _sqr_N:
     add          $(16), %rdi
     add          $(8), %rsi
     sub          $(1), %rcx
-    jnz          .Ladd_diagonal_restgas_4
-.Lquitgas_4: 
+    jnz          .Ladd_diagonal_restgas_66
+.Lquitgas_66: 
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred1_start
+
+
+ 
+_sub_N:
+    xor          %rax, %rax
+.Lsub_nextgas_67: 
+    lea          (8)(%rdi), %rdi
+    movq         (%rsi), %r8
+    movq         (%rcx), %r9
+    lea          (8)(%rsi), %rsi
+    lea          (8)(%rcx), %rcx
+    sbb          %r9, %r8
+    movq         %r8, (-8)(%rdi)
+    dec          %rdx
+    jnz          .Lsub_nextgas_67
+    adc          $(0), %rax
+    ret
+ 
+.p2align 5, 0x90
+ 
+
+
+ 
+_copy_ae_N:
+    lea          (8)(%rdi), %rdi
+    movq         (%rsi), %r8
+    movq         (%rcx), %r9
+    lea          (8)(%rsi), %rsi
+    lea          (8)(%rcx), %rcx
+    cmovae       %r9, %r8
+    movq         %r8, (-8)(%rdi)
+    dec          %rdx
+    jnz          _copy_ae_N
+    ret
+ 
+.p2align 5, 0x90
+ 
+
 
  
 _mred1_start:
@@ -4478,9 +4796,9 @@ _mred1_start:
     mov          %rbx, %r8
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred2_start
+
 
  
 _mred2_start:
@@ -4495,9 +4813,9 @@ _mred2_start:
     mov          %rbp, %r9
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred3_start
+
 
  
 _mred3_start:
@@ -4517,9 +4835,9 @@ _mred3_start:
     mov          %rbx, %r10
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred4_start
+
 
  
 _mred4_start:
@@ -4544,9 +4862,9 @@ _mred4_start:
     mov          %rbp, %r11
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred5_start
+
 
  
 _mred5_start:
@@ -4576,9 +4894,9 @@ _mred5_start:
     mov          %rbx, %r12
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred6_start
+
 
  
 _mred6_start:
@@ -4613,9 +4931,9 @@ _mred6_start:
     mov          %rbp, %r13
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred7_start
+
 
  
 _mred7_start:
@@ -4655,9 +4973,9 @@ _mred7_start:
     mov          %rbx, %r14
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred8_start
+
 
  
 _mred8_start:
@@ -4702,9 +5020,9 @@ _mred8_start:
     mov          %rbp, %r15
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred8x1_start
+
 
  
 _mred8x1_start:
@@ -4716,9 +5034,9 @@ _mred8x1_start:
     pop          %rdx
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred8x2_start
+
 
  
 _mred8x2_start:
@@ -4735,9 +5053,9 @@ _mred8x2_start:
     pop          %rdx
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred8x3_start
+
 
  
 _mred8x3_start:
@@ -4759,9 +5077,9 @@ _mred8x3_start:
     pop          %rdx
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred8x4_start
+
 
  
 _mred8x4_start:
@@ -4788,9 +5106,9 @@ _mred8x4_start:
     pop          %rdx
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred8x5_start
+
 
  
 _mred8x5_start:
@@ -4822,9 +5140,9 @@ _mred8x5_start:
     pop          %rdx
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred8x6_start
+
 
  
 _mred8x6_start:
@@ -4861,9 +5179,9 @@ _mred8x6_start:
     pop          %rdx
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred8x7_start
+
 
  
 _mred8x7_start:
@@ -4905,9 +5223,9 @@ _mred8x7_start:
     pop          %rdx
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred8x8_start
+
 
  
 _mred8x8_start:
@@ -4954,9 +5272,9 @@ _mred8x8_start:
     pop          %rdx
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_5
+
 
  
 _mred_5:
@@ -5028,9 +5346,9 @@ _mred_5:
     movq         %rbp, (32)(%r15)
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_6
+
 
  
 _mred_6:
@@ -5114,9 +5432,9 @@ _mred_6:
     movq         %rsi, (40)(%r15)
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_7
+
 
  
 _mred_7:
@@ -5212,9 +5530,9 @@ _mred_7:
     movq         %rdi, (48)(%r15)
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_8
+
 
  
 _mred_8:
@@ -5324,9 +5642,9 @@ _mred_8:
     movq         %rdx, (56)(%rsi)
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_9
+
 
  
 _mred_9:
@@ -5369,7 +5687,7 @@ _mred_9:
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
-    call         mla_8x1
+    call         _mla_8x1
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
@@ -5412,7 +5730,7 @@ _mred_9:
     push         %rax
     add          $(64), %rdi
     add          $(64), %rsi
-    call         mla_1x1
+    call         _mla_1x1
     pop          %rax
     shr          $(1), %rax
     mov          (8)(%rdi), %rbx
@@ -5429,19 +5747,19 @@ _mred_9:
     pop          %rdi
     mov          %rax, %rbx
     mov          $(9), %rdx
-    call         sub_N
+    call         _sub_N
     sub          %rax, %rbx
     sub          $(72), %rdi
     sub          $(72), %rsi
     mov          %rdi, %rcx
     mov          $(9), %rdx
     shr          $(1), %rbx
-    call         copy_ae_N
+    call         _copy_ae_N
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_10
+
 
  
 _mred_10:
@@ -5484,7 +5802,7 @@ _mred_10:
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
-    call         mla_8x2
+    call         _mla_8x2
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
@@ -5530,7 +5848,7 @@ _mred_10:
     push         %rax
     add          $(64), %rdi
     add          $(64), %rsi
-    call         mla_2x2
+    call         _mla_2x2
     pop          %rax
     shr          $(1), %rax
     mov          (16)(%rdi), %rbx
@@ -5551,19 +5869,19 @@ _mred_10:
     pop          %rdi
     mov          %rax, %rbx
     mov          $(10), %rdx
-    call         sub_N
+    call         _sub_N
     sub          %rax, %rbx
     sub          $(80), %rdi
     sub          $(80), %rsi
     mov          %rdi, %rcx
     mov          $(10), %rdx
     shr          $(1), %rbx
-    call         copy_ae_N
+    call         _copy_ae_N
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_11
+
 
  
 _mred_11:
@@ -5606,7 +5924,7 @@ _mred_11:
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
-    call         mla_8x3
+    call         _mla_8x3
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
@@ -5655,7 +5973,7 @@ _mred_11:
     push         %rax
     add          $(64), %rdi
     add          $(64), %rsi
-    call         mla_3x3
+    call         _mla_3x3
     pop          %rax
     shr          $(1), %rax
     mov          (24)(%rdi), %rbx
@@ -5680,19 +5998,19 @@ _mred_11:
     pop          %rdi
     mov          %rax, %rbx
     mov          $(11), %rdx
-    call         sub_N
+    call         _sub_N
     sub          %rax, %rbx
     sub          $(88), %rdi
     sub          $(88), %rsi
     mov          %rdi, %rcx
     mov          $(11), %rdx
     shr          $(1), %rbx
-    call         copy_ae_N
+    call         _copy_ae_N
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_12
+
 
  
 _mred_12:
@@ -5735,7 +6053,7 @@ _mred_12:
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
-    call         mla_8x4
+    call         _mla_8x4
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
@@ -5787,7 +6105,7 @@ _mred_12:
     push         %rax
     add          $(64), %rdi
     add          $(64), %rsi
-    call         mla_4x4
+    call         _mla_4x4
     pop          %rax
     shr          $(1), %rax
     mov          (32)(%rdi), %rbx
@@ -5816,19 +6134,19 @@ _mred_12:
     pop          %rdi
     mov          %rax, %rbx
     mov          $(12), %rdx
-    call         sub_N
+    call         _sub_N
     sub          %rax, %rbx
     sub          $(96), %rdi
     sub          $(96), %rsi
     mov          %rdi, %rcx
     mov          $(12), %rdx
     shr          $(1), %rbx
-    call         copy_ae_N
+    call         _copy_ae_N
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_13
+
 
  
 _mred_13:
@@ -5871,7 +6189,7 @@ _mred_13:
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
-    call         mla_8x5
+    call         _mla_8x5
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
@@ -5926,7 +6244,7 @@ _mred_13:
     push         %rax
     add          $(64), %rdi
     add          $(64), %rsi
-    call         mla_5x5
+    call         _mla_5x5
     pop          %rax
     shr          $(1), %rax
     mov          (40)(%rdi), %rbx
@@ -5959,19 +6277,19 @@ _mred_13:
     pop          %rdi
     mov          %rax, %rbx
     mov          $(13), %rdx
-    call         sub_N
+    call         _sub_N
     sub          %rax, %rbx
     sub          $(104), %rdi
     sub          $(104), %rsi
     mov          %rdi, %rcx
     mov          $(13), %rdx
     shr          $(1), %rbx
-    call         copy_ae_N
+    call         _copy_ae_N
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_14
+
 
  
 _mred_14:
@@ -6014,7 +6332,7 @@ _mred_14:
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
-    call         mla_8x6
+    call         _mla_8x6
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
@@ -6072,7 +6390,7 @@ _mred_14:
     push         %rax
     add          $(64), %rdi
     add          $(64), %rsi
-    call         mla_6x6
+    call         _mla_6x6
     pop          %rax
     shr          $(1), %rax
     mov          (48)(%rdi), %rbx
@@ -6109,19 +6427,19 @@ _mred_14:
     pop          %rdi
     mov          %rax, %rbx
     mov          $(14), %rdx
-    call         sub_N
+    call         _sub_N
     sub          %rax, %rbx
     sub          $(112), %rdi
     sub          $(112), %rsi
     mov          %rdi, %rcx
     mov          $(14), %rdx
     shr          $(1), %rbx
-    call         copy_ae_N
+    call         _copy_ae_N
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_15
+
 
  
 _mred_15:
@@ -6164,7 +6482,7 @@ _mred_15:
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
-    call         mla_8x7
+    call         _mla_8x7
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rsi, %rcx
@@ -6225,7 +6543,7 @@ _mred_15:
     push         %rax
     add          $(64), %rdi
     add          $(64), %rsi
-    call         mla_7x7
+    call         _mla_7x7
     pop          %rax
     shr          $(1), %rax
     mov          (56)(%rdi), %rbx
@@ -6266,19 +6584,19 @@ _mred_15:
     pop          %rdi
     mov          %rax, %rbx
     mov          $(15), %rdx
-    call         sub_N
+    call         _sub_N
     sub          %rax, %rbx
     sub          $(120), %rdi
     sub          $(120), %rsi
     mov          %rdi, %rcx
     mov          $(15), %rdx
     shr          $(1), %rbx
-    call         copy_ae_N
+    call         _copy_ae_N
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_16
+
 
  
 _mred_16:
@@ -6318,7 +6636,7 @@ _mred_16:
     add          $(64), %rsi
     add          $(64), %rdi
     push         %rdx
-    call         mla_8x8
+    call         _mla_8x8
     pop          %rdx
     pop          %rax
     shr          $(1), %rax
@@ -6379,7 +6697,7 @@ _mred_16:
     push         %rax
     add          $(64), %rdi
     add          $(64), %rsi
-    call         mla_8x8
+    call         _mla_8x8
     sub          $(64), %rsi
     pop          %rax
     shr          $(1), %rax
@@ -6575,9 +6893,9 @@ mred8x_start:
  
 
 .quad  _mred8x7_start - mred8x_start 
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_8N
+
 
  
 _mred_8N:
@@ -6586,7 +6904,7 @@ _mred_8N:
     mov          %rsp, %rcx
     mov          %rdx, %rbx
     xor          %rax, %rax
-.LpassLoopgas_33: 
+.LpassLoopgas_97: 
     push         %rdi
     push         %rsi
     push         %rdx
@@ -6624,10 +6942,10 @@ _mred_8N:
     adc          %rbx, %r15
     adc          $(0), %rax
     push         %rax
-    jmp          .LentryInnerLoopgas_33
-.LinnerLoopgas_33: 
+    jmp          .LentryInnerLoopgas_97
+.LinnerLoopgas_97: 
     push         %rdx
-    call         mla_8x8
+    call         _mla_8x8
     pop          %rdx
     pop          %rax
     shr          $(1), %rax
@@ -6657,11 +6975,11 @@ _mred_8N:
     mov          %r15, (120)(%rdi)
     adc          $(0), %rax
     push         %rax
-.LentryInnerLoopgas_33: 
+.LentryInnerLoopgas_97: 
     add          $(64), %rdi
     add          $(64), %rsi
     sub          $(8), %rdx
-    jg           .LinnerLoopgas_33
+    jg           .LinnerLoopgas_97
     pop          %rax
     pop          %rbx
     add          %rbx, %r8
@@ -6688,7 +7006,7 @@ _mred_8N:
     pop          %rdi
     add          $(64), %rdi
     sub          $(8), %rbx
-    jg           .LpassLoopgas_33
+    jg           .LpassLoopgas_97
     add          $(64), %rsp
     mov          %rdx, %r14
     lea          (,%rdx,8), %r15
@@ -6696,19 +7014,19 @@ _mred_8N:
     mov          %rsi, %rcx
     mov          %rdi, %rsi
     pop          %rdi
-    call         sub_N
+    call         _sub_N
     sub          %rax, %rbx
     mov          %r14, %rdx
     sub          %r15, %rdi
     sub          %r15, %rsi
     mov          %rdi, %rcx
     shr          $(1), %rbx
-    call         copy_ae_N
+    call         _copy_ae_N
     ret
  
-.p2align 4, 0x90
+.p2align 5, 0x90
  
-.globl _mred_N
+
 
  
 _mred_N:
@@ -6723,7 +7041,7 @@ _mred_N:
     lea          mla_8xl_tail(%rip), %rbp
     mov          (-8)(%rbp,%r15,8), %r15
     add          %r15, %rbp
-.LpassLoopgas_34: 
+.LpassLoopgas_98: 
     push         %rdi
     push         %rsi
     push         %rdx
@@ -6746,12 +7064,12 @@ _mred_N:
     pop          %rdx
     xor          %rax, %rax
     push         %rax
-    jmp          .LentryInnerLoopgas_34
-.LinnerLoopgas_34: 
+    jmp          .LentryInnerLoopgas_98
+.LinnerLoopgas_98: 
     push         %rdx
-    call         mla_8x8
+    call         _mla_8x8
     pop          %rdx
-.LentryInnerLoopgas_34: 
+.LentryInnerLoopgas_98: 
     pop          %rax
     shr          $(1), %rax
     mov          (64)(%rdi), %rbx
@@ -6783,9 +7101,9 @@ _mred_N:
     add          $(64), %rdi
     add          $(64), %rsi
     sub          $(8), %rdx
-    jnc          .LinnerLoopgas_34
+    jnc          .LinnerLoopgas_98
     add          $(8), %rdx
-    jz           .Lcomplete_regular_passgas_34
+    jz           .Lcomplete_regular_passgas_98
     mov          (8)(%rsp), %rax
     xor          %rsi, %rcx
     xor          %rcx, %rsi
@@ -6801,41 +7119,41 @@ _mred_N:
     shr          $(1), %rax
     mov          %rdx, %rbx
     dec          %rbx
-    jz           .Lmt_1gas_34
+    jz           .Lmt_1gas_98
     dec          %rbx
-    jz           .Lmt_2gas_34
+    jz           .Lmt_2gas_98
     dec          %rbx
-    jz           .Lmt_3gas_34
+    jz           .Lmt_3gas_98
     dec          %rbx
-    jz           .Lmt_4gas_34
+    jz           .Lmt_4gas_98
     dec          %rbx
-    jz           .Lmt_5gas_34
+    jz           .Lmt_5gas_98
     dec          %rbx
-    jz           .Lmt_6gas_34
-.Lmt_7gas_34:  
+    jz           .Lmt_6gas_98
+.Lmt_7gas_98:  
     mov          (8)(%rdi), %rbx
     adc          %rbx, %r9
-.Lmt_6gas_34:  
+.Lmt_6gas_98:  
     mov          (16)(%rdi), %rbx
     adc          %rbx, %r10
-.Lmt_5gas_34:  
+.Lmt_5gas_98:  
     mov          (24)(%rdi), %rbx
     adc          %rbx, %r11
-.Lmt_4gas_34:  
+.Lmt_4gas_98:  
     mov          (32)(%rdi), %rbx
     adc          %rbx, %r12
-.Lmt_3gas_34:  
+.Lmt_3gas_98:  
     mov          (40)(%rdi), %rbx
     adc          %rbx, %r13
-.Lmt_2gas_34:  
+.Lmt_2gas_98:  
     mov          (48)(%rdi), %rbx
     adc          %rbx, %r14
-.Lmt_1gas_34:  
+.Lmt_1gas_98:  
     mov          (56)(%rdi), %rbx
     adc          %rbx, %r15
     adc          $(0), %rax
     push         %rax
-.Lcomplete_regular_passgas_34: 
+.Lcomplete_regular_passgas_98: 
     pop          %rax
     pop          %rbp
     pop          %rbx
@@ -6863,9 +7181,9 @@ _mred_N:
     pop          %rdi
     add          $(64), %rdi
     sub          $(8), %rbx
-    jnc          .LpassLoopgas_34
+    jnc          .LpassLoopgas_98
     add          $(8), %rbx
-    jz           .Lcomplete_reductiongas_34
+    jz           .Lcomplete_reductiongas_98
     push         %rdi
     push         %rsi
     push         %rdx
@@ -6891,8 +7209,8 @@ _mred_N:
     pop          %rdx
     xor          %rax, %rax
     push         %rax
-    jmp          .LentryTailLoopgas_34
-.LtailLoopgas_34: 
+    jmp          .LentryTailLoopgas_98
+.LtailLoopgas_98: 
     movq         (%rdi), %r8
     movq         (8)(%rdi), %r9
     movq         (16)(%rdi), %r10
@@ -6905,7 +7223,7 @@ _mred_N:
     push         %rdx
     call         *%rax
     pop          %rdx
-.LentryTailLoopgas_34: 
+.LentryTailLoopgas_98: 
     pop          %rax
     shr          $(1), %rax
     adc          $(0), %r8
@@ -6919,36 +7237,36 @@ _mred_N:
     adc          $(0), %rax
     mov          (16)(%rsp), %rbx
     cmp          $(1), %rbx
-    jz           .Ltt_1gas_34
+    jz           .Ltt_1gas_98
     cmp          $(2), %rbx
-    jz           .Ltt_2gas_34
+    jz           .Ltt_2gas_98
     cmp          $(3), %rbx
-    jz           .Ltt_3gas_34
+    jz           .Ltt_3gas_98
     cmp          $(4), %rbx
-    jz           .Ltt_4gas_34
+    jz           .Ltt_4gas_98
     cmp          $(5), %rbx
-    jz           .Ltt_5gas_34
+    jz           .Ltt_5gas_98
     cmp          $(6), %rbx
-    jz           .Ltt_6gas_34
-.Ltt_7gas_34:  
+    jz           .Ltt_6gas_98
+.Ltt_7gas_98:  
     mov          (8)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r9
-.Ltt_6gas_34:  
+.Ltt_6gas_98:  
     mov          (16)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r10
-.Ltt_5gas_34:  
+.Ltt_5gas_98:  
     mov          (24)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r11
-.Ltt_4gas_34:  
+.Ltt_4gas_98:  
     mov          (32)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r12
-.Ltt_3gas_34:  
+.Ltt_3gas_98:  
     mov          (40)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r13
-.Ltt_2gas_34:  
+.Ltt_2gas_98:  
     mov          (48)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r14
-.Ltt_1gas_34:  
+.Ltt_1gas_98:  
     mov          (56)(%rdi,%rbx,8), %rbp
     adc          %rbp, %r15
     adc          $(0), %rax
@@ -6964,29 +7282,29 @@ _mred_N:
     add          $(64), %rsi
     add          $(64), %rdi
     sub          $(8), %rdx
-    jnc          .LtailLoopgas_34
+    jnc          .LtailLoopgas_98
     add          $(8), %rdx
     mov          %rdx, %rbx
     movq         (%rdi), %r8
     dec          %rbx
-    jz           .Lget_tail_procgas_34
+    jz           .Lget_tail_procgas_98
     movq         (8)(%rdi), %r9
     dec          %rbx
-    jz           .Lget_tail_procgas_34
+    jz           .Lget_tail_procgas_98
     movq         (16)(%rdi), %r10
     dec          %rbx
-    jz           .Lget_tail_procgas_34
+    jz           .Lget_tail_procgas_98
     movq         (24)(%rdi), %r11
     dec          %rbx
-    jz           .Lget_tail_procgas_34
+    jz           .Lget_tail_procgas_98
     movq         (32)(%rdi), %r12
     dec          %rbx
-    jz           .Lget_tail_procgas_34
+    jz           .Lget_tail_procgas_98
     movq         (40)(%rdi), %r13
     dec          %rbx
-    jz           .Lget_tail_procgas_34
+    jz           .Lget_tail_procgas_98
     movq         (48)(%rdi), %r14
-.Lget_tail_procgas_34: 
+.Lget_tail_procgas_98: 
     lea          mla_lxl_short(%rip), %rax
     mov          (-8)(%rax,%rdx,8), %rbp
     add          %rbp, %rax
@@ -7000,60 +7318,60 @@ _mred_N:
     mov          (%rdi), %rbp
     adc          %rbp, %r8
     dec          %rbx
-    jz           .Ladd_carry1gas_34
+    jz           .Ladd_carry1gas_98
     mov          (8)(%rdi), %rbp
     adc          %rbp, %r9
     dec          %rbx
-    jz           .Ladd_carry1gas_34
+    jz           .Ladd_carry1gas_98
     mov          (16)(%rdi), %rbp
     adc          %rbp, %r10
     dec          %rbx
-    jz           .Ladd_carry1gas_34
+    jz           .Ladd_carry1gas_98
     mov          (24)(%rdi), %rbp
     adc          %rbp, %r11
     dec          %rbx
-    jz           .Ladd_carry1gas_34
+    jz           .Ladd_carry1gas_98
     mov          (32)(%rdi), %rbp
     adc          %rbp, %r12
     dec          %rbx
-    jz           .Ladd_carry1gas_34
+    jz           .Ladd_carry1gas_98
     mov          (40)(%rdi), %rbp
     adc          %rbp, %r13
     dec          %rbx
-    jz           .Ladd_carry1gas_34
+    jz           .Ladd_carry1gas_98
     mov          (48)(%rdi), %rbp
     adc          %rbp, %r14
-.Ladd_carry1gas_34: 
+.Ladd_carry1gas_98: 
     adc          $(0), %rax
     pop          %rbp
     pop          %rbx
     add          %rbx, %r8
     movq         %r8, (%rdi)
     dec          %rdx
-    jz           .Ladd_carry2gas_34
+    jz           .Ladd_carry2gas_98
     adc          $(0), %r9
     movq         %r9, (8)(%rdi)
     dec          %rdx
-    jz           .Ladd_carry2gas_34
+    jz           .Ladd_carry2gas_98
     adc          $(0), %r10
     movq         %r10, (16)(%rdi)
     dec          %rdx
-    jz           .Ladd_carry2gas_34
+    jz           .Ladd_carry2gas_98
     adc          $(0), %r11
     movq         %r11, (24)(%rdi)
     dec          %rdx
-    jz           .Ladd_carry2gas_34
+    jz           .Ladd_carry2gas_98
     adc          $(0), %r12
     movq         %r12, (32)(%rdi)
     dec          %rdx
-    jz           .Ladd_carry2gas_34
+    jz           .Ladd_carry2gas_98
     adc          $(0), %r13
     movq         %r13, (40)(%rdi)
     dec          %rdx
-    jz           .Ladd_carry2gas_34
+    jz           .Ladd_carry2gas_98
     adc          $(0), %r14
     movq         %r14, (48)(%rdi)
-.Ladd_carry2gas_34: 
+.Ladd_carry2gas_98: 
     adc          $(0), %rax
     pop          %rbx
     pop          %r8
@@ -7061,7 +7379,7 @@ _mred_N:
     pop          %rsi
     pop          %rdi
     lea          (%rdi,%rbx,8), %rdi
-.Lcomplete_reductiongas_34: 
+.Lcomplete_reductiongas_98: 
     add          $(64), %rsp
     mov          %rdx, %r14
     lea          (,%rdx,8), %r15
@@ -7069,14 +7387,14 @@ _mred_N:
     mov          %rsi, %rcx
     mov          %rdi, %rsi
     pop          %rdi
-    call         sub_N
+    call         _sub_N
     sub          %rax, %rbx
     mov          %r14, %rdx
     sub          %r15, %rdi
     sub          %r15, %rsi
     mov          %rdi, %rcx
     shr          $(1), %rbx
-    call         copy_ae_N
+    call         _copy_ae_N
     ret
  
 .p2align 5, 0x90
@@ -7109,23 +7427,23 @@ _l9_cpMulAdc_BNU_school:
     xor          %r14, %r14
     xor          %r15, %r15
     cmp          %rbx, %rdx
-    jl           .Lswap_operansgas_35
-    jg           .Ltest_8N_casegas_35
+    jl           .Lswap_operansgas_99
+    jg           .Ltest_8N_casegas_99
     cmp          $(16), %rdx
-    jg           .Ltest_8N_casegas_35
+    jg           .Ltest_8N_casegas_99
     cmp          $(4), %rdx
-    jg           .Lmore_then_4gas_35
+    jg           .Lmore_then_4gas_99
     cmp          $(3), %edx
-    ja           .Lmul_4_4gas_35
-    jz           .Lmul_3_3gas_35
-    jp           .Lmul_2_2gas_35
-.Lmul_1_1gas_35: 
+    ja           .Lmul_4_4gas_99
+    jz           .Lmul_3_3gas_99
+    jp           .Lmul_2_2gas_99
+.Lmul_1_1gas_99: 
     mov          (%rcx), %rdx
     mulx         (%rsi), %rbp, %r8
     mov          %rbp, (%rdi)
     movq         %r8, (8)(%rdi)
-    jmp          .Lquitgas_35
-.Lmul_2_2gas_35: 
+    jmp          .Lquitgas_99
+.Lmul_2_2gas_99: 
     mov          (%rcx), %rdx
     mulx         (%rsi), %rbp, %r8
     mov          %rbp, (%rdi)
@@ -7145,8 +7463,8 @@ _l9_cpMulAdc_BNU_school:
     mov          %rbp, %r9
     movq         %r8, (16)(%rdi)
     movq         %r9, (24)(%rdi)
-    jmp          .Lquitgas_35
-.Lmul_3_3gas_35: 
+    jmp          .Lquitgas_99
+.Lmul_3_3gas_99: 
     mov          (%rcx), %rdx
     mulx         (%rsi), %rbp, %r8
     mov          %rbp, (%rdi)
@@ -7190,8 +7508,8 @@ _l9_cpMulAdc_BNU_school:
     movq         %r8, (24)(%rdi)
     movq         %r9, (32)(%rdi)
     movq         %r10, (40)(%rdi)
-    jmp          .Lquitgas_35
-.Lmul_4_4gas_35: 
+    jmp          .Lquitgas_99
+.Lmul_4_4gas_99: 
     mov          (%rcx), %rdx
     mulx         (%rsi), %rbp, %r8
     mov          %rbp, (%rdi)
@@ -7269,31 +7587,31 @@ _l9_cpMulAdc_BNU_school:
     movq         %r9, (40)(%rdi)
     movq         %r10, (48)(%rdi)
     movq         %r11, (56)(%rdi)
-    jmp          .Lquitgas_35
-.Lmore_then_4gas_35: 
+    jmp          .Lquitgas_99
+.Lmore_then_4gas_99: 
     lea          mul_lxl_basic(%rip), %rax
     mov          (-8)(%rax,%rdx,8), %rbp
     add          %rbp, %rax
     call         *%rax
-    jmp          .Lquitgas_35
-.Lswap_operansgas_35: 
+    jmp          .Lquitgas_99
+.Lswap_operansgas_99: 
     xor          %rcx, %rsi
     xor          %rsi, %rcx
     xor          %rcx, %rsi
     xor          %rbx, %rdx
     xor          %rdx, %rbx
     xor          %rbx, %rdx
-.Ltest_8N_casegas_35: 
+.Ltest_8N_casegas_99: 
     mov          %rdx, %rax
     or           %rbx, %rax
     and          $(7), %rax
-    jnz          .Lgeneral_mulgas_35
+    jnz          .Lgeneral_mulgas_99
     call         _mul_8Nx8M
-    jmp          .Lquitgas_35
-.Lgeneral_mulgas_35: 
+    jmp          .Lquitgas_99
+.Lgeneral_mulgas_99: 
     call         _mul_NxM
-    jmp          .Lquitgas_35
-.Lquitgas_35: 
+    jmp          .Lquitgas_99
+.Lquitgas_99: 
 vzeroupper 
  
     pop          %r15
@@ -7339,20 +7657,20 @@ _l9_cpSqrAdc_BNU_school:
     xor          %r14, %r14
     xor          %r15, %r15
     cmp          $(16), %rdx
-    jg           .Ltest_8N_casegas_36
+    jg           .Ltest_8N_casegas_100
     lea          sqr_l_basic(%rip), %rax
     mov          (-8)(%rax,%rdx,8), %rbp
     add          %rbp, %rax
     call         *%rax
-    jmp          .Lquitgas_36
-.Ltest_8N_casegas_36: 
+    jmp          .Lquitgas_100
+.Ltest_8N_casegas_100: 
     test         $(7), %rdx
-    jnz          .Lgeneral_sqrgas_36
+    jnz          .Lgeneral_sqrgas_100
     call         _sqr_8N
-    jmp          .Lquitgas_36
-.Lgeneral_sqrgas_36: 
+    jmp          .Lquitgas_100
+.Lgeneral_sqrgas_100: 
     call         _sqr_N
-.Lquitgas_36: 
+.Lquitgas_100: 
 vzeroupper 
  
     pop          %r15
@@ -7393,14 +7711,14 @@ _l9_cpMontRedAdc_BNU:
     mov          %rdx, %rsi
     movslq       %ecx, %rdx
     cmp          $(16), %rdx
-    ja           .Ltest_8N_casegas_37
+    ja           .Ltest_8N_casegas_101
     cmp          $(4), %rdx
-    ja           .Labove4gas_37
+    ja           .Labove4gas_101
     cmp          $(3), %rdx
-    ja           .Lred_4gas_37
-    jz           .Lred_3gas_37
-    jp           .Lred_2gas_37
-.Lred_1gas_37: 
+    ja           .Lred_4gas_101
+    jz           .Lred_3gas_101
+    jp           .Lred_2gas_101
+.Lred_1gas_101: 
     movq         (%rdi), %r9
     mov          %r8, %rdx
     imul         %r9, %rdx
@@ -7417,8 +7735,8 @@ _l9_cpMontRedAdc_BNU:
     movq         (8)(%rdi), %rax
     cmovae       %r9, %rax
     movq         %rax, (%r15)
-    jmp          .Lquitgas_37
-.Lred_2gas_37: 
+    jmp          .Lquitgas_101
+.Lred_2gas_101: 
     movq         (%rdi), %r9
     movq         (8)(%rdi), %r10
     mov          %r8, %rdx
@@ -7458,8 +7776,8 @@ _l9_cpMontRedAdc_BNU:
     movq         (24)(%rdi), %rax
     cmovae       %r10, %rax
     movq         %rax, (8)(%r15)
-    jmp          .Lquitgas_37
-.Lred_3gas_37: 
+    jmp          .Lquitgas_101
+.Lred_3gas_101: 
     movq         (%rdi), %r9
     movq         (8)(%rdi), %r10
     movq         (16)(%rdi), %r11
@@ -7532,8 +7850,8 @@ _l9_cpMontRedAdc_BNU:
     movq         (40)(%rdi), %rax
     cmovae       %r11, %rax
     movq         %rax, (16)(%r15)
-    jmp          .Lquitgas_37
-.Lred_4gas_37: 
+    jmp          .Lquitgas_101
+.Lred_4gas_101: 
     movq         (%rdi), %r9
     movq         (8)(%rdi), %r10
     movq         (16)(%rdi), %r11
@@ -7649,23 +7967,23 @@ _l9_cpMontRedAdc_BNU:
     movq         (56)(%rdi), %rax
     cmovae       %r12, %rax
     movq         %rax, (24)(%r15)
-    jmp          .Lquitgas_37
-.Labove4gas_37: 
+    jmp          .Lquitgas_101
+.Labove4gas_101: 
     mov          %rdx, %rbp
     sub          $(4), %rbp
     lea          mred_short(%rip), %rax
     mov          (-8)(%rax,%rbp,8), %rbp
     add          %rbp, %rax
     call         *%rax
-    jmp          .Lquitgas_37
-.Ltest_8N_casegas_37: 
+    jmp          .Lquitgas_101
+.Ltest_8N_casegas_101: 
     test         $(7), %rdx
-    jnz          .Lgeneral_casegas_37
+    jnz          .Lgeneral_casegas_101
     call         _mred_8N
-    jmp          .Lquitgas_37
-.Lgeneral_casegas_37: 
+    jmp          .Lquitgas_101
+.Lgeneral_casegas_101: 
     call         _mred_N
-.Lquitgas_37: 
+.Lquitgas_101: 
 vzeroupper 
  
     pop          %r15

@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2018 Intel Corporation
+# Copyright 2017-2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -110,6 +110,9 @@ while (isFunctionFound == True):
       DISP.write("\n};")
 
       DISP.write("""
+#ifdef _MSC_VER
+#pragma warning(disable: 4100) // for MSVC, unreferenced param
+#endif
 #undef  IPPAPI
 #define IPPAPI(type,name,arg) __declspec(naked) type __stdcall name arg
 IPPAPI({FunType}, {FunName},{FunArg})

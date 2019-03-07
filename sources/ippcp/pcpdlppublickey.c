@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2005-2018 Intel Corporation
+* Copyright 2005-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -109,7 +109,7 @@ IPPFUN(IppStatus, ippsDLPPublicKey,(const IppsBigNumState* pPrvKey,
 
    {
       gsModEngine* pME= DLP_MONTP0(pDL);
-      int nsM = MOD_LEN(pME);
+    //int nsM = MOD_LEN(pME);
 
       gsModEngine* pMEorder = DLP_MONTR(pDL);
       int ordLen = MOD_LEN(pMEorder);

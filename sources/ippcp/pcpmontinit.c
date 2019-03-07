@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -76,7 +76,7 @@ IPPFUN(IppStatus, ippsMontInit,(IppsExpMethod method, int length, IppsMontState*
 
     IPP_BAD_PTR1_RET(pCtx);
 
-    UNREFERENCED_PARAMETER(method);
+    IPP_UNREFERENCED_PARAMETER(method);
 
     {
         return cpMontInit(length, MONT_DEFAULT_POOL_LENGTH, pCtx);

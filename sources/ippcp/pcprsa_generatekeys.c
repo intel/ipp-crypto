@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -140,7 +140,7 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys,(const IppsBigNumState* pSrcPublicExp,
 
    IPP_BAD_PTR2_RET(pBuffer, rndFunc);
 
-   UNREFERENCED_PARAMETER(pPrimeGen);
+   IPP_UNREFERENCED_PARAMETER(pPrimeGen);
 
    {
       int factorPbitSize = RSA_PRV_KEY_BITSIZE_P(pPrivateKeyType2);
@@ -197,9 +197,15 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys,(const IppsBigNumState* pSrcPublicExp,
             /* test P for primality */
             cpInc_BNU(pFactorP, pFactorP, nsP, 1);
             gsModEngineInit(pMontP, (Ipp32u*)pFactorP, factorPbitSize, MOD_ENGINE_RSA_POOL_SIZE, gsModArithRSA());
-            if(0==cpIsProbablyPrime(pFactorP, factorPbitSize, mrTrials,
+          //if(0==cpIsProbablyPrime(pFactorP, factorPbitSize, mrTrials,
+          //                        rndFunc, pRndParam,
+          //                        pMontP, pFreeBuffer)) continue;
+          //found = 1;
+            ret = cpIsProbablyPrime(pFactorP, factorPbitSize, mrTrials,
                                     rndFunc, pRndParam,
-                                    pMontP, pFreeBuffer)) continue;
+                                    pMontP, pFreeBuffer);
+            if(0 > ret) break;    /* internal error */
+            if(0 ==ret) continue; /* composite factor */
             found = 1;
          }
          if(!found)
@@ -244,9 +250,15 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys,(const IppsBigNumState* pSrcPublicExp,
             /* test Q for primality */
             cpInc_BNU(pFactorQ, pFactorQ, nsQ, 1);
             gsModEngineInit(pMontQ, (Ipp32u*)pFactorQ, factorQbitSize, MOD_ENGINE_RSA_POOL_SIZE, gsModArithRSA());
-            if(0==cpIsProbablyPrime(pFactorQ, factorQbitSize, mrTrials,
+          //if(0==cpIsProbablyPrime(pFactorQ, factorQbitSize, mrTrials,
+          //                        rndFunc, pRndParam,
+          //                        pMontQ, pFreeBuffer)) continue;
+          //found = 1;
+            ret = cpIsProbablyPrime(pFactorQ, factorQbitSize, mrTrials,
                                     rndFunc, pRndParam,
-                                    pMontQ, pFreeBuffer)) continue;
+                                    pMontQ, pFreeBuffer);
+            if(0 > ret) break;    /* internal error */
+            if(0 ==ret) continue; /* composite factor */
             found = 1;
          }
          if(!found)

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2005-2018 Intel Corporation
+* Copyright 2005-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -117,10 +117,10 @@ IPPFUN(IppStatus, ippsDLPGenKeyPair,(IppsBigNumState* pPrvKey, IppsBigNumState* 
       cpSize ordLen = BITS_BNU_CHUNK(ordBitSize);
       BNU_CHUNK_T xMask = MASK_BNU_CHUNK(ordBitSize);
 
-      BNU_CHUNK_T* pY = BN_NUMBER(pPubKey);
+    //BNU_CHUNK_T* pY = BN_NUMBER(pPubKey);
       BNU_CHUNK_T* pX = BN_NUMBER(pPrvKey);
 
-      gsModEngine* pME = DLP_MONTP0(pDL);
+    //gsModEngine* pME = DLP_MONTP0(pDL);
 
       do {
          rndFunc((Ipp32u*)pX, ordBitSize, pRndParam);

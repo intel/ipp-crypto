@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -40,6 +40,7 @@
 
  
 .text
+.p2align 5, 0x90
  
 .globl _cpGetReg
 
@@ -60,6 +61,8 @@ _cpGetReg:
     mov          %edx, (12)(%r11)
     pop          %rbx
     ret
+ 
+.p2align 5, 0x90
  
 .globl _cp_is_avx_extension
 
@@ -86,6 +89,8 @@ _cp_is_avx_extension:
     pop          %rbx
     ret
  
+.p2align 5, 0x90
+ 
 .globl _cp_is_avx512_extension
 
  
@@ -111,6 +116,20 @@ _cp_is_avx512_extension:
     pop          %rbx
     ret
  
+.p2align 5, 0x90
+ 
+.globl _cp_issue_avx512_instruction
+
+ 
+_cp_issue_avx512_instruction:
+ 
+
+.byte   0x62, 0xf1, 0x7d, 0x48, 0xef, 0xc0 
+    xor          %eax, %eax
+    ret
+ 
+.p2align 5, 0x90
+ 
 .globl _ippcpSafeInit
 
  
@@ -130,6 +149,8 @@ _ippcpSafeInit:
     pop          %rcx
     ret
  
+.p2align 5, 0x90
+ 
 .globl _cp_get_pentium_counter
 
  
@@ -138,6 +159,8 @@ _cp_get_pentium_counter:
     sal          $(32), %rdx
     or           %rdx, %rax
     ret
+ 
+.p2align 5, 0x90
  
 .globl _cpStartTscp
 
@@ -151,6 +174,8 @@ rdtscp
     sal          $(32), %rdx
     or           %rdx, %rax
     ret
+ 
+.p2align 5, 0x90
  
 .globl _cpStopTscp
 
@@ -167,6 +192,8 @@ rdtscp
     pop          %rax
     ret
  
+.p2align 5, 0x90
+ 
 .globl _cpStartTsc
 
  
@@ -179,6 +206,8 @@ _cpStartTsc:
     sal          $(32), %rdx
     or           %rdx, %rax
     ret
+ 
+.p2align 5, 0x90
  
 .globl _cpStopTsc
 
@@ -194,6 +223,8 @@ _cpStopTsc:
     pop          %rbx
     pop          %rax
     ret
+ 
+.p2align 5, 0x90
  
 .globl _cpGetCacheSize
 
@@ -211,64 +242,64 @@ _cpGetCacheSize:
     mov          $(2), %eax
     cpuid
     cmp          $(1), %al
-    jne          .LGetCacheSize_11gas_10
+    jne          .LGetCacheSize_11gas_11
     test         $(2147483648), %eax
-    jz           .LGetCacheSize_00gas_10
+    jz           .LGetCacheSize_00gas_11
     xor          %eax, %eax
-.LGetCacheSize_00gas_10: 
+.LGetCacheSize_00gas_11: 
     test         $(2147483648), %ebx
-    jz           .LGetCacheSize_01gas_10
+    jz           .LGetCacheSize_01gas_11
     xor          %ebx, %ebx
-.LGetCacheSize_01gas_10: 
+.LGetCacheSize_01gas_11: 
     test         $(2147483648), %ecx
-    jz           .LGetCacheSize_02gas_10
+    jz           .LGetCacheSize_02gas_11
     xor          %ecx, %ecx
-.LGetCacheSize_02gas_10: 
+.LGetCacheSize_02gas_11: 
     test         $(2147483648), %edx
-    jz           .LGetCacheSize_03gas_10
+    jz           .LGetCacheSize_03gas_11
     xor          %edx, %edx
-.LGetCacheSize_03gas_10: 
+.LGetCacheSize_03gas_11: 
     test         %eax, %eax
-    jz           .LGetCacheSize_04gas_10
+    jz           .LGetCacheSize_04gas_11
     mov          %eax, (%rbp)
     add          $(4), %rbp
     add          $(3), %esi
-.LGetCacheSize_04gas_10: 
+.LGetCacheSize_04gas_11: 
     test         %ebx, %ebx
-    jz           .LGetCacheSize_05gas_10
+    jz           .LGetCacheSize_05gas_11
     mov          %ebx, (%rbp)
     add          $(4), %rbp
     add          $(4), %esi
-.LGetCacheSize_05gas_10: 
+.LGetCacheSize_05gas_11: 
     test         %ecx, %ecx
-    jz           .LGetCacheSize_06gas_10
+    jz           .LGetCacheSize_06gas_11
     mov          %ecx, (%rbp)
     add          $(4), %rbp
     add          $(4), %esi
-.LGetCacheSize_06gas_10: 
+.LGetCacheSize_06gas_11: 
     test         %edx, %edx
-    jz           .LGetCacheSize_07gas_10
+    jz           .LGetCacheSize_07gas_11
     mov          %edx, (%rbp)
     add          $(4), %esi
-.LGetCacheSize_07gas_10: 
+.LGetCacheSize_07gas_11: 
     test         %esi, %esi
-    jz           .LGetCacheSize_11gas_10
+    jz           .LGetCacheSize_11gas_11
     mov          $(-1), %eax
-.LGetCacheSize_08gas_10: 
+.LGetCacheSize_08gas_11: 
     xor          %edx, %edx
     add          (%rdi), %edx
-    jz           .LExitGetCacheSize00gas_10
+    jz           .LExitGetCacheSize00gas_11
     add          $(8), %rdi
     mov          %esi, %ecx
-.LGetCacheSize_09gas_10: 
+.LGetCacheSize_09gas_11: 
     cmpb         (%rsp,%rcx), %dl
-    je           .LGetCacheSize_10gas_10
+    je           .LGetCacheSize_10gas_11
     dec          %ecx
-    jnz          .LGetCacheSize_09gas_10
-    jmp          .LGetCacheSize_08gas_10
-.LGetCacheSize_10gas_10: 
+    jnz          .LGetCacheSize_09gas_11
+    jmp          .LGetCacheSize_08gas_11
+.LGetCacheSize_10gas_11: 
     mov          (-4)(%rdi), %eax
-.LExitGetCacheSize00gas_10: 
+.LExitGetCacheSize00gas_11: 
     add          $(24), %rsp
 vzeroupper 
  
@@ -277,7 +308,7 @@ vzeroupper
     pop          %rbx
  
     ret
-.LGetCacheSize_11gas_10: 
+.LGetCacheSize_11gas_11: 
     mov          $(-1), %eax
-    jmp          .LExitGetCacheSize00gas_10
+    jmp          .LExitGetCacheSize00gas_11
  

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2018 Intel Corporation
+* Copyright 2004-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -87,11 +87,11 @@ IPPFUN(IppStatus, ippsPrimeSet_BN, (const IppsBigNumState* pPrime, IppsPrimeStat
       cpSize ns = BN_SIZE(pPrime);
       cpSize nBits = BITSIZE_BNU(pPrimeU, ns);
 
-      BNU_CHUNK_T* pPrime = PRIME_NUMBER(pCtx);
+      BNU_CHUNK_T* pPrimeCtx = PRIME_NUMBER(pCtx);
       BNU_CHUNK_T topMask = MASK_BNU_CHUNK(nBits);
 
-      ZEXPAND_COPY_BNU(pPrime, BITS_BNU_CHUNK(PRIME_MAXBITSIZE(pCtx)), pPrimeU, ns);
-      pPrime[ns-1] &= topMask;
+      ZEXPAND_COPY_BNU(pPrimeCtx, BITS_BNU_CHUNK(PRIME_MAXBITSIZE(pCtx)), pPrimeU, ns);
+      pPrimeCtx[ns-1] &= topMask;
 
       return ippStsNoErr;
    }

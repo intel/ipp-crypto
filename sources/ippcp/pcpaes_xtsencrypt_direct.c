@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2018 Intel Corporation
+* Copyright 2016-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -182,7 +182,9 @@ IPPFUN(IppStatus, ippsAESEncryptXTS_Direct,(const Ipp8u* pSrc, Ipp8u* pDst, int 
          else
          #endif
          {
+            #if defined(__INTEL_COMPILER)
             #pragma novector
+            #endif
             for(; encBlocks>=AES_BLKS_PER_BUFFER && ippStsNoErr==sts; encBlocks-=AES_BLKS_PER_BUFFER) {
                /* compute whitening tweaks */
                cpXTSwhitening(tmp, AES_BLKS_PER_BUFFER, tweakCT);

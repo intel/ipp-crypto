@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2018 Intel Corporation
+* Copyright 2010-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -67,7 +67,7 @@
       (_IPP32E==_IPP32E_N8) || (_IPP32E>=_IPP32E_E9))
 void AesGcmAuth_table2K(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam)
 {
-   UNREFERENCED_PARAMETER(pParam);
+   IPP_UNREFERENCED_PARAMETER(pParam);
 
    while(len>=BLOCK_SIZE) {
       /* add src */

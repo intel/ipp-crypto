@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2012-2018 Intel Corporation
+* Copyright 2012-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -156,14 +156,14 @@ __INLINE BNU_CHUNK_T cpMul_BNU(BNU_CHUNK_T* pR,
                          const BNU_CHUNK_T* pB, cpSize nsB,
                                BNU_CHUNK_T* pBuffer)
 {
-   UNREFERENCED_PARAMETER(pBuffer);
+   IPP_UNREFERENCED_PARAMETER(pBuffer);
    return cpMul_BNU_school(pR, pA,nsA, pB,nsB);
 }
 __INLINE BNU_CHUNK_T cpSqr_BNU(BNU_CHUNK_T * pR,
                          const BNU_CHUNK_T * pA, cpSize nsA,
                                BNU_CHUNK_T* pBuffer)
 {
-   UNREFERENCED_PARAMETER(pBuffer);
+   IPP_UNREFERENCED_PARAMETER(pBuffer);
    return cpSqr_BNU_school(pR, pA,nsA);
 }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -46,8 +46,6 @@
 // 
 //  Contents:
 //     ippsAESEncryptECB()
-//     ippsAESDecryptECB()
-// 
 // 
 */
 
@@ -68,6 +66,7 @@
 #else
 #  pragma message("_ALG_AES_SAFE_ disabled")
 #endif
+
 
 /*
 // AES-ECB ecnryption
@@ -106,45 +105,6 @@ void cpEncryptAES_ecb(const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks, const IppsAES
       }
    }
 }
-
-/*
-// AES-ECB denryption
-//
-// Parameters:
-//    pSrc        pointer to the source data buffer
-//    pDst        pointer to the target data buffer
-//    nBlocks     number of decrypted data blocks
-//    pCtx        pointer to the AES context
-*/
-static
-void cpDecryptAES_ecb(const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks, const IppsAESSpec* pCtx)
-{
-#if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
-   /* use pipelined version is possible */
-   if(AES_NI_ENABLED==RIJ_AESNI(pCtx)) {
-      DecryptECB_RIJ128pipe_AES_NI(pSrc, pDst, RIJ_NR(pCtx), RIJ_DKEYS(pCtx), nBlocks*MBS_RIJ128);
-   }
-   else
-#endif
-   {
-      /* block-by-block decryption */
-      RijnCipher decoder = RIJ_DECODER(pCtx);
-
-      while(nBlocks) {
-         //decoder((const Ipp32u*)pSrc, (Ipp32u*)pDst, RIJ_NR(pCtx), RIJ_DKEYS(pCtx), (const Ipp32u (*)[256])RIJ_DEC_SBOX(pCtx));
-         #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-         decoder(pSrc, pDst, RIJ_NR(pCtx), RIJ_EKEYS(pCtx), RijDecSbox/*NULL*/);
-         #else
-         decoder(pSrc, pDst, RIJ_NR(pCtx), RIJ_DKEYS(pCtx), NULL);
-         #endif
-
-         pSrc += MBS_RIJ128;
-         pDst += MBS_RIJ128;
-         nBlocks--;
-      }
-   }
-}
-
 
 /*F*
 //    Name: ippsAESEncryptECB
@@ -189,6 +149,14 @@ IPPFUN(IppStatus, ippsAESEncryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
       int nBlocks = len / MBS_RIJ128;
 
       #if !defined(_OPENMP)
+
+      #if 0 // gres: temporary switched off
+      #if(_IPP32E>=_IPP32E_K0)
+      if (IsFeatureEnabled(ippCPUID_AVX512VAES))
+         vaes_ecb_enc(pSrc, pDst, len, pCtx);
+      else
+      #endif
+      #endif // gres:
       cpEncryptAES_ecb(pSrc, pDst, nBlocks, pCtx);
 
       #else

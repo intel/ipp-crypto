@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2018 Intel Corporation
+* Copyright 2016-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -91,7 +91,9 @@ static BNU_CHUNK_T* cpGFpxMul_pd_binom(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, c
 */
 static BNU_CHUNK_T* cpGFpxSqr_pd_binom(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx)
 {
-#pragma noinline
+   #if defined(__INTEL_COMPILER)
+   #pragma noinline
+   #endif
    return cpGFpxMul_pd_binom(pR, pA, pA, pGFEx);
 }
 

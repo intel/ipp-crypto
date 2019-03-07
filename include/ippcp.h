@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -70,6 +70,10 @@ extern "C" {
   #endif
 #endif
 
+#pragma warning(push)
+#ifdef _MSC_VER
+#pragma warning(disable : 4100) // for MSVC, unreferenced param
+#endif
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippcpGetLibVersion
@@ -519,6 +523,8 @@ IPPAPI(IppStatus, ippsHashGetTag_rmf,(Ipp8u* pMD, int tagLen, const IppsHashStat
 IPPAPI(IppStatus, ippsHashFinal_rmf,(Ipp8u* pMD, IppsHashState_rmf* pState))
 IPPAPI(IppStatus, ippsHashMessage_rmf,(const Ipp8u* pMsg, int len, Ipp8u* pMD, const IppsHashMethod* pMethod))
 
+IPPAPI(IppStatus, ippsHashMethodGetInfo,(IppsHashInfo* pInfo, const IppsHashMethod* pMethod))
+IPPAPI(IppStatus, ippsHashGetInfo_rmf,(IppsHashInfo* pInfo, const IppsHashState_rmf* pState))
 /* general MGF Primitives*/
 IPPAPI(IppStatus, ippsMGF,(const Ipp8u* pSeed, int seedLen, Ipp8u* pMask, int maskLen, IppHashAlgId hashAlg))
 IPPAPI(IppStatus, ippsMGF1_rmf,(const Ipp8u* pSeed, int seedLen, Ipp8u* pMask, int maskLen, const IppsHashMethod* pMethod))
@@ -1221,6 +1227,8 @@ IPPAPI(IppStatus, ippsGFpECVerifySM2,(const IppsBigNumState* pMsgDigest,
                         IppECResult* pResult,
                         IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 
+IPPAPI(IppStatus, ippsGFpECGetInfo_GF,(IppsGFpInfo* pInfo, const IppsGFpECState* pEC))
+
 IPPAPI(IppStatus, ippsGFpECESGetSize_SM2, (const IppsGFpECState* pEC, int* pSize))
 IPPAPI(IppStatus, ippsGFpECESInit_SM2, (IppsGFpECState* pEC,
                         IppsECESState_SM2* pState, int avaliableCtxSize))
@@ -1238,6 +1246,7 @@ IPPAPI(IppStatus, ippsGFpECESFinal_SM2, (Ipp8u* pTag, int tagLen, IppsECESState_
 IPPAPI(IppStatus, ippsGFpECESGetBuffersSize_SM2, (int* pPublicKeySize,
                         int* pMaximumTagSize, const IppsECESState_SM2* pState))
 
+#pragma warning(pop)
 #ifdef  __cplusplus
 }
 #endif

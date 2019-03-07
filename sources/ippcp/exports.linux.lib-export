@@ -1,4 +1,3 @@
-EXTERN (ippcpGetLibVersion)
 EXTERN (ippcpInit)
 EXTERN (cpGetReg)
 EXTERN (cpStartTscp)
@@ -6,6 +5,7 @@ EXTERN (cpStopTscp)
 EXTERN (cpStartTsc)
 EXTERN (cpStopTsc)
 EXTERN (cpGetCacheSize)
+EXTERN (cpGetFeature)
 EXTERN (ippcpSetCpuFeatures)
 EXTERN (ippcpGetCpuFeatures)
 EXTERN (ippcpGetCpuClocks)
@@ -14,6 +14,8 @@ EXTERN (ippcpGetNumThreads)
 EXTERN (ippcpGetEnabledCpuFeatures)
 EXTERN (ippcpGetEnabledNumThreads)
 EXTERN (ippcpGetStatusString)
+
+EXTERN (ippcpGetLibVersion)
 EXTERN (ippsDESGetSize)
 EXTERN (ippsDESInit)
 EXTERN (ippsDESPack)
@@ -202,6 +204,7 @@ EXTERN (ippsHashMethod_SHA512)
 EXTERN (ippsHashMethod_SHA384)
 EXTERN (ippsHashMethod_SHA512_256)
 EXTERN (ippsHashMethod_SHA512_224)
+EXTERN (ippsHashMethodGetInfo)
 EXTERN (ippsHashGetSize_rmf)
 EXTERN (ippsHashInit_rmf)
 EXTERN (ippsHashPack_rmf)
@@ -211,6 +214,7 @@ EXTERN (ippsHashUpdate_rmf)
 EXTERN (ippsHashGetTag_rmf)
 EXTERN (ippsHashFinal_rmf)
 EXTERN (ippsHashMessage_rmf)
+EXTERN (ippsHashGetInfo_rmf)
 EXTERN (ippsMGF)
 EXTERN (ippsMGF1_rmf)
 EXTERN (ippsMGF2_rmf)
@@ -463,6 +467,7 @@ EXTERN (ippsGFpECBindGxyTblStd384r1)
 EXTERN (ippsGFpECBindGxyTblStd521r1)
 EXTERN (ippsGFpECBindGxyTblStdSM2)
 EXTERN (ippsGFpECGet)
+EXTERN (ippsGFpECGetInfo_GF)
 EXTERN (ippsGFpECGetSubgroup)
 EXTERN (ippsGFpECScratchBufferSize)
 EXTERN (ippsGFpECVerify)
@@ -509,7 +514,6 @@ EXTERN (ippsGFpECGetPointOctString)
 VERSION {
  {
   global:
-   ippcpGetLibVersion;
    ippcpInit;
    cpGetReg;
    cpStartTscp;
@@ -517,6 +521,7 @@ VERSION {
    cpStartTsc;
    cpStopTsc;
    cpGetCacheSize;
+   cpGetFeature;
    ippcpSetCpuFeatures;
    ippcpGetCpuFeatures;
    ippcpGetCpuClocks;
@@ -525,6 +530,8 @@ VERSION {
    ippcpGetEnabledCpuFeatures;
    ippcpGetEnabledNumThreads;
    ippcpGetStatusString;
+
+   ippcpGetLibVersion;
    ippsDESGetSize;
    ippsDESInit;
    ippsDESPack;
@@ -713,6 +720,7 @@ VERSION {
    ippsHashMethod_SHA384;
    ippsHashMethod_SHA512_256;
    ippsHashMethod_SHA512_224;
+   ippsHashMethodGetInfo;
    ippsHashGetSize_rmf;
    ippsHashInit_rmf;
    ippsHashPack_rmf;
@@ -722,6 +730,7 @@ VERSION {
    ippsHashGetTag_rmf;
    ippsHashFinal_rmf;
    ippsHashMessage_rmf;
+   ippsHashGetInfo_rmf;
    ippsMGF;
    ippsMGF1_rmf;
    ippsMGF2_rmf;
@@ -974,6 +983,7 @@ VERSION {
    ippsGFpECBindGxyTblStd521r1;
    ippsGFpECBindGxyTblStdSM2;
    ippsGFpECGet;
+   ippsGFpECGetInfo_GF;
    ippsGFpECGetSubgroup;
    ippsGFpECScratchBufferSize;
    ippsGFpECVerify;

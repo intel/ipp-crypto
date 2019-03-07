@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -72,7 +72,7 @@ __INLINE cpSize gsMontExp_WinSize(cpSize bitsize)
          bitsize>  178? 3 :    /*  178 - 716  */
          bitsize>   41? 2 : 1; /*   41 - 177  */
    #else
-   UNREFERENCED_PARAMETER(bitsize);
+   IPP_UNREFERENCED_PARAMETER(bitsize);
    return 1;
    #endif
 }

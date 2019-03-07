@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2001-2018 Intel Corporation
+* Copyright 2001-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -51,8 +51,8 @@
 
 #define IPP_VERSION_MAJOR  2019
 #define IPP_VERSION_MINOR  0
-#define IPP_VERSION_UPDATE 1
+#define IPP_VERSION_UPDATE 3
 
-#define IPP_VERSION_STR "2019.0.1 Gold"
+#define IPP_VERSION_STR "2019.0.3"
 
 #endif /* IPPVERSION_H__ */

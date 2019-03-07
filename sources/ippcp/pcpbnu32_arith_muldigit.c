@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -75,8 +75,8 @@ Ipp32u cpMulDgt_BNU32(Ipp32u* pR, const Ipp32u* pA, cpSize nsA, Ipp32u val)
    cpSize i;
    for(i=0; i<nsA; i++) {
       Ipp64u t = (Ipp64u)val * (Ipp64u)pA[i] + carry;
-      pR[i] = LODWORD(t);
-      carry = HIDWORD(t);
+      pR[i] = IPP_LODWORD(t);
+      carry = IPP_HIDWORD(t);
     }
     return carry;
 }

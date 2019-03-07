@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -58,7 +58,7 @@ set(LINK_LIB_STATIC_DEBUG  ${LINK_LIB_STATIC_DEBUG_VS2017})
 # compiler
 set(CMAKE_C_FLAGS "${LIBRARY_DEFINES}")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nologo -X /W4 -GS -Zp16 /Gy")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nologo -X /W4 /WX -GS -Zp16 /Gy")
 
 if(THREADED_LIB)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /openmp")

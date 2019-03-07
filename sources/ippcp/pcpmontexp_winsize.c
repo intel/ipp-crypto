@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2003-2018 Intel Corporation
+* Copyright 2003-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -54,7 +54,7 @@
 #if !defined(_USE_WINDOW_EXP_)
 cpSize cpMontExp_WinSize(int bitsize)
 {
-   UNREFERENCED_PARAMETER(bitsize);
+   IPP_UNREFERENCED_PARAMETER(bitsize);
    return 1;
 }
 
@@ -74,7 +74,7 @@ cpSize cpMontExp_WinSize(int bitsize)
       (_IPP32E==_IPP32E_N8) || (_IPP32E>=_IPP32E_E9))
 cpSize cpMontExp_WinSize(int bitsize)
 {
-   UNREFERENCED_PARAMETER(bitsize);
+   IPP_UNREFERENCED_PARAMETER(bitsize);
    return 1;
 }
 #endif

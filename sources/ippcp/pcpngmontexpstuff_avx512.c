@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2018 Intel Corporation
+* Copyright 2016-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -41,6 +41,9 @@
 #include "owncp.h"
 
 #if (_IPP32E>=_IPP32E_K0)
+#ifdef _MSC_VER
+#pragma warning(disable: 4310) // cast truncates constant value in MSVC
+#endif
 
 #include "pcpbnuimpl.h"
 #include "pcpbnumisc.h"
@@ -84,7 +87,8 @@ static void regular_dig52(Ipp64u* out, const Ipp64u* in, int inBitSize)
       Ipp64u digit = getDig52(inStr, 7);
       out[0] = digit & EXP_DIGIT_MASK_AVX512;
       inStr += 6;
-      inBitSize -= EXP_DIGIT_MASK_AVX512;
+      // #yuriynat: inBitSize -= EXP_DIGIT_MASK_AVX512;
+      inBitSize -= EXP_DIGIT_SIZE_AVX512;
       digit = getDig52(inStr, BITS2WORD8_SIZE(inBitSize));
       out[1] = digit>>4;
       out += 2;

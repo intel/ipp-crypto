@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -155,7 +155,7 @@ IPPFUN( IppStatus, ippsTDESDecryptCBC,(const Ipp8u* pSrc, Ipp8u* pDst, int srcLe
    /* Test data stream integrity. */
    IPP_BADARG_RET((srcLen&(MBS_DES-1)), ippStsUnderRunErr);
 
-   UNREFERENCED_PARAMETER(padding);
+   IPP_UNREFERENCED_PARAMETER(padding);
 
    {
       int nBlocks = srcLen / MBS_DES;

@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2015-2018 Intel Corporation
+; Copyright 2015-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -141,6 +141,20 @@ IFDEF LINUX32E
     ENDIF
   ENDIF
 ENDIF 
+
+; define _OWN_MERGED_BLD if _MERGED_BLD defined
+IFDEF _MERGED_BLD
+_OWN_MERGED_BLD = 1
+ENDIF ; _MERGED_BLD
+
+;; compile data only for _MERGED_BLD and (g9 or e9) CPU
+IFNDEF _MERGED_BLD
+_IPP_DATA = 1
+ELSE
+IF (_IPP EQ _IPP_G9) OR (_IPP32E EQ _IPP32E_E9)
+_IPP_DATA = 1
+ENDIF
+ENDIF ; _MERGED_BLD
 
 ENDIF ; IFNDEF __ASMDEFS_INC__
 

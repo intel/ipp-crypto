@@ -2,7 +2,7 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
-## 2018-10-15
+## YYYY-MM-DD
 - Added the new SM2 encryption scheme.
 - Added the ability to build the Intel(R) IPP Cryptography library with the Microsoft* Visual C++ Compiler 2017.
 - Added the ability to build the Intel(R) IPP Cryptography library with the Intel(R) C++ Compiler 19.

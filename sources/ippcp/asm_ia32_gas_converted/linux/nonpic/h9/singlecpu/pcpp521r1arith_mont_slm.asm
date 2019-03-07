@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -55,7 +55,7 @@ _prime521r1:
  
 .p2align 5, 0x90
  
-.globl add_521
+
 .type add_521, @function
  
 add_521:
@@ -117,7 +117,7 @@ add_521:
 .size add_521, .Lfe1-(add_521)
 .p2align 5, 0x90
  
-.globl sub_521
+
 .type sub_521, @function
  
 sub_521:
@@ -179,7 +179,7 @@ sub_521:
 .size sub_521, .Lfe2-(sub_521)
 .p2align 5, 0x90
  
-.globl shl_521
+
 .type shl_521, @function
  
 shl_521:
@@ -213,7 +213,7 @@ shl_521:
 .size shl_521, .Lfe3-(shl_521)
 .p2align 5, 0x90
  
-.globl shr_521
+
 .type shr_521, @function
  
 shr_521:

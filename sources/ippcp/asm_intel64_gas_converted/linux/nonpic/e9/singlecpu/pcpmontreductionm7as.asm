@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -579,7 +579,7 @@ cpMontRedAdc_BNU:
     imul         %r15, %r10
     movq         (%rsi,%rbx,8), %rax
     xor          %r13, %r13
-.p2align 4, 0x90
+.p2align 5, 0x90
 .L__000Egas_1: 
     mul          %r10
     xor          %r14, %r14
@@ -780,7 +780,7 @@ cpMontRedAdc_BNU:
     imul         %r15, %r10
     movq         (%rsi,%rbx,8), %rax
     xor          %r13, %r13
-.p2align 4, 0x90
+.p2align 5, 0x90
 .L__0011gas_1: 
     mul          %r10
     xor          %r14, %r14
@@ -962,7 +962,7 @@ cpMontRedAdc_BNU:
     imul         %r15, %r10
     movq         (%rsi,%rbx,8), %rax
     xor          %r13, %r13
-.p2align 4, 0x90
+.p2align 5, 0x90
 .L__0014gas_1: 
     mul          %r10
     xor          %r14, %r14
@@ -1125,7 +1125,7 @@ cpMontRedAdc_BNU:
     imul         %r15, %r10
     movq         (%rsi,%rbx,8), %rax
     xor          %r13, %r13
-.p2align 4, 0x90
+.p2align 5, 0x90
 .L__0017gas_1: 
     mul          %r10
     xor          %r14, %r14

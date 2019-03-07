@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -49,7 +49,7 @@ _prime224r1:
  
 .p2align 5, 0x90
  
-.globl add_224
+
 .type add_224, @function
  
 add_224:
@@ -81,7 +81,7 @@ add_224:
 .size add_224, .Lfe1-(add_224)
 .p2align 5, 0x90
  
-.globl sub_224
+
 .type sub_224, @function
  
 sub_224:
@@ -113,7 +113,7 @@ sub_224:
 .size sub_224, .Lfe2-(sub_224)
 .p2align 5, 0x90
  
-.globl shl_224
+
 .type shl_224, @function
  
 shl_224:
@@ -141,7 +141,7 @@ shl_224:
 .size shl_224, .Lfe3-(shl_224)
 .p2align 5, 0x90
  
-.globl shr_224
+
 .type shr_224, @function
  
 shr_224:

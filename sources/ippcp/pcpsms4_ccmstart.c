@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2018 Intel Corporation
+* Copyright 2017-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -116,11 +116,11 @@ IPPFUN(IppStatus, ippsSMS4_CCMStart,(const Ipp8u* pIV, int ivLen,
 
       ((Ipp8u*)MAC)[0] = (Ipp8u)( ((adLen!=0) <<6) + (tagLenEnc<<3) + qLenEnc); /* flags */
       #if (IPP_ENDIAN == IPP_LITTLE_ENDIAN)
-      MAC[2] = ENDIANNESS(HIDWORD(payloadLen));
-      MAC[3] = ENDIANNESS(LODWORD(payloadLen));
+      MAC[2] = ENDIANNESS(IPP_HIDWORD(payloadLen));
+      MAC[3] = ENDIANNESS(IPP_LODWORD(payloadLen));
       #else
-      MAC[2] = HIDWORD(payloadLen);
-      MAC[3] = LODWORD(payloadLen);
+      MAC[2] = IPP_HIDWORD(payloadLen);
+      MAC[3] = IPP_LODWORD(payloadLen);
       #endif
       CopyBlock(pIV, ((Ipp8u*)MAC)+1, ivLen);
 
@@ -144,11 +144,11 @@ IPPFUN(IppStatus, ippsSMS4_CCMStart,(const Ipp8u* pIV, int ivLen,
          int    adLenEncSize;
 
          #if (IPP_ENDIAN == IPP_LITTLE_ENDIAN)
-         adLenEnc[1] = ENDIANNESS(HIDWORD(adLen));
-         adLenEnc[2] = ENDIANNESS(LODWORD(adLen));
+         adLenEnc[1] = ENDIANNESS(IPP_HIDWORD(adLen));
+         adLenEnc[2] = ENDIANNESS(IPP_LODWORD(adLen));
          #else
-         adLenEnc[1] = HIDWORD(adLen);
-         adLenEnc[2] = LODWORD(adLen);
+         adLenEnc[1] = IPP_HIDWORD(adLen);
+         adLenEnc[2] = IPP_LODWORD(adLen);
          #endif
 
          if(adLen >= 0xFF00) {

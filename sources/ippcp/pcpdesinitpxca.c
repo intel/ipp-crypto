@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -169,7 +169,7 @@ void SetKey_DES(const Ipp8u* pKey, IppsDESSpec* pCtx)
 
       /* remember tmp and rkeyNibble are aliases */
       #if (IPP_ENDIAN == IPP_BIG_ENDIAN)
-      tmp = MAKEDWORD(ENDIANNESS(LODWORD(tmp)), ENDIANNESS(HIDWORD(tmp)));
+      tmp = IPP_MAKEDWORD(ENDIANNESS(IPP_LODWORD(tmp)), ENDIANNESS(IPP_HIDWORD(tmp)));
       #endif
       pEncRoundKey[nkey] = tmp;
    }

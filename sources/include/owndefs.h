@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 1999-2018 Intel Corporation
+* Copyright 1999-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -220,6 +220,10 @@ typedef struct{
  #endif
 #endif
 
+#if defined(_MERGED_BLD)
+#define _OWN_MERGED_BLD
+#endif
+
 #ifndef _OWN_MERGED_BLD
   #undef OWNAPI
   #define OWNAPI(name) name
@@ -300,7 +304,7 @@ Ipp64u IPP_UINT_PTR( const void* ptr )  {
 #endif
 
 #define IPP_ALIGN_TYPE(type, align) ((align)/sizeof(type)-1)
-#define IPP_BYTES_TO_ALIGN(ptr, align) ((-(IPP_INT_PTR(ptr)&((align)-1)))&((align)-1))
+#define IPP_BYTES_TO_ALIGN(ptr, align) ((~(IPP_INT_PTR(ptr)&((align)-1))+1)&((align)-1))
 #define IPP_ALIGNED_PTR(ptr, align) (void*)( (unsigned char*)(ptr) + (IPP_BYTES_TO_ALIGN( ptr, align )) )
 
 #define IPP_ALIGNED_SIZE(size, align) (((size)+(align)-1)&~((align)-1))
@@ -451,7 +455,7 @@ typedef union { /* single precision */
 #endif
 #endif
 
-#define UNREFERENCED_PARAMETER(p) (p)=(p)
+#define IPP_UNREFERENCED_PARAMETER(p) (p)=(p)
 
 #if defined( _IPP_MARK_LIBRARY )
 static char G[] = {73, 80, 80, 71, 101, 110, 117, 105, 110, 101, 243, 193, 210, 207, 215};
@@ -613,9 +617,36 @@ extern double            __intel_castu64_f64(unsigned __int64 val);
 #define __IVDEP message("message :: 'ivdep' is not defined")
 #endif
 
-#if !defined( _MERGED_BLD ) /* compile data if it isn't merged library */
-  #undef  _IPP_DATA
-  #define _IPP_DATA
+#if defined( _MERGED_BLD )
+   /* WIN-32, WIN-64 */
+   #if defined(WIN32) || defined(WIN32E)
+      #if ( defined(_W7) || defined(_M7) )
+      #define _IPP_DATA 1
+      #endif
+
+   #elif defined(linux)
+      /* LIN-32, LIN-64 */
+      #if !defined(ANDROID)
+         #if ( defined(_W7) || defined(_M7) )
+         #define _IPP_DATA 1
+         #endif
+      /* ANDROID-32, ANDROID-64 */
+      #elif defined(ANDROID)
+         #if ( defined(_S8) || defined(_N8) )
+         #define _IPP_DATA 1
+         #endif
+      #endif
+
+   /* OSX-32, OSX-64 */
+   #elif defined(OSX32) || defined(OSXEM64T)
+      #if ( defined(_S8) || defined(_N8) )
+      #define _IPP_DATA 1
+      #endif
+   #endif
+
+#else
+   /* compile data unconditionally */
+   #define _IPP_DATA 1
 #endif
 
 

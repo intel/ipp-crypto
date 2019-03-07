@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -42,6 +42,7 @@
  .section .note.GNU-stack,"",%progbits 
  
 .text
+.p2align 5, 0x90
  
 .globl cpGetReg
 .type cpGetReg, @function
@@ -64,6 +65,8 @@ cpGetReg:
     ret
 .Lfe1:
 .size cpGetReg, .Lfe1-(cpGetReg)
+ 
+.p2align 5, 0x90
  
 .globl cp_is_avx_extension
 .type cp_is_avx_extension, @function
@@ -98,6 +101,7 @@ cp_is_avx_extension:
     ret
 .Lfe2:
 .size cp_is_avx_extension, .Lfe2-(cp_is_avx_extension)
+.p2align 5, 0x90
  
 .globl cp_is_avx512_extension
 .type cp_is_avx512_extension, @function
@@ -133,6 +137,7 @@ cp_is_avx512_extension:
 .Lfe3:
 .size cp_is_avx512_extension, .Lfe3-(cp_is_avx512_extension)
  .weak __ashldi3 
+.p2align 5, 0x90
  
 .globl __ashldi3
 .type __ashldi3, @function
@@ -153,8 +158,8 @@ __ashldi3:
     ret
 .Lfe4:
 .size __ashldi3, .Lfe4-(__ashldi3)
-.p2align 5, 0x90
  .weak __ashrdi3 
+.p2align 5, 0x90
  
 .globl __ashrdi3
 .type __ashrdi3, @function
@@ -176,6 +181,7 @@ __ashrdi3:
 .Lfe5:
 .size __ashrdi3, .Lfe5-(__ashrdi3)
  .weak __divdi3 
+.p2align 5, 0x90
  
 .globl __divdi3
 .type __divdi3, @function
@@ -280,6 +286,7 @@ __divdi3:
 .Lfe6:
 .size __divdi3, .Lfe6-(__divdi3)
  .weak __udivdi3 
+.p2align 5, 0x90
  
 .globl __udivdi3
 .type __udivdi3, @function
@@ -363,6 +370,7 @@ __udivdi3:
 .Lfe7:
 .size __udivdi3, .Lfe7-(__udivdi3)
  .weak __moddi3 
+.p2align 5, 0x90
  
 .globl __moddi3
 .type __moddi3, @function
@@ -485,6 +493,7 @@ __moddi3:
 .Lfe8:
 .size __moddi3, .Lfe8-(__moddi3)
  .weak __umoddi3 
+.p2align 5, 0x90
  
 .globl __umoddi3
 .type __umoddi3, @function
@@ -582,6 +591,7 @@ __umoddi3:
 .Lfe9:
 .size __umoddi3, .Lfe9-(__umoddi3)
  .weak __muldi3 
+.p2align 5, 0x90
  
 .globl __muldi3
 .type __muldi3, @function
@@ -599,6 +609,7 @@ __muldi3:
     ret
 .Lfe10:
 .size __muldi3, .Lfe10-(__muldi3)
+.p2align 5, 0x90
  
 .globl cp_get_pentium_counter
 .type cp_get_pentium_counter, @function
@@ -608,6 +619,7 @@ cp_get_pentium_counter:
     ret
 .Lfe11:
 .size cp_get_pentium_counter, .Lfe11-(cp_get_pentium_counter)
+.p2align 5, 0x90
  
 .globl cpStartTscp
 .type cpStartTscp, @function
@@ -621,6 +633,7 @@ rdtscp
     ret
 .Lfe12:
 .size cpStartTscp, .Lfe12-(cpStartTscp)
+.p2align 5, 0x90
  
 .globl cpStopTscp
 .type cpStopTscp, @function
@@ -638,6 +651,7 @@ rdtscp
     ret
 .Lfe13:
 .size cpStopTscp, .Lfe13-(cpStopTscp)
+.p2align 5, 0x90
  
 .globl cpStartTsc
 .type cpStartTsc, @function
@@ -651,6 +665,7 @@ cpStartTsc:
     ret
 .Lfe14:
 .size cpStartTsc, .Lfe14-(cpStartTsc)
+.p2align 5, 0x90
  
 .globl cpStopTsc
 .type cpStopTsc, @function
@@ -668,6 +683,7 @@ cpStopTsc:
     ret
 .Lfe15:
 .size cpStopTsc, .Lfe15-(cpStopTsc)
+.p2align 5, 0x90
  
 .globl cpGetCacheSize
 .type cpGetCacheSize, @function
@@ -678,7 +694,7 @@ cpGetCacheSize:
     push         %ebx
     push         %ebp
     sub          $(16), %esp
-    mov          (13)(%esp), %edi
+    mov          (36)(%esp), %edi
     mov          %esp, %ebp
     xor          %esi, %esi
     mov          $(2), %eax

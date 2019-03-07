@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2018 Intel Corporation
+* Copyright 2016-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -152,7 +152,6 @@ IPPFUN(IppStatus, ippsGFpECVerifyDSA,(const IppsBigNumState* pMsgDigest,
 
          int elmLen = GFP_FELEN(pGFE);
          int pelmLen = GFP_PELEN(pGFE);
-         int ns;
          BNU_CHUNK_T* h1 = cpGFpGetPool(3, pGFE);
          BNU_CHUNK_T* h2 = h1+pelmLen;
          BNU_CHUNK_T* h  = h2+pelmLen;

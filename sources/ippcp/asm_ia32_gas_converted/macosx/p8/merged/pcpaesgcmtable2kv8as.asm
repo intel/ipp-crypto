@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -50,7 +50,7 @@ _INCR_IDX:
 .word    0x8,  0x8,  0x8,  0x8,  0x8,  0x8,  0x8,  0x8 
 .p2align 4, 0x90
  
-.globl _p8_getAesGcmConst_table_ct
+
 
  
 _p8_getAesGcmConst_table_ct:

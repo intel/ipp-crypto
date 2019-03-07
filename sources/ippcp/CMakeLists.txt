@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2018 Intel Corporation
+# Copyright 2017-2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -45,6 +45,10 @@
 include (GenerateExportHeader)
 
 set(TARGET_NAME ${LIB_NAME})
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/tools/")
+  include("${CMAKE_SOURCE_DIR}/tools/toolsSpecific.cmake")
+endif()
 
 #Set platform list
 if (NOT MERGED_BLD)
@@ -151,9 +155,9 @@ else()
   set(OS_STRING   "windows")
 endif()
 
-include("${CMAKE_SOURCE_DIR}/sources/cmake/${OS_STRING}/common.cmake") # common build options and ${OS_DEFAULT_COMPILER}
+# common build options and ${OS_DEFAULT_COMPILER}
+include("${CMAKE_SOURCE_DIR}/sources/cmake/${OS_STRING}/common.cmake")
 
-cmake_policy(SET CMP0054 NEW)
 if(("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC") AND (CMAKE_C_COMPILER_VERSION VERSION_LESS DEFAULT_MSVC_COMPILER_VER))
   message(FATAL_ERROR "Microsoft Visual C++ Compiler version must be 14.14 or higher (MSVC 19.14 or higher)")
 endif()
@@ -224,6 +228,7 @@ if(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
         $ENV{ROOT}/compiler/include
         $ENV{ROOT}/compiler/include/icc
         $ENV{INCLUDE}
+        ${CMAKE_BINARY_DIR}/include/autogen
        )
   else()
     include_directories(
@@ -233,6 +238,7 @@ if(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
         $ENV{ANDROID_GNU_X86_TOOLCHAIN}/include
         $ENV{ANDROID_SYSROOT}/usr/include
         $ENV{ANDROID_NDK_ROOT}/sources/cxx-stl/stlport/stlport
+        ${CMAKE_BINARY_DIR}/include/autogen
        )
   endif()
 elseif(MSVC_IDE)
@@ -242,6 +248,7 @@ elseif(MSVC_IDE)
       ${IPP_CRYPTO_INCLUDE_DIR}/
       $ENV{INCLUDE}
       ${CMAKE_SYSTEM_INCLUDE_PATH}
+      ${CMAKE_BINARY_DIR}/include/autogen
     )
 endif()
 
@@ -266,7 +273,8 @@ else()
   endif()
 endif(WIN32)
 
-set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D__STDC__ -D_IPP_DEBUG -D_IPP_C99 -D_IPP_v50_ -D_IPP_VERSION=\"-2019.0\"")
+#gres: set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D__STDC__ -D_IPP_DEBUG -D_IPP_C99 -D_IPP_v50_ -D_IPP_VERSION=\"-2019.0\"")
+set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D__STDC__ -D_IPP_DEBUG -D_IPP_C99 -D_IPP_VERSION=\"-2019.0\"")
 
 if(THREADED_LIB)
   set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D_IPP_OMP_STATIC")
@@ -306,9 +314,9 @@ endif(UNIX)
 
 if(UNIX)
   if(APPLE)
-    set(LIB_EXPORT_FILE "-exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.lib-export")
+    #gres: set(LIB_EXPORT_FILE "-exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.libLd-export")
   else()
-    set(LIB_EXPORT_FILE "${IPP_CRYPTO_SOURCES_DIR}/exports.linux.lib-export")
+    #gres set(LIB_EXPORT_FILE "${IPP_CRYPTO_SOURCES_DIR}/exports.linux.libLd-export")
   endif(APPLE)
   set(CMAKE_C_CREATE_SHARED_LIBRARY "<CMAKE_C_COMPILER> <CMAKE_SHARED_LIBRARY_C_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> ${LIB_EXPORT_FILE} <CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
   set(CMAKE_CXX_CREATE_SHARED_LIBRARY "<CMAKE_CXX_COMPILER> <CMAKE_SHARED_LIBRARY_CXX_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> ${LIB_EXPORT_FILE} <CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
@@ -318,6 +326,8 @@ if(WIN32)
   set(ADD_ASMOPTS "/Cx")
   if(${ARCH} MATCHES "ia32")
     set(ADD_ASMOPTS "${ADD_ASMOPTS} /coff /safeseh")
+  else(${ARCH} MATCHES "ia32")
+    set(ADD_ASMOPTS "${ADD_ASMOPTS} /DWIN32E")
   endif(${ARCH} MATCHES "ia32")
 
   foreach(srcfile ${ASM_SOURCES} ${ASM_SOURCES_PCS})
@@ -325,6 +335,10 @@ if(WIN32)
       set_source_files_properties(${srcfile} PROPERTIES COMPILE_FLAGS ${ADD_ASMOPTS})
     endif()
   endforeach()
+endif(WIN32)
+
+if(WIN32)
+  set(CMAKE_ASM_MASM_COMPILE_OBJECT "<CMAKE_ASM_MASM_COMPILER> ${ADD_ASMOPTS} <DEFINES> <INCLUDES> /c  /Fo <OBJECT> <SOURCE>")
 endif(WIN32)
 
 if(THREADED_LIB)
@@ -339,8 +353,13 @@ if(NOT MERGED_BLD)
   set(IPPCP_LIB_DYNAMIC "")
 endif(NOT MERGED_BLD)
 
+set(ONE_CPU_FOLDER ${CMAKE_BINARY_DIR}/include/autogen)
+set(ONE_CPU_GENERATOR  ${CMAKE_SOURCE_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_header.py)
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${ONE_CPU_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${ONE_CPU_FOLDER})
+set(HEADERS ${HEADERS} ${ONE_CPU_FOLDER}/ippcp_cpuspc.h)
 
 set(ADD_CPINITAS_MERGEDSTATIC on)
+
 foreach(opt ${PLATFORM_LIST})
   if(UNIX)
     file(GLOB_RECURSE ASM_SOURCES
@@ -352,11 +371,14 @@ foreach(opt ${PLATFORM_LIST})
   if(DYNAMIC_LIB)
     set(IPPCP_DYN_ITER ${TARGET_NAME}_dyn_${opt})
     if(WIN32)
-      add_library(${IPPCP_DYN_ITER} SHARED ippcp.def ${HEADERS} ${SOURCES} ${ASM_SOURCES} pcpver.rc)
+      add_library(${IPPCP_DYN_ITER} SHARED ippcpLd.def ${HEADERS} ${SOURCES} ${ASM_SOURCES} pcpver.rc)
       set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_WINDOWS})
+	  #target_link_libraries(${IPPCP_DYN_ITER} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${TARGET_NAME}.lib) # gres: add linkage with PCS stub lib
+	  target_link_libraries(${IPPCP_DYN_ITER} debug ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Debug/${TARGET_NAME}.lib)
       foreach(link ${LINK_LIB_STATIC_DEBUG})
-        target_link_libraries(${IPPCP_DYN_ITER} debug ${link})
+		target_link_libraries(${IPPCP_DYN_ITER} debug ${link})
       endforeach()
+	  target_link_libraries(${IPPCP_DYN_ITER} optimized ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Release/${TARGET_NAME}.lib)
       foreach(link ${LINK_LIB_STATIC_RELEASE})
         target_link_libraries(${IPPCP_DYN_ITER} optimized ${link})
       endforeach()
@@ -372,14 +394,29 @@ foreach(opt ${PLATFORM_LIST})
     else()
       add_library(${IPPCP_DYN_ITER} SHARED  ${HEADERS} ${SOURCES} ${ASM_SOURCES})
       if(APPLE)
-        set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS "${LINK_FLAG_DYNAMIC_MACOSX} -install_name @rpath/libippcp${opt}.dylib")
+		## gres: copy LINK_FLAG_DYNAMIC_LINUX
+		set(LNK_FLAGS ${LINK_FLAG_DYNAMIC_MACOSX})
+		## add export file
+		set(LNK_FLAGS "${LNK_FLAGS} -exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.libLd-export")
+		## add linkage with libippcp.dylib
+		set(LNK_FLAGS "${LNK_FLAGS} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libippcp.dylib")
+		#message (FATAL_ERROR "LINK_FLAG_DYNAMIC_MACOSX: " ${LNK_FLAGS})
+        #set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS "${LINK_FLAG_DYNAMIC_MACOSX} -install_name @rpath/libippcp${opt}.dylib")
+		set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS "${LNK_FLAGS} -install_name @rpath/libippcp${opt}.dylib")
       else()
-        set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_LINUX})
+		## gres: copy LINK_FLAG_DYNAMIC_LINUX
+		set(LINK_FLAGS ${LINK_FLAG_DYNAMIC_LINUX})
+		## add export file
+		set(LINK_FLAGS "${LINK_FLAGS} ${IPP_CRYPTO_SOURCES_DIR}/exports.linux.libLd-export")
+		## add linkage with libippcp.so
+		set(LINK_FLAGS "${LINK_FLAGS} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libippcp.so")
+        set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAGS})
       endif()
       if(THREADED_LIB)
         target_link_libraries(${IPPCP_DYN_ITER} iomp5)
       endif()
     endif()
+    add_dependencies(${IPPCP_DYN_ITER} ${TARGET_NAME}_dyn) # gres: set build dependency CPU.dll depends  PCS
     set_target_properties(${IPPCP_DYN_ITER} PROPERTIES OUTPUT_NAME ${TARGET_NAME}${opt})
     list(APPEND IPPCP_LIB_DYNAMIC ${IPPCP_DYN_ITER})
   endif(DYNAMIC_LIB)
@@ -398,7 +435,8 @@ foreach(opt ${PLATFORM_LIST})
 
     add_library(${IPPCP_ST_ITER} OBJECT ${HEADERS} ${SOURCES} ${ASM_SOURCES})
     set(merged_dependency ${merged_dependency} $<TARGET_OBJECTS:${IPPCP_ST_ITER}>)
-    set(MERGED_FLAGS "-D_OWN_MERGED_BLD -D_MERGED_BLD")
+    #gres: target_compile_definitions(${IPPCP_ST_ITER} PRIVATE _OWN_MERGED_BLD _MERGED_BLD)
+	target_compile_definitions(${IPPCP_ST_ITER} PRIVATE _MERGED_BLD)
   else()
     add_library(${IPPCP_ST_ITER} STATIC ${HEADERS} ${SOURCES} ${ASM_SOURCES})
   endif()
@@ -413,27 +451,31 @@ foreach(opt ${PLATFORM_LIST})
   
   set(OPT_FLAGS_${opt} ${${opt}_opt})
 
-  set_target_properties(${IPPCP_ST_ITER} PROPERTIES COMPILE_FLAGS "${OPT_FLAGS_${opt}} ${MERGED_FLAGS}")
+  set_target_properties(${IPPCP_ST_ITER} PROPERTIES COMPILE_FLAGS "${OPT_FLAGS_${opt}}")
   # Set optimization flag for cpinit.c to -O1
   # Fix for problem related with MSVC compiler -O2 optimization
   if((${ARCH} STREQUAL "intel64") AND ("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")) 
     set_source_files_properties(cpinit.c PROPERTIES COMPILE_FLAGS " -O1")
   endif()
   if(DYNAMIC_LIB)
-    set_target_properties(${IPPCP_DYN_ITER} PROPERTIES COMPILE_FLAGS "${OPT_FLAGS_${opt}} -D_IPP_DATA ")
+    #gres: target_compile_definitions(${IPPCP_DYN_ITER} PRIVATE _IPP_DATA)
+	target_compile_definitions(${IPPCP_DYN_ITER} PRIVATE _IPP_DYNAMIC)
+    set_target_properties(${IPPCP_DYN_ITER} PROPERTIES COMPILE_FLAGS "${OPT_FLAGS_${opt}}")
   endif(DYNAMIC_LIB)
 
 endforeach()
 
 if(MERGED_BLD)
-  list(GET IPPCP_LIB_STATIC 0 IPPCP_LIB_STATIC_FIRST)
-  set_target_properties(${IPPCP_LIB_STATIC_FIRST} PROPERTIES COMPILE_OPTIONS -D_IPP_DATA)
-else()
+  list(GET IPPCP_LIB_STATIC 0 IPPCP_LIB_STATIC_FIRST) #static merged libs
+  #gres: set_target_properties(${IPPCP_LIB_STATIC_FIRST} PROPERTIES COMPILE_OPTIONS -D_IPP_DATA)
+  ##set_target_properties(${IPPCP_LIB_STATIC_FIRST} PROPERTIES COMPILE_OPTIONS)
+else() #static sible cpu
   set(IPPCP_LIB_STATIC  ${IPPCP_LIB_STATIC}  PARENT_SCOPE)
   set(IPPCP_LIB_DYNAMIC ${IPPCP_LIB_DYNAMIC} PARENT_SCOPE)
 
   foreach(lib ${IPPCP_LIB_STATIC})
-    set_target_properties(${lib} PROPERTIES COMPILE_OPTIONS -D_IPP_DATA)
+    #gres: set_target_properties(${lib} PROPERTIES COMPILE_OPTIONS -D_IPP_DATA)
+	set_target_properties(${lib} PROPERTIES COMPILE_OPTIONS)
   endforeach(lib ${IPPCP_LIB_STATIC})
 endif()
 
@@ -509,7 +551,7 @@ if(MERGED_BLD)
   endif()
 
 
-  # Dynamic library
+  # PSC dispatcher
   if(DYNAMIC_LIB)
     set(IPPCP_LIB_PCS ${TARGET_NAME}_dyn)
     set(IPPCP_LIB_PCS ${IPPCP_LIB_PCS} PARENT_SCOPE)
@@ -535,36 +577,42 @@ if(MERGED_BLD)
       endif()
       add_library(${IPPCP_LIB_PCS} SHARED pcpmain.c cpinit.c  ${ASM_SOURCES_PCS})
       if(NOT APPLE)
-        set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINK_FLAGS ${LINK_FLAG_PCS_LINUX})
+		## gres: add export file
+		set(LINK_FLAG_PCS_LINUX "${LINK_FLAG_PCS_LINUX} ${IPP_CRYPTO_SOURCES_DIR}/exports.linux.lib-export")
+		set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINK_FLAGS ${LINK_FLAG_PCS_LINUX})
       else()
+		## gres: add export file
+		set(LINK_FLAG_PCS_MACOSX "${LINK_FLAG_PCS_MACOSX} -exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.lib-export")
         set(LINK_FLAG_PCS_MACOSX "${LINK_FLAG_PCS_MACOSX} -install_name @rpath/libippcp.dylib")
         set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINK_FLAGS ${LINK_FLAG_PCS_MACOSX})
       endif()
     endif(WIN32)
     set_target_properties(${IPPCP_LIB_PCS} PROPERTIES OUTPUT_NAME "${TARGET_NAME}")
 
-    set_target_properties(${IPPCP_LIB_PCS} PROPERTIES COMPILE_FLAGS "-D_PCS -D_IPP_DYNAMIC -D_IPP_DATA")
-    if(WIN32)
-      foreach(link ${LINK_LIB_STATIC_DEBUG})
-        target_link_libraries(${IPPCP_LIB_PCS} debug ${link})
-      endforeach()
-      foreach(link ${LINK_LIB_STATIC_RELEASE})
-        target_link_libraries(${IPPCP_LIB_PCS} optimized ${link})
-      endforeach()
-      if(THREADED_LIB)
-        if (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
-          target_link_libraries(${IPPCP_LIB_PCS} libiomp5md.lib)
-        elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
-          target_link_libraries(${IPPCP_LIB_PCS} vcomp.lib)
-        endif()
-      endif(THREADED_LIB)
-    else()
-      if(THREADED_LIB)
-        set_target_properties(${IPPCP_LIB_PCS} PROPERTIES COMPILE_OPTIONS -qopenmp -qopenmp-lib compat)
-        target_link_libraries(${IPPCP_LIB_PCS} iomp5)
-      endif(THREADED_LIB)
-    endif(WIN32)
+   #gres: set_target_properties(${IPPCP_LIB_PCS} PROPERTIES COMPILE_FLAGS "-D_PCS -D_IPP_DYNAMIC -D_IPP_DATA")
+	set_target_properties(${IPPCP_LIB_PCS} PROPERTIES COMPILE_FLAGS "-D_PCS")
+   if(WIN32)
+     foreach(link ${LINK_LIB_STATIC_DEBUG})
+       target_link_libraries(${IPPCP_LIB_PCS} debug ${link})
+     endforeach()
+     foreach(link ${LINK_LIB_STATIC_RELEASE})
+       target_link_libraries(${IPPCP_LIB_PCS} optimized ${link})
+     endforeach()
+     if(THREADED_LIB)
+       if (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
+         target_link_libraries(${IPPCP_LIB_PCS} libiomp5md.lib)
+       elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
+         target_link_libraries(${IPPCP_LIB_PCS} vcomp.lib)
+       endif()
+     endif(THREADED_LIB)
+   else()
+     if(THREADED_LIB)
+       set_target_properties(${IPPCP_LIB_PCS} PROPERTIES COMPILE_OPTIONS -qopenmp -qopenmp-lib compat)
+       target_link_libraries(${IPPCP_LIB_PCS} iomp5)
+     endif(THREADED_LIB)
+   endif(WIN32)
 
   endif(DYNAMIC_LIB)
 
 endif()
+

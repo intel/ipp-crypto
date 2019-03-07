@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -93,7 +93,7 @@ IPPFUN(IppStatus, ippsAESDecryptCBC_CS2,(const Ipp8u* pSrc, Ipp8u* pDst, int len
    /* test source, target buffers and initialization pointers */
    IPP_BAD_PTR3_RET(pSrc, pIV, pDst);
    /* test stream length */
-   IPP_BADARG_RET((len<=MBS_RIJ128), ippStsLengthErr);
+   IPP_BADARG_RET((len<MBS_RIJ128), ippStsLengthErr);
 
    {
       int tail = len & (MBS_RIJ128-1); /* length of the last partial block */
