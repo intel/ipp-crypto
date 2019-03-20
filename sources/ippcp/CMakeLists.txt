@@ -370,15 +370,17 @@ foreach(opt ${PLATFORM_LIST})
 
   if(DYNAMIC_LIB)
     set(IPPCP_DYN_ITER ${TARGET_NAME}_dyn_${opt})
+    if(MERGED_BLD)
+      set(EXPORT_LIST_SUFFIX "Ld")
+    else()
+      set(EXPORT_LIST_SUFFIX "")
+    endif()
     if(WIN32)
-      add_library(${IPPCP_DYN_ITER} SHARED ippcpLd.def ${HEADERS} ${SOURCES} ${ASM_SOURCES} pcpver.rc)
+      add_library(${IPPCP_DYN_ITER} SHARED "ippcp${EXPORT_LIST_SUFFIX}.def" ${HEADERS} ${SOURCES} ${ASM_SOURCES} pcpver.rc)
       set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_WINDOWS})
-	  #target_link_libraries(${IPPCP_DYN_ITER} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${TARGET_NAME}.lib) # gres: add linkage with PCS stub lib
-	  target_link_libraries(${IPPCP_DYN_ITER} debug ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Debug/${TARGET_NAME}.lib)
       foreach(link ${LINK_LIB_STATIC_DEBUG})
 		target_link_libraries(${IPPCP_DYN_ITER} debug ${link})
       endforeach()
-	  target_link_libraries(${IPPCP_DYN_ITER} optimized ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Release/${TARGET_NAME}.lib)
       foreach(link ${LINK_LIB_STATIC_RELEASE})
         target_link_libraries(${IPPCP_DYN_ITER} optimized ${link})
       endforeach()
@@ -397,26 +399,22 @@ foreach(opt ${PLATFORM_LIST})
 		## gres: copy LINK_FLAG_DYNAMIC_LINUX
 		set(LNK_FLAGS ${LINK_FLAG_DYNAMIC_MACOSX})
 		## add export file
-		set(LNK_FLAGS "${LNK_FLAGS} -exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.libLd-export")
-		## add linkage with libippcp.dylib
-		set(LNK_FLAGS "${LNK_FLAGS} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libippcp.dylib")
-		#message (FATAL_ERROR "LINK_FLAG_DYNAMIC_MACOSX: " ${LNK_FLAGS})
-        #set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS "${LINK_FLAG_DYNAMIC_MACOSX} -install_name @rpath/libippcp${opt}.dylib")
+		set(LNK_FLAGS "${LNK_FLAGS} -exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.lib${EXPORT_LIST_SUFFIX}-export")
 		set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS "${LNK_FLAGS} -install_name @rpath/libippcp${opt}.dylib")
       else()
 		## gres: copy LINK_FLAG_DYNAMIC_LINUX
 		set(LINK_FLAGS ${LINK_FLAG_DYNAMIC_LINUX})
 		## add export file
-		set(LINK_FLAGS "${LINK_FLAGS} ${IPP_CRYPTO_SOURCES_DIR}/exports.linux.libLd-export")
-		## add linkage with libippcp.so
-		set(LINK_FLAGS "${LINK_FLAGS} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libippcp.so")
+    set(LINK_FLAGS "${LINK_FLAGS} ${IPP_CRYPTO_SOURCES_DIR}/exports.linux.lib${EXPORT_LIST_SUFFIX}-export")
         set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAGS})
       endif()
       if(THREADED_LIB)
         target_link_libraries(${IPPCP_DYN_ITER} iomp5)
       endif()
     endif()
-    add_dependencies(${IPPCP_DYN_ITER} ${TARGET_NAME}_dyn) # gres: set build dependency CPU.dll depends  PCS
+    if(MERGED_BLD)
+        target_link_libraries(${IPPCP_DYN_ITER} ${TARGET_NAME}_dyn) # link to dynamic PCS lib
+    endif()
     set_target_properties(${IPPCP_DYN_ITER} PROPERTIES OUTPUT_NAME ${TARGET_NAME}${opt})
     list(APPEND IPPCP_LIB_DYNAMIC ${IPPCP_DYN_ITER})
   endif(DYNAMIC_LIB)
@@ -472,11 +470,6 @@ if(MERGED_BLD)
 else() #static sible cpu
   set(IPPCP_LIB_STATIC  ${IPPCP_LIB_STATIC}  PARENT_SCOPE)
   set(IPPCP_LIB_DYNAMIC ${IPPCP_LIB_DYNAMIC} PARENT_SCOPE)
-
-  foreach(lib ${IPPCP_LIB_STATIC})
-    #gres: set_target_properties(${lib} PROPERTIES COMPILE_OPTIONS -D_IPP_DATA)
-	set_target_properties(${lib} PROPERTIES COMPILE_OPTIONS)
-  endforeach(lib ${IPPCP_LIB_STATIC})
 endif()
 
 if(MERGED_BLD)

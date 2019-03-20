@@ -54,7 +54,6 @@
 #define _PCS
 #endif
 
-#if !defined( _IPP_DYNAMIC )
 #if defined( _IPP_DATA )
 
 static Ipp64u cpFeatures = 0;
@@ -561,4 +560,3 @@ IPPFUN( Ipp64u, ippcpGetCpuClocks, (void) )
 }
 
 #endif /* _IPP_DATA */
-#endif /* !_IPP_DYNAMIC */
