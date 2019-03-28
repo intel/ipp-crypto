@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -70,6 +70,10 @@ extern "C" {
   #endif
 #endif
 
+#pragma warning(push)
+#ifdef _MSC_VER
+#pragma warning(disable : 4100) // for MSVC, unreferenced param
+#endif
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippcpGetLibVersion
@@ -89,53 +93,95 @@ IPPAPI( const IppLibraryVersion*, ippcpGetLibVersion, (void) )
 */
 
 /* TDES */
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsDESGetSize,(int *size))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsDESInit,(const Ipp8u* pKey, IppsDESSpec* pCtx))
 
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsDESPack,(const IppsDESSpec* pCtx, Ipp8u* pBuffer))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsDESUnpack,(const Ipp8u* pBuffer, IppsDESSpec* pCtx))
 
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsTDESEncryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                       const IppsDESSpec* pCtx1, const IppsDESSpec* pCtx2, const IppsDESSpec* pCtx3,
                                       IppsCPPadding padding))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsTDESDecryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                       const IppsDESSpec* pCtx1, const IppsDESSpec* pCtx2, const IppsDESSpec* pCtx3,
                                       IppsCPPadding padding))
 
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsTDESEncryptCBC,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                       const IppsDESSpec* pCtx1, const IppsDESSpec* pCtx2, const IppsDESSpec* pCtx3,
                                       const Ipp8u* pIV,
                                       IppsCPPadding padding))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsTDESDecryptCBC,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                       const IppsDESSpec* pCtx1, const IppsDESSpec* pCtx2, const IppsDESSpec* pCtx3,
                                       const Ipp8u* pIV,
                                       IppsCPPadding padding))
 
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsTDESEncryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, int cfbBlkSize,
                                       const IppsDESSpec* pCtx1, const IppsDESSpec* pCtx2, const IppsDESSpec* pCtx3,
                                       const Ipp8u* pIV,
                                       IppsCPPadding padding))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsTDESDecryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, int cfbBlkSize,
                                       const IppsDESSpec* pCtx1, const IppsDESSpec* pCtx2, const IppsDESSpec* pCtx3,
                                       const Ipp8u* pIV,
                                       IppsCPPadding padding))
 
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsTDESEncryptOFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, int ofbBlkSize,
                                      const IppsDESSpec* pCtx1,
                                      const IppsDESSpec* pCtx2,
                                      const IppsDESSpec* pCtx3,
                                      Ipp8u* pIV))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsTDESDecryptOFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, int ofbBlkSize,
                                      const IppsDESSpec* pCtx1,
                                      const IppsDESSpec* pCtx2,
                                      const IppsDESSpec* pCtx3,
                                      Ipp8u* pIV))
 
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsTDESEncryptCTR,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                       const IppsDESSpec* pCtx1,
                                       const IppsDESSpec* pCtx2,
                                       const IppsDESSpec* pCtx3,
                                       Ipp8u* pCtrValue, int ctrNumBitSize))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: AES") \
 IPPAPI(IppStatus, ippsTDESDecryptCTR,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                       const IppsDESSpec* pCtx1,
                                       const IppsDESSpec* pCtx2,
@@ -150,8 +196,10 @@ IPPAPI(IppStatus, ippsAESSetKey,(const Ipp8u* pKey, int keyLen, IppsAESSpec* pCt
 IPPAPI(IppStatus, ippsAESPack,(const IppsAESSpec* pCtx, Ipp8u* pBuffer, int bufSize))
 IPPAPI(IppStatus, ippsAESUnpack,(const Ipp8u* pBuffer, IppsAESSpec* pCtx, int ctxSize))
 
+IPP_DEPRECATED("ECB functionality remains in the library, but it is not safe when used as is. It is recommended to use any other mode, for example CBC.") \
 IPPAPI(IppStatus, ippsAESEncryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                      const IppsAESSpec* pCtx))
+IPP_DEPRECATED("ECB functionality remains in the library, but it is not safe when used as is. It is recommended to use any other mode, for example CBC.") \
 IPPAPI(IppStatus, ippsAESDecryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                      const IppsAESSpec* pCtx))
 
@@ -216,8 +264,10 @@ IPPAPI(IppStatus, ippsSMS4GetSize,(int *pSize))
 IPPAPI(IppStatus, ippsSMS4Init,(const Ipp8u* pKey, int keyLen, IppsSMS4Spec* pCtx, int ctxSize))
 IPPAPI(IppStatus, ippsSMS4SetKey,(const Ipp8u* pKey, int keyLen, IppsSMS4Spec* pCtx))
 
+IPP_DEPRECATED("ECB functionality remains in the library, but it is not safe when used as is. It is recommended to use any other mode, for example CBC.") \
 IPPAPI(IppStatus, ippsSMS4EncryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                       const IppsSMS4Spec* pCtx))
+IPP_DEPRECATED("ECB functionality remains in the library, but it is not safe when used as is. It is recommended to use any other mode, for example CBC.") \
 IPPAPI(IppStatus, ippsSMS4DecryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                       const IppsSMS4Spec* pCtx))
 
@@ -448,16 +498,43 @@ IPPAPI(IppStatus, ippsSHA512Final,(Ipp8u* pMD, IppsSHA512State* pState))
 IPPAPI(IppStatus, ippsSHA512MessageDigest,(const Ipp8u* pMsg, int len, Ipp8u* pMD))
 
 /* MD5 Hash Primitives */
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2") \
 IPPAPI(IppStatus, ippsMD5GetSize,(int* pSize))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2") \
 IPPAPI(IppStatus, ippsMD5Init,(IppsMD5State* pState))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2") \
 IPPAPI(IppStatus, ippsMD5Duplicate,(const IppsMD5State* pSrcState, IppsMD5State* pDstState))
 
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2") \
 IPPAPI(IppStatus, ippsMD5Pack,(const IppsMD5State* pState, Ipp8u* pBuffer))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2") \
 IPPAPI(IppStatus, ippsMD5Unpack,(const Ipp8u* pBuffer, IppsMD5State* pState))
 
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2") \
 IPPAPI(IppStatus, ippsMD5Update,(const Ipp8u* pSrc, int len, IppsMD5State* pState))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2") \
 IPPAPI(IppStatus, ippsMD5GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsMD5State* pState))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2") \
 IPPAPI(IppStatus, ippsMD5Final,(Ipp8u* pMD, IppsMD5State* pState))
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2") \
 IPPAPI(IppStatus, ippsMD5MessageDigest,(const Ipp8u* pMsg, int len, Ipp8u* pMD))
 
 /* SM3 Hash Primitives */
@@ -487,6 +564,9 @@ IPPAPI(IppStatus, ippsHashFinal,(Ipp8u* pMD, IppsHashState* pState))
 IPPAPI(IppStatus, ippsHashMessage,(const Ipp8u* pMsg, int len, Ipp8u* pMD, IppHashAlgId hashAlg))
 
 /* method based generalized (reduced memory footprint) Hash Primitives */
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2") \
 IPPAPI( const IppsHashMethod*, ippsHashMethod_MD5, (void) )
 IPPAPI( const IppsHashMethod*, ippsHashMethod_SM3, (void) )
 
@@ -518,6 +598,9 @@ IPPAPI(IppStatus, ippsHashUpdate_rmf,(const Ipp8u* pSrc, int len, IppsHashState_
 IPPAPI(IppStatus, ippsHashGetTag_rmf,(Ipp8u* pMD, int tagLen, const IppsHashState_rmf* pState))
 IPPAPI(IppStatus, ippsHashFinal_rmf,(Ipp8u* pMD, IppsHashState_rmf* pState))
 IPPAPI(IppStatus, ippsHashMessage_rmf,(const Ipp8u* pMsg, int len, Ipp8u* pMD, const IppsHashMethod* pMethod))
+
+IPPAPI(IppStatus, ippsHashMethodGetInfo,(IppsHashInfo* pInfo, const IppsHashMethod* pMethod))
+IPPAPI(IppStatus, ippsHashGetInfo_rmf,(IppsHashInfo* pInfo, const IppsHashState_rmf* pState))
 
 /* general MGF Primitives*/
 IPPAPI(IppStatus, ippsMGF,(const Ipp8u* pSeed, int seedLen, Ipp8u* pMask, int maskLen, IppHashAlgId hashAlg))
@@ -756,12 +839,18 @@ IPPAPI(IppStatus, ippsRSADecrypt_OAEP_rmf,(const Ipp8u* pSrc,
                                              Ipp8u* pBuffer))
 
 /* encryption scheme: RSAES-PKCS_v1_5 */
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: RSA-OAEP") \
 IPPAPI(IppStatus, ippsRSAEncrypt_PKCSv15,(const Ipp8u* pSrc, int srcLen,
                                           const Ipp8u* pRndPS,
                                                 Ipp8u* pDst,
                                           const IppsRSAPublicKeyState* pKey,
                                                 Ipp8u* pBuffer))
 
+IPP_DEPRECATED("This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: RSA-OAEP") \
 IPPAPI(IppStatus, ippsRSADecrypt_PKCSv15,(const Ipp8u* pSrc,
                                                 Ipp8u* pDst, int* pDstLen,
                                           const IppsRSAPrivateKeyState* pKey,
@@ -1105,6 +1194,8 @@ IPPAPI(IppStatus, ippsGFpAdd_PE,(const IppsGFpElement* pA, const IppsGFpElement*
 IPPAPI(IppStatus, ippsGFpSub_PE,(const IppsGFpElement* pA, const IppsGFpElement* pParentB, IppsGFpElement* pR, IppsGFpState* pGFp))
 IPPAPI(IppStatus, ippsGFpMul_PE,(const IppsGFpElement* pA, const IppsGFpElement* pParentB, IppsGFpElement* pR, IppsGFpState* pGFp))
 
+IPPAPI(IppStatus, ippsGFpGetInfo, (IppsGFpInfo* pInfo, const IppsGFpState* pGFp))
+
 /* ================== */
 IPPAPI(IppStatus, ippsGFpECGetSize,(const IppsGFpState* pGFp, int* pSize))
 IPPAPI(IppStatus, ippsGFpECInit,   (const IppsGFpState* pGFp,
@@ -1221,6 +1312,8 @@ IPPAPI(IppStatus, ippsGFpECVerifySM2,(const IppsBigNumState* pMsgDigest,
                         IppECResult* pResult,
                         IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 
+IPPAPI(IppStatus, ippsGFpECGetInfo_GF,(IppsGFpInfo* pInfo, const IppsGFpECState* pEC))
+
 IPPAPI(IppStatus, ippsGFpECESGetSize_SM2, (const IppsGFpECState* pEC, int* pSize))
 IPPAPI(IppStatus, ippsGFpECESInit_SM2, (IppsGFpECState* pEC,
                         IppsECESState_SM2* pState, int avaliableCtxSize))
@@ -1238,6 +1331,7 @@ IPPAPI(IppStatus, ippsGFpECESFinal_SM2, (Ipp8u* pTag, int tagLen, IppsECESState_
 IPPAPI(IppStatus, ippsGFpECESGetBuffersSize_SM2, (int* pPublicKeySize,
                         int* pMaximumTagSize, const IppsECESState_SM2* pState))
 
+#pragma warning(pop)
 #ifdef  __cplusplus
 }
 #endif

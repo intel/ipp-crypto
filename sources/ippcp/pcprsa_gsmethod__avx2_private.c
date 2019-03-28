@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -65,8 +65,13 @@ gsMethod_RSA* gsMethod_RSA_avx2_private(void)
       RSA_AVX2_MIN_BITSIZE, RSA_AVX2_MAX_BITSIZE,  /* RSA range */
 
       /* private key exponentiation: private, window, avx2 */
+      #if !defined(_USE_WINDOW_EXP_)
+      gsMontExpBinBuffer_avx2,
+      gsMontExpBin_BNU_sscm_avx2
+      #else
       gsMontExpWinBuffer_avx2,
       gsMontExpWin_BNU_sscm_avx2
+      #endif
    };
    return &m;
 }

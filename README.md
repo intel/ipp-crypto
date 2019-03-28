@@ -21,6 +21,12 @@ to select the CPU-specific implementation at run time. Dispatching refers to
 the detection of features supported by the underlying CPU and selecting
 the corresponding Intel IPP Cryptography binary path.
 
+Branches description
+--------------------
+- `develop` - snapshots of the library under active development.
+Contains code that may not be fully functional and that Intel may substantially modify in development of a production version.
+- `ipp_crypto_<release>` - source code of the official production release `<release>`.
+
 License
 -------
 
@@ -54,74 +60,55 @@ The list below contains the system requirements necessary to build Intel
 IPP Cryptography. We tested the build process of Intel IPP Cryptography
 only on the operating systems and tools listed below:
 
-### Operating Systems to Build Intel IPP Cryptography:
+#### CMake\* Version:
 
+-   CMake 3.7.2
+
+#### Python\* Version:
+
+-   Python 2.7
+
+### Windows\* OS
+
+#### OS
 -   Windows Server\* 2012
 
--   Red Hat\* Enterprise Linux\* 6
-
--   macOS\* 10.12\*
-
-### C/C++\* Compilers for Windows\* OS:
-
--   Intel(R) C++ Compiler 18.0 for Windows\* OS
-
+#### C/C++\* Compilers
 -   Intel(R) C++ Compiler 19.0 for Windows\* OS
 
--   Microsoft Visual C++ Compiler\* version 14.14 or higher
-    provided by Microsoft Visual Studio\* 2017 version 15.7 or higher
+-   Microsoft Visual C++ Compiler\* version 19.16
+    provided by Microsoft Visual Studio\* 2017 version 15.9
 
-### C/C++\* Compilers for Linux\* OS:
+#### Assembly Compilers
+-   Microsoft Macro Assembler 14
 
--   Intel(R) C++ Compiler 18.0 for Linux\* OS
+### Linux\* OS
 
+#### OS
+-   Red Hat\* Enterprise Linux\* 6
+
+#### C/C++\* Compilers
 -   Intel(R) C++ Compiler 19.0 for Linux\* OS
 
-### C/C++\* Compilers for macOS\*:
+-   GCC 8.2
 
--   Intel(R) C++ Compiler 18.0 for OS X\*
+#### Binary Tools
+-   GNU binutils 2.32
 
+#### Android\* NDK Version:
+
+-   Android NDK, Revision 10
+
+### macOS\*
+
+#### OS
+-   macOS\* 10.12\*
+
+#### C/C++\* Compilers
 -   Intel(R) C++ Compiler 19.0 for OS X\* OS
 
-### Assembly Compilers for Windows\* OS:
-
-Microsoft Macro Assembler 11
-
-### Assembly Compilers for Linux\* OS:
-
-GNU as from GNU binutils 2.27
-
-### Assembly Compilers for macOS\*:
-
-Yasm 1.2.2
-
-### Binary Tools for Windows\* OS:
-
--   Microsoft Visual Studio\* 2013
-
--   Microsoft Visual Studio\* 2015
-
--   Microsoft Visual Studio\* 2017
-
-### Binary Tools for Linux\* OS:
-
-GNU binutils 2.27
-
-### Binary Tools for macOS\*:
-
-GNU binutils 1.38
-
-### CMake\* Version:
-
-CMake 3.0 or higher
-
-### Python\* Version:
-
-Python 2.7
-
-### Android\* NDK Version:
-
-Android NDK, Revision 10
+#### Assembly Compilers
+-   Yasm 1.2.2
 
 Building from Source
 --------------------
@@ -152,30 +139,43 @@ with the options described in [CMake Arguments](#cmake-arguments).
     git clone --recursive <repo>
     ```
 3.  Set the environment variables for one of the supported C/C++
-    compilers; for Intel(R)Compiler please refer to
-    https://software.intel.com/en-us/cpp-compiler-18.0-developer-guide-and-reference-specifying-the-location-of-compiler-components-with-compilervars
+    compilers.\
+    For Intel(R) Compiler please refer to
+    [Intel(R) C++ Compiler Developer Guide and Reference](https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference)\
+    For MSVC* Compiler please refer to [Use the MSVC toolset from the command line](https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=vs-2017)
 
 4.  Run CMake\* on the command line. Example CMake lines for different
     operating systems:
 
     **Windows\* OS**:
 
+    For Intel(R) C++ Compiler:
     ```
-    cmake CMakeLists.txt -Bbuild -G"Visual Studio 14 2015 Win64" -T"Intel C++ Compiler 18.0"
+    cmake CMakeLists.txt -Bbuild -G"Visual Studio 14 2015 Win64" -T"Intel C++ Compiler 19.0"
+    ```
+    For MSVC\* Compiler:
+    ```
+    cmake CMakeLists.txt -Bbuild -G"Visual Studio 15 2017 Win64"
     ```
 
     **Linux\* OS**:
 
+    For Intel(R) C++ Compiler:
     ```
     CC=icc CXX=icpc cmake CMakeLists.txt -Bbuild -DARCH=intel64
+    ```
+    For GCC:
+    ```
+    CC=gcc CXX=g++ cmake CMakeLists.txt -Bbuild -DARCH=intel64
     ```
 
     **macOS\***:
 
+    For Intel(R) C++ Compiler:
     ```
     CC=icc CXX=icpc cmake CMakeLists.txt -Bbuild -DARCH=intel64 -DUSEYASM=<path to Yasm compiler>
     ```
-
+    \
     The list of supported CMake arguments is available in the
     [CMake Arguments](#cmake-arguments) section.
 
@@ -268,7 +268,7 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
     architecture.
 
 -   `-T<Compiler>` - defines the compiler for building, for example,
-    `-T"Intel C++ Compiler 18.0"` defines Intel(R) Compiler 18.0 for
+    `-T"Intel C++ Compiler 19.0"` defines Intel(R) Compiler 19.0 for
     building.
 
 **Note:** Refer to CMake documentation for more information on these options.
@@ -338,7 +338,7 @@ Intel, and the Intel logo are trademarks of Intel Corporation in the U.S. and/or
 
 *Other names and brands may be claimed as the property of others.
 
-© 2018 Intel Corporation.
+© 2019 Intel Corporation.
 
 |Optimization Notice|
 |:------------------|

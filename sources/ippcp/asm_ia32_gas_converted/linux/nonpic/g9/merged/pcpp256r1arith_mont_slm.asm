@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -49,7 +49,7 @@ _prime256r1:
  
 .p2align 5, 0x90
  
-.globl g9_add_256
+
 .type g9_add_256, @function
  
 g9_add_256:
@@ -84,7 +84,7 @@ g9_add_256:
 .size g9_add_256, .Lfe1-(g9_add_256)
 .p2align 5, 0x90
  
-.globl g9_sub_256
+
 .type g9_sub_256, @function
  
 g9_sub_256:
@@ -119,7 +119,7 @@ g9_sub_256:
 .size g9_sub_256, .Lfe2-(g9_sub_256)
 .p2align 5, 0x90
  
-.globl g9_shl_256
+
 .type g9_shl_256, @function
  
 g9_shl_256:
@@ -144,7 +144,7 @@ g9_shl_256:
 .size g9_shl_256, .Lfe3-(g9_shl_256)
 .p2align 5, 0x90
  
-.globl g9_shr_256
+
 .type g9_shr_256, @function
  
 g9_shr_256:

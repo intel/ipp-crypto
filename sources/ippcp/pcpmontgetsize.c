@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -77,7 +77,7 @@ IPPFUN(IppStatus, ippsMontGetSize, (IppsExpMethod method, int length, int* pSize
    IPP_BAD_PTR1_RET(pSize);
    IPP_BADARG_RET(length<1 || length>BITS2WORD32_SIZE(BN_MAXBITSIZE), ippStsLengthErr);
 
-   UNREFERENCED_PARAMETER(method);
+   IPP_UNREFERENCED_PARAMETER(method);
 
    {
       return cpMontGetSize(length, MONT_DEFAULT_POOL_LENGTH, pSize);

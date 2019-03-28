@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2018 Intel Corporation
+# Copyright 2017-2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -47,9 +47,10 @@ import sys
 import os
 import hashlib
 
-Header  = sys.argv[1]    ## Intel(R) IPP Crypto dispatcher will be generated for fucntions in Header 
-OutDir  = sys.argv[2]    ## Output folder for generated files
-cpulist = sys.argv[3]    ## Actual CPU list: semicolon separated string
+Header   = sys.argv[1]    ## Intel(R) IPP Crypto dispatcher will be generated for fucntions in Header
+OutDir   = sys.argv[2]    ## Output folder for generated files
+cpulist  = sys.argv[3]    ## Actual CPU list: semicolon separated string
+compiler = sys.argv[4]
 
 cpulist = cpulist.split(';')
 
@@ -73,43 +74,87 @@ curLine = 0
 FunType = ""
 FunName = ""
 FunArg = ""
-
-while (isFunctionFound == True):
-
-  result = readNextFunction(h, curLine, headerID)
   
-  curLine         = result['curLine']
-  FunType         = result['FunType']
-  FunName         = result['FunName']
-  FunArg          = result['FunArg']
-  isFunctionFound = result['success']
-  
-  if (isFunctionFound == True):
+if(compiler == "GNU"):
+    while (isFunctionFound == True):
 
-      ##################################################
-      ## create dispatcher files: C file with inline asm
-      ##################################################
-      DISP= open( os.sep.join([OutDir, "jmp_"+FunName+"_" + hashlib.sha512(FunName.encode('utf-8')).hexdigest()[:8] + ".c"]), 'w' )
+        result = readNextFunction(h, curLine, headerID)
 
-      DISP.write("""#include "ippcp.h"\n\n#pragma warning(disable : 1478) // deprecated\n\n""")
+        curLine         = result['curLine']
+        FunType         = result['FunType']
+        FunName         = result['FunName']
+        FunArg          = result['FunArg']
+        isFunctionFound = result['success']
 
-      DISP.write("typedef "+FunType+" (*IPP_PROC)"+FunArg+";\n\n")
-      DISP.write("extern int ippcpJumpIndexForMergedLibs;\n")
-      DISP.write("extern IppStatus ippcpSafeInit( void );\n\n")
+        if (isFunctionFound == True):
 
-      DISP.write("extern "+FunType+" in_"+FunName+FunArg+";\n")
+            ##################################################
+            ## create dispatcher files ASM
+            ##################################################
+            ASMDISP= open( os.sep.join([OutDir, "jmp_" + FunName+"_" + hashlib.sha512(FunName.encode('utf-8')).hexdigest()[:8] +".asm"]), 'w' )
+            ASMDISP.write("""
+.data
+.align 8
+.quad  .Lin_{FunName}
+.Larraddr_{FunName}:
+""".format(FunName=FunName))
 
-      for cpu in cpulist:
-         DISP.write("extern "+FunType+" "+cpu+"_"+FunName+FunArg+";\n")
+            for cpu in cpulist:
+                ASMDISP.write("    .quad "+cpu+"_"+FunName+"\n")
 
-      DISP.write("static IPP_PROC arraddr[] =\n{{\n	(IPP_PROC)in_{}".format(FunName))
+            ASMDISP.write("""
+.text
+.globl {FunName}
+.Lin_{FunName}:
+    call ippcpSafeInit
+    .align 16
 
-      for cpu in cpulist:
-         DISP.write(",\n	(IPP_PROC)"+cpu+"_"+FunName+"")
+{FunName}:
+    movslq  ippcpJumpIndexForMergedLibs,%rax
+    leaq    .Larraddr_{FunName}(%rip),%r11
+    jmpq    *(%r11,%rax,8)
 
-      DISP.write("\n};")
+.type {FunName}, @function
+.size {FunName}, .-{FunName}
+""".format(FunName=FunName))
+            ASMDISP.close()
+else:
+    while (isFunctionFound == True):
 
-      DISP.write("""
+        result = readNextFunction(h, curLine, headerID)
+
+        curLine         = result['curLine']
+        FunType         = result['FunType']
+        FunName         = result['FunName']
+        FunArg          = result['FunArg']
+        isFunctionFound = result['success']
+
+        if (isFunctionFound == True):
+
+            ##################################################
+            ## create dispatcher files: C file with inline asm
+            ##################################################
+            DISP= open( os.sep.join([OutDir, "jmp_"+FunName+"_" + hashlib.sha512(FunName.encode('utf-8')).hexdigest()[:8] + ".c"]), 'w' )
+
+            DISP.write("""#include "ippcp.h"\n\n#pragma warning(disable : 1478 1786) // deprecated\n\n""")
+
+            DISP.write("typedef "+FunType+" (*IPP_PROC)"+FunArg+";\n\n")
+            DISP.write("extern int ippcpJumpIndexForMergedLibs;\n")
+            DISP.write("extern IppStatus ippcpSafeInit( void );\n\n")
+
+            DISP.write("extern "+FunType+" in_"+FunName+FunArg+";\n")
+
+            for cpu in cpulist:
+                DISP.write("extern "+FunType+" "+cpu+"_"+FunName+FunArg+";\n")
+
+            DISP.write("static IPP_PROC arraddr[] =\n{{\n	(IPP_PROC)in_{}".format(FunName))
+
+            for cpu in cpulist:
+                DISP.write(",\n	(IPP_PROC)"+cpu+"_"+FunName+"")
+
+            DISP.write("\n};")
+
+            DISP.write("""
 #undef  IPPAPI
 #define IPPAPI(type,name,arg) __declspec(naked) type name arg
 
@@ -123,7 +168,7 @@ IPPAPI({FunType}, {FunName},{FunArg})
 
 IPPAPI({FunType}, in_{FunName},{FunArg})
 {{
-    __asm{{
+     __asm{{
         call ippcpSafeInit
         lea  rax, {FunName}
         jmp  rax
@@ -131,5 +176,4 @@ IPPAPI({FunType}, in_{FunName},{FunArg})
 }};
 """.format(FunType=FunType, FunName=FunName, FunArg=FunArg))
 
-      DISP.close()
-
+        DISP.close()

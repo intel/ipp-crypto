@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -215,29 +215,6 @@ __INLINE int EquBlock(const void* pSrc1, const void* pSrc2, int len)
 
 
 /* addition functions for CTR mode of diffenent block ciphers */
-#if 0
-__INLINE void StdIncrement(Ipp8u* pCounter, int blkSize, int numSize)
-{
-   int maskPosition = (blkSize-numSize)/8;
-   Ipp8u mask = (Ipp8u)( 0xFF >> (blkSize-numSize)%8 );
-
-   /* save critical byte */
-   Ipp8u save  = (Ipp8u)( pCounter[maskPosition] & ~mask );
-
-   int len = BITS2WORD8_SIZE(blkSize);
-   Ipp32u carry = 1;
-   for(; (len>maskPosition) && carry; len--) {
-      Ipp32u x = pCounter[len-1] + carry;
-      pCounter[len-1] = (Ipp8u)x;
-      carry = (x>>8) & 0xFF;
-   }
-
-   /* update crytical byte */
-   pCounter[maskPosition] &= mask;
-   pCounter[maskPosition] |= save;
-}
-#endif
-
 /* const-exe-time version */
 __INLINE void StdIncrement(Ipp8u* pCounter, int blkBitSize, int numSize)
 {
@@ -248,7 +225,7 @@ __INLINE void StdIncrement(Ipp8u* pCounter, int blkBitSize, int numSize)
    Ipp32u carry = 1;
    for(i=BITS2WORD8_SIZE(blkBitSize)-1; i>=0; i--) {
       int d = maskPosition - i;
-      Ipp8u mask = maskVal | cpIsMsb_ct(d);
+      Ipp8u mask = (Ipp8u)(maskVal | cpIsMsb_ct(d));
 
       Ipp32u x = pCounter[i] + carry;
       Ipp8u y = pCounter[i];
@@ -323,7 +300,7 @@ __INLINE void ompStdIncrement128( void* pInitCtrVal, void* pCurrCtrVal,
     Ipp64u hgh;
     Ipp64u flag;
     Ipp64u mask = CONST_64(0xFFFFFFFFFFFFFFFF);
-    Ipp64u save;
+    Ipp64u save = 0;
 
   #if( IPP_ENDIAN == IPP_LITTLE_ENDIAN )
     for( k = 0; k < 8; k++ )

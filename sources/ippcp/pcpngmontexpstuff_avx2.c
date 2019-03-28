@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2018 Intel Corporation
+* Copyright 2016-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -48,6 +48,7 @@
 #include "pcpngmontexpstuff.h"
 #include "pcpngmontexpstuff_avx2.h"
 #include "gsscramble.h"
+#include "pcpmask_ct.h"
 
 
 //tbcd: temporary excluded: #include <assert.h>
@@ -179,7 +180,7 @@ cpSize gsMontExpBinBuffer_avx2(int modulusBits)
 {
    cpSize redNum = numofVariable_avx2(modulusBits);      /* "sizeof" variable */
    cpSize redBufferNum = numofVariableBuff_avx2(redNum); /* "sizeof" variable  buffer */
-   return redBufferNum *7;
+   return redBufferNum *8;
 }
 #endif /* !_USE_WINDOW_EXP_ */
 
@@ -340,10 +341,11 @@ cpSize gsMontExpBin_BNU_sscm_avx2(BNU_CHUNK_T* dataY,
 
    /* allocate buffers */
    BNU_CHUNK_T* redX = pBuffer;
-   BNU_CHUNK_T* redT = redX+redBufferLen;
+   BNU_CHUNK_T* redM = redX+redBufferLen;
+   BNU_CHUNK_T* redR = redM+redBufferLen;
+   BNU_CHUNK_T* redT = redR+redBufferLen;
    BNU_CHUNK_T* redY = redT+redBufferLen;
-   BNU_CHUNK_T* redM = redY+redBufferLen;
-   BNU_CHUNK_T* redBuffer = redM+redBufferLen;
+   BNU_CHUNK_T* redBuffer = redY+redBufferLen;
    #ifdef _EXP_AVX2_DEBUG_
    BNU_CHUNK_T dbgValue[152];
    #endif
@@ -371,39 +373,29 @@ cpSize gsMontExpBin_BNU_sscm_avx2(BNU_CHUNK_T* dataY,
    #endif
 
    /* init result */
-   ZEXPAND_BNU(redY, 0, redBufferLen);
-   redY[0] = 1;
-   cpMontMul_avx2(redY, redY, redT, redM, redLen, k0, redBuffer);
+   ZEXPAND_BNU(redR, 0, redBufferLen);
+   redR[0] = 1;
+   cpMontMul_avx2(redR, redR, redT, redM, redLen, k0, redBuffer);
+   COPY_BNU(redY, redR, redBufferLen);
 
-   {
-      int back_step = 0;
+   /* execute bits of E */
+   for(; nsE>0; nsE--) {
+      BNU_CHUNK_T eValue = dataE[nsE-1];
 
-      /* execute bits of E */
-      for(--nsE; nsE>0; nsE--) {
-         BNU_CHUNK_T eValue = dataE[nsE-1];
+      int n;
+      for(n=BNU_CHUNK_BITS; n>0; n--) {
+         /* T = ( msb(eValue) )? X : mont(1) */
+         BNU_CHUNK_T mask = cpIsMsb_ct(eValue);
+         eValue <<= 1;
+         cpMaskedCopyBNU_ct(redT, mask, redX, redR, redLen);
 
-         int j;
-         for(j=BNU_CHUNK_BITS-1; j>=0; j--) {
-            BNU_CHUNK_T mask_pattern = (BNU_CHUNK_T)(back_step-1);
-
-            /* T = (Y & mask_pattern) or (X & ~mask_pattern) */
-            int i;
-            for(i=0; i<redLen; i++)
-               redT[i] = (redY[i] & mask_pattern) | (redX[i] & ~mask_pattern);
-            #ifdef _EXP_AVX2_DEBUG_
-            debugToConvMontDomain(dbgValue, redT, redM, redLen, dataM, dataRR, nsM, k0, redBuffer);
-            #endif
-
-            /* squaring/multiplication: Y = Y*T */
-            cpMontMul_avx2(redY, redY, redT, redM, redLen, k0, redBuffer);
-            #ifdef _EXP_AVX2_DEBUG_
-            debugToConvMontDomain(dbgValue, redY, redM, redLen, dataM, dataRR, nsM, k0, redBuffer);
-            #endif
-
-            /* update back_step and j */
-            back_step = ((eValue>>j) & 0x1) & (back_step^1);
-            j += back_step;
-         }
+         /* squaring: Y = Y^2 */
+         cpMontSqr_avx2(redY, redY, redM, redLen, k0, redBuffer);
+         #ifdef _EXP_AVX2_DEBUG_
+         debugToConvMontDomain(dbgValue, redY, redM, redLen, dataM, dataRR, nsM, k0, redBuffer);
+         #endif
+         /* and multiply: Y = Y * T */
+         cpMontMul_avx2(redY, redY, redT, redM, redLen, k0, redBuffer);
       }
    }
 
@@ -415,6 +407,7 @@ cpSize gsMontExpBin_BNU_sscm_avx2(BNU_CHUNK_T* dataY,
 
    return nsM;
 }
+
 #endif /* !_USE_WINDOW_EXP_ */
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -48,6 +48,9 @@
 //        ippsAESEncryptCTR()
 //
 */
+#ifdef _MSC_VER
+#pragma warning(disable: 4206) // empty unit
+#endif
 #if !defined(_OPENMP)
 
 #include "owndefs.h"

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2018 Intel Corporation
+* Copyright 2014-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -120,21 +120,38 @@ __INLINE __m128i Ltag(__m128i x)
    K0 = _mm_unpackhi_epi64(K3, K0); \
    K3 = T
 
+
+#if (_IPP==_IPP_I0) || (_IPP32E>=_IPP32E_N0)
 __INLINE __m128i L(__m128i x)
 {
    __m128i T = _mm_slli_epi32(x, 2);
-   T = _mm_xor_si128(T, _mm_srli_epi32 (x,30));
+   T = _mm_xor_si128(T, _mm_srli_epi32(x, 30));
 
-   T = _mm_xor_si128(T, _mm_slli_epi32 (x,10));
-   T = _mm_xor_si128(T, _mm_srli_epi32 (x,22));
+   T = _mm_xor_si128(T, _mm_slli_epi32(x, 10));
+   T = _mm_xor_si128(T, _mm_srli_epi32(x, 22));
 
-   T = _mm_xor_si128(T, _mm_slli_epi32 (x,18));
-   T = _mm_xor_si128(T, _mm_srli_epi32 (x,14));
+   T = _mm_xor_si128(T, _mm_slli_epi32(x, 18));
+   T = _mm_xor_si128(T, _mm_srli_epi32(x, 14));
 
-   T = _mm_xor_si128(T, _mm_slli_epi32 (x,24));
-   T = _mm_xor_si128(T, _mm_srli_epi32 (x, 8));
+   T = _mm_xor_si128(T, _mm_slli_epi32(x, 24));
+   T = _mm_xor_si128(T, _mm_srli_epi32(x, 8));
    return T;
 }
+#else
+static __ALIGN16 Ipp8u ROL8[] = { 3,0,1,2,  7,4,5,6,  11,8,9,10,  15,12,13,14 };
+static __ALIGN16 Ipp8u ROL16[] = { 2,3,0,1,  6,7,4,5,  10,11,8,9,  14,15,12,13 };
+static __ALIGN16 Ipp8u ROL24[] = { 1,2,3,0,  5,6,7,4,  9,10,11,8,  13,14,15,12 };
+
+__INLINE __m128i L(__m128i x)
+{
+   __m128i rol2 = _mm_xor_si128(_mm_slli_epi32(x, 2), _mm_srli_epi32(x, 30));
+   __m128i rol24 = _mm_shuffle_epi8(x, M128(ROL24));
+   __m128i rol10 = _mm_shuffle_epi8(rol2, M128(ROL8));
+   __m128i rol18 = _mm_shuffle_epi8(rol2, M128(ROL16));
+   __m128i R = _mm_xor_si128(rol24, _mm_xor_si128(rol18, _mm_xor_si128(rol2, rol10)));
+   return R;
+}
+#endif
 
 #endif /* _IPP_P8, _IPP32E_Y8 */
 

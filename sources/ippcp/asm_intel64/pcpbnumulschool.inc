@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2010-2018 Intel Corporation
+; Copyright 2010-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -481,7 +481,7 @@ ENDM
 ; dst = src*{B1:B0}
 MULx2 MACRO rDst, rSrc, idx, B0,B1, T0,T1,T2,T3
 LOCAL L_1
-   ALIGN 16
+   ALIGN IPP_ALIGN_FACTOR
 L_1:
    mul   B1                                                       ; {T2:T1} += a[i]*B1
    xor   T3, T3
@@ -697,7 +697,7 @@ IF (_IPP32E LE _IPP32E_Y8)
 
 MLAx2 MACRO rDst, rSrc, idx, B0,B1, T0,T1,T2,T3
 LOCAL L_1
-ALIGN 16
+ALIGN IPP_ALIGN_FACTOR
 L_1:
    mul   B1                                                       ; {T2:T1} += a[i]*B1
    xor   T3, T3
@@ -911,7 +911,7 @@ IF (_IPP32E GE _IPP32E_E9)
 ;;
 MLAx2 MACRO rDst, rSrc, idx, B0,B1, T0,T1,T2,T3
 LOCAL L_1
-ALIGN 16
+ALIGN IPP_ALIGN_FACTOR
 L_1:
    mul   B1                                                       ; {T2:T1} += a[i]*B1
    xor   T3, T3

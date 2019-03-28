@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -69,7 +69,11 @@ static int cpMillerRabinTest(BNU_CHUNK_T* pW, cpSize nsW,
     MOD_METHOD(pMont)->encode(pW, pW, pMont);
 
     /* w = exp(w,e) */
+    #if !defined(_USE_WINDOW_EXP_)
+    gsMontExpBin_BNU_sscm(pW, pW, nsP, pE, bitsizeE, pMont, pBuffer);
+    #else
     gsMontExpWin_BNU_sscm(pW, pW, nsP, pE, bitsizeE, pMont, pBuffer);
+    #endif
 
     /* if (w==1) ||(w==prime-1) => probably prime */
     if ((0 == cpCmp_BNU(pW, nsP, MOD_MNT_R(pMont), nsP))
@@ -127,16 +131,29 @@ static int cpIsProbablyPrime(BNU_CHUNK_T* pPrime, int bitSize,
         /* prime1 to (Montgomery Domain) */
         cpSub_BNU(pMontPrime1, pPrime, MOD_MNT_R(pME), ns);
 
-        for (k = 0, ret = 0; k<nTrials && !ret; k++) {
+      //for (k = 0, ret = 0; k<nTrials && !ret; k++) {
+      //    BNU_CHUNK_T one = 1;
+      //    ret = cpPRNGenRange(pWitness, &one, 1, pPrime1, ns, rndFunc, pRndParam);
+      //    if (ret <= 0) break; /* internal error */
+      //                         /* test primality */
+      //    ret = cpMillerRabinTest(pWitness, ns,
+      //        //pOdd, lenOdd, a,
+      //        pOdd, bitSize - a, a,
+      //        pMontPrime1,
+      //        pME, pScratchBuffer);
+      //}
+       for(k=0, ret=1; k<nTrials; k++) {
             BNU_CHUNK_T one = 1;
             ret = cpPRNGenRange(pWitness, &one, 1, pPrime1, ns, rndFunc, pRndParam);
             if (ret <= 0) break; /* internal error */
-                                 /* test primality */
+
+            /* Millar-Rabin primality test */
             ret = cpMillerRabinTest(pWitness, ns,
                 //pOdd, lenOdd, a,
                 pOdd, bitSize - a, a,
                 pMontPrime1,
                 pME, pScratchBuffer);
+            if (ret == 0) break; /* composite */
         }
     }
     return ret;

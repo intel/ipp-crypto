@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -181,7 +181,6 @@ IppStatus AES_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int srcLen,
          if(1==nThreads) {
             AES_CTR_processing(pSrc, pDst, nBlocks, pCtx, pCtrValue, ctrNumBitSize);
             goto ctr_tail;
-            return ippStsNoErr;
          }
 
          else {

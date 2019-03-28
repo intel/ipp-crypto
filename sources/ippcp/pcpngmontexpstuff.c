@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -169,12 +169,13 @@ cpSize gsModExpBin_BNU(BNU_CHUNK_T* dataY,
 
 cpSize gsMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
                   const BNU_CHUNK_T* dataX, cpSize nsX,
-                  const BNU_CHUNK_T* dataE, cpSize nsE,
+                  const BNU_CHUNK_T* dataE, cpSize bitsizeE,
                   gsModEngine* pMont,
                   BNU_CHUNK_T* pBuffer)
 {
 
     cpSize nsM = MOD_LEN(pMont);
+    cpSize nsE = BITS_BNU_CHUNK(bitsizeE);
 
     /*
     // test for special cases:
@@ -200,7 +201,7 @@ cpSize gsMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
 
       /* copy and expand base to the modulus length */
        ZEXPAND_COPY_BNU(dataT, nsM, dataX, nsX);
-       /* init resulty */
+       /* init result */
        COPY_BNU(dataY, MOD_MNT_R(pMont), nsM);
 
       /* execute bits of E */
@@ -251,7 +252,7 @@ cpSize gsModExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
    MOD_METHOD(pMont)->encode(dataY, dataY, pMont);
 
    /* exponentiation */
-   gsMontExpBin_BNU_sscm(dataY, dataY, nsM, dataE, BITS_BNU_CHUNK(bitsizeE), pMont, pBuffer);
+   gsMontExpBin_BNU_sscm(dataY, dataY, nsM, dataE, bitsizeE, pMont, pBuffer);
 
    /* convert result back to regular domain */
    MOD_METHOD(pMont)->decode(dataY, dataY, pMont);

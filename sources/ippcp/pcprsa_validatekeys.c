@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -211,7 +211,7 @@ IPPFUN(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
 
    IPP_BAD_PTR3_RET(pResult, pBuffer, rndFunc);
 
-   UNREFERENCED_PARAMETER(pPrimeGen);
+   IPP_UNREFERENCED_PARAMETER(pPrimeGen);
 
    {
       /* E key component */
@@ -244,6 +244,7 @@ IPPFUN(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
       /* choose security parameter */
       int mrTrials = (nTrials<1)? MR_rounds_p80(factorPbitSize) : nTrials;
 
+      IppStatus sts = ippStsNoErr;
       do {
          /* test if E is odd and 3 <= E < N */
          if(0==(pExpE[0]&1)) {
@@ -282,11 +283,24 @@ IPPFUN(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
          }
 
          /* test if P is prime */
-         if(0==cpIsProbablyPrime(pFactorP, factorPbitSize, mrTrials,
-                                 rndFunc, pRndParam,
-                                 pMontP, pFreeBuffer)) {
-            ret = IPP_IS_COMPOSITE;
-            break;
+       //if(0==cpIsProbablyPrime(pFactorP, factorPbitSize, mrTrials,
+       //                        rndFunc, pRndParam,
+       //                        pMontP, pFreeBuffer)) {
+       //   ret = IPP_IS_COMPOSITE;
+       //   break;
+       //}
+         {
+            int r = cpIsProbablyPrime(pFactorP, factorPbitSize, mrTrials,
+                                      rndFunc, pRndParam,
+                                      pMontP, pFreeBuffer);
+            if(0>r) {
+               sts = ippStsErr;
+               break;
+            }
+            if(0==r) {
+               ret = IPP_IS_COMPOSITE;
+               break;
+            }
          }
          /* test if E and (P-1) co-prime */
          cpDec_BNU(pTmp, pFactorP, nsP, 1);
@@ -303,11 +317,24 @@ IPPFUN(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
          }
 
          /* test if Q is prime */
-         if(0==cpIsProbablyPrime(pFactorQ, factorQbitSize, mrTrials,
-                                 rndFunc, pRndParam,
-                                 pMontQ, pFreeBuffer)) {
-            ret = IPP_IS_COMPOSITE;
-            break;
+       //if(0==cpIsProbablyPrime(pFactorQ, factorQbitSize, mrTrials,
+       //                        rndFunc, pRndParam,
+       //                        pMontQ, pFreeBuffer)) {
+       //   ret = IPP_IS_COMPOSITE;
+       //   break;
+       //}
+         {
+            int r = cpIsProbablyPrime(pFactorQ, factorQbitSize, mrTrials,
+                                      rndFunc, pRndParam,
+                                      pMontQ, pFreeBuffer);
+            if(0>r) {
+               sts = ippStsErr;
+               break;
+            }
+            if(0==r) {
+               ret = IPP_IS_COMPOSITE;
+               break;
+            }
          }
          /* test if E and (Q-1) co-prime */
          cpDec_BNU(pTmp, pFactorQ, nsQ, 1);
@@ -332,7 +359,7 @@ IPPFUN(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
             break;
          }
 
-         /* test private exponent (optiobal) */
+         /* test private exponent (optional) */
          if(pPrivateKeyType1) {
             const BNU_CHUNK_T* pExpD = RSA_PRV_KEY_D(pPrivateKeyType1);
             cpSize nsD = nsN;
@@ -350,6 +377,6 @@ IPPFUN(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
       } while(0);
 
       *pResult = ret;
-      return ippStsNoErr;
+      return sts;
    }
 }

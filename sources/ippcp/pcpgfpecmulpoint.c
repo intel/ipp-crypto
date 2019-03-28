@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2018 Intel Corporation
+* Copyright 2010-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -89,7 +89,7 @@
 //    computes [N]*P, 0 < N < order
 //
 *F*/
-
+#if 0
 IPPFUN(IppStatus, ippsGFpECMulPoint,(const IppsGFpECPoint* pP,
                                      const IppsBigNumState* pN,
                                      IppsGFpECPoint* pR,
@@ -111,6 +111,38 @@ IPPFUN(IppStatus, ippsGFpECMulPoint,(const IppsGFpECPoint* pP,
    pN = (IppsBigNumState*)( IPP_ALIGNED_PTR(pN, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pN), ippStsContextMatchErr );
    IPP_BADARG_RET( BN_NEGATIVE(pN), ippStsBadArgErr );
+
+   {
+      BNU_CHUNK_T* pScalar = BN_NUMBER(pN);
+      int scalarLen = BN_SIZE(pN);
+      IPP_BADARG_RET(0<cpCmp_BNU(pScalar, scalarLen, MOD_MODULUS(ECP_MONT_R(pEC)), MOD_LEN(ECP_MONT_R(pEC))), ippStsBadArgErr);
+
+      gfec_MulPoint(pR, pP, pScalar, scalarLen, pEC, pScratchBuffer);
+      return ippStsNoErr;
+   }
+}
+#endif
+IPPFUN(IppStatus, ippsGFpECMulPoint, (const IppsGFpECPoint* pP,
+   const IppsBigNumState* pN,
+   IppsGFpECPoint* pR,
+   IppsGFpECState* pEC,
+   Ipp8u* pScratchBuffer))
+{
+   IPP_BAD_PTR4_RET(pP, pR, pEC, pScratchBuffer);
+   pEC = (IppsGFpECState*)(IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT));
+   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   //IPP_BADARG_RET(!ECP_SUBGROUP(pEC), ippStsContextMatchErr);
+
+   IPP_BADARG_RET(!ECP_POINT_TEST_ID(pP), ippStsContextMatchErr);
+   IPP_BADARG_RET(!ECP_POINT_TEST_ID(pR), ippStsContextMatchErr);
+
+   IPP_BADARG_RET(ECP_POINT_FELEN(pP) != GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);
+   IPP_BADARG_RET(ECP_POINT_FELEN(pR) != GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);
+
+   IPP_BAD_PTR1_RET(pN);
+   pN = (IppsBigNumState*)(IPP_ALIGNED_PTR(pN, BN_ALIGNMENT));
+   IPP_BADARG_RET(!BN_VALID_ID(pN), ippStsContextMatchErr);
+   IPP_BADARG_RET(BN_NEGATIVE(pN), ippStsBadArgErr);
 
    {
       BNU_CHUNK_T* pScalar = BN_NUMBER(pN);

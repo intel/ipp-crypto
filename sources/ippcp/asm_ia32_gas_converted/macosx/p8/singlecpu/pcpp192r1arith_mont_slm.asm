@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -47,7 +47,7 @@ _prime192r1:
  
 .p2align 4, 0x90
  
-.globl _add_192
+
 
  
 _add_192:
@@ -75,7 +75,7 @@ _add_192:
  
 .p2align 4, 0x90
  
-.globl _sub_192
+
 
  
 _sub_192:
@@ -103,7 +103,7 @@ _sub_192:
  
 .p2align 4, 0x90
  
-.globl _shl_192
+
 
  
 _shl_192:
@@ -127,7 +127,7 @@ _shl_192:
  
 .p2align 4, 0x90
  
-.globl _shr_192
+
 
  
 _shr_192:

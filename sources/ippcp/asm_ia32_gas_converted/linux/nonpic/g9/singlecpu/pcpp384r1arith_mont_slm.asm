@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -52,7 +52,7 @@ _prime384r1:
  
 .p2align 5, 0x90
  
-.globl add_384
+
 .type add_384, @function
  
 add_384:
@@ -99,7 +99,7 @@ add_384:
 .size add_384, .Lfe1-(add_384)
 .p2align 5, 0x90
  
-.globl sub_384
+
 .type sub_384, @function
  
 sub_384:
@@ -146,7 +146,7 @@ sub_384:
 .size sub_384, .Lfe2-(sub_384)
 .p2align 5, 0x90
  
-.globl shl_384
+
 .type shl_384, @function
  
 shl_384:
@@ -178,7 +178,7 @@ shl_384:
 .size shl_384, .Lfe3-(shl_384)
 .p2align 5, 0x90
  
-.globl shr_384
+
 .type shr_384, @function
  
 shr_384:

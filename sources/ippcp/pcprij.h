@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -241,7 +241,22 @@ struct _cpRijndael256 {
    void cpAESEncryptXTS_AES_NI(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak);
 #define cpAESDecryptXTS_AES_NI OWNAPI(cpAESDecryptXTS_AES_NI)
    void cpAESDecryptXTS_AES_NI(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak);
-#endif
+
+#if (_IPP32E>=_IPP32E_K0)
+#define EncryptECB_RIJ128pipe_VAES_NI OWNAPI(EncryptECB_RIJ128pipe_VAES_NI)
+   void EncryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx);
+#define DecryptECB_RIJ128pipe_VAES_NI OWNAPI(DecryptECB_RIJ128pipe_VAES_NI)
+   void DecryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx);
+#define DecryptCBC_RIJ128pipe_VAES_NI OWNAPI(DecryptCBC_RIJ128pipe_VAES_NI)
+   void DecryptCBC_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx, const Ipp8u* pIV);
+
+#define EncryptCTR_RIJ128pipe_VAES_NI OWNAPI(EncryptCTR_RIJ128pipe_VAES_NI)
+   void EncryptCTR_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int nr, const Ipp8u* pKeys, int len, Ipp8u* pCtrValue, const Ipp8u* pCtrBitMask);
+#define EncryptStreamCTR32_VAES_NI OWNAPI(EncryptStreamCTR32_VAES_NI)
+   void EncryptStreamCTR32_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int nr, const Ipp8u* pKeys, int len, Ipp8u* pCtrValue);
+#endif /* _IPP32E>=_IPP32E_K0 */
+
+#endif /* _IPP>=_IPP_P8 || _IPP32E>=_IPP32E_Y8 */
 
 #define ExpandRijndaelKey OWNAPI(ExpandRijndaelKey)
    void ExpandRijndaelKey(const Ipp8u* pKey, int NK, int NB, int NR, int nKeys,

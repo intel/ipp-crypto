@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 1999-2018 Intel Corporation
+* Copyright 1999-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -69,7 +69,7 @@ BEGIN
          VALUE "FileVersion", STR( VERSION() ) "\0"
          VALUE "ProductName", IPP_LIB_SHORTNAME() ". Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ".\0"
          VALUE "ProductVersion", STR_VERSION() "\0"
-         VALUE "LegalCopyright", "Copyright (C) 1999-2018, Intel Corporation. All rights reserved.\0"
+         VALUE "LegalCopyright", "Copyright (C) 1999-2019, Intel Corporation. All rights reserved.\0"
 
          #if defined (_CORE) && !defined (_WIN64) && defined (_WIN32) && !defined (_WIN32E)
             VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ".\0"

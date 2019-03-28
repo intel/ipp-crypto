@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -82,6 +82,12 @@ void cpDecryptAES_cbc(const Ipp8u* pIV,
                       const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks,
                       const IppsAESSpec* pCtx)
 {
+#if(_IPP32E>=_IPP32E_K0)
+   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+      DecryptCBC_RIJ128pipe_VAES_NI(pSrc, pDst, nBlocks*MBS_RIJ128, pCtx, pIV);
+   }
+   else
+#endif
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    /* use pipelined version is possible */
    if(AES_NI_ENABLED==RIJ_AESNI(pCtx)) {

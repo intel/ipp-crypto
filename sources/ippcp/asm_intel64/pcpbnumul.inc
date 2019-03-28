@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2014-2018 Intel Corporation
+; Copyright 2014-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -59,20 +59,10 @@ L_1:
    jnz   L_1
 ENDM
 
-IF _IPP32E EQ _IPP32E_K0
-  mul_8Nx8M EQU k0_mul_8Nx8M
-  mul_NxM   EQU k0_mul_NxM
-ENDIF
-
-IF _IPP32E EQ _IPP32E_N0
-  mul_8Nx8M EQU n0_mul_8Nx8M
-  mul_NxM   EQU n0_mul_NxM
-ENDIF
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (8*n)x(8*m) multiplier
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN 16
+ALIGN IPP_ALIGN_FACTOR
 mul_8Nx8M PROC PRIVATE
    push     rbx   ;; nsB
    push     rdi   ;; pR
@@ -180,8 +170,8 @@ mul_8Nx8M ENDP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; simplest general case N x M multiplier
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN 16
-mla_simple:
+ALIGN IPP_ALIGN_FACTOR
+mla_simple  PROC PRIVATE
    xor      rax, rax       ; carry = 0
 
    mov      r11, rdx
@@ -232,12 +222,13 @@ ms_mla_entry:
    sub      rbx, 1
    jnc      ms_loopB
    ret
+mla_simple ENDP
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general case N x M multiplier
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN 16
+ALIGN IPP_ALIGN_FACTOR
 mul_NxM PROC PRIVATE
 ;
 ; stack struct

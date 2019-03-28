@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2005-2018 Intel Corporation
+* Copyright 2005-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -160,7 +160,7 @@ IPPFUN(IppStatus, ippsDLPSignDSA,(const IppsBigNumState* pMsgDigest,
 
          BNU_CHUNK_T* dataR = BN_NUMBER(pSignR);
          BNU_CHUNK_T* dataS = BN_NUMBER(pSignS);
-         BNU_CHUNK_T* buffR = BN_BUFFER(pSignR);
+       //BNU_CHUNK_T* buffR = BN_BUFFER(pSignR);
          BNU_CHUNK_T* buffS = BN_BUFFER(pSignS);
          int ns;
 

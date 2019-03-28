@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -152,7 +152,7 @@ void SafeDecrypt_RIJ128(const Ipp8u* pInpBlk,
 
    Ipp8u state[STATE_SIZE]; /* state */
 
-   UNREFERENCED_PARAMETER(pTables);
+   IPP_UNREFERENCED_PARAMETER(pTables);
 
    /* native => composite */
    TransformNative2Composite(state, pInpBlk);
@@ -384,7 +384,7 @@ void SafeDecrypt_RIJ128(const Ipp8u* pInpBlk,
 
    Ipp8u state[STATE_SIZE]; /* state */
 
-   UNREFERENCED_PARAMETER(pTables);
+   IPP_UNREFERENCED_PARAMETER(pTables);
 
    /* native => composite */
    TransformNative2Composite(state, pInpBlk);

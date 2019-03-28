@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2018 Intel Corporation
+* Copyright 2017-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -61,7 +61,7 @@ __INLINE BNU_CHUNK_T* cpPow2_ct(int bit, BNU_CHUNK_T* dst, int len)
    BNU_CHUNK_T value = (BNU_CHUNK_T)1 << (bit%BNU_CHUNK_BITS);
 
    int i;
-   len -= cpIsEqu_ct(slot, len);
+   len -= (int)( cpIsEqu_ct(slot, len) );
    for(i=0; i<len; i++) {
       BNU_CHUNK_T mask = cpIsEqu_ct(slot, i);
       dst[i] = value & mask;

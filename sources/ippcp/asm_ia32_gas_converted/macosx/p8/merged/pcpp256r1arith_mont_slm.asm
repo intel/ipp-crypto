@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -47,7 +47,7 @@ _prime256r1:
  
 .p2align 4, 0x90
  
-.globl _p8_add_256
+
 
  
 _p8_add_256:
@@ -81,7 +81,7 @@ _p8_add_256:
  
 .p2align 4, 0x90
  
-.globl _p8_sub_256
+
 
  
 _p8_sub_256:
@@ -115,7 +115,7 @@ _p8_sub_256:
  
 .p2align 4, 0x90
  
-.globl _p8_shl_256
+
 
  
 _p8_shl_256:
@@ -139,7 +139,7 @@ _p8_shl_256:
  
 .p2align 4, 0x90
  
-.globl _p8_shr_256
+
 
  
 _p8_shr_256:

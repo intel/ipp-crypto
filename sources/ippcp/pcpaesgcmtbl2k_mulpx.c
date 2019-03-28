@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2018 Intel Corporation
+* Copyright 2010-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -110,7 +110,7 @@ void AesGcmMulGcm_table2K(Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const voi
    int nw;
    Ipp32u a;
 
-   UNREFERENCED_PARAMETER(pParam);
+   IPP_UNREFERENCED_PARAMETER(pParam);
 
    #if 0
    XorBlock16(t5, t5, t5);

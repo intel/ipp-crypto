@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2014-2018 Intel Corporation
+; Copyright 2014-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -64,7 +64,7 @@ gsmulx   rdx, rax, rdx
    mov   qword ptr [pDst+sizeof(qword)], rdx
 ENDM
 
-ALIGN 16
+ALIGN IPP_ALIGN_FACTOR
 sqr_1:
    SQR_64       rdi, rsi
    ret
@@ -93,10 +93,11 @@ SQR_128 MACRO  pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    mov      qword ptr[pDst+sizeof(qword)*3], x3
 ENDM
 
-ALIGN 16
-sqr_2:
+ALIGN IPP_ALIGN_FACTOR
+sqr_2 PROC PRIVATE
    SQR_128    rdi, rsi, r15,r14,r13,r12,r11,r10,r9,r8, rcx, rbx, rbp
    ret
+sqr_2 ENDP
 
 
 ;;
@@ -141,10 +142,11 @@ SQR_192  MACRO pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    mov      qword ptr[pDst+sizeof(qword)*5], rdx
 ENDM
 
-ALIGN 16
-sqr_3:
+ALIGN IPP_ALIGN_FACTOR
+sqr_3 PROC PRIVATE
    SQR_192  rdi,rsi, r15,r14,r13,r12,r11,r10,r9,r8, rcx,rbx,rbp
    ret
+sqr_3 ENDP
 
 
 ;;
@@ -213,10 +215,11 @@ SQR_256  MACRO pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    mov      qword ptr[pDst+sizeof(qword)*7], rdx
 ENDM
 
-ALIGN 16
-sqr_4:
+ALIGN IPP_ALIGN_FACTOR
+sqr_4 PROC PRIVATE
    SQR_256  rdi,rsi, r15,r14,r13,r12,r11,r10,r9,r8, rcx,rbx,rbp
    ret
+sqr_4 ENDP
 
 
 ;;
@@ -309,10 +312,11 @@ SQR_320  MACRO pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    mov      qword ptr[pDst+sizeof(qword)*9], rdx
 ENDM
 
-ALIGN 16
-sqr_5:
+ALIGN IPP_ALIGN_FACTOR
+sqr_5 PROC PRIVATE
    SQR_320  rdi,rsi, r15,r14,r13,r12,r11,r10,r9,r8, rcx,rbx,rbp
    ret
+sqr_5 ENDP
 
 
 ;;
@@ -432,10 +436,11 @@ SQR_384  MACRO pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    mov      qword ptr[pDst+sizeof(qword)*11], rdx
 ENDM
 
-ALIGN 16
-sqr_6:
+ALIGN IPP_ALIGN_FACTOR
+sqr_6 PROC PRIVATE
    SQR_384  rdi,rsi, r15,r14,r13,r12,r11,r10,r9,r8, rcx,rbx,rbp
    ret
+sqr_6 ENDP
 
 
 ;;
@@ -590,10 +595,11 @@ SQR_448  MACRO    pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    mov      qword ptr[pDst+sizeof(qword)*13], rdx
 ENDM
 
-ALIGN 16
-sqr_7:
+ALIGN IPP_ALIGN_FACTOR
+sqr_7 PROC PRIVATE
    SQR_448  rdi,rsi, r15,r14,r13,r12,r11,r10,r9,r8, rcx,rbx,rbp
    ret
+sqr_7 ENDP
 
 
 ;;
@@ -782,10 +788,11 @@ SQR_512  MACRO    pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    mov      qword ptr[pDst+sizeof(qword)*15], rdx
 ENDM
 
-ALIGN 16
-sqr_8:
+ALIGN IPP_ALIGN_FACTOR
+sqr_8 PROC PRIVATE
    SQR_512  rdi, rsi, r15,r14,r13,r12,r11,r10,r9,r8, rcx, rbx, rbp
    ret
+sqr_8 ENDP
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -894,7 +901,8 @@ FINALIZE_FIX MACRO N, pDst, pSrc
    mov      qword ptr[rdi+(2*N-1)*sizeof(qword)], rdx
 ENDM
 
-finalize:
+ALIGN IPP_ALIGN_FACTOR
+finalize PROC PRIVATE
    push  rcx
    xor   rax, rax
 
@@ -940,12 +948,13 @@ last_sqr:
    sub   rdi, rax
    sub   rdi, rax
    ret
+finalize ENDP
 
 ;;
 ;; 8*qword triangle
 ;;
-ALIGN 16
-sqr8_triangle:
+ALIGN IPP_ALIGN_FACTOR
+sqr8_triangle PROC PRIVATE
    ;; A[0]*A[1..7]
    mov      rdx, [rsi+sizeof(qword)*0]
    SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,r11,r10, r9,   , r8,  [rdi+sizeof(qword)*0],rsi, rbx,rbp
@@ -974,13 +983,14 @@ sqr8_triangle:
    mov      rdx, [rsi+sizeof(qword)*6]
    SQR_512_TRIANGLE_STEP   r14, r13,   ,   ,   ,   ,   ,   ,   , r14, [rdi+sizeof(qword)*6],rsi, rbx,rbp
    ret
+sqr8_triangle ENDP
 
 
 ;;
 ;; 9*qword squarer
 ;;
-ALIGN 16
-sqr_9:
+ALIGN IPP_ALIGN_FACTOR
+sqr_9 PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
 
@@ -1005,13 +1015,13 @@ sqr_9:
 
    FINALIZE_FIX 9, rdi, rsi
    ret
-
+sqr_9 ENDP
 
 ;;
 ;; 10*qword squarer
 ;;
-ALIGN 16
-sqr_10:
+ALIGN IPP_ALIGN_FACTOR
+sqr_10 PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
 
@@ -1040,13 +1050,13 @@ sqr_10:
 
    FINALIZE_FIX 10, rdi, rsi
    ret
-
+sqr_10 ENDP
 
 ;;
 ;; 10*qword squarer
 ;;
-ALIGN 16
-sqr_11:
+ALIGN IPP_ALIGN_FACTOR
+sqr_11 PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
 
@@ -1084,13 +1094,13 @@ sqr_11:
 
    FINALIZE_FIX 11, rdi, rsi
    ret
-
+sqr_11 ENDP
 
 ;;
 ;; 12*qword squarer
 ;;
-ALIGN 16
-sqr_12: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+sqr_12 PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
 
@@ -1129,13 +1139,13 @@ sqr_12: ; PROC
 
    FINALIZE_FIX 12, rdi, rsi
    ret
-
+sqr_12 ENDP
 
 ;;
 ;; 13*qword squarer
 ;;
-ALIGN 16
-sqr_13:
+ALIGN IPP_ALIGN_FACTOR
+sqr_13 PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
 
@@ -1179,13 +1189,13 @@ sqr_13:
 
    FINALIZE_FIX 13, rdi, rsi
    ret
-
+sqr_13 ENDP
 
 ;;
 ;; 14*qword squarer
 ;;
-ALIGN 16
-sqr_14:
+ALIGN IPP_ALIGN_FACTOR
+sqr_14 PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
 
@@ -1231,13 +1241,13 @@ sqr_14:
 
    FINALIZE_FIX 14, rdi, rsi
    ret
-
+sqr_14 ENDP
 
 ;;
 ;; 15*qword squarer
 ;;
-ALIGN 16
-sqr_15:
+ALIGN IPP_ALIGN_FACTOR
+sqr_15 PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
 
@@ -1288,13 +1298,13 @@ sqr_15:
 
    FINALIZE_FIX 15, rdi, rsi
    ret
-
+sqr_15 ENDP
 
 ;;
 ;; 16*qword squarer
 ;;
-ALIGN 16
-sqr_16:
+ALIGN IPP_ALIGN_FACTOR
+sqr_16 PROC PRIVATE
    call     sqr8_triangle
 
    mov      qword ptr[rdi+sizeof(qword)*7], r15
@@ -1339,14 +1349,14 @@ sqr_16:
 
    FINALIZE_FIX 16, rdi, rsi
    ret
-
+sqr_16 ENDP
 
 
 ;;
 ;; 9*qword triangle
 ;;
-ALIGN 16
-sqr9_triangle:
+ALIGN IPP_ALIGN_FACTOR
+sqr9_triangle PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
    xor      r15, r15
@@ -1368,12 +1378,13 @@ sqr9_triangle:
 
    sub      rdi, sizeof(qword)*8
    ret
+sqr9_triangle ENDP
 
 ;;
 ;; 10*qword triangle
 ;;
-ALIGN 16
-sqr10_triangle:
+ALIGN IPP_ALIGN_FACTOR
+sqr10_triangle PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
    xor      r15, r15
@@ -1400,12 +1411,13 @@ sqr10_triangle:
 
    sub      rdi, sizeof(qword)*8
    ret
+sqr10_triangle ENDP
 
 ;;
 ;; 11*qword triangle
 ;;
-ALIGN 16
-sqr11_triangle:
+ALIGN IPP_ALIGN_FACTOR
+sqr11_triangle PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
    xor      r15, r15
@@ -1435,12 +1447,13 @@ sqr11_triangle:
 
    sub      rdi, sizeof(qword)*8
    ret
+sqr11_triangle ENDP
 
 ;;
 ;; 12*qword triangle
 ;;
-ALIGN 16
-sqr12_triangle:
+ALIGN IPP_ALIGN_FACTOR
+sqr12_triangle PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
    xor      r15, r15
@@ -1472,12 +1485,13 @@ sqr12_triangle:
 
    sub      rdi, sizeof(qword)*8
    ret
+sqr12_triangle ENDP
 
 ;;
 ;; 13*qword triangle
 ;;
-ALIGN 16
-sqr13_triangle:
+ALIGN IPP_ALIGN_FACTOR
+sqr13_triangle PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
    xor      r15, r15
@@ -1511,12 +1525,13 @@ sqr13_triangle:
 
    sub      rdi, sizeof(qword)*8
    ret
+sqr13_triangle ENDP
 
 ;;
 ;; 14*qword triangle
 ;;
-ALIGN 16
-sqr14_triangle:
+ALIGN IPP_ALIGN_FACTOR
+sqr14_triangle PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
    xor      r15, r15
@@ -1552,12 +1567,13 @@ sqr14_triangle:
 
    sub      rdi, sizeof(qword)*8
    ret
+sqr14_triangle ENDP
 
 ;;
 ;; 15*qword triangle
 ;;
-ALIGN 16
-sqr15_triangle:
+ALIGN IPP_ALIGN_FACTOR
+sqr15_triangle PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
    xor      r15, r15
@@ -1595,12 +1611,13 @@ sqr15_triangle:
 
    sub      rdi, sizeof(qword)*8
    ret
+sqr15_triangle ENDP
 
 ;;
 ;; 16*qword triangle
 ;;
-ALIGN 16
-sqr16_triangle:
+ALIGN IPP_ALIGN_FACTOR
+sqr16_triangle PROC PRIVATE
    call     sqr8_triangle
    mov      qword ptr[rdi+sizeof(qword)*7], r15
    xor      r15, r15
@@ -1627,6 +1644,7 @@ sqr16_triangle:
    sub      rsi, sizeof(qword)*8
    sub      rdi, sizeof(qword)*16
    ret
+sqr16_triangle ENDP
 
 
 sqr_l_basic    DQ    sqr_1 - sqr_l_basic

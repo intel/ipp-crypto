@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -149,6 +149,12 @@ IPPFUN(IppStatus, ippsAESDecryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
       int nBlocks = len / MBS_RIJ128;
 
       #if !defined(_OPENMP)
+
+      #if(_IPP32E>=_IPP32E_K0)
+      if (IsFeatureEnabled(ippCPUID_AVX512VAES))
+         DecryptECB_RIJ128pipe_VAES_NI(pSrc, pDst, len, pCtx);
+      else
+      #endif
       cpDecryptAES_ecb(pSrc, pDst, nBlocks, pCtx);
 
       #else

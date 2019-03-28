@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2018 Intel Corporation
+* Copyright 2010-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -54,6 +54,7 @@
 #include "pcpgfpecstuff.h"
 #include "gsscramble.h"
 
+#if 0
 IppsGFpECPoint* gfec_MulPoint(IppsGFpECPoint* pR,
                         const IppsGFpECPoint* pP,
                         const BNU_CHUNK_T* pScalar, int scalarLen,
@@ -74,6 +75,30 @@ IppsGFpECPoint* gfec_MulPoint(IppsGFpECPoint* pR,
       cpGFpReleasePool(1, pGForder);
 
       ECP_POINT_FLAGS(pR) = gfec_IsPointAtInfinity(pR)? 0 : ECP_FINITE_POINT;
+      return pR;
+   }
+}
+#endif
+IppsGFpECPoint* gfec_MulPoint(IppsGFpECPoint* pR,
+   const IppsGFpECPoint* pP,
+   const BNU_CHUNK_T* pScalar, int scalarLen,
+   IppsGFpECState* pEC, Ipp8u* pScratchBuffer)
+{
+   FIX_BNU(pScalar, scalarLen);
+   {
+      gsModEngine* pME = GFP_PMA(ECP_GFP(pEC));
+
+      BNU_CHUNK_T* pTmpScalar = cpGFpGetPool(2, pME);
+      int orderBits = ECP_ORDBITSIZE(pEC);
+      int orderLen = BITS_BNU_CHUNK(orderBits);
+      cpGFpElementCopyPadd(pTmpScalar, orderLen + 1, pScalar, scalarLen);
+
+      gfec_point_mul(ECP_POINT_X(pR), ECP_POINT_X(pP),
+         (Ipp8u*)pTmpScalar, orderBits,
+         pEC, pScratchBuffer);
+      cpGFpReleasePool(2, pME);
+
+      ECP_POINT_FLAGS(pR) = gfec_IsPointAtInfinity(pR) ? 0 : ECP_FINITE_POINT;
       return pR;
    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2003-2018 Intel Corporation
+* Copyright 2003-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -97,9 +97,9 @@ IPPFUN(IppStatus, ippsECCPValidate, (int nTrials, IppECResult* pResult, IppsECCP
                                      IppBitSupplier rndFunc, void* pRndParam))
 {
    #if defined(_DISABLE_TEST_PRIMALITY_)
-   UNREFERENCED_PARAMETER(nTrials);
-   UNREFERENCED_PARAMETER(rndFunc);
-   UNREFERENCED_PARAMETER(pRndParam);
+   IPP_UNREFERENCED_PARAMETER(nTrials);
+   IPP_UNREFERENCED_PARAMETER(rndFunc);
+   IPP_UNREFERENCED_PARAMETER(pRndParam);
    #else
    /* test number of trials for primality check */
    IPP_BADARG_RET(nTrials<=0, ippStsBadArgErr);

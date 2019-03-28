@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -67,7 +67,11 @@ gsMethod_RSA* gsMethod_RSA_gpr_private(void)
 
       /* private key exponentiation: private, window, gpr */
       gsMontExpWinBuffer,
+      #if !defined(_USE_WINDOW_EXP_)
+      gsModExpBin_BNU_sscm
+      #else
       gsModExpWin_BNU_sscm
+      #endif
    };
    return &m;
 }

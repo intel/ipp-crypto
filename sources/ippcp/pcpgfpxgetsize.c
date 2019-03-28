@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2018 Intel Corporation
+* Copyright 2010-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -83,7 +83,8 @@ static int cpGFExGetSize(int elemLen, int pelmLen, int numpe)
 //     pGroundGF      Pointer to the context of the finite field GF(p) being extended.
 //     degree         Degree of the extension.
 //     pSize          Pointer to the buffer size, in bytes, needed for the IppsGFpState
-//                    context.//
+//                    context.
+//
 *F*/
 
 IPPFUN(IppStatus, ippsGFpxGetSize, (const IppsGFpState* pGroundGF, int degree, int* pSize))
@@ -97,7 +98,7 @@ IPPFUN(IppStatus, ippsGFpxGetSize, (const IppsGFpState* pGroundGF, int degree, i
    {
       int groundElmLen = GFP_FELEN(GFP_PMA(pGroundGF));
       Ipp64u elmLen64 = (Ipp64u)(groundElmLen) *sizeof(BNU_CHUNK_T) *degree;
-      int elemLen = (int)LODWORD(elmLen64);
+      int elemLen = (int)IPP_LODWORD(elmLen64);
       *pSize = 0;
       IPP_BADARG_RET(elmLen64> MAX_GFx_SIZE, ippStsBadArgErr);
 

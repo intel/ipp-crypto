@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2018 Intel Corporation
+# Copyright 2017-2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -72,7 +72,7 @@ endif(MSVC12)
 # compiler
 set(CMAKE_C_FLAGS "${LIBRARY_DEFINES}")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nologo -Qfp-speculation:safe -Qfreestanding -X /W4 -GS -Qdiag-error:266 -Qdiag-disable:13366 /Qfnalign:32 /Qalign-loops:32 -Qrestrict -Zp16 -Qvc12 -Qopt-report2 -Qopt-report-phase:vec -Qopt-report-stdout -Qsox- /Gy -Qstd=c99")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nologo -Qfp-speculation:safe -Qfreestanding -X /W4 /WX -GS -Qdiag-error:266 -Qdiag-disable:13366 /Qfnalign:32 /Qalign-loops:32 -Qrestrict -Zp16 -Qvc12 -Qopt-report2 -Qopt-report-phase:vec -Qopt-report-stdout -Qsox- /Gy -Qstd=c99 -D_FORTIFY_SOURCE=2")
 if(THREADED_LIB)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Qopenmp -Qopenmp-lib:compat")
 endif()

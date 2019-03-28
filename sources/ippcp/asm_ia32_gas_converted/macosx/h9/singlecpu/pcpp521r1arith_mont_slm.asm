@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -53,7 +53,7 @@ _prime521r1:
  
 .p2align 5, 0x90
  
-.globl _add_521
+
 
  
 _add_521:
@@ -114,7 +114,7 @@ _add_521:
  
 .p2align 5, 0x90
  
-.globl _sub_521
+
 
  
 _sub_521:
@@ -175,7 +175,7 @@ _sub_521:
  
 .p2align 5, 0x90
  
-.globl _shl_521
+
 
  
 _shl_521:
@@ -208,7 +208,7 @@ _shl_521:
  
 .p2align 5, 0x90
  
-.globl _shr_521
+
 
  
 _shr_521:

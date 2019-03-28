@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2018 Intel Corporation
+* Copyright 2016-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -48,6 +48,8 @@
 #include "pcpngmontexpstuff.h"
 #include "pcpngmontexpstuff_sse2.h"
 #include "gsscramble.h"
+#include "pcpmask_ct.h"
+
 
 //tbcd: temporary excluded: #include <assert.h>
 /*
@@ -443,7 +445,7 @@ cpSize gsMontExpBinBuffer_sse2(int modulusBits)
    cpSize redNum = numofVariable_sse2(modulusBits);      /* "sizeof" variable */
    cpSize redBufferNum = numofVariableBuff_sse2(redNum); /* "sizeof" variable  buffer */
    redBufferNum *= sizeof(Ipp64u)/sizeof(BNU_CHUNK_T);
-   return redBufferNum *7           /* 7 vaiables (maybe 6 enough?) */
+   return redBufferNum *8           /* 7 vaiables (maybe 6 enough?) */
         + (16/sizeof(BNU_CHUNK_T)); /* and 16-byte alignment */
 }
 
@@ -610,7 +612,8 @@ cpSize gsMontExpBin_BNU_sscm_sse2(BNU_CHUNK_T* dataY,
 
    /* allocate (16-byte aligned) buffers */
    Ipp64u* redM = (Ipp64u*)(IPP_ALIGNED_PTR(pBufferT, sizeof(Ipp64u)*2));
-   Ipp64u* redX = redM+redBufferLen;
+   Ipp64u* redR = redM+redBufferLen;
+   Ipp64u* redX = redR+redBufferLen;
    Ipp64u* redY = redX+redBufferLen;
    Ipp64u* redT = redY+redBufferLen;
    Ipp64u* redBuffer = redT+redBufferLen;
@@ -635,33 +638,27 @@ cpSize gsMontExpBin_BNU_sscm_sse2(BNU_CHUNK_T* dataY,
    cpMontMul_sse2(redX, redX, redY, redM, redLen, k0, redBuffer);
 
    /* init result */
-   ZEXPAND_BNU(redY, 0, redBufferLen);
-   redY[0] = 1;
-   cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
+   ZEXPAND_BNU(redR, 0, redBufferLen);
+   redR[0] = 1;
+   cpMontMul_sse2(redR, redR, redY, redM, redLen, k0, redBuffer);
+   COPY_BNU(redY, redR, redBufferLen);
 
-   {
-      int back_step = 0;
-
-      /* execute bits of E */
-      for(--nsE; nsE>0; nsE--) {
+   /* execute bits of E */
+   for(; nsE>0; nsE--) {
          BNU_CHUNK_T eValue = dataE[nsE-1];
 
-         int j;
-         for(j=BNU_CHUNK_BITS-1; j>=0; j--) {
-            BNU_CHUNK_T mask_pattern = (BNU_CHUNK_T)(back_step-1);
 
-            /* T = (Y & mask_pattern) or (X & ~mask_pattern) */
-            int i;
-            for(i=0; i<redLen; i++)
-               redT[i] = (redY[i] & mask_pattern) | (redX[i] & ~mask_pattern);
+      int n;
+      for(n=BNU_CHUNK_BITS; n>0; n--) {
+         /* T = ( msb(eValue) )? X : mont(1) */
+         BNU_CHUNK_T mask = cpIsMsb_ct(eValue);
+         eValue <<= 1;
+         cpMaskedCopyBNU_ct((BNU_CHUNK_T*)redT, mask, (BNU_CHUNK_T*)redX, (BNU_CHUNK_T*)redR, redLen*sizeof(Ipp64u)/sizeof(BNU_CHUNK_T));
 
-            /* squaring/multiplication: Y = Y*T */
-            cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
-
-            /* update back_step and j */
-            back_step = ((eValue>>j) & 0x1) & (back_step^1);
-            j += back_step;
-         }
+         /* squaring: Y = Y^2 */
+         cpMontSqr_sse2(redY, redY, redM, redLen, k0, redBuffer);
+         /* and multiply: Y = Y * T */
+         cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
       }
    }
 

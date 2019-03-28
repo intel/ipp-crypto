@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -75,8 +75,8 @@ Ipp32u cpDec_BNU32(Ipp32u* pR, const Ipp32u* pA, cpSize ns, Ipp32u v)
    int n;
    for(n=0; n<ns; n++) {
       Ipp64u t = (Ipp64u)(pA[n]) - (Ipp64u)borrow;
-      pR[n] = LODWORD(t);
-      borrow = HIDWORD(t)>>(32-1);
+      pR[n] = IPP_LODWORD(t);
+      borrow = IPP_HIDWORD(t)>>(32-1);
    }
    return borrow;
 }

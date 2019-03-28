@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2013-2018 Intel Corporation
+; Copyright 2013-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -60,45 +60,49 @@ include pcpbnumul_fix.inc
 ;;
 ;; 1x1 multiplication
 ;;
-ALIGN 16
-mla_1x1:
+ALIGN IPP_ALIGN_FACTOR
+mla_1x1 PROC PRIVATE
    mov      rdx, qword ptr[rcx]
    MLA_FIX  1, rdi, rsi, rbx,rbp, r8
    ret
+mla_1x1 ENDP
 
-ALIGN 16
-mul_1x1:
+ALIGN IPP_ALIGN_FACTOR
+mul_1x1 PROC PRIVATE
    mov      rdx,qword ptr[rcx]
    gsmulx   rdx, rax, qword ptr[rsi]
    mov      qword ptr[rdi], rax
    mov      qword ptr[rdi+sizeof(qword)], rdx
    ret
+mul_1x1 ENDP
 
 
 ;;
 ;; 2x2 multiplication
 ;;
-ALIGN 16
-mla_2x2:
+ALIGN IPP_ALIGN_FACTOR
+mla_2x2 PROC PRIVATE
    mov      rdx, qword ptr[rcx]
    MLA_FIX  2, rdi, rsi, rbx,rbp, r8,r9
    mov      rdx, qword ptr[rcx+sizeof(qword)]
    MLA_FIX  2, <rdi+sizeof(qword)>, rsi, rbx,rbp, r8,r9
    ret
+mla_2x2 ENDP
 
-ALIGN 16
-mul_2x2:
+ALIGN IPP_ALIGN_FACTOR
+mul_2x2 PROC PRIVATE
    call     mla_2x2
    mov      qword ptr[rdi+sizeof(qword)*2], r8
    mov      qword ptr[rdi+sizeof(qword)*3], r9
    ret
+mul_2x2 ENDP
 
 
 ;;
 ;; 3x3 multiplication
 ;;
-ALIGN 16
-mla_3x3:
+ALIGN IPP_ALIGN_FACTOR
+mla_3x3 PROC PRIVATE
    mov      rdx, qword ptr[rcx]
    MLA_FIX  3, rdi, rsi, rbx,rbp, r8,r9,r10
    mov      rdx, qword ptr[rcx+sizeof(qword)]
@@ -106,29 +110,32 @@ mla_3x3:
    mov      rdx, qword ptr[rcx+sizeof(qword)*2]
    MLA_FIX  3, <rdi+sizeof(qword)*2>, rsi, rbx,rbp, r8,r9,r10
    ret
+mla_3x3 ENDP
 
-ALIGN 16
-mul_3x3:
+ALIGN IPP_ALIGN_FACTOR
+mul_3x3 PROC PRIVATE
    call     mla_3x3
    mov      qword ptr[rdi+sizeof(qword)*3], r8
    mov      qword ptr[rdi+sizeof(qword)*4], r9
    mov      qword ptr[rdi+sizeof(qword)*5], r10
    ret
+mul_3x3 ENDP
 
 
 ;;
 ;; 4x{2,4} multiplication
 ;;
-ALIGN 16
-mla_4x2:
+ALIGN IPP_ALIGN_FACTOR
+mla_4x2 PROC PRIVATE
    mov      rdx, qword ptr[rcx]
    MLA_FIX  4, rdi, rsi, rbx,rbp, r8,r9,r10,r11
    mov      rdx, qword ptr[rcx+sizeof(qword)]
    MLA_FIX  4, <rdi+sizeof(qword)>, rsi, rbx,rbp, r8,r9,r10,r11
    ret
+mla_4x2 ENDP
 
-ALIGN 16
-mla_4x4:
+ALIGN IPP_ALIGN_FACTOR
+mla_4x4 PROC PRIVATE
    call     mla_4x2
    add      rdi, sizeof(qword)*2
    add      rcx, sizeof(qword)*2
@@ -136,30 +143,33 @@ mla_4x4:
    sub      rdi, sizeof(qword)*2
    sub      rcx, sizeof(qword)*2
    ret
+mla_4x4 ENDP
 
-ALIGN 16
-mul_4x4:
+ALIGN IPP_ALIGN_FACTOR
+mul_4x4 PROC PRIVATE
    call     mla_4x4
    mov      qword ptr[rdi+sizeof(qword)*4], r8
    mov      qword ptr[rdi+sizeof(qword)*5], r9
    mov      qword ptr[rdi+sizeof(qword)*6], r10
    mov      qword ptr[rdi+sizeof(qword)*7], r11
    ret
+mul_4x4 ENDP
 
 
 ;;
 ;; 5x{2,5} multiplication
 ;;
-ALIGN 16
-mla_5x2:
+ALIGN IPP_ALIGN_FACTOR
+mla_5x2 PROC PRIVATE
    mov      rdx, [rcx+sizeof(qword)*0]
    MLA_FIX  5, <rdi>, rsi, rbx,rbp, r8,r9,r10,r11,r12
    mov      rdx, [rcx+sizeof(qword)*1]
    MLA_FIX  5, <rdi+sizeof(qword)>, rsi, rbx,rbp, r8,r9,r10,r11,r12
    ret
+mla_5x2 ENDP
 
-ALIGN 16
-mla_5x5:
+ALIGN IPP_ALIGN_FACTOR
+mla_5x5 PROC PRIVATE
    mov      rdx, [rcx]
    MLA_FIX  5, rdi, rsi, rbx,rbp, r8,r9,r10,r11,r12
 
@@ -174,9 +184,10 @@ mla_5x5:
    sub      rdi, sizeof(qword)*3
    sub      rcx, sizeof(qword)*3
    ret
+mla_5x5 ENDP
 
-ALIGN 16
-mul_5x5:
+ALIGN IPP_ALIGN_FACTOR
+mul_5x5 PROC PRIVATE
    call     mla_5x5
    mov      qword ptr[rdi+sizeof(qword)*5], r8
    mov      qword ptr[rdi+sizeof(qword)*6], r9
@@ -184,21 +195,23 @@ mul_5x5:
    mov      qword ptr[rdi+sizeof(qword)*8], r11
    mov      qword ptr[rdi+sizeof(qword)*9], r12
    ret
+mul_5x5 ENDP
 
 
 ;;
 ;; 6x{2,6} multiplication
 ;;
-ALIGN 16
-mla_6x2:
+ALIGN IPP_ALIGN_FACTOR
+mla_6x2 PROC PRIVATE
    mov      rdx, [rcx+sizeof(qword)*0]
    MLA_FIX  6, <rdi>, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13
    mov      rdx, [rcx+sizeof(qword)*1]
    MLA_FIX  6, <rdi+sizeof(qword)>, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13
    ret
+mla_6x2 ENDP
 
-ALIGN 16
-mla_6x6:
+ALIGN IPP_ALIGN_FACTOR
+mla_6x6 PROC PRIVATE
    call     mla_6x2
 
    add      rdi, sizeof(qword)*2
@@ -212,9 +225,10 @@ mla_6x6:
    sub      rdi, sizeof(qword)*4
    sub      rcx, sizeof(qword)*4
    ret
+mla_6x6 ENDP
 
-ALIGN 16
-mul_6x6:
+ALIGN IPP_ALIGN_FACTOR
+mul_6x6 PROC PRIVATE
    call     mla_6x6
    mov      qword ptr[rdi+sizeof(qword)*6], r8
    mov      qword ptr[rdi+sizeof(qword)*7], r9
@@ -223,21 +237,23 @@ mul_6x6:
    mov      qword ptr[rdi+sizeof(qword)*10],r12
    mov      qword ptr[rdi+sizeof(qword)*11],r13
    ret
+mul_6x6 ENDP
 
 
 ;;
 ;; 7x{2,7} multiplication
 ;;
-ALIGN 16
-mla_7x2:
+ALIGN IPP_ALIGN_FACTOR
+mla_7x2 PROC PRIVATE
    mov      rdx, [rcx+sizeof(qword)*0]
    MLA_FIX  7, <rdi>, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13,r14
    mov      rdx, [rcx+sizeof(qword)*1]
    MLA_FIX  7, <rdi+sizeof(qword)>, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13,r14
    ret
+mla_7x2 ENDP
 
-ALIGN 16
-mla_7x7:
+ALIGN IPP_ALIGN_FACTOR
+mla_7x7 PROC PRIVATE
    mov      rdx, [rcx]
    MLA_FIX  7, rdi, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13,r14
 
@@ -256,9 +272,10 @@ mla_7x7:
    sub      rdi, sizeof(qword)*5
    sub      rcx, sizeof(qword)*5
    ret
+mla_7x7 ENDP
 
-ALIGN 16
-mul_7x7:
+ALIGN IPP_ALIGN_FACTOR
+mul_7x7 PROC PRIVATE
    call     mla_7x7
    mov      qword ptr[rdi+sizeof(qword)*7], r8
    mov      qword ptr[rdi+sizeof(qword)*8], r9
@@ -268,27 +285,30 @@ mul_7x7:
    mov      qword ptr[rdi+sizeof(qword)*12],r13
    mov      qword ptr[rdi+sizeof(qword)*13],r14
    ret
+mul_7x7 ENDP
 
 
 ;;
 ;; 8x{1,2,3,4,5,6,7,8} multiplication
 ;;
-ALIGN 16
-mla_8x1:
+ALIGN IPP_ALIGN_FACTOR
+mla_8x1 PROC PRIVATE
    mov      rdx, [rcx]
    MLA_FIX  8, <rdi>, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13,r14,r15
    ret
+mla_8x1 ENDP
 
-ALIGN 16
-mla_8x2:
+ALIGN IPP_ALIGN_FACTOR
+mla_8x2 PROC PRIVATE
    mov      rdx, [rcx+sizeof(qword)*0]
    MLA_FIX  8, <rdi>, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13,r14,r15
    mov      rdx, [rcx+sizeof(qword)*1]
    MLA_FIX  8, <rdi+sizeof(qword)>, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13,r14,r15
    ret
+mla_8x2 ENDP
 
-ALIGN 16
-mla_8x3:
+ALIGN IPP_ALIGN_FACTOR
+mla_8x3 PROC PRIVATE
    call     mla_8x1
    add      rdi, sizeof(qword)
    add      rcx, sizeof(qword)
@@ -296,9 +316,10 @@ mla_8x3:
    sub      rdi, sizeof(qword)
    sub      rcx, sizeof(qword)
    ret
+mla_8x3 ENDP
 
-ALIGN 16
-mla_8x4:
+ALIGN IPP_ALIGN_FACTOR
+mla_8x4 PROC PRIVATE
    call     mla_8x2
    add      rdi, sizeof(qword)*2
    add      rcx, sizeof(qword)*2
@@ -306,9 +327,10 @@ mla_8x4:
    sub      rdi, sizeof(qword)*2
    sub      rcx, sizeof(qword)*2
    ret
+mla_8x4 ENDP
 
-ALIGN 16
-mla_8x5:
+ALIGN IPP_ALIGN_FACTOR
+mla_8x5 PROC PRIVATE
    call     mla_8x1
    add      rdi, sizeof(qword)
    add      rcx, sizeof(qword)
@@ -316,9 +338,10 @@ mla_8x5:
    sub      rdi, sizeof(qword)
    sub      rcx, sizeof(qword)
    ret
+mla_8x5 ENDP
 
-ALIGN 16
-mla_8x6:
+ALIGN IPP_ALIGN_FACTOR
+mla_8x6 PROC PRIVATE
    call     mla_8x2
    add      rdi, sizeof(qword)*2
    add      rcx, sizeof(qword)*2
@@ -326,9 +349,10 @@ mla_8x6:
    sub      rdi, sizeof(qword)*2
    sub      rcx, sizeof(qword)*2
    ret
+mla_8x6 ENDP
 
-ALIGN 16
-mla_8x7:
+ALIGN IPP_ALIGN_FACTOR
+mla_8x7 PROC PRIVATE
    call     mla_8x1
    add      rdi, sizeof(qword)
    add      rcx, sizeof(qword)
@@ -336,10 +360,11 @@ mla_8x7:
    sub      rdi, sizeof(qword)
    sub      rcx, sizeof(qword)
    ret
+mla_8x7 ENDP
 
-ALIGN 16
-mla_8x8:
-   call   mla_8x2
+ALIGN IPP_ALIGN_FACTOR
+mla_8x8 PROC PRIVATE
+   call     mla_8x2
 
    add      rdi, sizeof(qword)*2
    add      rcx, sizeof(qword)*2
@@ -356,9 +381,10 @@ mla_8x8:
    sub      rdi, sizeof(qword)*6
    sub      rcx, sizeof(qword)*6
    ret
+mla_8x8 ENDP
 
-ALIGN 16
-mul_8x8:
+ALIGN IPP_ALIGN_FACTOR
+mul_8x8 PROC PRIVATE
    call     mla_8x8
    mov      qword ptr[rdi+sizeof(qword)*8], r8
    mov      qword ptr[rdi+sizeof(qword)*9], r9
@@ -369,6 +395,7 @@ mul_8x8:
    mov      qword ptr[rdi+sizeof(qword)*14],r14
    mov      qword ptr[rdi+sizeof(qword)*15],r15
    ret
+mul_8x8 ENDP
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -377,8 +404,8 @@ mul_8x8:
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-ALIGN 16
-mul_9x9:
+ALIGN IPP_ALIGN_FACTOR
+mul_9x9 PROC PRIVATE
    call     mla_8x8
 
    mov      rdx, [rcx+sizeof(qword)*8]
@@ -406,9 +433,10 @@ mul_9x9:
    mov      qword ptr[rdi+sizeof(qword)*16],r14
    mov      qword ptr[rdi+sizeof(qword)*17],r15
    ret
+mul_9x9 ENDP
 
-ALIGN 16
-mul_10x10:
+ALIGN IPP_ALIGN_FACTOR
+mul_10x10 PROC PRIVATE
 ; A0*B0
    call     mla_8x8
    add      rdi, sizeof(qword)*8
@@ -460,9 +488,10 @@ mul_10x10:
    mov      qword ptr[rdi+sizeof(qword)*0],r8
    mov      qword ptr[rdi+sizeof(qword)*1],r9
    ret
+mul_10x10 ENDP
 
-ALIGN 16
-mul_11x11:
+ALIGN IPP_ALIGN_FACTOR
+mul_11x11 PROC PRIVATE
 ; A0*B0
    call     mla_8x8
    add      rdi, sizeof(qword)*8
@@ -518,9 +547,10 @@ mul_11x11:
    mov      qword ptr[rdi+sizeof(qword)*1],r9
    mov      qword ptr[rdi+sizeof(qword)*2],r10
    ret
+mul_11x11 ENDP
 
-ALIGN 16
-mul_12x12:
+ALIGN IPP_ALIGN_FACTOR
+mul_12x12 PROC PRIVATE
 ; A0*B0
    call     mla_8x8
    add      rdi, sizeof(qword)*8
@@ -582,9 +612,10 @@ mul_12x12:
    mov      qword ptr[rdi+sizeof(qword)*2],r10
    mov      qword ptr[rdi+sizeof(qword)*3],r11
    ret
+mul_12x12 ENDP
 
-ALIGN 16
-mul_13x13:
+ALIGN IPP_ALIGN_FACTOR
+mul_13x13 PROC PRIVATE
 ; A0*B0
    call     mla_8x8
    add      rdi, sizeof(qword)*8
@@ -653,9 +684,10 @@ mul_13x13:
    mov      qword ptr[rdi+sizeof(qword)*3],r11
    mov      qword ptr[rdi+sizeof(qword)*4],r12
    ret
+mul_13x13 ENDP
 
-ALIGN 16
-mul_14x14:
+ALIGN IPP_ALIGN_FACTOR
+mul_14x14 PROC PRIVATE
    call     mla_7x7
 
    add      rdi, sizeof(qword)*7
@@ -717,9 +749,10 @@ mul_14x14:
    mov      qword ptr[rdi+sizeof(qword)*26],r13
    mov      qword ptr[rdi+sizeof(qword)*27],r14
    ret
+mul_14x14 ENDP
 
-ALIGN 16
-mul_15x15:
+ALIGN IPP_ALIGN_FACTOR
+mul_15x15 PROC PRIVATE
 ; A0*B0
    call     mla_8x8
    add      rdi, sizeof(qword)*8
@@ -795,9 +828,10 @@ mul_15x15:
    mov      qword ptr[rdi+sizeof(qword)*5],r13
    mov      qword ptr[rdi+sizeof(qword)*6],r14
    ret
+mul_15x15 ENDP
 
-ALIGN 16
-mul_16x16:
+ALIGN IPP_ALIGN_FACTOR
+mul_16x16 PROC PRIVATE
    call     mla_8x8
 
    add      rdi, sizeof(qword)*8
@@ -864,6 +898,7 @@ mul_16x16:
    mov      qword ptr[rdi+sizeof(qword)*30],r14
    mov      qword ptr[rdi+sizeof(qword)*31],r15
    ret
+mul_16x16 ENDP
 
 mul_lxl_basic  DQ    mul_1x1 - mul_lxl_basic
                DQ    mul_2x2 - mul_lxl_basic

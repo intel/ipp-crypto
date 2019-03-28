@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2014-2018 Intel Corporation
+; Copyright 2014-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -44,7 +44,9 @@ INCLUDE asmdefs.inc
   .XMM
   .model FLAT, C
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+LOCAL_ALIGN_FACTOR EQU 32
+
+IPPCODE SEGMENT 'CODE' ALIGN (LOCAL_ALIGN_FACTOR)
 
 IFDEF _IPP_DATA
 
@@ -56,6 +58,7 @@ buf       EQU [esp+12]
 valueEAX  EQU [esp+16]
 valueECX  EQU [esp+20]
 
+ALIGN LOCAL_ALIGN_FACTOR
 cpGetReg PROC PUBLIC
 
         push    ebx
@@ -84,6 +87,7 @@ XGETBV_MASK          equ   06h
 XSAVEXGETBV_FLAG     equ   8000000h
 XGETBV_AVX512_MASK   equ   0E0h
 
+ALIGN LOCAL_ALIGN_FACTOR
 cp_is_avx_extension PROC NEAR C PUBLIC Uses ebx edx ecx
          mov eax, 1
          cpuid
@@ -103,6 +107,7 @@ not_avx:
          ret
 cp_is_avx_extension ENDP
 
+ALIGN LOCAL_ALIGN_FACTOR
 cp_is_avx512_extension PROC NEAR C PUBLIC Uses ebx edx ecx
          mov eax, 1
          cpuid
@@ -127,6 +132,7 @@ IFDEF LINUX32
 
 %ECHO .weak __ashldi3
 
+ALIGN LOCAL_ALIGN_FACTOR
 __ashldi3 PROC PUBLIC
         mov    eax, [esp+4]
         mov    edx, [esp+8]
@@ -143,10 +149,9 @@ less:
         ret    
 __ashldi3 ENDP
 
-ALIGN IPP_ALIGN_FACTOR
-
 %ECHO .weak __ashrdi3
 
+ALIGN LOCAL_ALIGN_FACTOR
 __ashrdi3 PROC PUBLIC
         mov    eax, [esp+4]
         mov    edx, [esp+8]
@@ -165,6 +170,7 @@ __ashrdi3 ENDP
 
 %ECHO .weak __divdi3
 
+ALIGN LOCAL_ALIGN_FACTOR
 __divdi3 PROC PUBLIC
         xor    ecx, ecx
         mov    eax, dword ptr [8+esp]
@@ -265,7 +271,8 @@ ch_sign:
 __divdi3 ENDP
 
 %ECHO .weak __udivdi3
-        
+
+ALIGN LOCAL_ALIGN_FACTOR
 __udivdi3 PROC PUBLIC
         xor    ecx,ecx
 ABpositive:
@@ -346,6 +353,7 @@ __udivdi3 ENDP
 
 %ECHO .weak __moddi3
 
+ALIGN LOCAL_ALIGN_FACTOR
 __moddi3 PROC PUBLIC
         sub    esp, 8
         mov    dword ptr [esp], 0
@@ -479,6 +487,7 @@ __moddi3 ENDP
 
 %ECHO .weak __umoddi3
 
+ALIGN LOCAL_ALIGN_FACTOR
 __umoddi3 PROC PUBLIC
         sub    esp, 8
         mov    dword ptr [esp], 0
@@ -585,6 +594,7 @@ __umoddi3 ENDP
 
 %ECHO .weak __muldi3
 
+ALIGN LOCAL_ALIGN_FACTOR
 __muldi3 PROC PUBLIC
         mov    eax, dword ptr [esp+8]
         mul    dword ptr [esp+12]
@@ -604,6 +614,7 @@ ENDIF; IFDEF LINUX32
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+ALIGN LOCAL_ALIGN_FACTOR
 cp_get_pentium_counter PROC NEAR C PUBLIC
          rdtsc
          ret
@@ -611,6 +622,7 @@ cp_get_pentium_counter ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+ALIGN LOCAL_ALIGN_FACTOR
 cpStartTscp PROC NEAR C PUBLIC
          push     ebx
          xor      eax, eax
@@ -620,6 +632,7 @@ cpStartTscp PROC NEAR C PUBLIC
          ret
 cpStartTscp ENDP
 
+ALIGN LOCAL_ALIGN_FACTOR
 cpStopTscp PROC NEAR C PUBLIC
          rdtscp
          push     eax
@@ -633,6 +646,7 @@ cpStopTscp PROC NEAR C PUBLIC
          ret
 cpStopTscp ENDP
 
+ALIGN LOCAL_ALIGN_FACTOR
 cpStartTsc PROC NEAR C PUBLIC
          push     ebx
          xor      eax, eax
@@ -642,6 +656,7 @@ cpStartTsc PROC NEAR C PUBLIC
          ret
 cpStartTsc ENDP
 
+ALIGN LOCAL_ALIGN_FACTOR
 cpStopTsc PROC NEAR C PUBLIC
          rdtsc
          push     eax
@@ -659,6 +674,7 @@ cpStopTsc ENDP
 
 ;*****************************************
 ; int cpGetCacheSize( int* tableCache );
+ALIGN LOCAL_ALIGN_FACTOR
 PUBLIC  cpGetCacheSize
 table   EQU 36[esp]
 cpGetCacheSize  PROC

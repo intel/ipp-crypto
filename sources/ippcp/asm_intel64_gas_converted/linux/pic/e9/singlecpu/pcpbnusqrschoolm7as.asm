@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright 2018 Intel Corporation
+# Copyright 2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -1216,7 +1216,7 @@ vzeroupper
     cmp          $(0), %rcx
     jge          .Lskip_mul_nx2gas_1
     mov          %rcx, %rbx
-.p2align 4, 0x90
+.p2align 5, 0x90
 .L__0066gas_1: 
     mul          %r11
     xor          %r15, %r15
@@ -1327,7 +1327,7 @@ vzeroupper
     cmp          $(0), %rcx
     jge          .Lskip1gas_1
     mov          %rcx, %rbx
-.p2align 4, 0x90
+.p2align 5, 0x90
 .L__0067gas_1: 
     mul          %r11
     xor          %r15, %r15
@@ -1431,7 +1431,7 @@ vzeroupper
     cmp          $(0), %rcx
     jge          .Lskip2gas_1
     mov          %rcx, %rbx
-.p2align 4, 0x90
+.p2align 5, 0x90
 .L__0068gas_1: 
     mul          %r11
     xor          %r15, %r15

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2015-2018 Intel Corporation
+* Copyright 2015-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -156,7 +156,7 @@ void Safe2Decrypt_RIJ128(const Ipp8u* in,
 
    int round=0;
 
-   UNREFERENCED_PARAMETER(sbox);
+   IPP_UNREFERENCED_PARAMETER(sbox);
 
    // copy input to the state array
    TRANSPOSE((Ipp8u*)state, in);

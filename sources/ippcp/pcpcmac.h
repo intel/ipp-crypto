@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2007-2018 Intel Corporation
+* Copyright 2007-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -85,5 +85,8 @@ struct _cpAES_CMAC {
 
 /* valid context ID */
 #define VALID_AESCMAC_ID(ctx) (CMAC_ID((ctx))==idCtxCMAC)
+
+#define cpAESCMAC_Update_AES_NI OWNAPI(cpAESCMAC_Update_AES_NI)
+   void cpAESCMAC_Update_AES_NI(Ipp8u* pMac, const Ipp8u* inpBlk, int nBlks, int nr, const Ipp8u* pKeys);
 
 #endif /* _PCP_CMAC_H */

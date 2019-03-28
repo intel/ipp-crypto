@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2018 Intel Corporation
+# Copyright 2017-2019 Intel Corporation
 # All Rights Reserved.
 #
 # If this  software was obtained  under the  Intel Simplified  Software License,
@@ -52,6 +52,17 @@ set(LIB_NAME ippcp)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
+cmake_policy(SET CMP0054 NEW)
+
+if("${CMAKE_GENERATOR}" STREQUAL "NMake Makefiles")
+  if(NOT(C_COMPILER  STREQUAL ""))
+    set(CMAKE_C_COMPILER ${C_COMPILER})
+  endif()
+  if(NOT(CXX_COMPILER STREQUAL ""))
+    set(CMAKE_CXX_COMPILER ${CXX_COMPILER})
+  endif()
+endif()
+
 project(${PROJECT_NAME} C CXX)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
@@ -61,13 +72,13 @@ endif()
 
 find_package(PythonInterp REQUIRED)
 
-if(WIN32)
+if(WIN32 AND (${CMAKE_GENERATOR} MATCHES "Visual Studio"))
   if(${CMAKE_GENERATOR} MATCHES "Win64")
     set(ARCH intel64)
   else()
     set(ARCH ia32)
   endif()
-endif(WIN32)
+endif(WIN32 AND (${CMAKE_GENERATOR} MATCHES "Visual Studio"))
 
 if ((NOT NONPIC_LIB) AND (NOT ANDROID) AND (NOT CODE_COVERAGE))
   set(DYNAMIC_LIB ON)
@@ -110,7 +121,7 @@ if(NOT NONPIC_LIB)
 else()
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_OUTPUT_DIR}/lib/nonpic")
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_OUTPUT_DIR}/lib/nonpic")
-  if(NOT THREADED_LIB)
+  if(THREADED_LIB)
     message (STATUS "Set THREADED_LIB off, when NONPIC_LIB is on")
     set(THREADED_LIB false)
   endif()
@@ -162,4 +173,3 @@ endif()
 if(EXISTS "${CMAKE_SOURCE_DIR}/perf_tests/")
   add_subdirectory(perf_tests)
 endif()
-

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2018 Intel Corporation
+* Copyright 2016-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -150,8 +150,6 @@ IPPFUN(IppStatus, ippsAESEncryptXTS_Direct,(const Ipp8u* pSrc, Ipp8u* pDst, int 
          sts = ippsAESInit(pTweakKey, keySize, &aesCtx, sizeof(aesCtx));
          if(ippStsNoErr!=sts) break;
 
-         //sts = ippsAESEncryptECB(pTweakPT, tweakCT, AES_BLK_SIZE, &aesCtx);
-         //if(ippStsNoErr!=sts) break;
          {
             RijnCipher encoder = RIJ_ENCODER(&aesCtx);
             #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
@@ -182,7 +180,6 @@ IPPFUN(IppStatus, ippsAESEncryptXTS_Direct,(const Ipp8u* pSrc, Ipp8u* pDst, int 
          else
          #endif
          {
-            #pragma novector
             for(; encBlocks>=AES_BLKS_PER_BUFFER && ippStsNoErr==sts; encBlocks-=AES_BLKS_PER_BUFFER) {
                /* compute whitening tweaks */
                cpXTSwhitening(tmp, AES_BLKS_PER_BUFFER, tweakCT);

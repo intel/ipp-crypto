@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018 Intel Corporation
+* Copyright 2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -92,7 +92,7 @@ IPPFUN(IppStatus, ippsGFpECESSetKey_SM2, (const IppsBigNumState* pPrivate,
          IppStatus multResult;
          IppsGFpECPoint PT;
          IppsGFpElement ptX, ptY;
-         int finitePoint;
+         int finitePoint = 0;
 
          cpEcGFpInitPoint(&PT, cpEcGFpGetPool(1, pEC), 0, pEC);
          multResult = ippsGFpECMulPoint(pPublic, pPrivate, &PT, pEC, pEcScratchBuffer);

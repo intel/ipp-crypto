@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2018 Intel Corporation
+* Copyright 2013-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -38,12 +38,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     AES encryption/decryption (CTR mode)
-// 
+//
 //  Contents:
 //     cpProcessAES_ctr()
 //     cpProcessAES_ctr128()
@@ -97,7 +97,7 @@ __INLINE void MaskCounter128(Ipp8u* pMaskIV, int ctrBtSize)
    int maskPosition = (MBS_RIJ128*8-ctrBtSize)/8;
    Ipp8u maskValue = (Ipp8u)(0xFF >> (MBS_RIJ128*8-ctrBtSize)%8 );
 
-   Ipp8u maskIV[MBS_RIJ128];
+   //Ipp8u maskIV[MBS_RIJ128];
    int n;
    for(n=0; n<MBS_RIJ128; n++) {
       int d = n - maskPosition;
@@ -131,23 +131,18 @@ IppStatus cpProcessAES_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
    /* use pipelined version if possible */
    if(AES_NI_ENABLED==RIJ_AESNI(pCtx)) {
       /* construct ctr mask */
-      #if 0
-      int maskPosition = (MBS_RIJ128*8-ctrNumBitSize)/8;
-      Ipp8u maskValue = (Ipp8u)(0xFF >> (MBS_RIJ128*8-ctrNumBitSize)%8 );
-
-      Ipp8u maskIV[MBS_RIJ128];
-      int n;
-      for(n=0; n<maskPosition; n++)
-         maskIV[n] = 0;
-      maskIV[maskPosition] = maskValue;
-      for(n=maskPosition+1; n<MBS_RIJ128; n++)
-         maskIV[n] = 0xFF;
-      #endif
-
       Ipp8u maskIV[MBS_RIJ128];
       MaskCounter128(maskIV, ctrNumBitSize); /* const-exe-time version */
 
-      EncryptCTR_RIJ128pipe_AES_NI(pSrc, pDst, RIJ_NR(pCtx), RIJ_EKEYS(pCtx), dataLen, pCtrValue, maskIV);
+#if(_IPP32E>=_IPP32E_K0)
+      if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+         EncryptCTR_RIJ128pipe_VAES_NI(pSrc, pDst, RIJ_NR(pCtx), RIJ_EKEYS(pCtx), dataLen, pCtrValue, maskIV);
+      }
+      else
+#endif
+      {
+         EncryptCTR_RIJ128pipe_AES_NI(pSrc, pDst, RIJ_NR(pCtx), RIJ_EKEYS(pCtx), dataLen, pCtrValue, maskIV);
+      }
       return ippStsNoErr;
    }
    else
@@ -248,6 +243,12 @@ IppStatus cpProcessAES_ctr128(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const
          if(ctr32 < blocks)
             blocks -= ctr32;
 
+#if(_IPP32E>=_IPP32E_K0)
+         if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+            EncryptStreamCTR32_VAES_NI(pSrc, pDst, RIJ_NR(pCtx), RIJ_EKEYS(pCtx), blocks*MBS_RIJ128, pCtrValue);
+         }
+         else
+#endif
          EncryptStreamCTR32_AES_NI(pSrc, pDst, RIJ_NR(pCtx), RIJ_EKEYS(pCtx), blocks*MBS_RIJ128, pCtrValue);
 
          pSrc += blocks*MBS_RIJ128;

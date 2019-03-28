@@ -1,4 +1,3 @@
-_ippcpGetLibVersion
 _ippcpInit
 _cpGetReg
 _cpStartTscp
@@ -6,6 +5,7 @@ _cpStopTscp
 _cpStartTsc
 _cpStopTsc
 _cpGetCacheSize
+_cpGetFeature
 _ippcpSetCpuFeatures
 _ippcpGetCpuFeatures
 _ippcpGetCpuClocks
@@ -14,6 +14,8 @@ _ippcpGetNumThreads
 _ippcpGetEnabledCpuFeatures
 _ippcpGetEnabledNumThreads
 _ippcpGetStatusString
+
+_ippcpGetLibVersion
 _ippsDESGetSize
 _ippsDESInit
 _ippsDESPack
@@ -202,6 +204,7 @@ _ippsHashMethod_SHA512
 _ippsHashMethod_SHA384
 _ippsHashMethod_SHA512_256
 _ippsHashMethod_SHA512_224
+_ippsHashMethodGetInfo
 _ippsHashGetSize_rmf
 _ippsHashInit_rmf
 _ippsHashPack_rmf
@@ -211,6 +214,7 @@ _ippsHashUpdate_rmf
 _ippsHashGetTag_rmf
 _ippsHashFinal_rmf
 _ippsHashMessage_rmf
+_ippsHashGetInfo_rmf
 _ippsMGF
 _ippsMGF1_rmf
 _ippsMGF2_rmf
@@ -443,6 +447,7 @@ _ippsGFpMultiExp
 _ippsGFpAdd_PE
 _ippsGFpSub_PE
 _ippsGFpMul_PE
+_ippsGFpGetInfo
 _ippsGFpECGetSize
 _ippsGFpECInit
 _ippsGFpECSet
@@ -463,6 +468,7 @@ _ippsGFpECBindGxyTblStd384r1
 _ippsGFpECBindGxyTblStd521r1
 _ippsGFpECBindGxyTblStdSM2
 _ippsGFpECGet
+_ippsGFpECGetInfo_GF
 _ippsGFpECGetSubgroup
 _ippsGFpECScratchBufferSize
 _ippsGFpECVerify

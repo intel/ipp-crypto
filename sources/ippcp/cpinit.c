@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2001-2018 Intel Corporation
+* Copyright 2001-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -53,6 +53,7 @@
 #ifdef _MY_PCS_DISABLED
 #define _PCS
 #endif
+
 #if defined( _IPP_DATA )
 
 static Ipp64u cpFeatures = 0;
@@ -62,6 +63,7 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask );
 extern void IPP_CDECL cpGetReg( int* buf, int valEAX, int valECX );
 extern int IPP_CDECL cp_is_avx_extension();
 extern int IPP_CDECL cp_is_avx512_extension();
+extern int IPP_CDECL cp_issue_avx512_instruction();
 IppStatus owncpSetCpuFeaturesAndIdx( Ipp64u cpuFeatures, int* index );
 
 IPPFUN( Ipp64u, ippcpGetEnabledCpuFeatures, ( void ))
@@ -94,32 +96,6 @@ int cpGetFeature( Ipp64u Feature )
     return 0;
   }
 }
-
-int k0_cpGetFeature( Ipp64u Feature ){
-  if(( cpFeaturesMask & Feature ) == Feature ) return 1;
-  else return 0; }
-int n0_cpGetFeature( Ipp64u Feature ){
-  if(( cpFeaturesMask & Feature ) == Feature ) return 1;
-  else return 0; }
-int l9_cpGetFeature( Ipp64u Feature ){
-  if(( cpFeaturesMask & Feature ) == Feature ) return 1;
-  else return 0; }
-int e9_cpGetFeature( Ipp64u Feature ){
-  if(( cpFeaturesMask & Feature ) == Feature ) return 1;
-  else return 0; }
-int y8_cpGetFeature( Ipp64u Feature ){
-  if(( cpFeaturesMask & Feature ) == Feature ) return 1;
-  else return 0; }
-
-int h9_cpGetFeature( Ipp64u Feature ){
-  if(( cpFeaturesMask & Feature ) == Feature ) return 1;
-  else return 0; }
-int g9_cpGetFeature( Ipp64u Feature ){
-  if(( cpFeaturesMask & Feature ) == Feature ) return 1;
-  else return 0; }
-int p8_cpGetFeature( Ipp64u Feature ){
-  if(( cpFeaturesMask & Feature ) == Feature ) return 1;
-  else return 0; }
 
 /*===================================================================*/
 #define BIT00 0x00000001
@@ -209,10 +185,8 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
        if( ebx_ & BIT19 ) mask |= ippCPUID_ADCOX;     // eax[0x7] -->> ebx:: Bit 19: Intel(R) instructions ADOX/ADCX
        if( ebx_ & BIT18 ) mask |= ippCPUID_RDSEED;    // eax[0x7] -->> ebx:: Bit 18: Intel(R) instruction RDSEED
        if( ebx_ & BIT29 ) mask |= ippCPUID_SHA;       // eax[0x7] -->> ebx:: Bit 29: Intel(R) Secure Hash Algorithm Extensions
-           // Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) extention
-       if(cp_is_avx512_extension()){ 
-           mask |= ippAVX512_ENABLEDBYOS;             // Intel(R) AVX-512 is supported by OS
-       }
+
+       // Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) extention
        if( ebx_ & BIT16 ) mask |= ippCPUID_AVX512F;   // ebx[16] - Intel(R) AVX-512 Foundation
        if( ebx_ & BIT26 ) mask |= ippCPUID_AVX512PF;  // ebx[26] - Intel(R) AVX-512 Prefetch instructions
        if( ebx_ & BIT27 ) mask |= ippCPUID_AVX512ER;  // ebx[27] - Intel(R) AVX-512 Exponential and Reciprocal instructions
@@ -226,6 +200,26 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
        // bitwise OR between ippCPUID_MPX & ippCPUID_AVX flags can be used to define that arch is GE than formerly codenamed Skylake
        if( ebx_ & BIT14 ) mask |= ippCPUID_MPX;       // ebx[14] - Intel(R) Memory Protection Extensions (Intel(R) MPX)
        if( ebx_ & BIT21 ) mask |= ippCPUID_AVX512IFMA;  // ebx[21] - Intel(R) AVX-512 IFMA PMADD52
+
+       if (ecx_ & BIT08) mask |= ippCPUID_AVX512GFNI;    // test bit ecx[08]
+       if (ecx_ & BIT09) mask |= ippCPUID_AVX512VAES;    // test bit ecx[09]
+       if (ecx_ & BIT10) mask |= ippCPUID_AVX512VCLMUL;  // test bit ecx[10]
+
+       if (mask & ippCPUID_AVX512F) {
+          /* test if Intel(R) AVX-512 is supported by OS */
+          if (cp_is_avx512_extension())
+            mask |= ippAVX512_ENABLEDBYOS;
+
+          #if defined(OSXEM64T)
+          else {
+             /* submit some avx512f instructions, returns 0 */
+             mask |= cp_issue_avx512_instruction();
+             /* and check OS support again */
+             if (cp_is_avx512_extension())
+                mask |= ippAVX512_ENABLEDBYOS;
+          }
+          #endif
+       }
     }
     mask = ( flgFMA && flgINT && flgGPR ) ? (mask | ippCPUID_AVX2) : mask; // to separate Intel(R) AVX2 flags here
 
@@ -268,7 +262,7 @@ IppStatus owncpFeaturesToIdx(  Ipp64u* cpuFeatures, int* index )
    *index = 0;
 
    if(( AVX3X_FEATURES  == ( *cpuFeatures & AVX3X_FEATURES  ))&&
-      ( ippAVX512_ENABLEDBYOS & cpFeatures )){                         /* Intel(R) architecture formerlySkylake ia32=S0, x64=K0 */
+      ( ippAVX512_ENABLEDBYOS & cpFeatures )){                         /* Intel(R) architecture formerly codenamed Skylake ia32=S0, x64=K0 */
          mask = AVX3X_MSK;
          *index = LIB_AVX3X;
    } else 
@@ -337,74 +331,43 @@ IppStatus owncpFeaturesToIdx(  Ipp64u* cpuFeatures, int* index )
    return ownStatus;
 }
 
-#ifdef _PCS
 
-extern IppStatus (IPP_STDCALL *pcpSetCpuFeatures)( Ipp64u cpuFeatures );
-extern IppStatus (IPP_STDCALL *pcpSetNumThreads)( int numThr );
-extern IppStatus (IPP_STDCALL *pcpGetNumThreads)( int* pNumThr );
-
-IPPFUN( IppStatus, ippcpSetNumThreads, ( int numThr ))
+IPPFUN(IppStatus, ippcpSetNumThreads, (int numThr))
 {
    IppStatus status = ippStsNoErr;
 
-   if (pcpSetNumThreads != 0)
-   {
-      status = pcpSetNumThreads(numThr);
-      if (status == ippStsNoErr)
-      {
-          cpthreads_omp_of_n_ipp = numThr;
-      }
-   }
-   return status;
-}
-
-IPPFUN( IppStatus, ippcpGetNumThreads, (int* pNumThr) )
-{
-   IppStatus status = ippStsNoErr;
-
-   IPP_BAD_PTR1_RET( pNumThr )
-
-   if (pcpGetNumThreads != 0)
-   {
-      status = pcpGetNumThreads(pNumThr);
-   }
-   return status;
-}
-#else
-
-
-IPPFUN( IppStatus, ippcpSetNumThreads, ( int numThr ))
-{
-   IppStatus status = ippStsNoErr;
 #if defined( _OPENMP )
-   IPP_BAD_SIZE_RET( numThr )
-   cpthreads_omp_of_n_ipp = numThr;
+   IPP_BAD_SIZE_RET(numThr)
+      cpthreads_omp_of_n_ipp = numThr;
    status = ippStsNoErr;
+
 #else
-   UNREFERENCED_PARAMETER(numThr);
+   IPP_UNREFERENCED_PARAMETER(numThr);
    status = ippStsNoOperation;
 #endif
+
    return status;
 }
 
-IPPFUN( IppStatus, ippcpGetNumThreads, (int* pNumThr) )
+IPPFUN(IppStatus, ippcpGetNumThreads, (int* pNumThr))
 {
    IppStatus status = ippStsNoErr;
-   IPP_BAD_PTR1_RET( pNumThr )
+   IPP_BAD_PTR1_RET(pNumThr)
 
 #if defined( _OPENMP )
-   *pNumThr = cpthreads_omp_of_n_ipp;
-   status =  ippStsNoErr;
+      *pNumThr = cpthreads_omp_of_n_ipp;
+   status = ippStsNoErr;
+
 #else
-   *pNumThr = 1;
+      *pNumThr = 1;
    status = ippStsNoOperation;
 #endif
+
    return status;
 }
 
-#endif /* #ifdef _PCS */
 
-#ifdef _IPP_DYNAMIC
+#if defined( _PCS )
 
 typedef IppStatus (IPP_STDCALL *DYN_RELOAD)( int );
 static DYN_RELOAD IppDispatcher; /* ippCP only */
@@ -412,23 +375,14 @@ static int currentCpu = -1;      /* control for disabling the same DLL re-loadin
 
 void owncpRegisterLib( DYN_RELOAD reload )
 {
-    pcpSetCpuFeatures = 0;
-    pcpSetNumThreads  = 0;
-    pcpGetNumThreads  = 0;
-
     IppDispatcher = reload;  /* function DynReload() that is defined in ippmain.gen - */
-    return;                                                               /* therefore in each domain there is own DynReload() function */
+    return;                  /* therefore in each domain there is own DynReload() function */
 }
 
 void owncpUnregisterLib( void )
 {
    IppDispatcher = 0;
    currentCpu = -1;
-
-   pcpSetCpuFeatures = 0;
-   pcpSetNumThreads  = 0;
-   pcpGetNumThreads  = 0;
-
    return;
 }
 
@@ -438,24 +392,12 @@ IPPFUN( IppStatus, ippcpSetCpuFeatures,( Ipp64u cpuFeatures ))
    int       index = 0;
 
     ownStatus = owncpSetCpuFeaturesAndIdx( cpuFeatures, &index );
+    ippcpJumpIndexForMergedLibs = index;
     if(( IppDispatcher )&&( currentCpu != index )) {
         status = IppDispatcher( index );
         currentCpu = index;
     } else 
         status = ippStsNoErr;
-
-#ifdef _PCS
-    if (pcpSetCpuFeatures != 0 && status >= ippStsNoErr)
-    {
-        /* Pass down features to Waterfall dll */
-        status = pcpSetCpuFeatures(cpuFeatures);
-    }
-    if (pcpSetNumThreads != 0 && status >= ippStsNoErr)
-    {
-        /* Pass down features to Waterfall dll */
-        status = pcpSetNumThreads(cpthreads_omp_of_n_ipp);
-    }
-#endif
 
     if( status != ippStsNoErr && status != ippStsNoOperation)
         return status;
@@ -481,7 +423,7 @@ IPPFUN( IppStatus, ippcpInit,( void ))
 }
 
 
-#else /* _IPP_DYNAMIC */
+#else /* staic verion */
 
 IPPFUN( IppStatus, ippcpInit,( void ))
 {
@@ -511,28 +453,27 @@ IPPFUN( IppStatus, ippcpSetCpuFeatures,( Ipp64u cpuFeatures ))
 
 #endif
 
-IppStatus owncpSetCpuFeaturesAndIdx( Ipp64u cpuFeatures, int* index )
+IppStatus owncpSetCpuFeaturesAndIdx(Ipp64u cpuFeatures, int* index)
 {
-    Ipp64u    tmp;
-    IppStatus tmpStatus;
-    *index = 0;
+   Ipp64u    tmp;
+   IppStatus tmpStatus;
+   *index = 0;
 
-    if( ippCPUID_NOCHECK & cpuFeatures ){
-    // if NOCHECK is set - static variable cpFeatures is initialized unconditionally and real CPU features from CPUID are ignored;
-    // the one who uses this method of initialization must understand what and why it does and the possible unpredictable consequences.
-    // the only one known purpose for this approach - environments where CPUID instruction is disabled (for example Intel(R) Software Guard Extensions).
-        cpuFeatures &= ( IPP_MAX_64U ^ ippCPUID_NOCHECK );
-        cpFeatures = cpuFeatures;
-    } else 
-//    if( 0 == cpFeatures ) //do cpFeatures restore unconditionally - to protect from possible previous NOCHECK
-    {
-    // if library has not been initialized yet 
-        cpGetFeatures( &tmp );
-    }
-    tmpStatus = owncpFeaturesToIdx( &cpuFeatures, index );
-    cpFeaturesMask = cpuFeatures;
+   if (ippCPUID_NOCHECK & cpuFeatures) {
+      // if NOCHECK is set - static variable cpFeatures is initialized unconditionally and real CPU features from CPUID are ignored;
+      // the one who uses this method of initialization must understand what and why it does and the possible unpredictable consequences.
+      // the only one known purpose for this approach - environments where CPUID instruction is disabled (for example Intel(R) Software Guard Extensions).
+      cpuFeatures &= (IPP_MAX_64U ^ ippCPUID_NOCHECK);
+      cpFeatures = cpuFeatures;
+   }
+   else
+      /* read cpu features unconditionally */
+      cpGetFeatures(&tmp);
 
-    return tmpStatus;
+   tmpStatus = owncpFeaturesToIdx(&cpuFeatures, index);
+   cpFeaturesMask = cpuFeatures;
+
+   return tmpStatus;
 }
 
 static struct {

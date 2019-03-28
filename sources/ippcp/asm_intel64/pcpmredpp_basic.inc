@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2013-2018 Intel Corporation
+; Copyright 2013-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -191,59 +191,91 @@ ENDIF
 ENDIF
 ENDM
 
+
+ALIGN IPP_ALIGN_FACTOR
+sub_N PROC PRIVATE
+   xor      rax, rax    ; cf = 0
+sub_next:
+   lea      rdi, [rdi+sizeof(qword)]
+   mov      r8, qword ptr[rsi]
+   mov      r9, qword ptr[rcx]
+   lea      rsi, [rsi+sizeof(qword)]
+   lea      rcx, [rcx+sizeof(qword)]
+   sbb      r8, r9
+   mov      qword ptr[rdi-sizeof(qword)], r8
+   dec      rdx
+   jnz      sub_next
+   adc      rax, 0
+   ret
+sub_N ENDP
+
+ALIGN IPP_ALIGN_FACTOR
+copy_ae_N PROC PRIVATE
+   lea      rdi, [rdi+sizeof(qword)]
+   mov      r8, qword ptr[rsi]      ; src1[]
+   mov      r9, qword ptr[rcx]      ; src2[]
+   lea      rsi, [rsi+sizeof(qword)]
+   lea      rcx, [rcx+sizeof(qword)]
+   cmovae   r8, r9
+   mov      qword ptr[rdi-sizeof(qword)], r8
+   dec      rdx
+   jnz      copy_ae_N
+   ret
+copy_ae_N ENDP
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; mredN_start procedures
-ALIGN 16
-mred1_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred1_start PROC PRIVATE
    MLA_FIX  1,, rsi, rbx,rbp, r8
    ret
-;mred1_start ENDP
+mred1_start ENDP
 
-ALIGN 16
-mred2_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred2_start PROC PRIVATE
    MLA_FIX  2,, rsi, rbx,rbp, r8,r9
    ret
-;mred2_start ENDP
+mred2_start ENDP
 
-ALIGN 16
-mred3_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred3_start PROC PRIVATE
    MLA_FIX  3,, rsi, rbx,rbp, r8,r9,r10
    ret
-;mred3_start ENDP
+mred3_start ENDP
 
-ALIGN 16
-mred4_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred4_start PROC PRIVATE
    MLA_FIX  4,, rsi, rbx,rbp, r8,r9,r10,r11
    ret
-;mred4_start ENDP
+mred4_start ENDP
 
-ALIGN 16
-mred5_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred5_start PROC PRIVATE
    MLA_FIX  5,, rsi, rbx,rbp, r8,r9,r10,r11,r12
    ret
-;mred5_start ENDP
+mred5_start ENDP
 
-ALIGN 16
-mred6_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred6_start PROC PRIVATE
    MLA_FIX  6,, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13
    ret
-;mred6_start ENDP
+mred6_start ENDP
 
-ALIGN 16
-mred7_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred7_start PROC PRIVATE
    MLA_FIX  7,, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13,r14
    ret
-;mred7_start ENDP
+mred7_start ENDP
 
-ALIGN 16
-mred8_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred8_start PROC PRIVATE
    MLA_FIX  8,, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13,r14,r15
    ret
-;mred8_start ENDP
+mred8_start ENDP
 
-ALIGN 16
-mred8x1_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred8x1_start PROC PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
@@ -253,10 +285,10 @@ mred8x1_start: ; PROC
 
    pop      rdx      ; resrore m'
    ret
-;mred8x1_start ENDP
+mred8x1_start ENDP
 
-ALIGN 16
-mred8x2_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred8x2_start PROC PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
@@ -272,10 +304,10 @@ mred8x2_start: ; PROC
 
    pop      rdx      ; resrore m'
    ret
-;mred8x2_start ENDP
+mred8x2_start ENDP
 
-ALIGN 16
-mred8x3_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred8x3_start PROC PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
@@ -297,10 +329,10 @@ mred8x3_start: ; PROC
 
    pop      rdx      ; resrore m'
    ret
-;mred8x3_start ENDP
+mred8x3_start ENDP
 
-ALIGN 16
-mred8x4_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred8x4_start PROC PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
@@ -328,10 +360,10 @@ mred8x4_start: ; PROC
 
    pop      rdx      ; resrore m'
    ret
-;mred8x4_start ENDP
+mred8x4_start ENDP
 
-ALIGN 16
-mred8x5_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred8x5_start PROC PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
@@ -365,10 +397,10 @@ mred8x5_start: ; PROC
 
    pop      rdx      ; resrore m'
    ret
-;mred8x5_start ENDP
+mred8x5_start ENDP
 
-ALIGN 16
-mred8x6_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred8x6_start PROC PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
@@ -408,10 +440,10 @@ mred8x6_start: ; PROC
 
    pop      rdx      ; resrore m'
    ret
-;mred8x6_start ENDP
+mred8x6_start ENDP
 
-ALIGN 16
-mred8x7_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred8x7_start PROC PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
@@ -457,10 +489,10 @@ mred8x7_start: ; PROC
 
    pop      rdx      ; resrore m'
    ret
-;mred8x7_start ENDP
+mred8x7_start ENDP
 
-ALIGN 16
-mred8x8_start: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred8x8_start PROC PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
@@ -512,7 +544,7 @@ mred8x8_start: ; PROC
 
    pop      rdx      ; resrore m'
    ret
-;mred8x8_start ENDP
+mred8x8_start ENDP
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -542,8 +574,8 @@ mred8x8_start: ; PROC
 ;;
 ;; 5*qword modulus length
 ;;
-ALIGN 16
-mred_5: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_5 PROC PRIVATE
 MSIZE = 5
    push     r8       ; m'
 
@@ -613,13 +645,13 @@ MSIZE = 5
    mov      qword ptr[r15+sizeof(qword)*3], rdx
    mov      qword ptr[r15+sizeof(qword)*4], rbp
    ret
-;mred_5 ENDP
+mred_5 ENDP
 
 ;;
 ;; 6*qword modulus length
 ;;
-ALIGN 16
-mred_6: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_6 PROC PRIVATE
 MSIZE = 6
    push     r8       ; m'
 
@@ -699,13 +731,13 @@ MSIZE = 6
    mov      qword ptr[r15+sizeof(qword)*4], rbp
    mov      qword ptr[r15+sizeof(qword)*5], rsi
    ret
-;mred_6 ENDP
+mred_6 ENDP
 
 ;;
 ;; 7*qword modulus length
 ;;
-ALIGN 16
-mred_7: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_7 PROC PRIVATE
 MSIZE = 7
    push     r8       ; m'
 
@@ -795,13 +827,13 @@ MSIZE = 7
    mov      qword ptr[r15+sizeof(qword)*5], rsi
    mov      qword ptr[r15+sizeof(qword)*6], rdi
    ret
-;mred_7 ENDP
+mred_7 ENDP
 
 ;;
 ;; 8*qword modulus length
 ;;
-ALIGN 16
-mred_8: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_8 PROC PRIVATE
 MSIZE = 8
    push     r15      ; save reduction address
    push     r8       ; m'
@@ -904,13 +936,13 @@ MSIZE = 8
    mov      qword ptr[rsi+sizeof(qword)*6], rcx
    mov      qword ptr[rsi+sizeof(qword)*7], rdx
    ret
-;mred_8 ENDP
+mred_8 ENDP
 
 ;;
 ;; 9*qword modulus length
 ;;
-ALIGN 16
-mred_9: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_9 PROC PRIVATE
 MSIZE = 9
    push     r15      ; save reduction address
 
@@ -1035,13 +1067,13 @@ MSIZE = 9
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-;mred_9 ENDP
+mred_9 ENDP
 
 ;;
 ;; 10*qword modulus length
 ;;
-ALIGN 16
-mred_10: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_10 PROC PRIVATE
 MSIZE = 10
    push     r15      ; save reduction address
 
@@ -1170,13 +1202,13 @@ MSIZE = 10
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-;mred_10 ENDP
+mred_10 ENDP
 
 ;;
 ;; 11*qword modulus length
 ;;
-ALIGN 16
-mred_11: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_11 PROC PRIVATE
 MSIZE = 11
    push     r15      ; save reduction address
 
@@ -1309,13 +1341,13 @@ MSIZE = 11
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-;mred_11 ENDP
+mred_11 ENDP
 
 ;;
 ;; 12*qword modulus length
 ;;
-ALIGN 16
-mred_12: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_12 PROC PRIVATE
 MSIZE = 12
    push     r15      ; save reduction address
 
@@ -1452,13 +1484,13 @@ MSIZE = 12
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-;mred_12 ENDP
+mred_12 ENDP
 
 ;;
 ;; 13*qword modulus length
 ;;
-ALIGN 16
-mred_13: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_13 PROC PRIVATE
 MSIZE = 13
    push     r15      ; save reduction address
 
@@ -1599,13 +1631,13 @@ MSIZE = 13
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-;mred_13 ENDP
+mred_13 ENDP
 
 ;;
 ;; 14*qword modulus length
 ;;
-ALIGN 16
-mred_14: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_14 PROC PRIVATE
 MSIZE = 14
    push     r15      ; save reduction address
 
@@ -1750,13 +1782,13 @@ MSIZE = 14
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-;mred_14 ENDP
+mred_14 ENDP
 
 ;;
 ;; 15*qword modulus length
 ;;
-ALIGN 16
-mred_15: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_15 PROC PRIVATE
 MSIZE = 15
    push     r15      ; save reduction address
 
@@ -1905,13 +1937,13 @@ MSIZE = 15
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-;mred_15 ENDP
+mred_15 ENDP
 
 ;;
 ;; 16*qword modulus length
 ;;
-ALIGN 16
-mred_16: ; PROC
+ALIGN IPP_ALIGN_FACTOR
+mred_16 PROC PRIVATE
 MSIZE = 16
    push     r15                     ; save reduction address
 
@@ -2114,7 +2146,7 @@ MSIZE = 16
    mov      qword ptr[rbp+sizeof(qword)*7], rdx
 
    ret
-;mred_16 ENDP
+mred_16 ENDP
 
 
 mred_short  DQ    mred_5  - mred_short

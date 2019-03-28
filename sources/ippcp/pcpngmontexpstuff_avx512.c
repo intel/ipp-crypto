@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2018 Intel Corporation
+* Copyright 2016-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -41,6 +41,9 @@
 #include "owncp.h"
 
 #if (_IPP32E>=_IPP32E_K0)
+#ifdef _MSC_VER
+#pragma warning(disable: 4310) // cast truncates constant value in MSVC
+#endif
 
 #include "pcpbnuimpl.h"
 #include "pcpbnumisc.h"
@@ -48,6 +51,7 @@
 #include "pcpngmontexpstuff.h"
 #include "pcpngmontexpstuff_avx512.h"
 #include "gsscramble.h"
+#include "pcpmask_ct.h"
 
 
 /*
@@ -84,7 +88,8 @@ static void regular_dig52(Ipp64u* out, const Ipp64u* in, int inBitSize)
       Ipp64u digit = getDig52(inStr, 7);
       out[0] = digit & EXP_DIGIT_MASK_AVX512;
       inStr += 6;
-      inBitSize -= EXP_DIGIT_MASK_AVX512;
+      // #yuriynat: inBitSize -= EXP_DIGIT_MASK_AVX512;
+      inBitSize -= EXP_DIGIT_SIZE_AVX512;
       digit = getDig52(inStr, BITS2WORD8_SIZE(inBitSize));
       out[1] = digit>>4;
       out += 2;
@@ -135,6 +140,9 @@ static void dig52_regular(Ipp64u* out, const Ipp64u* in, int outBitSize)
       }
    }
 }
+
+/* ams functions */
+typedef void (*cpAMM52)(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res);
 
 static void AMM52(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
@@ -221,6 +229,433 @@ static void AMM52(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m
    }
 }
 
+static void AMM52x20(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
+{
+   __mmask8 k2 = _mm512_kmov(0x0f);   /* mask of the 0-3 elments */
+
+   /* load a */
+   __m512i A0 = _mm512_load_si512(a);
+   __m512i A1 = _mm512_load_si512(a+NUM64);
+   __m512i A2 = _mm512_maskz_load_epi64(k2, a+2*NUM64);
+
+   /* load m */
+   __m512i M0 = _mm512_load_si512(m);
+   __m512i M1 = _mm512_load_si512(m+NUM64);
+   __m512i M2 = _mm512_maskz_load_epi64(k2, m+2*NUM64);
+
+   /* R0, R1, R2 holds temporary result */
+   __m512i R0 = _mm512_setzero_si512();
+   __m512i R1 = _mm512_setzero_si512();
+   __m512i R2 = _mm512_setzero_si512();
+
+   __m512i ZERO = _mm512_setzero_si512(); /* zeros */
+   __m512i K = _mm512_set1_epi64(k0);
+
+   IPP_UNREFERENCED_PARAMETER(len);
+   IPP_UNREFERENCED_PARAMETER(res);
+
+   __mmask8 k1 = _mm512_kmov(0x01);   /* mask of the 0 elment */
+   int i;
+   for(i=0; i<20; i++) {
+      __m512i Bi = _mm512_set1_epi64(b[i]);     /* bloadcast(b[i]) */
+      __m512i Yi = _mm512_setzero_si512();      /* Yi = 0 */
+      __m512i tmp;
+
+      R0 = _mm512_madd52lo_epu64(R0, A0, Bi);   /* R += A*Bi (lo) */
+      R1 = _mm512_madd52lo_epu64(R1, A1, Bi);
+      R2 = _mm512_madd52lo_epu64(R2, A2, Bi);
+
+      Yi = _mm512_madd52lo_epu64(ZERO, K, R0);  /* Yi = R0*K */
+      Yi = _mm512_permutexvar_epi64(ZERO, Yi);  /* broadcast Yi */
+
+      R0 = _mm512_madd52lo_epu64(R0, M0, Yi);   /* R += M*Yi (lo) */
+      R1 = _mm512_madd52lo_epu64(R1, M1, Yi);
+      R2 = _mm512_madd52lo_epu64(R2, M2, Yi);
+
+      /* shift R */
+      tmp = _mm512_maskz_srli_epi64(k1, R0, EXP_DIGIT_SIZE_AVX512);
+      R0 = _mm512_alignr_epi64(R1, R0, 1);
+      R1 = _mm512_alignr_epi64(R2, R1, 1);
+      R2 = _mm512_alignr_epi64(ZERO, R2, 1);
+      R0 = _mm512_add_epi64(R0, tmp);
+
+      R0 = _mm512_madd52hi_epu64(R0, A0, Bi);   /* R += A*Bi (hi) */
+      R1 = _mm512_madd52hi_epu64(R1, A1, Bi);
+      R2 = _mm512_madd52hi_epu64(R2, A2, Bi);
+
+      R0 = _mm512_madd52hi_epu64(R0, M0, Yi);   /* R += M*Yi (hi) */
+      R1 = _mm512_madd52hi_epu64(R1, M1, Yi);
+      R2 = _mm512_madd52hi_epu64(R2, M2, Yi);
+   }
+
+   /* store de-normilized result */
+   _mm512_store_si512(out, R0);
+   _mm512_store_si512(out+NUM64, R1);
+   _mm512_mask_store_epi64(out+2*NUM64, k2, R2);
+
+   /* normalize result */
+   {
+      Ipp64u acc = 0;
+      #pragma nounroll
+      for(i=0; i<20; i++) {
+         acc += out[i];
+         out[i] = acc & EXP_DIGIT_MASK_AVX512;
+         acc >>= EXP_DIGIT_SIZE_AVX512;
+      }
+   }
+}
+
+static void AMM52x40(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
+{
+   /* load a */
+   __m512i A0 = _mm512_load_si512(a);
+   __m512i A1 = _mm512_load_si512(a+NUM64);
+   __m512i A2 = _mm512_load_epi64(a+2*NUM64);
+   __m512i A3 = _mm512_load_epi64(a+3*NUM64);
+   __m512i A4 = _mm512_load_epi64(a+4*NUM64);
+
+   /* load m */
+   __m512i M0 = _mm512_load_si512(m);
+   __m512i M1 = _mm512_load_si512(m+NUM64);
+   __m512i M2 = _mm512_load_epi64(m+2*NUM64);
+   __m512i M3 = _mm512_load_epi64(m+3*NUM64);
+   __m512i M4 = _mm512_load_epi64(m+4*NUM64);
+
+   /* R0, R1, R2, R3, R4 holds temporary result */
+   __m512i R0 = _mm512_setzero_si512();
+   __m512i R1 = _mm512_setzero_si512();
+   __m512i R2 = _mm512_setzero_si512();
+   __m512i R3 = _mm512_setzero_si512();
+   __m512i R4 = _mm512_setzero_si512();
+
+   __m512i ZERO = _mm512_setzero_si512(); /* zeros */
+   __m512i K = _mm512_set1_epi64(k0);
+
+   IPP_UNREFERENCED_PARAMETER(len);
+   IPP_UNREFERENCED_PARAMETER(res);
+
+   __mmask8 k1 = _mm512_kmov(0x01);   /* mask of the 0 elment */
+   int i;
+   for(i=0; i<40; i++) {
+      __m512i Bi = _mm512_set1_epi64(b[i]);     /* bloadcast(b[i]) */
+      __m512i Yi = _mm512_setzero_si512();      /* Yi = 0 */
+      __m512i tmp;
+
+      R0 = _mm512_madd52lo_epu64(R0, A0, Bi);   /* R += A*Bi (lo) */
+      R1 = _mm512_madd52lo_epu64(R1, A1, Bi);
+      R2 = _mm512_madd52lo_epu64(R2, A2, Bi);
+      R3 = _mm512_madd52lo_epu64(R3, A3, Bi);
+      R4 = _mm512_madd52lo_epu64(R4, A4, Bi);
+
+      Yi = _mm512_madd52lo_epu64(ZERO, K, R0);  /* Yi = R0*K */
+      Yi = _mm512_permutexvar_epi64(ZERO, Yi);  /* broadcast Yi */
+
+      R0 = _mm512_madd52lo_epu64(R0, M0, Yi);   /* R += M*Yi (lo) */
+      R1 = _mm512_madd52lo_epu64(R1, M1, Yi);
+      R2 = _mm512_madd52lo_epu64(R2, M2, Yi);
+      R3 = _mm512_madd52lo_epu64(R3, M3, Yi);
+      R4 = _mm512_madd52lo_epu64(R4, M4, Yi);
+
+      /* shift R */
+      tmp = _mm512_maskz_srli_epi64(k1, R0, EXP_DIGIT_SIZE_AVX512);
+      R0 = _mm512_alignr_epi64(R1, R0, 1);
+      R1 = _mm512_alignr_epi64(R2, R1, 1);
+      R2 = _mm512_alignr_epi64(R3, R2, 1);
+      R3 = _mm512_alignr_epi64(R4, R3, 1);
+      R4 = _mm512_alignr_epi64(ZERO, R4, 1);
+      R0 = _mm512_add_epi64(R0, tmp);
+
+      R0 = _mm512_madd52hi_epu64(R0, A0, Bi);   /* R += A*Bi (hi) */
+      R1 = _mm512_madd52hi_epu64(R1, A1, Bi);
+      R2 = _mm512_madd52hi_epu64(R2, A2, Bi);
+      R3 = _mm512_madd52hi_epu64(R3, A3, Bi);
+      R4 = _mm512_madd52hi_epu64(R4, A4, Bi);
+
+      R0 = _mm512_madd52hi_epu64(R0, M0, Yi);   /* R += M*Yi (hi) */
+      R1 = _mm512_madd52hi_epu64(R1, M1, Yi);
+      R2 = _mm512_madd52hi_epu64(R2, M2, Yi);
+      R3 = _mm512_madd52hi_epu64(R3, M3, Yi);
+      R4 = _mm512_madd52hi_epu64(R4, M4, Yi);
+   }
+
+   /* store de-normilized result */
+   _mm512_store_si512(out, R0);
+   _mm512_store_si512(out+NUM64, R1);
+   _mm512_store_si512(out+2*NUM64, R2);
+   _mm512_store_si512(out+3*NUM64, R3);
+   _mm512_store_si512(out+4*NUM64, R4);
+
+   /* normalize result */
+   {
+      Ipp64u acc = 0;
+      #pragma nounroll
+      for(i=0; i<40; i++) {
+         acc += out[i];
+         out[i] = acc & EXP_DIGIT_MASK_AVX512;
+         acc >>= EXP_DIGIT_SIZE_AVX512;
+      }
+   }
+}
+
+static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
+{
+   __mmask8 k2 = _mm512_kmov(0x0f);   /* mask of the 0-3 elments */
+
+   /* load a */
+   __m512i A0 = _mm512_load_si512(a);
+   __m512i A1 = _mm512_load_si512(a+NUM64);
+   __m512i A2 = _mm512_load_epi64(a+2*NUM64);
+   __m512i A3 = _mm512_load_epi64(a+3*NUM64);
+   __m512i A4 = _mm512_load_epi64(a+4*NUM64);
+   __m512i A5 = _mm512_load_epi64(a+5*NUM64);
+   __m512i A6 = _mm512_load_epi64(a+6*NUM64);
+   __m512i A7 = _mm512_maskz_load_epi64(k2, a+7*NUM64);
+
+   /* load m */
+   __m512i M0 = _mm512_load_si512(m);
+   __m512i M1 = _mm512_load_si512(m+NUM64);
+   __m512i M2 = _mm512_load_epi64(m+2*NUM64);
+   __m512i M3 = _mm512_load_epi64(m+3*NUM64);
+   __m512i M4 = _mm512_load_epi64(m+4*NUM64);
+   __m512i M5 = _mm512_load_epi64(m+5*NUM64);
+   __m512i M6 = _mm512_load_epi64(m+6*NUM64);
+   __m512i M7 = _mm512_maskz_load_epi64(k2, m+7*NUM64);
+
+   /* R0, R1, R2, R3, R4, R5, R6, R7 holds temporary result */
+   __m512i R0 = _mm512_setzero_si512();
+   __m512i R1 = _mm512_setzero_si512();
+   __m512i R2 = _mm512_setzero_si512();
+   __m512i R3 = _mm512_setzero_si512();
+   __m512i R4 = _mm512_setzero_si512();
+   __m512i R5 = _mm512_setzero_si512();
+   __m512i R6 = _mm512_setzero_si512();
+   __m512i R7 = _mm512_setzero_si512();
+
+   __m512i ZERO = _mm512_setzero_si512(); /* zeros */
+   __m512i K = _mm512_set1_epi64(k0);
+
+   IPP_UNREFERENCED_PARAMETER(len);
+   IPP_UNREFERENCED_PARAMETER(res);
+
+   __mmask8 k1 = _mm512_kmov(0x01);   /* mask of the 0 elment */
+   int i;
+   for(i=0; i<60; i++) {
+      __m512i Bi = _mm512_set1_epi64(b[i]);     /* bloadcast(b[i]) */
+      __m512i Yi = _mm512_setzero_si512();      /* Yi = 0 */
+      __m512i tmp;
+
+      R0 = _mm512_madd52lo_epu64(R0, A0, Bi);   /* R += A*Bi (lo) */
+      R1 = _mm512_madd52lo_epu64(R1, A1, Bi);
+      R2 = _mm512_madd52lo_epu64(R2, A2, Bi);
+      R3 = _mm512_madd52lo_epu64(R3, A3, Bi);
+      R4 = _mm512_madd52lo_epu64(R4, A4, Bi);
+      R5 = _mm512_madd52lo_epu64(R5, A5, Bi);
+      R6 = _mm512_madd52lo_epu64(R6, A6, Bi);
+      R7 = _mm512_madd52lo_epu64(R7, A7, Bi);
+
+      Yi = _mm512_madd52lo_epu64(ZERO, K, R0);  /* Yi = R0*K */
+      Yi = _mm512_permutexvar_epi64(ZERO, Yi);  /* broadcast Yi */
+
+      R0 = _mm512_madd52lo_epu64(R0, M0, Yi);   /* R += M*Yi (lo) */
+      R1 = _mm512_madd52lo_epu64(R1, M1, Yi);
+      R2 = _mm512_madd52lo_epu64(R2, M2, Yi);
+      R3 = _mm512_madd52lo_epu64(R3, M3, Yi);
+      R4 = _mm512_madd52lo_epu64(R4, M4, Yi);
+      R5 = _mm512_madd52lo_epu64(R5, M5, Yi);
+      R6 = _mm512_madd52lo_epu64(R6, M6, Yi);
+      R7 = _mm512_madd52lo_epu64(R7, M7, Yi);
+
+      /* shift R */
+      tmp = _mm512_maskz_srli_epi64(k1, R0, EXP_DIGIT_SIZE_AVX512);
+      R0 = _mm512_alignr_epi64(R1, R0, 1);
+      R1 = _mm512_alignr_epi64(R2, R1, 1);
+      R2 = _mm512_alignr_epi64(R3, R2, 1);
+      R3 = _mm512_alignr_epi64(R4, R3, 1);
+      R4 = _mm512_alignr_epi64(R5, R4, 1);
+      R5 = _mm512_alignr_epi64(R6, R5, 1);
+      R6 = _mm512_alignr_epi64(R7, R6, 1);
+      R7 = _mm512_alignr_epi64(ZERO, R7, 1);
+      R0 = _mm512_add_epi64(R0, tmp);
+
+      R0 = _mm512_madd52hi_epu64(R0, A0, Bi);   /* R += A*Bi (hi) */
+      R1 = _mm512_madd52hi_epu64(R1, A1, Bi);
+      R2 = _mm512_madd52hi_epu64(R2, A2, Bi);
+      R3 = _mm512_madd52hi_epu64(R3, A3, Bi);
+      R4 = _mm512_madd52hi_epu64(R4, A4, Bi);
+      R5 = _mm512_madd52hi_epu64(R5, A5, Bi);
+      R6 = _mm512_madd52hi_epu64(R6, A6, Bi);
+      R7 = _mm512_madd52hi_epu64(R7, A7, Bi);
+
+      R0 = _mm512_madd52hi_epu64(R0, M0, Yi);   /* R += M*Yi (hi) */
+      R1 = _mm512_madd52hi_epu64(R1, M1, Yi);
+      R2 = _mm512_madd52hi_epu64(R2, M2, Yi);
+      R3 = _mm512_madd52hi_epu64(R3, M3, Yi);
+      R4 = _mm512_madd52hi_epu64(R4, M4, Yi);
+      R5 = _mm512_madd52hi_epu64(R5, M5, Yi);
+      R6 = _mm512_madd52hi_epu64(R6, M6, Yi);
+      R7 = _mm512_madd52hi_epu64(R7, M7, Yi);
+   }
+
+   /* store de-normilized result */
+   _mm512_store_si512(out, R0);
+   _mm512_store_si512(out+NUM64, R1);
+   _mm512_store_si512(out+2*NUM64, R2);
+   _mm512_store_si512(out+3*NUM64, R3);
+   _mm512_store_si512(out+4*NUM64, R4);
+   _mm512_store_si512(out+5*NUM64, R5);
+   _mm512_store_si512(out+6*NUM64, R6);
+   _mm512_mask_store_epi64(out+7*NUM64, k2, R7);
+
+   /* normalize result */
+   {
+      Ipp64u acc = 0;
+      #pragma nounroll
+      for(i=0; i<60; i++) {
+         acc += out[i];
+         out[i] = acc & EXP_DIGIT_MASK_AVX512;
+         acc >>= EXP_DIGIT_SIZE_AVX512;
+      }
+   }
+}
+
+static void AMM52x79(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
+{
+   __mmask8 k2 = _mm512_kmov(0x7f);   /* mask of the 0-7 elments */
+
+   /* load a */
+   __m512i A0 = _mm512_load_si512(a);
+   __m512i A1 = _mm512_load_si512(a+NUM64);
+   __m512i A2 = _mm512_load_epi64(a+2*NUM64);
+   __m512i A3 = _mm512_load_epi64(a+3*NUM64);
+   __m512i A4 = _mm512_load_epi64(a+4*NUM64);
+   __m512i A5 = _mm512_load_epi64(a+5*NUM64);
+   __m512i A6 = _mm512_load_epi64(a+6*NUM64);
+   __m512i A7 = _mm512_load_epi64(a+7*NUM64);
+   __m512i A8 = _mm512_load_epi64(a+8*NUM64);
+   __m512i A9 = _mm512_maskz_load_epi64(k2, a+9*NUM64);
+
+   /* load m */
+   __m512i M0 = _mm512_load_si512(m);
+   __m512i M1 = _mm512_load_si512(m+NUM64);
+   __m512i M2 = _mm512_load_epi64(m+2*NUM64);
+   __m512i M3 = _mm512_load_epi64(m+3*NUM64);
+   __m512i M4 = _mm512_load_epi64(m+4*NUM64);
+   __m512i M5 = _mm512_load_epi64(m+5*NUM64);
+   __m512i M6 = _mm512_load_epi64(m+6*NUM64);
+   __m512i M7 = _mm512_load_epi64(m+7*NUM64);
+   __m512i M8 = _mm512_load_epi64(m+8*NUM64);
+   __m512i M9 = _mm512_maskz_load_epi64(k2, m+9*NUM64);
+
+   /* R0, R1, R2, R3, R4, R5, R6, R7, R8, R9 holds temporary result */
+   __m512i R0 = _mm512_setzero_si512();
+   __m512i R1 = _mm512_setzero_si512();
+   __m512i R2 = _mm512_setzero_si512();
+   __m512i R3 = _mm512_setzero_si512();
+   __m512i R4 = _mm512_setzero_si512();
+   __m512i R5 = _mm512_setzero_si512();
+   __m512i R6 = _mm512_setzero_si512();
+   __m512i R7 = _mm512_setzero_si512();
+   __m512i R8 = _mm512_setzero_si512();
+   __m512i R9 = _mm512_setzero_si512();
+
+   __m512i ZERO = _mm512_setzero_si512(); /* zeros */
+   __m512i K = _mm512_set1_epi64(k0);
+
+   IPP_UNREFERENCED_PARAMETER(len);
+   IPP_UNREFERENCED_PARAMETER(res);
+
+   __mmask8 k1 = _mm512_kmov(0x01);   /* mask of the 0 elment */
+   int i;
+   for(i=0; i<79; i++) {
+      __m512i Bi = _mm512_set1_epi64(b[i]);     /* bloadcast(b[i]) */
+      __m512i Yi = _mm512_setzero_si512();      /* Yi = 0 */
+      __m512i tmp;
+
+      R0 = _mm512_madd52lo_epu64(R0, A0, Bi);   /* R += A*Bi (lo) */
+      R1 = _mm512_madd52lo_epu64(R1, A1, Bi);
+      R2 = _mm512_madd52lo_epu64(R2, A2, Bi);
+      R3 = _mm512_madd52lo_epu64(R3, A3, Bi);
+      R4 = _mm512_madd52lo_epu64(R4, A4, Bi);
+      R5 = _mm512_madd52lo_epu64(R5, A5, Bi);
+      R6 = _mm512_madd52lo_epu64(R6, A6, Bi);
+      R7 = _mm512_madd52lo_epu64(R7, A7, Bi);
+      R8 = _mm512_madd52lo_epu64(R8, A8, Bi);
+      R9 = _mm512_madd52lo_epu64(R9, A9, Bi);
+
+      Yi = _mm512_madd52lo_epu64(ZERO, K, R0);  /* Yi = R0*K */
+      Yi = _mm512_permutexvar_epi64(ZERO, Yi);  /* broadcast Yi */
+
+      R0 = _mm512_madd52lo_epu64(R0, M0, Yi);   /* R += M*Yi (lo) */
+      R1 = _mm512_madd52lo_epu64(R1, M1, Yi);
+      R2 = _mm512_madd52lo_epu64(R2, M2, Yi);
+      R3 = _mm512_madd52lo_epu64(R3, M3, Yi);
+      R4 = _mm512_madd52lo_epu64(R4, M4, Yi);
+      R5 = _mm512_madd52lo_epu64(R5, M5, Yi);
+      R6 = _mm512_madd52lo_epu64(R6, M6, Yi);
+      R7 = _mm512_madd52lo_epu64(R7, M7, Yi);
+      R8 = _mm512_madd52lo_epu64(R8, M8, Yi);
+      R9 = _mm512_madd52lo_epu64(R9, M9, Yi);
+
+      /* shift R */
+      tmp = _mm512_maskz_srli_epi64(k1, R0, EXP_DIGIT_SIZE_AVX512);
+      R0 = _mm512_alignr_epi64(R1, R0, 1);
+      R1 = _mm512_alignr_epi64(R2, R1, 1);
+      R2 = _mm512_alignr_epi64(R3, R2, 1);
+      R3 = _mm512_alignr_epi64(R4, R3, 1);
+      R4 = _mm512_alignr_epi64(R5, R4, 1);
+      R5 = _mm512_alignr_epi64(R6, R5, 1);
+      R6 = _mm512_alignr_epi64(R7, R6, 1);
+      R7 = _mm512_alignr_epi64(R8, R7, 1);
+      R8 = _mm512_alignr_epi64(R9, R8, 1);
+      R9 = _mm512_alignr_epi64(ZERO, R9, 1);
+      R0 = _mm512_add_epi64(R0, tmp);
+
+      R0 = _mm512_madd52hi_epu64(R0, A0, Bi);   /* R += A*Bi (hi) */
+      R1 = _mm512_madd52hi_epu64(R1, A1, Bi);
+      R2 = _mm512_madd52hi_epu64(R2, A2, Bi);
+      R3 = _mm512_madd52hi_epu64(R3, A3, Bi);
+      R4 = _mm512_madd52hi_epu64(R4, A4, Bi);
+      R5 = _mm512_madd52hi_epu64(R5, A5, Bi);
+      R6 = _mm512_madd52hi_epu64(R6, A6, Bi);
+      R7 = _mm512_madd52hi_epu64(R7, A7, Bi);
+      R8 = _mm512_madd52hi_epu64(R8, A8, Bi);
+      R9 = _mm512_madd52hi_epu64(R9, A9, Bi);
+
+      R0 = _mm512_madd52hi_epu64(R0, M0, Yi);   /* R += M*Yi (hi) */
+      R1 = _mm512_madd52hi_epu64(R1, M1, Yi);
+      R2 = _mm512_madd52hi_epu64(R2, M2, Yi);
+      R3 = _mm512_madd52hi_epu64(R3, M3, Yi);
+      R4 = _mm512_madd52hi_epu64(R4, M4, Yi);
+      R5 = _mm512_madd52hi_epu64(R5, M5, Yi);
+      R6 = _mm512_madd52hi_epu64(R6, M6, Yi);
+      R7 = _mm512_madd52hi_epu64(R7, M7, Yi);
+      R8 = _mm512_madd52hi_epu64(R8, M8, Yi);
+      R9 = _mm512_madd52hi_epu64(R9, M9, Yi);
+   }
+
+   /* store de-normilized result */
+   _mm512_store_si512(out, R0);
+   _mm512_store_si512(out+NUM64, R1);
+   _mm512_store_si512(out+2*NUM64, R2);
+   _mm512_store_si512(out+3*NUM64, R3);
+   _mm512_store_si512(out+4*NUM64, R4);
+   _mm512_store_si512(out+5*NUM64, R5);
+   _mm512_store_si512(out+6*NUM64, R6);
+   _mm512_store_si512(out+7*NUM64, R7);
+   _mm512_store_si512(out+8*NUM64, R8);
+   _mm512_mask_store_epi64(out+9*NUM64, k2, R9);
+
+   /* normalize result */
+   {
+      Ipp64u acc = 0;
+      #pragma nounroll
+      for(i=0; i<79; i++) {
+         acc += out[i];
+         out[i] = acc & EXP_DIGIT_MASK_AVX512;
+         acc >>= EXP_DIGIT_SIZE_AVX512;
+      }
+   }
+}
 
 /* ======= degugging section =========================================*/
 //#define _EXP_AVX512_DEBUG_
@@ -254,7 +689,7 @@ cpSize gsMontExpBinBuffer_avx512(int modulusBits)
 {
    cpSize redNum = numofVariable_avx512(modulusBits);       /* "sizeof" variable */
    cpSize redBufferNum = numofVariableBuff_avx512(redNum);  /* "sizeof" variable  buffer */
-   return redBufferNum *7;
+   return redBufferNum *8;
 }
 
 #if defined(_USE_WINDOW_EXP_)
@@ -309,6 +744,15 @@ cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
    BNU_CHUNK_T* redM = redY+redBufferLen;
    BNU_CHUNK_T* redBuffer = redM+redBufferLen;
 
+   cpAMM52 ammFunc;
+   switch (modulusBitSize) {
+      case 1024: ammFunc = AMM52x20; break;
+      case 2048: ammFunc = AMM52x40; break;
+      case 3072: ammFunc = AMM52x60; break;
+      case 4096: ammFunc = AMM52x79; break;
+      default: ammFunc = AMM52; break;
+   }
+
    /* convert modulus into reduced domain */
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
    regular_dig52(redM, redBuffer, almMM_bitsize);
@@ -320,13 +764,13 @@ cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataRR, nsM);
    regular_dig52(redT, redBuffer, almMM_bitsize);
-   AMM52(redT, redT, redT, redM, k0, redLen, redBuffer);
-   AMM52(redT, redT, redY, redM, k0, redLen, redBuffer);
+   ammFunc(redT, redT, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
 
    /* convert base to Montgomery domain */
    ZEXPAND_COPY_BNU(redY, nsX+1, dataX, nsX);
    regular_dig52(redX, redY,  almMM_bitsize);
-   AMM52(redX, redX, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redX, redX, redT, redM, k0, redLen, redBuffer);
 
    /* init result */
    COPY_BNU(redY, redX, redLen);
@@ -340,11 +784,11 @@ cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
       eValue <<= n;
       for(; n<BNU_CHUNK_BITS; n++, eValue<<=1) {
          /* squaring/multiplication: Y = Y*Y */
-         AMM52(redY, redY, redY, redM, k0, redLen, redBuffer);
+         ammFunc(redY, redY, redY, redM, k0, redLen, redBuffer);
 
          /* and multiply Y = Y*X */
          if(eValue & ((BNU_CHUNK_T)1<<(BNU_CHUNK_BITS-1)))
-            AMM52(redY, redY, redX, redM, k0, redLen, redBuffer);
+            ammFunc(redY, redY, redX, redM, k0, redLen, redBuffer);
       }
 
       /* execute rest bits of E */
@@ -353,11 +797,11 @@ cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
 
          for(n=0; n<BNU_CHUNK_BITS; n++, eValue<<=1) {
             /* squaring: Y = Y*Y */
-            AMM52(redY, redY, redY, redM, k0, redLen, redBuffer);
+            ammFunc(redY, redY, redY, redM, k0, redLen, redBuffer);
 
             /* and multiply: Y = Y*X */
             if(eValue & ((BNU_CHUNK_T)1<<(BNU_CHUNK_BITS-1)))
-               AMM52(redY, redY, redX, redM, k0, redLen, redBuffer);
+               ammFunc(redY, redY, redX, redM, k0, redLen, redBuffer);
          }
       }
    }
@@ -365,7 +809,7 @@ cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
    /* convert result back to regular domain */
    ZEXPAND_BNU(redT, 0, redBufferLen);
    redT[0] = 1;
-   AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
    dig52_regular(dataY, redY, cnvMM_bitsize);
 
    return nsM;
@@ -402,10 +846,20 @@ cpSize gsMontExpBin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
 
    /* allocate buffers */
    BNU_CHUNK_T* redX = pBuffer;
-   BNU_CHUNK_T* redT = redX+redBufferLen;
+   BNU_CHUNK_T* redM = redX+redBufferLen;
+   BNU_CHUNK_T* redR = redM+redBufferLen;
+   BNU_CHUNK_T* redT = redR+redBufferLen;
    BNU_CHUNK_T* redY = redT+redBufferLen;
-   BNU_CHUNK_T* redM = redY+redBufferLen;
-   BNU_CHUNK_T* redBuffer = redM+redBufferLen;
+   BNU_CHUNK_T* redBuffer = redY+redBufferLen;
+
+   cpAMM52 ammFunc;
+   switch (modulusBitSize) {
+      case 1024: ammFunc = AMM52x20; break;
+      case 2048: ammFunc = AMM52x40; break;
+      case 3072: ammFunc = AMM52x60; break;
+      case 4096: ammFunc = AMM52x79; break;
+      default: ammFunc = AMM52; break;
+   }
 
    /* convert modulus into reduced domain */
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
@@ -418,53 +872,47 @@ cpSize gsMontExpBin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataRR, nsM);
    regular_dig52(redT, redBuffer, almMM_bitsize);
-   AMM52(redT, redT, redT, redM, k0, redLen, redBuffer);
-   AMM52(redT, redT, redY, redM, k0, redLen, redBuffer);
+   ammFunc(redT, redT, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
 
    /* convert base to Montgomery domain */
    ZEXPAND_COPY_BNU(redY, nsX+1, dataX, nsX);
    regular_dig52(redX, redY,  almMM_bitsize);
-   AMM52(redX, redX, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redX, redX, redT, redM, k0, redLen, redBuffer);
 
    /* init result */
-   ZEXPAND_BNU(redY, 0, redBufferLen);
-   redY[0] = 1;
-   AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
+   ZEXPAND_BNU(redR, 0, redBufferLen);
+   redR[0] = 1;
+   ammFunc(redR, redR, redT, redM, k0, redLen, redBuffer);
+   COPY_BNU(redY, redR, redBufferLen);
 
-   {
-      int back_step = 0;
+   /* execute bits of E */
+   for(; nsE>0; nsE--) {
+      BNU_CHUNK_T eValue = dataE[nsE-1];
 
-      /* execute bits of E */
-      for(--nsE; nsE>0; nsE--) {
-         BNU_CHUNK_T eValue = dataE[nsE-1];
+      int n;
+      for(n=BNU_CHUNK_BITS; n>0; n--) {
+         /* T = ( msb(eValue) )? X : mont(1) */
+         BNU_CHUNK_T mask = cpIsMsb_ct(eValue);
+         eValue <<= 1;
+         cpMaskedCopyBNU_ct(redT, mask, redX, redR, redLen);
 
-         int j;
-         for(j=BNU_CHUNK_BITS-1; j>=0; j--) {
-            BNU_CHUNK_T mask_pattern = (BNU_CHUNK_T)(back_step-1);
-
-            /* T = (Y & mask_pattern) or (X & ~mask_pattern) */
-            int i;
-            for(i=0; i<redLen; i++)
-               redT[i] = (redY[i] & mask_pattern) | (redX[i] & ~mask_pattern);
-
-            /* squaring/multiplication: Y = Y*T */
-            AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
-
-            /* update back_step and j */
-            back_step = ((eValue>>j) & 0x1) & (back_step^1);
-            j += back_step;
-         }
+         /* squaring: Y = Y*Y */
+         ammFunc(redY, redY, redY, redM, k0, redLen, redBuffer);
+         /* and multiply: Y = Y * T */
+         ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
       }
    }
 
    /* convert result back to regular domain */
    ZEXPAND_BNU(redT, 0, redBufferLen);
    redT[0] = 1;
-   AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
    dig52_regular(dataY, redY, cnvMM_bitsize);
 
    return nsM;
 }
+
 #endif /* !_USE_WINDOW_EXP_ */
 
 
@@ -511,6 +959,15 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
    BNU_CHUNK_T* redBuffer = redT+redBufferLen;
    BNU_CHUNK_T* redTable = redBuffer+redBufferLen*3;
 
+   cpAMM52 ammFunc;
+   switch (modulusBitSize) {
+      case 1024: ammFunc = AMM52x20; break;
+      case 2048: ammFunc = AMM52x40; break;
+      case 3072: ammFunc = AMM52x60; break;
+      case 4096: ammFunc = AMM52x79; break;
+      default: ammFunc = AMM52; break;
+   }
+
    /* convert modulus into reduced domain */
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
    regular_dig52(redM, redBuffer, almMM_bitsize);
@@ -522,27 +979,27 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataRR, nsM);
    regular_dig52(redT, redBuffer, almMM_bitsize);
-   AMM52(redT, redT, redT, redM, k0, redLen, redBuffer);
-   AMM52(redT, redT, redY, redM, k0, redLen, redBuffer);
+   ammFunc(redT, redT, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
 
    /*
       pre-compute T[i] = X^i, i=0,.., 2^w-1
    */
    ZEXPAND_BNU(redY, 0, redBufferLen);
    redY[0] = 1;
-   AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
    COPY_BNU(redTable+0, redY, redLen);
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataX, nsX);
    regular_dig52(redY, redBuffer, almMM_bitsize);
-   AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
    COPY_BNU(redTable+redLen, redY, redLen);
 
-   AMM52(redT, redY, redY, redM, k0, redLen, redBuffer);
+   ammFunc(redT, redY, redY, redM, k0, redLen, redBuffer);
    COPY_BNU(redTable+redLen*2, redT, redLen);
 
    for(n=3; n<nPrecomute; n++) {
-      AMM52(redT, redT, redY, redM, k0, redLen, redBuffer);
+      ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
       COPY_BNU(redTable+redLen*n, redT, redLen);
    }
 
@@ -566,7 +1023,7 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
       for(eBit-=window; eBit>=0; eBit-=window) {
          /* do squaring window-times */
          for(n=0; n<window; n++) {
-            AMM52(redY, redY, redY, redM, k0, redLen, redBuffer);
+            ammFunc(redY, redY, redY, redM, k0, redLen, redBuffer);
          }
 
          /* extract next window value */
@@ -574,9 +1031,9 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
          shift = eBit & 0xF;
          windowVal = (eChunk>>shift) &wmask;
 
-         /* exptact precomputed value and muptiply */
+         /* extract precomputed value and muptiply */
          if(windowVal) {
-            AMM52(redY, redY, redTable+windowVal*redLen, redM, k0, redLen, redBuffer);
+            ammFunc(redY, redY, redTable+windowVal*redLen, redM, k0, redLen, redBuffer);
          }
       }
    }
@@ -584,7 +1041,7 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
    /* convert result back */
    ZEXPAND_BNU(redT, 0, redBufferLen);
    redT[0] = 1;
-   AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
    dig52_regular(dataY, redY, cnvMM_bitsize);
 
    return nsM;
@@ -636,6 +1093,15 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
    BNU_CHUNK_T* redBuffer = redT + redBufferLen;
    BNU_CHUNK_T* redE = redBuffer + redBufferLen*3;
 
+   cpAMM52 ammFunc;
+   switch (modulusBitSize) {
+      case 1024: ammFunc = AMM52x20; break;
+      case 2048: ammFunc = AMM52x40; break;
+      case 3072: ammFunc = AMM52x60; break;
+      case 4096: ammFunc = AMM52x79; break;
+      default: ammFunc = AMM52; break;
+   }
+
    /* convert modulus into reduced domain */
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
    regular_dig52(redM, redBuffer, almMM_bitsize);
@@ -647,15 +1113,15 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataRR, nsM);
    regular_dig52(redT, redBuffer, almMM_bitsize);
-   AMM52(redT, redT, redT, redM, k0, redLen, redBuffer);
-   AMM52(redT, redT, redY, redM, k0, redLen, redBuffer);
+   ammFunc(redT, redT, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
 
    /*
       pre-compute T[i] = X^i, i=0,.., 2^w-1
    */
    ZEXPAND_BNU(redY, 0, redBufferLen);
    redY[0] = 1;
-   AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
    gsScramblePut(redTable, 0, redY, redLen, window);
    #ifdef _EXP_AVX512_DEBUG_
    debugToConvMontDomain(dbgValue, redY, redM, almMM_bitsize, dataM, dataRR, nsM, k0, redBuffer);
@@ -663,20 +1129,20 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataX, nsX);
    regular_dig52(redY, redBuffer, almMM_bitsize);
-   AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
    gsScramblePut(redTable, 1, redY, redLen, window);
    #ifdef _EXP_AVX512_DEBUG_
    debugToConvMontDomain(dbgValue, redY, redM, almMM_bitsize, dataM, dataRR, nsM, k0, redBuffer);
    #endif
 
-   AMM52(redT, redY, redY, redM, k0, redLen, redBuffer);
+   ammFunc(redT, redY, redY, redM, k0, redLen, redBuffer);
    gsScramblePut(redTable, 2, redT, redLen, window);
    #ifdef _EXP_AVX512_DEBUG_
    debugToConvMontDomain(dbgValue, redT, redM, almMM_bitsize, dataM, dataRR, nsM, k0, redBuffer);
    #endif
 
    for(n=3; n<nPrecomute; n++) {
-      AMM52(redT, redT, redY, redM, k0, redLen, redBuffer);
+      ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
       gsScramblePut(redTable, n, redT, redLen, window);
       #ifdef _EXP_AVX512_DEBUG_
       debugToConvMontDomain(dbgValue, redT, redM, almMM_bitsize, dataM, dataRR, nsM, k0, redBuffer);
@@ -706,7 +1172,7 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
       for(eBit-=window; eBit>=0; eBit-=window) {
          /* do squaring window-times */
          for(n=0; n<window; n++) {
-            AMM52(redY, redY, redY, redM, k0, redLen, redBuffer);
+            ammFunc(redY, redY, redY, redM, k0, redLen, redBuffer);
          }
 
          /* extract next window value */
@@ -717,14 +1183,14 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
          /* exptact precomputed value and muptiply */
          gsScrambleGet_sscm(redT, redLen, redTable, windowVal, window);
          /* muptiply */
-         AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
+         ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
       }
    }
 
    /* convert result back */
    ZEXPAND_BNU(redT, 0, redBufferLen);
    redT[0] = 1;
-   AMM52(redY, redY, redT, redM, k0, redLen, redBuffer);
+   ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
    dig52_regular(dataY, redY, cnvMM_bitsize);
 
    return nsM;

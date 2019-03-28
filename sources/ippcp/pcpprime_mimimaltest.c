@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2018 Intel Corporation
+* Copyright 2004-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -60,7 +60,7 @@ Ipp32u cpMod32(const Ipp32u* pX, cpSize sizeX, Ipp32u divider)
    cpSize n;
    Ipp32u r;
    for(n=sizeX, r=0; n>0; n--) {
-      Ipp64u tmp = MAKEDWORD(pX[n-1],r);
+      Ipp64u tmp = IPP_MAKEDWORD(pX[n-1],r);
       r = (Ipp32u)(tmp%divider);
    }
    return r;

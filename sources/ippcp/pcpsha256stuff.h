@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2018 Intel Corporation
+* Copyright 2002-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -153,7 +153,7 @@ static void sha224_hashOctString(Ipp8u* pMD, void* pHashVal)
 
 static void sha256_msgRep(Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi)
 {
-   UNREFERENCED_PARAMETER(lenHi);
+   IPP_UNREFERENCED_PARAMETER(lenHi);
    lenLo = ENDIANNESS64(lenLo<<3);
    ((Ipp64u*)(pDst))[0] = lenLo;
 }

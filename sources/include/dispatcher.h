@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2009-2018 Intel Corporation
+* Copyright 2009-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -215,7 +215,8 @@ extern "C" {
     #define LIB_MIC   LIB_B2
 #endif
 
-#if defined( _IPP_DYNAMIC )
+//gres: #if defined( _IPP_DYNAMIC )
+#if defined( _PCS )
 #if defined( _ARCH_IA32 )
 
 /* Describe Intel CPUs and libraries */

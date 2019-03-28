@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2012-2018 Intel Corporation
+* Copyright 2012-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -302,7 +302,7 @@ typedef enum {
 #define   ippCPUID_SSE42           0x00000080   /* Intel(R) Streaming SIMD Extensions 4.2 instruction set                      */
 #define   ippCPUID_AVX             0x00000100   /* Intel(R) Advanced Vector Extensions instruction set                         */
 #define   ippAVX_ENABLEDBYOS       0x00000200   /* Intel(R) Advanced Vector Extensions instruction set is supported by OS      */
-#define   ippCPUID_AES             0x00000400   /* Intel(R) AES New Instructions                                               */
+#define   ippCPUID_AES             0x00000400   /*                                                                             */
 #define   ippCPUID_CLMUL           0x00000800   /* Intel(R) instruction PCLMULQDQ                                              */
 #define   ippCPUID_ABR             0x00001000   /* Reserved                                                                    */
 #define   ippCPUID_RDRAND          0x00002000   /* Intel(R) instruction RDRAND                                                 */
@@ -333,6 +333,10 @@ typedef enum {
  #define   ippCPUID_NOCHECK      INT64_SUFFIX(0x8000000000000000) /* Force ippSetCpuFeatures to set CPU features without check                   */
  #define   ippCPUID_GETINFO_A    INT64_SUFFIX(0x616f666e69746567) /* Force ippGetCpuFeatures to work as cpuid instruction                        */
  #define   ippAVX512_ENABLEDBYOS INT64_SUFFIX(0x200000000)        /* Intel(R) Advanced Vector Extensions 512 is supported by OS                  */
+
+ #define   ippCPUID_AVX512GFNI   INT64_SUFFIX(0x400000000)        /*                                     */
+ #define   ippCPUID_AVX512VAES   INT64_SUFFIX(0x800000000)        /*                                     */
+ #define   ippCPUID_AVX512VCLMUL INT64_SUFFIX(0x1000000000)       /*                                     */
 
 
 #endif /* IPP_CPU_FEATURES__ */
@@ -776,18 +780,22 @@ typedef struct _cpGFpEC       IppsECCPState;
 typedef struct _cpGFpECPoint  IppsECCPPointState;
 
 typedef struct {
-   const IppsGFpState* pBasicGF;
-   const IppsGFpState* pGroundGF;
+   int   hashSize;
+   int   msgBlockSize;
+} IppsHashInfo;
+
+typedef struct {
+ //const IppsGFpState* pBasicGF;
+ //const IppsGFpState* pGroundGF;
+   int   parentGFdegree;
    int   basicGFdegree;
-   int   groundGFdegree;
-   int   elementLen;
+   int   basicElmBitSize;
 } IppsGFpInfo;
 
 typedef struct _cpStateECES_SM2 IppsECESState_SM2;
 
 #endif /* !defined( _OWN_BLDPCS ) */
 
-#ifndef _PCS
 IPPAPI( IppStatus, ippcpGetCpuFeatures, ( Ipp64u* pFeaturesMask ))
 IPPAPI( IppStatus, ippcpSetCpuFeatures, ( Ipp64u features ))
 IPPAPI( Ipp64u, ippcpGetEnabledCpuFeatures, ( void ) )
@@ -797,7 +805,6 @@ IPPAPI( IppStatus, ippcpGetNumThreads, (int* pNumThr) )
 IPPAPI( const char*, ippcpGetStatusString, ( IppStatus StsCode ))
 IPPAPI( int, ippcpGetEnabledNumThreads, ( void ) )
 IPPAPI( Ipp64u, ippcpGetCpuClocks, (void) )
-#endif
 
 #ifdef __cplusplus
 }

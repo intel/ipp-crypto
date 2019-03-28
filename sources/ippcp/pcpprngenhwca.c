@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2015-2018 Intel Corporation
+* Copyright 2015-2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -85,7 +85,7 @@ IPPFUN(IppStatus, ippsPRNGenRDRAND,(Ipp32u* pRand, int nBits, void* pCtx))
    /* test sizes */
    IPP_BADARG_RET(nBits< 1, ippStsLengthErr);
 
-   UNREFERENCED_PARAMETER(pCtx);
+   IPP_UNREFERENCED_PARAMETER(pCtx);
 
    #if ((_IPP>=_IPP_G9) || (_IPP32E>=_IPP32E_E9))
    if( IsFeatureEnabled(ippCPUID_RDRAND) ) {

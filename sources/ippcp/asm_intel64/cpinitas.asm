@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2014-2018 Intel Corporation
+; Copyright 2014-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -41,8 +41,10 @@
 INCLUDE asmdefs.inc
  include ia_32e.inc
 
+LOCAL_ALIGN_FACTOR EQU 32
+ 
 IFDEF _IPP_DATA
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+IPPCODE SEGMENT 'CODE' ALIGN (LOCAL_ALIGN_FACTOR)
 
 ;####################################################################
 ;#          void cpGetReg( int* buf, int valueEAX, int valueECX ); #
@@ -58,6 +60,7 @@ valueEAX  equ esi
 valueECX  equ edx
 ENDIF
 
+ALIGN LOCAL_ALIGN_FACTOR
 cpGetReg    PROC PUBLIC
         push rbx
         movsxd  r9, valueEAX
@@ -88,6 +91,7 @@ XGETBV_MASK        equ   06h
 
 XGETBV_AVX512_MASK equ 0E0h
 
+ALIGN LOCAL_ALIGN_FACTOR
 cp_is_avx_extension PROC PUBLIC
          push  rbx
          mov   eax, 1
@@ -109,6 +113,7 @@ not_avx:
          ret
 cp_is_avx_extension ENDP
 
+ALIGN LOCAL_ALIGN_FACTOR
 cp_is_avx512_extension PROC PUBLIC
          push  rbx
          mov   eax, 1
@@ -130,6 +135,13 @@ not_avx512:
          ret
 cp_is_avx512_extension ENDP
 
+ALIGN LOCAL_ALIGN_FACTOR
+cp_issue_avx512_instruction PROC PUBLIC
+         db    062h,0f1h,07dh,048h,0efh,0c0h ; vpxord  zmm0, zmm0, zmm0
+         xor   eax, eax
+         ret
+cp_issue_avx512_instruction ENDP
+
 IFDEF WIN32E
   EXTRN ippcpInit:PROC
 ENDIF
@@ -138,6 +150,7 @@ ENDIF
 ;#          void ippSafeInit( );                                    #
 ;####################################################################
 
+ALIGN LOCAL_ALIGN_FACTOR
 ippcpSafeInit PROC PUBLIC
         push rcx
         push rdx
@@ -173,6 +186,7 @@ ippcpSafeInit ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+ALIGN LOCAL_ALIGN_FACTOR
 cp_get_pentium_counter PROC  PUBLIC
          rdtsc
          sal    rdx,32
@@ -180,6 +194,7 @@ cp_get_pentium_counter PROC  PUBLIC
          ret
 cp_get_pentium_counter ENDP
 
+ALIGN LOCAL_ALIGN_FACTOR
 cpStartTscp PROC PUBLIC
          push     rbx
          xor      rax, rax
@@ -191,6 +206,7 @@ cpStartTscp PROC PUBLIC
          ret
 cpStartTscp ENDP
 
+ALIGN LOCAL_ALIGN_FACTOR
 cpStopTscp PROC PUBLIC
          rdtscp
          sal      rdx,32
@@ -204,6 +220,7 @@ cpStopTscp PROC PUBLIC
          ret
 cpStopTscp ENDP
 
+ALIGN LOCAL_ALIGN_FACTOR
 cpStartTsc PROC PUBLIC
          push     rbx
          xor      rax, rax
@@ -215,6 +232,7 @@ cpStartTsc PROC PUBLIC
          ret
 cpStartTsc ENDP
 
+ALIGN LOCAL_ALIGN_FACTOR
 cpStopTsc PROC PUBLIC
          rdtsc
          sal      rdx,32
@@ -231,6 +249,7 @@ cpStopTsc ENDP
 
 ;*****************************************
 ; int cpGetCacheSize( int* tableCache );
+ALIGN LOCAL_ALIGN_FACTOR
 table   EQU rdi
 cpGetCacheSize  PROC PUBLIC FRAME
 

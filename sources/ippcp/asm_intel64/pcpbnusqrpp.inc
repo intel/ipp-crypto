@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2014-2018 Intel Corporation
+; Copyright 2014-2019 Intel Corporation
 ; All Rights Reserved.
 ;
 ; If this  software was obtained  under the  Intel Simplified  Software License,
@@ -51,20 +51,10 @@ _PCPBNUSQR_INC_ = 1
 include pcpmulx.inc
 include pcpbnusqrpp_basic.inc
 
-IF _IPP32E EQ _IPP32E_K0
-  sqr_8N_adcox EQU k0_sqr_8N_adcox
-  sqr_N_adcox  EQU k0_sqr_N_adcox
-ENDIF
-
-IF _IPP32E EQ _IPP32E_N0
-  sqr_8N_adcox EQU n0_sqr_8N_adcox
-  sqr_N_adcox  EQU n0_sqr_N_adcox
-ENDIF
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (8*n) squarer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN 16
+ALIGN IPP_ALIGN_FACTOR
 sqr_8N_adcox PROC PRIVATE
    push     rdi         ; save diagonal loop parameters
    push     rsi
@@ -205,7 +195,7 @@ sqr_8N_adcox ENDP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general case N>16 squarer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN 16
+ALIGN IPP_ALIGN_FACTOR
 sqr_N_adcox PROC PRIVATE
    push     rdi         ; save diagonal loop parameters
    push     rsi
