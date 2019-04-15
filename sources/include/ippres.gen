@@ -1,0 +1,267 @@
+/*******************************************************************************
+* Copyright 1999-2019 Intel Corporation
+* All Rights Reserved.
+*
+* If this  software was obtained  under the  Intel Simplified  Software License,
+* the following terms apply:
+*
+* The source code,  information  and material  ("Material") contained  herein is
+* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
+* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
+* Material  contains  proprietary  information  of  Intel or  its suppliers  and
+* licensors.  The Material is protected by  worldwide copyright  laws and treaty
+* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
+* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
+* in any way without Intel's prior express written permission.  No license under
+* any patent,  copyright or other  intellectual property rights  in the Material
+* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
+* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
+* property rights must be express and approved by Intel in writing.
+*
+* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
+* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
+* suppliers or licensors in any way.
+*
+*
+* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
+* "License"), the following terms apply:
+*
+* You may  not use this  file except  in compliance  with  the License.  You may
+* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+*
+*
+* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
+* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*
+* See the   License  for the   specific  language   governing   permissions  and
+* limitations under the License.
+*******************************************************************************/
+
+
+#include "winres.h"
+
+#define STR2(x)           #x
+#define STR(x)       STR2(x)
+
+#ifndef _IPP_VERSION
+#define _IPP_VERSION ""
+#endif
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION VERSION()
+ PRODUCTVERSION VERSION()
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_DLL
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+         VALUE "CompanyName", "Intel Corporation.\0"
+         VALUE "FileVersion", STR( VERSION() ) "\0"
+         VALUE "ProductName", IPP_LIB_SHORTNAME() ". Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ".\0"
+         VALUE "ProductVersion", STR_VERSION() "\0"
+         VALUE "LegalCopyright", "Copyright (C) 1999-2019, Intel Corporation. All rights reserved.\0"
+
+         #if defined (_CORE) && !defined (_WIN64) && defined (_WIN32) && !defined (_WIN32E)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ".\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() IPP_LIB_SHORTNAME() _IPP_VERSION ".dll is the " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() IPP_LIB_SHORTNAME() _IPP_VERSION ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() IPP_LIB_SHORTNAME() _IPP_VERSION ".dll\0"
+         #endif
+         #if defined (_CORE) && defined (_WIN64) && defined (_WIN32) && !defined(_WIN32E)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ".\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "64" IPP_LIB_SHORTNAME() _IPP_VERSION ".dll is the " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() IPP_LIB_SHORTNAME() "64" _IPP_VERSION ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() IPP_LIB_SHORTNAME() "64" _IPP_VERSION ".dll\0"
+         #endif
+         #if defined (_CORE) && defined(_WIN32E)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ".\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() IPP_LIB_SHORTNAME() _IPP_VERSION ".dll is the " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX()  IPP_LIB_SHORTNAME() _IPP_VERSION ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX()  IPP_LIB_SHORTNAME() _IPP_VERSION ".dll\0"
+         #endif
+         #if defined (_PCS) && defined(_WIN32E) && !defined (IPPVER)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". DLLs dispatcher\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() _IPP_VERSION ".dll is the " IPP_LIB_SHORTNAME() " dispatcher\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() _IPP_VERSION ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() _IPP_VERSION ".dll\0"
+         #endif
+         #if defined (_PCS) && defined(_WIN32E) && defined (IPPVER)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". DLLs dispatcher\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() ".dll is the " IPP_LIB_SHORTNAME() " dispatcher\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() _IPP_VERSION ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() _IPP_VERSION ".dll\0"
+         #endif
+         #if defined (_PCS) && defined (_WIN64) && defined (_WIN32)  && !defined(_WIN32E) && !defined (IPPVER)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". DLLs dispatcher\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "64" _IPP_VERSION ".dll is the " IPP_LIB_SHORTNAME() " dispatcher\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "64" _IPP_VERSION ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "64" _IPP_VERSION ".dll\0"
+         #endif
+         #if defined (_PCS) && !defined (_WIN32E) && !defined (_WIN64) && defined (_WIN32) && !defined (IPPVER)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". DLLs dispatcher\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() _IPP_VERSION ".dll is the " IPP_LIB_SHORTNAME() " dispatcher\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() _IPP_VERSION ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() _IPP_VERSION ".dll\0"
+         #endif
+         #if defined (_PCS) && !defined (_WIN32E) && !defined (_WIN64) && defined (_WIN32) && defined (IPPVER)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". DLLs dispatcher\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() GET_STR(IPPVER) _IPP_VERSION ".dll is the " IPP_LIB_SHORTNAME() " dispatcher\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() GET_STR(IPPVER) _IPP_VERSION ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() GET_STR(IPPVER) _IPP_VERSION ".dll\0"
+         #endif
+         #if defined (_PCS) && defined (_WIN64) && defined (_WIN32)  && !defined(_WIN32E) && defined (IPPVER)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". DLLs dispatcher\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX()  "64" GET_STR(IPPVER) _IPP_VERSION ".dll is the " IPP_LIB_SHORTNAME() " dispatcher\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "64" GET_STR(IPPVER) _IPP_VERSION ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "64" GET_STR(IPPVER) _IPP_VERSION ".dll\0"
+         #endif
+         #if defined (_PX) && !defined (_WIN64) && defined (_WIN32) && !defined (_WIN32E)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". For Intel(R) Pentium(R) processors\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "px" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "px" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "px" _IPP_VERSION  ".dll\0"
+         #endif
+         #if defined (_PX) && defined(_WIN32E)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". For Intel(R) 64 Instruction Set Architecture (ISA) processors\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "mx" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "mx" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "mx" _IPP_VERSION  ".dll\0"
+         #endif
+         #if defined (_PX) && defined (_WIN64) && defined (_WIN32) && !defined(_WIN32E)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". For Intel(R) Itanium(R) processors\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "ix" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "ix" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "ix" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _M6
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for Intel(R) Pentium(R) II processor\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "m6" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "m6" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "m6" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _A6
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Streaming SIMD Extensions (SSE)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "a6" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "a6" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "a6" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _W7
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Streaming SIMD Extensions 2 (SSE2)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "w7" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "w7" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "w7" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _T7
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Streaming SIMD Extensions 3 (SSE3)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "t7" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "t7" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "t7" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _V8
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Supplemental Streaming SIMD Extension 3 (SSSE3)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "v8" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "v8" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "v8" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _P8
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Streaming SIMD Extensions 4.2 (SSE4.2)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "p8" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "p8" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "p8" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _G9
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Advanced Vector Extensions (AVX)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "g9" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "g9" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "g9" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _H9
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Advanced Vector Extensions 2 (AVX2)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "h9" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "h9" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "h9" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _M7
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for Intel(R) 64 Instruction Set Architecture (ISA)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "m7" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "m7" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "m7" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _U8
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Supplemental Streaming SIMD Extension 3 (SSSE3)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "u8" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "u8" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "u8" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _Y8
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Streaming SIMD Extensions 4.2 (SSE4.2)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "y8" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "y8" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "y8" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _E9
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Advanced Vector Extensions (AVX)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "e9" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "e9" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "e9" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _L9
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with Advanced Vector Extensions 2 (AVX2)\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "l9" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "l9" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "l9" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _K0
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with AVX512F/CD/BW/DQ/VL support\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "k0" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "k0" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "k0" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _N0
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for processors with AVX512F/CD/ER/PF support\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "n0" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "n0" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "n0" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _S8
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for Intel(R) Atom(TM) processor\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "s8" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "s8" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "s8" _IPP_VERSION  ".dll\0"
+         #endif
+         #ifdef _N8
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". Optimized for Intel(R) Atom(TM) processor\0"
+            VALUE "FileDescription", IPP_LIB_PREFIX() "n8" _IPP_VERSION  ".dll is an " IPP_LIB_SHORTNAME() " dynamic library\0"
+            VALUE "InternalName", IPP_LIB_PREFIX() "n8" _IPP_VERSION  ".dll\0"
+            VALUE "OriginalFilename", IPP_LIB_PREFIX() "n8" _IPP_VERSION  ".dll\0"
+         #endif
+         #if defined (_IPP_PS) && defined(_WIN32)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ". performance test application\0"
+            VALUE "FileDescription", "ps_" IPP_LIB_PREFIX() ".exe is the performance test application for " IPP_LIB_LONGNAME() "\0"
+            VALUE "InternalName", "ps_"  IPP_LIB_PREFIX() ".exe\0"
+            VALUE "OriginalFilename", "ps_" IPP_LIB_PREFIX() ".exe\0"
+         #endif
+         #if defined (_IPP_PS) && defined(_WIN32E)
+            VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() " performance test application\0"
+            VALUE "FileDescription", "ps_" IPP_LIB_PREFIX() ".exe is the performance test application for " IPP_LIB_LONGNAME() "\0"
+            VALUE "InternalName", "ps_" IPP_LIB_PREFIX() ".exe\0"
+            VALUE "OriginalFilename", "ps_" IPP_LIB_PREFIX() ".exe\0"
+         #endif
+
+            END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
