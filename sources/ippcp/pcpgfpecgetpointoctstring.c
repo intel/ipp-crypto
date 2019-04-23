@@ -77,31 +77,36 @@ IPPFUN(IppStatus, ippsGFpECGetPointOctString, (const IppsGFpECPoint* pPoint,
    IPP_BAD_PTR3_RET(pPoint, pEC, pStr);
    IPP_BADARG_RET(pPoint->idCtx != idCtxGFPPoint, ippStsContextMatchErr);
    IPP_BADARG_RET(pEC->idCtx != idCtxGFPEC, ippStsContextMatchErr);
-   IPP_BADARG_RET(!pEC->subgroup, ippStsContextMatchErr);
-   IPP_BADARG_RET(1 < pEC->pGF->pGFE->extdegree, ippStsNotSupportedModeErr);
 
    {
       gsModEngine* pGFE = pEC->pGF->pGFE;
-      int elemLen = BITS2WORD8_SIZE(pGFE->modBitLen);
-      IPP_BADARG_RET(strLen != elemLen * 2, ippStsSizeErr);
-      IPP_BADARG_RET(pPoint->elementSize != pGFE->modLen, ippStsOutOfRangeErr);
+      IppsGFpInfo gfi;
+      ippsGFpGetInfo(&gfi, pEC->pGF);
 
       {
-         int finitePoint;
-         IppsGFpElement ptX, ptY;
+         int elemLenBits = gfi.basicGFdegree * gfi.basicElmBitSize;
+         int elemLenBytes = BITS2WORD8_SIZE(elemLenBits);
+         int elemLenChunks = BITS_BNU_CHUNK(elemLenBits);
+         IPP_BADARG_RET(strLen != elemLenBytes * 2, ippStsSizeErr);
+         IPP_BADARG_RET(pPoint->elementSize != elemLenChunks, ippStsOutOfRangeErr);
 
-         cpGFpElementConstruct(&ptX, cpGFpGetPool(1, pGFE), pGFE->modLen);
-         cpGFpElementConstruct(&ptY, cpGFpGetPool(1, pGFE), pGFE->modLen);
-         finitePoint = gfec_GetPoint(ptX.pData, ptY.pData, pPoint, pEC);
-         if (finitePoint) {
-            ippsGFpGetElementOctString(&ptX, pStr, elemLen, pEC->pGF);
-            pStr += elemLen;
-            ippsGFpGetElementOctString(&ptY, pStr, elemLen, pEC->pGF);
+         {
+            int finitePoint;
+            IppsGFpElement ptX, ptY;
+
+            cpGFpElementConstruct(&ptX, cpGFpGetPool(1, pGFE), elemLenChunks);
+            cpGFpElementConstruct(&ptY, cpGFpGetPool(1, pGFE), elemLenChunks);
+            finitePoint = gfec_GetPoint(ptX.pData, ptY.pData, pPoint, pEC);
+            if (finitePoint) {
+               ippsGFpGetElementOctString(&ptX, pStr, elemLenBytes, pEC->pGF);
+               pStr += elemLenBytes;
+               ippsGFpGetElementOctString(&ptY, pStr, elemLenBytes, pEC->pGF);
+            }
+
+            cpGFpReleasePool(2, pGFE); /* release ptX and ptY from the pool */
+
+            return finitePoint ? ippStsNoErr : ippStsPointAtInfinity;
          }
-
-         cpGFpReleasePool(2, pGFE); /* release ptX and ptY from the pool */
-
-         return finitePoint ? ippStsNoErr : ippStsPointAtInfinity;
       }
    }
 }

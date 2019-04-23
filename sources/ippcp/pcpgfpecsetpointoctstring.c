@@ -76,32 +76,37 @@ IPPFUN(IppStatus, ippsGFpECSetPointOctString, (const Ipp8u* pStr,
    int strLen, IppsGFpECPoint* pPoint, IppsGFpECState* pEC)) {
    IPP_BAD_PTR3_RET(pPoint, pEC, pStr);
    IPP_BADARG_RET(pEC->idCtx != idCtxGFPEC, ippStsContextMatchErr);
-   IPP_BADARG_RET(!pEC->subgroup, ippStsContextMatchErr);
-   IPP_BADARG_RET(1 < pEC->pGF->pGFE->extdegree, ippStsNotSupportedModeErr);
 
    {
       gsModEngine* pGFE = pEC->pGF->pGFE;
-      int elemLen = BITS2WORD8_SIZE(pGFE->modBitLen);
-      IPP_BADARG_RET(strLen != elemLen * 2, ippStsSizeErr);
+      IppsGFpInfo gfi;
+      ippsGFpGetInfo(&gfi, pEC->pGF);
 
       {
-         IppStatus ret;
-         IppsGFpElement ptX, ptY;
-         cpGFpElementConstruct(&ptX, cpGFpGetPool(1, pGFE), pGFE->modLen);
-         cpGFpElementConstruct(&ptY, cpGFpGetPool(1, pGFE), pGFE->modLen);
+         int elemLenBits = gfi.basicGFdegree * gfi.basicElmBitSize;
+         int elemLenBytes = BITS2WORD8_SIZE(elemLenBits);
+         int elemLenChunks = BITS_BNU_CHUNK(elemLenBits);
+         IPP_BADARG_RET(strLen != elemLenBytes * 2, ippStsSizeErr);
 
-         ret = ippsGFpSetElementOctString(pStr, elemLen, &ptX, pEC->pGF);
-         if (ippStsNoErr == ret) {
-            pStr += elemLen;
-            ret = ippsGFpSetElementOctString(pStr, elemLen, &ptY, pEC->pGF);
+         {
+            IppStatus ret;
+            IppsGFpElement ptX, ptY;
+            cpGFpElementConstruct(&ptX, cpGFpGetPool(1, pGFE), elemLenChunks);
+            cpGFpElementConstruct(&ptY, cpGFpGetPool(1, pGFE), elemLenChunks);
+
+            ret = ippsGFpSetElementOctString(pStr, elemLenBytes, &ptX, pEC->pGF);
+            if (ippStsNoErr == ret) {
+               pStr += elemLenBytes;
+               ret = ippsGFpSetElementOctString(pStr, elemLenBytes, &ptY, pEC->pGF);
+            }
+            if (ippStsNoErr == ret) {
+               ret = ippsGFpECSetPoint(&ptX, &ptY, pPoint, pEC);
+            }
+
+            cpGFpReleasePool(2, pGFE); /* release ptX and ptY from the pool */
+
+            return ret;
          }
-         if (ippStsNoErr == ret) {
-            ret = ippsGFpECSetPoint(&ptX, &ptY, pPoint, pEC);
-         }
-
-         cpGFpReleasePool(2, pGFE); /* release ptX and ptY from the pool */
-
-         return ret;
       }
    }
 }

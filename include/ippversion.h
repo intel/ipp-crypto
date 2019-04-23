@@ -49,10 +49,10 @@
 #if !defined( IPPVERSION_H__ )
 #define IPPVERSION_H__
 
-#define IPP_VERSION_MAJOR  2019
+#define IPP_VERSION_MAJOR  2020
 #define IPP_VERSION_MINOR  0
-#define IPP_VERSION_UPDATE 4
+#define IPP_VERSION_UPDATE 0
 
-#define IPP_VERSION_STR "2019.0.4"
+#define IPP_VERSION_STR "2020.0.0"
 
 #endif /* IPPVERSION_H__ */

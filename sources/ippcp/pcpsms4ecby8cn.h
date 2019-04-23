@@ -121,7 +121,7 @@ __INLINE __m128i Ltag(__m128i x)
    K3 = T
 
 
-#if (_IPP==_IPP_I0) || (_IPP32E>=_IPP32E_N0)
+#if (_IPP==_IPP_I0) || (_IPP32E==_IPP32E_N0)
 __INLINE __m128i L(__m128i x)
 {
    __m128i T = _mm_slli_epi32(x, 2);

@@ -325,6 +325,13 @@ cpSize gsMontExpWin_BNU(BNU_CHUNK_T* dataY,
          /* position of the 1-st (left) window */
          int eBit = bitsizeE-winSize;
 
+         /* Note: Static analysis can generate error/warning on the expression below.
+         
+         The value of "bitSizeE" is limited, ((modulusBitSize > bitSizeE > 0),
+         it is checked in initialization phase by (ippsRSA_GetSizePublickey() and ippsRSA_InitPublicKey).
+         Buffer "dataEE" assigned for copy of dataExp, is 1 (64-bit) chunk longer than size of RSA modulus,
+         therefore the access "*((Ipp32u*)((Ipp16u*)dataEE+ eBit/BITSIZE(Ipp16u)))" is always inside the boundary.
+         */
          /* extract 1-st window value */
          Ipp32u eChunk = *((Ipp32u*)((Ipp16u*)dataEE + eBit/BITSIZE(Ipp16u)));
          int shift = eBit & 0xF;

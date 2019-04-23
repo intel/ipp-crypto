@@ -245,15 +245,22 @@ struct _cpRijndael256 {
 #if (_IPP32E>=_IPP32E_K0)
 #define EncryptECB_RIJ128pipe_VAES_NI OWNAPI(EncryptECB_RIJ128pipe_VAES_NI)
    void EncryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx);
+#define EncryptCTR_RIJ128pipe_VAES_NI OWNAPI(EncryptCTR_RIJ128pipe_VAES_NI)
+   void EncryptCTR_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int nr, const Ipp8u* pKeys, int len, Ipp8u* pCtrValue, const Ipp8u* pCtrBitMask);
+#define EncryptStreamCTR32_VAES_NI OWNAPI(EncryptStreamCTR32_VAES_NI)
+   void EncryptStreamCTR32_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int nr, const Ipp8u* pKeys, int len, Ipp8u* pCtrValue);
+
 #define DecryptECB_RIJ128pipe_VAES_NI OWNAPI(DecryptECB_RIJ128pipe_VAES_NI)
    void DecryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx);
 #define DecryptCBC_RIJ128pipe_VAES_NI OWNAPI(DecryptCBC_RIJ128pipe_VAES_NI)
    void DecryptCBC_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx, const Ipp8u* pIV);
 
-#define EncryptCTR_RIJ128pipe_VAES_NI OWNAPI(EncryptCTR_RIJ128pipe_VAES_NI)
-   void EncryptCTR_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int nr, const Ipp8u* pKeys, int len, Ipp8u* pCtrValue, const Ipp8u* pCtrBitMask);
-#define EncryptStreamCTR32_VAES_NI OWNAPI(EncryptStreamCTR32_VAES_NI)
-   void EncryptStreamCTR32_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int nr, const Ipp8u* pKeys, int len, Ipp8u* pCtrValue);
+#define DecryptCFB_RIJ128pipe_VAES_NI OWNAPI(DecryptCFB_RIJ128pipe_VAES_NI)
+   void DecryptCFB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int len, int cfbBlkSize, const IppsAESSpec* pCtx, const Ipp8u* pIV);
+#define DecryptCFB64_RIJ128pipe_VAES_NI OWNAPI(DecryptCFB64_RIJ128pipe_VAES_NI)
+   void DecryptCFB64_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx, const Ipp8u* pIV);
+#define DecryptCFB128_RIJ128pipe_VAES_NI OWNAPI(DecryptCFB128_RIJ128pipe_VAES_NI)
+   void DecryptCFB128_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx, const Ipp8u* pIV);
 #endif /* _IPP32E>=_IPP32E_K0 */
 
 #endif /* _IPP>=_IPP_P8 || _IPP32E>=_IPP32E_Y8 */

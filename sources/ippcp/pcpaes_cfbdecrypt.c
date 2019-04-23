@@ -99,9 +99,28 @@ void cpDecryptAES_cfb(const Ipp8u* pIV,
                       const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks, int cfbBlkSize,
                       const IppsAESSpec* pCtx)
 {
+#if(_IPP32E>=_IPP32E_K0)
+   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+      if(cfbBlkSize==MBS_RIJ128)
+         DecryptCFB128_RIJ128pipe_VAES_NI(pSrc, pDst, nBlocks*cfbBlkSize, pCtx, pIV);
+      else if (8 == cfbBlkSize)
+         DecryptCFB64_RIJ128pipe_VAES_NI(pSrc, pDst, nBlocks*cfbBlkSize, pCtx, pIV);
+      else
+      // NB: excluded VBMI2 version of VAES optimization from MSVC build until compiler supports VBMI2
+      #if defined (_MSC_VER) && !defined (__INTEL_COMPILER)
+         goto msvc_fallback;
+      #else
+         DecryptCFB_RIJ128pipe_VAES_NI(pSrc, pDst, nBlocks*cfbBlkSize, cfbBlkSize, pCtx, pIV);
+      #endif
+   }
+   else
+#endif
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    /* use pipelined version is possible */
    if(AES_NI_ENABLED==RIJ_AESNI(pCtx)) {
+      #if defined (_MSC_VER) && !defined (__INTEL_COMPILER)
+msvc_fallback:
+      #endif
       if(cfbBlkSize==MBS_RIJ128)
          DecryptCFB128_RIJ128pipe_AES_NI(pSrc, pDst, RIJ_NR(pCtx), RIJ_EKEYS(pCtx), nBlocks*cfbBlkSize, pIV);
       else if(0==(cfbBlkSize&3))
