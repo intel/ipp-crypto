@@ -521,7 +521,7 @@ cpSize gsMontExpBin_BNU_sse2(BNU_CHUNK_T* dataY,
    cpMontMul_sse2(redY, redY, redX, redM, redLen, k0, redBuffer);
 
    /* convert base to Montgomery domain */
-   ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redT, nsX+1, dataX, nsX);
+   ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redT, redBufferLen/*nsX+1*/, dataX, nsX);
    regular_dig27(redX, redBufferLen, (Ipp32u*)redT,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
    cpMontMul_sse2(redX, redX, redY, redM, redLen, k0, redBuffer);
    #ifdef _EXP_SSE2_DEBUG_
@@ -633,7 +633,7 @@ cpSize gsMontExpBin_BNU_sscm_sse2(BNU_CHUNK_T* dataY,
    cpMontMul_sse2(redY, redY, redX, redM, redLen, k0, redBuffer);
 
    /* convert base to Montgomery domain */
-   ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redT, nsX+1, dataX, nsX);
+   ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redT, reBufferLen/*nsX+1*/, dataX, nsX);
    regular_dig27(redX, redBufferLen, (Ipp32u*)redT,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
    cpMontMul_sse2(redX, redX, redY, redM, redLen, k0, redBuffer);
 
@@ -738,7 +738,7 @@ cpSize gsMontExpWin_BNU_sse2(BNU_CHUNK_T* dataY,
    cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
    COPY_BNU(redTable+0, redY, redLen);
 
-   ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redE, nsX+1, dataX, nsX);
+   ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redE, redBufferLen/*nsX+1*/, dataX, nsX);
    regular_dig27(redY, redBufferLen, (Ipp32u*)redE,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
    cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
    COPY_BNU(redTable+redLen, redY, redLen);
@@ -862,7 +862,7 @@ cpSize gsMontExpWin_BNU_sscm_sse2(BNU_CHUNK_T* dataY,
    cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
    gsScramblePut((BNU_CHUNK_T*)redTable, 0, (BNU_CHUNK_T*)redY, redLen*sizeof(Ipp64u)/sizeof(BNU_CHUNK_T), window);
 
-   ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redE, nsX+1, dataX, nsX);
+   ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redE, redBufferLen/*nsX+1*/, dataX, nsX);
    regular_dig27(redY, redBufferLen, (Ipp32u*)redE,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
    cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
    gsScramblePut((BNU_CHUNK_T*)redTable, 1, (BNU_CHUNK_T*)redY, redLen*sizeof(Ipp64u)/sizeof(BNU_CHUNK_T), window);

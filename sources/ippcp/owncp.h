@@ -204,7 +204,8 @@ __INLINE Ipp32u IsFeatureEnabled(Ipp64u niMmask)
    for(i=0; i<(len); i++) (dst)[i] = ((mask) & (src1)[i]) | (~(mask) & (src2)[i]); \
 }
 
-#if !defined( _M_X64 ) && defined ( _MSC_VER ) && !defined(__INTEL_COMPILER)
+#if (_IPP > _IPP_PX || _IPP32E > _IPP32E_PX) && !defined(__INTEL_COMPILER)
+#if !defined( _M_X64 ) && defined ( _MSC_VER )
 __inline __m128i
 _mm_cvtsi64_si128(__int64 a)
 {
@@ -215,12 +216,13 @@ _mm_cvtsi64_si128(__int64 a)
 }
 #endif
 
-#if !defined( __x86_64__ ) && defined(__GNUC__) && !defined(__INTEL_COMPILER)
+#if !defined( __x86_64__ ) && defined(__GNUC__)
 extern __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
 _mm_cvtsi64_si128 (long long __A)
 {
   return _mm_set_epi64x (0, __A);
 }
 #endif
+#endif /* (_IPP > _IPP_PX || _IPP32E > _IPP32E_PX) && !defined(__INTEL_COMPILER) */
 
 #endif /* __OWNCP_H__ */

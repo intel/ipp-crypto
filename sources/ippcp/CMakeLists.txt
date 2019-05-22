@@ -224,6 +224,9 @@ file(GLOB_RECURSE TEST_SOURCES
     ${IPP_CRYPTO_TEST_DIR}/interface/*.cpp
   )
 
+
+set(INTERNAL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include/autogen)
+
 if(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
   if(NOT ANDROID)
     include_directories(
@@ -233,7 +236,7 @@ if(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
         $ENV{ROOT}/compiler/include
         $ENV{ROOT}/compiler/include/icc
         $ENV{INCLUDE}
-        ${CMAKE_BINARY_DIR}/include/autogen
+        ${INTERNAL_INCLUDE_DIR}
       )
   else()
     include_directories(
@@ -243,7 +246,7 @@ if(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
         $ENV{ANDROID_GNU_X86_TOOLCHAIN}/include
         $ENV{ANDROID_SYSROOT}/usr/include
         $ENV{ANDROID_NDK_ROOT}/sources/cxx-stl/stlport/stlport
-        ${CMAKE_BINARY_DIR}/include/autogen
+        ${INTERNAL_INCLUDE_DIR}
       )
   endif()
 elseif(MSVC_IDE)
@@ -253,7 +256,7 @@ elseif(MSVC_IDE)
       ${IPP_CRYPTO_INCLUDE_DIR}/
       $ENV{INCLUDE}
       ${CMAKE_SYSTEM_INCLUDE_PATH}
-      ${CMAKE_BINARY_DIR}/include/autogen
+      ${INTERNAL_INCLUDE_DIR}
     )
 else()
   include_directories(
@@ -261,7 +264,7 @@ else()
     ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}
     ${IPP_CRYPTO_INCLUDE_DIR}
     ${CMAKE_SYSTEM_INCLUDE_PATH}
-    ${CMAKE_BINARY_DIR}/include/autogen
+    ${INTERNAL_INCLUDE_DIR}
     )
 endif()
 
@@ -361,10 +364,25 @@ if(NOT MERGED_BLD)
   set(IPPCP_LIB_DYNAMIC "")
 endif(NOT MERGED_BLD)
 
-set(ONE_CPU_FOLDER ${CMAKE_BINARY_DIR}/include/autogen)
-set(ONE_CPU_GENERATOR  ${CMAKE_SOURCE_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_header.py)
-execute_process(COMMAND ${PYTHON_EXECUTABLE} ${ONE_CPU_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${ONE_CPU_FOLDER})
-set(HEADERS ${HEADERS} ${ONE_CPU_FOLDER}/ippcp_cpuspc.h)
+if(MERGED_BLD)
+  foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+    set(ONE_CPU_FOLDER ${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include/autogen)
+    set(ONE_CPU_GENERATOR  ${CMAKE_SOURCE_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_1cpu_header.py)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} ${ONE_CPU_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${ONE_CPU_FOLDER})
+    file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h
+    DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
+    file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippcpdefs.h
+    DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
+    file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippversion.h
+    DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
+  endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+
+  set(INTERNAL_GENERATOR  ${CMAKE_SOURCE_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_header.py)
+  execute_process(COMMAND ${PYTHON_EXECUTABLE} ${INTERNAL_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${INTERNAL_INCLUDE_DIR})
+  set(HEADERS ${HEADERS} ${INTERNAL_INCLUDE_DIR}/ippcp_cpuspc.h)
+endif(MERGED_BLD)
+
+
 
 set(ADD_CPINITAS_MERGEDSTATIC on)
 
@@ -400,7 +418,15 @@ foreach(opt ${PLATFORM_LIST})
         endif()
       endif(THREADED_LIB)
       # place dlls to lib folder
-      set_target_properties(${IPPCP_DYN_ITER} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
+
+      foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+        string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+        set_target_properties(${IPPCP_DYN_ITER} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG}})
+      endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+
+
+
     else()
       add_library(${IPPCP_DYN_ITER} SHARED  ${HEADERS} ${SOURCES} ${ASM_SOURCES})
       if(APPLE)
@@ -459,7 +485,7 @@ foreach(opt ${PLATFORM_LIST})
   else()
     add_library(${IPPCP_ST_ITER} STATIC ${HEADERS} ${SOURCES} ${ASM_SOURCES})
   endif()
-  
+
   if(WIN32)
     set_target_properties(${IPPCP_ST_ITER} PROPERTIES STATIC_LIBRARY_FLAGS ${LINK_FLAG_STATIC_WINDOWS})
   endif()
@@ -467,13 +493,13 @@ foreach(opt ${PLATFORM_LIST})
   list(APPEND IPPCP_LIB_STATIC ${IPPCP_ST_ITER})
 
   # # Set optimization flags
-  
+
   set(OPT_FLAGS_${opt} ${${opt}_opt})
 
   set_target_properties(${IPPCP_ST_ITER} PROPERTIES COMPILE_FLAGS "${OPT_FLAGS_${opt}}")
   # Set optimization flag for cpinit.c to -O1
   # Fix for problem related with MSVC compiler -O2 optimization
-  if((${ARCH} STREQUAL "intel64") AND ("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")) 
+  if((${ARCH} STREQUAL "intel64") AND ("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC"))
     set_source_files_properties(cpinit.c PROPERTIES COMPILE_FLAGS " -O1")
   endif()
   if(DYNAMIC_LIB)
@@ -576,7 +602,17 @@ if(MERGED_BLD)
       endif()
       add_library(${IPPCP_LIB_PCS} SHARED ippcp.def pcpmain.c cpinit.c ${ASM_SOURCES_PCS} pcpver.rc)
       set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_WINDOWS})
-      set_target_properties(${IPPCP_LIB_PCS} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
+
+    foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+      set_target_properties(${IPPCP_LIB_PCS} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG}})
+
+    endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+
+
+
+
     else()
       if(${ARCH} MATCHES "ia32")
         if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")

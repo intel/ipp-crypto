@@ -234,14 +234,14 @@ static void AMM52x20(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    __mmask8 k2 = _mm512_kmov(0x0f);   /* mask of the 0-3 elments */
 
    /* load a */
-   __m512i A0 = _mm512_load_si512(a);
-   __m512i A1 = _mm512_load_si512(a+NUM64);
-   __m512i A2 = _mm512_maskz_load_epi64(k2, a+2*NUM64);
+   __m512i A0 = _mm512_loadu_si512(a);
+   __m512i A1 = _mm512_loadu_si512(a+NUM64);
+   __m512i A2 = _mm512_maskz_loadu_epi64(k2, a+2*NUM64);
 
    /* load m */
-   __m512i M0 = _mm512_load_si512(m);
-   __m512i M1 = _mm512_load_si512(m+NUM64);
-   __m512i M2 = _mm512_maskz_load_epi64(k2, m+2*NUM64);
+   __m512i M0 = _mm512_loadu_si512(m);
+   __m512i M1 = _mm512_loadu_si512(m+NUM64);
+   __m512i M2 = _mm512_maskz_loadu_epi64(k2, m+2*NUM64);
 
    /* R0, R1, R2 holds temporary result */
    __m512i R0 = _mm512_setzero_si512();
@@ -289,9 +289,9 @@ static void AMM52x20(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    }
 
    /* store de-normilized result */
-   _mm512_store_si512(out, R0);
-   _mm512_store_si512(out+NUM64, R1);
-   _mm512_mask_store_epi64(out+2*NUM64, k2, R2);
+   _mm512_storeu_si512(out, R0);
+   _mm512_storeu_si512(out+NUM64, R1);
+   _mm512_mask_storeu_epi64(out+2*NUM64, k2, R2);
 
    /* normalize result */
    {
@@ -308,18 +308,18 @@ static void AMM52x20(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
 static void AMM52x40(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
    /* load a */
-   __m512i A0 = _mm512_load_si512(a);
-   __m512i A1 = _mm512_load_si512(a+NUM64);
-   __m512i A2 = _mm512_load_epi64(a+2*NUM64);
-   __m512i A3 = _mm512_load_epi64(a+3*NUM64);
-   __m512i A4 = _mm512_load_epi64(a+4*NUM64);
+   __m512i A0 = _mm512_loadu_si512(a);
+   __m512i A1 = _mm512_loadu_si512(a+NUM64);
+   __m512i A2 = _mm512_loadu_si512(a+2*NUM64);
+   __m512i A3 = _mm512_loadu_si512(a+3*NUM64);
+   __m512i A4 = _mm512_loadu_si512(a+4*NUM64);
 
    /* load m */
-   __m512i M0 = _mm512_load_si512(m);
-   __m512i M1 = _mm512_load_si512(m+NUM64);
-   __m512i M2 = _mm512_load_epi64(m+2*NUM64);
-   __m512i M3 = _mm512_load_epi64(m+3*NUM64);
-   __m512i M4 = _mm512_load_epi64(m+4*NUM64);
+   __m512i M0 = _mm512_loadu_si512(m);
+   __m512i M1 = _mm512_loadu_si512(m+NUM64);
+   __m512i M2 = _mm512_loadu_si512(m+2*NUM64);
+   __m512i M3 = _mm512_loadu_si512(m+3*NUM64);
+   __m512i M4 = _mm512_loadu_si512(m+4*NUM64);
 
    /* R0, R1, R2, R3, R4 holds temporary result */
    __m512i R0 = _mm512_setzero_si512();
@@ -379,11 +379,11 @@ static void AMM52x40(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    }
 
    /* store de-normilized result */
-   _mm512_store_si512(out, R0);
-   _mm512_store_si512(out+NUM64, R1);
-   _mm512_store_si512(out+2*NUM64, R2);
-   _mm512_store_si512(out+3*NUM64, R3);
-   _mm512_store_si512(out+4*NUM64, R4);
+   _mm512_storeu_si512(out, R0);
+   _mm512_storeu_si512(out+NUM64, R1);
+   _mm512_storeu_si512(out+2*NUM64, R2);
+   _mm512_storeu_si512(out+3*NUM64, R3);
+   _mm512_storeu_si512(out+4*NUM64, R4);
 
    /* normalize result */
    {
@@ -402,24 +402,24 @@ static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    __mmask8 k2 = _mm512_kmov(0x0f);   /* mask of the 0-3 elments */
 
    /* load a */
-   __m512i A0 = _mm512_load_si512(a);
-   __m512i A1 = _mm512_load_si512(a+NUM64);
-   __m512i A2 = _mm512_load_epi64(a+2*NUM64);
-   __m512i A3 = _mm512_load_epi64(a+3*NUM64);
-   __m512i A4 = _mm512_load_epi64(a+4*NUM64);
-   __m512i A5 = _mm512_load_epi64(a+5*NUM64);
-   __m512i A6 = _mm512_load_epi64(a+6*NUM64);
-   __m512i A7 = _mm512_maskz_load_epi64(k2, a+7*NUM64);
+   __m512i A0 = _mm512_loadu_si512(a);
+   __m512i A1 = _mm512_loadu_si512(a+NUM64);
+   __m512i A2 = _mm512_loadu_si512(a+2*NUM64);
+   __m512i A3 = _mm512_loadu_si512(a+3*NUM64);
+   __m512i A4 = _mm512_loadu_si512(a+4*NUM64);
+   __m512i A5 = _mm512_loadu_si512(a+5*NUM64);
+   __m512i A6 = _mm512_loadu_si512(a+6*NUM64);
+   __m512i A7 = _mm512_maskz_loadu_epi64(k2, a+7*NUM64);
 
    /* load m */
-   __m512i M0 = _mm512_load_si512(m);
-   __m512i M1 = _mm512_load_si512(m+NUM64);
-   __m512i M2 = _mm512_load_epi64(m+2*NUM64);
-   __m512i M3 = _mm512_load_epi64(m+3*NUM64);
-   __m512i M4 = _mm512_load_epi64(m+4*NUM64);
-   __m512i M5 = _mm512_load_epi64(m+5*NUM64);
-   __m512i M6 = _mm512_load_epi64(m+6*NUM64);
-   __m512i M7 = _mm512_maskz_load_epi64(k2, m+7*NUM64);
+   __m512i M0 = _mm512_loadu_si512(m);
+   __m512i M1 = _mm512_loadu_si512(m+NUM64);
+   __m512i M2 = _mm512_loadu_si512(m+2*NUM64);
+   __m512i M3 = _mm512_loadu_si512(m+3*NUM64);
+   __m512i M4 = _mm512_loadu_si512(m+4*NUM64);
+   __m512i M5 = _mm512_loadu_si512(m+5*NUM64);
+   __m512i M6 = _mm512_loadu_si512(m+6*NUM64);
+   __m512i M7 = _mm512_maskz_loadu_epi64(k2, m+7*NUM64);
 
    /* R0, R1, R2, R3, R4, R5, R6, R7 holds temporary result */
    __m512i R0 = _mm512_setzero_si512();
@@ -497,14 +497,14 @@ static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    }
 
    /* store de-normilized result */
-   _mm512_store_si512(out, R0);
-   _mm512_store_si512(out+NUM64, R1);
-   _mm512_store_si512(out+2*NUM64, R2);
-   _mm512_store_si512(out+3*NUM64, R3);
-   _mm512_store_si512(out+4*NUM64, R4);
-   _mm512_store_si512(out+5*NUM64, R5);
-   _mm512_store_si512(out+6*NUM64, R6);
-   _mm512_mask_store_epi64(out+7*NUM64, k2, R7);
+   _mm512_storeu_si512(out, R0);
+   _mm512_storeu_si512(out+NUM64, R1);
+   _mm512_storeu_si512(out+2*NUM64, R2);
+   _mm512_storeu_si512(out+3*NUM64, R3);
+   _mm512_storeu_si512(out+4*NUM64, R4);
+   _mm512_storeu_si512(out+5*NUM64, R5);
+   _mm512_storeu_si512(out+6*NUM64, R6);
+   _mm512_mask_storeu_epi64(out+7*NUM64, k2, R7);
 
    /* normalize result */
    {
@@ -523,28 +523,28 @@ static void AMM52x79(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    __mmask8 k2 = _mm512_kmov(0x7f);   /* mask of the 0-7 elments */
 
    /* load a */
-   __m512i A0 = _mm512_load_si512(a);
-   __m512i A1 = _mm512_load_si512(a+NUM64);
-   __m512i A2 = _mm512_load_epi64(a+2*NUM64);
-   __m512i A3 = _mm512_load_epi64(a+3*NUM64);
-   __m512i A4 = _mm512_load_epi64(a+4*NUM64);
-   __m512i A5 = _mm512_load_epi64(a+5*NUM64);
-   __m512i A6 = _mm512_load_epi64(a+6*NUM64);
-   __m512i A7 = _mm512_load_epi64(a+7*NUM64);
-   __m512i A8 = _mm512_load_epi64(a+8*NUM64);
-   __m512i A9 = _mm512_maskz_load_epi64(k2, a+9*NUM64);
+   __m512i A0 = _mm512_loadu_si512(a);
+   __m512i A1 = _mm512_loadu_si512(a+NUM64);
+   __m512i A2 = _mm512_loadu_si512(a+2*NUM64);
+   __m512i A3 = _mm512_loadu_si512(a+3*NUM64);
+   __m512i A4 = _mm512_loadu_si512(a+4*NUM64);
+   __m512i A5 = _mm512_loadu_si512(a+5*NUM64);
+   __m512i A6 = _mm512_loadu_si512(a+6*NUM64);
+   __m512i A7 = _mm512_loadu_si512(a+7*NUM64);
+   __m512i A8 = _mm512_loadu_si512(a+8*NUM64);
+   __m512i A9 = _mm512_maskz_loadu_epi64(k2, a+9*NUM64);
 
    /* load m */
-   __m512i M0 = _mm512_load_si512(m);
-   __m512i M1 = _mm512_load_si512(m+NUM64);
-   __m512i M2 = _mm512_load_epi64(m+2*NUM64);
-   __m512i M3 = _mm512_load_epi64(m+3*NUM64);
-   __m512i M4 = _mm512_load_epi64(m+4*NUM64);
-   __m512i M5 = _mm512_load_epi64(m+5*NUM64);
-   __m512i M6 = _mm512_load_epi64(m+6*NUM64);
-   __m512i M7 = _mm512_load_epi64(m+7*NUM64);
-   __m512i M8 = _mm512_load_epi64(m+8*NUM64);
-   __m512i M9 = _mm512_maskz_load_epi64(k2, m+9*NUM64);
+   __m512i M0 = _mm512_loadu_si512(m);
+   __m512i M1 = _mm512_loadu_si512(m+NUM64);
+   __m512i M2 = _mm512_loadu_si512(m+2*NUM64);
+   __m512i M3 = _mm512_loadu_si512(m+3*NUM64);
+   __m512i M4 = _mm512_loadu_si512(m+4*NUM64);
+   __m512i M5 = _mm512_loadu_si512(m+5*NUM64);
+   __m512i M6 = _mm512_loadu_si512(m+6*NUM64);
+   __m512i M7 = _mm512_loadu_si512(m+7*NUM64);
+   __m512i M8 = _mm512_loadu_si512(m+8*NUM64);
+   __m512i M9 = _mm512_maskz_loadu_epi64(k2, m+9*NUM64);
 
    /* R0, R1, R2, R3, R4, R5, R6, R7, R8, R9 holds temporary result */
    __m512i R0 = _mm512_setzero_si512();
@@ -634,16 +634,16 @@ static void AMM52x79(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    }
 
    /* store de-normilized result */
-   _mm512_store_si512(out, R0);
-   _mm512_store_si512(out+NUM64, R1);
-   _mm512_store_si512(out+2*NUM64, R2);
-   _mm512_store_si512(out+3*NUM64, R3);
-   _mm512_store_si512(out+4*NUM64, R4);
-   _mm512_store_si512(out+5*NUM64, R5);
-   _mm512_store_si512(out+6*NUM64, R6);
-   _mm512_store_si512(out+7*NUM64, R7);
-   _mm512_store_si512(out+8*NUM64, R8);
-   _mm512_mask_store_epi64(out+9*NUM64, k2, R9);
+   _mm512_storeu_si512(out, R0);
+   _mm512_storeu_si512(out+NUM64, R1);
+   _mm512_storeu_si512(out+2*NUM64, R2);
+   _mm512_storeu_si512(out+3*NUM64, R3);
+   _mm512_storeu_si512(out+4*NUM64, R4);
+   _mm512_storeu_si512(out+5*NUM64, R5);
+   _mm512_storeu_si512(out+6*NUM64, R6);
+   _mm512_storeu_si512(out+7*NUM64, R7);
+   _mm512_storeu_si512(out+8*NUM64, R8);
+   _mm512_mask_storeu_epi64(out+9*NUM64, k2, R9);
 
    /* normalize result */
    {
@@ -768,7 +768,7 @@ cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
    ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
 
    /* convert base to Montgomery domain */
-   ZEXPAND_COPY_BNU(redY, nsX+1, dataX, nsX);
+   ZEXPAND_COPY_BNU(redY, redBufferLen/*nsX+1*/, dataX, nsX);
    regular_dig52(redX, redY,  almMM_bitsize);
    ammFunc(redX, redX, redT, redM, k0, redLen, redBuffer);
 
@@ -876,7 +876,7 @@ cpSize gsMontExpBin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
    ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
 
    /* convert base to Montgomery domain */
-   ZEXPAND_COPY_BNU(redY, nsX+1, dataX, nsX);
+   ZEXPAND_COPY_BNU(redY, redBufferLen/*nsX+1*/, dataX, nsX);
    regular_dig52(redX, redY,  almMM_bitsize);
    ammFunc(redX, redX, redT, redM, k0, redLen, redBuffer);
 

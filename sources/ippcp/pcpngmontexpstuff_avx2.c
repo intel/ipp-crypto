@@ -255,7 +255,7 @@ cpSize gsMontExpBin_BNU_avx2(BNU_CHUNK_T* dataY,
    cpMontMul_avx2(redT, redT, redY, redM, redLen, k0, redBuffer);
 
    /* convert base to Montgomery domain */
-   ZEXPAND_COPY_BNU(redY, nsX+1, dataX, nsX);
+   ZEXPAND_COPY_BNU(redY, redBufferLen/*nsX+1*/, dataX, nsX);
    regular_dig27(redX, redBufferLen, (Ipp32u*)redY,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
    cpMontMul_avx2(redX, redX, redT, redM, redLen, k0, redBuffer);
    #ifdef _EXP_AVX2_DEBUG_
@@ -365,7 +365,7 @@ cpSize gsMontExpBin_BNU_sscm_avx2(BNU_CHUNK_T* dataY,
    cpMontMul_avx2(redT, redT, redY, redM, redLen, k0, redBuffer);
 
    /* convert base to Montgomery domain */
-   ZEXPAND_COPY_BNU(redY, nsX+1, dataX, nsX);
+   ZEXPAND_COPY_BNU(redY, redBUfferLen/*nsX+1*/, dataX, nsX);
    regular_dig27(redX, redBufferLen, (Ipp32u*)redY,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
    cpMontMul_avx2(redX, redX, redT, redM, redLen, k0, redBuffer);
    #ifdef _EXP_AVX2_DEBUG_
@@ -483,7 +483,7 @@ cpSize gsMontExpWin_BNU_avx2(BNU_CHUNK_T* dataY,
    debugToConvMontDomain(dbgValue, redY, redM, redLen, dataM, dataRR, nsM, k0, redBuffer);
    #endif
 
-   ZEXPAND_COPY_BNU(redE, nsX+1, dataX, nsX);
+   ZEXPAND_COPY_BNU(redE, redBufferLen/*nsX+1*/, dataX, nsX);
    regular_dig27(redY, redBufferLen, (Ipp32u*)redE,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
    cpMontMul_avx2(redY, redY, redT, redM, redLen, k0, redBuffer);
    COPY_BNU(redTable+redLen, redY, redLen);
@@ -641,7 +641,7 @@ cpSize gsMontExpWin_BNU_sscm_avx2(BNU_CHUNK_T* dataY,
    debugToConvMontDomain(dbgValue, redY, redM, redLen, dataM, dataRR, nsM, k0, redBuffer);
    #endif
 
-   ZEXPAND_COPY_BNU(redE, nsX+1, dataX, nsX);
+   ZEXPAND_COPY_BNU(redE, redBufferLen/*nsX+1*/, dataX, nsX);
    regular_dig27(redY, redBufferLen, (Ipp32u*)redE,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
    cpMontMul_avx2(redY, redY, redT, redM, redLen, k0, redBuffer);
    gsScramblePut(redTable, 1, redY, redLen, window);

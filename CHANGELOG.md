@@ -2,6 +2,11 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## 2019-05-22
+- Fixed GCC* and MSVC* builds of IA32 generic CPU code (pure C) with -DMERGED_BLD:BOOL=off option.
+- Added single-CPU headers generation.
+- Aligned structure of the build output directory across all supported operation systems.
+
 ## 2019-04-23
 - AES-CFB was enabled with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI).
 - ippsGFpECGetPointOctString and ippsGFpECSetPointOctString now support elliptic curves over both prime and extended finite fields.
