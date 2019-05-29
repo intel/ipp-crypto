@@ -150,6 +150,12 @@ IPPFUN(IppStatus, ippsAES_XTSEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int bitLen
             #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
             /* use Intel(R) AES New Instructions version if possible */
             if(AES_NI_ENABLED==RIJ_AESNI(pdatAES)) {
+               #if(_IPP32E>=_IPP32E_K0)
+               if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+                  cpAESEncryptXTS_VAES(pDst, pSrc, encBlocks, RIJ_EKEYS(pdatAES), RIJ_NR(pdatAES), tweakCT);
+               }
+               else
+               #endif
                cpAESEncryptXTS_AES_NI(pDst, pSrc, encBlocks, RIJ_EKEYS(pdatAES), RIJ_NR(pdatAES), tweakCT);
                pSrc += encBlocks*AES_BLK_SIZE;
                pDst += encBlocks*AES_BLK_SIZE;

@@ -243,6 +243,11 @@ struct _cpRijndael256 {
    void cpAESDecryptXTS_AES_NI(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak);
 
 #if (_IPP32E>=_IPP32E_K0)
+#define cpAESEncryptXTS_VAES OWNAPI(cpAESEncryptXTS_VAES)
+   void cpAESEncryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak);
+#define cpAESDecryptXTS_VAES OWNAPI(cpAESDecryptXTS_VAES)
+   void cpAESDecryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak);
+
 #define EncryptECB_RIJ128pipe_VAES_NI OWNAPI(EncryptECB_RIJ128pipe_VAES_NI)
    void EncryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc, Ipp8u* pDst, int len, const IppsAESSpec* pCtx);
 #define EncryptCTR_RIJ128pipe_VAES_NI OWNAPI(EncryptCTR_RIJ128pipe_VAES_NI)

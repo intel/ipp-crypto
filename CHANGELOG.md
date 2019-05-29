@@ -2,6 +2,9 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## 2019-05-29
+- AES-XTS was enabled with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI).
+
 ## 2019-05-22
 - Fixed GCC* and MSVC* builds of IA32 generic CPU code (pure C) with -DMERGED_BLD:BOOL=off option.
 - Added single-CPU headers generation.
