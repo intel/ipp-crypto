@@ -54,10 +54,6 @@
 #include "pcpaesm.h"
 #include "pcptool.h"
 
-#if defined(_OPENMP)
-#  include "omp.h"
-#endif
-
 #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
 #  pragma message("_ALG_AES_SAFE_COMPOSITE_GF_ enabled")
 #elif (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
@@ -148,8 +144,6 @@ IPPFUN(IppStatus, ippsAESEncryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
    {
       int nBlocks = len / MBS_RIJ128;
 
-      #if !defined(_OPENMP)
-
       #if(_IPP32E>=_IPP32E_K0)
       if (IsFeatureEnabled(ippCPUID_AVX512VAES))
          EncryptECB_RIJ128pipe_VAES_NI(pSrc, pDst, len, pCtx);
@@ -157,36 +151,6 @@ IPPFUN(IppStatus, ippsAESEncryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
       #endif
       cpEncryptAES_ecb(pSrc, pDst, nBlocks, pCtx);
 
-      #else
-      int blk_per_thread = AES_NI_ENABLED==RIJ_AESNI(pCtx)? AESNI128_MIN_BLK_PER_THREAD : RIJ128_MIN_BLK_PER_THREAD;
-      int nThreads = IPP_MIN(IPPCP_GET_NUM_THREADS(), IPP_MAX(nBlocks/blk_per_thread, 1));
-
-      if(1==nThreads)
-         cpEncryptAES_ecb(pSrc, pDst, nBlocks, pCtx);
-
-      else {
-         int blksThreadReg;
-         int blksThreadTail;
-
-         #pragma omp parallel IPPCP_OMP_LIMIT_MAX_NUM_THREADS(nThreads)
-         {
-            #pragma omp master
-            {
-               nThreads = omp_get_num_threads();
-               blksThreadReg = nBlocks / nThreads;
-               blksThreadTail = blksThreadReg + nBlocks % nThreads;
-            }
-            #pragma omp barrier
-            {
-               int id = omp_get_thread_num();
-               Ipp8u* pThreadSrc = (Ipp8u*)pSrc + id*blksThreadReg * MBS_RIJ128;
-               Ipp8u* pThreadDst = (Ipp8u*)pDst + id*blksThreadReg * MBS_RIJ128;
-               int blkThread = (id==(nThreads-1))? blksThreadTail : blksThreadReg;
-               cpEncryptAES_ecb(pThreadSrc, pThreadDst, blkThread, pCtx);
-            }
-         }
-      }
-      #endif /* _OPENMP version */
 
       return ippStsNoErr;
    }

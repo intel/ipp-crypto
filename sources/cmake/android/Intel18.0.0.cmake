@@ -78,9 +78,6 @@ endif()
 # Specifying a Target Platform as Android
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -platform=android")
 
-if(THREADED_LIB)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qopenmp -qopenmp-lib compat")
-endif()
 if(CODE_COVERAGE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -prof-gen:srcpos -prof-dir ${PROF_DATA_DIR}")
 endif()

@@ -99,7 +99,16 @@ struct _cpAES_GCM {
 
    __ALIGN16                        /* aligned pre-computed data:    */
    Ipp8u multiplier[BLOCK_SIZE];    /* - (default) hKey                             */
-                                    /* - (ase_ni)  hKey*t, (hKey*t)^2, (hKey*t)^4   */
+                                    /* - (aes_ni)  hKey*t, (hKey*t)^2, (hKey*t)^4   */
+                                    /* - (vaes_ni) 8 reverted ordered vectors by 4 128-bit values.
+										 hKeys derivations in the multiplier[] array in order of appearance
+										 (zero-index starts from the left):
+											hKey^4<<1, hKey^3<<1,   hKey^2<<1,  hKey<<1,
+											hKey^8<<1, hKey^7<<1,   hKey^6<<1,  hKey^5<<1,
+											hKey^12<<1, hKey^11<<1, hKey^10<<1, hKey^9<<1,
+											hKey^16<<1, hKey^15<<1, hKey^14<<1, hKey^13<<1,
+										 ... <same 4 vectors for Karatsuba partial products> ...
+									*/
                                     /* - (safe) hKey*(t^i), i=0,...,127             */
 };
 
@@ -109,6 +118,7 @@ struct _cpAES_GCM {
 #define AESGCM_ALIGNMENT   (16)
 
 #define PRECOMP_DATA_SIZE_AES_NI_AESGCM   (BLOCK_SIZE*4)
+#define PRECOMP_DATA_SIZE_VAES_NI_AESGCM  (BLOCK_SIZE*16*2)
 #define PRECOMP_DATA_SIZE_FAST2K          (BLOCK_SIZE*128)
 
 /*
@@ -169,6 +179,19 @@ __INLINE void IncrementCounter32(Ipp8u* pCtr)
                      Ipp8u* pGhash, Ipp8u* pCnt, Ipp8u* pECnt, const Ipp8u* pMuls);
 #endif
 
+#if(_IPP32E>=_IPP32E_K0)
+#define AesGcmPrecompute_vaes OWNAPI(AesGcmPrecompute_vaes)
+   void AesGcmPrecompute_vaes(Ipp8u* pPrecomputeData, const Ipp8u* pHKey);
+#define AesGcmMulGcm_vaes OWNAPI(AesGcmMulGcm_vaes)
+   void AesGcmMulGcm_vaes(Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam);
+#define AesGcmAuth_vaes OWNAPI(AesGcmAuth_vaes)
+   void AesGcmAuth_vaes(Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam);
+#define AesGcmEnc_vaes OWNAPI(AesGcmEnc_vaes)
+   void AesGcmEnc_vaes(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
+#define AesGcmDec_vaes OWNAPI(AesGcmDec_vaes)
+   void AesGcmDec_vaes(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
+#endif /* _IPP32E>=_IPP32E_K0 */
+
 #define AesGcmPrecompute_table2K OWNAPI(AesGcmPrecompute_table2K)
    void AesGcmPrecompute_table2K(Ipp8u* pPrecomputeData, const Ipp8u* pHKey);
 #define AesGcmMulGcm_table2K OWNAPI(AesGcmMulGcm_table2K)
@@ -187,6 +210,11 @@ static int cpSizeofCtx_AESGCM(void)
    int precomp_size;
 
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
+   #if(_IPP32E>=_IPP32E_K0)
+   if (IsFeatureEnabled(ippCPUID_AVX512VAES))
+      precomp_size = PRECOMP_DATA_SIZE_VAES_NI_AESGCM;
+   else
+   #endif /* #if(_IPP32E>=_IPP32E_K0) */
    if( IsFeatureEnabled(ippCPUID_AES|ippCPUID_CLMUL) )
       precomp_size = PRECOMP_DATA_SIZE_AES_NI_AESGCM;
    else

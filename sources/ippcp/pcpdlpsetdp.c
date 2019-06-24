@@ -105,9 +105,6 @@ IPPFUN(IppStatus, ippsDLPSetDP,(const IppsBigNumState* pDP, IppDLPKeyTag tag, Ip
             sts = gsModEngineInit(DLP_MONTP0(pDL), (Ipp32u*)BN_NUMBER(pDP), cpBN_bitsize(pDP), DLP_MONT_POOL_LENGTH, gsModArithDLP());
             if(ippStsNoErr==sts) {
                DLP_FLAG(pDL) |= ippDLPkeyP;
-               #if defined(_OPENMP)
-               gsModEngineInit(DLP_MONTP1(pDL), (Ipp32u*)BN_NUMBER(pDP), cpBN_bitsize(pDP), DLP_MONT_POOL_LENGTH, gsModArithDLP());
-               #endif
             }
             break;
          case ippDLPkeyR:

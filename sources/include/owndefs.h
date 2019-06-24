@@ -646,7 +646,7 @@ extern double            __intel_castu64_f64(unsigned __int64 val);
 
       /* OSX-32, OSX-64 */
       #elif defined(OSX32) || defined(OSXEM64T)
-         #if ( defined(_S8) || defined(_N8) )
+         #if ( defined(_Y8) )
          #define _IPP_DATA 1
          #endif
       #endif

@@ -63,10 +63,6 @@ extern "C" {
     #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcp" )
   #elif defined( _IPP_SEQUENTIAL_STATIC )
     #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcpmt" )
-  #elif defined( _IPP_PARALLEL_DYNAMIC )
-    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcp" )
-  #elif defined( _IPP_PARALLEL_STATIC )
-    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "threaded/ippcpmt" )
   #endif
 #endif
 

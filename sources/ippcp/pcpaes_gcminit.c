@@ -38,12 +38,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     AES-GCM
-// 
+//
 //  Contents:
 //        ippsAES_GCMInit()
 //
@@ -116,6 +116,15 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    AESGCM_DEC(pState)  = wrpAesGcmDec_table2K;
 
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
+   #if(_IPP32E>=_IPP32E_K0)
+   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+      AESGCM_HASH(pState) = AesGcmMulGcm_vaes;
+      AESGCM_AUTH(pState) = AesGcmAuth_vaes;
+      AESGCM_ENC(pState) = AesGcmEnc_vaes;
+      AESGCM_DEC(pState) = AesGcmDec_vaes;
+   }
+   else
+   #endif /* #if(_IPP32E>=_IPP32E_K0) */
    if( IsFeatureEnabled(ippCPUID_AES|ippCPUID_CLMUL) ) {
       AESGCM_HASH(pState) = AesGcmMulGcm_avx;
       AESGCM_AUTH(pState) = AesGcmAuth_avx;
@@ -140,6 +149,14 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    }
 
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
+   #if(_IPP32E>=_IPP32E_K0)
+   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+      /* pre-compute hKey<<1, (hKey<<1)^2, (hKey<<1)^3, ... , (hKey<<1)^15 and corresponding
+         Karatsuba constant multipliers for aggregated reduction */
+      AesGcmPrecompute_vaes(AESGCM_CPWR(pState), AESGCM_HKEY(pState));
+   }
+   else
+   #endif /* #if(_IPP32E>=_IPP32E_K0) */
    if( IsFeatureEnabled(ippCPUID_AES|ippCPUID_CLMUL) ) {
       /* pre-compute reflect(hkey) and hKey<<1, (hKey<<1)^2 and (hKey<<1)^4 powers of hKey */
       AesGcmPrecompute_avx(AESGCM_CPWR(pState), AESGCM_HKEY(pState));

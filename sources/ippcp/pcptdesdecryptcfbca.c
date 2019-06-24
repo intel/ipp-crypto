@@ -52,8 +52,6 @@
 
 #include "owndefs.h"
 
-#ifndef _OPENMP
-
 #include "owncp.h"
 #include "pcpdes.h"
 #include "pcptool.h"
@@ -157,5 +155,3 @@ IPPFUN(IppStatus, ippsTDESDecryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, i
 
    return ippStsNoErr;
 }
-
-#endif /* #ifndef _OPENMP */

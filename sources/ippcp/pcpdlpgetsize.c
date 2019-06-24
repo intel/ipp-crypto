@@ -127,9 +127,6 @@ IPPFUN(IppStatus, ippsDLPGetSize,(int feBitSize, int ordBitSize, int *pSize))
 
       *pSize = sizeof(IppsDLPState)
               +montSizeP         /* montgomery(P) */
-              #if defined( _OPENMP )
-              +montSizeP         /* montgomery(P) */
-              #endif
               +montSizeR         /* montgomery(Q) */
 
               +bnSizeP           /* Genc          */
@@ -143,9 +140,6 @@ IPPFUN(IppStatus, ippsDLPGetSize,(int feBitSize, int ordBitSize, int *pSize))
               +bn_resourceSize   /* BN resource   */
               #if defined(_USE_WINDOW_EXP_)
               +bnu_resourceSize  /* BNU resource  */
-              #if defined( _OPENMP )
-              +bnu_resourceSize  /* BNU resource  */
-              #endif
               #endif
 
               +(DLP_ALIGNMENT-1);

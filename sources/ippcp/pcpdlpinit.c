@@ -116,9 +116,6 @@ IPPFUN(IppStatus, ippsDLPInit,(int feBitSize, int ordBitSize, IppsDLPState* pDL)
       /* size of window for exponentiation */
       #if defined(_USE_WINDOW_EXP_)
       int window = cpMontExp_WinSize(ordBitSize);
-      #if defined( _OPENMP )
-      int bnu_resourceSize = window==1? 0 : cpMontExpScratchBufferSize(feBitSize, ordBitSize, 1);
-      #endif
       DLP_EXPMETHOD(pDL) = window>1? WINDOW : BINARY;
       #endif
 
@@ -144,10 +141,6 @@ IPPFUN(IppStatus, ippsDLPInit,(int feBitSize, int ordBitSize, IppsDLPState* pDL)
       DLP_MONTP0(pDL)  = (gsModEngine*)(IPP_ALIGNED_PTR(ptr,MONT_ALIGNMENT));
       ptr += montSizeP;
       DLP_MONTP1(pDL)  = 0;
-      #if defined(_OPENMP)
-      DLP_MONTP1(pDL)  = (gsModEngine*)(IPP_ALIGNED_PTR(ptr,MONT_ALIGNMENT));
-      ptr += montSizeP;
-      #endif
       DLP_MONTR(pDL)   = (gsModEngine*)(IPP_ALIGNED_PTR(ptr,MONT_ALIGNMENT));
       ptr += montSizeR;
 
@@ -171,18 +164,11 @@ IPPFUN(IppStatus, ippsDLPInit,(int feBitSize, int ordBitSize, IppsDLPState* pDL)
       DLP_BNUCTX0(pDL) = 0;
       DLP_BNUCTX1(pDL) = 0;
       DLP_BNUCTX0(pDL) = window>1? (BNU_CHUNK_T*)( IPP_ALIGNED_PTR(ptr, (int)sizeof(BNU_CHUNK_T)) ) : 0;
-         #if defined(_OPENMP)
-         ptr += bnu_resourceSize;
-         DLP_BNUCTX1(pDL) = window>1? (BNU_CHUNK_T*)( IPP_ALIGNED_PTR(ptr, (int)sizeof(BNU_CHUNK_T)) ) : 0;
-         #endif
       #endif
 
       /* init buffers */
       gsModEngineInit(DLP_MONTP0(pDL), NULL, feBitSize, DLP_MONT_POOL_LENGTH, gsModArithDLP());
 
-      #if defined(_OPENMP)
-      gsModEngineInit(DLP_MONTP1(pDL), NULL, feBitSize, DLP_MONT_POOL_LENGTH, gsModArithDLP());
-      #endif
       gsModEngineInit(DLP_MONTR(pDL), NULL, ordBitSize, DLP_MONT_POOL_LENGTH, gsModArithDLP());
 
       ippsBigNumInit(sizeP,  DLP_GENC(pDL));

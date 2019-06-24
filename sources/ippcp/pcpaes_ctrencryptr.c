@@ -51,7 +51,6 @@
 #ifdef _MSC_VER
 #pragma warning(disable: 4206) // empty unit
 #endif
-#if !defined(_OPENMP)
 
 #include "owndefs.h"
 #include "owncp.h"
@@ -106,6 +105,3 @@ IPPFUN(IppStatus, ippsAESEncryptCTR,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
    return cpProcessAES_ctr(pSrc, pDst, len, pCtx, pCtrValue, ctrNumBitSize);
    #endif
 }
-
-#endif /* #if !defined(_OPENMP) */
-

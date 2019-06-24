@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2019 Intel Corporation
+* Copyright 2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -38,71 +38,4 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
-//  Purpose:
-//     Cryptography Primitive.
-//     AES encryption/decryption (CBC mode)
-//     AES encryption/decryption (CBC-CS mode)
-// 
-//  Contents:
-//        ippsAESDecryptCBC()
-//
-*/
-
-#include "owndefs.h"
-#include "owncp.h"
-#include "pcpaesm.h"
-#include "pcptool.h"
-#include "pcpaes_cbc.h"
-
-/*F*
-//    Name: ippsAESDecryptCBC
-//
-// Purpose: AES-CBC decryption.
-//
-// Returns:                Reason:
-//    ippStsNullPtrErr        pCtx == NULL
-//                            pSrc == NULL
-//                            pDst == NULL
-//                            pIV  == NULL
-//    ippStsContextMatchErr   !VALID_AES_ID()
-//    ippStsLengthErr         len <1
-//    ippStsUnderRunErr       0!=(dataLen%MBS_RIJ128)
-//    ippStsNoErr             no errors
-//
-// Parameters:
-//    pSrc        pointer to the source data buffer
-//    pDst        pointer to the target data buffer
-//    len         input/output buffer length (in bytes)
-//    pCtx        pointer to the AES context
-//    pIV         pointer to the initialization vector
-//
-*F*/
-IPPFUN(IppStatus, ippsAESDecryptCBC,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
-                                     const IppsAESSpec* pCtx,
-                                     const Ipp8u* pIV))
-{
-   /* test context */
-   IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned AES context */
-   pCtx = (IppsAESSpec*)( IPP_ALIGNED_PTR(pCtx, AES_ALIGNMENT) );
-   /* test the context ID */
-   IPP_BADARG_RET(!VALID_AES_ID(pCtx), ippStsContextMatchErr);
-
-   /* test source, target buffers and initialization pointers */
-   IPP_BAD_PTR3_RET(pSrc, pIV, pDst);
-   /* test stream length */
-   IPP_BADARG_RET((len<1), ippStsLengthErr);
-   /* test stream integrity */
-   IPP_BADARG_RET((len&(MBS_RIJ128-1)), ippStsUnderRunErr);
-
-   /* do encryption */
-   {
-      int nBlocks = len / MBS_RIJ128;
-
-      cpDecryptAES_cbc(pIV, pSrc, pDst, nBlocks, pCtx);
-
-      return ippStsNoErr;
-   }
-}
+/* The empty file to build a dynamic library in Visual Studio. The IDE does not produce a dll without source files */

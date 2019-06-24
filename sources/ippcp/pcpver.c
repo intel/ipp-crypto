@@ -50,13 +50,7 @@
 #include "pcpver.h"
 #include "pcpname.h"
 
-#ifdef _IPP_OMP_STATIC
-#define LIB_THREADS " threaded"
-#else 
-#define LIB_THREADS ""
-#endif
-
-#define GET_LIBRARY_NAME( cpu, is ) #cpu, IPP_LIB_SHORTNAME() " " is " (" #cpu LIB_THREADS ")"
+#define GET_LIBRARY_NAME( cpu, is ) #cpu, IPP_LIB_SHORTNAME() " " is " (" #cpu ")"
 
 static const IppLibraryVersion ippcpLibVer = {
     /* major, minor, update (ex-majorBuild) */

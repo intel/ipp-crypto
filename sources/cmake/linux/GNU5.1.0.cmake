@@ -64,9 +64,6 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -flto-report -std=c99 -falign
 if(NOT NONPIC_LIB)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic -fPIC")
 endif()
-if(THREADED_LIB)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
-endif()
 
 if(${ARCH} MATCHES "ia32")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpack-struct=16 -mpreferred-stack-boundary=4 -Wa,--32 -m32")

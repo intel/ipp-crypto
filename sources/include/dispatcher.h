@@ -141,10 +141,11 @@ extern "C" {
   #define LIB_N0 LIB_L9
 #elif defined( OSXEM64T )
   enum lib_enum {
-     LIB_N8=0, LIB_Y8=1, LIB_E9=2, LIB_L9=3, LIB_K0=4, LIB_NOMORE
+     LIB_Y8=0, LIB_E9=1, LIB_L9=2, LIB_K0=3, LIB_NOMORE
   };
-  #define LIB_PX LIB_N8
-  #define LIB_M7 LIB_N8
+  #define LIB_PX LIB_Y8
+  #define LIB_M7 LIB_Y8
+  #define LIB_N8 LIB_Y8
   #define LIB_N0 LIB_L9
 #elif defined( _ARCH_LRB2 )
   enum lib_enum {

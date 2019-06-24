@@ -38,12 +38,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     AES-GCM
-// 
+//
 //  Contents:
 //        ippsAES_GCMDecrypt()
 //
@@ -168,6 +168,13 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
             Decrypt_ decFunc = AESGCM_DEC(pState);
 
             decFunc(pDst, pSrc, lenBlks, pState);
+
+            #if(_IPP32E>=_IPP32E_K0)
+            if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+                /* encrypt next counter - can be used for further partial block processing */
+                encoder(AESGCM_COUNTER(pState), AESGCM_ECOUNTER(pState), RIJ_NR(pAES), RIJ_EKEYS(pAES), NULL);
+            }
+            #endif /* #if(_IPP32E>=_IPP32E_K0) */
 
             AESGCM_TXT_LEN(pState) += lenBlks;
             pSrc += lenBlks;

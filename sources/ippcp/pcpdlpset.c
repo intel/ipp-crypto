@@ -123,10 +123,6 @@ IPPFUN(IppStatus, ippsDLPSet,(const IppsBigNumState* pP,
 
       sts = gsModEngineInit(DLP_MONTP0(pDL), (Ipp32u*)BN_NUMBER(pP), cpBN_bitsize(pP), DLP_MONT_POOL_LENGTH, gsModArithDLP());
 
-      #if defined(_OPENMP)
-      gsModEngineInit(DLP_MONTP1(pDL), (Ipp32u*)BN_NUMBER(pP), cpBN_bitsize(pP), DLP_MONT_POOL_LENGTH, gsModArithDLP());
-      #endif
-
       if(ippStsNoErr==sts) {
          sts = gsModEngineInit(DLP_MONTR(pDL), (Ipp32u*)BN_NUMBER(pR), cpBN_bitsize(pR), DLP_MONT_POOL_LENGTH, gsModArithDLP());
          if(ippStsNoErr==sts) {

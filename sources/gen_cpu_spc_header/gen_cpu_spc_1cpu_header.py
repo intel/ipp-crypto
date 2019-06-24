@@ -69,7 +69,7 @@ if not os.path.exists(OutDir):
 
 
 Filename="ippcp"
-Filenames=["h9", "p8", "s8", "w7","e9", "k0", "l9", "m7", "n0", "n8", "y8"]
+Filenames=["h9", "p8", "s8", "w7", "e9", "k0", "l9", "m7", "n0", "n8", "y8", "g9"]
 
 for name in Filenames:
   OutFile  = os.sep.join([OutDir, Filename + "_"+ name + ".h"])

@@ -419,24 +419,4 @@
 */
 #define _USE_ECCP_SSCM_             /*     use SSCM ECCP */
 
-
-#if defined ( _OPENMP )
-#define DEFAULT_CPU_NUM    (8)
-
-#define     BF_MIN_BLK_PER_THREAD (32)
-#define     TF_MIN_BLK_PER_THREAD (16)
-
-#define    DES_MIN_BLK_PER_THREAD (32)
-#define   TDES_MIN_BLK_PER_THREAD (16)
-
-#define  RC5_64_MIN_BLK_PER_THREAD (16)
-#define RC5_128_MIN_BLK_PER_THREAD (32)
-
-#define RIJ128_MIN_BLK_PER_THREAD (32)
-#define RIJ192_MIN_BLK_PER_THREAD (16)
-#define RIJ256_MIN_BLK_PER_THREAD (16)
-
-#define AESNI128_MIN_BLK_PER_THREAD (256)
-#endif
-
 #endif /* _CP_VARIANT_H */

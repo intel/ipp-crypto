@@ -1,6 +1,42 @@
 Intel(R) Integrated Performance Primitives Cryptography
+--------------------
+
+- [Overview](#overview)
+  - [Product description](#product-description)
+  - [Branches description](#branches-description)
+  - [License](#license)
+  - [Online Documentation](#online-documentation)
+- [System Requirements to Build Intel(R) IPP Cryptography](#system-requirements-to-build-intelr-ipp-cryptography)
+  - [Common Requirements for All Supported Operating Systems](#common-requirements-for-all-supported-operating-systems)
+  - [Windows\* OS](#windows-os)
+    - [C/C++\* Compilers](#cc-compilers)
+    - [Assembly Compilers](#assembly-compilers)
+  - [Linux\* OS](#linux-os)
+    - [C/C++\* Compilers](#cc-compilers-1)
+    - [Binary Tools](#binary-tools)
+    - [Android\* NDK Version:](#android-ndk-version)
+  - [macOS\*](#macos)
+    - [C/C++\* Compilers](#cc-compilers-2)
+    - [Assembly Compilers](#assembly-compilers-1)
+- [Building from Source](#building-from-source)
+  - [Required Software](#required-software)
+  - [Build Steps](#build-steps)
+  - [CMake Arguments](#cmake-arguments)
+    - [Common Arguments for All Supported Operating Systems](#common-arguments-for-all-supported-operating-systems)
+    - [Windows\* OS](#windows-os-1)
+    - [Linux\* OS](#linux-os-1)
+    - [macOS\*](#macos-1)
+- [Building an application tied to a specific CPU](#building-an-application-tied-to-a-specific-cpu)
+- [How to Contribute](#how-to-contribute)
+- [See Also](#see-also)
+- [Legal Information](#legal-information)
+
+
+Overview
 =======================================================
 
+Product description
+--------------------
 Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
 is a software library that provides a broad range of secure and
 efficient cryptographic algorithm implementations:
@@ -40,94 +76,82 @@ the [Intel(R) Integrated Performance Primitives
 Documentation](https://software.intel.com/en-us/intel-ipp/documentation) web
 page.
 
-How to Contribute
------------------
-
-We welcome community contributions to Intel IPP Cryptography. If you
-have an idea how to improve the product, let us know about your proposal via
-the [Intel IPP
-Forum](https://software.intel.com/en-us/forums/intel-integrated-performance-primitives).
-
-Intel IPP Cryptography is licensed under [Apache License, Version
-2.0](http://www.apache.org/licenses/LICENSE-2.0). By
-contributing to the project, you agree to the license and copyright
-terms therein and release your contribution under these terms.
-
 System Requirements to Build Intel(R) IPP Cryptography
-----------------------------------------------------
+=======================================================
 
 The list below contains the system requirements necessary to build Intel
 IPP Cryptography. We tested the build process of Intel IPP Cryptography
 only on the operating systems and tools listed below:
 
-#### CMake\* Version:
+Common Requirements for All Supported Operating Systems
+-----------------
 
 -   CMake 3.7.2
 
-#### Python\* Version:
-
 -   Python 2.7
 
-### Windows\* OS
+Windows\* OS
+-----------------
 
-#### OS
 -   Windows Server\* 2012
 
-#### C/C++\* Compilers
--   Intel(R) C++ Compiler 19.0 for Windows\* OS
+### C/C++\* Compilers
+- Intel(R) C++ Compiler 19.0 for Windows\* OS
 
 -   Microsoft Visual C++ Compiler\* version 19.16
     provided by Microsoft Visual Studio\* 2017 version 15.9
 
-#### Assembly Compilers
+### Assembly Compilers
 -   Microsoft Macro Assembler 14
 
-### Linux\* OS
+Linux\* OS
+-----------------
 
-#### OS
 -   Red Hat\* Enterprise Linux\* 6
 
-#### C/C++\* Compilers
+### C/C++\* Compilers
 -   Intel(R) C++ Compiler 19.0 for Linux\* OS
 
 -   GCC 8.2
 
-#### Binary Tools
+### Binary Tools
 -   GNU binutils 2.32
 
-#### Android\* NDK Version:
+### Android\* NDK Version:
 
 -   Android NDK, Revision 10
 
-### macOS\*
+macOS\*
+-----------------
 
-#### OS
 -   macOS\* 10.12\*
 
-#### C/C++\* Compilers
+### C/C++\* Compilers
 -   Intel(R) C++ Compiler 19.0 for OS X\* OS
 
-#### Assembly Compilers
+### Assembly Compilers
 -   Yasm 1.2.2
 
 Building from Source
---------------------
+=======================================================
 
-### Required Software
+Required Software
+-----------------
 
--   C/C++ compiler (see [System Requirements](#system-requirements))
+-   C/C++ compiler (see [System Requirements](#system-requirements-to-build-intelr-ipp-cryptography))
 
--   Assembly compiler (see [System Requirements](#system-requirements))
+-   Assembly compiler (see [System Requirements](#system-requirements-to-build-intelr-ipp-cryptography))
 
--   CMake (see [System Requirements](#system-requirements))
+-   CMake (see [System Requirements](#system-requirements-to-build-intelr-ipp-cryptography))
 
--   Python (see [System Requirements](#system-requirements))
+-   Python (see [System Requirements](#system-requirements-to-build-intelr-ipp-cryptography))
 
 -   Microsoft Visual Studio\* (Windows\* OS only)
 
 -   Android NDK (only for cross-platform build for Android\* OS on Linux\* OS)
 
-### Build Steps
+Build Steps
+-----------------
 
 Note that we tested only the build process defined in `CMakeLists.txt`
 with the options described in [CMake Arguments](#cmake-arguments).
@@ -205,12 +229,12 @@ with the options described in [CMake Arguments](#cmake-arguments).
     See the description of `-DMERGED_BLD:BOOL` in [CMake Arguments](#cmake-arguments)
     for more information.
 
-    Built libraries are located in
-    the `<build_dir>/.build/lib` directory.
+    Built libraries are located in the `<build_dir>/.build/<RELEASE|DEBUG>/lib` directory.
 
-### CMake Arguments
+CMake Arguments
+-----------------
 
-#### Common CMake Arguments for All Supported Operating Systems:
+### Common Arguments for All Supported Operating Systems
 
 -   `-B<build-dir>` - defines the build directory. This is the directory
     where CMake puts the generated Microsoft Visual Studio\* solution or
@@ -218,27 +242,18 @@ with the options described in [CMake Arguments](#cmake-arguments).
 
 -   `-DARCH=<ia32|intel64>` - on Linux* OS and macOS*, defines the target architecture
     for the build of the Intel IPP Cryptography library. On Windows* OS, use `-G`
-    instead. See the description of the `-G` option [below](#windows-os-cmake-arguments)
+    instead. See the description of the `-G` option [below](#windows-os-1)
     for details.
 
 -   `-DMERGED_BLD:BOOL=<on|off>` - optional. Defines the configuration
     of the Intel IPP Cryptography library to build:
 
     -   `-DMERGED_BLD:BOOL=on`: default configuration. Build of a dispatched
-        static library with all available optimizations; build of dynamic
-        libraries with a dynamic dispatcher library.
+        static library with all available optimizations; build of a dispatched
+        dynamic library with all available optimizations; generation of the single-CPU headers (for more details please refer to the [section](#building-an-application-tied-to-specific-cpu) below).
 
     -   `-DMERGED_BLD:BOOL=off`: build of one static library per
         optimization; build of one dynamic library per optimization.
-
--   `-DTHREADED_LIB:BOOL=<off|on>` - optional. Defines the threading
-    configuration of the Intel IPP Cryptography library to build:
-
-    -   `-DTHREADED_LIB:BOOL=off`: default. Build single-threaded Intel IPP
-        Cryptography library
-
-    -   `-DTHREADED_LIB:BOOL=on`: build multi-threaded Intel IPP Cryptography
-        library.
 
 -   `-DPLATFORM_LIST="<platform list>"` - optional, works only if
     `-DMERGED_BLD:BOOL=off` is set. Sets target platforms for the code
@@ -258,7 +273,7 @@ with the options described in [CMake Arguments](#cmake-arguments).
 CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
 ```
 
-#### Windows\* OS CMake Arguments:
+### Windows\* OS
 
 -   `-G"<tool-chain-generator>"` - defines the native build system CMake
     will generate from the input files. For example, `-G"Visual Studio
@@ -273,7 +288,7 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
 
 **Note:** Refer to CMake documentation for more information on these options.
 
-#### Linux\* OS CMake Arguments:
+### Linux\* OS
 
 -   `-DNONPIC_LIB:BOOL=<off|on>` - optional. Defines whether the built
     library will be position-dependent or not:
@@ -312,21 +327,48 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
     2.  Add `'$ANDROID_GNU_X86_TOOLCHAIN/bin'` to the `PATH`
         environment variable.
 
-#### macOS\* CMake Arguments:
+### macOS\*
 
 -   `-DUSEYASM=<path to Yasm* assembly>` - defines the path to the
     Yasm\* assembly compiler.
 
+Building an application tied to a specific CPU
+=======================================================
+
+The default build of the Intel(R) IPP Cryptography library (with `-DMERGED_BLD:BOOL=on` CMake option) provides the merged static library that contains multiple versions of each function optimized for different CPUs.
+By default, each function is linked to the target application with its all CPU optimization versions. In case when an application or driver needs to be tied to a particular processor to reduce the footprint, it is also possible to link it to only one optimization layer of Intel(R) IPP Cryptography.
+
+For this purpose, there are several CPU-specific headers (each targeted on specific CPU optimization) generated during the merged library build. They are located in the `<build_dir>/.build/<RELEASE|DEBUG>/include/autogen` directory.
+To enable linking of processor-specific versions of the library functions, include the appropriate header from the directory above before the primary library header `ippcp.h`.
+
+Please refer to the [article](https://software.intel.com/en-us/articles/understanding-cpu-optimized-code-used-in-intel-ipp) for more details about CPU identification codes used in the header suffixes.
+
+It is important to ensure that both processor and operating system supports full capabilities of the target processor.
+
+How to Contribute
+=======================================================
+
+We welcome community contributions to Intel IPP Cryptography. If you
+have an idea how to improve the product, let us know about your proposal via
+the [Intel IPP
+Forum](https://software.intel.com/en-us/forums/intel-integrated-performance-primitives).
+
+Intel IPP Cryptography is licensed under [Apache License, Version
+2.0](http://www.apache.org/licenses/LICENSE-2.0). By
+contributing to the project, you agree to the license and copyright
+terms therein and release your contribution under these terms.
+
 
 See Also
---------
+=======================================================
 
 -   [Intel(R) Integrated Performance Primitives Product Page](https://software.intel.com/en-us/intel-ipp)
 
 -   [Intel(R) IPP Forum](https://software.intel.com/en-us/forums/intel-integrated-performance-primitives)
 
 Legal Information
------------------
+=======================================================
+
 No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document.
 Intel disclaims all express and implied warranties, including without limitation, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement, as well as any warranty arising from course of performance, course of dealing, or usage in trade.
 

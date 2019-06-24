@@ -60,11 +60,7 @@ void cpUnpackDLPCtx(const Ipp8u* pBuffer, IppsDLPState* pDLP)
 
    CopyBlock(pAlignedBuffer, pDLP, sizeof(IppsDLPState));
    DLP_MONTP0(pDLP) =   (gsModEngine*)((Ipp8u*)pDLP+ IPP_UINT_PTR(DLP_MONTP0(pAlignedBuffer)));
-   #if defined(_OPENMP)
-   DLP_MONTP1(pDLP) =   (gsModEngine*)((Ipp8u*)pDLP+ IPP_UINT_PTR(DLP_MONTP1(pAlignedBuffer)));
-   #else
    DLP_MONTP1(pDLP) = NULL;
-   #endif
    DLP_MONTR(pDLP)   =   (gsModEngine*)((Ipp8u*)pDLP+ IPP_UINT_PTR(DLP_MONTR(pAlignedBuffer)));
 
    DLP_GENC(pDLP)    = (IppsBigNumState*)((Ipp8u*)pDLP+ IPP_UINT_PTR(DLP_GENC(pAlignedBuffer)));
@@ -78,15 +74,9 @@ void cpUnpackDLPCtx(const Ipp8u* pBuffer, IppsDLPState* pDLP)
    #if defined(_USE_WINDOW_EXP_)
    DLP_BNUCTX0(pDLP) = (WINDOW==DLP_EXPMETHOD(pDLP))?(BNU_CHUNK_T*)((Ipp8u*)pDLP+ IPP_UINT_PTR(DLP_BNUCTX0(pAlignedBuffer))) : NULL;
    DLP_BNUCTX1(pDLP) = NULL;
-   #if defined(_OPENMP)
-   DLP_BNUCTX1(pDLP) = (WINDOW==DLP_EXPMETHOD(pDLP))?(BNU_CHUNK_T*)((Ipp8u*)pDLP+ IPP_UINT_PTR(DLP_BNUCTX1(pAlignedBuffer))) : NULL;
-   #endif
    #endif
 
    gsUnpackModEngineCtx((Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(DLP_MONTP0(pAlignedBuffer)), DLP_MONTP0(pDLP));
-   #if defined(_OPENMP)
-   gsUnpackModEngineCtx((Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(DLP_MONTP1(pAlignedBuffer)), DLP_MONTP1(pDLP));
-   #endif
    gsUnpackModEngineCtx((Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(DLP_MONTR(pAlignedBuffer)),    DLP_MONTR(pDLP));
    cpUnpackBigNumCtx((Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(DLP_GENC(pAlignedBuffer)),   DLP_GENC(pDLP));
    cpUnpackBigNumCtx((Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(DLP_X(pAlignedBuffer)),      DLP_X(pDLP));
