@@ -141,13 +141,9 @@ int cpModInv_BNU(BNU_CHUNK_T* pInv,
       ZEXPAND_BNU(X2, 0, moduloSize);
       X2[0] = 1;
 
-      //printf("\n");
       for(;;) {
          nsM = cpDiv_BNU(Q, &nsQ, (BNU_CHUNK_T*)pM, nsM, bufA, nsA);
-         //Print_BNU(" q: ", Q, nsQ);
-         //Print_BNU(" m: ", pM, nsM);
          nsX1 = cpMac_BNU(X1,moduloSize, Q,nsQ, X2,nsX2);
-         //Print_BNU("X1: ", X1, nsX1);
 
          if (nsM==1 && pM[0]==1) {
             ////ZEXPAND_BNU(X2, nsX2, moduloSize);
@@ -164,10 +160,7 @@ int cpModInv_BNU(BNU_CHUNK_T* pInv,
          }
 
          nsA = cpDiv_BNU(Q, &nsQ, bufA, nsA, (BNU_CHUNK_T*)pM, nsM);
-         //Print_BNU(" q: ", Q, nsQ);
-         //Print_BNU(" a: ", bufA, nsA);
          nsX2 = cpMac_BNU(X2,moduloSize, Q,nsQ, X1,nsX1);
-         //Print_BNU("X2: ", X2, nsX2);
 
          if(nsA==1 && bufA[0]==1) {
             ////ZEXPAND_BNU(X1, nsX1, moduloSize);

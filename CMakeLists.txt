@@ -46,7 +46,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set(PROJECT_FULL_NAME "Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography ")
 set(PROJECT_NAME "Intel(R) IPP Crypto")
-set(PROJECT_VERSION, "2019.0.0")
+set(PROJECT_VERSION, "2020.0.0")
 
 set(LIB_NAME ippcp)
 
@@ -73,10 +73,18 @@ endif()
 find_package(PythonInterp REQUIRED)
 
 if(WIN32 AND (${CMAKE_GENERATOR} MATCHES "Visual Studio"))
-  if(${CMAKE_GENERATOR} MATCHES "Win64")
-    set(ARCH intel64)
+  if(CMAKE_GENERATOR_PLATFORM) # VS 2019+ -A param
+    if(${CMAKE_GENERATOR_PLATFORM} MATCHES "x64")
+      set(ARCH intel64)
+    else()
+      set(ARCH ia32)
+    endif()
   else()
-    set(ARCH ia32)
+    if(${CMAKE_GENERATOR} MATCHES "Win64") # old way of platform setting for VS
+      set(ARCH intel64)
+    else()
+      set(ARCH ia32)
+    endif()
   endif()
 else()
   if (NOT "${ARCH}" STREQUAL "intel64" AND NOT "${ARCH}" STREQUAL "ia32")
@@ -160,6 +168,12 @@ if(UNIX AND NOT APPLE)
 else()
   set(ANDROID, "")
 endif(UNIX AND NOT APPLE)
+
+if((UNIX) AND (NOT APPLE) AND (NOT ANDROID))
+  set(LINUX ON)
+else()
+  set(LINUX OFF)
+endif()
 
 add_subdirectory(sources/ippcp)
 if(EXISTS "${CMAKE_SOURCE_DIR}/tests/")

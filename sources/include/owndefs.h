@@ -236,7 +236,11 @@ typedef struct{
       #define IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
     #endif
   #else
-    #define   IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
+    #if defined(LINUX32E) && !defined(IPP_PIC)
+      #define IPPFUN(type,name,arg) __attribute__((force_align_arg_pointer)) extern type IPP_STDCALL name arg
+    #else
+      #define   IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
+    #endif
   #endif
 
 #define _IPP_ARCH_IA32    1

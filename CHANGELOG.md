@@ -2,6 +2,10 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## 2019-07-23
+- Added Microsoft* Visual Studio* 2019 build support
+- Added Intel(R) IPP Custom Library Tool
+
 ## 2019-06-24
 - AES-GCM was enabled with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI).
 - A dynamic dispatcher library and a set of CPU-optimized dynamic libraries were replaced by a single merged dynamic library with an internal dispatcher.

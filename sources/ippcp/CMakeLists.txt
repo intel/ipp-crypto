@@ -46,7 +46,7 @@ include (GenerateExportHeader)
 
 set(TARGET_NAME ${LIB_NAME})
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/tools/" AND NOT (${CMAKE_C_COMPILER_ID} STREQUAL "GNU") AND NOT(${CMAKE_C_COMPILER_ID} STREQUAL "AppleClang"))
+if(EXISTS "${CMAKE_SOURCE_DIR}/tools/toolsSpecific.cmake" AND NOT (${CMAKE_C_COMPILER_ID} STREQUAL "GNU") AND NOT(${CMAKE_C_COMPILER_ID} STREQUAL "AppleClang"))
   include("${CMAKE_SOURCE_DIR}/tools/toolsSpecific.cmake")
 endif()
 

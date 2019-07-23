@@ -57,33 +57,6 @@
 static int div_upper(int a, int d)
 { return (a+d-1)/d; }
 
-
-#if defined(_IPP_OWN_DBG_)
-
-#include <stdio.h>
-//#define _IPP_OWN_DBG_
-static void printBNU(const char* note, Ipp64u* pData, int len, int nt)
-{
-   int n, k;
-
-   if(note)
-      printf("%s", note);
-
-   for(n=0, k=0; n<len; n++) {
-      Ipp64u x = pData[n];
-      printf("%016I64x ", x);
-      k++;
-      if(k==nt) {
-         printf("\n");
-         k = 0;
-      }
-   }
-   printf("\n");
-}
-
-#endif /* #if defined(_IPP_OWN_DBG_) */
-
-
 /* sscm version */
 BNU_CHUNK_T* cpGFpxExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pE, int nsE,
                      gsModEngine* pGFEx, Ipp8u* pScratchBuffer)
@@ -122,16 +95,10 @@ BNU_CHUNK_T* cpGFpxExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T
       }
       pScratchAligned = (BNU_CHUNK_T*)( IPP_ALIGNED_PTR(pScratchBuffer, CACHE_LINE_SIZE) );
 
-      #if defined(_IPP_OWN_DBG_)
-      printf("precom tbl:\n");
-      #endif
       /* pre-compute auxiliary table t[] = {A^0, A^1, A^2, ..., A^(2^w-1)} */
       cpGFpElementCopyPadd(pTmp, elmLen, GFP_MNT_R(pBasicGFE), GFP_FELEN(pBasicGFE));
       //cpScramblePut(pScratchAligned+0, nPrecomputed, (Ipp8u*)pTmp, elmDataSize);
       gsScramblePut(pScratchAligned, 0, pTmp, elmLen, w);
-      #if defined(_IPP_OWN_DBG_)
-      printBNU("precom tbl:\n", pTmp, 48, 6);
-      #endif
 
       { /* pre compute multiplication table */
          int n;
@@ -139,9 +106,6 @@ BNU_CHUNK_T* cpGFpxExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T
             mulF(pTmp, pTmp, pA, pGFEx);
             //cpScramblePut(pScratchAligned+n, nPrecomputed, (Ipp8u*)pTmp, elmDataSize);
             gsScramblePut(pScratchAligned, n, pTmp, elmLen, w);
-            #if defined(_IPP_OWN_DBG_)
-            printBNU("precom tbl:\n", pTmp, 48, 6);
-            #endif
          }
       }
 
@@ -153,9 +117,6 @@ BNU_CHUNK_T* cpGFpxExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T
          ((Ipp32u*)pExpandedE)[BITS2WORD32_SIZE(expBitSize)] = 0;
          expBitSize = ((expBitSize+w-1)/w)*w;
 
-         #if defined(_IPP_OWN_DBG_)
-         printf("\nexponentiation:\n");
-         #endif
          /*
          // exponentiation
          */
@@ -174,21 +135,12 @@ BNU_CHUNK_T* cpGFpxExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T
             /* initialize result */
             //cpScrambleGet((Ipp8u*)pR, elmDataSize, pScratchAligned+windowVal, nPrecomputed);
             gsScrambleGet_sscm(pR, elmLen, pScratchAligned, windowVal, w);
-            #if defined(_IPP_OWN_DBG_)
-            printBNU("init result:\n", pR, 48, 6);
-            #endif
 
             for(wPosition-=w; wPosition>=0; wPosition-=w) {
                int k;
-               #if defined(_IPP_OWN_DBG_)
-               printf("\nwPosition=%d\n", wPosition);
-               #endif
                /* w times squaring */
                for(k=0; k<w; k++) {
                   sqrF(pR, pR, pGFEx);
-                  #if defined(_IPP_OWN_DBG_)
-                  printBNU("sqr:\n", pR, 48, 6);
-                  #endif
                }
 
                /* extract next window value */
@@ -202,9 +154,6 @@ BNU_CHUNK_T* cpGFpxExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T
 
                /* and multiply */
                mulF(pR, pR, pTmp, pGFEx);
-               #if defined(_IPP_OWN_DBG_)
-               printBNU("mul:\n", pR, 48, 6);
-               #endif
             }
          }
 

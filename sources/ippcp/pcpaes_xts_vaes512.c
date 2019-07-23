@@ -96,6 +96,10 @@ __INLINE __m512i nextTweaks(__m512i tweak128x4, __m512i polyXor) {
 }
 
 void cpAESEncryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak) {
+   if (0 == nBlks) {
+      return; // do not modify tweak value
+   }
+
    int cipherRounds = nr - 1;
 
    __m128i* pRkey = (__m128i*)pRKey;
@@ -214,11 +218,15 @@ void cpAESEncryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const I
       useIniTweaks = 0;
    }
 
+   iniTweak = useIniTweaks ? iniTweak : nextTweaks(iniTweak, polyXor);
+   {
+      __mmask8 maskTweakToReturn = ((Ipp8u)0x03u << (blocks << 1));
+      _mm512_mask_compressstoreu_epi64(pTweak, maskTweakToReturn /* the first unused tweak */, iniTweak);
+   }
+
    if (blocks) {
       __mmask8 k = (1 << (blocks + blocks)) - 1;
       __m512i blk0 = _mm512_maskz_loadu_epi64(k, pInp512);
-
-      iniTweak = useIniTweaks ? iniTweak : nextTweaks(iniTweak, polyXor);
 
       blk0 = _mm512_xor_epi64(iniTweak, blk0);
 
@@ -231,6 +239,10 @@ void cpAESEncryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const I
 }
 
 void cpAESDecryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak) {
+   if (0 == nBlks) {
+      return; // do not modify tweak value
+   }
+
    int cipherRounds = nr - 1;
 
    __m128i* pRkey = (__m128i*)pRKey + cipherRounds + 1;
@@ -349,11 +361,15 @@ void cpAESDecryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const I
       useIniTweaks = 0;
    }
 
+   iniTweak = useIniTweaks ? iniTweak : nextTweaks(iniTweak, polyXor);
+   {
+      __mmask8 maskTweakToReturn = ((Ipp8u)0x03u << (blocks << 1));
+      _mm512_mask_compressstoreu_epi64(pTweak, maskTweakToReturn /* the first unused tweak */, iniTweak);
+   }
+
    if (blocks) {
       __mmask8 k = (1 << (blocks + blocks)) - 1;
       __m512i blk0 = _mm512_maskz_loadu_epi64(k, pInp512);
-
-      iniTweak = useIniTweaks ? iniTweak : nextTweaks(iniTweak, polyXor);
 
       blk0 = _mm512_xor_epi64(iniTweak, blk0);
 

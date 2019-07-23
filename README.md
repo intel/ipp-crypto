@@ -27,6 +27,7 @@ Intel(R) Integrated Performance Primitives Cryptography
     - [Linux\* OS](#linux-os-1)
     - [macOS\*](#macos-1)
 - [Building an application tied to a specific CPU](#building-an-application-tied-to-a-specific-cpu)
+- [Intel IPP Custom Library Tool](#intel-ipp-custom-library-tool)
 - [How to Contribute](#how-to-contribute)
 - [See Also](#see-also)
 - [Legal Information](#legal-information)
@@ -181,6 +182,10 @@ with the options described in [CMake Arguments](#cmake-arguments).
     ```
     cmake CMakeLists.txt -Bbuild -G"Visual Studio 15 2017 Win64"
     ```
+    For MSVC\* Compiler and Visual Studio\* 2019:
+    ```
+    cmake CMakeLists.txt -Bbuild -G"Visual Studio 16 2019" -Ax64
+    ```
 
     **Linux\* OS**:
 
@@ -241,8 +246,8 @@ CMake Arguments
     makefiles.
 
 -   `-DARCH=<ia32|intel64>` - on Linux* OS and macOS*, defines the target architecture
-    for the build of the Intel IPP Cryptography library. On Windows* OS, use `-G`
-    instead. See the description of the `-G` option [below](#windows-os-1)
+    for the build of the Intel IPP Cryptography library. On Windows* OS, use `-G`/`-A`
+    instead. See the description of the `-G`/`-A` option [below](#windows-os-1)
     for details.
 
 -   `-DMERGED_BLD:BOOL=<on|off>` - optional. Defines the configuration
@@ -281,6 +286,9 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
     2013 IDE, `-G"Visual Studio 12 2013 Win64"` will generate a solution
     for the Microsoft Visual Studio\* 2013 IDE for the Intel(R) 64
     architecture.
+
+-   `-A<x64|Win32>` - for Visual Studio\* 2019+, defines the target architecture
+    for the build of the Intel IPP Cryptography library.
 
 -   `-T<Compiler>` - defines the compiler for building, for example,
     `-T"Intel C++ Compiler 19.0"` defines Intel(R) Compiler 19.0 for
@@ -344,6 +352,15 @@ To enable linking of processor-specific versions of the library functions, inclu
 Please refer to the [article](https://software.intel.com/en-us/articles/understanding-cpu-optimized-code-used-in-intel-ipp) for more details about CPU identification codes used in the header suffixes.
 
 It is important to ensure that both processor and operating system supports full capabilities of the target processor.
+
+Intel IPP Custom Library Tool
+=======================================================
+
+With the Intel(R) IPP Custom Library Tool, you can build your own dynamic library containing only the Intel IPP Cryptography functionality that is necessary for your application.
+
+The tool is located in `tools/ipp_custom_library_tool_python` directory.
+
+Please refer to the [tool documentation](https://software.intel.com/en-us/ipp-dev-guide-using-custom-library-tool-for-intel-integrated-performance-primitives) for more information.
 
 How to Contribute
 =======================================================
