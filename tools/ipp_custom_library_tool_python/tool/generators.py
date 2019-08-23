@@ -394,11 +394,14 @@ def list_to_arguments(libraries_list, package, host_system):
 
 
 def get_libraries_list(package, host_system, target_system, architecture, threading_type, multithreaded):
+    if os.path.exists(os.path.join(os.environ[package + 'ROOT'], 'lib', architecture)):
+        arch_dir = architecture
+    else:
+        arch_dir = architecture + '_' + target_system.lower()[:3]
     libraries_list = list()
     if threading_type != ThreadingLayerType.NONE:
         threaded_with = 'tbb' if threading_type == ThreadingLayerType.TBB else 'openmp'
-        libraries_list += [library.format(architecture
-                                          + '_' + target_system.lower()[:3],
+        libraries_list += [library.format(arch_dir,
                                           threaded_with)
                            for library in LIBRARIES_LIST[host_system]
                            [target_system]
@@ -406,8 +409,7 @@ def get_libraries_list(package, host_system, target_system, architecture, thread
                            [THREADING_LAYER]]
     thread_mode = MULTI_THREADED if multithreaded else SINGLE_THREADED
 
-    libraries_list += [library.format(architecture
-                                      + '_' + target_system.lower()[:3])
+    libraries_list += [library.format(arch_dir)
                        for library in LIBRARIES_LIST[host_system]
                        [target_system]
                        [package]

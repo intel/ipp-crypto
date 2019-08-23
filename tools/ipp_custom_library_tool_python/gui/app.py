@@ -20,7 +20,7 @@ import os
 
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtGui import QIcon, QStatusTipEvent
-from PyQt5.QtWidgets import QWidget, QGridLayout, QMainWindow, QFileDialog, QPushButton
+from PyQt5.QtWidgets import QWidget, QGridLayout, QMainWindow, QFileDialog, QPushButton, QMessageBox
 
 from tool import utils
 from gui import settings
@@ -76,17 +76,31 @@ class MainWidget(QWidget):
         self.layout.setColumnStretch(5, 4)
 
     def on_open(self):
-        file_path, _ = QFileDialog.getOpenFileName(self)
-        if not file_path:
-            return
-        self.project_file = file_path
+        while True:
+            file_path, _ = QFileDialog.getOpenFileName(self, options=QFileDialog.DontResolveSymlinks)
+            if not file_path:
+                return
+            elif os.path.islink(file_path):
+                QMessageBox.information(self, 'ERROR!',
+                                        'Please, select not a symlink')
+                continue
 
-        with open(self.project_file, 'r') as project_file:
-            configs = json.load(project_file)
+            self.project_file = file_path
 
-            for package in settings.CONFIGS.keys():
-                for config in settings.CONFIGS[package].keys():
-                    settings.CONFIGS[package][config] = configs[package][config]
+            with open(self.project_file, 'r') as project_file:
+                configs = json.load(project_file)
+
+                if configs[utils.IPP]['Path'] and \
+                        not self.function_menu.check_package(utils.IPP, configs[utils.IPP]['Path']) or \
+                        configs[utils.IPPCP]['Path'] and \
+                        not self.function_menu.check_package(utils.IPPCP, configs[utils.IPPCP]['Path']):
+                    QMessageBox.information(self, 'ERROR!',
+                                            'Incorrect project!')
+                else:
+                    for package in settings.CONFIGS.keys():
+                        for config in settings.CONFIGS[package].keys():
+                            settings.CONFIGS[package][config] = configs[package][config]
+                    break
 
         self.function_menu.ipp.setDisabled(True)
         self.function_menu.ippcp.setDisabled(True)

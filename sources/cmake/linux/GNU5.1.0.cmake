@@ -60,9 +60,19 @@ set(CC_FLAGS_INLINE_ASM_UNIX_INTEL64 "-use_msasm -ffixed-rdi -ffixed-rsi -ffixed
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} ${LIBRARY_DEFINES}")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -flto-report -std=c99 -falign-functions=32 -falign-loops=32 -Wformat -Wformat-security -fstack-protector")
+if ((${ARCH} MATCHES "ia32") OR (NOT NONPIC_LIB))
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -flto-report -std=c99 -falign-functions=32 -falign-loops=32 -Wformat -Wformat-security -fstack-protector")
+else()
+  # NONPIC intel64
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -flto-report -std=c99 -falign-functions=32 -falign-loops=32 -Wformat -Wformat-security")
+endif()
+
 if(NOT NONPIC_LIB)
+  # Position Independent Execution (PIE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic -fPIC")
+elseif(NOT ${ARCH} MATCHES "ia32")
+  # NONPIC intel64: specify kernel code model
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mno-red-zone -mcmodel=kernel")
 endif()
 
 if(${ARCH} MATCHES "ia32")

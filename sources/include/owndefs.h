@@ -82,13 +82,6 @@
   #define   IPPDEF(type) type
 #endif
 
-/* structure represeting 128 bit unsigned integer type */
-
-typedef struct{
-  Ipp64u low;
-  Ipp64u high;
-}Ipp128u;
-
 /* ia32 */
 #define _IPP_PX 0    /* pure C-code                                                                                                            */
 #define _IPP_M5 1    /* Intel(R) Quark(TM) processor                                                                                           */
@@ -468,11 +461,6 @@ typedef union { /* single precision */
 static char G[] = {73, 80, 80, 71, 101, 110, 117, 105, 110, 101, 243, 193, 210, 207, 215};
 #endif
 
-
-#define STR2(x)           #x
-#define STR(x)       STR2(x)
-#define MESSAGE( desc )\
-     message(__FILE__ "(" STR(__LINE__) "):" #desc)
 
 /*
 // endian definition

@@ -37,9 +37,10 @@ SINGLE_THREADED = 'Single-threaded'
 MULTI_THREADED = 'Multi-threaded'
 THREADING_LAYER = 'Threading layer'
 HOST_SYSTEM = WINDOWS
-PATH_TO_PACKAGE_REGULAR_EXPRESSION = '(?P<path>.*compilers_and_libraries.*\d.\w*.\w*).*'
-VERSION_REGULAR_EXPRESSION = '.*compilers_and_libraries_(?P<ver>.*\d).\w*.ipp'
+PATH_TO_PACKAGE_REGULAR_EXPRESSION = '(?P<path>.*).tools'
+VERSION_REGULAR_EXPRESSION = '.*VERSION_STR.*"(?P<ver>.*)".*'
 PATH_TO_CNL_REGULAR_EXPRESSION = '(?P<cnl>.*\d).\w*.ipp'
+PATH_TO_ONEAPI_REGULAR_EXPRESSION='(?P<oneapi>.*).ipp'
 FUNCTION_NAME_REGULAR_EXPRESSION = 'IPPAPI\s*\(.*,\s*(?P<function_name>\S*)\s*,.*'
 TBB_EXP_LIB = ' "$TBB_PATH/lib/libtbb.dylib"'
 

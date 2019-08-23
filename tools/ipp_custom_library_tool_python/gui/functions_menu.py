@@ -54,6 +54,11 @@ class FunctionsMenu(QWidget):
         self.auto_build_button = QPushButton('Autobuild')
 
         self.current_functions_list = {}
+        self.functions_list = {
+            'Classical IPP': {},
+            'IPP TL': {},
+            'IPP Cryptography': {}
+        }
 
         # Preparing elements by giving initial values, etc
         self.ipp.setText('IPP ver. None')
@@ -91,8 +96,8 @@ class FunctionsMenu(QWidget):
         path_to_package = self.get_path_to_package()
         if path_to_package:
             package = utils.IPPCP if re.compile('.*ippcp.*').match(path_to_package) else utils.IPP
-            self.set_package(package, path_to_package)
-            self.init_menu()
+            if self.set_package(package, path_to_package):
+                self.init_menu()
 
     def init_menu(self):
         self.ipp.toggled.disconnect(self.on_switch)
@@ -116,10 +121,12 @@ class FunctionsMenu(QWidget):
         if self.check_package(package, path):
             settings.CONFIGS[package]['Path'] = path
             if package == utils.IPP:
-                self.ipp.setText('IPP ver. ' + self.get_version(path))
+                self.ipp_version = self.get_version(path, package)
+                self.ipp.setText('IPP ver. ' + self.ipp_version)
                 self.ipp.setEnabled(True)
             else:
-                self.ippcp.setText('IPP Cryptography ver. ' + self.get_version(path))
+                self.ippcp_version = self.get_version(path, package)
+                self.ippcp.setText('IPP Cryptography ver. ' + self.ippcp_version)
                 self.ippcp.setEnabled(True)
             return True
         elif path:
@@ -143,20 +150,29 @@ class FunctionsMenu(QWidget):
         else:
             return False
 
-        lib_ia32_path = os.path.join(path, 'lib', 'ia32_' + utils.HOST_SYSTEM.lower()[:3])
-        if utils.HOST_SYSTEM != MACOSX:
-            lib_intel64_path = os.path.join(path, 'lib', 'intel64_' + utils.HOST_SYSTEM.lower()[:3])
+        if utils.HOST_SYSTEM == MACOSX:
+            self.intel64_libs_path = path
         else:
-            lib_intel64_path = os.path.join(path, 'lib')
+            self.intel64_libs_path = self.get_path_to_libs(path, 'intel64')
+        self.ia32_libs_path = self.get_path_to_libs(path, 'ia32')
 
-        return True if self.check_libs(lib_ia32_path) or \
-                       self.check_libs(lib_intel64_path) else False
+        return True if self.check_libs(self.ia32_libs_path) or \
+                       self.check_libs(self.intel64_libs_path) else False
 
     def check_batch(self, package, path):
-        return os.path.exists(os.path.join(path, 'bin', package.lower() + 'vars' + BATCH_EXTENSIONS[utils.HOST_SYSTEM]))
+        return os.path.exists(os.path.join(path, 'bin', package.lower() + 'vars' + BATCH_EXTENSIONS[utils.HOST_SYSTEM])) \
+               or os.path.exists(os.path.join(path, 'env', package.lower() + 'vars' + BATCH_EXTENSIONS[utils.HOST_SYSTEM]))
+
+    def get_path_to_libs(self, path, arch):
+        if os.path.exists(os.path.join(path, 'lib', arch)):
+            return os.path.join(path, 'lib', arch)
+        elif os.path.exists(os.path.join(path, 'lib', arch + '_' + utils.HOST_SYSTEM.lower()[:3])):
+            return os.path.join(path, 'lib', arch + '_' + utils.HOST_SYSTEM.lower()[:3])
+        else:
+            return ''
 
     def check_libs(self, path):
-        if os.path.exists(path):
+        if path:
             for lib in os.listdir(path):
                 if STATIC_LIBRARIES_EXTENSIONS[utils.HOST_SYSTEM] in lib:
                     return True
@@ -223,19 +239,35 @@ class FunctionsMenu(QWidget):
         self.selected_libraries_list.setCurrentItem(item)
 
     def on_build_pressed(self):
+        if self.ipp.isChecked():
+            package = utils.IPP
+            version = self.ipp_version
+        else:
+            package = utils.IPPCP
+            version = self.ippcp_version
+
+        os.environ[package + 'ROOT'] = settings.CONFIGS[package]['Path']
+        self.get_path_to_cnl(settings.CONFIGS[package]['Path'], version)
+
+        while not os.path.exists(os.path.join(utils.COMPILERS_AND_LIBRARIES_PATH,
+                                              utils.HOST_SYSTEM.lower(),
+                                              'bin',
+                                              'compilervars' + BATCH_EXTENSIONS[utils.HOST_SYSTEM])):
+            QMessageBox.information(self, 'ERROR!',
+                                    'Incorrect compilers_and_libraries path!')
+            cnl_path = QFileDialog.getExistingDirectory(self, 'Select compilers_and_libraries directory')
+            if not cnl_path:
+                return
+            utils.COMPILERS_AND_LIBRARIES_PATH = cnl_path
+
         information = self.parent.get_library_information()
-        library_path = QFileDialog.getExistingDirectory(self, 'Select a folder')
-        if library_path == '':
+        library_path = QFileDialog.getExistingDirectory(self, 'Save DLL to...')
+        if not library_path:
             return
         success = False
         self.parent.set_disabled(True)
         QMessageBox.information(self, 'Build', 'Building will start after this window is closed. '
                                                'Please wait until process is done.')
-
-        package = utils.IPP if self.ipp.isChecked() else utils.IPPCP
-
-        os.environ[package + 'ROOT'] = settings.CONFIGS[package]['Path']
-        self.get_path_to_cnl(settings.CONFIGS[package]['Path'])
 
         if information['ia32']:
             success = tool.core.build(
@@ -320,11 +352,14 @@ class FunctionsMenu(QWidget):
         if package == utils.IPP:
             FUNCTIONS_LIST['Classical IPP'].clear()
             FUNCTIONS_LIST['IPP TL'].clear()
+            get_functions_from_headers(path)
+            self.functions_list['Classical IPP'] = copy.deepcopy(FUNCTIONS_LIST['Classical IPP'])
+            self.functions_list['IPP TL'] = copy.deepcopy(FUNCTIONS_LIST['IPP TL'])
         else:
             FUNCTIONS_LIST['IPP Cryptography'].clear()
+            get_functions_from_headers(path)
+            self.functions_list['IPP Cryptography'] = copy.deepcopy(FUNCTIONS_LIST['IPP Cryptography'])
 
-        get_functions_from_headers(path)
-        self.functions_list = copy.deepcopy(FUNCTIONS_LIST)
         self.threaded_functions = [item for sublist in self.functions_list['IPP TL'].values() for item in
                                    sublist]
     def show_menu(self, package):
@@ -347,12 +382,22 @@ class FunctionsMenu(QWidget):
         else:
             return ''
 
-    def get_version(self, path):
-        if re.compile(utils.VERSION_REGULAR_EXPRESSION).match(path):
-            return re.match(utils.VERSION_REGULAR_EXPRESSION, path).group('ver')
-        else:
-            return 'None'
+    def get_version(self, path, package):
+        path_to_header = os.path.join(path, 'include', package.lower() + 'version.h')
 
-    def get_path_to_cnl(self, path):
+        if os.path.exists(path_to_header):
+            header = open(path_to_header, 'r')
+            lines = header.readlines()
+
+            for line in lines:
+                if re.compile(utils.VERSION_REGULAR_EXPRESSION).match(line):
+                    return re.match(utils.VERSION_REGULAR_EXPRESSION, line).group('ver')
+
+        return 'None'
+
+    def get_path_to_cnl(self, path, version):
         if re.compile(utils.PATH_TO_CNL_REGULAR_EXPRESSION).match(path):
             utils.COMPILERS_AND_LIBRARIES_PATH = re.match(utils.PATH_TO_CNL_REGULAR_EXPRESSION, path).group('cnl')
+        elif re.compile(utils.PATH_TO_ONEAPI_REGULAR_EXPRESSION).match(path):
+            oneapi_path = re.match(utils.PATH_TO_ONEAPI_REGULAR_EXPRESSION, path).group('oneapi')
+            utils.COMPILERS_AND_LIBRARIES_PATH = os.path.join(oneapi_path, 'compiler', version)

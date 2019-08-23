@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2001-2019 Intel Corporation
+* Copyright 2019 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -38,31 +38,63 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//              Intel(R) Integrated Performance Primitives (Intel(R) IPP)
-//              Cryptographic Primitives (ippCP)
-//
-//              Purpose: Describes the base Intel(R) IPP version
-//
-//
-*/
+/* Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography */
 
+/*!
+  *
+  * \file
+  * \brief Common header for Intel(R) IPP Cryptography examples
+  *
+  */
 
-#include "ippversion.h"
-#ifndef BASE_VERSION
-#define BASE_VERSION() IPP_VERSION_MAJOR,IPP_VERSION_MINOR,IPP_VERSION_UPDATE
-#endif
+#ifndef EXAMPLES_COMMON_H_
+#define EXAMPLES_COMMON_H_
 
-#define STR2(x)           #x
-#define STR(x)       STR2(x)
+#include <stdio.h>
 
-#ifndef STR_VERSION
- #ifdef IPP_REVISION
-  #define STR_VERSION() IPP_VERSION_STR " (r" STR( IPP_REVISION ) ")"
- #else
-  #define STR_VERSION() IPP_VERSION_STR " (-)"
- #endif
-#endif
+/*! Macro that prints status message depending on condition */
+#define PRINT_EXAMPLE_STATUS(function_name, description, success_condition)       \
+    printf("+--------------------------------------------------------------|\n"); \
+    printf(" Function: %s\n", function_name);                                     \
+    printf(" Description: %s\n", description);                                    \
+    if (success_condition) {                                                      \
+        printf(" Status: OK!\n");                                                 \
+    } else {                                                                      \
+        printf(" Status: FAIL!\n");                                               \
+    }                                                                             \
+    printf("+--------------------------------------------------------------|\n");
 
+/*!
+ * Helper function to compare expected and actual function return statuses and display
+ * an error mesage if those are different.
+ *
+ * \param[in] Function name to display
+ * \param[in] Expected status
+ * \param[in] Actual status
+ *
+ * \return zero if statuses are not equal, otherwise - non-zero value
+ */
+static int checkStatus(const char* funcName, IppStatus expectedStatus, IppStatus status)
+{
+   if (expectedStatus != status) {
+      printf("%s: unexpected return status\n", funcName);
+      printf("Expected: %s\n", ippcpGetStatusString(expectedStatus));
+      printf("Received: %s\n", ippcpGetStatusString(status));
+      return 0;
+   }
+   return 1;
+}
 
-/* ////////////////////////////// End of file /////////////////////////////// */
+/*!
+ * Helper function to convert bit size into byte size.
+ *
+ * \param[in] Size in bits
+ *
+ * \return size in bytes
+ */
+static int bitSizeInBytes(int nBits)
+{
+   return (nBits + 7) >> 3;
+}
+
+#endif /* #ifndef EXAMPLES_COMMON_H_ */

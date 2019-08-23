@@ -125,21 +125,13 @@ class ScriptsMenu(QWidget):
         self.functions_names = settings.CONFIGS[package]['functions_list']
 
     def check_configs(self, package):
-        path_to_libs = os.path.join(settings.CONFIGS[package]['Path'], 'lib')
-
-        if utils.HOST_SYSTEM != MACOSX:
-            self.intel64_path = os.path.join(path_to_libs, 'intel64_' + utils.HOST_SYSTEM.lower()[:3])
-        else:
-            self.intel64_path = path_to_libs
-        self.IA32_path = os.path.join(path_to_libs, 'ia32_' + utils.HOST_SYSTEM.lower()[:3])
-
-        if os.path.exists(self.intel64_path):
+        if self.parent.source.intel64_libs_path:
             self.intel64.setEnabled(True)
         else:
             settings.CONFIGS[package]['intel64'] = False
             self.intel64.setDisabled(True)
 
-        if os.path.exists(self.IA32_path):
+        if self.parent.source.ia32_libs_path:
             self.IA32.setEnabled(True)
         else:
             settings.CONFIGS[package]['IA32'] = False
@@ -160,8 +152,8 @@ class ScriptsMenu(QWidget):
             settings.CONFIGS[package]['Multi-threaded'] = False
 
     def check_dir(self, dir):
-        return os.path.exists(os.path.join(self.intel64_path, dir)) or \
-                os.path.exists(os.path.join(self.IA32_path, dir))
+        return os.path.exists(os.path.join(self.parent.source.intel64_libs_path, dir)) or \
+                os.path.exists(os.path.join(self.parent.source.ia32_libs_path, dir))
 
     def get_configs(self, package):
         if self.TL.isEnabled():

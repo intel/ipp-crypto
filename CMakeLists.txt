@@ -42,7 +42,7 @@
 # Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
 #
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1)
 
 set(PROJECT_FULL_NAME "Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography ")
 set(PROJECT_NAME "Intel(R) IPP Crypto")
@@ -161,6 +161,13 @@ else()
   message (STATUS "MERGED_BLD ............................ off")
 endif()
 
+option(BUILD_EXAMPLES "Build examples" OFF)
+if(BUILD_EXAMPLES)
+  message (STATUS "BUILD_EXAMPLES ........................ on")
+else()
+  message (STATUS "BUILD_EXAMPLES ........................ off")
+endif()
+
 if(UNIX AND NOT APPLE)
   if(ANDROID)
     message (STATUS "CROSS PLATFORM BUILD for ANDROID ...... on")
@@ -181,4 +188,12 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/tests/")
 endif()
 if(EXISTS "${CMAKE_SOURCE_DIR}/perf_tests/")
   add_subdirectory(perf_tests)
+endif()
+
+if(BUILD_EXAMPLES)
+  # This helps to organize examples projects structure in IDE by folders
+  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+  set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
+
+  add_subdirectory(examples)
 endif()
