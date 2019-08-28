@@ -236,11 +236,7 @@ typedef struct{
       #define IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
     #endif
   #else
-    #if defined(LINUX32E) && !defined(IPP_PIC)
-      #define IPPFUN(type,name,arg) __attribute__((force_align_arg_pointer)) extern type IPP_STDCALL name arg
-    #else
-      #define   IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
-    #endif
+    #define   IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
   #endif
 
 #define _IPP_ARCH_IA32    1
@@ -650,7 +646,7 @@ extern double            __intel_castu64_f64(unsigned __int64 val);
 
       /* OSX-32, OSX-64 */
       #elif defined(OSX32) || defined(OSXEM64T)
-         #if ( defined(_Y8) )
+         #if ( defined(_S8) || defined(_N8) )
          #define _IPP_DATA 1
          #endif
       #endif

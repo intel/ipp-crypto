@@ -38,10 +38,21 @@
 * limitations under the License.
 *******************************************************************************/
 
+#if defined( _OPENMP )
+  #include <omp.h>
+#endif
+
 #include "owndefs.h"
 #include "ippcpdefs.h"
 #include "ippcp.h"
+#ifdef _PCS
+#undef _PCS
+#define _MY_PCS_DISABLED
+#endif
 #include "dispatcher.h"
+#ifdef _MY_PCS_DISABLED
+#define _PCS
+#endif
 
 #if defined( _IPP_DATA )
 
@@ -325,8 +336,15 @@ IPPFUN(IppStatus, ippcpSetNumThreads, (int numThr))
 {
    IppStatus status = ippStsNoErr;
 
+#if defined( _OPENMP )
+   IPP_BAD_SIZE_RET(numThr)
+      cpthreads_omp_of_n_ipp = numThr;
+   status = ippStsNoErr;
+
+#else
    IPP_UNREFERENCED_PARAMETER(numThr);
    status = ippStsNoOperation;
+#endif
 
    return status;
 }
@@ -336,16 +354,84 @@ IPPFUN(IppStatus, ippcpGetNumThreads, (int* pNumThr))
    IppStatus status = ippStsNoErr;
    IPP_BAD_PTR1_RET(pNumThr)
 
+#if defined( _OPENMP )
+      *pNumThr = cpthreads_omp_of_n_ipp;
+   status = ippStsNoErr;
+
+#else
       *pNumThr = 1;
    status = ippStsNoOperation;
+#endif
 
    return status;
 }
+
+
+#if defined( _PCS )
+
+typedef IppStatus (IPP_STDCALL *DYN_RELOAD)( int );
+static DYN_RELOAD IppDispatcher; /* ippCP only */
+static int currentCpu = -1;      /* control for disabling the same DLL re-loading */
+
+void owncpRegisterLib( DYN_RELOAD reload )
+{
+    IppDispatcher = reload;  /* function DynReload() that is defined in ippmain.gen - */
+    return;                  /* therefore in each domain there is own DynReload() function */
+}
+
+void owncpUnregisterLib( void )
+{
+   IppDispatcher = 0;
+   currentCpu = -1;
+   return;
+}
+
+IPPFUN( IppStatus, ippcpSetCpuFeatures,( Ipp64u cpuFeatures ))
+{
+   IppStatus status, ownStatus;
+   int       index = 0;
+
+    ownStatus = owncpSetCpuFeaturesAndIdx( cpuFeatures, &index );
+    ippcpJumpIndexForMergedLibs = index;
+    if(( IppDispatcher )&&( currentCpu != index )) {
+        status = IppDispatcher( index );
+        currentCpu = index;
+    } else 
+        status = ippStsNoErr;
+
+    if( status != ippStsNoErr && status != ippStsNoOperation)
+        return status;
+    else 
+        return ownStatus;
+}
+
+IPPFUN( IppStatus, ippcpInit,( void ))
+{
+    int index = 0;
+    IppStatus status, statusf, statusi;
+    Ipp64u    cpuFeatures;
+
+    statusf = ippcpGetCpuFeatures( &cpuFeatures );
+    statusi = owncpSetCpuFeaturesAndIdx( cpuFeatures, &index ); /* ownSetFeatures instead of ippSetFeatures because need unconditional initialization, */
+    if( IppDispatcher ) status = IppDispatcher( index ); /* call DynReload() function for each domain */
+    else status = ippStsNoErr;
+    currentCpu = index;
+    if( ippStsNoErr != statusf ) return statusf;
+    if( ippStsNoErr != statusi ) return statusi;
+    if( ippStsNoErr != status ) return status;
+    return ippStsNoErr;
+}
+
+
+#else /* staic verion */
 
 IPPFUN( IppStatus, ippcpInit,( void ))
 {
     Ipp64u     cpuFeatures;
 
+#if defined( _OPENMP )
+    ippcpSetNumThreads( IPP_MIN( omp_get_num_procs(), omp_get_max_threads()));
+#endif
     ippcpGetCpuFeatures( &cpuFeatures );
     return ippcpSetCpuFeatures( cpuFeatures );
 }
@@ -356,11 +442,16 @@ IPPFUN( IppStatus, ippcpSetCpuFeatures,( Ipp64u cpuFeatures ))
    IppStatus ownStatus;
    int       index = 0;
 
+#if defined( _OPENMP )
+    ippcpSetNumThreads( IPP_MIN( omp_get_num_procs(), omp_get_max_threads()));
+#endif
     ownStatus = owncpSetCpuFeaturesAndIdx( cpuFeatures, &index );
     ippcpJumpIndexForMergedLibs = index; 
     cpFeaturesMask = cpuFeatures;
     return ownStatus;
 }
+
+#endif
 
 IppStatus owncpSetCpuFeaturesAndIdx(Ipp64u cpuFeatures, int* index)
 {

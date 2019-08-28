@@ -50,6 +50,8 @@
 //
 */
 
+#if !defined(_OPENMP)
+
 #include "owndefs.h"
 #include "owncp.h"
 #include "pcpaesm.h"
@@ -263,3 +265,6 @@ IppStatus cpProcessAES_ctr128(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const
 }
 
 #endif /* #if (_IPP32E>=_IPP32E_Y8) */
+
+#endif /* #if !defined(_OPENMP) */
+

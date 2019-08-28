@@ -54,6 +54,10 @@
 #include "pcpaesm.h"
 #include "pcptool.h"
 
+#if defined(_OPENMP)
+#  include "omp.h"
+#endif
+
 #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
 #  pragma message("_ALG_AES_SAFE_COMPOSITE_GF_ enabled")
 #elif (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
@@ -201,7 +205,69 @@ IPPFUN(IppStatus, ippsAESDecryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, in
    {
       int nBlocks = len / cfbBlkSize;
 
+      #if !defined(_OPENMP)
       cpDecryptAES_cfb(pIV, pSrc, pDst, nBlocks, cfbBlkSize, pCtx);
+
+      #else
+      int blk_per_thread = AES_NI_ENABLED==RIJ_AESNI(pCtx)? AESNI128_MIN_BLK_PER_THREAD : RIJ128_MIN_BLK_PER_THREAD;
+      int nThreads = IPP_MIN(IPPCP_GET_NUM_THREADS(), IPP_MAX(nBlocks/blk_per_thread, 1));
+
+      if(1==nThreads)
+         cpDecryptAES_cfb(pIV, pSrc, pDst, nBlocks, cfbBlkSize, pCtx);
+
+      else {
+         int blksThreadReg;
+         int blksThreadTail;
+         int srcBlkSize;
+         int ivBlkSize;
+
+         Ipp8u locIV[MBS_RIJ128*DEFAULT_CPU_NUM];
+#if defined (__INTEL_COMPILER)
+         Ipp8u* pLocIV = nThreads>DEFAULT_CPU_NUM? kmp_malloc(nThreads*MBS_RIJ128) : locIV;
+#else
+         Ipp8u* pLocIV = nThreads>DEFAULT_CPU_NUM ? malloc(nThreads*MBS_RIJ128) : locIV;
+#endif
+
+         if(pLocIV) {
+            #pragma omp parallel IPPCP_OMP_LIMIT_MAX_NUM_THREADS(nThreads)
+            {
+               #pragma omp master
+               {
+                  int nt;
+                  nThreads = omp_get_num_threads();
+                  blksThreadReg = nBlocks / nThreads;
+                  blksThreadTail = blksThreadReg + nBlocks % nThreads;
+
+                  srcBlkSize = blksThreadReg*cfbBlkSize;
+                  ivBlkSize  = IPP_MIN(MBS_RIJ128,srcBlkSize);
+
+                  CopyBlock16(pIV, pLocIV+0);
+                  for(nt=1; nt<nThreads; nt++)
+                     CopyBlock(pSrc+nt*srcBlkSize-ivBlkSize, pLocIV+MBS_RIJ128+(nt-1)*ivBlkSize, ivBlkSize);
+               }
+               #pragma omp barrier
+               {
+                  int id = omp_get_thread_num();
+                  Ipp8u* pThreadIV  = pLocIV + id*ivBlkSize;
+                  Ipp8u* pThreadSrc = (Ipp8u*)pSrc + id*srcBlkSize;
+                  Ipp8u* pThreadDst = (Ipp8u*)pDst + id*srcBlkSize;
+                  int blkThread = (id==(nThreads-1))? blksThreadTail : blksThreadReg;
+                  cpDecryptAES_cfb(pThreadIV, pThreadSrc, pThreadDst, blkThread, cfbBlkSize, pCtx);
+               }
+            }
+
+            if(pLocIV != locIV)
+#if defined (__INTEL_COMPILER)
+              kmp_free(pLocIV);
+#else
+              free(pLocIV);
+#endif
+         }
+         else
+            return ippStsMemAllocErr;
+
+      }
+      #endif
 
       return ippStsNoErr;
    }

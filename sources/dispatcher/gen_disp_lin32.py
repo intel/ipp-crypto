@@ -105,19 +105,16 @@ if(compiler == "GNU"):
 .text
 .globl {FunName}
 .Lin_{FunName}:
-    push %ebx
-    mov %eax, %ebx
     call  ippcpInit@PLT
-    pop %ebx
     .align 16
 {FunName}:
     call .L1
 .L1:
       popl  %eax
-      add   $_GLOBAL_OFFSET_TABLE_ - .L1, %eax
-      movl  ippcpJumpIndexForMergedLibs@GOT(%eax), %edx
-      mov   (%edx), %edx
-      jmp   *.Larraddr_{FunName}@GOTOFF(%eax,%edx,4)
+      movl  $_GLOBAL_OFFSET_TABLE_+[.-.L1], %edx
+      lea   (%eax,%edx), %ecx
+      movl  ippcpJumpIndexForMergedLibs@GOTOFF(%ecx), %edx
+      jmp   *.Larraddr_{FunName}@GOTOFF(%ecx,%edx,4)
 
 .type {FunName},@function
 .size {FunName},.-{FunName}
@@ -174,16 +171,12 @@ __declspec(naked) IPP_PROC {FunName}{FunArg}
 {{
     __asm( ".L0: call .L1");
     __asm( ".L1: pop %eax");
-    __asm( "add $_GLOBAL_OFFSET_TABLE_ - .L1, %eax" );
-    __asm( "movd ippcpJumpIndexForMergedLibs@GOT(%eax), %xmm0" );
-    __asm( "movd %xmm0, %edx" );
-    __asm( "mov (%edx), %edx" );
-    __asm( "jmp *(arraddr@GOTOFF+4)(%eax,%edx,4)" );
+    __asm( "mov $_GLOBAL_OFFSET_TABLE_+[.-.L1], %edx" );
+    __asm( "lea (%eax,%edx), %ecx" );
+    __asm( "mov ippcpJumpIndexForMergedLibs@GOTOFF(%ecx), %edx");
+    __asm( "jmp  *(arraddr@GOTOFF+4)(%ecx,%edx,4)" );
     __asm( ".global in_{FunName}" );
-    __asm( "in_{FunName}: push %ebx" );
-    __asm( "mov %eax, %ebx" );
-    __asm( "call ippcpInit@PLT" );
-    __asm( "pop %ebx" );
+    __asm( "in_{FunName}: call ippcpInit" );
     __asm( "jmp .L0" );
 }};
 """.format(FunName=FunName, FunArg=FunArg))

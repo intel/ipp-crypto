@@ -49,6 +49,8 @@
 //
 */
 
+#if !defined(_OPENMP)
+
 #include "owncp.h"
 #include "pcpaesm.h"
 #include "pcpaes_encrypt_vaes512.h"
@@ -259,3 +261,5 @@ void EncryptStreamCTR32_VAES_NI(const Ipp8u* pSrc,
 }
 
 #endif /* #if (_IPP32E>=_IPP32E_K0) */
+
+#endif /* #if !defined(_OPENMP) */

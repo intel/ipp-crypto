@@ -78,6 +78,11 @@ typedef void (*gsSqr)(BNU_CHUNK_T* pR,
                       BNU_CHUNK_T* pKbuffer);
 
 
+//#define GS_DEBUG  // test buffer alignment
+#if defined(GS_DEBUG)
+#include <stdio.h>
+#endif
+
 /*F*
 // Name: cpMontExpWin_BN_sscm
 //
@@ -146,6 +151,12 @@ void cpMontExpWin_BN_sscm(IppsBigNumState* pY,
 
       /* initialize recource */
       pResource = (BNU_CHUNK_T*)(IPP_ALIGNED_PTR(pResource, CACHE_LINE_SIZE));
+      #if defined(GS_DEBUG)
+      {
+         if(0 != IPP_BYTES_TO_ALIGN(pResource, 64))
+         printf("cpMontExpWin_BN_sscm(): alignment test fail!!\n");
+      }
+      #endif
 
       //tbcd: temporary excluded: assert(NULL!=pBuffer);
 

@@ -54,6 +54,10 @@
 #include "pcpaesm.h"
 #include "pcptool.h"
 
+#if defined(_OPENMP)
+#  include "omp.h"
+#endif
+
 #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
 #  pragma message("_ALG_AES_SAFE_COMPOSITE_GF_ enabled")
 #elif (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)

@@ -53,6 +53,8 @@
 
 #include "owndefs.h"
 
+#ifndef _OPENMP /* vb */
+
 #include "owncp.h"
 #include "pcpdes.h"
 #include "pcptool.h"
@@ -205,3 +207,5 @@ IPPFUN(IppStatus, ippsTDESDecryptCTR,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
 {
    return TDES_CTR(pSrc,pDst,len, pCtx1,pCtx2,pCtx3, pCtrValue,ctrNumBitSize);
 }
+
+#endif /* #ifndef _OPENMP */

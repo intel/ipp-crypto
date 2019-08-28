@@ -56,6 +56,10 @@
 #include "pcptool.h"
 #include "pcpaes_cbc.h"
 
+#if defined( _OPENMP )
+  #include <omp.h>
+#endif
+
 /*F*
 //    Name: ippsAESDecryptCBC
 //
@@ -101,7 +105,62 @@ IPPFUN(IppStatus, ippsAESDecryptCBC,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
    {
       int nBlocks = len / MBS_RIJ128;
 
+      #if !defined(_OPENMP)
       cpDecryptAES_cbc(pIV, pSrc, pDst, nBlocks, pCtx);
+
+      #else
+      int blk_per_thread = AES_NI_ENABLED==RIJ_AESNI(pCtx)? AESNI128_MIN_BLK_PER_THREAD : RIJ128_MIN_BLK_PER_THREAD;
+      int nThreads = IPP_MIN(IPPCP_GET_NUM_THREADS(), IPP_MAX(nBlocks/blk_per_thread, 1));
+
+      if(1==nThreads)
+         cpDecryptAES_cbc(pIV, pSrc, pDst, nBlocks, pCtx);
+
+      else {
+         int blksThreadReg;
+         int blksThreadTail;
+
+         Ipp8u locIV[MBS_RIJ128*DEFAULT_CPU_NUM];
+#if defined(__INTEL_COMPILER)
+         Ipp8u* pLocIV = nThreads>DEFAULT_CPU_NUM? kmp_malloc(nThreads*MBS_RIJ128) : locIV;
+#else
+         Ipp8u* pLocIV = nThreads>DEFAULT_CPU_NUM ? malloc(nThreads*MBS_RIJ128) : locIV;
+#endif
+         if(pLocIV) {
+            #pragma omp parallel IPPCP_OMP_LIMIT_MAX_NUM_THREADS(nThreads)
+            {
+               #pragma omp master
+               {
+                  int nt;
+                  nThreads = omp_get_num_threads();
+                  blksThreadReg = nBlocks / nThreads;
+                  blksThreadTail = blksThreadReg + nBlocks % nThreads;
+
+                  CopyBlock16(pIV, pLocIV+0);
+                  for(nt=1; nt<nThreads; nt++)
+                     CopyBlock16(pSrc+nt*blksThreadReg*MBS_RIJ128-MBS_RIJ128, pLocIV+nt*MBS_RIJ128);
+               }
+               #pragma omp barrier
+               {
+                  int id          = omp_get_thread_num();
+                  Ipp8u* pThreadIV  = (Ipp8u*)pLocIV +id*MBS_RIJ128;
+                  Ipp8u* pThreadSrc = (Ipp8u*)pSrc + id*blksThreadReg * MBS_RIJ128;
+                  Ipp8u* pThreadDst = (Ipp8u*)pDst + id*blksThreadReg * MBS_RIJ128;
+                  int blkThread = (id==(nThreads-1))? blksThreadTail : blksThreadReg;
+                  cpDecryptAES_cbc(pThreadIV, pThreadSrc, pThreadDst, blkThread, pCtx);
+               }
+            }
+
+            if(pLocIV != locIV)
+#if defined(__INTEL_COMPILER)
+              kmp_free(pLocIV);
+#else
+              free(pLocIV);
+#endif
+         }
+         else
+            return ippStsMemAllocErr;
+      }
+      #endif
 
       return ippStsNoErr;
    }

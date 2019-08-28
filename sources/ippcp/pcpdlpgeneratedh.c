@@ -335,6 +335,10 @@ IPPFUN(IppStatus, ippsDLPGenerateDH,(const IppsBigNumState* pSeedIn,
          /* set up motgomery(P) engine */
          gsModEngineInit(DLP_MONTP0(pDL), (Ipp32u*)BN_NUMBER(pP), feBitsize, DLP_MONT_POOL_LENGTH, gsModArithDLP());
 
+         #if defined(_OPENMP)  
+         gsModEngineInit(DLP_MONTP1(pDL), (Ipp32u*)BN_NUMBER(pP), feBitsize, DLP_MONT_POOL_LENGTH, gsModArithDLP());
+         #endif
+
          /* precompute cofactor j = (P-1)/R */
          ippsSub_BN(pP, cpBN_OneRef(), pSeed2);
          ippsDiv_BN(pSeed2, pR, pSeed1, pG);

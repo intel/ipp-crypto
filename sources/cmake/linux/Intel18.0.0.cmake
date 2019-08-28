@@ -54,12 +54,12 @@ set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,noexecstack")
 set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,relro -Wl,-z,now")
 
 #gres set(LINK_FLAG_DYNAMIC_LINUX "${LINK_FLAG_SECURITY} -nostdlib -Wl,-shared -Wl,-call_shared,-lc -Wl,-call_shared,-lm")
-set(LINK_FLAG_DYNAMIC_LINUX "${LINK_FLAG_SECURITY} -nostdlib -Wl,-shared -Wl,-call_shared,-ldl -Wl,-call_shared,-lc")
+set(LINK_FLAG_DYNAMIC_LINUX "${LINK_FLAG_SECURITY} -nostdlib -Wl,-shared -Wl,-call_shared,-ldl -Wl,-call_shared,-lc -Wl,-call_shared,-lm")
 if(${ARCH} MATCHES "ia32")
   set(LINK_FLAG_DYNAMIC_LINUX "${LINK_FLAG_DYNAMIC_LINUX} -Wl,-m,elf_i386")
 endif(${ARCH} MATCHES "ia32")
 
-set(LINK_FLAG_PCS_LINUX "${LINK_FLAG_SECURITY} -nostdlib -Wl,-shared -Wl,-call_shared,-ldl -Wl,-call_shared,-lc")
+set(LINK_FLAG_PCS_LINUX "${LINK_FLAG_SECURITY} -nostdlib -Wl,-shared -Wl,-call_shared,-ldl -Wl,-call_shared,-lc -Wl,-call_shared,-lm")
 if(${ARCH} MATCHES "ia32")
   set(LINK_FLAG_PCS_LINUX "${LINK_FLAG_PCS_LINUX} -Wl,-m,elf_i386")
 endif(${ARCH} MATCHES "ia32")
@@ -85,7 +85,9 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -diag-error 266 -diag-disable 13366
 # Security Compiler flags
 
 # Stack-based Buffer Overrun Detection
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
+if ((${ARCH} MATCHES "ia32") OR (NOT NONPIC_LIB))
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
+endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2")
 
@@ -95,6 +97,13 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wformat -Wformat-security")
 if(NOT NONPIC_LIB)
   # Position Independent Execution (PIE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic -fPIC")
+elseif(NOT ${ARCH} MATCHES "ia32")
+  # NONPIC intel64: specify kernel code model
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mno-red-zone -mcmodel=kernel")
+endif()
+
+if(THREADED_LIB)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -qopenmp -qopenmp-lib compat")
 endif()
 if(CODE_COVERAGE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -prof-gen:srcpos -prof-dir $ENV{PROF_DATA_DIR}")

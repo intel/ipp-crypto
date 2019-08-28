@@ -90,7 +90,7 @@
 //    1) set up domain parameters
 //    2) set up (signatory's) public key
 *F*/
-
+#if !defined(_OPENMP)
 IPPFUN(IppStatus, ippsDLPVerifyDSA,(const IppsBigNumState* pMsgDigest,
                                     const IppsBigNumState* pSignR, const IppsBigNumState* pSignS,
                                     IppDLResult* pResult,
@@ -213,3 +213,125 @@ IPPFUN(IppStatus, ippsDLPVerifyDSA,(const IppsBigNumState* pMsgDigest,
       return ippStsNoErr;
    }
 }
+//#endif
+
+#else
+
+IPPFUN(IppStatus, ippsDLPVerifyDSA,(const IppsBigNumState* pMsgDigest,
+                                    const IppsBigNumState* pSignR, const IppsBigNumState* pSignS,
+                                    IppDLResult* pResult,
+                                    IppsDLPState* pDL))
+{
+   /* test context*/
+   IPP_BAD_PTR2_RET(pDL,pResult);
+   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
+   IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
+
+   /* test operation flag */
+   IPP_BADARG_RET(!DLP_COMPLETE(pDL), ippStsIncompleteContextErr);
+
+   /* test message representative */
+   IPP_BAD_PTR1_RET(pMsgDigest);
+   pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, BN_ALIGNMENT) );
+   IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
+   IPP_BADARG_RET((0>cpBN_tst(pMsgDigest)), ippStsMessageErr);
+   /* make sure msg <order */
+   IPP_BADARG_RET(0<=cpCmp_BNU(BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest),
+                               DLP_R(pDL), BITS_BNU_CHUNK(DLP_BITSIZER(pDL))), ippStsMessageErr);
+
+   /* test signature */
+   IPP_BAD_PTR2_RET(pSignR,pSignS);
+   pSignR = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignR, BN_ALIGNMENT) );
+   pSignS = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignS, BN_ALIGNMENT) );
+   IPP_BADARG_RET(!BN_VALID_ID(pSignR), ippStsContextMatchErr);
+   IPP_BADARG_RET(!BN_VALID_ID(pSignS), ippStsContextMatchErr);
+
+   /* test signature range */
+   if(0<cpBN_cmp(cpBN_OneRef(), pSignR)||
+      0<=cpCmp_BNU(BN_NUMBER(pSignR),BN_SIZE(pSignR), DLP_R(pDL), BITS_BNU_CHUNK(DLP_BITSIZER(pDL)))) {
+      *pResult = ippDLInvalidSignature;
+      return ippStsNoErr;
+   }
+   if(0<cpBN_cmp(cpBN_OneRef(), pSignS)||
+      0<=cpCmp_BNU(BN_NUMBER(pSignS),BN_SIZE(pSignS), DLP_R(pDL), BITS_BNU_CHUNK(DLP_BITSIZER(pDL)))) {
+      *pResult = ippDLInvalidSignature;
+      return ippStsNoErr;
+   }
+
+   {
+      /* allocate BN resources */
+      BigNumNode* pList = DLP_BNCTX(pDL);
+      IppsBigNumState* pV    = cpBigNumListGet(&pList);
+      IppsBigNumState* pW    = cpBigNumListGet(&pList);
+      IppsBigNumState* pU1   = cpBigNumListGet(&pList);
+      IppsBigNumState* pU2   = cpBigNumListGet(&pList);
+
+      IppsBigNumState* pOrder = cpBigNumListGet(&pList);
+      ippsSet_BN(ippBigNumPOS, BITS2WORD32_SIZE(DLP_BITSIZER(pDL)), (Ipp32u*)DLP_R(pDL), pOrder);
+
+      //int maxNumThreads = IPP_MIN(IPPCP_GET_NUM_THREADS(), 2);
+
+      /* W = 1/SignS (mod R) */
+      ippsModInv_BN((IppsBigNumState*)pSignS, pOrder, pW);
+      cpMontEnc_BN(pW, pW, DLP_MONTR(pDL));
+
+      /* reduct pMsgDigest if necessary */
+      if(0 < cpBN_cmp(pMsgDigest, pOrder))
+         ippsMod_BN((IppsBigNumState*)pMsgDigest, pOrder, pU1);
+      else
+         cpBN_copy(pU1, pMsgDigest);
+
+      /* U1 = (MsgDigest*W) (mod R) */
+      cpMontMul_BN(pU1, pW, pU1, DLP_MONTR(pDL));
+
+      /* U2 = (SignR*W) (mod R) */
+      cpMontMul_BN(pU2, pSignR, pW, DLP_MONTR(pDL));
+
+      /* V = ((G^U1)*(Y^U2) (mod P)) (mod R) */
+      #pragma omp parallel sections IPPCP_OMP_LIMIT_MAX_NUM_THREADS(2)
+      {
+         /* W = (G^U1) (mod P) */
+         #pragma omp section
+         {
+            #if !defined(_USE_WINDOW_EXP_)
+            //cpSafeMontExp_Binary(pW, DLP_GENC(pDL), pU1, DLP_MONTP0(pDL));
+            cpMontExpBin_BN(pW, DLP_GENC(pDL), pU1, DLP_MONTP0(pDL) );
+            #else
+            if((DLP_EXPMETHOD(pDL)==BINARY) || (1==cpMontExp_WinSize(BITSIZE_BNU(BN_NUMBER(pU1), BN_SIZE(pU1)))))
+               //cpSafeMontExp_Binary(pW, DLP_GENC(pDL), pU1, DLP_MONTP0(pDL));
+               cpMontExpBin_BN(pW, DLP_GENC(pDL), pU1, DLP_MONTP0(pDL) );
+            else
+               //cpSafeMontExp_Window(pW, DLP_GENC(pDL), pU1, DLP_MONTP0(pDL), DLP_BNUCTX0(pDL));
+               cpMontExpWin_BN(pW, DLP_GENC(pDL), pU1, DLP_MONTP0(pDL), DLP_BNUCTX0(pDL));
+            #endif
+         }
+         /* V = (Y^U2) (mod P) */
+         #pragma omp section
+         {
+            #if !defined(_USE_WINDOW_EXP_)
+            //cpSafeMontExp_Binary(pV, DLP_YENC(pDL), pU2, DLP_MONTP1(pDL));
+            cpMontExpBin_BN(pV, DLP_YENC(pDL), pU2, DLP_MONTP1(pDL) );
+            #else
+            if((DLP_EXPMETHOD(pDL)==BINARY) || (1==cpMontExp_WinSize(BITSIZE_BNU(BN_NUMBER(pU2), BN_SIZE(pU2)))))
+               //cpSafeMontExp_Binary(pV, DLP_YENC(pDL), pU2, DLP_MONTP1(pDL));
+               cpMontExpBin_BN(pV, DLP_YENC(pDL), pU2, DLP_MONTP1(pDL) );
+            else
+               //cpSafeMontExp_Window(pV, DLP_YENC(pDL), pU2, DLP_MONTP1(pDL), DLP_BNUCTX1(pDL));
+               cpMontExpWin_BN(pV, DLP_YENC(pDL), pU2, DLP_MONTP1(pDL), DLP_BNUCTX1(pDL));
+            #endif
+         }
+      }
+
+      cpMontMul_BN(pV, pW, pV, DLP_MONTP0(pDL));
+      cpMontDec_BN(pV, pV, DLP_MONTP0(pDL));
+      BN_SIZE(pV) = cpMod_BNU(BN_NUMBER(pV),     BN_SIZE(pV),
+                              BN_NUMBER(pOrder), BN_SIZE(pOrder));
+
+      /* result = V~R */
+      *pResult = 0==cpBN_cmp(pV, pSignR)? ippDLValid : ippDLInvalidSignature;
+
+      return ippStsNoErr;
+   }
+}
+
+#endif /* _OPENMP */
