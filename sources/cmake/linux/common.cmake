@@ -42,13 +42,14 @@
 # Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
 #
 
-set(OS_DEFAULT_COMPILER Intel18.0.0)
+set(OS_DEFAULT_COMPILER Intel19.0.0)
 
 if(${ARCH} MATCHES "ia32")
-  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -Dunix -Dlinux -Dlinux32 -DLINUX32 -D_linux32 -D_LINUX32 -D_ARCH_IA32")
+  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -Dlinux -Dlinux32 -D_ARCH_IA32") # 32bit linux
 else()
-  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -Dunix -Dlinux -Dlinux32e -DLINUX32E -D_linux32e -D_LINUX32E -D_ARCH_EM64T")
+  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -Dlinux -Dlinux32e -D_ARCH_EM64T") # 64bit linux
 endif(${ARCH} MATCHES "ia32")
+
 if(NOT NONPIC_LIB)
   set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPP_PIC")
 endif()

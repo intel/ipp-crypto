@@ -53,35 +53,21 @@ include_directories(
 
 # Windows
 if(WIN32)
-  set(LINK_LIB_STATIC_RELEASE_VS2013 libcmt.lib libcpmt.lib kernel32.lib user32.lib gdi32.lib uuid.lib advapi32.lib vfw32.lib shell32.lib)
-  set(LINK_LIB_STATIC_DEBUG_VS2013 libcmtd.lib libcpmtd.lib kernel32.lib user32.lib gdi32.lib uuid.lib advapi32.lib vfw32.lib shell32.lib)
-
-  set(LINK_LIB_STATIC_RELEASE_VS2015 ${LINK_LIB_STATIC_RELEASE_VS2013} libucrt.lib libvcruntime.lib)
-  set(LINK_LIB_STATIC_DEBUG_VS2015 ${LINK_LIB_STATIC_DEBUG_VS2013} libucrtd.lib libvcruntime.lib)
-
-  if (MSVC14)
-    set(LINK_LIB_STATIC_RELEASE  ${LINK_LIB_STATIC_RELEASE_VS2015})
-    set(LINK_LIB_STATIC_DEBUG  ${LINK_LIB_STATIC_DEBUG_VS2015})
-  elseif(MSVC12)
-    set(LINK_LIB_STATIC_RELEASE  ${LINK_LIB_STATIC_RELEASE_VS2013})
-    set(LINK_LIB_STATIC_DEBUG  ${LINK_LIB_STATIC_DEBUG_VS2013})
+  set(LINK_LIB_STATIC_RELEASE libcmt.lib  libcpmt.lib)
+  set(LINK_LIB_STATIC_DEBUG   libcmtd.lib libcpmtd.lib)
+  # VS2015 or later (added Universal CRT)
+  if (NOT (MSVC_VERSION LESS 1900))
+    set(LINK_LIB_STATIC_RELEASE ${LINK_LIB_STATIC_RELEASE} libucrt.lib  libvcruntime.lib)
+    set(LINK_LIB_STATIC_DEBUG   ${LINK_LIB_STATIC_DEBUG}   libucrtd.lib libvcruntimed.lib)
   endif()
 
   set(LINK_FLAG_S_ST_WINDOWS "/nologo /NODEFAULTLIB /VERBOSE:SAFESEH /INCREMENTAL:NO /NXCOMPAT /DYNAMICBASE /SUBSYSTEM:CONSOLE")
-  if(${ARCH} MATCHES "ia32")
-    ippcp_extend_variable(LINK_FLAG_S_ST_WINDOWS "/MACHINE:X86")
-  else()
-    ippcp_extend_variable(LINK_FLAG_S_ST_WINDOWS "/MACHINE:X64")
-  endif()
 
   ippcp_extend_variable(CMAKE_CXX_FLAGS "/TP /nologo /W3 /EHa /Zm512 /wd4996 /GS")
   # Intel compiler-specific option
   if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
     ippcp_extend_variable(CMAKE_CXX_FLAGS "-nologo -Qfp-speculation:safe -Qfreestanding")
   endif()
-
-  set(CMAKE_CXX_FLAGS_DEBUG "/MTd /Zi")
-  set(CMAKE_CXX_FLAGS_RELEASE "/MT /Zl")
 
   set(OPT_FLAG "/Od")
 endif(WIN32)
@@ -120,7 +106,7 @@ if(UNIX)
 endif()
 
 macro(ippcp_example_set_build_options target link_libraries)
-  if(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+  if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
     target_link_libraries(${target} -static-libgcc -static-libstdc++)
   endif()
   target_link_libraries(${target} ${link_libraries})
@@ -133,6 +119,7 @@ macro(ippcp_example_set_build_options target link_libraries)
       target_link_libraries(${target} optimized ${link})
     endforeach()
     set_target_properties(${target} PROPERTIES LINK_FLAGS ${LINK_FLAG_S_ST_WINDOWS})
+    target_compile_options(${target} PRIVATE $<$<CONFIG:Debug>:/MTd /Zi> $<$<CONFIG:Release>:/MT /Zl>)
   else()
     if(NOT APPLE)
       set_target_properties(${target} PROPERTIES LINK_FLAGS "${LINK_FLAG_S_ST_LINUX}")

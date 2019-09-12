@@ -44,44 +44,92 @@
 
 # linker
 set(LINK_FLAG_STATIC_WINDOWS "")
-set(LINK_FLAG_DYNAMIC_WINDOWS "/nologo /NODEFAULTLIB /VERBOSE:SAFESEH /INCREMENTAL:NO /NXCOMPAT /DYNAMICBASE")
+# Suppresses the display of the copyright banner when the compiler starts up and display of informational messages during compiling.
+set(LINK_FLAG_DYNAMIC_WINDOWS "/nologo")
+# Displays information about modules that are incompatible with safe structured exception handling when /SAFESEH isn't specified.
+set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /VERBOSE:SAFESEH")
+# The /NODEFAULTLIB option tells the linker to remove one or more default libraries from the list of libraries it searches when resolving external references.
+set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /NODEFAULTLIB")
+# Disable incremental linking
+set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /INCREMENTAL:NO")
+# Indicates that an executable was tested to be compatible with the Windows Data Execution Prevention feature.
+set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /NXCOMPAT")
+# Specifies whether to generate an executable image that can be randomly rebased at load time.
+set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /DYNAMICBASE")
+if(${ARCH} MATCHES "ia32")
+  # When /SAFESEH is specified, the linker will only produce an image if it can also produce a table of the image's safe exception handlers.
+  set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /SAFESEH")
+endif(${ARCH} MATCHES "ia32")
 
 # supress warning LNK4221:
 # "This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library"
 set(LINK_FLAG_STATIC_WINDOWS  "${LINK_FLAG_STATIC_WINDOWS} /ignore:4221")
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /ignore:4221")
 
-if(${ARCH} MATCHES "ia32")
-  set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /SAFESEH")
-endif(${ARCH} MATCHES "ia32")
-
-set(LINK_LIB_STATIC_RELEASE_VS2013 libcmt kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
-set(LINK_LIB_STATIC_DEBUG_VS2013 libcmtd kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
-
-set(LINK_LIB_STATIC_RELEASE_VS2015 libcmt libucrt libvcruntime kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
-set(LINK_LIB_STATIC_DEBUG_VS2015 libcmtd libucrtd libvcruntimed kernel32 user32 gdi32 uuid advapi32 vfw32 shell32)
-
-if (MSVC12)
-set(LINK_LIB_STATIC_RELEASE  ${LINK_LIB_STATIC_RELEASE_VS2013})
-set(LINK_LIB_STATIC_DEBUG  ${LINK_LIB_STATIC_DEBUG_VS2013})
-else()
-set(LINK_LIB_STATIC_RELEASE  ${LINK_LIB_STATIC_RELEASE_VS2015})
-set(LINK_LIB_STATIC_DEBUG  ${LINK_LIB_STATIC_DEBUG_VS2015})
-endif(MSVC12)
+# Link to libc for debug purposes (printf, etc)
+set(LINK_LIB_STATIC_RELEASE libcmt)
+set(LINK_LIB_STATIC_DEBUG libcmtd)
 
 # compiler
-set(CMAKE_C_FLAGS "${LIBRARY_DEFINES}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBRARY_DEFINES}")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nologo -Qfp-speculation:safe -Qfreestanding -X /W4 /WX -GS -Qdiag-error:266 -Qdiag-disable:13366 /Qfnalign:32 /Qalign-loops:32 -Qrestrict -Zp16 -Qvc12 -Qopt-report2 -Qopt-report-phase:vec -Qopt-report-stdout -Qsox- /Gy -Qstd=c99 -D_FORTIFY_SOURCE=2")
+# Suppresses the display of the copyright banner when the compiler starts up and display of informational messages during compiling.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /nologo")
+# Ensures that compilation takes place in a freestanding environment
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qfreestanding")
+# Removes standard directories from the include file search path.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /X")
+# Warning level = 4
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
+# Changes all warnings to errors.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
+# Detect some buffer overruns.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /GS")
+# Changes a soft diagnostic to an error
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qdiag-error:266")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qdiag-disable:13366")
+# Align functions
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qfnalign:32")
+# Align loops
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qalign-loops:32")
+#	Determines whether pointer disambiguation is enabled with the restrict qualifier.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qrestrict")
+# Specifies alignment for structures on byte boundaries.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zp16")
+# Optimization report settings.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qopt-report2")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qopt-report-phase:vec")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qopt-report-stdout")
+# Do not save the compilation options and version number in the executable file
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qsox-")
+# Separates functions into COMDATs for the linker. This is a deprecated option.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Gy")
+# C std
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qstd=c99")
+# Security flag that adds compile-time and run-time checks
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_FORTIFY_SOURCE=2")
+
 if(CODE_COVERAGE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qrof-gen:srcpos /Qprof-dir:${PROF_DATA_DIR}")
 endif()
 
-set(CMAKE_C_FLAGS_DEBUG "/MTd /Zi /Od /Ob2 /DDEBUG" CACHE STRING "" FORCE)
-set(CMAKE_C_FLAGS_RELEASE "/MT /Zl /O3 /Ob2 /DNDEBUG" CACHE STRING "" FORCE)
+# Causes the application to use the multithread, static version of the run-time library (debug version).
+set(CMAKE_C_FLAGS_DEBUG "/MTd" CACHE STRING "" FORCE)
+# The /Zi option produces a separate PDB file that contains all the symbolic debugging information for use with the debugger.
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi" CACHE STRING "" FORCE)
+# Turns off all optimizations in the program and speeds compilation.
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od" CACHE STRING "" FORCE)
+# Debug macro
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /DDEBUG" CACHE STRING "" FORCE)
 
-set (CMAKE_C_FLAGS_DEBUG_INIT "/MDd /Zi /Ob0 /Od /RTC1" CACHE STRING "" FORCE)
-set (CMAKE_C_FLAGS_RELEASE_INIT "-DNDEBUG /MD /Zl /O3 /Ob2 /DNDEBUG" CACHE STRING "" FORCE)
+# Causes the application to use the multithread, static version of the run-time library.
+set(CMAKE_C_FLAGS_RELEASE "/MT" CACHE STRING "" FORCE)
+# Omits the default C runtime library name from the .obj file.
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zl" CACHE STRING "" FORCE)
+# "Maximize Speed". Selects a predefined set of options that affect the size and speed of generated code.
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O3" CACHE STRING "" FORCE) # /Ob2 is included in /O3
+# No-debug macro
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /DNDEBUG" CACHE STRING "" FORCE)
 
 # supress warning #10120: overriding '/O2' with '/O3' 
 # CMake bug: cmake cannot change the property "Optimization" to /O3 in MSVC project

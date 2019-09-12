@@ -55,8 +55,8 @@ set(IPPCP_EXAMPLES
 cmake_policy(SET CMP0003 NEW)
 
 # Custom target to build ALL examples at once
-add_custom_target(ippcp_examples)
-set_target_properties(ippcp_examples PROPERTIES FOLDER "examples")
+add_custom_target(ippcp_examples_all)
+set_target_properties(ippcp_examples_all PROPERTIES FOLDER "examples")
 
 function(ippcp_define_example out_target source_file category)
   # Extract file name without directory or longest extension
@@ -81,9 +81,9 @@ function(ippcp_define_example out_target source_file category)
   set(parent_target ippcp_examples_${category})
   if(NOT TARGET ${parent_target})
     add_custom_target(${parent_target})
-    set_target_properties(${parent_target} PROPERTIES FOLDER "examples/${category}")
-    if(TARGET ippcp_examples)
-      add_dependencies(ippcp_examples ${parent_target})
+    set_target_properties(${parent_target} PROPERTIES FOLDER "examples")
+    if(TARGET ippcp_examples_all)
+      add_dependencies(ippcp_examples_all ${parent_target})
     endif()
   endif()
   add_dependencies(${parent_target} ${local_target})
@@ -94,7 +94,9 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_LIST_DIR)
 # Build with standalone library
   cmake_minimum_required(VERSION 3.15)
 
-  project(ippcp_examples C CXX)
+  project("Intel(R) IPP Cryptography Examples" CXX)
+  set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+
   option(BUILD_EXAMPLES "Build examples" ON)
 
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})

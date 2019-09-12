@@ -43,11 +43,20 @@
 #
 
 # compiler
-set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "-fasm-blocks -use_msasm -w -m32 -fomit-frame-pointer")
+# Enables the use of blocks and entire functions of assembly code within a C or C++ file
+set(CC_FLAGS_INLINE_ASM_UNIX "-fasm-blocks")
 
-set(CC_FLAGS_INLINE_ASM_UNIX_INTEL64 "-fasm-blocks -use_msasm -ffixed-rdi -ffixed-rsi -ffixed-rbx -ffixed-rcx -ffixed-rdx -ffixed-rbp -ffixed-r8 -ffixed-r9 -ffixed-r12 -ffixed-r13 -ffixed-r14 -ffixed-r15")
+# Disables all warning messages
+set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "${CC_FLAGS_INLINE_ASM_UNIX} -w")
+# Tells the compiler to generate code for a specific architecture (32)
+set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "${CC_FLAGS_INLINE_ASM_UNIX_IA32} -m32")
+# EBP is used as a general-purpose register in optimizations
+set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "${CC_FLAGS_INLINE_ASM_UNIX_IA32} -fomit-frame-pointer")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} ${LIBRARY_DEFINES}")
+# Do not use the specified registres in dispatcher compilation
+set(CC_FLAGS_INLINE_ASM_UNIX_INTEL64 "${CC_FLAGS_INLINE_ASM_UNIX} -ffixed-rdi -ffixed-rsi -ffixed-rbx -ffixed-rcx -ffixed-rdx -ffixed-rbp -ffixed-r8 -ffixed-r9 -ffixed-r12 -ffixed-r13 -ffixed-r14 -ffixed-r15")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBRARY_DEFINES}")
 
 # Ensures that compilation takes place in a freestanding environment
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding")
@@ -65,6 +74,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -diag-error 266 -diag-disable 13366
 # Stack-based Buffer Overrun Detection
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
 
+# Security flag that adds compile-time and run-time checks
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2")
 
 # Format string vulnerabilities
@@ -82,13 +92,24 @@ if(CODE_COVERAGE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -prof-gen:srcpos -prof-dir ${PROF_DATA_DIR}")
 endif()
 
+# Optimization level = 3, no-debug definition (turns off asserts), warning level = 3, treat warnings as errors
 set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -w3 -Werror" CACHE STRING "" FORCE)
-set (CMAKE_C_FLAGS_RELEASE_INIT " -O3 -DNDEBUG -w3 -Werror" CACHE STRING "" FORCE)
 
+# Do not include compilation options and version number in the resulting file
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-sox")
+# Alignment for structures on byte boundaries (= 16)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Zp16")
+# Defines the GNU macroses (__GNUC__, __GNUC_MINOR__, and __GNUC_PATCHLEVEL__)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -gcc")
 if(${ARCH} MATCHES "ia32")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-sox  -Zp16 -gcc -falign-stack=maintain-16-byte -Wa,--32 -no-use-asm -m32")
-else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-sox  -Zp16 -gcc")
+  # Tells the compiler to not assume any specific stack alignment, but attempt to maintain alignment in case the stack is already aligned.
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -falign-stack=maintain-16-byte")
+  # 32bit linker command
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wa,--32")
+  # Do not use assembler to process asm files
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-use-asm")
+  # Tells the compiler to generate code for a specific architecture (32)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 endif(${ARCH} MATCHES "ia32")
 
 set(w7_opt "${w7_opt} -xSSE2")

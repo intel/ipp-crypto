@@ -2,14 +2,17 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## 2019-09-17
+- Added RSA multi buffer encryption and decryption.
+
 ## 2019-08-27
 - Added Intel(R) IPP Cryptography library examples: AES-CTR, RSA-OAEP, RSA-PSS.
 - Fixed code generation for kernel code model in Linux* Intel(R) 64 non-PIC builds.
 - Fixes in Intel(R) IPP Custom Library Tool.
 
 ## 2019-07-23
-- Added Microsoft* Visual Studio* 2019 build support
-- Added Intel(R) IPP Custom Library Tool
+- Added Microsoft* Visual Studio* 2019 build support.
+- Added Intel(R) IPP Custom Library Tool.
 
 ## 2019-06-24
 - AES-GCM was enabled with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI).

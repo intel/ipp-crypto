@@ -83,9 +83,9 @@ IF @Version GE 1400
 ENDIF
 
 IFNDEF LINUX32E
- IFNDEF WIN32E
-    .ERR <Platform is not defined { LINUX32E or WIN32E }>
-     ECHO LINUX32E or WIN32E - Linux ABI (parameter passing in rdi, rsi, rdx, rcx, r8, r9...)
+ IFNDEF _WIN64
+    .ERR <Platform is not defined { LINUX32E or _WIN64 }>
+     ECHO LINUX32E or _WIN64 - Linux ABI (parameter passing in rdi, rsi, rdx, rcx, r8, r9...)
     END
  ENDIF
 ENDIF
@@ -98,7 +98,7 @@ IFDEF LINUX32E
   ENDIF
 ENDIF
 
-IFDEF WIN32E
+IFDEF _WIN64
   IFDEF STACK_ABI
     IPP_ABI = 1
   ELSE

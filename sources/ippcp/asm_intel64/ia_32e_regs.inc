@@ -121,7 +121,7 @@ rdxbh equ   dh
 ;;
 ;; Register Parameters (depend on used OS)
 ;;
-IFDEF WIN32E
+IFDEF _WIN64
 rpar1 equ rcx
 rpar2 equ rdx
 rpar3 equ r8

@@ -98,8 +98,12 @@ if(CMAKE_SIZEOF_VOID_P)
 endif()
 
 # Define list of libraries to search
+set(IPPCP_SUFFIX "")
+if(WIN32)
+  set(IPPCP_SUFFIX "mt") # static lib on Windows
+endif()
 set(ippcp_search_libraries
-  ippcp)
+  ippcp${IPPCP_SUFFIX})
 
 # Define library search paths (TODO: to handle nonpic libraries)
 set(ippcp_lib_search_paths "")

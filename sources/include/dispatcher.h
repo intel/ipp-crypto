@@ -128,7 +128,7 @@ extern "C" {
   #define LIB_K0 LIB_L9
   #define LIB_N0 LIB_L9
 
-#elif defined( _ARCH_EM64T ) && !defined( OSXEM64T ) && !defined( ANDROID ) && !defined( _WIN32E ) /* Linux* OS Intel64 supports N0 */
+#elif defined( _ARCH_EM64T ) && !defined( OSXEM64T ) && !defined( ANDROID ) && !defined( _WIN64 ) /* Linux* OS Intel64 supports N0 */
   enum lib_enum {
      LIB_M7=0, LIB_N8=1, LIB_Y8=2, LIB_E9=3, LIB_L9=4, LIB_N0=5, LIB_K0=6, LIB_NOMORE
   };
@@ -256,7 +256,7 @@ static const dll_enum dllUsage[][DLL_NOMORE+1] = {
 #if defined( _PCS )
 
 /* Names of the Intel libraries which can be loaded */
-#if defined ( _WIN32 ) && !defined( _WIN64 ) && !defined( _WIN32E )
+#if defined ( _WIN32 ) && !defined( _WIN64 ) && !defined( _WIN64 )
 static const _TCHAR* dllNames[DLL_NOMORE] = {
     _T(IPP_LIB_PREFIX()) _T("w7") _T(".dll"),
     _T(IPP_LIB_PREFIX()) _T("s8") _T(".dll"),
@@ -279,7 +279,7 @@ static const _TCHAR* dllNames[DLL_NOMORE] = {
     _T("lib") _T(IPP_LIB_PREFIX()) _T("g9") _T(".dylib"),
     _T("lib") _T(IPP_LIB_PREFIX()) _T("h9") _T(".dylib")
 };
-#elif defined( _WIN32E )
+#elif defined( _WIN64 )
 static const _TCHAR* dllNames[DLL_NOMORE] = {
     _T(IPP_LIB_PREFIX()) _T("m7") _T(".dll"),
     _T(IPP_LIB_PREFIX()) _T("n8") _T(".dll"),

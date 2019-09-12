@@ -393,6 +393,7 @@ typedef signed int IppStatus;
 #define ippStsBadModulusErr              -1001 /* Bad modulus caused a failure in module inversion. */
 #define ippStsInsufficientEntropy           25 /* Generation of the prime/key failed due to insufficient entropy in the random seed and stimulus bit string. */
 #define ippStsNotSupportedCpu               36 /* The CPU is not supported. */
+#define ippStsMbWarning                     53 /* Error(s) in statuses array. */
      /* end of ippCrypto specific statuses - any changes MUST be done in both repositories - IPP & ippCrypto */
 
 #if (!defined IPPCPDEFS_H__) || defined( _OWN_BLDPCS )

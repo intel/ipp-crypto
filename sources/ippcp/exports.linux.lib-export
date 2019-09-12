@@ -317,6 +317,8 @@ EXTERN (ippsRSASign_PKCS1v15)
 EXTERN (ippsRSAVerify_PKCS1v15)
 EXTERN (ippsRSASign_PKCS1v15_rmf)
 EXTERN (ippsRSAVerify_PKCS1v15_rmf)
+EXTERN (ippsRSA_MB_Encrypt)
+EXTERN (ippsRSA_MB_Decrypt)
 EXTERN (ippsDLGetResultString)
 EXTERN (ippsDLPGetSize)
 EXTERN (ippsDLPInit)
@@ -835,6 +837,8 @@ VERSION {
    ippsRSASign_PKCS1v15_rmf;
    ippsRSAVerify_PKCS1v15_rmf;
    ippsDLGetResultString;
+   ippsRSA_MB_Encrypt;
+   ippsRSA_MB_Decrypt;
    ippsDLPGetSize;
    ippsDLPInit;
    ippsDLPPack;

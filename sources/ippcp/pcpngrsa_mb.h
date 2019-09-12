@@ -38,63 +38,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography */
+/* 
+// 
+//  Purpose:
+//     Cryptography Primitive.
+//     Internal Definitions
+// 
+// 
+*/
 
-/*!
-  *
-  * \file
-  * \brief Common header for Intel(R) IPP Cryptography examples
-  *
-  */
+#if !defined(_CP_NG_RSA_MB_H)
+#define _CP_NG_RSA_MB_H
 
-#ifndef EXAMPLES_COMMON_H_
-#define EXAMPLES_COMMON_H_
+#define RSA_MB_MAX_BUF_QUANTITY (8)
 
-#include <stdio.h>
+#if RSA_MB_MAX_BUF_QUANTITY != 8
+   #error RSA_MB_MAX_BUF_QUANTITY must be equal 8
+#endif
 
-/*! Macro that prints status message depending on condition */
-#define PRINT_EXAMPLE_STATUS(function_name, description, success_condition)       \
-    printf("+--------------------------------------------------------------|\n"); \
-    printf(" Function: %s\n", function_name);                                     \
-    printf(" Description: %s\n", description);                                    \
-    if (success_condition) {                                                      \
-        printf(" Status: PASSED!\n");                                             \
-    } else {                                                                      \
-        printf(" Status: FAILED!\n");                                             \
-    }                                                                             \
-    printf("+--------------------------------------------------------------|\n");
-
-/*!
- * Helper function to compare expected and actual function return statuses and display
- * an error mesage if those are different.
- *
- * \param[in] Function name to display
- * \param[in] Expected status
- * \param[in] Actual status
- *
- * \return zero if statuses are not equal, otherwise - non-zero value
- */
-static int checkStatus(const char* funcName, IppStatus expectedStatus, IppStatus status)
-{
-   if (expectedStatus != status) {
-      printf("%s: unexpected return status\n", funcName);
-      printf("Expected: %s\n", ippcpGetStatusString(expectedStatus));
-      printf("Received: %s\n", ippcpGetStatusString(status));
-      return 0;
-   }
-   return 1;
-}
-
-/*!
- * Helper function to convert bit size into byte size.
- *
- * \param[in] Size in bits
- *
- * \return size in bytes
- */
-static int bitSizeInBytes(int nBits)
-{
-   return (nBits + 7) >> 3;
-}
-
-#endif /* #ifndef EXAMPLES_COMMON_H_ */
+#endif /* _CP_NG_RSA_MB_H */

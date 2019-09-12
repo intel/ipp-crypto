@@ -50,7 +50,7 @@ IPPCODE SEGMENT 'CODE' ALIGN (LOCAL_ALIGN_FACTOR)
 ;#          void cpGetReg( int* buf, int valueEAX, int valueECX ); #
 ;####################################################################
 
-IFDEF WIN32E
+IFDEF _WIN64
 buf       equ rcx
 valueEAX  equ edx
 valueECX  equ r8d
@@ -142,7 +142,7 @@ cp_issue_avx512_instruction PROC PUBLIC
          ret
 cp_issue_avx512_instruction ENDP
 
-IFDEF WIN32E
+IFDEF _WIN64
   EXTRN ippcpInit:PROC
 ENDIF
 

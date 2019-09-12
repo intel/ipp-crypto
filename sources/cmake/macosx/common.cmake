@@ -42,10 +42,6 @@
 # Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
 #
 
-set(OS_DEFAULT_COMPILER Intel18.0.0)
+set(OS_DEFAULT_COMPILER Intel19.0.0)
 
-if(${ARCH} MATCHES "ia32")
-  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPP_PIC -D__RESTRICT=restrict -DOSX32 -D_ARCH_IA32")
-else()
-  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPP_PIC -D__RESTRICT=restrict -DOSXEM64T -Dlinux32e -D_ARCH_EM64T")
-endif(${ARCH} MATCHES "ia32")
+set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPP_PIC -DOSXEM64T -Dlinux32e -D_ARCH_EM64T")

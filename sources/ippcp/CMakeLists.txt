@@ -113,6 +113,7 @@ if (NOT MERGED_BLD)
   set(PLATFORM_LIST ${PLATFORM_LIST} PARENT_SCOPE)
 endif(NOT MERGED_BLD)
 
+# defines a specific optimization to build
 set(px_opt "-D_PX")
 set(w7_opt "-D_W7")
 set(s8_opt "-D_S8")
@@ -129,9 +130,9 @@ set(n0_opt "-D_N0")
 set(k0_opt "-D_K0")
 
 # define defaults for every supported compiler
-set(DEFAULT_Intel_COMPILER_VER 18.0.0)
+set(DEFAULT_Intel_COMPILER_VER 19.0.0)
 set(DEFAULT_MSVC_COMPILER_VER 19.14)
-set(DEFAULT_GNU_COMPILER_VER 5.1.0)
+set(DEFAULT_GNU_COMPILER_VER 8.2.0)
 
 set(DEFAULT_Intel18_COMPILER_VER 18.0.0)
 set(DEFAULT_Intel19_COMPILER_VER 19.0.0)
@@ -160,7 +161,7 @@ if(("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC") AND (CMAKE_C_COMPILER_VERSION VERS
 endif()
 
 if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") AND (CMAKE_C_COMPILER_VERSION VERSION_LESS DEFAULT_GNU_COMPILER_VER))
-  message(FATAL_ERROR "GNU C Compiler version must be 5.1 or higher")
+  message(FATAL_ERROR "GNU C Compiler version must be 8.2 or higher")
 endif()
 
 set(COMPILER_OPTIONS_FILE "${CMAKE_SOURCE_DIR}/sources/cmake/${OS_STRING}")
@@ -279,25 +280,25 @@ else()
   endif()
 endif(WIN32)
 
-#gres: set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D__STDC__ -D_IPP_DEBUG -D_IPP_C99 -D_IPP_v50_ -D_IPP_VERSION=\"-2019.0\"")
-set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D__STDC__ -D_IPP_DEBUG -D_IPP_C99 -D_IPP_VERSION=\"-2019.0\"")
+# LIBRARY_DEFINES will be appended to CMAKE_C_FLAGS
+# _IPP_DEBUG - enable bad argument checks
+set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D_IPP_DEBUG")
 
 # set Intel(R) IPP revision, if required
 if(IPP_REVISION)
+  # IPP_REVISION - release revision id, added into LibraryVersion
   set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPP_REVISION=${IPP_REVISION}")
 endif()
 
 include(${COMPILER_OPTIONS_FILE}) # uses ${CMAKE_C_FLAGS} ${LIBRARY_DEFINES} ${<letter>opt} from the scope
 
-if(UNIX)
-  if(ARCH MATCHES "ia32")
-    if(NOT APPLE)
-      set(ASMOPTS "--32")
-    elseif(NOT USEYASM)
-      set(ASMOPTS "-arch i386")
-    endif(NOT APPLE)
-  endif(ARCH MATCHES "ia32")
-endif(UNIX)
+if(UNIX AND ARCH MATCHES "ia32")
+  if(NOT APPLE)
+    set(ASMOPTS "--32")
+  elseif(NOT USEYASM)
+    set(ASMOPTS "-arch i386")
+  endif(NOT APPLE)
+endif(UNIX AND ARCH MATCHES "ia32")
 
 if(UNIX)
   set(CMAKE_ASM-ATT_COMPILE_OBJECT "<CMAKE_ASM-ATT_COMPILER> <SOURCE> ${ASMOPTS} -o <OBJECT>")
@@ -320,11 +321,14 @@ if(UNIX)
 endif(UNIX)
 
 if(WIN32)
+  # Preserves case in public and extern symbols.
   set(ADD_ASMOPTS "/Cx")
   if(${ARCH} MATCHES "ia32")
+    # Generates common object file format (COFF) type of object module. Generally required for Win32 assembly language development.
+    # When /SAFESEH is specified, the linker will only produce an image if it can also produce a table of the image's safe exception handlers. 
     set(ADD_ASMOPTS "${ADD_ASMOPTS} /coff /safeseh")
   else(${ARCH} MATCHES "ia32")
-    set(ADD_ASMOPTS "${ADD_ASMOPTS} /DWIN32E")
+    set(ADD_ASMOPTS "${ADD_ASMOPTS} /D_WIN64")
   endif(${ARCH} MATCHES "ia32")
 
   foreach(srcfile ${ASM_SOURCES})
@@ -522,6 +526,7 @@ if(MERGED_BLD)
     set_target_properties(${IPPCP_LIB_MERGED} PROPERTIES OUTPUT_NAME "${TARGET_NAME}")
   endif(WIN32)
 
+  # protection (_FORTIFY_SOURCE) and optimization flags for dispatcher
   if(UNIX)
     if(${ARCH} MATCHES "ia32")
       set_target_properties(${IPPCP_LIB_MERGED} PROPERTIES COMPILE_FLAGS "${CC_FLAGS_INLINE_ASM_UNIX_IA32} -D_GNU_SOURCE -D_FORTIFY_SOURCE=2 -O2")

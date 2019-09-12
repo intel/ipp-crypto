@@ -319,6 +319,8 @@ ippsRSASign_PKCS1v15
 ippsRSAVerify_PKCS1v15
 ippsRSASign_PKCS1v15_rmf
 ippsRSAVerify_PKCS1v15_rmf
+ippsRSA_MB_Encrypt
+ippsRSA_MB_Decrypt
 ippsDLGetResultString
 ippsDLPGetSize
 ippsDLPInit

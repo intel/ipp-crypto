@@ -909,6 +909,17 @@ IPPAPI(IppStatus, ippsRSAVerify_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
                                               const IppsRSAPublicKeyState* pKey,
                                               const IppsHashMethod* pMethod,
                                                     Ipp8u* pBuffer))
+/* RSA multi-buffer functions */
+
+IPPAPI(IppStatus, ippsRSA_MB_Encrypt,(const IppsBigNumState* const pPtxts[8],
+                                      IppsBigNumState* const pCtxts[8],
+                                      const IppsRSAPublicKeyState* const pKeys[8],
+                                      IppStatus statuses[8], Ipp8u* pBuffer))
+
+IPPAPI(IppStatus, ippsRSA_MB_Decrypt,(const IppsBigNumState* const pPtxts[8],
+                                      IppsBigNumState* const pCtxts[8],
+                                      const IppsRSAPrivateKeyState* const pKeys[8],
+                                      IppStatus statuses[8], Ipp8u* pBuffer))
 
 
 /*

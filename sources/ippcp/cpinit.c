@@ -297,7 +297,7 @@ IppStatus owncpFeaturesToIdx(  Ipp64u* cpuFeatures, int* index )
    if( ippCPUID_SSE   == ( *cpuFeatures & ippCPUID_SSE   )) {          /* Intel(R) Pentium(R) processor III ia32=PX only */
        mask = SSE_MSK;
        *index = LIB_SSE;
-#if (defined( _WIN32E ) || defined( linux32e ) || defined( OSXEM64T )) && !(defined( _ARCH_LRB2 ))
+#if (defined( _WIN64 ) || defined( linux32e ) || defined( OSXEM64T )) && !(defined( _ARCH_LRB2 ))
        ownStatus = ippStsNotSupportedCpu;                              /* the lowest CPU supported by Intel(R) Integrated Performance Primitives (Intel(R) IPP) must at least support Intel(R) SSE2 for x64 */
 #endif
    } else 
@@ -430,7 +430,8 @@ static struct {
 /*     2 */ ippStsDivByZero, "ippStsDivByZero: Zero value(s) for the divisor in the Div function",
 /*    25 */ ippStsInsufficientEntropy, "ippStsInsufficientEntropy: Generation of the prime/key failed due to insufficient entropy in the random seed and stimulus bit string",
 /*    36 */ ippStsNotSupportedCpu, "The CPU is not supported",
-/*    36 */ ippStsFeaturesCombination, "Wrong combination of features",
+/*    51 */ ippStsFeaturesCombination, "Wrong combination of features",
+/*    53 */ ippStsMbWarning, "ippStsMbWarning: Error(s) in statuses array",
 };
 
 /* /////////////////////////////////////////////////////////////////////////////

@@ -43,22 +43,38 @@
 #
 
 # linker
-set(LINK_FLAG_DYNAMIC_MACOSX "-Wl,-dynamic -Wl,-single_module -Wl,-flat_namespace -Wl,-headerpad_max_install_names")
-set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-current_version,2019.0.1 -Wl,-compatibility_version,2019.0 -Wl,-macosx_version_min,10.7")
-set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -nostdlib -Wl,-lgcc_s.1")
-if(${ARCH} MATCHES "ia32")
-  set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-arch,i386 -Wl,-read_only_relocs,warning")
-else()
-  set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-arch,x86_64")
-endif(${ARCH} MATCHES "ia32")
+# Create a dynamic lib
+set(LINK_FLAG_DYNAMIC_MACOSX "-Wl,-dynamic")
+# Alters how symbols are resolved at build time and runtime.
+# The linker does not record which dylib an external symbol came from, so at runtime dyld again searches all images and uses the first definition it finds.
+set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-flat_namespace")
+# Automatically adds space for future expansion of load commands such that all paths could expand to MAXPATHLEN.
+set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-headerpad_max_install_names")
+# This is set to indicate the oldest Mac OS X version that that the output is to be used on.
+set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-macosx_version_min,10.7")
+# Prevents the compiler from using standard libraries and startup files when linking.
+set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -nostdlib")
+# Dynamically link to lib c
+set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-lc")
+# The architecture for the output file
+set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-arch,x86_64")
 set(LINK_FLAG_PCS_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX}")
 
 # compiler
-set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "-fasm-blocks -use_msasm -w -m32 -fomit-frame-pointer")
+# Enables the use of blocks and entire functions of assembly code within a C or C++ file
+set(CC_FLAGS_INLINE_ASM_UNIX "-fasm-blocks")
 
-set(CC_FLAGS_INLINE_ASM_UNIX_INTEL64 "-fasm-blocks -use_msasm -ffixed-rdi -ffixed-rsi -ffixed-rbx -ffixed-rcx -ffixed-rdx -ffixed-rbp -ffixed-r8 -ffixed-r9 -ffixed-r12 -ffixed-r13 -ffixed-r14 -ffixed-r15")
+# Disables all warning messages
+set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "${CC_FLAGS_INLINE_ASM_UNIX} -w")
+# Tells the compiler to generate code for a specific architecture (32)
+set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "${CC_FLAGS_INLINE_ASM_UNIX_IA32} -m32")
+# EBP is used as a general-purpose register in optimizations
+set(CC_FLAGS_INLINE_ASM_UNIX_IA32 "${CC_FLAGS_INLINE_ASM_UNIX_IA32} -fomit-frame-pointer")
 
-set(CMAKE_C_FLAGS "${LIBRARY_DEFINES}")
+# Do not use the specified registres in dispatcher compilation
+set(CC_FLAGS_INLINE_ASM_UNIX_INTEL64 "${CC_FLAGS_INLINE_ASM_UNIX} -ffixed-rdi -ffixed-rsi -ffixed-rbx -ffixed-rcx -ffixed-rdx -ffixed-rbp -ffixed-r8 -ffixed-r9 -ffixed-r12 -ffixed-r13 -ffixed-r14 -ffixed-r15")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBRARY_DEFINES}")
 
 # Ensures that compilation takes place in a freestanding environment
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding")
@@ -76,6 +92,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -diag-error 266 -diag-disable 13366
 # Stack-based Buffer Overrun Detection
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
 
+# Security flag that adds compile-time and run-time checks
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2")
 
 # Format string vulnerabilities
@@ -88,14 +105,11 @@ if(CODE_COVERAGE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -prof-gen:srcpos -prof-dir ${PROF_DATA_DIR}")
 endif()
 
+# Optimization level = 3, no-debug definition (turns off asserts), warning level = 3, treat warnings as errors
 set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -w3 -Werror" CACHE STRING "" FORCE)
-set (CMAKE_C_FLAGS_RELEASE_INIT " -O3 -DNDEBUG -w3 -Werror" CACHE STRING "" FORCE)
 
-if(${ARCH} MATCHES "ia32")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch_only i386")
-else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch_only x86_64")
-endif(${ARCH} MATCHES "ia32")
+# Compile for x64
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch_only x86_64")
 
 set(w7_opt "${w7_opt} -xSSE2")
 set(s8_opt "${s8_opt} -xSSE3")

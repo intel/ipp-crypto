@@ -318,6 +318,8 @@ _ippsRSAVerify_PKCS1v15
 _ippsRSASign_PKCS1v15_rmf
 _ippsRSAVerify_PKCS1v15_rmf
 _ippsDLGetResultString
+_ippsRSA_MB_Encrypt
+_ippsRSA_MB_Decrypt
 _ippsDLPGetSize
 _ippsDLPInit
 _ippsDLPPack

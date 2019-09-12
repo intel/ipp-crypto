@@ -229,7 +229,7 @@
       #define IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
     #endif
   #else
-    #if defined(LINUX32E) && !defined(IPP_PIC)
+    #if defined(linux32e) && !defined(IPP_PIC)
       #define IPPFUN(type,name,arg) __attribute__((force_align_arg_pointer)) extern type IPP_STDCALL name arg
     #else
       #define   IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
@@ -618,7 +618,7 @@ extern double            __intel_castu64_f64(unsigned __int64 val);
 #if defined( _MERGED_BLD )
    #if !defined( _IPP_DYNAMIC )
       /* WIN-32, WIN-64 */
-      #if defined(WIN32) || defined(WIN32E)
+      #if defined(_WIN32) || defined(_WIN64)
          #if ( defined(_W7) || defined(_M7) )
          #define _IPP_DATA 1
          #endif

@@ -42,12 +42,12 @@
 # Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
 #
 
-set(OS_DEFAULT_COMPILER Intel18.0.0)
+set(OS_DEFAULT_COMPILER Intel19.0.0)
 
 if(${ARCH} MATCHES "ia32")
-  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DWIN32 -DWIN32E -D_WIN32 -D_ARCH_IA32")
+  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D_ARCH_IA32") # _WIN32 is defined by a compiler
 else()
-  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DWIN32 -DWIN32E -D_WIN32 -D_WIN32E -D_ARCH_EM64T")
+  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D_ARCH_EM64T") # _WIN32 and _WIN64 are defined by a compiler
 endif(${ARCH} MATCHES "ia32")
 
 # clear flags for asm
