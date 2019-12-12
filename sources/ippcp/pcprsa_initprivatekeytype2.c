@@ -86,7 +86,7 @@ IPPFUN(IppStatus, ippsRSA_InitPrivateKeyType2,(int factorPbitSize, int factorQbi
 {
    IPP_BAD_PTR1_RET(pKey);
    IPP_BADARG_RET((factorPbitSize<=0) || (factorQbitSize<=0), ippStsBadArgErr);
-   IPP_BADARG_RET((factorPbitSize < factorQbitSize), ippStsBadArgErr);
+   //25.09.2019 gres: IPP_BADARG_RET((factorPbitSize < factorQbitSize), ippStsBadArgErr);
    IPP_BADARG_RET((MIN_RSA_SIZE>(factorPbitSize+factorQbitSize) || (factorPbitSize+factorQbitSize)>MAX_RSA_SIZE), ippStsNotSupportedModeErr);
 
    /* test available size of context buffer */

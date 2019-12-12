@@ -110,8 +110,8 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    // - ghash function
    // - authentication function
    */
-   AESGCM_HASH(pState) = AesGcmMulGcm_table2K;
-   AESGCM_AUTH(pState) = AesGcmAuth_table2K;
+   AESGCM_HASH(pState) = AesGcmMulGcm_table2K_ct;//AesGcmMulGcm_table2K;
+   AESGCM_AUTH(pState) = AesGcmAuth_table2K_ct; //AesGcmAuth_table2K;
    AESGCM_ENC(pState)  = wrpAesGcmEnc_table2K;
    AESGCM_DEC(pState)  = wrpAesGcmDec_table2K;
 

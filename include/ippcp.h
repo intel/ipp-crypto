@@ -66,8 +66,8 @@ extern "C" {
   #endif
 #endif
 
-#pragma warning(push)
 #ifdef _MSC_VER
+#pragma warning(push)
 #pragma warning(disable : 4100) // for MSVC, unreferenced param
 #endif
 
@@ -911,6 +911,10 @@ IPPAPI(IppStatus, ippsRSAVerify_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
                                                     Ipp8u* pBuffer))
 /* RSA multi-buffer functions */
 
+IPPAPI(IppStatus, ippsRSA_MB_GetBufferSizePublicKey,(int* pBufferSize, const IppsRSAPublicKeyState* const pKeys[8]))
+
+IPPAPI(IppStatus, ippsRSA_MB_GetBufferSizePrivateKey,(int* pBufferSize, const IppsRSAPrivateKeyState* const pKeys[8]))
+
 IPPAPI(IppStatus, ippsRSA_MB_Encrypt,(const IppsBigNumState* const pPtxts[8],
                                       IppsBigNumState* const pCtxts[8],
                                       const IppsRSAPublicKeyState* const pKeys[8],
@@ -1338,7 +1342,9 @@ IPPAPI(IppStatus, ippsGFpECESFinal_SM2, (Ipp8u* pTag, int tagLen, IppsECESState_
 IPPAPI(IppStatus, ippsGFpECESGetBuffersSize_SM2, (int* pPublicKeySize,
                         int* pMaximumTagSize, const IppsECESState_SM2* pState))
 
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif
 #ifdef  __cplusplus
 }
 #endif

@@ -54,8 +54,15 @@
 #define BITSIZE_BNU32(p,ns)  ((ns)*BNU_CHUNK_32BIT-cpNLZ_BNU32((p)[(ns)-1]))
 
 /* number of leading/trailing zeros */
-#define cpNLZ_BNU32 OWNAPI(cpNLZ_BNU32)
-cpSize  cpNLZ_BNU32(Ipp32u x);
+#if (_IPP < _IPP_H9)
+   #define cpNLZ_BNU32 OWNAPI(cpNLZ_BNU32)
+   cpSize  cpNLZ_BNU32(Ipp32u x);
+#else
+   __INLINE cpSize cpNLZ_BNU32(Ipp32u x) 
+   {
+      return _lzcnt_u32(x);
+   }
+#endif
 
 /* most significant BNU bit */
 __INLINE int cpMSBit_BNU32(const Ipp32u* pA, cpSize nsA)
@@ -63,7 +70,6 @@ __INLINE int cpMSBit_BNU32(const Ipp32u* pA, cpSize nsA)
    FIX_BNU(pA, nsA);
    return nsA*BITSIZE(Ipp32u) - cpNLZ_BNU32(pA[nsA-1]) -1;
 }
-
 
 __INLINE int cpCmp_BNU32(const Ipp32u* pA, cpSize nsA, const Ipp32u* pB, cpSize nsB)
 {

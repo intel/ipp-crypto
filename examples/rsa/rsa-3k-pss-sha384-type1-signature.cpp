@@ -124,8 +124,6 @@ int main(void)
 
     /* Size in bits of RSA modulus */
     const int bitSizeN = N.BitSize();
-    /* Size in bits of RSA public exponent */
-    const int bitSizeE = E.BitSize();
     /* Size in bits of RSA private exponent */
     const int bitSizeD = D.BitSize();
 

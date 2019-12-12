@@ -95,6 +95,12 @@ IPPFUN(IppStatus, ippsAES_CCMInit,(const Ipp8u* pKey, int keyLen,
    /* set state ID */
    AESCCM_ID(pState) = idCtxAESCCM;
 
+   /* set default message len*/
+   AESCCM_MSGLEN(pState) = 0;
+
+   /* set default tag len*/
+   AESCCM_TAGLEN(pState) = 4;
+
    /* init AES by the secret key */
    return ippsAESInit(pKey, keyLen, AESCCM_CIPHER(pState), cpSizeofCtx_AES());
 }

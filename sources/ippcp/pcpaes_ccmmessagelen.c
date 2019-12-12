@@ -68,7 +68,6 @@
 // Returns:                Reason:
 //    ippStsNullPtrErr        pState == NULL
 //    ippStsContextMatchErr   !VALID_AESCCM_ID()
-//    ippStsLengthErr         msgLen <= 0
 //    ippStsNoErr             no errors
 //
 // Parameters:
@@ -82,9 +81,6 @@ IPPFUN(IppStatus, ippsAES_CCMMessageLen,(Ipp64u msgLen, IppsAES_CCMState* pState
    IPP_BAD_PTR1_RET(pState);
    pState = (IppsAES_CCMState*)( IPP_ALIGNED_PTR(pState, AESCCM_ALIGNMENT) );
    IPP_BADARG_RET(!VALID_AESCCM_ID(pState), ippStsContextMatchErr);
-
-   /* test message length */
-   IPP_BADARG_RET(msgLen <=0, ippStsLengthErr);
 
    /* init for new message */
    AESCCM_MSGLEN(pState) = msgLen;

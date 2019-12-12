@@ -190,8 +190,19 @@ __INLINE int cpTst_BNU(const BNU_CHUNK_T* pA, int nsA)
 }
 
 /* number of leading/trailing zeros */
-#define cpNLZ_BNU OWNAPI(cpNLZ_BNU)
- cpSize cpNLZ_BNU(BNU_CHUNK_T x);
+#if !((_IPP >= _IPP_H9) || (_IPP32E >= _IPP32E_L9))
+   #define cpNLZ_BNU OWNAPI(cpNLZ_BNU)
+   cpSize cpNLZ_BNU(BNU_CHUNK_T x);
+#else
+   __INLINE cpSize cpNLZ_BNU(BNU_CHUNK_T x) 
+   {
+      #if (BNU_CHUNK_BITS == BNU_CHUNK_64BIT)
+         return _lzcnt_u64(x);
+      #else
+         return _lzcnt_u32(x);
+      #endif
+   }
+#endif
 
 #define cpNTZ_BNU OWNAPI(cpNTZ_BNU)
  cpSize cpNTZ_BNU(BNU_CHUNK_T x);

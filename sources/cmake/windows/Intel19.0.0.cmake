@@ -66,9 +66,15 @@ endif(${ARCH} MATCHES "ia32")
 set(LINK_FLAG_STATIC_WINDOWS  "${LINK_FLAG_STATIC_WINDOWS} /ignore:4221")
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /ignore:4221")
 
-# Link to libc for debug purposes (printf, etc)
-set(LINK_LIB_STATIC_RELEASE libcmt)
-set(LINK_LIB_STATIC_DEBUG libcmtd)
+if (MSVC_VERSION LESS_EQUAL 1800) # VS2013
+  # Link to C runtime, used in dlls
+  set(LINK_LIB_STATIC_RELEASE libcmt)
+  set(LINK_LIB_STATIC_DEBUG libcmtd)
+else()
+  # Link to universal C runtime and MSVC runtime. Used in dlls.
+  set(LINK_LIB_STATIC_RELEASE libcmt libucrt libvcruntime)
+  set(LINK_LIB_STATIC_DEBUG libcmtd libucrtd libvcruntime)
+endif()
 
 # compiler
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBRARY_DEFINES}")

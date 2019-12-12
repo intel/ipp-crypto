@@ -87,17 +87,17 @@ only on the operating systems and tools listed below:
 Common Requirements for All Supported Operating Systems
 -----------------
 
--   CMake 3.7.2
+-   CMake 3.15
 
--   Python 2.7
+-   Python 2.7.15
 
 Windows\* OS
 -----------------
 
--   Windows Server\* 2012
+-   Windows Server\* 2016
 
 ### C/C++\* Compilers
-- Intel(R) C++ Compiler 19.0 for Windows\* OS
+- Intel(R) C++ Compiler 19.0 Update 4 for Windows\* OS
 
 -   Microsoft Visual C++ Compiler\* version 19.16
     provided by Microsoft Visual Studio\* 2017 version 15.9
@@ -108,12 +108,14 @@ Windows\* OS
 Linux\* OS
 -----------------
 
--   Red Hat\* Enterprise Linux\* 6
+-   Red Hat\* Enterprise Linux\* 7
 
 ### C/C++\* Compilers
--   Intel(R) C++ Compiler 19.0 for Linux\* OS
+-   Intel(R) C++ Compiler 19.0 Update 4 for Linux\* OS
 
--   GCC 8.2
+-   GCC 8.3
+
+-   GCC 9.1
 
 ### Binary Tools
 -   GNU binutils 2.32
@@ -125,10 +127,10 @@ Linux\* OS
 macOS\*
 -----------------
 
--   macOS\* 10.12\*
+-   macOS\* 10.14
 
 ### C/C++\* Compilers
--   Intel(R) C++ Compiler 19.0 for OS X\* OS
+-   Intel(R) C++ Compiler 19.0 Update 4 for OS X\* OS
 
 ### Assembly Compilers
 -   Yasm 1.2.2
@@ -176,11 +178,15 @@ with the options described in [CMake Arguments](#cmake-arguments).
 
     For Intel(R) C++ Compiler:
     ```
-    cmake CMakeLists.txt -Bbuild -G"Visual Studio 14 2015 Win64" -T"Intel C++ Compiler 19.0"
+    cmake CMakeLists.txt -Bbuild -G"Visual Studio 15 2017 Win64" -T"Intel C++ Compiler 19.0"
     ```
     For MSVC\* Compiler:
     ```
     cmake CMakeLists.txt -Bbuild -G"Visual Studio 15 2017 Win64"
+    ```
+    For Intel(R) C++ Compiler and Visual Studio\* 2019:
+    ```
+    cmake CMakeLists.txt -Bbuild -G"Visual Studio 16 2019" -T"Intel C++ Compiler 19.0" -Ax64
     ```
     For MSVC\* Compiler and Visual Studio\* 2019:
     ```
@@ -282,9 +288,9 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
 
 -   `-G"<tool-chain-generator>"` - defines the native build system CMake
     will generate from the input files. For example, `-G"Visual Studio
-    12 2013"` will generate a solution for the Microsoft Visual Studio\*
-    2013 IDE, `-G"Visual Studio 12 2013 Win64"` will generate a solution
-    for the Microsoft Visual Studio\* 2013 IDE for the Intel(R) 64
+    15 2017"` will generate a solution for the Microsoft Visual Studio\*
+    2017 IDE, `-G"Visual Studio 15 2017 Win64"` will generate a solution
+    for the Microsoft Visual Studio\* 2017 IDE for the Intel(R) 64
     architecture.
 
 -   `-A<x64|Win32>` - for Visual Studio\* 2019+, defines the target architecture
@@ -382,23 +388,3 @@ See Also
 -   [Intel(R) Integrated Performance Primitives Product Page](https://software.intel.com/en-us/intel-ipp)
 
 -   [Intel(R) IPP Forum](https://software.intel.com/en-us/forums/intel-integrated-performance-primitives)
-
-Legal Information
-=======================================================
-
-No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document.
-Intel disclaims all express and implied warranties, including without limitation, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement, as well as any warranty arising from course of performance, course of dealing, or usage in trade.
-
-This document contains information on products, services and/or processes in development.  All information provided here is subject to change without notice. Contact your Intel representative to obtain the latest forecast, schedule, specifications and roadmaps.
-
-The products and services described may contain defects or errors known as errata which may cause deviations from published specifications. Current characterized errata are available on request.
-
-Intel, and the Intel logo are trademarks of Intel Corporation in the U.S. and/or other countries.
-
-*Other names and brands may be claimed as the property of others.
-
-© 2019 Intel Corporation.
-
-|Optimization Notice|
-|:------------------|
-|Intel's compilers may or may not optimize to the same degree for non-Intel microprocessors for optimizations that are not unique to Intel microprocessors. These optimizations include SSE2, SSE3, and SSSE3 instruction sets and other optimizations. Intel does not guarantee the availability, functionality, or effectiveness of any optimization on microprocessors not manufactured by Intel. Microprocessor-dependent optimizations in this product are intended for use with Intel microprocessors. Certain optimizations not specific to Intel microarchitecture are reserved for Intel microprocessors. Please refer to the applicable product User and Reference Guides for more information regarding the specific instruction sets covered by this notice. <br><br> Notice revision #20110804|

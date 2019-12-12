@@ -93,7 +93,7 @@ extern "C" {
   #endif
 #elif (defined(__ICC) || defined(__ECC) || defined( __GNUC__ )) && !defined( _PCS ) && !defined( _PCS_GENSTUBS )
   #if defined( __GNUC__ )
-    #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 5
+    #if (__GNUC__ * 100 + __GNUC_MINOR__) >= 405
       #define IPP_DEPRECATED( message ) __attribute__(( deprecated( message )))
     #else
       #define IPP_DEPRECATED( message ) __attribute__(( deprecated ))

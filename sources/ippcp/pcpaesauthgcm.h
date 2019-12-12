@@ -151,12 +151,22 @@ struct _cpAES_GCM {
 #define AESGCM_VALID_ID(stt)     (AESGCM_ID((stt))==idCtxAESGCM)
 
 
+#if 0
 __INLINE void IncrementCounter32(Ipp8u* pCtr)
 {
    int i;
    for(i=BLOCK_SIZE-1; i>=CTR_POS && 0==(Ipp8u)(++pCtr[i]); i--) ;
 }
-
+#endif
+__INLINE void IncrementCounter32(Ipp8u* pCtr)
+{
+   Ipp32u* pCtr32 = (Ipp32u*)pCtr;
+   Ipp32u ctrVal = pCtr32[3];
+   ctrVal = ENDIANNESS32(ctrVal);
+   ctrVal++;
+   ctrVal = ENDIANNESS32(ctrVal);
+   pCtr32[3] = ctrVal;
+}
 
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
 #define AesGcmPrecompute_avx OWNAPI(AesGcmPrecompute_avx)
@@ -194,10 +204,17 @@ __INLINE void IncrementCounter32(Ipp8u* pCtr)
 
 #define AesGcmPrecompute_table2K OWNAPI(AesGcmPrecompute_table2K)
    void AesGcmPrecompute_table2K(Ipp8u* pPrecomputeData, const Ipp8u* pHKey);
-#define AesGcmMulGcm_table2K OWNAPI(AesGcmMulGcm_table2K)
-   void AesGcmMulGcm_table2K(Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam);
-#define AesGcmAuth_table2K OWNAPI(AesGcmAuth_table2K)
-   void AesGcmAuth_table2K(Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam);
+
+//#define AesGcmMulGcm_table2K OWNAPI(AesGcmMulGcm_table2K)
+//   void AesGcmMulGcm_table2K(Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam);
+#define AesGcmMulGcm_table2K_ct OWNAPI(AesGcmMulGcm_table2K_ct)
+   void AesGcmMulGcm_table2K_ct(Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam);
+
+//#define AesGcmAuth_table2K OWNAPI(AesGcmAuth_table2K)
+//   void AesGcmAuth_table2K(Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam);
+#define AesGcmAuth_table2K_ct OWNAPI(AesGcmAuth_table2K_ct)
+   void AesGcmAuth_table2K_ct(Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam);
+
 #define wrpAesGcmEnc_table2K OWNAPI(wrpAesGcmEnc_table2K)
    void wrpAesGcmEnc_table2K(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
 #define wrpAesGcmDec_table2K OWNAPI(wrpAesGcmDec_table2K)

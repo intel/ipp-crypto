@@ -61,7 +61,6 @@
 // Returns:                Reason:
 //    ippStsNullPtrErr        pCtx == NULL
 //    ippStsContextMatchErr   !VALID_SMS4CCM_ID()
-//    ippStsLengthErr         msgLen <= 0
 //    ippStsNoErr             no errors
 //
 // Parameters:
@@ -75,9 +74,6 @@ IPPFUN(IppStatus, ippsSMS4_CCMMessageLen,(Ipp64u msgLen, IppsSMS4_CCMState* pCtx
    IPP_BAD_PTR1_RET(pCtx);
    pCtx = (IppsSMS4_CCMState*)( IPP_ALIGNED_PTR(pCtx, SMS4CCM_ALIGNMENT) );
    IPP_BADARG_RET(!VALID_SMS4CCM_ID(pCtx), ippStsContextMatchErr);
-
-   /* test message length */
-   IPP_BADARG_RET(msgLen <=0, ippStsLengthErr);
 
    /* init for new message */
    SMS4CCM_MSGLEN(pCtx) = msgLen;

@@ -125,13 +125,16 @@ class ScriptsMenu(QWidget):
         self.functions_names = settings.CONFIGS[package]['functions_list']
 
     def check_configs(self, package):
-        if self.parent.source.intel64_libs_path:
+        self.intel64_libs_path = self.parent.source.path_to_libs[package][utils.INTEL64]
+        self.ia32_libs_path = self.parent.source.path_to_libs[package][utils.IA32]
+
+        if self.intel64_libs_path:
             self.intel64.setEnabled(True)
         else:
             settings.CONFIGS[package]['intel64'] = False
             self.intel64.setDisabled(True)
 
-        if self.parent.source.ia32_libs_path:
+        if self.ia32_libs_path:
             self.IA32.setEnabled(True)
         else:
             settings.CONFIGS[package]['IA32'] = False
@@ -152,8 +155,8 @@ class ScriptsMenu(QWidget):
             settings.CONFIGS[package]['Multi-threaded'] = False
 
     def check_dir(self, dir):
-        return os.path.exists(os.path.join(self.parent.source.intel64_libs_path, dir)) or \
-                os.path.exists(os.path.join(self.parent.source.ia32_libs_path, dir))
+        return os.path.exists(os.path.join(self.intel64_libs_path, dir)) or \
+                os.path.exists(os.path.join(self.ia32_libs_path, dir))
 
     def get_configs(self, package):
         if self.TL.isEnabled():
@@ -235,9 +238,14 @@ class ScriptsMenu(QWidget):
         threading = self.thread_var_list.currentText() == 'Multi-threaded'
         threading_layer_type = self.parent.get_treading_layer_type()
 
-        package = utils.IPP if self.parent.source.ipp.isChecked() else utils.IPPCP
+        if self.parent.source.ipp.isChecked():
+            package = utils.IPP
+            root = utils.IPPROOT
+        else:
+            package = utils.IPPCP
+            root = utils.IPPCRYPTOROOT
 
-        os.environ[package + 'ROOT'] = settings.CONFIGS[package]['Path']
+        os.environ[root] = settings.CONFIGS[package]['Path']
 
         if self.IA32.isChecked():
             generate_script(package,

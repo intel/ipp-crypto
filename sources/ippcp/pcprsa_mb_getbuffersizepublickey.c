@@ -46,76 +46,56 @@
  *     RSA Multi Buffer Functions
  * 
  *  Contents:
- *        ippsRSA_MB_Decrypt()
+ *        ippsRSA_MB_GetBufferSizePublicKey()
  *
 */
+
+/*!
+ *  \brief ippsRSA_MB_GetBufferSizePublicKey
+ * 
+ *  Name:         ippsRSA_MB_GetBufferSizePublicKey
+ * 
+ *  Purpose:      Returns size of temporary buffer (in bytes) for multi buffer public key operation
+ *  
+ *  Parameters:
+ *    \param[out]  pBufferSize            Pointer to size of temporary buffer.
+ *    \param[in]   pKeys                  Pointer to the array of key contexts.
+ * 
+ *  Returns:                          Reason:
+ *    \return ippStsNullPtrErr            NULL == pKeys
+ *                                        NULL == pBufferSize
+ * 
+ *    \return ippStsContextMatchErr       No keys with valid ID.  
+ *                                        
+ *    \return ippStsIncompleteContextErr  no ippsRSA_SetPublicKey() call for any key context
+ * 
+ *    \return ippStsSizeErr               Indicates an error condition if size of modulus N in one context is  
+ *                                        different from sizes of modulus N in oter contexts.
+ *    \return ippStsBadArgErr             Indicates an error condition if value or size of exp E in one context is 
+ *                                        different from values or sizes of exp E in other contexts.
+ *                                        
+ *    \return ippStsNoErr                 No error.                        
+ */
 
 #include "owncp.h"
 #include "pcpngrsa.h"
 #include "pcpngrsa_mb.h"
 
-/*!
- *  \brief ippsRSA_MB_Decrypt
- * 
- *  Name:         ippsRSA_MB_Decrypt
- * 
- *  Purpose:      Performs RSA Multi Buffer Decryprion
- *  
- *  Parameters:
- *    \param[in]   pCtxts                 Pointer to the array of ciphertexts.
- *    \param[out]  pPtxts                 Pointer to the array of plaintexts.
- *    \param[in]   pKeys                  Pointer to the array of key contexts.
- *    \param[out]  statuses               Pointer to the array of execution statuses for each performed operation.
- *    \param[in]   pBuffer                Pointer to temporary buffer.
- * 
- *  Returns:                          Reason:
- *    \return ippStsNullPtrErr            Indicates an error condition if any of the specified pointers is NULL.
- *                                        NULL == pPtxts
- *                                        NULL == pCtxts
- *                                        NULL == pKeys
- *                                        NULL == pBuffers
- *                                        NULL == statuses
- *    \return ippStsSizeErr               Indicates an error condition if size of modulus N in one context is  
- *                                        different from sizes of modulus N in oter contexts.
- *    \return ippStsBadArgErr             Indicates an error condition if types of private keys is different 
- *                                        from each other.
- *    \return ippStsMbWarning             One or more of performed operation executed with error. Check statuses array for details.
- *    \return ippStsNoErr                 No error.                        
- */
-
-IPPFUN(IppStatus, ippsRSA_MB_Decrypt,(const IppsBigNumState* const pCtxts[8],
-                                      IppsBigNumState* const pPtxts[8],
-                                      const IppsRSAPrivateKeyState* const pKeys[8],
-                                      IppStatus statuses[8], Ipp8u* pBuffer))
-{    
-   IPP_BAD_PTR1_RET(pKeys);
-   IPP_BAD_PTR4_RET(pPtxts, pCtxts, pBuffer, statuses);
+IPPFUN(IppStatus, ippsRSA_MB_GetBufferSizePublicKey,(int* pBufferSize, const IppsRSAPublicKeyState* const pKeys[8]))
+{
+   IPP_BAD_PTR2_RET(pKeys, pBufferSize);
 
    for(int i=0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
-      if(pKeys[i] && RSA_PRV_KEY_VALID_ID(pKeys[i])) {
+      if(pKeys[i] && RSA_PUB_KEY_VALID_ID(pKeys[i])) {
          for(int j=i+1; j < RSA_MB_MAX_BUF_QUANTITY; j++) {
-            if(pKeys[j] && RSA_PRV_KEY_VALID_ID(pKeys[j])) {
-               IPP_BADARG_RET(RSA_PRV_KEY_BITSIZE_N(pKeys[i]) != RSA_PRV_KEY_BITSIZE_N(pKeys[j]), ippStsSizeErr);
-               IPP_BADARG_RET(RSA_PRV_KEY1_VALID_ID(pKeys[i]) != RSA_PRV_KEY1_VALID_ID(pKeys[j]), ippStsBadArgErr);
+            if(pKeys[j] && RSA_PUB_KEY_VALID_ID(pKeys[j])) {
+               IPP_BADARG_RET(RSA_PUB_KEY_BITSIZE_N(pKeys[i]) != RSA_PUB_KEY_BITSIZE_N(pKeys[j]), ippStsSizeErr);
+               IPP_BADARG_RET(cpCmp_BNU(RSA_PUB_KEY_E(pKeys[i]), RSA_PUB_KEY_BITSIZE_E(pKeys[i])/sizeof(BNU_CHUNK_T), 
+                                        RSA_PUB_KEY_E(pKeys[j]), RSA_PUB_KEY_BITSIZE_E(pKeys[j])/sizeof(BNU_CHUNK_T)), ippStsBadArgErr);
             }
          }
-         break;
+         return ippsRSA_GetBufferSizePublicKey(pBufferSize, pKeys[i]);  // Refence code
       }
    }
-
-   for(int i=0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
-      statuses[i] = ippsRSA_Decrypt(pCtxts[i], pPtxts[i], pKeys[i], pBuffer);
-   }
-
-   #ifdef _IPP_DEBUG
-
-      for(int i=0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
-         if(statuses[i] != ippStsNoErr) {
-            return ippStsMbWarning;
-         }
-      }
-
-   #endif
-
-   return ippStsNoErr;
+   return ippStsContextMatchErr;
 }

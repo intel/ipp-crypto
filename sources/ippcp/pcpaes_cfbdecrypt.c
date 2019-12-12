@@ -114,7 +114,7 @@ void cpDecryptAES_cfb(const Ipp8u* pIV,
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    /* use pipelined version is possible */
    if(AES_NI_ENABLED==RIJ_AESNI(pCtx)) {
-      #if defined (_MSC_VER) && !defined (__INTEL_COMPILER)
+      #if defined (_MSC_VER) && !defined (__INTEL_COMPILER) && (_IPP32E>=_IPP32E_K0)
 msvc_fallback:
       #endif
       if(cfbBlkSize==MBS_RIJ128)

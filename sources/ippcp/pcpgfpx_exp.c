@@ -64,7 +64,7 @@ BNU_CHUNK_T* cpGFpxExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T
    gsModEngine* pBasicGFE = cpGFpBasic(pGFEx);
 
    /* remove leding zeros */
-   FIX_BNU(pE, nsE);
+   /* gres 06/10/2019: FIX_BNU(pE, nsE); */
 
    {
       mod_mul mulF = GFP_METHOD(pGFEx)->mul;  /* mul and sqr methods */
@@ -77,7 +77,7 @@ BNU_CHUNK_T* cpGFpxExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T
       int elmLen = GFP_FELEN(pGFEx);
 
       /* exponent bitsize */
-      int expBitSize = BITSIZE_BNU(pE, nsE);
+      int expBitSize = nsE * BNU_CHUNK_BITS; /* gres 06/102019: BITSIZE_BNU(pE, nsE); */
       /* optimal size of window */
       int w = (NULL==pScratchBuffer)? 1 : cpGFpGetOptimalWinSize(expBitSize);
       /* number of table entries */

@@ -50,6 +50,8 @@ set(LINK_FLAG_DYNAMIC_WINDOWS "/nologo")
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /VERBOSE:SAFESEH")
 # Disable incremental linking
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /INCREMENTAL:NO")
+# The /NODEFAULTLIB option tells the linker to remove one or more default libraries from the list of libraries it searches when resolving external references.
+set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /NODEFAULTLIB")
 # Indicates that an executable was tested to be compatible with the Windows Data Execution Prevention feature.
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /NXCOMPAT")
 # Specifies whether to generate an executable image that can be randomly rebased at load time.
@@ -59,9 +61,15 @@ if(${ARCH} MATCHES "ia32")
   set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /SAFESEH")
 endif(${ARCH} MATCHES "ia32")
 
-# Link to libc for debug purposes (printf, etc)
-set(LINK_LIB_STATIC_RELEASE libcmt)
-set(LINK_LIB_STATIC_DEBUG libcmtd)
+if (MSVC_VERSION LESS_EQUAL 1800) # VS2013
+  # Link to C runtime, used in dlls
+  set(LINK_LIB_STATIC_RELEASE libcmt)
+  set(LINK_LIB_STATIC_DEBUG libcmtd)
+else()
+  # Link to universal C runtime and MSVC runtime. Used in dlls.
+  set(LINK_LIB_STATIC_RELEASE libcmt libucrt libvcruntime)
+  set(LINK_LIB_STATIC_DEBUG libcmtd libucrtd libvcruntime)
+endif()
 
 # compiler
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBRARY_DEFINES}")

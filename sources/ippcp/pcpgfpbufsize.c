@@ -84,6 +84,8 @@ IPPFUN(IppStatus, ippsGFpScratchBufferSize,(int nExponents, int ExpBitSize, cons
    IPP_BADARG_RET( 0>=nExponents ||nExponents>IPP_MAX_EXPONENT_NUM, ippStsBadArgErr);
    IPP_BADARG_RET( 0>=ExpBitSize, ippStsBadArgErr);
 
+   /* gres 06/10/2019: ExpBirSize=BNU_CHUNK_BITS*n -- meet CTE implementation */
+   ExpBitSize = ((ExpBitSize + BNU_CHUNK_BITS-1)/BNU_CHUNK_BITS) * BNU_CHUNK_BITS;
    {
       int elmDataSize = GFP_FELEN(GFP_PMA(pGFp))*sizeof(BNU_CHUNK_T);
 
