@@ -91,53 +91,68 @@ IPPFUN(IppStatus, ippsSMS4_CCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, 
       /* SMS4 context */
       IppsSMS4Spec* pSMS4 = SMS4CCM_CIPHER_ALIGNED(pCtx);
 
-      Ipp32u flag = (Ipp32u)( SMS4CCM_LENPRO(pCtx) &(MBS_SMS4-1) );
+      /* buffer for secret data */
+      __ALIGN16 Ipp32u TMP[3*(MBS_SMS4/sizeof(Ipp32u))+6];
 
-      Ipp32u qLen;
-      Ipp32u counterVal;
+      /*
+         MAC          size = MBS_SMS4/sizeof(Ipp32u)
+         CTR          size = MBS_SMS4/sizeof(Ipp32u)
+         S            size = MBS_SMS4/sizeof(Ipp32u)
+         flag         size = 1
+         qLen         size = 1
+         tmpLen       size = 1
+         counterVal   size = 1
+         counterEnc   size = 2
+      */
 
-      Ipp32u MAC[MBS_SMS4/sizeof(Ipp8u)];
-      Ipp32u CTR[MBS_SMS4/sizeof(Ipp8u)];
-      Ipp32u   S[MBS_SMS4/sizeof(Ipp8u)];
+      Ipp32u*          MAC = TMP;
+      Ipp32u*          CTR = TMP + MBS_SMS4/sizeof(Ipp32u);          
+      Ipp32u*            S = TMP + 2*(MBS_SMS4/sizeof(Ipp32u));     
+      Ipp32u*         flag = TMP + 3*(MBS_SMS4/sizeof(Ipp32u));      
+      Ipp32u*         qLen = TMP + 3*(MBS_SMS4/sizeof(Ipp32u)) + 1;
+      Ipp32u*       tmpLen = TMP + 3*(MBS_SMS4/sizeof(Ipp32u)) + 2;
+      Ipp32u*   counterVal = TMP + 3*(MBS_SMS4/sizeof(Ipp32u)) + 3;
+      Ipp32u*   counterEnc = TMP + 3*(MBS_SMS4/sizeof(Ipp32u)) + 4;
+
+      *flag = (Ipp32u)( SMS4CCM_LENPRO(pCtx) &(MBS_SMS4-1) );
+
       /* extract from the state */
       CopyBlock16(SMS4CCM_MAC(pCtx), MAC);
       CopyBlock16(SMS4CCM_CTR0(pCtx), CTR);
       CopyBlock16(SMS4CCM_Si(pCtx), S);
-      counterVal = SMS4CCM_COUNTER(pCtx);
+      *counterVal = SMS4CCM_COUNTER(pCtx);
 
       /* extract qLen */
-      qLen = (((Ipp8u*)CTR)[0] &0x7) +1; /* &0x7 just to fix KW issue */
+      *qLen = (((Ipp8u*)CTR)[0] &0x7) +1; /* &0x7 just to fix KW issue */
 
-      if(flag) {
-         int tmpLen = IPP_MIN(len, MBS_SMS4-1);
+      if(*flag) {
+         *tmpLen = IPP_MIN(len, MBS_SMS4-1);
 
          /* copy as much input as possible into the internal buffer*/
-         CopyBlock(pSrc, SMS4CCM_BLK(pCtx)+flag, tmpLen);
+         CopyBlock(pSrc, SMS4CCM_BLK(pCtx)+*flag, *tmpLen);
 
-         XorBlock(pSrc, (Ipp8u*)S+flag, pDst, tmpLen);
+         XorBlock(pSrc, (Ipp8u*)S+*flag, pDst, *tmpLen);
 
          /* update MAC */
-         if(flag+tmpLen == MBS_SMS4) {
+         if(*flag+*tmpLen == MBS_SMS4) {
             XorBlock16(MAC, SMS4CCM_BLK(pCtx), MAC);
             cpSMS4_Cipher((Ipp8u*)MAC, (Ipp8u*)MAC, SMS4_RK(pSMS4));
          }
 
-         SMS4CCM_LENPRO(pCtx) += (Ipp32u)tmpLen;
-         pSrc += tmpLen;
-         pDst += tmpLen;
-         len  -= tmpLen;
+         SMS4CCM_LENPRO(pCtx) += (Ipp32u)*tmpLen;
+         pSrc += *tmpLen;
+         pDst += *tmpLen;
+         len  -= *tmpLen;
       }
 
       while(len >= MBS_SMS4) {
-         Ipp32u counterEnc[2];
-
          /* update MAC */
          XorBlock16(MAC, pSrc, MAC);
          cpSMS4_Cipher((Ipp8u*)MAC, (Ipp8u*)MAC, SMS4_RK(pSMS4));
 
          /* increment counter and format counter block */
-         counterVal++;
-         CopyBlock(CounterEnc(counterEnc, qLen, counterVal), ((Ipp8u*)CTR)+MBS_SMS4-qLen, qLen);
+         *counterVal+=1;
+         CopyBlock(CounterEnc(counterEnc, *qLen, *counterVal), ((Ipp8u*)CTR)+MBS_SMS4-*qLen, *qLen);
          /* encode counter block */
          cpSMS4_Cipher((Ipp8u*)S, (Ipp8u*)CTR, SMS4_RK(pSMS4));
 
@@ -151,14 +166,12 @@ IPPFUN(IppStatus, ippsSMS4_CCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, 
       }
 
       if(len) {
-         Ipp32u counterEnc[2];
-
          /* store partial data block */
          CopyBlock(pSrc, SMS4CCM_BLK(pCtx), len);
 
          /* increment counter and format counter block */
-         counterVal++;
-         CopyBlock(CounterEnc(counterEnc, qLen, counterVal), ((Ipp8u*)CTR)+MBS_SMS4-qLen, qLen);
+         *counterVal+=1;
+         CopyBlock(CounterEnc(counterEnc, *qLen, *counterVal), ((Ipp8u*)CTR)+MBS_SMS4-*qLen, *qLen);
          /* encode counter block */
          cpSMS4_Cipher((Ipp8u*)S, (Ipp8u*)CTR, SMS4_RK(pSMS4));
 
@@ -171,7 +184,10 @@ IPPFUN(IppStatus, ippsSMS4_CCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, 
       /* update state */
       CopyBlock16(MAC, SMS4CCM_MAC(pCtx));
       CopyBlock16(S, SMS4CCM_Si(pCtx));
-      SMS4CCM_COUNTER(pCtx) = counterVal;
+      SMS4CCM_COUNTER(pCtx) = *counterVal;
+
+      /* clear secret data */
+      PurgeBlock(TMP, sizeof(TMP));
    }
 
    return ippStsNoErr;

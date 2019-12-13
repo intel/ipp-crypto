@@ -109,8 +109,17 @@ IPPFUN(IppStatus, ippsSMS4EncryptCBC_CS2,(const Ipp8u* pSrc, Ipp8u* pDst, int le
       pDst += len;
 
       if(tail) {
-         Ipp8u lastIV[MBS_SMS4];
-         Ipp8u lastEncBlk[MBS_SMS4];
+
+         __ALIGN16 Ipp8u TMP[2*MBS_SMS4];
+
+         /*
+            lastIV     size = MBS_SMS4
+            lastEncBlk size = MBS_SMS4
+         */
+
+         Ipp8u*     lastIV = TMP;
+         Ipp8u* lastEncBlk = TMP + MBS_SMS4;
+
          int n;
 
          CopyBlock16(pDst-MBS_SMS4, lastIV);
@@ -122,6 +131,9 @@ IPPFUN(IppStatus, ippsSMS4EncryptCBC_CS2,(const Ipp8u* pSrc, Ipp8u* pDst, int le
          cpSMS4_Cipher(pDst-MBS_SMS4, lastIV, SMS4_RK(pCtx));
 
          CopyBlock(lastEncBlk, pDst, tail);
+
+         /* clear secret data */
+         PurgeBlock(TMP, sizeof(TMP));
       }
 
       return ippStsNoErr;

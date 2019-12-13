@@ -38,23 +38,23 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Key Expansion Support
-; 
+;
 ;     Content:
 ;        SubsDword_8uT()
-; 
 ;
-include asmdefs.inc
-include ia_32e.inc
+;
+%include "asmdefs.inc"
+%include "ia_32e.inc"
 
-IF _IPP32E GE _IPP32E_M7
+%if (_IPP32E >= _IPP32E_M7)
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
 
-CACHE_LINE_SIZE   equ (64)
+%xdefine CACHE_LINE_SIZE  (64)
 
 ;***************************************************************
 ;* Purpose:    Mitigation of the Key Expansion procedure
@@ -63,43 +63,43 @@ CACHE_LINE_SIZE   equ (64)
 ;*                      const Ipp8u* pTbl,
 ;*                            int tblBytes)
 ;***************************************************************
-ALIGN IPP_ALIGN_FACTOR
-IPPASM Touch_SubsDword_8uT PROC PUBLIC FRAME
-      USES_GPR rsi, rdi
-      USES_XMM
-      COMP_ABI 3
+align IPP_ALIGN_FACTOR
+IPPASM Touch_SubsDword_8uT,PUBLIC
+        USES_GPR rsi,rdi
+        USES_XMM
+        COMP_ABI 3
 ;; rdi:     inp:      DWORD,     ; input dword
-;; rsi:     pTbl: PTR BYTE,      ; Rijndael's S-box
+;; rsi:     pTbl: BYTE,      ; Rijndael's S-box
 ;; edx      tblLen:   DWORD      ; length of table (bytes)
 
    movsxd   r8, edx              ; length
    xor      rcx, rcx
-touch_tbl:
+.touch_tbl:
    mov      rax, [rsi+rcx]
    add      rcx, CACHE_LINE_SIZE
    cmp      rcx, r8
-   jl       touch_tbl
+   jl       .touch_tbl
 
    mov      rax, rdi
    and      rax, 0FFh         ; b[0]
-   movzx    rax, BYTE PTR[rsi+rax]
+   movzx    rax, BYTE [rsi+rax]
 
    shr      rdi, 8
    mov      r9, rdi
    and      r9, 0FFh          ; b[1]
-   movzx    r9, BYTE PTR[rsi+r9]
+   movzx    r9, BYTE [rsi+r9]
    shl      r9, 8
 
    shr      rdi, 8
    mov      rcx, rdi
    and      rcx, 0FFh         ; b[2]
-   movzx    rcx, BYTE PTR[rsi+rcx]
+   movzx    rcx, BYTE [rsi+rcx]
    shl      rcx, 16
 
    shr      rdi, 8
    mov      rdx, rdi
    and      rdx, 0FFh         ; b[3]
-   movzx    rdx, BYTE PTR[rsi+rdx]
+   movzx    rdx, BYTE [rsi+rdx]
    shl      rdx, 24
 
    or       rax, r9
@@ -108,7 +108,7 @@ touch_tbl:
    REST_XMM
    REST_GPR
    ret
-IPPASM Touch_SubsDword_8uT ENDP
+ENDFUNC Touch_SubsDword_8uT
 
-ENDIF
-END
+%endif
+

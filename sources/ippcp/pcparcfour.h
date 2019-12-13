@@ -52,16 +52,13 @@
 
 #if ((_IPP==_IPP_W7) || (_IPP==_IPP_T7))
    #define rc4word   Ipp8u
-   #pragma message("Sbox: byte")
 
 
 #elif ((_IPP>=_IPP_V8) || (_IPP32E>=_IPP32E_M7))
    #define rc4word   Ipp32u
-   #pragma message("Sbox: dword")
 
 #else
    #define rc4word   Ipp8u
-   #pragma message("Sbox: byte")
 #endif
 
 /*

@@ -58,13 +58,8 @@
 #include "pcpaesauthgcm.h"
 #include "pcptool.h"
 
-#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
-#  pragma message("_ALG_AES_SAFE_COMPOSITE_GF_ enabled")
-#elif (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-#  pragma message("_ALG_AES_SAFE_COMPACT_SBOX_ enabled")
+#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
 #  include "pcprijtables.h"
-#else
-#  pragma message("_ALG_AES_SAFE_ disabled")
 #endif
 
 /*
@@ -100,5 +95,6 @@ void wrpAesGcmEnc_table2K(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMSt
       #endif
    }
 
-   AesGcmAuth_table2K(AESGCM_GHASH(pState), pHashedData, hashedDataLen, AESGCM_HKEY(pState), AesGcmConst_table);
+   //AesGcmAuth_table2K(AESGCM_GHASH(pState), pHashedData, hashedDataLen, AESGCM_HKEY(pState), AesGcmConst_table);
+   AesGcmAuth_table2K_ct(AESGCM_GHASH(pState), pHashedData, hashedDataLen, AESGCM_HKEY(pState), AesGcmConst_table);
 }

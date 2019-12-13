@@ -148,16 +148,8 @@ IPPFUN(IppStatus, ippsRSA_SetPrivateKeyType2,(const IppsBigNumState* pFactorP,
    ZEXPAND_COPY_BNU(RSA_PRV_KEY_DP(pKey), BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_P(pKey)), BN_NUMBER(pCrtExpP), BN_SIZE(pCrtExpP));
    /* store CTR's exp dq */
    ZEXPAND_COPY_BNU(RSA_PRV_KEY_DQ(pKey), BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_Q(pKey)), BN_NUMBER(pCrtExpQ), BN_SIZE(pCrtExpQ));
-   /* store mont encoded CTR's coeff qinv */
-   {
-      gsModEngine* pMontP = RSA_PRV_KEY_PMONT(pKey);
-      cpSize modLen       = MOD_LEN(pMontP);
-      BNU_CHUNK_T* pInverseQEx = MOD_MODULUS(RSA_PRV_KEY_NMONT(pKey)); /* we have (3 * modLen * sizeof(BNU_CHUNK_T)) */
-
-      ZEXPAND_COPY_BNU(pInverseQEx, modLen, BN_NUMBER(pInverseQ), BN_SIZE(pInverseQ) );
-
-      MOD_METHOD( pMontP )->mul(RSA_PRV_KEY_INVQ(pKey), pInverseQEx, MOD_MNT_R2(pMontP), pMontP);
-   }
+   /* store CTR's invQ */
+   ZEXPAND_COPY_BNU(RSA_PRV_KEY_INVQ(pKey), BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_P(pKey)), BN_NUMBER(pInverseQ), BN_SIZE(pInverseQ));
 
    /* setup montgomery engine N = P*Q */
    {

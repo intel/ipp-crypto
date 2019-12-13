@@ -54,13 +54,8 @@
 #include "pcpaesm.h"
 #include "pcptool.h"
 
-#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
-#  pragma message("_ALG_AES_SAFE_COMPOSITE_GF_ enabled")
-#elif (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-#  pragma message("_ALG_AES_SAFE_COMPACT_SBOX_ enabled")
+#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
 #  include "pcprijtables.h"
-#else
-#  pragma message("_ALG_AES_SAFE_ disabled")
 #endif
 
 
@@ -114,7 +109,7 @@ void cpDecryptAES_cfb(const Ipp8u* pIV,
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    /* use pipelined version is possible */
    if(AES_NI_ENABLED==RIJ_AESNI(pCtx)) {
-      #if defined (_MSC_VER) && !defined (__INTEL_COMPILER)
+      #if defined (_MSC_VER) && !defined (__INTEL_COMPILER) && (_IPP32E>=_IPP32E_K0)
 msvc_fallback:
       #endif
       if(cfbBlkSize==MBS_RIJ128)

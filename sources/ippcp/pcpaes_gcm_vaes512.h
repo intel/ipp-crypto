@@ -49,6 +49,9 @@
 */
 
 #if (_IPP32E>=_IPP32E_K0)
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#pragma warning(disable: 4310) // cast truncates constant value in MSVC
+#endif
 
 #define M128(mem)    (*((__m128i*)((Ipp8u*)(mem))))
 #define M256(mem)    (*((__m256i*)((Ipp8u*)(mem))))

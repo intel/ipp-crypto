@@ -51,8 +51,6 @@
 #include "pcpbn.h"
 #include "pcpgfpstuff.h"
 
-//tbcd: temporary excluded: #include <assert.h>
-
 static int factor2(BNU_CHUNK_T* pA, int nsA)
 {
    int factor = 0;

@@ -38,107 +38,107 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  EM64T Cryptography Primitive.
-; 
-; 
+;
+;
 ;
 
 ;;
 ;; Just for unify GPRs usage
 ;;
 
-r0  equ   rax     ;; 64-bits GPRs
-r1  equ   rbx
-r2  equ   rcx
-r3  equ   rdx
-r4  equ   rdi
-r5  equ   rsi
-r6  equ   rbp
-r7  equ   rsp
+%define r0  rax     ;; 64-bits GPRs
+%define r1  rbx
+%define r2  rcx
+%define r3  rdx
+%define r4  rdi
+%define r5  rsi
+%define r6  rbp
+%define r7  rsp
 
-r0d equ   eax     ;; 32-bits GPRs
-r1d equ   ebx
-r2d equ   ecx
-r3d equ   edx
-r4d equ   edi
-r5d equ   esi
-r6d equ   ebp
-r7d equ   esp
+%define r0d  eax     ;; 32-bits GPRs
+%define r1d  ebx
+%define r2d  ecx
+%define r3d  edx
+%define r4d  edi
+%define r5d  esi
+%define r6d  ebp
+%define r7d  esp
 
-raxd equ  eax
-rbxd equ  ebx
-rcxd equ  ecx
-rdxd equ  edx
-rdid equ  edi
-rsid equ  esi
-rbpd equ  ebp
+%define raxd  eax
+%define rbxd  ebx
+%define rcxd  ecx
+%define rdxd  edx
+%define rdid  edi
+%define rsid  esi
+%define rbpd  ebp
 
-r0w equ    ax     ;; 16-bits GPRs
-r1w equ    bx
-r2w equ    cx
-r3w equ    dx
-r4w equ    di
-r5w equ    si
-r6w equ    bp
-r7w equ    sp
+%define r0w  ax     ;; 16-bits GPRs
+%define r1w  bx
+%define r2w  cx
+%define r3w  dx
+%define r4w  di
+%define r5w  si
+%define r6w  bp
+%define r7w  sp
 
-raxw equ   ax
-rbxw equ   bx
-rcxw equ   cx
-rdxw equ   dx
-rdiw equ   di
-rsiw equ   si
-rbpw equ   bp
+%define raxw  ax
+%define rbxw  bx
+%define rcxw  cx
+%define rdxw  dx
+%define rdiw  di
+%define rsiw  si
+%define rbpw  bp
 
-r0b equ    al     ;;  8-bits GPRs
-r1b equ    bl
-r2b equ    cl
-r3b equ    dl
-r4b equ    dil
-r5b equ    sil
-r6b equ    bpl
-r7b equ    spl
+%define r0b  al     ;;  8-bits GPRs
+%define r1b  bl
+%define r2b  cl
+%define r3b  dl
+%define r4b  dil
+%define r5b  sil
+%define r6b  bpl
+%define r7b  spl
 
-raxb equ   al
-rbxb equ   bl
-rcxb equ   cl
-rdxb equ   dl
-rdib equ   dil
-rsib equ   sil
-rbpb equ   bpl
+%define raxb  al
+%define rbxb  bl
+%define rcxb  cl
+%define rdxb  dl
+%define rdib  dil
+%define rsib  sil
+%define rbpb  bpl
 
-raxbl equ   al
-rbxbl equ   bl
-rcxbl equ   cl
-rdxbl equ   dl
-raxbh equ   ah
-rbxbh equ   bh
-rcxbh equ   ch
-rdxbh equ   dh
+%define raxbl  al
+%define rbxbl  bl
+%define rcxbl  cl
+%define rdxbl  dl
+%define raxbh  ah
+%define rbxbh  bh
+%define rcxbh  ch
+%define rdxbh  dh
 
 ;;
 ;; Register Parameters (depend on used OS)
 ;;
-IFDEF _WIN64
-rpar1 equ rcx
-rpar2 equ rdx
-rpar3 equ r8
-rpar4 equ r9
-rpar5 equ [rsp+ARG_5]
-rpar6 equ [rsp+ARG_6]
-ENDIF
+%ifdef WIN32E
+  %define rpar1 rcx
+  %define rpar2 rdx
+  %define rpar3 r8
+  %define rpar4 r9
+  %define rpar5 [rsp + ARG_5]
+  %define rpar6 [rsp + ARG_6]
+%endif
 
-IFDEF LINUX32E
-rpar1 equ rdi
-rpar2 equ rsi
-rpar3 equ rdx
-rpar4 equ rcx
-rpar5 equ r8
-rpar6 equ r9
-ENDIF
+%ifdef LINUX32E
+  %define rpar1 rdi
+  %define rpar2 rsi
+  %define rpar3 rdx
+  %define rpar4 rcx
+  %define rpar5 r8
+  %define rpar6 r9
+%endif
 
 ;; use GPR implementation everywhere possible
-GPR_version = 1
+%assign GPR_version 1
 

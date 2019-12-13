@@ -633,7 +633,7 @@ cpSize gsMontExpBin_BNU_sscm_sse2(BNU_CHUNK_T* dataY,
    cpMontMul_sse2(redY, redY, redX, redM, redLen, k0, redBuffer);
 
    /* convert base to Montgomery domain */
-   ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redT, reBufferLen/*nsX+1*/, dataX, nsX);
+   ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redT, redBufferLen/*nsX+1*/, dataX, nsX);
    regular_dig27(redX, redBufferLen, (Ipp32u*)redT,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
    cpMontMul_sse2(redX, redX, redY, redM, redLen, k0, redBuffer);
 

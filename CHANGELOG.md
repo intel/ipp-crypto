@@ -2,6 +2,14 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## 2019-12-13
+- Removed Android support. Use Linux libraries instead.
+- Added RSA PSS multi buffer signature generation and verification.
+- Added RSA PKCS#1 v1.5 multi buffer signature generation and verification.
+- Added RSA IFMA Muti-buffer Library.
+- Fixed all build warnings for supported GCC\* and MSVC\* compilres.
+- Assembler sources were migrated to NASM\* assembler.
+
 ## 2019-09-17
 - Added RSA multi buffer encryption and decryption.
 
@@ -11,7 +19,7 @@ This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chron
 - Fixes in Intel(R) IPP Custom Library Tool.
 
 ## 2019-07-23
-- Added Microsoft* Visual Studio* 2019 build support.
+- Added Microsoft\* Visual Studio\* 2019 build support.
 - Added Intel(R) IPP Custom Library Tool.
 
 ## 2019-06-24
@@ -24,8 +32,8 @@ This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chron
 - AES-XTS was enabled with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI).
 
 ## 2019-05-22
-- Fixed GCC* and MSVC* builds of IA32 generic CPU code (pure C) with -DMERGED_BLD:BOOL=off option.
-- Added single-CPU headers generation.
+- Fixed GCC\* and MSVC\* builds of IA32 generic CPU code (pure C) with -DMERGED_BLD:BOOL=off option.
+- Added single-CPU headers generation.
 - Aligned structure of the build output directory across all supported operation systems.
 
 ## 2019-04-23
@@ -38,12 +46,12 @@ This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chron
 - Improved optimization of Intel(R) AES-NI based CMAC.
 - Added the ippsGFpGetInfo function, which returns information about a finite field.
 - Added the ippsHashGetInfo_rmf function, which returns information about a hash algorithm.
-- Added the ability to build the Intel(R) IPP Cryptography library with GCC* 8.2.
+- Added the ability to build the Intel(R) IPP Cryptography library with GCC\* 8.2.
 - Fixed selection of CPU-specific code in dynamic/shared libraries.
 
 ## 2018-10-15
 - Added the new SM2 encryption scheme.
-- Added the ability to build the Intel(R) IPP Cryptography library with the Microsoft* Visual C++ Compiler 2017.
+- Added the ability to build the Intel(R) IPP Cryptography library with the Microsoft\* Visual C++ Compiler 2017.
 - Added the ability to build the Intel(R) IPP Cryptography library with the Intel(R) C++ Compiler 19.
 - Changed the range of the message being signed or verified by EC and DLP.
 - Fixed a potential security problem in the DLP signing and key generation functions.
@@ -54,10 +62,10 @@ This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chron
 - Deprecated the ARCFour functionality.
 - Fixed a potential security problem in the signing functions over elliptic curves.
 - Fixed a potential security problem in the key expansion function for AES Encryption.
-- Fixed some of the compilation warnings observed when building the static dispatcher on Windows* OS.
+- Fixed some of the compilation warnings observed when building the static dispatcher on Windows\* OS.
 - Fixed minor issues with DLP functions.
 
 
 ------------------------------------------------------------------------
 Intel is a trademark of Intel Corporation or its subsidiaries in the U.S. and/or other countries.
-* Other names and brands may be claimed as the property of others.
+\* Other names and brands may be claimed as the property of others.

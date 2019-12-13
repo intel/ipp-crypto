@@ -38,24 +38,24 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Inverse Cipher function
-; 
+;
 ;     Content:
 ;        Decrypt_RIJ128_AES_NI()
-; 
 ;
-.686P
-.XMM
-.MODEL FLAT,C
-
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
+;
 
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
 ;***************************************************************
@@ -69,23 +69,24 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;*
 ;***************************************************************
 
-;IF (_IPP GE _IPP_P8) AND (_IPP LT _IPP_G9)
-IF (_IPP GE _IPP_P8)
+;%if (_IPP >= _IPP_P8) && (_IPP < _IPP_G9)
+%if (_IPP >= _IPP_P8)
 ;;
 ;; Lib = P8
 ;;
 ;; Caller = ippsRijndael128DecryptECB
 ;; Caller = ippsRijndael128DecryptCBC
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM Decrypt_RIJ128_AES_NI PROC NEAR C PUBLIC \
-USES esi edi,\
-pInpBlk:PTR DWORD,\    ; input  block address
-pOutBlk:PTR DWORD,\    ; output block address
-nr:DWORD,\             ; number of rounds
-pKey:PTR DWORD         ; key material address
+align IPP_ALIGN_FACTOR
+IPPASM Decrypt_RIJ128_AES_NI,PUBLIC
+  USES_GPR esi,edi
 
-SC equ   (4)
+%xdefine pInpBlk [esp + ARG_1 + 0*sizeof(dword)] ; input  block address
+%xdefine pOutBlk [esp + ARG_1 + 1*sizeof(dword)] ; output block address
+%xdefine nr      [esp + ARG_1 + 2*sizeof(dword)] ; number of rounds
+%xdefine pKey    [esp + ARG_1 + 3*sizeof(dword)] ; key material address
+
+%xdefine SC    (4)
 
 
    mov      esi,pInpBlk       ; input data address
@@ -95,41 +96,42 @@ SC equ   (4)
 
    lea      edx,[eax*4]
 
-   movdqu   xmm0, oword ptr[esi] ; input block
+   movdqu   xmm0, oword [esi] ; input block
 
    ;;whitening
-   pxor     xmm0, oword ptr[ecx+edx*4] ; whitening
+   pxor     xmm0, oword [ecx+edx*4] ; whitening
 
    cmp      eax,12            ; switch according to number of rounds
-   jl       key_128
-   jz       key_192
+   jl       .key_128
+   jz       .key_192
 
    ;;
    ;; regular rounds
    ;;
-key_256:
-   aesdec      xmm0,oword ptr[ecx+9*SC*4+4*4*SC]
-   aesdec      xmm0,oword ptr[ecx+9*SC*4+3*4*SC]
-key_192:
-   aesdec      xmm0,oword ptr[ecx+9*SC*4+2*4*SC]
-   aesdec      xmm0,oword ptr[ecx+9*SC*4+1*4*SC]
-key_128:
-   aesdec      xmm0,oword ptr[ecx+9*SC*4-0*4*SC]
-   aesdec      xmm0,oword ptr[ecx+9*SC*4-1*4*SC]
-   aesdec      xmm0,oword ptr[ecx+9*SC*4-2*4*SC]
-   aesdec      xmm0,oword ptr[ecx+9*SC*4-3*4*SC]
-   aesdec      xmm0,oword ptr[ecx+9*SC*4-4*4*SC]
-   aesdec      xmm0,oword ptr[ecx+9*SC*4-5*4*SC]
-   aesdec      xmm0,oword ptr[ecx+9*SC*4-6*4*SC]
-   aesdec      xmm0,oword ptr[ecx+9*SC*4-7*4*SC]
-   aesdec      xmm0,oword ptr[ecx+9*SC*4-8*4*SC]
+.key_256:
+   aesdec      xmm0,oword [ecx+9*SC*4+4*4*SC]
+   aesdec      xmm0,oword [ecx+9*SC*4+3*4*SC]
+.key_192:
+   aesdec      xmm0,oword [ecx+9*SC*4+2*4*SC]
+   aesdec      xmm0,oword [ecx+9*SC*4+1*4*SC]
+.key_128:
+   aesdec      xmm0,oword [ecx+9*SC*4-0*4*SC]
+   aesdec      xmm0,oword [ecx+9*SC*4-1*4*SC]
+   aesdec      xmm0,oword [ecx+9*SC*4-2*4*SC]
+   aesdec      xmm0,oword [ecx+9*SC*4-3*4*SC]
+   aesdec      xmm0,oword [ecx+9*SC*4-4*4*SC]
+   aesdec      xmm0,oword [ecx+9*SC*4-5*4*SC]
+   aesdec      xmm0,oword [ecx+9*SC*4-6*4*SC]
+   aesdec      xmm0,oword [ecx+9*SC*4-7*4*SC]
+   aesdec      xmm0,oword [ecx+9*SC*4-8*4*SC]
    ;;
    ;; last rounds
    ;;
-   aesdeclast  xmm0,oword ptr[ecx+9*SC*4-9*4*SC]
+   aesdeclast  xmm0,oword [ecx+9*SC*4-9*4*SC]
 
-   movdqu   oword ptr[edi], xmm0    ; output block
+   movdqu   oword [edi], xmm0    ; output block
+   REST_GPR
    ret
-IPPASM Decrypt_RIJ128_AES_NI ENDP
-ENDIF
-END
+ENDFUNC Decrypt_RIJ128_AES_NI
+%endif
+

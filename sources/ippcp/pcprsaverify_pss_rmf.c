@@ -58,6 +58,8 @@
 #include "pcphash_rmf.h"
 #include "pcptool.h"
 
+#include "pcprsa_pss_preproc.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /*F*
 // Name: ippsRSAVerify_PSS_rmf
@@ -99,19 +101,12 @@ IPPFUN(IppStatus, ippsRSAVerify_PSS_rmf,(const Ipp8u* pMsg,  int msgLen,
                                          const IppsHashMethod* pMethod,
                                                Ipp8u* pScratchBuffer))
 {
-   /* test message length */
-   IPP_BADARG_RET((msgLen<0), ippStsLengthErr);
-   /* test message pointer */
-   IPP_BADARG_RET((msgLen && !pMsg), ippStsNullPtrErr);
+   const IppStatus preprocResult = SingleVerifyPssRmfPreproc(pMsg, msgLen, pSign,
+      pIsValid, &pKey, pMethod, pScratchBuffer); // badargs and pointer alignments, set *pIsValid = 0
 
-   /* test data pointer */
-   IPP_BAD_PTR3_RET(pSign, pIsValid, pMethod);
-
-   /* test public key context */
-   IPP_BAD_PTR2_RET(pKey, pScratchBuffer);
-   pKey = (IppsRSAPublicKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PUBLIC_KEY_ALIGNMENT) );
-   IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(pKey), ippStsContextMatchErr);
-   IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
+   if (ippStsNoErr != preprocResult) {
+      return preprocResult;
+   }
 
    {
       Ipp8u hashMsg[MAX_HASH_SIZE];
@@ -154,7 +149,6 @@ IPPFUN(IppStatus, ippsRSAVerify_PSS_rmf,(const Ipp8u* pMsg,  int msgLen,
       ippsSetOctString_BN(pSign, k, &bnP);
       gsRSApub_cipher(&bnC, &bnP, pKey, pBuffer);
 
-      *pIsValid = 0;
       /*
       // EMSA-PSS verification
       */

@@ -53,84 +53,96 @@
 #include "owndefs.h"
 #include "owncp.h"
 #include "pcpsms4.h"
-#include "pcpsms4ecby8cn.h"
+#include "pcptool.h"
 
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
+
+#include "pcpsms4_y8cn.h"
+
+__INLINE __m128i Ltag(__m128i x)
+{
+   __m128i T = _mm_slli_epi32(x, 13);
+   T = _mm_xor_si128(T, _mm_srli_epi32 (x,19));
+   T = _mm_xor_si128(T, _mm_slli_epi32 (x,23));
+   T = _mm_xor_si128(T, _mm_srli_epi32 (x, 9));
+   return T;
+}
 
 /*
 // compute round keys
 */
+
 #define cpSMS4_SetRoundKeys_aesni OWNAPI(cpSMS4_SetRoundKeys_aesni)
 void cpSMS4_SetRoundKeys_aesni(Ipp32u* pRoundKey, const Ipp8u* pSecretKey)
 {
-   __m128i K0 = _mm_cvtsi32_si128(ENDIANNESS32(((Ipp32u*)pSecretKey)[0]) ^ SMS4_FK[0]);
-   __m128i K1 = _mm_cvtsi32_si128(ENDIANNESS32(((Ipp32u*)pSecretKey)[1]) ^ SMS4_FK[1]);
-   __m128i K2 = _mm_cvtsi32_si128(ENDIANNESS32(((Ipp32u*)pSecretKey)[2]) ^ SMS4_FK[2]);
-   __m128i K3 = _mm_cvtsi32_si128(ENDIANNESS32(((Ipp32u*)pSecretKey)[3]) ^ SMS4_FK[3]);
+   __ALIGN16 __m128i TMP[5];
+   /*
+      TMP[0] = T
+      TMP[1] = K0
+      TMP[2] = K1
+      TMP[3] = K2
+      TMP[4] = K3
+   */
+   TMP[1] = _mm_cvtsi32_si128(ENDIANNESS32(((Ipp32u*)pSecretKey)[0]) ^ SMS4_FK[0]);
+   TMP[2] = _mm_cvtsi32_si128(ENDIANNESS32(((Ipp32u*)pSecretKey)[1]) ^ SMS4_FK[1]);
+   TMP[3] = _mm_cvtsi32_si128(ENDIANNESS32(((Ipp32u*)pSecretKey)[2]) ^ SMS4_FK[2]);
+   TMP[4] = _mm_cvtsi32_si128(ENDIANNESS32(((Ipp32u*)pSecretKey)[3]) ^ SMS4_FK[3]);
 
    const Ipp32u* pCK = SMS4_CK;
 
    int itr;
    for(itr=0; itr<8; itr++) {
-      __m128i
       /* initial xors */
-      T = _mm_cvtsi32_si128(pCK[0]);
-      T = _mm_xor_si128(T, K1);
-      T = _mm_xor_si128(T, K2);
-      T = _mm_xor_si128(T, K3);
+      TMP[0] = _mm_cvtsi32_si128(pCK[0]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
       /* Sbox */
-      T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-      T = _mm_aesenclast_si128(T, M128(encKey));
-      T = _mm_shuffle_epi8(T, M128(maskSrows));
-      T = affine(T, M128(outMaskLO), M128(outMaskHI));
+      TMP[0] = sBox(TMP[0]);
       /* Sbox done, now Ltag */
-      K0 = _mm_xor_si128(_mm_xor_si128(K0, T), Ltag(T));
-      pRoundKey[0] = _mm_cvtsi128_si32(K0);
+      TMP[1] = _mm_xor_si128(_mm_xor_si128(TMP[1], TMP[0]), Ltag(TMP[0]));
+      pRoundKey[0] = _mm_cvtsi128_si32(TMP[1]);
 
       /* initial xors */
-      T = _mm_cvtsi32_si128(pCK[1]);
-      T = _mm_xor_si128(T, K2);
-      T = _mm_xor_si128(T, K3);
-      T = _mm_xor_si128(T, K0);
+      TMP[0] = _mm_cvtsi32_si128(pCK[1]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
       /* Sbox */
-      T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-      T = _mm_aesenclast_si128(T, M128(encKey));
-      T = _mm_shuffle_epi8(T, M128(maskSrows));
-      T = affine(T, M128(outMaskLO), M128(outMaskHI));
+      TMP[0] = sBox(TMP[0]);
       /* Sbox done, now Ltag */
-      K1 = _mm_xor_si128(_mm_xor_si128(K1, T), Ltag(T));
-      pRoundKey[1] = _mm_cvtsi128_si32(K1);
+      TMP[2] = _mm_xor_si128(_mm_xor_si128(TMP[2], TMP[0]), Ltag(TMP[0]));
+      pRoundKey[1] = _mm_cvtsi128_si32(TMP[2]);
 
       /* initial xors */
-      T = _mm_cvtsi32_si128(pCK[2]);
-      T = _mm_xor_si128(T, K3);
-      T = _mm_xor_si128(T, K0);
-      T = _mm_xor_si128(T, K1);
+      TMP[0] = _mm_cvtsi32_si128(pCK[2]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
       /* Sbox */
-      T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-      T = _mm_aesenclast_si128(T, M128(encKey));
-      T = _mm_shuffle_epi8(T, M128(maskSrows));
-      T = affine(T, M128(outMaskLO), M128(outMaskHI));
+      TMP[0] = sBox(TMP[0]);
       /* Sbox done, now Ltag */
-      K2 = _mm_xor_si128(_mm_xor_si128(K2, T), Ltag(T));
-      pRoundKey[2] = _mm_cvtsi128_si32(K2);
+      TMP[3] = _mm_xor_si128(_mm_xor_si128(TMP[3], TMP[0]), Ltag(TMP[0]));
+      pRoundKey[2] = _mm_cvtsi128_si32(TMP[3]);
 
       /* initial xors */
-      T = _mm_cvtsi32_si128(pCK[3]);
-      T = _mm_xor_si128(T, K0);
-      T = _mm_xor_si128(T, K1);
-      T = _mm_xor_si128(T, K2);
+      TMP[0] = _mm_cvtsi32_si128(pCK[3]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
+      TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
       /* Sbox */
-      T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-      T = _mm_aesenclast_si128(T, M128(encKey));
-      T = _mm_shuffle_epi8(T, M128(maskSrows));
-      T = affine(T, M128(outMaskLO), M128(outMaskHI));
+      TMP[0] = sBox(TMP[0]);
       /* Sbox done, now Ltag */
-      K3 = _mm_xor_si128(_mm_xor_si128(K3, T), Ltag(T));
-      pRoundKey[3] = _mm_cvtsi128_si32(K3);
+      TMP[4] = _mm_xor_si128(_mm_xor_si128(TMP[4], TMP[0]), Ltag(TMP[0]));
+      pRoundKey[3] = _mm_cvtsi128_si32(TMP[4]);
 
       pCK += 4;
       pRoundKey += 4;
+   }
+
+   /* clear secret data */
+   for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
+      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
    }
 }
 

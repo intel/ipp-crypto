@@ -54,7 +54,7 @@
 #include "pcptool.h"
 
 /*
-// SMS4-CRT processing.
+// SMS4-CTR processing.
 //
 // Returns:                Reason:
 //    ippStsNullPtrErr        pCtx == NULL
@@ -85,7 +85,7 @@ IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned AES context */
+   /* use aligned SMS4 context */
    pCtx = (IppsSMS4Spec*)( IPP_ALIGNED_PTR(pCtx, SMS4_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_SMS4_ID(pCtx), ippStsContextMatchErr);
@@ -99,36 +99,51 @@ IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
    IPP_BADARG_RET(((MBS_SMS4*8)<ctrNumBitSize)||(ctrNumBitSize<1), ippStsCTRSizeErr);
 
    {
-      Ipp8u counter[MBS_SMS4];
+      __ALIGN16 Ipp8u TMP[2*MBS_SMS4+1];
+
+      /*
+         maskIV    size = MBS_SMS4
+         output    size = MBS_SMS4
+         counter   size = MBS_SMS4
+         maskValue size = 1
+      */
+
+      Ipp8u* output    = TMP;
+      Ipp8u* counter   = TMP + MBS_SMS4;
+
       /* copy counter */
       CopyBlock16(pCtrValue, counter);
 
       /* do CTR processing */
       #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
+
+      Ipp8u* maskIV    = TMP;
+      /* output is not used together with maskIV, so this is why buffer for both values is the same */
+      Ipp8u* maskValue = TMP + 2*MBS_SMS4;
+
       if(IsFeatureEnabled(ippCPUID_AES)) {
          if(dataLen>=4*MBS_SMS4) {
             /* construct ctr mask */
-            Ipp8u maskIV[MBS_SMS4];
             int n;
             int maskPosition = (MBS_SMS4*8-ctrNumBitSize)/8;
-            Ipp8u maskValue = (Ipp8u)(0xFF >> (MBS_SMS4*8-ctrNumBitSize)%8 );
+            *maskValue = (Ipp8u)(0xFF >> (MBS_SMS4*8-ctrNumBitSize)%8 );
 
             for(n=0; n<maskPosition; n++)
                maskIV[n] = 0;
-            maskIV[maskPosition] = maskValue;
-            for(n=maskPosition+1; n<16; n++)
+            maskIV[maskPosition] = *maskValue;
+            for(n=maskPosition+1; n < MBS_SMS4; n++)
                maskIV[n] = 0xFF;
 
             n = cpSMS4_CTR_aesni(pDst, pSrc, dataLen, SMS4_RK(pCtx), maskIV, counter);
             pSrc += n;
             pDst += n;
             dataLen -= n;
+
          }
       }
       #endif
 
       {
-         Ipp8u output[MBS_SMS4];
 
          /* block-by-block processing */
          while(dataLen>= MBS_SMS4) {
@@ -136,7 +151,7 @@ IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
             cpSMS4_Cipher((Ipp8u*)output, (Ipp8u*)counter,  SMS4_RK(pCtx));
             /* compute ciphertext block */
             XorBlock16(pSrc, output, pDst);
-            /* encrement counter block */
+            /* increment counter block */
             StdIncrement(counter,MBS_SMS4*8, ctrNumBitSize);
 
             pSrc += MBS_SMS4;
@@ -150,14 +165,18 @@ IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
             cpSMS4_Cipher((Ipp8u*)output, (Ipp8u*)counter, SMS4_RK(pCtx));
             /* compute ciphertext block */
             XorBlock(pSrc, output, pDst,dataLen);
-            /* encrement counter block */
+            /* increment counter block */
             StdIncrement((Ipp8u*)counter,MBS_SMS4*8, ctrNumBitSize);
          }
+
       }
 
       /* update counter */
       CopyBlock16(counter, pCtrValue);
 
+      /* clear secret data */
+      PurgeBlock(TMP, sizeof(TMP));
+      
       return ippStsNoErr;
    }
 }

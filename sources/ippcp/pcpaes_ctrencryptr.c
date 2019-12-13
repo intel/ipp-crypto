@@ -48,7 +48,7 @@
 //        ippsAESEncryptCTR()
 //
 */
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4206) // empty unit
 #endif
 

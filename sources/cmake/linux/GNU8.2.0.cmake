@@ -95,6 +95,9 @@ if ((${ARCH} MATCHES "ia32") OR (NOT NONPIC_LIB))
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
 endif()
 
+# Security flag that adds compile-time and run-time checks
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2")
+
 if(NOT NONPIC_LIB)
   # Position Independent Execution (PIE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpic -fPIC")
@@ -114,8 +117,8 @@ if(${ARCH} MATCHES "ia32")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 endif(${ARCH} MATCHES "ia32")
 
-# Optimization level = 3, no-debug definition (turns off asserts)
-set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG" CACHE STRING "" FORCE)
+# Optimization level = 3, no-debug definition (turns off asserts), warnings=errors
+set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -Werror" CACHE STRING "" FORCE)
 
 set(w7_opt "${w7_opt} -march=pentium4 -msse2")
 set(s8_opt "${s8_opt} -march=core2 -mssse3")

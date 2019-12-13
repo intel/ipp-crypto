@@ -38,25 +38,25 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Big Number Operations
-; 
+;
 ;     Content:
 ;        cpAddAdd_BNU_school()
-; 
+;
 ;
 
-include asmdefs.inc
-include ia_32e.inc
-include pcpvariant.inc
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "pcpvariant.inc"
 
-IF _ENABLE_KARATSUBA_
+%if _ENABLE_KARATSUBA_
 
-IF _IPP32E GE _IPP32E_M7
+%if (_IPP32E >= _IPP32E_M7)
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
 
 ;*************************************************************
 ;* Ipp64u cpAddAdd_BNU(Ipp64u* pDst,
@@ -66,12 +66,12 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;*                     int len)
 ;* returns carry
 ;*************************************************************
-ALIGN IPP_ALIGN_FACTOR
-IPPASM cpAddAdd_BNU PROC PUBLIC FRAME
-    USES_GPR rsi,rdi,rbx,rbp,r12,r13,r14
-    LOCAL_FRAME = 0
-    USES_XMM
-    COMP_ABI 5
+align IPP_ALIGN_FACTOR
+IPPASM cpAddAdd_BNU
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi,rbx,rbp,r12,r13,r14
+        USES_XMM
+        COMP_ABI 5
 
 ; rdi = pDst
 ; rsi = pSrcA
@@ -84,254 +84,254 @@ IPPASM cpAddAdd_BNU PROC PUBLIC FRAME
     xor     rbx, rbx
 
     cmp     r8, 2
-    jge     ADD_GE2
+    jge     .ADD_GE2
 
 ;********** lenSrcA == 1 *************************************
     add     rax, rax
-    mov     r8, qword ptr [rsi]             ; rsi = a
-    adc     r8, qword ptr [rdx]             ; r8  = a+b
+    mov     r8, qword [rsi]             ; rsi = a
+    adc     r8, qword [rdx]             ; r8  = a+b
     sbb     rax, rax                        ;
     add     rbx, rbx
-    adc     r8, qword ptr [rcx]             ; r8  = a+b+c = s
-    mov     qword ptr [rdi], r8             ;
+    adc     r8, qword [rcx]             ; r8  = a+b+c = s
+    mov     qword [rdi], r8             ;
     sbb     rbx, rbx                        ;
-    jmp     FINAL
+    jmp     .FINAL
 
 ;********** lenSrcA == 1  END ********************************
 
-ADD_GE2:
-    jg      ADD_GT2
+.ADD_GE2:
+    jg      .ADD_GT2
 
 ;********** lenSrcA == 2 *************************************
     add     rax, rax
-    mov     r8, qword ptr [rsi]             ; r8  = a0
-    adc     r8, qword ptr [rdx]             ; r8  = a0+b0
-    mov     r9, qword ptr [rsi+8]           ; r9  = a1
-    adc     r9, qword ptr [rdx+8]           ; r9  = a1+b1
+    mov     r8, qword [rsi]             ; r8  = a0
+    adc     r8, qword [rdx]             ; r8  = a0+b0
+    mov     r9, qword [rsi+8]           ; r9  = a1
+    adc     r9, qword [rdx+8]           ; r9  = a1+b1
     sbb     rax, rax                        ; rax = carry
     add     rbx, rbx
-    adc     r8, qword ptr [rcx]             ; r8  = a0+b0+c0 = s0
-    mov     qword ptr [rdi], r8             ; save s0
-    adc     r9, qword ptr [rcx+8]           ; r9  = a1+b1+c1 = s1
-    mov     qword ptr [rdi+8], r9           ; save s1
+    adc     r8, qword [rcx]             ; r8  = a0+b0+c0 = s0
+    mov     qword [rdi], r8             ; save s0
+    adc     r9, qword [rcx+8]           ; r9  = a1+b1+c1 = s1
+    mov     qword [rdi+8], r9           ; save s1
     sbb     rbx, rbx                        ;
-    jmp     FINAL
+    jmp     .FINAL
 
 ;********** lenSrcA == 2 END *********************************
 
-ADD_GT2:
+.ADD_GT2:
     cmp     r8, 4
-    jge     ADD_GE4
+    jge     .ADD_GE4
 
 ;********** lenSrcA == 3 *************************************
     add     rax, rax
-    mov     r8, qword ptr [rsi]             ; r8  = a0
-    adc     r8, qword ptr [rdx]             ; r8  = a0+b0
-    mov     r9, qword ptr [rsi+8]           ; r9  = a1
-    adc     r9, qword ptr [rdx+8]           ; r9  = a1+b1
-    mov     r10, qword ptr [rsi+16]         ; r10 = a2
-    adc     r10, qword ptr [rdx+16]         ; r10 = a2+b2
+    mov     r8, qword [rsi]             ; r8  = a0
+    adc     r8, qword [rdx]             ; r8  = a0+b0
+    mov     r9, qword [rsi+8]           ; r9  = a1
+    adc     r9, qword [rdx+8]           ; r9  = a1+b1
+    mov     r10, qword [rsi+16]         ; r10 = a2
+    adc     r10, qword [rdx+16]         ; r10 = a2+b2
     sbb     rax, rax                        ; rax = carry
     add     rbx, rbx
-    adc     r8, qword ptr [rcx]             ; r8  = a0+b0+c0 = s0
-    mov     qword ptr [rdi], r8             ; save s0
-    adc     r9, qword ptr [rcx+8]           ; r9  = a1+b1+c1 = s1
-    mov     qword ptr [rdi+8], r9           ; save s1
-    adc     r10, qword ptr [rcx+16]         ; r10 = a2+b2+c2 = s2
-    mov     qword ptr [rdi+16], r10         ; save s2
+    adc     r8, qword [rcx]             ; r8  = a0+b0+c0 = s0
+    mov     qword [rdi], r8             ; save s0
+    adc     r9, qword [rcx+8]           ; r9  = a1+b1+c1 = s1
+    mov     qword [rdi+8], r9           ; save s1
+    adc     r10, qword [rcx+16]         ; r10 = a2+b2+c2 = s2
+    mov     qword [rdi+16], r10         ; save s2
     sbb     rbx, rbx                        ;
-    jmp     FINAL
+    jmp     .FINAL
 
 ;********** lenSrcA == 3 END *********************************
 
-ADD_GE4:
-    jg      ADD_GT4
+.ADD_GE4:
+    jg      .ADD_GT4
 
 ;********** lenSrcA == 4 *************************************
     add     rax, rax
-    mov     r8, qword ptr [rsi]             ; r8  = a0
-    adc     r8, qword ptr [rdx]             ; r8  = a0+b0
-    mov     r9, qword ptr [rsi+8]           ; r9  = a1
-    adc     r9, qword ptr [rdx+8]           ; r9  = a1+b1
-    mov     r10, qword ptr [rsi+16]         ; r10 = a2
-    adc     r10, qword ptr [rdx+16]         ; r10 = a2+b2
-    mov     r11, qword ptr [rsi+24]         ; r11 = a3
-    adc     r11, qword ptr [rdx+24]         ; r11 = a3+b3
+    mov     r8, qword [rsi]             ; r8  = a0
+    adc     r8, qword [rdx]             ; r8  = a0+b0
+    mov     r9, qword [rsi+8]           ; r9  = a1
+    adc     r9, qword [rdx+8]           ; r9  = a1+b1
+    mov     r10, qword [rsi+16]         ; r10 = a2
+    adc     r10, qword [rdx+16]         ; r10 = a2+b2
+    mov     r11, qword [rsi+24]         ; r11 = a3
+    adc     r11, qword [rdx+24]         ; r11 = a3+b3
     sbb     rax, rax                        ; rax = carry
     add     rbx, rbx
-    adc     r8, qword ptr [rcx]             ; r8  = a0+b0+c0 = s0
-    mov     qword ptr [rdi], r8             ; save s0
-    adc     r9, qword ptr [rcx+8]           ; r9  = a1+b1+c1 = s1
-    mov     qword ptr [rdi+8], r9           ; save s1
-    adc     r10, qword ptr [rcx+16]         ; r10 = a2+b2+c2 = s2
-    mov     qword ptr [rdi+16], r10         ; save s2
-    adc     r11, qword ptr [rcx+24]         ; r11 = a3+b3+c3 = s3
-    mov     qword ptr [rdi+24], r11         ; save s2
+    adc     r8, qword [rcx]             ; r8  = a0+b0+c0 = s0
+    mov     qword [rdi], r8             ; save s0
+    adc     r9, qword [rcx+8]           ; r9  = a1+b1+c1 = s1
+    mov     qword [rdi+8], r9           ; save s1
+    adc     r10, qword [rcx+16]         ; r10 = a2+b2+c2 = s2
+    mov     qword [rdi+16], r10         ; save s2
+    adc     r11, qword [rcx+24]         ; r11 = a3+b3+c3 = s3
+    mov     qword [rdi+24], r11         ; save s2
     sbb     rbx, rbx                        ; rax = carry
-    jmp     FINAL
+    jmp     .FINAL
 
 ;********** lenSrcA == 4 END *********************************
 
-ADD_GT4:
+.ADD_GT4:
     cmp     r8, 6
-    jge     ADD_GE6
+    jge     .ADD_GE6
 
 ;********** lenSrcA == 5 *************************************
     add     rax, rax
-    mov     r8, qword ptr [rsi]             ; r8  = a0
-    adc     r8, qword ptr [rdx]             ; r8  = a0+b0
-    mov     r9, qword ptr [rsi+8]           ; r9  = a1
-    adc     r9, qword ptr [rdx+8]           ; r9  = a1+b1
-    mov     r10, qword ptr [rsi+16]         ; r10 = a2
-    adc     r10, qword ptr [rdx+16]         ; r10 = a2+b2
-    mov     r11, qword ptr [rsi+24]         ; r11 = a3
-    adc     r11, qword ptr [rdx+24]         ; r11 = a3+b3
-    mov     rsi, qword ptr [rsi+32]         ; rsi = a4
-    adc     rsi, qword ptr [rdx+32]         ; rsi = a4+b4
+    mov     r8, qword [rsi]             ; r8  = a0
+    adc     r8, qword [rdx]             ; r8  = a0+b0
+    mov     r9, qword [rsi+8]           ; r9  = a1
+    adc     r9, qword [rdx+8]           ; r9  = a1+b1
+    mov     r10, qword [rsi+16]         ; r10 = a2
+    adc     r10, qword [rdx+16]         ; r10 = a2+b2
+    mov     r11, qword [rsi+24]         ; r11 = a3
+    adc     r11, qword [rdx+24]         ; r11 = a3+b3
+    mov     rsi, qword [rsi+32]         ; rsi = a4
+    adc     rsi, qword [rdx+32]         ; rsi = a4+b4
     sbb     rax, rax                        ; rax = carry
     add     rbx, rbx
-    adc     r8, qword ptr [rcx]             ; r8  = a0+b0+c0 = s0
-    mov     qword ptr [rdi], r8             ; save s0
-    adc     r9, qword ptr [rcx+8]           ; r9  = a1+b1+c1 = s1
-    mov     qword ptr [rdi+8], r9           ; save s1
-    adc     r10, qword ptr [rcx+16]         ; r10 = a2+b2+c2 = s2
-    mov     qword ptr [rdi+16], r10         ; save s2
-    adc     r11, qword ptr [rcx+24]         ; r11 = a3+b3+c3 = s3
-    mov     qword ptr [rdi+24], r11         ; save s3
-    adc     rsi, qword ptr [rcx+32]         ; rsi = a4+b4+c4 = s4
-    mov     qword ptr [rdi+32], rsi         ; save s4
+    adc     r8, qword [rcx]             ; r8  = a0+b0+c0 = s0
+    mov     qword [rdi], r8             ; save s0
+    adc     r9, qword [rcx+8]           ; r9  = a1+b1+c1 = s1
+    mov     qword [rdi+8], r9           ; save s1
+    adc     r10, qword [rcx+16]         ; r10 = a2+b2+c2 = s2
+    mov     qword [rdi+16], r10         ; save s2
+    adc     r11, qword [rcx+24]         ; r11 = a3+b3+c3 = s3
+    mov     qword [rdi+24], r11         ; save s3
+    adc     rsi, qword [rcx+32]         ; rsi = a4+b4+c4 = s4
+    mov     qword [rdi+32], rsi         ; save s4
     sbb     rbx, rbx                        ; rax = carry
-    jmp     FINAL
+    jmp     .FINAL
 
 ;********** lenSrcA == 5 END *********************************
 
-ADD_GE6:
-    jg      ADD_GT6
+.ADD_GE6:
+    jg      .ADD_GT6
 
 ;********** lenSrcA == 6 *************************************
     add     rax, rax
-    mov     r8, qword ptr [rsi]             ; r8  = a0
-    adc     r8, qword ptr [rdx]             ; r8  = a0+b0
-    mov     r9, qword ptr [rsi+8]           ; r9  = a1
-    adc     r9, qword ptr [rdx+8]           ; r9  = a1+b1
-    mov     r10, qword ptr [rsi+16]         ; r10 = a2
-    adc     r10, qword ptr [rdx+16]         ; r10 = a2+b2
-    mov     r11, qword ptr [rsi+24]         ; r11 = a3
-    adc     r11, qword ptr [rdx+24]         ; r11 = a3+b3
-    mov     r12, qword ptr [rsi+32]         ; rbx = a4
-    adc     r12, qword ptr [rdx+32]         ; rbx = a4+b4
-    mov     rsi, qword ptr [rsi+40]         ; rsi = a5
-    adc     rsi, qword ptr [rdx+40]         ; rsi = a5+b5
+    mov     r8, qword [rsi]             ; r8  = a0
+    adc     r8, qword [rdx]             ; r8  = a0+b0
+    mov     r9, qword [rsi+8]           ; r9  = a1
+    adc     r9, qword [rdx+8]           ; r9  = a1+b1
+    mov     r10, qword [rsi+16]         ; r10 = a2
+    adc     r10, qword [rdx+16]         ; r10 = a2+b2
+    mov     r11, qword [rsi+24]         ; r11 = a3
+    adc     r11, qword [rdx+24]         ; r11 = a3+b3
+    mov     r12, qword [rsi+32]         ; rbx = a4
+    adc     r12, qword [rdx+32]         ; rbx = a4+b4
+    mov     rsi, qword [rsi+40]         ; rsi = a5
+    adc     rsi, qword [rdx+40]         ; rsi = a5+b5
     sbb     rax, rax                        ; rax = carry
     add     rbx, rbx
-    adc     r8, qword ptr [rcx]             ; r8  = a0+b0+c0 = s0
-    mov     qword ptr [rdi], r8             ; save s0
-    adc     r9, qword ptr [rcx+8]           ; r9  = a1+b1+c1 = s1
-    mov     qword ptr [rdi+8], r9           ; save s1
-    adc     r10, qword ptr [rcx+16]         ; r10 = a2+b2+c2 = s2
-    mov     qword ptr [rdi+16], r10         ; save s2
-    adc     r11, qword ptr [rcx+24]         ; r11 = a3+b3+c3 = s3
-    mov     qword ptr [rdi+24], r11         ; save s3
-    adc     r12, qword ptr [rcx+32]         ; r12 = a4+b4+c4 = s4
-    mov     qword ptr [rdi+32], r12         ; save s4
-    adc     rsi, qword ptr [rcx+40]         ; rsi = a5+b5+c5 = s5
-    mov     qword ptr [rdi+40], rsi         ; save s5
+    adc     r8, qword [rcx]             ; r8  = a0+b0+c0 = s0
+    mov     qword [rdi], r8             ; save s0
+    adc     r9, qword [rcx+8]           ; r9  = a1+b1+c1 = s1
+    mov     qword [rdi+8], r9           ; save s1
+    adc     r10, qword [rcx+16]         ; r10 = a2+b2+c2 = s2
+    mov     qword [rdi+16], r10         ; save s2
+    adc     r11, qword [rcx+24]         ; r11 = a3+b3+c3 = s3
+    mov     qword [rdi+24], r11         ; save s3
+    adc     r12, qword [rcx+32]         ; r12 = a4+b4+c4 = s4
+    mov     qword [rdi+32], r12         ; save s4
+    adc     rsi, qword [rcx+40]         ; rsi = a5+b5+c5 = s5
+    mov     qword [rdi+40], rsi         ; save s5
     sbb     rbx, rbx                        ; rax = carry
-    jmp     FINAL
+    jmp     .FINAL
 
 ;********** lenSrcA == 6 END *********************************
 
-ADD_GT6:
+.ADD_GT6:
     cmp     r8, 8
-    jge     ADD_GE8
+    jge     .ADD_GE8
 
-ADD_EQ7:
+.ADD_EQ7:
 ;********** lenSrcA == 7 *************************************
     add     rax, rax
-    mov     r8, qword ptr [rsi]             ; r8  = a0
-    adc     r8, qword ptr [rdx]             ; r8  = a0+b0 = s0
-    mov     r9, qword ptr [rsi+8]           ; r9  = a1
-    adc     r9, qword ptr [rdx+8]           ; r9  = a1+b1 = s1
-    mov     r10, qword ptr [rsi+16]         ; r10 = a2
-    adc     r10, qword ptr [rdx+16]         ; r10 = a2+b2 = s2
-    mov     r11, qword ptr [rsi+24]         ; r11 = a3
-    adc     r11, qword ptr [rdx+24]         ; r11 = a3+b3 = s3
-    mov     r12, qword ptr [rsi+32]         ; r12 = a4
-    adc     r12, qword ptr [rdx+32]         ; r12 = a4+b4 = s4
-    mov     r13, qword ptr [rsi+40]         ; r13 = a5
-    adc     r13, qword ptr [rdx+40]         ; r13 = a5+b5 = s5
-    mov     rsi, qword ptr [rsi+48]         ; rsi = a6
-    adc     rsi, qword ptr [rdx+48]         ; rsi = a6+b6 = s6
+    mov     r8, qword [rsi]             ; r8  = a0
+    adc     r8, qword [rdx]             ; r8  = a0+b0 = s0
+    mov     r9, qword [rsi+8]           ; r9  = a1
+    adc     r9, qword [rdx+8]           ; r9  = a1+b1 = s1
+    mov     r10, qword [rsi+16]         ; r10 = a2
+    adc     r10, qword [rdx+16]         ; r10 = a2+b2 = s2
+    mov     r11, qword [rsi+24]         ; r11 = a3
+    adc     r11, qword [rdx+24]         ; r11 = a3+b3 = s3
+    mov     r12, qword [rsi+32]         ; r12 = a4
+    adc     r12, qword [rdx+32]         ; r12 = a4+b4 = s4
+    mov     r13, qword [rsi+40]         ; r13 = a5
+    adc     r13, qword [rdx+40]         ; r13 = a5+b5 = s5
+    mov     rsi, qword [rsi+48]         ; rsi = a6
+    adc     rsi, qword [rdx+48]         ; rsi = a6+b6 = s6
     sbb     rax, rax                        ; rax = carry
     add     rbx, rbx
-    adc     r8, qword ptr [rcx]             ; r8  = a0+b0+c0 = s0
-    mov     qword ptr [rdi], r8             ; save s0
-    adc     r9, qword ptr [rcx+8]           ; r9  = a1+b1+c1 = s1
-    mov     qword ptr [rdi+8], r9           ; save s1
-    adc     r10, qword ptr [rcx+16]         ; r10 = a2+b2+c2 = s2
-    mov     qword ptr [rdi+16], r10         ; save s2
-    adc     r11, qword ptr [rcx+24]         ; r11 = a3+b3+c3 = s3
-    mov     qword ptr [rdi+24], r11         ; save s3
-    adc     r12, qword ptr [rcx+32]         ; r12 = a4+b4+c4 = s4
-    mov     qword ptr [rdi+32], r12         ; save s4
-    adc     r13, qword ptr [rcx+40]         ; r13 = a5+b5+c5 = s5
-    mov     qword ptr [rdi+40], r13         ; save s5
-    adc     rsi, qword ptr [rcx+48]         ; rsi = a6+b6+c6 = s6
-    mov     qword ptr [rdi+48], rsi         ; save s6
+    adc     r8, qword [rcx]             ; r8  = a0+b0+c0 = s0
+    mov     qword [rdi], r8             ; save s0
+    adc     r9, qword [rcx+8]           ; r9  = a1+b1+c1 = s1
+    mov     qword [rdi+8], r9           ; save s1
+    adc     r10, qword [rcx+16]         ; r10 = a2+b2+c2 = s2
+    mov     qword [rdi+16], r10         ; save s2
+    adc     r11, qword [rcx+24]         ; r11 = a3+b3+c3 = s3
+    mov     qword [rdi+24], r11         ; save s3
+    adc     r12, qword [rcx+32]         ; r12 = a4+b4+c4 = s4
+    mov     qword [rdi+32], r12         ; save s4
+    adc     r13, qword [rcx+40]         ; r13 = a5+b5+c5 = s5
+    mov     qword [rdi+40], r13         ; save s5
+    adc     rsi, qword [rcx+48]         ; rsi = a6+b6+c6 = s6
+    mov     qword [rdi+48], rsi         ; save s6
     sbb     rbx, rbx                        ; rax = carry
-    jmp     FINAL
+    jmp     .FINAL
 
 ;********** lenSrcA == 7 END *********************************
 
 
-ADD_GE8:
-    jg       ADD_GT8
+.ADD_GE8:
+    jg       .ADD_GT8
 
 ;********** lenSrcA == 8 *************************************
     add     rax, rax
-    mov     r8, qword ptr [rsi]             ; r8  = a0
-    adc     r8, qword ptr [rdx]             ; r8  = a0+b0 = s0
-    mov     r9, qword ptr [rsi+8]           ; r9  = a1
-    adc     r9, qword ptr [rdx+8]           ; r9  = a1+b1 = s1
-    mov     r10, qword ptr [rsi+16]         ; r10 = a2
-    adc     r10, qword ptr [rdx+16]         ; r10 = a2+b2 = s2
-    mov     r11, qword ptr [rsi+24]         ; r11 = a3
-    adc     r11, qword ptr [rdx+24]         ; r11 = a3+b3 = s3
-    mov     r12, qword ptr [rsi+32]         ; r12 = a4
-    adc     r12, qword ptr [rdx+32]         ; r12 = a4+b4 = s4
-    mov     r13, qword ptr [rsi+40]         ; r13 = a5
-    adc     r13, qword ptr [rdx+40]         ; r13 = a5+b5 = s5
-    mov     r14, qword ptr [rsi+48]         ; r14 = a6
-    adc     r14, qword ptr [rdx+48]         ; r14 = a6+b6 = s6
-    mov     rsi, qword ptr [rsi+56]         ; rsi = a7
-    adc     rsi, qword ptr [rdx+56]         ; rsi = a7+b7 = s7
+    mov     r8, qword [rsi]             ; r8  = a0
+    adc     r8, qword [rdx]             ; r8  = a0+b0 = s0
+    mov     r9, qword [rsi+8]           ; r9  = a1
+    adc     r9, qword [rdx+8]           ; r9  = a1+b1 = s1
+    mov     r10, qword [rsi+16]         ; r10 = a2
+    adc     r10, qword [rdx+16]         ; r10 = a2+b2 = s2
+    mov     r11, qword [rsi+24]         ; r11 = a3
+    adc     r11, qword [rdx+24]         ; r11 = a3+b3 = s3
+    mov     r12, qword [rsi+32]         ; r12 = a4
+    adc     r12, qword [rdx+32]         ; r12 = a4+b4 = s4
+    mov     r13, qword [rsi+40]         ; r13 = a5
+    adc     r13, qword [rdx+40]         ; r13 = a5+b5 = s5
+    mov     r14, qword [rsi+48]         ; r14 = a6
+    adc     r14, qword [rdx+48]         ; r14 = a6+b6 = s6
+    mov     rsi, qword [rsi+56]         ; rsi = a7
+    adc     rsi, qword [rdx+56]         ; rsi = a7+b7 = s7
     sbb     rax, rax                        ; rax = carry
     add     rbx, rbx
-    adc     r8, qword ptr [rcx]             ; r8  = a0+b0+c0 = s0
-    mov     qword ptr [rdi], r8             ; save s0
-    adc     r9, qword ptr [rcx+8]           ; r9  = a1+b1+c1 = s1
-    mov     qword ptr [rdi+8], r9           ; save s1
-    adc     r10, qword ptr [rcx+16]         ; r10 = a2+b2+c2 = s2
-    mov     qword ptr [rdi+16], r10         ; save s2
-    adc     r11, qword ptr [rcx+24]         ; r11 = a3+b3+c3 = s3
-    mov     qword ptr [rdi+24], r11         ; save s3
-    adc     r12, qword ptr [rcx+32]         ; r12 = a4+b4+c4 = s4
-    mov     qword ptr [rdi+32], r12         ; save s4
-    adc     r13, qword ptr [rcx+40]         ; r13 = a5+b5+c5 = s5
-    mov     qword ptr [rdi+40], r13         ; save s5
-    adc     r14, qword ptr [rcx+48]         ; r14 = a6+b6+c6 = s6
-    mov     qword ptr [rdi+48], r14         ; save s6
-    adc     rsi, qword ptr [rcx+56]         ; rsi = a7+b7+c7 = s7
-    mov     qword ptr [rdi+56], rsi         ; save s7
+    adc     r8, qword [rcx]             ; r8  = a0+b0+c0 = s0
+    mov     qword [rdi], r8             ; save s0
+    adc     r9, qword [rcx+8]           ; r9  = a1+b1+c1 = s1
+    mov     qword [rdi+8], r9           ; save s1
+    adc     r10, qword [rcx+16]         ; r10 = a2+b2+c2 = s2
+    mov     qword [rdi+16], r10         ; save s2
+    adc     r11, qword [rcx+24]         ; r11 = a3+b3+c3 = s3
+    mov     qword [rdi+24], r11         ; save s3
+    adc     r12, qword [rcx+32]         ; r12 = a4+b4+c4 = s4
+    mov     qword [rdi+32], r12         ; save s4
+    adc     r13, qword [rcx+40]         ; r13 = a5+b5+c5 = s5
+    mov     qword [rdi+40], r13         ; save s5
+    adc     r14, qword [rcx+48]         ; r14 = a6+b6+c6 = s6
+    mov     qword [rdi+48], r14         ; save s6
+    adc     rsi, qword [rcx+56]         ; rsi = a7+b7+c7 = s7
+    mov     qword [rdi+56], rsi         ; save s7
     sbb     rbx, rbx                        ; rax = carry
-    jmp     FINAL
+    jmp     .FINAL
 
 ;********** lenSrcA == 8 END *********************************
 
 
 ;********** lenSrcA > 8  *************************************
 
-ADD_GT8:
+.ADD_GT8:
     mov     rbp, rcx    ; pC
     mov     rcx, r8     ; length
     and     r8, 3       ; length%4
@@ -341,80 +341,79 @@ ADD_GT8:
     lea     rbp, [rbp+rcx*sizeof(qword)]
     lea     rdi, [rdi+rcx*sizeof(qword)]
     neg     rcx
-    jmp     ADD_GLOOP
+    jmp     .ADD_GLOOP
 
-ALIGN IPP_ALIGN_FACTOR
-ADD_GLOOP:
+align IPP_ALIGN_FACTOR
+.ADD_GLOOP:
     add     rax, rax
-    mov     r9,  qword ptr [rsi+sizeof(qword)*rcx]                   ; r8  = a0
-    mov     r10, qword ptr [rsi+sizeof(qword)*rcx+sizeof(qword)]     ; r9  = a1
-    mov     r11, qword ptr [rsi+sizeof(qword)*rcx+sizeof(qword)*2]   ; r10 = a2
-    mov     r12, qword ptr [rsi+sizeof(qword)*rcx+sizeof(qword)*3]   ; r11 = a3
-    adc     r9,  qword ptr [rdx+sizeof(qword)*rcx]                   ; r8  = a0+b0
-    adc     r10, qword ptr [rdx+sizeof(qword)*rcx+sizeof(qword)]     ; r9  = a1+b1
-    adc     r11, qword ptr [rdx+sizeof(qword)*rcx+sizeof(qword)*2]   ; r10 = a2+b2
-    adc     r12, qword ptr [rdx+sizeof(qword)*rcx+sizeof(qword)*3]   ; r11 = a3+b3
+    mov     r9,  qword [rsi+sizeof(qword)*rcx]                   ; r8  = a0
+    mov     r10, qword [rsi+sizeof(qword)*rcx+sizeof(qword)]     ; r9  = a1
+    mov     r11, qword [rsi+sizeof(qword)*rcx+sizeof(qword)*2]   ; r10 = a2
+    mov     r12, qword [rsi+sizeof(qword)*rcx+sizeof(qword)*3]   ; r11 = a3
+    adc     r9,  qword [rdx+sizeof(qword)*rcx]                   ; r8  = a0+b0
+    adc     r10, qword [rdx+sizeof(qword)*rcx+sizeof(qword)]     ; r9  = a1+b1
+    adc     r11, qword [rdx+sizeof(qword)*rcx+sizeof(qword)*2]   ; r10 = a2+b2
+    adc     r12, qword [rdx+sizeof(qword)*rcx+sizeof(qword)*3]   ; r11 = a3+b3
     sbb     rax, rax                        ; al  = c0 new
     add     rbx, rbx                        ;
-    adc     r9,  qword ptr [rbp+sizeof(qword)*rcx]                   ; r8  = a0+b0+c0
-    mov     qword ptr [rdi+sizeof(qword)*rcx], r9                    ;
-    adc     r10, qword ptr [rbp+sizeof(qword)*rcx+sizeof(qword)]     ; r9  = a1+b1+c1
-    mov     qword ptr [rdi+sizeof(qword)*rcx+sizeof(qword)], r10     ;
-    adc     r11, qword ptr [rbp+sizeof(qword)*rcx+sizeof(qword)*2]   ; r10 = a2+b2+c2
-    mov     qword ptr [rdi+sizeof(qword)*rcx+sizeof(qword)*2], r11   ;
-    adc     r12, qword ptr [rbp+sizeof(qword)*rcx+sizeof(qword)*3]   ; r11 = a3+b3+c3
-    mov     qword ptr [rdi+sizeof(qword)*rcx+sizeof(qword)*3], r12   ;
+    adc     r9,  qword [rbp+sizeof(qword)*rcx]                   ; r8  = a0+b0+c0
+    mov     qword [rdi+sizeof(qword)*rcx], r9                    ;
+    adc     r10, qword [rbp+sizeof(qword)*rcx+sizeof(qword)]     ; r9  = a1+b1+c1
+    mov     qword [rdi+sizeof(qword)*rcx+sizeof(qword)], r10     ;
+    adc     r11, qword [rbp+sizeof(qword)*rcx+sizeof(qword)*2]   ; r10 = a2+b2+c2
+    mov     qword [rdi+sizeof(qword)*rcx+sizeof(qword)*2], r11   ;
+    adc     r12, qword [rbp+sizeof(qword)*rcx+sizeof(qword)*3]   ; r11 = a3+b3+c3
+    mov     qword [rdi+sizeof(qword)*rcx+sizeof(qword)*3], r12   ;
     sbb     rbx, rbx
     lea     rcx, [rcx+4]
-    jrcxz   EXIT_LOOP
-    jmp     ADD_GLOOP
+    jrcxz   .EXIT_LOOP
+    jmp     .ADD_GLOOP
 
-EXIT_LOOP:
+.EXIT_LOOP:
     test    r8, r8
-    jz      FINAL
+    jz      .FINAL
 
-ADD_LAST2:
+.ADD_LAST2:
     test    r8, 2
-    jz      ADD_LAST1
+    jz      .ADD_LAST1
 
     add     rax, rax
-    mov     r9,  qword ptr [rsi]                ; r8  = a0
-    mov     r10, qword ptr [rsi+sizeof(qword)]  ; r9  = a1
+    mov     r9,  qword [rsi]                ; r8  = a0
+    mov     r10, qword [rsi+sizeof(qword)]  ; r9  = a1
     lea     rsi, [rsi+sizeof(qword)*2]
-    adc     r9,  qword ptr [rdx]                ; r8  = a0+b0
-    adc     r10, qword ptr [rdx+sizeof(qword)]  ; r9  = a1+b1
+    adc     r9,  qword [rdx]                ; r8  = a0+b0
+    adc     r10, qword [rdx+sizeof(qword)]  ; r9  = a1+b1
     lea     rdx, [rdx+sizeof(qword)*2]
     sbb     rax, rax
     add     rbx, rbx
-    adc     r9,  qword ptr [rbp]                ; r8  = a0+b0+c0
-    mov     qword ptr [rdi], r9                 ;
-    adc     r10, qword ptr [rbp+sizeof(qword)]  ; r9  = a1+b1+c1
-    mov     qword ptr [rdi+sizeof(qword)], r10  ;
+    adc     r9,  qword [rbp]                ; r8  = a0+b0+c0
+    mov     qword [rdi], r9                 ;
+    adc     r10, qword [rbp+sizeof(qword)]  ; r9  = a1+b1+c1
+    mov     qword [rdi+sizeof(qword)], r10  ;
     lea     rbp, [rbp+sizeof(qword)*2]
     lea     rdi, [rdi+sizeof(qword)*2]
     sbb     rbx, rbx
     test    r8, 1
-    jz      FINAL
+    jz      .FINAL
 
-ADD_LAST1:
+.ADD_LAST1:
     add     rax, rax
-    mov     r9, qword ptr [rsi]        ; r8  = a0
-    adc     r9, qword ptr [rdx]        ; r8  = a0+b0
+    mov     r9, qword [rsi]        ; r8  = a0
+    adc     r9, qword [rdx]        ; r8  = a0+b0
     sbb     rax, rax                   ;
     add     rbx, rbx
-    adc     r9, qword ptr [rbp]        ; r8  = a0+b0+c0 = s0
-    mov     qword ptr [rdi], r9
+    adc     r9, qword [rbp]        ; r8  = a0+b0+c0 = s0
+    mov     qword [rdi], r9
     sbb     rbx, rbx
 
-;******************* FINAL ***********************************************************
-FINAL:
+;******************* .FINAL ***********************************************************
+.FINAL:
     add     rax, rbx
     neg     rax
     REST_XMM
     REST_GPR
     ret
-IPPASM cpAddAdd_BNU ENDP
+ENDFUNC cpAddAdd_BNU
 
-ENDIF    ;; _IPP32E_M7
-ENDIF    ;; _ENABLE_KARATSUBA_
-END
+%endif   ;; _IPP32E_M7
+%endif   ;; _ENABLE_KARATSUBA_

@@ -55,11 +55,7 @@
 #include "pcphash.h"
 #include "pcptool.h"
 
-#if !defined(_ENABLE_ALG_SHA512_) && !defined(_ENABLE_ALG_SHA_SHA384_) && !defined(_ENABLE_ALG_SHA512_224_) && !defined(_ENABLE_ALG_SHA512_256_)
-#pragma message("IPP_ALG_HASH_SHA512 disabled")
-
-#else
-#pragma message("IPP_ALG_HASH_SHA512 enabled")
+#if defined(_ENABLE_ALG_SHA512_) || defined(_ENABLE_ALG_SHA_SHA384_) || defined(_ENABLE_ALG_SHA512_224_) || defined(_ENABLE_ALG_SHA512_256_)
 
 #if !((_IPP==_IPP_W7) || (_IPP==_IPP_T7) || \
       (_IPP==_IPP_V8) || (_IPP==_IPP_P8) || \
@@ -119,7 +115,6 @@
 //
 *F*/
 #if defined(_ALG_SHA512_COMPACT_)
-#pragma message("SHA512 compact")
 
 void UpdateSHA512(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniPraram)
 {

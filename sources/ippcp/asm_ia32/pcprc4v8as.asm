@@ -38,25 +38,25 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               ARCFour
-; 
+;
 ;     Content:
 ;        ARCFourKernel()
-; 
 ;
-.686P
-.XMM
-.MODEL FLAT,C
+;
 
-INCLUDE asmdefs.inc
-include ia_emm.inc
 
-IF _IPP GE _IPP_V8
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+%if (_IPP >= _IPP_V8)
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
 ;***************************************************************
@@ -73,13 +73,14 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;; Caller = ippsARCFourEncrypt
 ;; Caller = ippsARCFourDecrypt
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM ARCFourProcessData PROC NEAR C PUBLIC \
-   USES  esi edi ebx ebp,\
-   pSrc:    PTR BYTE,\
-   pDst:    PTR BYTE,\
-   len:     DWORD,\
-   pCtx:    PTR BYTE
+align IPP_ALIGN_FACTOR
+IPPASM ARCFourProcessData,PUBLIC
+  USES_GPR esi,edi,ebx,ebp
+
+%xdefine pSrc [esp + ARG_1 + 0*sizeof(dword)]
+%xdefine pDst [esp + ARG_1 + 1*sizeof(dword)]
+%xdefine len  [esp + ARG_1 + 2*sizeof(dword)]
+%xdefine pCtx [esp + ARG_1 + 3*sizeof(dword)]
 
    mov      edx, len    ; data length
    mov      esi, pSrc   ; source data
@@ -87,16 +88,16 @@ IPPASM ARCFourProcessData PROC NEAR C PUBLIC \
    mov      ebp, pCtx   ; context
 
    test     edx, edx    ; test length
-   jz       quit
+   jz       .quit
 
-   mov      eax, dword ptr[ebp+4] ; extract x
-   mov      ebx, dword ptr[ebp+8] ; extract y
+   mov      eax, dword [ebp+4] ; extract x
+   mov      ebx, dword [ebp+8] ; extract y
 
    lea      ebp, [ebp+12]        ; sbox
 
    add      eax,1                      ; x = (x+1)&0xFF
    and      eax, 0FFh
-   mov      ecx, dword ptr [ebp+eax*4] ; tx = S[x]
+   mov      ecx, dword [ebp+eax*4] ; tx = S[x]
 
    lea      edx, [esi+edx]             ; store stop data address
    push     edx
@@ -104,41 +105,42 @@ IPPASM ARCFourProcessData PROC NEAR C PUBLIC \
 ;;
 ;; main code
 ;;
-ALIGN IPP_ALIGN_FACTOR
-main_loop:
+align IPP_ALIGN_FACTOR
+.main_loop:
    add      ebx, ecx                   ; y = (x+tx)&0xFF
    movzx    ebx, bl
-   mov      edx, dword ptr [ebp+ebx*4] ; ty = S[y]
+   mov      edx, dword [ebp+ebx*4] ; ty = S[y]
 
-   mov      dword ptr [ebp+ebx*4],ecx  ; S[y] = tx
+   mov      dword [ebp+ebx*4],ecx  ; S[y] = tx
    add      ecx, edx                   ; tmp_idx = (tx+ty)&0xFF
    movzx    ecx, cl
-   mov      dword ptr [ebp+eax*4],edx  ; S[x] = ty
+   mov      dword [ebp+eax*4],edx  ; S[x] = ty
 
    add      eax, 1                     ; next x = (x+1)&0xFF
-   mov      dl, byte ptr [ebp+ecx*4]   ; byte of gamma
+   mov      dl, byte [ebp+ecx*4]   ; byte of gamma
 
    movzx    eax, al
 
-   xor      dl,byte ptr [esi]          ; gamma ^= src
+   xor      dl,byte [esi]          ; gamma ^= src
    add      esi, 1
-   mov      ecx, dword ptr [ebp+eax*4] ; next tx = S[x]
-   mov      byte ptr [edi],dl          ; store result
+   mov      ecx, dword [ebp+eax*4] ; next tx = S[x]
+   mov      byte [edi],dl          ; store result
    add      edi, 1
-   cmp      esi, dword ptr [esp]
-   jb       main_loop
+   cmp      esi, dword [esp]
+   jb       .main_loop
 
    lea      ebp, [ebp-12]           ; pointer to context
    pop      edx                     ; remove local variable
 
    dec      eax                     ; actual new x counter
    and      eax, 0FFh
-   mov      dword ptr[ebp+4], eax   ; update x conter
-   mov      dword ptr[ebp+8], ebx   ; updtae y counter
+   mov      dword [ebp+4], eax   ; update x conter
+   mov      dword [ebp+8], ebx   ; updtae y counter
 
-quit:
+.quit:
+   REST_GPR
    ret
-IPPASM ARCFourProcessData ENDP
+ENDFUNC ARCFourProcessData
 
-ENDIF
-END
+%endif
+

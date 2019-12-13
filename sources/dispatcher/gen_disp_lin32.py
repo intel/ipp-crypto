@@ -47,7 +47,7 @@ import sys
 import os
 import hashlib
 
-Header   = sys.argv[1]    ## Intel(R) IPP Crypto dispatcher will be generated for fucntions in Header 
+Header   = sys.argv[1]    ## Intel(R) IPP Crypto dispatcher will be generated for fucntions in Header
 OutDir   = sys.argv[2]    ## Output folder for generated files
 cpulist  = sys.argv[3]    ## Actual CPU list: semicolon separated string
 compiler = sys.argv[4]
@@ -90,37 +90,43 @@ if(compiler == "GNU"):
                   ## create dispatcher files ASM
                   ##################################################
                   ASMDISP= open( os.sep.join([OutDir, "jmp_" + FunName+"_" + hashlib.sha512(FunName.encode('utf-8')).hexdigest()[:8] +".asm"]), 'w' )
+
+                  for cpu in cpulist:
+                      ASMDISP.write("extern "+cpu+"_"+FunName+":function\n")
+
+                  ASMDISP.write("extern ippcpJumpIndexForMergedLibs\n")
+                  ASMDISP.write("extern ippcpInit:function\n\n")
+
                   ASMDISP.write("""
-.data
-.align 4
-.long  .Lin_{FunName}
+segment .data
+align 4
+dd  .Lin_{FunName}
 .Larraddr_{FunName}:
 """.format(FunName=FunName))
 
                   for cpu in cpulist:
-                        ASMDISP.write("    .long "+cpu+"_"+FunName+"\n")
+                        ASMDISP.write("    dd "+cpu+"_"+FunName+"\n")
 
                   ASMDISP.write("""
 
-.text
-.globl {FunName}
+segment .text
+extern _GLOBAL_OFFSET_TABLE_
+global {FunName}:function ({FunName}.LEnd{FunName} - {FunName})
 .Lin_{FunName}:
-    push %ebx
-    mov %eax, %ebx
-    call  ippcpInit@PLT
-    pop %ebx
-    .align 16
+    push ebx
+    mov ebx, eax
+    call  ippcpInit wrt ..plt
+    pop ebx
+    align 16
 {FunName}:
     call .L1
 .L1:
-      popl  %eax
-      add   $_GLOBAL_OFFSET_TABLE_ - .L1, %eax
-      movl  ippcpJumpIndexForMergedLibs@GOT(%eax), %edx
-      mov   (%edx), %edx
-      jmp   *.Larraddr_{FunName}@GOTOFF(%eax,%edx,4)
-
-.type {FunName},@function
-.size {FunName},.-{FunName}
+      pop   eax
+      add   eax, _GLOBAL_OFFSET_TABLE_ + $$ - .L1 wrt ..gotpc
+      mov   edx, [eax + ippcpJumpIndexForMergedLibs wrt ..got]
+      mov   edx, [edx]
+      jmp   dword [eax + edx*4 + .Larraddr_{FunName} wrt ..gotoff]
+.LEnd{FunName}:
 """.format(FunName=FunName))
             ASMDISP.close()
 else:

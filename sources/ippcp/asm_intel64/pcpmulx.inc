@@ -38,30 +38,39 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  EM64T Cryptography Primitive.
 ;               Emulation of Intel(R) instructions MULX, ADCX, ADOX (for debug only)
-; 
 ;
-IFNDEF _PCPMULX_INC_
-_PCPMULX_INC_ = 1
+;
+%ifndef _PCPMULX_INC_
+%assign _PCPMULX_INC_  1
 
-IFNDEF _EMULATION_
-gsmulx MACRO resH,resL,src
-   mulx  resH,resL,src
-ENDM
-ENDIF
+%ifndef _EMULATION_
+%macro gsmulx 3.nolist
+  %xdefine %%resH %1
+  %xdefine %%resL %2
+  %xdefine %%src %3
 
-IFDEF _EMULATION_
-gsmulx MACRO resH,resL,src
+   mulx  %%resH,%%resL,%%src
+%endmacro
+
+%endif
+
+%ifdef _EMULATION_
+%macro gsmulx 3.nolist
+  %xdefine %%resH %1
+  %xdefine %%resL %2
+  %xdefine %%src %3
+
    pushf                            ;; store flags
 
    sub   rsp, sizeof(qword)*4
    mov   [rsp-sizeof(qword)*3], rax ;; store RAX
    mov   [rsp-sizeof(qword)*2], rdx ;; store RDX
    mov   rax,rdx
-   mov   rdx, src
+   mov   rdx, %%src
 
    mul   rdx
 
@@ -70,50 +79,66 @@ gsmulx MACRO resH,resL,src
 
    mov   rax, [rsp-sizeof(qword)*3] ;; re-store RAX
    mov   rdx, [rsp-sizeof(qword)*2] ;; re-store RDX
-   mov   resL, [rsp-sizeof(qword)*1];; load Low product
-   mov   resH, [rsp-sizeof(qword)*0];; load Hig product
+   mov   %%resL, [rsp-sizeof(qword)*1];; load Low product
+   mov   %%resH, [rsp-sizeof(qword)*0];; load Hig product
    add   rsp, sizeof(qword)*4
 
    popf                             ;; re-store flags
-ENDM
-ENDIF
+%endmacro
 
-IFNDEF _EMULATION_
-gsadcx MACRO rdst,rsrc
-   adcx     rdst, rsrc
-ENDM
-ENDIF
+%endif
 
-IFDEF _EMULATION_
-gsadcx MACRO rdst,src
-   push  rdst        ;; slot for result
+%ifndef _EMULATION_
+%macro gsadcx 2.nolist
+  %xdefine %%rdst %1
+  %xdefine %%rsrc %2
+
+   adcx     %%rdst, %%rsrc
+%endmacro
+
+%endif
+
+%ifdef _EMULATION_
+%macro gsadcx 2.nolist
+  %xdefine %%rdst %1
+  %xdefine %%src %2
+
+   push  %%rdst      ;; slot for result
    push  rax         ;; save rax
    pushfq            ;; flags before adc
 
-   adc   rdst, src
-   mov   [rsp+2*sizeof(qword)], rdst
+   adc   %%rdst, %%src
+   mov   [rsp+2*sizeof(qword)], %%rdst
 
    pushfq            ;; rsrc = flags after operation
    pop   rax
    and   rax, 1      ;; cf after operation
-   and   qword ptr[rsp], (-2)   ;; clear cf before operation
+   and   qword [rsp], (-2)   ;; clear cf before operation
    or    [rsp], rax  ;; new psw
    popfq
 
    pop   rax
-   pop   rdst
-ENDM
-ENDIF
+   pop   %%rdst
+%endmacro
 
-IFNDEF _EMULATION_
-gsadox MACRO rdst,rsrc
-   adox     rdst, rsrc
-ENDM
-ENDIF
+%endif
 
-IFDEF _EMULATION_
-gsadox MACRO rdst,src
-   push  rdst
+%ifndef _EMULATION_
+%macro gsadox 2.nolist
+  %xdefine %%rdst %1
+  %xdefine %%rsrc %2
+
+   adox     %%rdst, %%rsrc
+%endmacro
+
+%endif
+
+%ifdef _EMULATION_
+%macro gsadox 2.nolist
+  %xdefine %%rdst %1
+  %xdefine %%src %2
+
+   push  %%rdst
    push  rax         ;; save rax
 
    pushfq            ;; rax = flags before adc
@@ -125,15 +150,15 @@ gsadox MACRO rdst,src
    push  rax         ;; new psw
    popfq
 
-IFIDNI <src>,<rax>
+%ifidni %%src,rax
    mov   rax, [rsp+sizeof(qword)]
-ENDIF
-IFIDNI <rdst>,<rax>
-   mov   rdst, [rsp+2*sizeof(qword)]
-ENDIF
+%endif
+%ifidni %%rdst,rax
+   mov   %%rdst, [rsp+2*sizeof(qword)]
+%endif
 
-   adc   rdst, src
-   mov   [rsp+2*sizeof(qword)], rdst
+   adc   %%rdst, %%src
+   mov   [rsp+2*sizeof(qword)], %%rdst
 
    pushfq            ;; rsrc = flags after operation
    pop   rax
@@ -144,8 +169,9 @@ ENDIF
    popfq
 
    pop   rax
-   pop   rdst
-ENDM
-ENDIF
+   pop   %%rdst
+%endmacro
 
-ENDIF ;; _PCPMULX_INC_
+%endif
+
+%endif ;; _PCPMULX_INC_

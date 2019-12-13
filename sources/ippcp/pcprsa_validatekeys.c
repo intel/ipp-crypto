@@ -351,8 +351,7 @@ IPPFUN(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
          }
 
          /* test if 1==(Q*Qinv) mod P */
-         MOD_METHOD(pMontP)->decode(pTmp, pInvQ, pMontP);
-         cpMul_BNU_school(pFreeBuffer, pTmp, nsP, pFactorQ,nsQ);
+         cpMul_BNU_school(pFreeBuffer, pInvQ, nsP, pFactorQ,nsQ);
          cpMod_BNU(pFreeBuffer, nsP+nsQ, pFactorP, nsP);
          if(!cpEqu_BNU_CHUNK(pFreeBuffer, nsP, 1)) {
             ret = IPP_IS_INVALID;

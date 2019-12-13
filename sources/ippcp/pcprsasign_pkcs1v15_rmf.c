@@ -59,6 +59,7 @@
 
 #include "pcprsa_pkcs1c15_data.h"
 #include "pcprsa_generatesing_pkcs1v15.h"
+#include "pcprsa_pkcs1v15_preproc.h"
 
 IPPFUN(IppStatus, ippsRSASign_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
                                                   Ipp8u* pSign,
@@ -67,29 +68,12 @@ IPPFUN(IppStatus, ippsRSASign_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
                                             const IppsHashMethod* pMethod,
                                                   Ipp8u* pScratchBuffer))
 {
-   IppHashAlgId hashAlg;
+   const IppStatus preprocResult = SingleSignPkcs1v15RmfPreproc(pMsg, msgLen, pSign,
+      &pPrvKey, &pPubKey, pMethod, pScratchBuffer); // badargs and pointer alignments
 
-   /* test private key context */
-   IPP_BAD_PTR3_RET(pPrvKey, pScratchBuffer, pMethod);
-   pPrvKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pPrvKey, RSA_PRIVATE_KEY_ALIGNMENT) );
-   IPP_BADARG_RET(!RSA_PRV_KEY_VALID_ID(pPrvKey), ippStsContextMatchErr);
-   IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pPrvKey), ippStsIncompleteContextErr);
-
-   /* test hash algorith ID */
-   hashAlg = pMethod->hashAlgId;
-   IPP_BADARG_RET(ippHashAlg_SM3==hashAlg, ippStsNotSupportedModeErr);
-
-   /* use aligned public key context if defined */
-   if(pPubKey) {
-      pPubKey = (IppsRSAPublicKeyState*)( IPP_ALIGNED_PTR(pPubKey, RSA_PUBLIC_KEY_ALIGNMENT) );
-      IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(pPubKey), ippStsContextMatchErr);
-      IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(pPubKey), ippStsIncompleteContextErr);
+   if (ippStsNoErr != preprocResult) {
+      return preprocResult;
    }
-
-   /* test data pointer */
-   IPP_BAD_PTR2_RET(pMsg, pSign);
-   /* test length */
-   IPP_BADARG_RET(msgLen<0, ippStsLengthErr);
 
    {
       Ipp8u md[IPP_SHA512_DIGEST_BITSIZE/BYTESIZE];
@@ -97,8 +81,8 @@ IPPFUN(IppStatus, ippsRSASign_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
       ippsHashMessage_rmf(pMsg, msgLen, md, pMethod);
 
       {
-         const Ipp8u* pSalt = pksc15_salt[hashAlg].pSalt;
-         int saltLen = pksc15_salt[hashAlg].saltLen;
+         const Ipp8u* pSalt = pksc15_salt[pMethod->hashAlgId].pSalt;
+         int saltLen = pksc15_salt[pMethod->hashAlgId].saltLen;
 
          int sts = GenerateSing(md, mdLen,
                          pSalt, saltLen,

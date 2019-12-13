@@ -72,7 +72,9 @@ static int EMSA_PKCSv15(const Ipp8u* msgDg, int lenMsgDg,
         pEM[1] = 0x01;
         pEM[2 + psLen] = 0x00;
         CopyBlock(fixPS, pEM + 3 + psLen, lenFixPS);
-        CopyBlock(msgDg, pEM + 3 + psLen + lenFixPS, lenMsgDg);
+        if (msgDg) {
+           CopyBlock(msgDg, pEM + 3 + psLen + lenFixPS, lenMsgDg);
+        }
         return 1;
     }
     else

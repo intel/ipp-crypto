@@ -100,46 +100,61 @@ IPPFUN(IppStatus, ippsSMS4_CCMStart,(const Ipp8u* pIV, int ivLen,
       /* setup encoder function */
       IppsSMS4Spec* pSMS4 = SMS4CCM_CIPHER_ALIGNED(pCtx);
 
-      Ipp32u MAC[MBS_SMS4/sizeof(Ipp8u)];
-      Ipp32u CTR[MBS_SMS4/sizeof(Ipp8u)];
-      Ipp32u block[2*MBS_SMS4/sizeof(Ipp8u)];
+      __ALIGN16 Ipp32u TMP[4*(MBS_SMS4/sizeof(Ipp32u)) + 8];
+      /*
+         MAC          size = MBS_SMS4/sizeof(Ipp32u)
+         CTR          size = MBS_SMS4/sizeof(Ipp32u)
+         block        size = 2*MBS_SMS4/sizeof(Ipp32u)
+         qLen         size = 1
+         qLenEnc      size = 1
+         tagLenEnc    size = 1
+         payloadLen   size = 2
+         adLenEnc     size = 3
+      */
+
+      Ipp32u*          MAC = TMP;
+      Ipp32u*          CTR = TMP + (MBS_SMS4/sizeof(Ipp32u));
+      Ipp32u*        block = TMP + 2*(MBS_SMS4/sizeof(Ipp32u));
+      Ipp32u*         qLen = TMP + 4*(MBS_SMS4/sizeof(Ipp32u));
+      Ipp32u*      qLenEnc = TMP + 4*(MBS_SMS4/sizeof(Ipp32u)) + 1;
+      Ipp32u*    tagLenEnc = TMP + 4*(MBS_SMS4/sizeof(Ipp32u)) + 2;
+      Ipp32u*   payloadLen = TMP + 4*(MBS_SMS4/sizeof(Ipp32u)) + 3;
+      Ipp32u*     adLenEnc = TMP + 4*(MBS_SMS4/sizeof(Ipp32u)) + 5;
 
       /*
       // prepare the 1-st input block B0 and encode
       */
-      Ipp32u qLen = (Ipp32u)( (MBS_SMS4-1) - ivLen);
-      Ipp32u qLenEnc = qLen-1;
+      *qLen = (Ipp32u)( (MBS_SMS4-1) - ivLen);
+      *qLenEnc = *qLen-1;
 
-      Ipp32u tagLenEnc = (SMS4CCM_TAGLEN(pCtx)-2)>>1;
+      *tagLenEnc = (SMS4CCM_TAGLEN(pCtx)-2)>>1;
 
-      Ipp64u payloadLen = SMS4CCM_MSGLEN(pCtx);
+      *((Ipp64u*)payloadLen) = SMS4CCM_MSGLEN(pCtx);
 
-      ((Ipp8u*)MAC)[0] = (Ipp8u)( ((adLen!=0) <<6) + (tagLenEnc<<3) + qLenEnc); /* flags */
+      ((Ipp8u*)MAC)[0] = (Ipp8u)( ((adLen!=0) <<6) + (*tagLenEnc<<3) + *qLenEnc); /* flags */
       #if (IPP_ENDIAN == IPP_LITTLE_ENDIAN)
-      MAC[2] = ENDIANNESS(IPP_HIDWORD(payloadLen));
-      MAC[3] = ENDIANNESS(IPP_LODWORD(payloadLen));
+      MAC[2] = ENDIANNESS(IPP_HIDWORD(*((Ipp64u*)payloadLen)));
+      MAC[3] = ENDIANNESS(IPP_LODWORD(*((Ipp64u*)payloadLen)));
       #else
-      MAC[2] = IPP_HIDWORD(payloadLen);
-      MAC[3] = IPP_LODWORD(payloadLen);
+      MAC[2] = IPP_HIDWORD(*((Ipp64u*)payloadLen));
+      MAC[3] = IPP_LODWORD(*((Ipp64u*)payloadLen));
       #endif
       CopyBlock(pIV, ((Ipp8u*)MAC)+1, ivLen);
 
       /* setup CTR0 */
       FillBlock16(0, NULL,CTR, 0);
-      ((Ipp8u*)CTR)[0] = (Ipp8u)qLenEnc; /* flags */
+      ((Ipp8u*)CTR)[0] = (Ipp8u)(*qLenEnc); /* flags */
       CopyBlock(pIV, ((Ipp8u*)CTR)+1, ivLen);
       CopyBlock16(CTR, SMS4CCM_CTR0(pCtx));
 
       /* compute and store S0=ENC(CTR0) */
       cpSMS4_Cipher(SMS4CCM_S0(pCtx), (Ipp8u*)CTR, SMS4_RK(pSMS4));
 
-
       /*
       // update MAC by the AD
       */
       if(adLen) {
          /* encode length of associated data */
-         Ipp32u adLenEnc[3];
          Ipp8u* adLenEncPtr;
          int    adLenEncSize;
 
@@ -204,6 +219,9 @@ IPPFUN(IppStatus, ippsSMS4_CCMStart,(const Ipp8u* pIV, int ivLen,
 
       SMS4CCM_COUNTER(pCtx) = 0;
       CopyBlock16(MAC, SMS4CCM_MAC(pCtx));
+
+      /* clear secret data */
+      PurgeBlock(TMP, sizeof(TMP));
 
       return ippStsNoErr;
    }

@@ -38,16 +38,16 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Big Number macros
-; 
+;
 ;     Content:
 ;        COPY_BNU
 ;        CMP_BNU
 ;        FIX_BNU
-; 
+;
 ;        SUB_FIX_BNU
 ;        ADD_FIX_BNU
 ;
@@ -63,16 +63,21 @@
 ;; output
 ;;    flags
 ;;
-CMP_BNU MACRO rSrc1:REQ,rSrc2:REQ,rLen:REQ, tmp:REQ
-LOCAL cmp_loop,cmp_quit
-cmp_loop:
-   mov   tmp,[rSrc1+rLen*4-4]
-   cmp   tmp,[rSrc2+rLen*4-4]
-   jne   cmp_quit
-   sub   rLen,1
-   jg    cmp_loop
-cmp_quit:
-ENDM
+%macro CMP_BNU 4.nolist
+  %xdefine %%rSrc1 %1
+  %xdefine %%rSrc2 %2
+  %xdefine %%rLen %3
+  %xdefine %%tmp %4
+
+%%cmp_loop:
+   mov   %%tmp,[%%rSrc1+%%rLen*4-4]
+   cmp   %%tmp,[%%rSrc2+%%rLen*4-4]
+   jne   %%cmp_quit
+   sub   %%rLen,1
+   jg    %%cmp_loop
+%%cmp_quit:
+%endmacro
+
 
 ;;
 ;; SUB_FIX_BNU subtract fixed size BNUs
@@ -82,23 +87,28 @@ ENDM
 ;;    rSrc     points source BNU
 ;;    immLen   BNU size
 ;;
-SUB_FIX_BNU MACRO rVal:REQ,rSrc:REQ,immLen:REQ
-    pxor     mm0,mm0
-   i=0
-   repeat immLen
-   movd     mm1,DWORD PTR[rVal+i*4]
-   movd     mm2,DWORD PTR[rSrc+i*4]
-   if i ne 0
+%macro SUB_FIX_BNU 3.nolist
+  %xdefine %%rVal %1
+  %xdefine %%rSrc %2
+  %xdefine %%immLen %3
+
+   pxor     mm0,mm0
+   %assign %%i 0
+   %rep %%immLen
+   movd     mm1,DWORD [%%rVal+%%i*4]
+   movd     mm2,DWORD [%%rSrc+%%i*4]
+   %if %%i != 0
     paddq    mm1,mm0
-   endif
+   %endif
     psubq    mm1,mm2
-   movd     DWORD PTR[rVal+i*4],mm1
-   if i lt (immLen-1)
+   movd     DWORD [%%rVal+%%i*4],mm1
+   %if %%i < (%%immLen-1)
     pshufw   mm0,mm1,11111110b
-   endif
-   i=i+1
-   endm
-ENDM
+   %endif
+   %assign %%i %%i+1
+   %endrep
+%endmacro
+
 
 ;;
 ;; ADD_FIX_BNU add fixed size BNUs
@@ -108,37 +118,48 @@ ENDM
 ;;    rSrc     points source BNU
 ;;    immLen   BNU size
 ;;
-ADD_FIX_BNU MACRO rVal:REQ,rSrc:REQ,immLen:REQ
+%macro ADD_FIX_BNU 3.nolist
+  %xdefine %%rVal %1
+  %xdefine %%rSrc %2
+  %xdefine %%immLen %3
+
     pxor     mm0,mm0
-   i=0
-   repeat immLen
-   movd     mm1,DWORD PTR[rVal+i*4]
-   movd     mm2,DWORD PTR[rSrc+i*4]
-   if i ne 0
+  %assign %%i 0
+   %rep %%immLen
+   movd     mm1,DWORD [%%rVal+%%i*4]
+   movd     mm2,DWORD [%%rSrc+%%i*4]
+   %if %%i != 0
     paddq    mm1,mm0
-   endif
+   %endif
     paddq    mm1,mm2
-   movd     DWORD PTR[rVal+i*4],mm1
-   if i lt (immLen-1)
+   movd     DWORD [%%rVal+%%i*4],mm1
+   %if %%i < (%%immLen-1)
     pshufw   mm0,mm1,11111110b
-   endif
-   i=i+1
-   endm
-ENDM
+   %endif
+  %assign %%i %%i+1
+   %endrep
+%endmacro
+
 
 ;;
 ;; COPY_BNU copy arbitrary BNU
 ;;
-COPY_BNU MACRO rSrc:REQ, rDst:REQ, rLen:REQ, rIdx:REQ, rTmp:REQ
-LOCAL copy_bnu
-   xor      rIdx,rIdx
-copy_bnu:
-   mov      rTmp,[rSrc+rIdx*4]
-   mov      [rDst+rIdx*4],rTmp
-   add      rIdx,1
-   cmp      rIdx,rLen
-   jl       copy_bnu
-ENDM
+%macro COPY_BNU 5.nolist
+  %xdefine %%rSrc %1
+  %xdefine %%rDst %2
+  %xdefine %%rLen %3
+  %xdefine %%rIdx %4
+  %xdefine %%rTmp %5
+
+   xor      %%rIdx,%%rIdx
+%%copy_bnu:
+   mov      %%rTmp,[%%rSrc+%%rIdx*4]
+   mov      [%%rDst+%%rIdx*4],%%rTmp
+   add      %%rIdx,1
+   cmp      %%rIdx,%%rLen
+   jl       %%copy_bnu
+%endmacro
+
 
 ;;
 ;; FIX_BNU     returns actual length of BNU
@@ -150,186 +171,230 @@ ENDM
 ;; output
 ;;    rLen     actual BNU size
 ;;
-FIX_BNU MACRO rSrc,rLen, tmp
-LOCAL fix_bnu_loop,fix_bnu_quit
-fix_bnu_loop:
-   mov      tmp,[rSrc+rLen*4-4]     ;; value
-   test     tmp,tmp                 ;; test BNU component
-   jnz      fix_bnu_quit
-   sub      rLen,1
-   jg       fix_bnu_loop
-   add      rLen,1
-fix_bnu_quit:
-ENDM
+%macro FIX_BNU 3.nolist
+  %xdefine %%rSrc %1
+  %xdefine %%rLen %2
+  %xdefine %%tmp %3
+
+%%fix_bnu_loop:
+   mov      %%tmp,[%%rSrc+%%rLen*4-4]     ;; value
+   test     %%tmp,%%tmp                 ;; test BNU component
+   jnz      %%fix_bnu_quit
+   sub      %%rLen,1
+   jg       %%fix_bnu_loop
+   add      %%rLen,1
+%%fix_bnu_quit:
+%endmacro
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-MULADD_START MACRO i,j
-    movd mm1,DWORD PTR[eax + 4*j]
-    movd mm3,DWORD PTR[eax + 4*j]
+%macro MULADD_START 2.nolist
+  %xdefine %%i %1
+  %xdefine %%j %2
+
+    movd mm1,DWORD [eax + 4*%%j]
+    movd mm3,DWORD [eax + 4*%%j]
     pmuludq mm1,mm0
     paddq mm7,mm1
-    movd DWORD PTR[edx + 4*(i+j)],mm7
+    movd DWORD [edx + 4*(%%i+%%j)],mm7
     pand mm3,mm6
     psrlq mm7,32
     paddq mm7,mm3
-ENDM
+%endmacro
 
-MULADD MACRO i,j
-    movd mm1,DWORD PTR[eax + 4*j]
-    movd mm3,DWORD PTR[eax + 4*j]
-    movd mm2,DWORD PTR[edx + 4*(i+j)]
+
+%macro MULADD 2.nolist
+  %xdefine %%i %1
+  %xdefine %%j %2
+
+    movd mm1,DWORD [eax + 4*%%j]
+    movd mm3,DWORD [eax + 4*%%j]
+    movd mm2,DWORD [edx + 4*(%%i+%%j)]
     pmuludq mm1,mm0
     pand mm3,mm6
     paddq mm1,mm2
     paddq mm7,mm1
-    movd DWORD PTR[edx + 4*(i+j)],mm7
+    movd DWORD [edx + 4*(%%i+%%j)],mm7
     psrlq mm7,32
     paddq mm7,mm3
-ENDM
+%endmacro
 
-SQR_DECOMPOSE MACRO i
-    movd mm7,DWORD PTR[eax + 4*i]
-    movd mm0,DWORD PTR[eax + 4*i]
-    movd mm6,DWORD PTR[eax + 4*i]
-    if i ne 0
-    movd mm1,DWORD PTR[edx + 4*(2*i)]
-    endif
+
+%macro SQR_DECOMPOSE 1.nolist
+  %xdefine %%i %1
+
+    movd mm7,DWORD [eax + 4*%%i]
+    movd mm0,DWORD [eax + 4*%%i]
+    movd mm6,DWORD [eax + 4*%%i]
+    %if %%i != 0
+    movd mm1,DWORD [edx + 4*(2*%%i)]
+    %endif
     pslld mm0,1
     pmuludq mm7,mm7
     psrad mm6,32
-    if i ne 0
+    %if %%i != 0
     paddq mm7,mm1
-    endif
-    movd DWORD PTR[edx + 4*(2*i)],mm7
+    %endif
+    movd DWORD [edx + 4*(2*%%i)],mm7
     psrlq mm7,32
-ENDM
+%endmacro
 
-STORE_CARRY MACRO i,s
-    movq DWORD PTR[edx + 4*(i + s)],mm7
-ENDM
 
-STORE_CARRY_NEXT MACRO i,s
-    movd mm4,DWORD PTR[edx + 4*(i + s)]
+%macro STORE_CARRY 2.nolist
+  %xdefine %%i %1
+  %xdefine %%s %2
+
+    movq DWORD [edx + 4*(%%i + %%s)],mm7
+%endmacro
+
+
+%macro STORE_CARRY_NEXT 2.nolist
+  %xdefine %%i %1
+  %xdefine %%s %2
+
+    movd mm4,DWORD [edx + 4*(%%i + %%s)]
     paddq mm4,mm7
-    movd DWORD PTR[edx + 4*(i + s)],mm4
+    movd DWORD [edx + 4*(%%i + %%s)],mm4
     psrlq mm7,32
-    movd DWORD PTR[edx + 4*(i + s + 1)],mm7
-ENDM
+    movd DWORD [edx + 4*(%%i + %%s + 1)],mm7
+%endmacro
 
-LAST_STEP MACRO s
-    movd mm7,DWORD PTR[eax + 4*(s - 1)]
-    movd mm2,DWORD PTR[edx + 4*(2*s - 2)]
+
+%macro LAST_STEP 1.nolist
+  %xdefine %%s %1
+
+    movd mm7,DWORD [eax + 4*(%%s - 1)]
+    movd mm2,DWORD [edx + 4*(2*%%s - 2)]
     pmuludq mm7,mm7
     paddq mm7,mm2
-    movd mm4,DWORD PTR[edx + 4*(2*s - 1)]
-    movd DWORD PTR[edx + 4*(2*s - 2)],mm7
+    movd mm4,DWORD [edx + 4*(2*%%s - 1)]
+    movd DWORD [edx + 4*(2*%%s - 2)],mm7
     psrlq mm7,32
     paddq mm4,mm7
-    movd DWORD PTR[edx + 4*(2*s - 1)],mm4
-ENDM
+    movd DWORD [edx + 4*(2*%%s - 1)],mm4
+%endmacro
 
-INNER_LOOP MACRO i, nsize
-    j = i + 1
-    s = nsize - i - 1
 
-    SQR_DECOMPOSE i
+%macro INNER_LOOP 2.nolist
+  %xdefine %%i %1
+  %xdefine %%nsize %2
 
-    repeat s
-   if i eq 0
-     MULADD_START i,j
-   else
-     MULADD i,j
-   endif
-    j = j + 1
-    endm
+  %assign %%j  %%i + 1
+  %assign %%s  %%nsize - %%i - 1
 
-   if i eq 0
-     STORE_CARRY i,nsize
-   else
-     STORE_CARRY_NEXT i,nsize
-   endif
-ENDM
+    SQR_DECOMPOSE %%i
 
-OUTER_LOOP MACRO nsize
-    i = 0
-    repeat nsize - 1
-    INNER_LOOP i,nsize
-    i = i + 1
-    endm
+    %rep %%s
+   %if %%i == 0
+     MULADD_START %%i,%%j
+   el%%se
+     MULADD %%i,%%j
+   %endif
+  %assign %%j  %%j + 1
+    %endrep
 
-    LAST_STEP nsize
-ENDM
+   %if %%i == 0
+     STORE_CARRY %%i,%%nsize
+   el%%se
+     STORE_CARRY_NEXT %%i,%%nsize
+   %endif
+%endmacro
+
+
+%macro OUTER_LOOP 1.nolist
+  %xdefine %%nsize %1
+
+  %assign %%i  0
+    %rep ns%%ize - 1
+    INNER_LOOP %%i,%%nsize
+  %assign %%i  %%i + 1
+    %endrep
+
+    LAST_STEP %%nsize
+%endmacro
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-MULADD_START1 MACRO i,j
-    movd mm1,DWORD PTR[eax + 4*j]
-    pmuludq mm1,mm0
-    paddq mm7,mm1
-    movd DWORD PTR[edx + 4*(i+j)],mm7
-    psrlq mm7,32
-ENDM
+%macro MULADD_START_wt_carry 1.nolist
+  %xdefine %%i %1
 
-MULADD_START_wt_carry MACRO i
-    movd mm7,DWORD PTR[eax]
-    movd mm2,DWORD PTR[edx + 4*(i)]
+    movd mm7,DWORD [eax]
+    movd mm2,DWORD [edx + 4*(%%i)]
     pmuludq mm7,mm0
     paddq mm7,mm2
-    movd DWORD PTR[edx + 4*(i)],mm7
+    movd DWORD [edx + 4*(%%i)],mm7
     psrlq mm7,32
-ENDM
+%endmacro
 
-MULADD_START1 MACRO i,j
-    movd mm1,DWORD PTR[eax + 4*j]
+
+%macro MULADD_START1 2.nolist
+  %xdefine %%i %1
+  %xdefine %%j %2
+
+    movd mm1,DWORD [eax + 4*%%j]
     pmuludq mm1,mm0
     paddq mm7,mm1
-    movd DWORD PTR[edx + 4*(i+j)],mm7
+    movd DWORD [edx + 4*(%%i+%%j)],mm7
     psrlq mm7,32
-ENDM
+%endmacro
 
-MULADD_START_wt_carry1 MACRO
-    movd mm7,DWORD PTR[eax]
+
+%macro MULADD_START_wt_carry1 0.nolist
+    movd mm7,DWORD [eax]
     pmuludq mm7,mm0
-    movd DWORD PTR[edx],mm7
+    movd DWORD [edx],mm7
     psrlq mm7,32
-ENDM
+%endmacro
 
-MULADD1 MACRO i,j
-    movd mm1,DWORD PTR[eax + 4*j]
-    movd mm2,DWORD PTR[edx + 4*(i+j)]
+
+%macro MULADD1 2.nolist
+  %xdefine %%i %1
+  %xdefine %%j %2
+
+    movd mm1,DWORD [eax + 4*%%j]
+    movd mm2,DWORD [edx + 4*(%%i+%%j)]
     pmuludq mm1,mm0
     paddq mm1,mm2
     paddq mm7,mm1
-    movd DWORD PTR[edx + 4*(i+j)],mm7
+    movd DWORD [edx + 4*(%%i+%%j)],mm7
     psrlq mm7,32
-ENDM
+%endmacro
 
-INNER_LOOP1 MACRO i, nsize
-    j = 0
-    movd mm0,DWORD PTR[ebx + 4*i]
 
-    repeat nsize
-if i eq 0
-    if j eq 0
+%macro INNER_LOOP1 2.nolist
+  %xdefine %%i %1
+  %xdefine %%nsize %2
+
+    %assign %%j  0
+    movd mm0,DWORD [ebx + 4*%%i]
+
+    %rep %%nsize
+%if %%i == 0
+    %if %%j == 0
         MULADD_START_wt_carry1
-    else
-        MULADD_START1 i,j
-    endif
-else
-    if j eq 0
-        MULADD_START_wt_carry i
-    else
-        MULADD1 i,j
-    endif
-endif
-    j = j + 1
-    endm
-    movd DWORD PTR[edx + 4*(i + nsize)],mm7
-ENDM
+    %else
+        MULADD_START1 %%i,%%j
+    %endif
+%else
+    %if %%j == 0
+        MULADD_START_wt_carry %%i
+    %else
+        MULADD1 %%i,%%j
+    %endif
+%endif
+    %assign %%j  %%j + 1
+    %endrep
+    movd DWORD [edx + 4*(%%i + %%nsize)],mm7
+%endmacro
 
-OUTER_LOOP1 MACRO nsize
-    i = 0
-    repeat nsize
-    INNER_LOOP1 i,nsize
-    i = i + 1
-    endm
-ENDM
+
+%macro OUTER_LOOP1 1.nolist
+  %xdefine %%nsize %1
+
+  %assign %%i  0
+    %rep %%nsize
+    INNER_LOOP1 %%i,%%nsize
+  %assign %%i  %%i + 1
+    %endrep
+%endmacro
+

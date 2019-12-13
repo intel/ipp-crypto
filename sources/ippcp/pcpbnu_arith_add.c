@@ -67,12 +67,6 @@
 //    pR    resultant BigNum
 //    ns    size of BigNums
 *F*/
-#if defined(_USE_C_cpAdd_BNU_)
-#pragma message ("C version of cpAdd_BNU: ON")
-#else
-#pragma message ("C version of cpAdd_BNU: OFF")
-#endif
-
 #if !((_IPP==_IPP_W7) || \
       (_IPP==_IPP_T7) || \
       (_IPP==_IPP_V8) || \

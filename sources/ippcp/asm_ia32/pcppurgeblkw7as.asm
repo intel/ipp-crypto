@@ -38,23 +38,23 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Purge block
-; 
-; 
 ;
-.686P
-.XMM
-.MODEL FLAT,C
+;
+;
 
-INCLUDE asmdefs.inc
-include ia_emm.inc
 
-IF _IPP GE _IPP_W7
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+%if (_IPP >= _IPP_W7)
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
 ;***************************************************************
@@ -67,35 +67,37 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;;
 ;; Lib = W7
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM PurgeBlock PROC NEAR C PUBLIC \
-      USES edi,\
-      pDst:  PTR DWORD,\    ; target address
-      len:       DWORD     ; length
+align IPP_ALIGN_FACTOR
+IPPASM PurgeBlock,PUBLIC
+  USES_GPR edi
+
+%xdefine pDst [esp + ARG_1 + 0*sizeof(dword)] ; target address
+%xdefine len  [esp + ARG_1 + 1*sizeof(dword)] ; length
 
    mov      edi, pDst   ; mem address
    mov      ecx, len    ; length
    xor      eax, eax
    sub      ecx, sizeof(dword)
-   jl       test_purge
-purge4:
-   mov      dword ptr[edi], eax  ; clear
+   jl       .test_purge
+.purge4:
+   mov      dword [edi], eax  ; clear
    add      edi, sizeof(dword)
    sub      ecx, sizeof(dword)
-   jge      purge4
+   jge      .purge4
 
-test_purge:
+.test_purge:
    add      ecx, sizeof(dword)
-   jz       quit
-purge1:
-   mov      byte ptr[edi], al
+   jz       .quit
+.purge1:
+   mov      byte [edi], al
    add      edi, sizeof(byte)
    sub      ecx, sizeof(byte)
-   jg       purge1
+   jg       .purge1
 
-quit:
+.quit:
+   REST_GPR
    ret
-IPPASM PurgeBlock ENDP
+ENDFUNC PurgeBlock
 
-ENDIF
-END
+%endif
+

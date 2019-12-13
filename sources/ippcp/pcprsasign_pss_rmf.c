@@ -58,6 +58,8 @@
 #include "pcphash_rmf.h"
 #include "pcptool.h"
 
+#include "pcprsa_pss_preproc.h"
+
 /*F*
 // Name: ippsRSASign_PSS_rmf
 //
@@ -105,29 +107,11 @@ IPPFUN(IppStatus, ippsRSASign_PSS_rmf,(const Ipp8u* pMsg,  int msgLen,
                                        const IppsHashMethod* pMethod,
                                              Ipp8u* pScratchBuffer))
 {
-   /* test message length */
-   IPP_BADARG_RET((msgLen<0), ippStsLengthErr);
-   /* test message pointer */
-   IPP_BADARG_RET((msgLen && !pMsg), ippStsNullPtrErr);
+   const IppStatus preprocResult = SingleSignPssRmfPreproc(pMsg, msgLen, pSalt, saltLen,
+      pSign, &pPrvKey, &pPubKey, pMethod, pScratchBuffer); // badargs and pointer alignments
 
-   /* test data pointer */
-   IPP_BAD_PTR2_RET(pSign, pMethod);
-
-   /* test salt length and salt pointer */
-   IPP_BADARG_RET(saltLen<0, ippStsLengthErr);
-   IPP_BADARG_RET((saltLen && !pSalt), ippStsNullPtrErr);
-
-   /* test private key context */
-   IPP_BAD_PTR2_RET(pPrvKey, pScratchBuffer);
-   pPrvKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pPrvKey, RSA_PRIVATE_KEY_ALIGNMENT) );
-   IPP_BADARG_RET(!RSA_PRV_KEY_VALID_ID(pPrvKey), ippStsContextMatchErr);
-   IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pPrvKey), ippStsIncompleteContextErr);
-
-   /* use aligned public key context if defined */
-   if(pPubKey) {
-      pPubKey = (IppsRSAPublicKeyState*)( IPP_ALIGNED_PTR(pPubKey, RSA_PUBLIC_KEY_ALIGNMENT) );
-      IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(pPubKey), ippStsContextMatchErr);
-      IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(pPubKey), ippStsIncompleteContextErr);
+   if (ippStsNoErr != preprocResult) {
+      return preprocResult;
    }
 
    {

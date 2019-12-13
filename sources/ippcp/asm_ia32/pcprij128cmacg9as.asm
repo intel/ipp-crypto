@@ -38,23 +38,23 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Cipher function
-; 
+;
 ;     Content:
 ;        cpAESCMAC_Update_AES_NI()
-; 
 ;
-.686P
-.XMM
-.MODEL FLAT,C
+;
 
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
 ;***************************************************************
@@ -67,58 +67,59 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;*                               const Ipp32u* pRKey)
 ;***************************************************************
 
-;IF (_IPP GE _IPP_P8) AND (_IPP LT _IPP_G9)
-IF (_IPP GE _IPP_P8)
+;%if (_IPP >= _IPP_P8) && (_IPP < _IPP_G9)
+%if (_IPP >= _IPP_P8)
 ;;
 ;; Lib = P8
 ;;
 ;; Caller = ippsAES_CMACUpdate
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM cpAESCMAC_Update_AES_NI PROC NEAR C PUBLIC \
-USES esi edi,\
-pDigest:PTR BYTE,\  ; input/output digest
-pinpBlk:PTR BYTE,\  ; input blocks
-len:DWORD,\         ; length (bytes)
-nr:DWORD,\          ; number of rounds
-pKey:PTR DWORD      ; key material address
+align IPP_ALIGN_FACTOR
+IPPASM cpAESCMAC_Update_AES_NI,PUBLIC
+  USES_GPR esi,edi
 
-SC        equ (4)
-BYTES_PER_BLK = (16)
+%xdefine pDigest [esp + ARG_1 + 0*sizeof(dword)] ; input/output digest
+%xdefine pInpBlk [esp + ARG_1 + 1*sizeof(dword)] ; input blocks
+%xdefine len     [esp + ARG_1 + 2*sizeof(dword)] ; length (bytes)
+%xdefine nr      [esp + ARG_1 + 3*sizeof(dword)] ; number of rounds
+%xdefine pKey    [esp + ARG_1 + 4*sizeof(dword)] ; key material address
+
+%xdefine SC  (4)
+%assign BYTES_PER_BLK  (16)
 
    mov      edi, pDigest      ; pointer to digest
    mov      esi,pInpBlk       ; input data address
    mov      ecx,pKey          ; key material address
    mov      eax,nr            ; number of rounds
 
-   movdqu   xmm0, oword ptr [edi]   ; digest
+   movdqu   xmm0, oword [edi]   ; digest
 
    mov      edx, len          ; length of stream
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;;
 ;; block-by-block processing
 ;;
-blks_loop:
-   movdqu   xmm1, oword ptr[esi]       ; input block
+.blks_loop:
+   movdqu   xmm1, oword [esi]       ; input block
 
-   movdqa   xmm4, oword ptr[ecx]       ; preload key material
+   movdqa   xmm4, oword [ecx]       ; preload key material
 
    pxor     xmm0, xmm1                 ; digest ^ src[]
 
    pxor     xmm0, xmm4                 ; whitening
 
-   movdqa   xmm4, oword ptr[ecx+16]    ; preload key material
+   movdqa   xmm4, oword [ecx+16]    ; preload key material
    add      ecx, 16
 
    sub      eax, 1                     ; counter depending on key length
-  ALIGN IPP_ALIGN_FACTOR
-cipher_loop:
+align IPP_ALIGN_FACTOR
+.cipher_loop:
    aesenc      xmm0, xmm4              ; regular round
-   movdqa      xmm4, oword ptr[ecx+16]
+   movdqa      xmm4, oword [ecx+16]
    add         ecx, 16
    sub         eax, 1
-   jnz         cipher_loop
+   jnz         .cipher_loop
    aesenclast  xmm0, xmm4              ; irregular round
 
    mov         ecx, pKey               ; restore key pointer
@@ -126,12 +127,13 @@ cipher_loop:
 
    add         esi, BYTES_PER_BLK      ; advance pointers
    sub         edx, BYTES_PER_BLK      ; decrease counter
-   jnz         blks_loop
+   jnz         .blks_loop
 
    pxor        xmm4, xmm4
-   movdqu      oword ptr[edi], xmm0    ; store output block
+   movdqu      oword [edi], xmm0    ; store output block
 
+   REST_GPR
    ret
-IPPASM cpAESCMAC_Update_AES_NI ENDP
-ENDIF
-END
+ENDFUNC cpAESCMAC_Update_AES_NI
+%endif
+

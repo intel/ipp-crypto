@@ -57,21 +57,24 @@
 //#include "owndefs.h"
 static void cpSMS4_ECB_gpr_x1(Ipp8u* otxt, const Ipp8u* itxt, const Ipp32u* pRoundKeys)
 {
-   Ipp32u buff[4+32];
+   __ALIGN16 Ipp32u buff[4 + SMS4_ROUND_KEYS_NUM];
    buff[0] = HSTRING_TO_U32(itxt);
    buff[1] = HSTRING_TO_U32(itxt+sizeof(Ipp32u));
    buff[2] = HSTRING_TO_U32(itxt+sizeof(Ipp32u)*2);
    buff[3] = HSTRING_TO_U32(itxt+sizeof(Ipp32u)*3);
    {
       int nr;
-      for(nr=0; nr<32; nr++) {
+      for(nr=0; nr < SMS4_ROUND_KEYS_NUM; nr++) {
          buff[4+nr] = buff[nr] ^ cpCipherMix_SMS4(buff[nr+1]^buff[nr+2]^buff[nr+3]^pRoundKeys[nr]);
       }
    }
-   U32_TO_HSTRING(otxt,                  buff[4+32-1]);
-   U32_TO_HSTRING(otxt+sizeof(Ipp32u),   buff[4+32-2]);
-   U32_TO_HSTRING(otxt+sizeof(Ipp32u)*2, buff[4+32-3]);
-   U32_TO_HSTRING(otxt+sizeof(Ipp32u)*3, buff[4+32-4]);
+   U32_TO_HSTRING(otxt,                  buff[4 + SMS4_ROUND_KEYS_NUM - 1]);
+   U32_TO_HSTRING(otxt+sizeof(Ipp32u),   buff[4 + SMS4_ROUND_KEYS_NUM - 2]);
+   U32_TO_HSTRING(otxt+sizeof(Ipp32u)*2, buff[4 + SMS4_ROUND_KEYS_NUM - 3]);
+   U32_TO_HSTRING(otxt+sizeof(Ipp32u)*3, buff[4 + SMS4_ROUND_KEYS_NUM - 4]);
+
+   /* clear secret data */
+   PurgeBlock(buff, sizeof(buff));
 }
 
 void cpSMS4_Cipher(Ipp8u* otxt, const Ipp8u* itxt, const Ipp32u* pRoundKeys)

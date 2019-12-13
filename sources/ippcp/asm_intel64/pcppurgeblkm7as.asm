@@ -38,20 +38,21 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Purge block
-; 
-; 
+;
+;
 ;
 
-include asmdefs.inc
-include ia_32e.inc
+%include "asmdefs.inc"
+%include "ia_32e.inc"
 
-IF _IPP32E GE _IPP32E_M7
+%if (_IPP32E >= _IPP32E_M7)
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
+
 
 ;***************************************************************
 ;* Purpose:     Clear memory block
@@ -63,38 +64,38 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;;
 ;; Lib = M7
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM PurgeBlock PROC PUBLIC FRAME
-      USES_GPR  rsi,rdi
-      USES_XMM
-      COMP_ABI 2
-;; rdi:  pDst:  PTR BYTE,    ; mem being clear
+align IPP_ALIGN_FACTOR
+IPPASM PurgeBlock,PUBLIC
+        USES_GPR rsi,rdi
+        USES_XMM
+        COMP_ABI 2
+;; rdi:  pDst:  BYTE,    ; mem being clear
 ;; rsi:  len:      DWORD     ; length
 
    movsxd   rcx, esi    ; store stream length
    xor      rax, rax
    sub      rcx, sizeof(qword)
-   jl       test_purge
-purge8:
-   mov      qword ptr[rdi], rax  ; clear
+   jl       .test_purge
+.purge8:
+   mov      qword [rdi], rax  ; clear
    add      rdi, sizeof(qword)
    sub      rcx, sizeof(qword)
-   jge      purge8
+   jge      .purge8
 
-test_purge:
+.test_purge:
    add      rcx, sizeof(qword)
-   jz       quit
-purge1:
-   mov      byte ptr[rdi], al
+   jz       .quit
+.purge1:
+   mov      byte [rdi], al
    add      rdi, sizeof(byte)
    sub      rcx, sizeof(byte)
-   jg       purge1
+   jg       .purge1
 
-quit:
+.quit:
    REST_XMM
    REST_GPR
    ret
-IPPASM PurgeBlock ENDP
+ENDFUNC PurgeBlock
 
-ENDIF
-END
+%endif
+

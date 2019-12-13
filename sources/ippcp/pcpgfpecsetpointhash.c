@@ -153,9 +153,10 @@ IPPFUN(IppStatus, ippsGFpECSetPointHash,(Ipp32u hdr, const Ipp8u* pMsg, int msgL
          cpGFpSet(pPoolElm, hashVal, hashValLen, pGFE);
 
          if( gfec_MakePoint(pPoint, pPoolElm, pEC)) {
-            /* set y-coordinate of the point (positive or negative) */
+            /* choose even y-coordinate of the point (see SafeID Specs v2) */
             BNU_CHUNK_T* pY = ECP_POINT_Y(pPoint);
-            if(pY[0] & 1)
+            GFP_METHOD(pGFE)->decode(pPoolElm, pY, pGFE); /* due to P(X,Y,Z=1) just decode Y->y */
+            if(pPoolElm[0] & 1)
                cpGFpNeg(pY, pY, pGFE);
 
             /* R = [cofactor]R */

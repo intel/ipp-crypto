@@ -38,51 +38,37 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Reduction over AES-GCM polynomial (x^128 + x^7 + x^2 + x + 1)
-; 
+;
 ;     Content:
 ;        GCMreduce()
 ;
 
-.686P
-.387
-.XMM
-.MODEL FLAT,C
-
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
-
-IF (_IPP GE _IPP_W7) AND (_IPP LT _IPP_V8)
-
-IFDEF IPP_PIC
-LD_ADDR MACRO reg:REQ, addr:REQ
-LOCAL LABEL
-        call     LABEL
-LABEL:  pop      reg
-        sub      reg, LABEL-addr
-ENDM
-ELSE
-LD_ADDR MACRO reg:REQ, addr:REQ
-        lea      reg, addr
-ENDM
-ENDIF
 
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 
 
-ALIGN IPP_ALIGN_FACTOR
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+%if (_IPP >= _IPP_W7) && (_IPP < _IPP_V8)
+
+segment .text align=IPP_ALIGN_FACTOR
+
+
+align IPP_ALIGN_FACTOR
 CONST_TABLE:
 _maskW123 dd    000000000h,0FFFFFFFFh,0FFFFFFFFh,0FFFFFFFFh
 _maskW0   dd    0FFFFFFFFh,000000000h,000000000h,000000000h
 _maskW3   dd    000000000h,000000000h,000000000h,0FFFFFFFFh
 
-maskW123 equ [edi+(_maskW123 - CONST_TABLE)]
-maskW0   equ [edi+(_maskW0   - CONST_TABLE)]
-maskW3   equ [edi+(_maskW3   - CONST_TABLE)]
+%xdefine maskW123  [edi+(_maskW123 - CONST_TABLE)]
+%xdefine maskW0  [edi+(_maskW0   - CONST_TABLE)]
+%xdefine maskW3  [edi+(_maskW3   - CONST_TABLE)]
 
 
 
@@ -98,15 +84,16 @@ maskW3   equ [edi+(_maskW3   - CONST_TABLE)]
 ;; Caller = ippsRijndael128GCMDecrypt
 ;; Caller = ippsRijndael128GCMGetTag
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM GCMreduce PROC NEAR C PUBLIC \
-      USES esi edi,\
-      pSrc: PTR DWORD,\  ; product
-      pDst: PTR DWORD   ; reduction
+align IPP_ALIGN_FACTOR
+IPPASM GCMreduce,PUBLIC
+  USES_GPR esi,edi
+
+%xdefine pSrc [esp + ARG_1 + 0*sizeof(dword)] ; product
+%xdefine pDst [esp + ARG_1 + 1*sizeof(dword)] ; reduction
 
    mov      esi, pSrc
-   movdqu   xmm3, oword ptr[esi]
-   movdqu   xmm6, oword ptr[esi+16]
+   movdqu   xmm3, oword [esi]
+   movdqu   xmm6, oword [esi+16]
 
    LD_ADDR  edi, CONST_TABLE
 
@@ -123,9 +110,9 @@ IPPASM GCMreduce PROC NEAR C PUBLIC \
    pshufd   xmm4, xmm4, 10010011b   ; ==147
    pshufd   xmm5, xmm5, 10010011b   ; ==147
    movdqu   xmm7,  xmm4
-   pand     xmm4, oword ptr maskW123    ;xmm13 holds the mask 0xffffffffffffffffffffffff00000000
-   pand     xmm5, oword ptr maskW123
-   pand     xmm7, oword ptr maskW0      ;xmm12 holds the mask 0x000000000000000000000000ffffffff
+   pand     xmm4, oword maskW123    ;xmm13 holds the mask 0xffffffffffffffffffffffff00000000
+   pand     xmm5, oword maskW123
+   pand     xmm7, oword maskW0      ;xmm12 holds the mask 0x000000000000000000000000ffffffff
    por      xmm3, xmm4
    por      xmm6, xmm5
    por      xmm6, xmm7
@@ -143,7 +130,7 @@ IPPASM GCMreduce PROC NEAR C PUBLIC \
                              ; the most significant word position
                              ; and right shift all other three 32-bit words by 32 bits
    movdqu   xmm0, xmm1
-   pand     xmm0, oword ptr maskW3 ;xmm11 holds the mask 0xffffffff000000000000000000000000
+   pand     xmm0, oword maskW3 ;xmm11 holds the mask 0xffffffff000000000000000000000000
    pxor     xmm3, xmm0             ;first phase of the reduction complete
 
    ;second phase of the reduction
@@ -155,15 +142,16 @@ IPPASM GCMreduce PROC NEAR C PUBLIC \
    psrld    xmm5,7       ; packed left shifting >> 7
    pxor     xmm2,xmm4    ; xor the shifted versions
    pxor     xmm2,xmm5
-   movdqu   xmm5, oword ptr maskW3 ; xmm11
+   movdqu   xmm5, oword maskW3 ; xmm11
    pandn    xmm5, xmm1    ; see step1
    pxor     xmm2,xmm5
    pxor     xmm3, xmm2
    pxor     xmm6, xmm3    ;the result is in xmm6
 
-   movdqu   oword ptr[esi], xmm6
+   movdqu   oword [esi], xmm6
+   REST_GPR
    ret
-IPPASM GCMreduce endp
+ENDFUNC GCMreduce
 
-ENDIF
-END
+%endif
+

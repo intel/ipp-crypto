@@ -72,11 +72,7 @@
 
 #define BNU_CHUNK_MASK        (~(BNU_CHUNK_T)(0))
 
-#if (BNU_CHUNK_BITS == BNU_CHUNK_64BIT)
-   #pragma message ("BNU_CHUNK_BITS = 64 bit")
-#elif (BNU_CHUNK_BITS == BNU_CHUNK_32BIT)
-   #pragma message ("BNU_CHUNK_BITS = 32 bit")
-#else
+#if (BNU_CHUNK_BITS != BNU_CHUNK_64BIT && BNU_CHUNK_BITS != BNU_CHUNK_32BIT)
    #error BNU_CHUNK_BITS should be either 64 or 32 bit!
 #endif
 

@@ -38,30 +38,31 @@
 ; limitations under the License.
 ;===============================================================================
 
-INCLUDE asmdefs.inc
- include ia_32e.inc
+%include "asmdefs.inc"
+%include "ia_32e.inc"
 
-LOCAL_ALIGN_FACTOR EQU 32
- 
-IFDEF _IPP_DATA
-IPPCODE SEGMENT 'CODE' ALIGN (LOCAL_ALIGN_FACTOR)
+%assign LOCAL_ALIGN_FACTOR 32
+
+%ifdef _IPP_DATA
+
+segment .text align=LOCAL_ALIGN_FACTOR
 
 ;####################################################################
 ;#          void cpGetReg( int* buf, int valueEAX, int valueECX ); #
 ;####################################################################
 
-IFDEF _WIN64
-buf       equ rcx
-valueEAX  equ edx
-valueECX  equ r8d
-ELSE
-buf       equ rdi
-valueEAX  equ esi
-valueECX  equ edx
-ENDIF
+%ifdef WIN32E
+  %define buf       rcx
+  %define valueEAX  edx
+  %define valueECX  r8d
+%else
+  %define buf       rdi
+  %define valueEAX  esi
+  %define valueECX  edx
+%endif
 
-ALIGN LOCAL_ALIGN_FACTOR
-cpGetReg    PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cpGetReg,PUBLIC
         push rbx
         movsxd  r9, valueEAX
         movsxd  r10, valueECX
@@ -78,124 +79,125 @@ cpGetReg    PROC PUBLIC
         mov     [r11 + 12], edx
         pop rbx
         ret
-
-cpGetReg ENDP
+ENDFUNC cpGetReg
 
 ;###################################################
 
 ; OSXSAVE support, feature information after cpuid(1), ECX, bit 27 ( XGETBV is enabled by OS )
-XSAVEXGETBV_FLAG   equ   8000000h
+%assign XSAVEXGETBV_FLAG   8000000h
 
 ; Feature information after XGETBV(ECX=0), EAX, bits 2,1 ( XMM state and YMM state are enabled by OS )
-XGETBV_MASK        equ   06h
+%assign XGETBV_MASK        06h
 
-XGETBV_AVX512_MASK equ 0E0h
+%assign XGETBV_AVX512_MASK 0E0h
 
-ALIGN LOCAL_ALIGN_FACTOR
-cp_is_avx_extension PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cp_is_avx_extension,PUBLIC
          push  rbx
          mov   eax, 1
          cpuid
          xor   eax, eax
          and   ecx, 018000000h
          cmp   ecx, 018000000h
-         jne   not_avx
+         jne   .not_avx
          xor   ecx, ecx
-         db 00fh,001h,0d0h        ; xgetbv      
-         mov   ecx, eax           
+         db 00fh,001h,0d0h        ; xgetbv
+         mov   ecx, eax
          xor   eax, eax
          and   ecx, XGETBV_MASK
          cmp   ecx, XGETBV_MASK
-         jne   not_avx
-         mov   eax, 1    
-not_avx:
+         jne   .not_avx
+         mov   eax, 1
+.not_avx:
          pop   rbx
          ret
-cp_is_avx_extension ENDP
+ENDFUNC cp_is_avx_extension
 
-ALIGN LOCAL_ALIGN_FACTOR
-cp_is_avx512_extension PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cp_is_avx512_extension,PUBLIC
          push  rbx
          mov   eax, 1
          cpuid
          xor   eax, eax
          and   ecx, XSAVEXGETBV_FLAG
          cmp   ecx, XSAVEXGETBV_FLAG
-         jne   not_avx512
+         jne   .not_avx512
          xor   ecx, ecx
-         db 00fh,001h,0d0h        ; xgetbv      
-         mov   ecx, eax           
+         db 00fh,001h,0d0h        ; xgetbv
+         mov   ecx, eax
          xor   eax, eax
          and   ecx, XGETBV_AVX512_MASK
          cmp   ecx, XGETBV_AVX512_MASK
-         jne   not_avx512
-         mov   eax, 1    
-not_avx512:
+         jne   .not_avx512
+         mov   eax, 1
+.not_avx512:
          pop   rbx
          ret
-cp_is_avx512_extension ENDP
+ENDFUNC cp_is_avx512_extension
 
-ALIGN LOCAL_ALIGN_FACTOR
-cp_issue_avx512_instruction PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cp_issue_avx512_instruction,PUBLIC
          db    062h,0f1h,07dh,048h,0efh,0c0h ; vpxord  zmm0, zmm0, zmm0
          xor   eax, eax
          ret
-cp_issue_avx512_instruction ENDP
+ENDFUNC cp_issue_avx512_instruction
 
-IFDEF _WIN64
-  EXTRN ippcpInit:PROC
-ENDIF
+%ifdef OSXEM64T
+  extern _ippcpInit
+%else
+  extern ippcpInit
+%endif
 
 ;####################################################################
 ;#          void ippSafeInit( );                                    #
 ;####################################################################
 
-ALIGN LOCAL_ALIGN_FACTOR
-ippcpSafeInit PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC ippcpSafeInit,PUBLIC
         push rcx
         push rdx
-IFDEF LINUX32E
+%ifdef LINUX32E
         push rdi
         push rsi
-ENDIF
+%endif
         push r8
         push r9
-IFDEF LINUX32E
-  IFDEF OSXEM64T
-    %ECHO   call _ippcpInit
-  ELSE
-    IFDEF IPP_PIC
-       %ECHO   call ippcpInit@PLT
-    ELSE
-      %ECHO   call ippcpInit
-    ENDIF
-  ENDIF
-ELSE
-        call ippcpInit
-ENDIF
+%ifdef LINUX32E
+  %ifdef OSXEM64T
+    call _ippcpInit
+  %else
+    %ifdef IPP_PIC
+      call ippcpInit wrt ..plt
+    %else
+      call ippcpInit
+    %endif
+  %endif
+%else
+  call ippcpInit
+%endif
         pop  r9
         pop  r8
-IFDEF LINUX32E
+%ifdef LINUX32E
         pop  rsi
         pop  rdi
-ENDIF
+%endif
         pop  rdx
         pop  rcx
         ret
-ippcpSafeInit ENDP
+ENDFUNC ippcpSafeInit
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-ALIGN LOCAL_ALIGN_FACTOR
-cp_get_pentium_counter PROC  PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cp_get_pentium_counter,PUBLIC
          rdtsc
          sal    rdx,32
          or     rax,rdx
          ret
-cp_get_pentium_counter ENDP
+ENDFUNC cp_get_pentium_counter
 
-ALIGN LOCAL_ALIGN_FACTOR
-cpStartTscp PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cpStartTscp,PUBLIC
          push     rbx
          xor      rax, rax
          cpuid
@@ -204,10 +206,10 @@ cpStartTscp PROC PUBLIC
          sal      rdx,32
          or       rax,rdx
          ret
-cpStartTscp ENDP
+ENDFUNC cpStartTscp
 
-ALIGN LOCAL_ALIGN_FACTOR
-cpStopTscp PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cpStopTscp,PUBLIC
          rdtscp
          sal      rdx,32
          or       rax,rdx
@@ -218,10 +220,10 @@ cpStopTscp PROC PUBLIC
          pop      rbx
          pop      rax
          ret
-cpStopTscp ENDP
+ENDFUNC cpStopTscp
 
-ALIGN LOCAL_ALIGN_FACTOR
-cpStartTsc PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cpStartTsc,PUBLIC
          push     rbx
          xor      rax, rax
          cpuid
@@ -230,10 +232,10 @@ cpStartTsc PROC PUBLIC
          sal      rdx,32
          or       rax,rdx
          ret
-cpStartTsc ENDP
+ENDFUNC cpStartTsc
 
-ALIGN LOCAL_ALIGN_FACTOR
-cpStopTsc PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cpStopTsc,PUBLIC
          rdtsc
          sal      rdx,32
          or       rax,rdx
@@ -244,17 +246,16 @@ cpStopTsc PROC PUBLIC
          pop      rbx
          pop      rax
          ret
-cpStopTsc ENDP
+ENDFUNC cpStopTsc
 
 
 ;*****************************************
 ; int cpGetCacheSize( int* tableCache );
-ALIGN LOCAL_ALIGN_FACTOR
-table   EQU rdi
-cpGetCacheSize  PROC PUBLIC FRAME
-
+align LOCAL_ALIGN_FACTOR
+%define table rdi
+DECLARE_FUNC cpGetCacheSize,PUBLIC
+%assign LOCAL_FRAME 16
         USES_GPR rsi, rdi, rbx, rbp
-        LOCAL_FRAME = 16
         USES_XMM
         COMP_ABI 1
 
@@ -265,81 +266,78 @@ cpGetCacheSize  PROC PUBLIC FRAME
         cpuid
 
         cmp     al, 1
-        jne     GetCacheSize_11
+        jne     .GetCacheSize_11
 
         test    eax, 080000000h
-        jz      GetCacheSize_00
+        jz      .GetCacheSize_00
         xor     eax, eax
-GetCacheSize_00:
+.GetCacheSize_00:
         test    ebx, 080000000h
-        jz      GetCacheSize_01
+        jz      .GetCacheSize_01
         xor     ebx, ebx
-GetCacheSize_01:
+.GetCacheSize_01:
         test    ecx, 080000000h
-        jz      GetCacheSize_02
+        jz      .GetCacheSize_02
         xor     ecx, ecx
-GetCacheSize_02:
+.GetCacheSize_02:
         test    edx, 080000000h
-        jz      GetCacheSize_03
+        jz      .GetCacheSize_03
         xor     edx, edx
 
-GetCacheSize_03:
+.GetCacheSize_03:
         test    eax, eax
-        jz      GetCacheSize_04
+        jz      .GetCacheSize_04
         mov     [rbp], eax
         add     rbp, 4
         add     esi, 3
-GetCacheSize_04:
+.GetCacheSize_04:
         test    ebx, ebx
-        jz      GetCacheSize_05
+        jz      .GetCacheSize_05
         mov     [rbp], ebx
         add     rbp, 4
         add     esi, 4
-GetCacheSize_05:
+.GetCacheSize_05:
         test    ecx, ecx
-        jz      GetCacheSize_06
+        jz      .GetCacheSize_06
         mov     [rbp], ecx
         add     rbp, 4
         add     esi, 4
-GetCacheSize_06:
+.GetCacheSize_06:
         test    edx, edx
-        jz      GetCacheSize_07
+        jz      .GetCacheSize_07
         mov     [rbp], edx
         add     esi, 4
 
-GetCacheSize_07:
+.GetCacheSize_07:
         test    esi, esi
-        jz      GetCacheSize_11
+        jz      .GetCacheSize_11
         mov     eax, -1
-GetCacheSize_08:
+.GetCacheSize_08:
         xor     edx, edx
         add     edx, [table]
-        jz      ExitGetCacheSize00
+        jz      .ExitGetCacheSize00
         add     table, 8
         mov     ecx, esi
-GetCacheSize_09:
-        cmp     dl, BYTE PTR [rsp + rcx]
-        je      GetCacheSize_10
+.GetCacheSize_09:
+        cmp     dl, BYTE [rsp + rcx]
+        je      .GetCacheSize_10
         dec     ecx
-        jnz     GetCacheSize_09
-        jmp     GetCacheSize_08
+        jnz     .GetCacheSize_09
+        jmp     .GetCacheSize_08
 
-GetCacheSize_10:
+.GetCacheSize_10:
         mov     eax, [table - 4]
 
-ExitGetCacheSize00:
+.ExitGetCacheSize00:
         REST_XMM
         REST_GPR
         ret
 
-GetCacheSize_11:
+.GetCacheSize_11:
         mov     eax, -1
-        jmp     ExitGetCacheSize00
+        jmp     .ExitGetCacheSize00
+ENDFUNC cpGetCacheSize
 
-cpGetCacheSize  ENDP
-
-;*
 ;****************************
 
-ENDIF ; _IPP_DATA
-END
+%endif ; _IPP_DATA

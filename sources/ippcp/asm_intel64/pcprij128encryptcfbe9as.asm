@@ -38,58 +38,69 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Inverse Cipher function
-; 
+;
 ;     Content:
 ;        Encrypt_RIJ128_AES_NI()
-; 
 ;
-include asmdefs.inc
-include ia_32e.inc
-include pcpvariant.inc
+;
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "pcpvariant.inc"
 
-IF (_AES_NI_ENABLING_ EQ _FEATURE_ON_) OR (_AES_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-IF (_IPP32E GE _IPP32E_Y8)
+%if (_AES_NI_ENABLING_ == _FEATURE_ON_) || (_AES_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+%if (_IPP32E >= _IPP32E_Y8)
 
 
-COPY_8U MACRO  dst, src, limit, tmp
-LOCAL next_byte
+%macro COPY_8U 4.nolist
+  %xdefine %%dst %1
+  %xdefine %%src %2
+  %xdefine %%limit %3
+  %xdefine %%tmp %4
+
    xor   rcx, rcx
-next_byte:
-   mov   tmp, byte ptr[src+rcx]
-   mov   byte ptr[dst+rcx], tmp
+%%next_byte:
+   mov   %%tmp, byte [%%src+rcx]
+   mov   byte [%%dst+rcx], %%tmp
    add   rcx, 1
-   cmp   rcx, limit
-   jl    next_byte
-ENDM
+   cmp   rcx, %%limit
+   jl    %%next_byte
+%endmacro
 
-COPY_32U MACRO  dst, src, limit, tmp
-LOCAL next_dword
+%macro COPY_32U 4.nolist
+  %xdefine %%dst %1
+  %xdefine %%src %2
+  %xdefine %%limit %3
+  %xdefine %%tmp %4
+
    xor   rcx, rcx
-next_dword:
-   mov   tmp, dword ptr[src+rcx]
-   mov   dword ptr[dst+rcx], tmp
+%%next_dword:
+   mov   %%tmp, dword [%%src+rcx]
+   mov   dword [%%dst+rcx], %%tmp
    add   rcx, 4
-   cmp   rcx, limit
-   jl    next_dword
-ENDM
+   cmp   rcx, %%limit
+   jl    %%next_dword
+%endmacro
 
-COPY_128U MACRO  dst, src, limit, tmp
-LOCAL next_oword
+%macro COPY_128U 4.nolist
+  %xdefine %%dst %1
+  %xdefine %%src %2
+  %xdefine %%limit %3
+  %xdefine %%tmp %4
+
    xor   rcx, rcx
-next_oword:
-   movdqu   tmp, oword ptr[src+rcx]
-   movdqu   oword ptr[dst+rcx], tmp
+%%next_oword:
+   movdqu   %%tmp, oword [%%src+rcx]
+   movdqu   oword [%%dst+rcx], %%tmp
    add   rcx, 16
-   cmp   rcx, limit
-   jl    next_oword
-ENDM
+   cmp   rcx, %%limit
+   jl    %%next_oword
+%endmacro
 
+segment .text align=IPP_ALIGN_FACTOR
 
-
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 
 ;***************************************************************
 ;* Purpose:    RIJ128 CFB encryption
@@ -108,26 +119,26 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;;
 ;; Caller = ippsAESEncryptCFB
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM EncryptCFB_RIJ128_AES_NI PROC PUBLIC FRAME
-      USES_GPR    rsi,rdi,r12,r15
-      LOCAL_FRAME = (1+4+4)*16
-      USES_XMM
-      COMP_ABI 7
-;; rdi:        pInpBlk:  PTR DWORD,    ; input  blocks address
-;; rsi:        pOutBlk:  PTR DWORD,    ; output blocks address
+align IPP_ALIGN_FACTOR
+IPPASM EncryptCFB_RIJ128_AES_NI,PUBLIC
+%assign LOCAL_FRAME (1+4+4)*16
+        USES_GPR rsi,rdi,r12,r15
+        USES_XMM
+        COMP_ABI 7
+;; rdi:        pInpBlk:  DWORD,    ; input  blocks address
+;; rsi:        pOutBlk:  DWORD,    ; output blocks address
 ;; rdx:        nr:           DWORD,    ; number of rounds
-;; rcx         pKey:     PTR DWORD     ; key material address
+;; rcx         pKey:     DWORD     ; key material address
 ;; r8d         cfbBlks:      DWORD     ; length of stream in bytes
 ;; r9d         cfbSize:      DWORD     ; cfb blk size
-;; [rsp+ARG_7] pIV       PTR BYTE      ; pointer to the IV
+;; [rsp+ARG_7] pIV       BYTE      ; pointer to the IV
 
-SC        equ (4)
-BLKS_PER_LOOP = (4)
+%xdefine SC  (4)
+%assign BLKS_PER_LOOP  (4)
 
    mov      rax, [rsp+ARG_7]           ; IV address
-   movdqu   xmm4, oword ptr[rax]       ; get IV
-   movdqa   oword ptr [rsp+0*16], xmm4 ; into the stack
+   movdqu   xmm4, oword [rax]       ; get IV
+   movdqa   oword [rsp+0*16], xmm4 ; into the stack
 
    movsxd   r8, r8d                    ; length of stream
    movsxd   r9, r9d                    ; cfb blk size
@@ -142,83 +153,83 @@ BLKS_PER_LOOP = (4)
 ;; processing
 ;;
    lea      r10, [r9*BLKS_PER_LOOP]    ; 4 cfb block
-blks_loop:
+.blks_loop:
    cmp      r8, r10
    cmovl    r10, r8
-   COPY_8U <rsp+5*16>, rdi, r10, r11b  ; move 1-4 input blocks to stack
+   COPY_8U {rsp+5*16}, rdi, r10, r11b  ; move 1-4 input blocks to stack
 
    mov      r12, r10                   ; copy length to be processed
    xor      r11, r11                   ; index
-single_blk:
-   movdqu   xmm0, oword ptr [rsp+r11]  ; get processing blocks
+.single_blk:
+   movdqu   xmm0, oword [rsp+r11]  ; get processing blocks
 
-   pxor     xmm0, oword ptr [r15]      ; whitening
+   pxor     xmm0, oword [r15]      ; whitening
 
    cmp      rdx,12                     ; switch according to number of rounds
-   jl       key_128_s
-   jz       key_192_s
+   jl       .key_128_s
+   jz       .key_192_s
                                        ; do encryption
-key_256_s:
-   aesenc     xmm0, oword ptr[rax-4*4*SC]
-   aesenc     xmm0, oword ptr[rax-3*4*SC]
-key_192_s:
-   aesenc     xmm0, oword ptr[rax-2*4*SC]
-   aesenc     xmm0, oword ptr[rax-1*4*SC]
-key_128_s:
-   aesenc     xmm0, oword ptr[rax+0*4*SC]
-   aesenc     xmm0, oword ptr[rax+1*4*SC]
-   aesenc     xmm0, oword ptr[rax+2*4*SC]
-   aesenc     xmm0, oword ptr[rax+3*4*SC]
-   aesenc     xmm0, oword ptr[rax+4*4*SC]
-   aesenc     xmm0, oword ptr[rax+5*4*SC]
-   aesenc     xmm0, oword ptr[rax+6*4*SC]
-   aesenc     xmm0, oword ptr[rax+7*4*SC]
-   aesenc     xmm0, oword ptr[rax+8*4*SC]
-   aesenclast xmm0, oword ptr[rax+9*4*SC]
+.key_256_s:
+   aesenc     xmm0, oword [rax-4*4*SC]
+   aesenc     xmm0, oword [rax-3*4*SC]
+.key_192_s:
+   aesenc     xmm0, oword [rax-2*4*SC]
+   aesenc     xmm0, oword [rax-1*4*SC]
+.key_128_s:
+   aesenc     xmm0, oword [rax+0*4*SC]
+   aesenc     xmm0, oword [rax+1*4*SC]
+   aesenc     xmm0, oword [rax+2*4*SC]
+   aesenc     xmm0, oword [rax+3*4*SC]
+   aesenc     xmm0, oword [rax+4*4*SC]
+   aesenc     xmm0, oword [rax+5*4*SC]
+   aesenc     xmm0, oword [rax+6*4*SC]
+   aesenc     xmm0, oword [rax+7*4*SC]
+   aesenc     xmm0, oword [rax+8*4*SC]
+   aesenclast xmm0, oword [rax+9*4*SC]
 
-   movdqu      xmm1, oword ptr[rsp+5*16+r11] ; get src blocks from the stack
+   movdqu      xmm1, oword [rsp+5*16+r11] ; get src blocks from the stack
    pxor        xmm0, xmm1                    ; xor src
-   movdqu      oword ptr[rsp+1*16+r11],xmm0  ;and store into the stack
+   movdqu      oword [rsp+1*16+r11],xmm0  ;and store into the stack
 
    add         r11, r9                       ; advance index
    sub         r12, r9                       ; decrease lenth
-   jg          single_blk
+   jg          .single_blk
 
-   COPY_8U     rsi, <rsp+1*16>, r10, r11b    ; move 1-4 blocks to output
+   COPY_8U     rsi, {rsp+1*16}, r10, r11b    ; move 1-4 blocks to output
 
-   movdqu      xmm0, oword ptr[rsp+r10]; update IV
-   movdqa      oword ptr[rsp], xmm0
+   movdqu      xmm0, oword [rsp+r10]; update IV
+   movdqa      oword [rsp], xmm0
 
    add         rdi, r10
    add         rsi, r10
    sub         r8, r10
-   jg          blks_loop
+   jg          .blks_loop
 
    REST_XMM
    REST_GPR
    ret
-IPPASM EncryptCFB_RIJ128_AES_NI ENDP
+ENDFUNC EncryptCFB_RIJ128_AES_NI
 
-ALIGN IPP_ALIGN_FACTOR
-IPPASM EncryptCFB32_RIJ128_AES_NI PROC PUBLIC FRAME
-      USES_GPR    rsi,rdi,r12,r15
-      LOCAL_FRAME = (1+4+4)*16
-      USES_XMM
-      COMP_ABI 7
-;; rdi:        pInpBlk:  PTR DWORD,    ; input  blocks address
-;; rsi:        pOutBlk:  PTR DWORD,    ; output blocks address
+align IPP_ALIGN_FACTOR
+IPPASM EncryptCFB32_RIJ128_AES_NI,PUBLIC
+%assign LOCAL_FRAME (1+4+4)*16
+        USES_GPR rsi,rdi,r12,r15
+        USES_XMM
+        COMP_ABI 7
+;; rdi:        pInpBlk:  DWORD,    ; input  blocks address
+;; rsi:        pOutBlk:  DWORD,    ; output blocks address
 ;; rdx:        nr:           DWORD,    ; number of rounds
-;; rcx         pKey:     PTR DWORD     ; key material address
+;; rcx         pKey:     DWORD     ; key material address
 ;; r8d         cfbBlks:      DWORD     ; length of stream in bytes
 ;; r9d         cfbSize:      DWORD     ; cfb blk size
-;; [rsp+ARG_7] pIV       PTR BYTE      ; pointer to the IV
+;; [rsp+ARG_7] pIV       BYTE      ; pointer to the IV
 
-SC        equ (4)
-BLKS_PER_LOOP = (4)
+%xdefine SC  (4)
+%assign BLKS_PER_LOOP  (4)
 
    mov      rax, [rsp+ARG_7]           ; IV address
-   movdqu   xmm4, oword ptr[rax]       ; get IV
-   movdqa   oword ptr [rsp+0*16], xmm4 ; into the stack
+   movdqu   xmm4, oword [rax]       ; get IV
+   movdqa   oword [rsp+0*16], xmm4 ; into the stack
 
    movsxd   r8, r8d                    ; length of stream
    movsxd   r9, r9d                    ; cfb blk size
@@ -233,81 +244,80 @@ BLKS_PER_LOOP = (4)
 ;; processing
 ;;
    lea      r10, [r9*BLKS_PER_LOOP]    ; 4 cfb block
-blks_loop:
+.blks_loop:
    cmp      r8, r10
    cmovl    r10, r8
-   COPY_32U <rsp+5*16>, rdi, r10, r11d ; move 1-4 input blocks to stack
+   COPY_32U {rsp+5*16}, rdi, r10, r11d ; move 1-4 input blocks to stack
 
    mov      r12, r10                   ; copy length to be processed
    xor      r11, r11                   ; index
-single_blk:
-   movdqu   xmm0, oword ptr [rsp+r11]  ; get processing blocks
+.single_blk:
+   movdqu   xmm0, oword [rsp+r11]  ; get processing blocks
 
-   pxor     xmm0, oword ptr [r15]      ; whitening
+   pxor     xmm0, oword [r15]      ; whitening
 
    cmp      rdx,12                     ; switch according to number of rounds
-   jl       key_128_s
-   jz       key_192_s
+   jl       .key_128_s
+   jz       .key_192_s
                                        ; do encryption
-key_256_s:
-   aesenc     xmm0, oword ptr[rax-4*4*SC]
-   aesenc     xmm0, oword ptr[rax-3*4*SC]
-key_192_s:
-   aesenc     xmm0, oword ptr[rax-2*4*SC]
-   aesenc     xmm0, oword ptr[rax-1*4*SC]
-key_128_s:
-   aesenc     xmm0, oword ptr[rax+0*4*SC]
-   aesenc     xmm0, oword ptr[rax+1*4*SC]
-   aesenc     xmm0, oword ptr[rax+2*4*SC]
-   aesenc     xmm0, oword ptr[rax+3*4*SC]
-   aesenc     xmm0, oword ptr[rax+4*4*SC]
-   aesenc     xmm0, oword ptr[rax+5*4*SC]
-   aesenc     xmm0, oword ptr[rax+6*4*SC]
-   aesenc     xmm0, oword ptr[rax+7*4*SC]
-   aesenc     xmm0, oword ptr[rax+8*4*SC]
-   aesenclast xmm0, oword ptr[rax+9*4*SC]
+.key_256_s:
+   aesenc     xmm0, oword [rax-4*4*SC]
+   aesenc     xmm0, oword [rax-3*4*SC]
+.key_192_s:
+   aesenc     xmm0, oword [rax-2*4*SC]
+   aesenc     xmm0, oword [rax-1*4*SC]
+.key_128_s:
+   aesenc     xmm0, oword [rax+0*4*SC]
+   aesenc     xmm0, oword [rax+1*4*SC]
+   aesenc     xmm0, oword [rax+2*4*SC]
+   aesenc     xmm0, oword [rax+3*4*SC]
+   aesenc     xmm0, oword [rax+4*4*SC]
+   aesenc     xmm0, oword [rax+5*4*SC]
+   aesenc     xmm0, oword [rax+6*4*SC]
+   aesenc     xmm0, oword [rax+7*4*SC]
+   aesenc     xmm0, oword [rax+8*4*SC]
+   aesenclast xmm0, oword [rax+9*4*SC]
 
-   movdqu      xmm1, oword ptr[rsp+5*16+r11] ; get src blocks from the stack
+   movdqu      xmm1, oword [rsp+5*16+r11] ; get src blocks from the stack
    pxor        xmm0, xmm1                    ; xor src
-   movdqu      oword ptr[rsp+1*16+r11],xmm0  ;and store into the stack
+   movdqu      oword [rsp+1*16+r11],xmm0  ;and store into the stack
 
    add         r11, r9                       ; advance index
    sub         r12, r9                       ; decrease lenth
-   jg          single_blk
+   jg          .single_blk
 
-   COPY_32U    rsi, <rsp+1*16>, r10, r11d    ; move 1-4 blocks to output
+   COPY_32U    rsi, {rsp+1*16}, r10, r11d    ; move 1-4 blocks to output
 
-   movdqu      xmm0, oword ptr[rsp+r10]; update IV
-   movdqa      oword ptr[rsp], xmm0
+   movdqu      xmm0, oword [rsp+r10]; update IV
+   movdqa      oword [rsp], xmm0
 
    add         rdi, r10
    add         rsi, r10
    sub         r8, r10
-   jg          blks_loop
+   jg          .blks_loop
 
    REST_XMM
    REST_GPR
    ret
-IPPASM EncryptCFB32_RIJ128_AES_NI ENDP
+ENDFUNC EncryptCFB32_RIJ128_AES_NI
 
-
-ALIGN IPP_ALIGN_FACTOR
-IPPASM EncryptCFB128_RIJ128_AES_NI PROC PUBLIC FRAME
-      USES_GPR    rsi,rdi
-      LOCAL_FRAME = 0
-      USES_XMM
-      COMP_ABI 6
-;; rdi:        pInpBlk:  PTR DWORD,    ; input  blocks address
-;; rsi:        pOutBlk:  PTR DWORD,    ; output blocks address
+align IPP_ALIGN_FACTOR
+IPPASM EncryptCFB128_RIJ128_AES_NI,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi
+        USES_XMM
+        COMP_ABI 6
+;; rdi:        pInpBlk:  DWORD,    ; input  blocks address
+;; rsi:        pOutBlk:  DWORD,    ; output blocks address
 ;; rdx:        nr:           DWORD,    ; number of rounds
-;; rcx         pKey:     PTR DWORD     ; key material address
+;; rcx         pKey:     DWORD     ; key material address
 ;; r8d         cfbBlks:      DWORD     ; length of stream in bytes
-;; r9d         pIV:      PTR BYTE      ; pointer to the IV
+;; r9d         pIV:      BYTE      ; pointer to the IV
 
-SC        equ (4)
-BLKS_PER_LOOP = (4)
+%xdefine SC  (4)
+%assign BLKS_PER_LOOP  (4)
 
-   movdqu   xmm0, oword ptr[r9]        ; get IV
+   movdqu   xmm0, oword [r9]        ; get IV
 
    movsxd   r8, r8d                    ; length of stream
    movsxd   r9, r9d                    ; cfb blk size
@@ -319,49 +329,49 @@ BLKS_PER_LOOP = (4)
 ;;
 ;; processing
 ;;
-blks_loop:
-   pxor     xmm0, oword ptr [rcx]      ; whitening
+.blks_loop:
+   pxor     xmm0, oword [rcx]      ; whitening
 
-   movdqu   xmm1, oword ptr[rdi]       ; input blocks
+   movdqu   xmm1, oword [rdi]       ; input blocks
 
 
    cmp      rdx,12                     ; switch according to number of rounds
-   jl       key_128_s
-   jz       key_192_s
+   jl       .key_128_s
+   jz       .key_192_s
                                        ; do encryption
-key_256_s:
-   aesenc     xmm0, oword ptr[rax-4*4*SC]
-   aesenc     xmm0, oword ptr[rax-3*4*SC]
-key_192_s:
-   aesenc     xmm0, oword ptr[rax-2*4*SC]
-   aesenc     xmm0, oword ptr[rax-1*4*SC]
-key_128_s:
-   aesenc     xmm0, oword ptr[rax+0*4*SC]
-   aesenc     xmm0, oword ptr[rax+1*4*SC]
-   aesenc     xmm0, oword ptr[rax+2*4*SC]
-   aesenc     xmm0, oword ptr[rax+3*4*SC]
-   aesenc     xmm0, oword ptr[rax+4*4*SC]
-   aesenc     xmm0, oword ptr[rax+5*4*SC]
-   aesenc     xmm0, oword ptr[rax+6*4*SC]
-   aesenc     xmm0, oword ptr[rax+7*4*SC]
-   aesenc     xmm0, oword ptr[rax+8*4*SC]
-   aesenclast xmm0, oword ptr[rax+9*4*SC]
+.key_256_s:
+   aesenc     xmm0, oword [rax-4*4*SC]
+   aesenc     xmm0, oword [rax-3*4*SC]
+.key_192_s:
+   aesenc     xmm0, oword [rax-2*4*SC]
+   aesenc     xmm0, oword [rax-1*4*SC]
+.key_128_s:
+   aesenc     xmm0, oword [rax+0*4*SC]
+   aesenc     xmm0, oword [rax+1*4*SC]
+   aesenc     xmm0, oword [rax+2*4*SC]
+   aesenc     xmm0, oword [rax+3*4*SC]
+   aesenc     xmm0, oword [rax+4*4*SC]
+   aesenc     xmm0, oword [rax+5*4*SC]
+   aesenc     xmm0, oword [rax+6*4*SC]
+   aesenc     xmm0, oword [rax+7*4*SC]
+   aesenc     xmm0, oword [rax+8*4*SC]
+   aesenclast xmm0, oword [rax+9*4*SC]
 
    pxor        xmm0, xmm1                    ; xor src
-   movdqu      oword ptr[rsi],xmm0           ;and store into the dst
+   movdqu      oword [rsi],xmm0           ;and store into the dst
 
    add         rdi, 16
    add         rsi, 16
    sub         r8, 16
-   jg          blks_loop
+   jg          .blks_loop
 
    REST_XMM
    REST_GPR
    ret
-IPPASM EncryptCFB128_RIJ128_AES_NI ENDP
+ENDFUNC EncryptCFB128_RIJ128_AES_NI
 
-ENDIF
+%endif
 
-ENDIF ;; _AES_NI_ENABLING_
+%endif ;; _AES_NI_ENABLING_
 
-END
+

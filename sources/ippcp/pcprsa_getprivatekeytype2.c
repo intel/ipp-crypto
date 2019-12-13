@@ -141,7 +141,6 @@ IPPFUN(IppStatus, ippsRSA_GetPrivateKeyType2,(IppsBigNumState* pFactorP,
 
    if(pInverseQ) {
       cpSize coeffLen = BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_P(pKey));
-      gsModEngine* pMontP = RSA_PRV_KEY_PMONT(pKey);
       FIX_BNU(RSA_PRV_KEY_INVQ(pKey), coeffLen);
 
       pInverseQ = (IppsBigNumState*)( IPP_ALIGNED_PTR(pInverseQ, BN_ALIGNMENT) );
@@ -149,9 +148,7 @@ IPPFUN(IppStatus, ippsRSA_GetPrivateKeyType2,(IppsBigNumState* pFactorP,
       IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
       IPP_BADARG_RET(BN_ROOM(pInverseQ) < coeffLen, ippStsSizeErr);
 
-      MOD_METHOD( pMontP )->decode(BN_NUMBER(pInverseQ), RSA_PRV_KEY_INVQ(pKey), pMontP);
-
-      BN_Set(BN_NUMBER(pInverseQ), MOD_LEN(RSA_PRV_KEY_PMONT(pKey)), pInverseQ);
+      BN_Set(RSA_PRV_KEY_INVQ(pKey), MOD_LEN(RSA_PRV_KEY_PMONT(pKey)), pInverseQ);
    }
 
    return ippStsNoErr;

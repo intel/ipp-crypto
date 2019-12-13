@@ -38,103 +38,103 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Message block processing according to SHA512
-; 
+;
 ;     Content:
 ;        UpdateSHA512
 ;
-include asmdefs.inc
-include ia_32e.inc
-include ia_32e_regs.inc
-include pcpvariant.inc
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "ia_32e_regs.inc"
+%include "pcpvariant.inc"
 
-IF (_ENABLE_ALG_SHA512_)
-IF (_SHA_NI_ENABLING_ EQ _FEATURE_OFF_) OR (_SHA_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-IF (_IPP32E GE _IPP32E_L9 )
+%if (_ENABLE_ALG_SHA512_)
+%if (_SHA_NI_ENABLING_ == _FEATURE_OFF_) || (_SHA_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+%if (_IPP32E >= _IPP32E_L9 )
 
 ;;
 ;; assignments
 ;;
-hA textequ <rax>     ;; hash values into GPU registers
-hB textequ <rbx>
-hC textequ <rcx>
-hD textequ <rdx>
-hE textequ <r8>
-hF textequ <r9>
-hG textequ <r10>
-hH textequ <r11>
+%xdefine hA  rax  ;; hash values into GPU registers
+%xdefine hB  rbx
+%xdefine hC  rcx
+%xdefine hD  rdx
+%xdefine hE  r8
+%xdefine hF  r9
+%xdefine hG  r10
+%xdefine hH  r11
 
-T1 textequ <r12>     ;; scratch
-T2 textequ <r13>
-T3 textequ <r14>
-T4 textequ <r15>
-T5 textequ <rdi>
+%xdefine T1  r12  ;; scratch
+%xdefine T2  r13
+%xdefine T3  r14
+%xdefine T4  r15
+%xdefine T5  rdi
 
-W0 textequ <ymm0>   ;; W values into YMM registers
-W1 textequ <ymm1>
-W2 textequ <ymm2>
-W3 textequ <ymm3>
-W4 textequ <ymm4>
-W5 textequ <ymm5>
-W6 textequ <ymm6>
-W7 textequ <ymm7>
+%xdefine W0  ymm0 ;; W values into YMM registers
+%xdefine W1  ymm1
+%xdefine W2  ymm2
+%xdefine W3  ymm3
+%xdefine W4  ymm4
+%xdefine W5  ymm5
+%xdefine W6  ymm6
+%xdefine W7  ymm7
 
-yT1 textequ <ymm8>  ;; scratch
-yT2 textequ <ymm9>
-yT3 textequ <ymm10>
-yT4 textequ <ymm11>
+%xdefine yT1 ymm8 ;; scratch
+%xdefine yT2 ymm9
+%xdefine yT3 ymm10
+%xdefine yT4 ymm11
 
-W0L textequ <xmm0>
-W1L textequ <xmm1>
-W2L textequ <xmm2>
-W3L textequ <xmm3>
-W4L textequ <xmm4>
-W5L textequ <xmm5>
-W6L textequ <xmm6>
-W7L textequ <xmm7>
+%xdefine W0L xmm0
+%xdefine W1L xmm1
+%xdefine W2L xmm2
+%xdefine W3L xmm3
+%xdefine W4L xmm4
+%xdefine W5L xmm5
+%xdefine W6L xmm6
+%xdefine W7L xmm7
 
-YMM_SHUFB_BSWAP textequ <ymm12>  ;; byte swap constant
+%xdefine YMM_SHUFB_BSWAP  ymm12  ;; byte swap constant
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;
 ;; textual rotation of W args
 ;;
-ROTATE_W MACRO
-   _X textequ  W0
-   W0 textequ  W1
-   W1 textequ  W2
-   W2 textequ  W3
-   W3 textequ  W4
-   W4 textequ  W5
-   W5 textequ  W6
-   W6 textequ  W7
-   W7 textequ  _X
-ENDM
+%macro ROTATE_W 0.nolist
+  %xdefine %%_X   W0
+  %xdefine W0   W1
+  %xdefine W1   W2
+  %xdefine W2   W3
+  %xdefine W3   W4
+  %xdefine W4   W5
+  %xdefine W5   W6
+  %xdefine W6   W7
+  %xdefine W7   %%_X
+%endmacro
 
 ;;
 ;; textual rotation of HASH arguments
 ;;
-ROTATE_H MACRO
-   _X textequ  hH
-    hH textequ hG
-    hG textequ hF
-    hF textequ hE
-    hE textequ hD
-    hD textequ hC
-    hC textequ hB
-    hB textequ hA
-    hA textequ _X
-ENDM
+%macro ROTATE_H 0.nolist
+  %xdefine %%_X   hH
+  %xdefine hH  hG
+  %xdefine hG  hF
+  %xdefine hF  hE
+  %xdefine hE  hD
+  %xdefine hD  hC
+  %xdefine hC  hB
+  %xdefine hB  hA
+  %xdefine hA  %%_X
+ %endmacro
 
-ROTATE_2 MACRO nm1, nm2
-   _X  textequ  nm2
-   nm2 textequ  nm1
-   nm1 textequ  _X
-ENDM
+%macro ROTATE_T4_T5 0.nolist
+  %xdefine %%T T4
+  %xdefine T4 T5
+  %xdefine T5 %%T
+%endmacro
 
 ;;
 ;; update next 2 W[t] and W[t+1], t=16,...79
@@ -151,13 +151,23 @@ ENDM
 ;;          ^SHR(x,19) ^SHL(x,45)
 ;;          ^SHR(x,61) ^SHL(x,3)
 ;;
-UPDATE_W MACRO  nr, W0, W1, W2, W3, W4, W5, W6, W7
-  W_AHEAD = 16
+%macro UPDATE_W 9.nolist
+  %xdefine %%nr %1
+  %xdefine %%W0 %2
+  %xdefine %%W1 %3
+  %xdefine %%W2 %4
+  %xdefine %%W3 %5
+  %xdefine %%W4 %6
+  %xdefine %%W5 %7
+  %xdefine %%W6 %8
+  %xdefine %%W7 %9
 
-   vpalignr yT1,W1,W0,sizeof(qword)    ;; T1 = {w2:w1} args sig0()
-   vpalignr yT4,W5,W4,sizeof(qword)    ;; T4 = {w10:w9} additive
+  %assign %%W_AHEAD  16
+
+   vpalignr yT1,%%W1,%%W0,sizeof(qword)    ;; T1 = {w2:w1} args sig0()
+   vpalignr yT4,%%W5,%%W4,sizeof(qword)    ;; T4 = {w10:w9} additive
    vpsrlq   yT3,yT1,1            ;; sig0(): T3 = {w2:w1}>>1
-   vpaddq   W0,W0,yT4            ;; W0 += {w10:w9}
+   vpaddq   %%W0,%%W0,yT4            ;; W0 += {w10:w9}
    vpsrlq   yT4,yT1,7            ;; sig0(): {w2:w1}>>7
    vpsllq   yT2,yT1,56           ;; sig0(): {w2:w1}<<(64-8)
    vpxor    yT1,yT4,yT3          ;; sig0(): {w2:w1}>>7 ^ {w2:w1}>>1
@@ -165,13 +175,13 @@ UPDATE_W MACRO  nr, W0, W1, W2, W3, W4, W5, W6, W7
    vpxor    yT1,yT1,yT2          ;; sig0(): {w2:w1}>>7 ^ {w2:w1}>>1 ^ {w2:w1}<<(64-8)
    vpsllq   yT2,yT2, 7           ;; sig0(): {w2:w1}<<(64-8)<<7 = {w2:w1}<<63
    vpxor    yT1,yT1,yT3          ;; sig0(): {w2:w1}>>7 ^ {w2:w1}>>1 ^ {w2:w1}<<(64-8) ^ {w2:w1}>>8
-   vpsrlq   yT4,W7, 6            ;; sig1(): {w15:w14}>>6
+   vpsrlq   yT4,%%W7, 6            ;; sig1(): {w15:w14}>>6
    vpxor    yT1,yT1,yT2          ;; sig0()= {w2:w1}>>7
                                  ;;        ^{w2:w1}>>1 ^ {w2:w1}<<63
                                  ;;        ^{w2:w1}<<(64-8) ^ {w2:w1}>>8
-   vpsllq   yT3,W7, 3            ;; sig1(): {w15:w14}<<3
-   vpaddq   W0,W0,yT1            ;; W0 += sig0()
-   vpsrlq   yT2,W7, 19           ;; sig1(): {w15:w14}>>19
+   vpsllq   yT3,%%W7, 3            ;; sig1(): {w15:w14}<<3
+   vpaddq   %%W0,%%W0,yT1            ;; W0 += sig0()
+   vpsrlq   yT2,%%W7, 19           ;; sig1(): {w15:w14}>>19
    vpxor    yT4,yT4,yT3          ;; sig1(): {w15:w14}>>6 ^ {w15:w14}<<3
    vpsllq   yT3,yT3, 42          ;; sig1(): {w15:w14}<<3<<42 = {w15:w14}<<45
    vpxor    yT4,yT4,yT2          ;; sig1(): {w15:w14}>>6 ^ {w15:w14}<<3 ^ {w15:w14}>>19
@@ -179,12 +189,12 @@ UPDATE_W MACRO  nr, W0, W1, W2, W3, W4, W5, W6, W7
    vpxor    yT4,yT4,yT3          ;; sig1(): {w15:w14}>>6 ^ {w15:w14}<<3 ^ {w15:w14}>>19 ^ {w15:w14}<<45
    vpxor    yT4,yT4,yT2          ;; sig1()= {w15:w14}>>6
                                  ;;        ^{w15:w14}<<3 ^ {w15:w14}>>61
-                                 ;;        ^{w15:w14}>>19 ^ {w15:w14}<<45 
-   vpaddq   W0,W0,yT4            ;; W0 += sig1()
-   vpaddq   yT3,W0,YMMWORD PTR[rbp+(nr/2)*sizeof(ymmword)]
-   vmovdqa  YMMWORD PTR[rsp+(W_AHEAD/2)*sizeof(ymmword)+(nr/2)*sizeof(ymmword)],yT3
+                                 ;;        ^{w15:w14}>>19 ^ {w15:w14}<<45
+   vpaddq   %%W0,%%W0,yT4            ;; W0 += sig1()
+   vpaddq   yT3,%%W0,YMMWORD [rbp+(%%nr/2)*sizeof(ymmword)]
+   vmovdqa  YMMWORD [rsp+(%%W_AHEAD/2)*sizeof(ymmword)+(%%nr/2)*sizeof(ymmword)],yT3
    ROTATE_W
-ENDM
+%endmacro
 
 ;;
 ;; regular round (i):
@@ -208,7 +218,7 @@ ENDM
 ;; note:
 ;; 1) U + ch(e,f,g) = U + (e&f) & (~e&g)
 ;; 2) maj(a,b,c)= (a&b)^(a&c)^(b&c) = (a^b)&(b^c) ^b
-;; to make sure both are correct - use GF(2) arith instead of logic 
+;; to make sure both are correct - use GF(2) arith instead of logic
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;    or
@@ -225,44 +235,56 @@ ENDM
 ;; - T1 = f
 ;; - T3 = sum0{a[i-1])
 ;; - T5 = b&c
-SHA512_ROUND MACRO  nr, hA,hB,hC,hD,hE,hF,hG,hH
-   add   hH, qword ptr[rsp+(nr/2)*sizeof(ymmword)+(nr AND 1)*sizeof(qword)] ;; h += (k[t]+w[t])
-   and   T1, hE       ;; ch(e,f,g): (f&e)
-   rorx  T2, hE, 41   ;; sum1(e): e>>>41
-   rorx  T4, hE, 18   ;; sum1(e): e>>>18
-   add   hA, T3       ;; complete computation a += sum0(a[t-1])
-   add   hH, T1       ;; h += (k[t]+w[t]) + (f&e)
-   andn  T1, hE, hG   ;; ch(e,f,g): (~e&g)
+%macro SHA512_ROUND 9.nolist
+  %xdefine %%nr %1
+  %xdefine %%hA %2
+  %xdefine %%hB %3
+  %xdefine %%hC %4
+  %xdefine %%hD %5
+  %xdefine %%hE %6
+  %xdefine %%hF %7
+  %xdefine %%hG %8
+  %xdefine %%hH %9
+
+   add   %%hH, qword [rsp+(%%nr/2)*sizeof(ymmword)+(%%nr & 1)*sizeof(qword)] ;; h += (k[t]+w[t])
+   and   T1, %%hE       ;; ch(e,f,g): (f&e)
+   rorx  T2, %%hE, 41   ;; sum1(e): e>>>41
+   rorx  T4, %%hE, 18   ;; sum1(e): e>>>18
+   add   %%hA, T3       ;; complete computation a += sum0(a[t-1])
+   add   %%hH, T1       ;; h += (k[t]+w[t]) + (f&e)
+   andn  T1, %%hE, %%hG   ;; ch(e,f,g): (~e&g)
    xor   T2, T4       ;; sum1(e): (e>>>41)^(e>>>18)
-   rorx  T3, hE, 14   ;; sum1(e): e>>>14
-   add   hH, T1       ;; h += (k[t]+w[t]) + (f&e) + (~e&g)
+   rorx  T3, %%hE, 14   ;; sum1(e): e>>>14
+   add   %%hH, T1       ;; h += (k[t]+w[t]) + (f&e) + (~e&g)
    xor   T2, T3       ;; sum1(e) = (e>>>41)^(e>>>18)^(e>>>14)
-   mov   T4, hA       ;; maj(a,b,c): a
-   rorx  T1, hA, 39   ;; sum0(a): a>>>39
-   add   hH, T2       ;; h += (k[t]+w[t]) +(f&e) +(~e&g) +sig1(e)
-   xor   T4, hB       ;; maj(a,b,c): (a^b)
-   rorx  T3, hA, 34   ;; sum0(a): a>>>34
-   rorx  T2, hA, 28   ;; sum0(a): a>>>28
-   add   hD, hH       ;; d += h
+   mov   T4, %%hA       ;; maj(a,b,c): a
+   rorx  T1, %%hA, 39   ;; sum0(a): a>>>39
+   add   %%hH, T2       ;; h += (k[t]+w[t]) +(f&e) +(~e&g) +sig1(e)
+   xor   T4, %%hB       ;; maj(a,b,c): (a^b)
+   rorx  T3, %%hA, 34   ;; sum0(a): a>>>34
+   rorx  T2, %%hA, 28   ;; sum0(a): a>>>28
+   add   %%hD, %%hH       ;; d += h
    and   T5, T4       ;; maj(a,b,c): (b^c)&(a^b)
    xor   T3, T1       ;; sum0(a): (a>>>13)^(a>>>22)
-   xor   T5, hB       ;; maj(a,b,c) = (b^c)&(a^b)^b = (a&b)^(a&c)^(b&c)
+   xor   T5, %%hB       ;; maj(a,b,c) = (b^c)&(a^b)^b = (a&b)^(a&c)^(b&c)
    xor   T3, T2       ;;  sum0(a): = (a>>>13)^(a>>>22)^(a>>>2)
-   add   hH, T5       ;; h += (k[t]+w[t]) +(f&e) +(~e&g) +sig1(e) +maj(a,b,c)
-   mov   T1, hE       ;; T1 = f     (next round)
-   ROTATE_2 T4,T5     ;; T5 = (b^c) (next round)
-ENDM
+   add   %%hH, T5       ;; h += (k[t]+w[t]) +(f&e) +(~e&g) +sig1(e) +maj(a,b,c)
+   mov   T1, %%hE       ;; T1 = f     (next round)
+   ROTATE_T4_T5     ;; T5 = (b^c) (next round)
+%endmacro
 
 ;;
 ;; does 2 regular rounds and computes next 2 W values
 ;; (just 2 instances of SHA512_ROUND merged together woth UPDATE_W)
 ;;
-SHA512_2ROUND_SHED MACRO round
-  W_AHEAD = 16
-   nr = round
+%macro SHA512_2ROUND_SHED 1.nolist
+  %xdefine %%round %1
+
+  %assign %%W_AHEAD  16
+  %assign %%nr  %%round
 
 vpalignr yT1,W1,W0,sizeof(qword)
-   add   hH, qword ptr[rsp+(nr/2)*sizeof(ymmword)+(nr AND 1)*sizeof(qword)]
+   add   hH, qword [rsp+(%%nr/2)*sizeof(ymmword)+(%%nr & 1)*sizeof(qword)]
    and   T1, hE
 vpalignr yT4,W5,W4,sizeof(qword)
    rorx  T2, hE, 41
@@ -298,11 +320,11 @@ vpsrlq   yT4,W7, 6
    add   hH, T5
    mov   T1, hE
 vpxor    yT1,yT1,yT2
-   ROTATE_2 T4,T5
+   ROTATE_T4_T5
    ROTATE_H
 
-   nr = nr+1
-   add   hH, qword ptr[rsp+(nr/2)*sizeof(ymmword)+(nr AND 1)*sizeof(qword)]
+  %assign %%nr  %%nr+1
+   add   hH, qword [rsp+(%%nr/2)*sizeof(ymmword)+(%%nr & 1)*sizeof(qword)]
    and   T1, hE
 vpsllq   yT3,W7, 3
    rorx  T2, hE, 41
@@ -334,28 +356,32 @@ vpxor    yT4,yT4,yT2
 vpaddq   W0,W0,yT4
    xor   T5, hB
    xor   T3, T2
-vpaddq   yT3,W0,YMMWORD PTR[rbp+(nr/2)*sizeof(ymmword)]
+vpaddq   yT3,W0,YMMWORD [rbp+(%%nr/2)*sizeof(ymmword)]
    add   hH, T5
    mov   T1, hE
-vmovdqa  YMMWORD PTR[rsp+(W_AHEAD/2)*sizeof(ymmword)+(nr/2)*sizeof(ymmword)],yT3
-   ROTATE_2 T4,T5
+vmovdqa  YMMWORD [rsp+(%%W_AHEAD/2)*sizeof(ymmword)+(%%nr/2)*sizeof(ymmword)],yT3
+   ROTATE_T4_T5
    ROTATE_H
    ROTATE_W
-ENDM
+%endmacro
 
 ;;
 ;; update hash
 ;;
-UPDATE_HASH MACRO hashMem, hash
-     add    hash, hashMem
-     mov    hashMem, hash
-ENDM
+%macro UPDATE_HASH 2.nolist
+  %xdefine %%hashMem %1
+  %xdefine %%hash %2
+
+     add    %%hash, %%hashMem
+     mov    %%hashMem, %%hash
+%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
 
-ALIGN IPP_ALIGN_FACTOR
+
+align IPP_ALIGN_FACTOR
 
 SHA512_YMM_K   dq 0428a2f98d728ae22h, 07137449123ef65cdh, 0428a2f98d728ae22h, 07137449123ef65cdh
                dq 0b5c0fbcfec4d3b2fh, 0e9b5dba58189dbbch, 0b5c0fbcfec4d3b2fh, 0e9b5dba58189dbbch
@@ -407,12 +433,12 @@ SHA512_YMM_BF  dq 00001020304050607h, 008090a0b0c0d0e0fh, 00001020304050607h, 00
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-ALIGN IPP_ALIGN_FACTOR
-IPPASM UpdateSHA512 PROC PUBLIC FRAME
-      USES_GPR rbx,rsi,rdi,rbp,rbx,r12,r13,r14,r15
-      LOCAL_FRAME = (sizeof(qword)*4 + sizeof(qword)*80*2)
-      USES_XMM_AVX xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12
-      COMP_ABI 4
+align IPP_ALIGN_FACTOR
+IPPASM UpdateSHA512,PUBLIC
+%assign LOCAL_FRAME (sizeof(qword)*4 + sizeof(qword)*80*2)
+        USES_GPR rbx,rsi,rdi,rbp,rbx,r12,r13,r14,r15
+        USES_XMM_AVX xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12
+        COMP_ABI 4
 ;;
 ;; rdi = pointer to the updated hash
 ;; rsi = pointer to the data block
@@ -420,37 +446,37 @@ IPPASM UpdateSHA512 PROC PUBLIC FRAME
 ;; rcx = pointer to the SHA_512 constant (ignored)
 ;;
 
-MBS_SHA512  equ   (128)
+%xdefine MBS_SHA512    (128)
 
 ;;
 ;; stack structure:
 ;;
-_reserve  = 0                       ;; reserved
-_hash    = _reserve+sizeof(qword)   ;; hash address
-_len     = _hash+sizeof(qword)      ;; rest of processed data
-_frame   = _len+sizeof(qword)       ;; rsp before alignment
-_dataW   = _frame+sizeof(qword)     ;; W[t] values
+%assign _reserve 0                      ;; reserved
+%assign _hash    _reserve+sizeof(qword) ;; hash address
+%assign _len     _hash+sizeof(qword)    ;; rest of processed data
+%assign _frame   _len+sizeof(qword)     ;; rsp before alignment
+%assign _dataW   _frame+sizeof(qword)   ;; W[t] values
 
    mov      r15, rsp                ; store orifinal rsp
    and      rsp, -IPP_ALIGN_FACTOR  ; 32-byte aligned stack
 
    movsxd   r14, edx                ; input length in bytes
 
-   mov      qword ptr[rsp+_hash], rdi  ; store hash address
-   mov      qword ptr[rsp+_len], r14   ; store length
-   mov      qword ptr[rsp+_frame], r15 ; store rsp
-   lea      rsp, qword ptr[rsp+_dataW] ; set up rsp
+   mov      qword [rsp+_hash], rdi  ; store hash address
+   mov      qword [rsp+_len], r14   ; store length
+   mov      qword [rsp+_frame], r15 ; store rsp
+   lea      rsp, qword [rsp+_dataW] ; set up rsp
 
-   vmovdqa  YMM_SHUFB_BSWAP, ymmword ptr SHA512_YMM_BF   ; load byte shuffler
+   vmovdqa  YMM_SHUFB_BSWAP, ymmword [rel SHA512_YMM_BF]   ; load byte shuffler
 
-   mov      hA, qword ptr[rdi]       ; load initial hash value
-   mov      hB, qword ptr[rdi+1*sizeof(qword)]
-   mov      hC, qword ptr[rdi+2*sizeof(qword)]
-   mov      hD, qword ptr[rdi+3*sizeof(qword)]
-   mov      hE, qword ptr[rdi+4*sizeof(qword)]
-   mov      hF, qword ptr[rdi+5*sizeof(qword)]
-   mov      hG, qword ptr[rdi+6*sizeof(qword)]
-   mov      hH, qword ptr[rdi+7*sizeof(qword)]
+   mov      hA, qword [rdi]       ; load initial hash value
+   mov      hB, qword [rdi+1*sizeof(qword)]
+   mov      hC, qword [rdi+2*sizeof(qword)]
+   mov      hD, qword [rdi+3*sizeof(qword)]
+   mov      hE, qword [rdi+4*sizeof(qword)]
+   mov      hF, qword [rdi+5*sizeof(qword)]
+   mov      hG, qword [rdi+6*sizeof(qword)]
+   mov      hH, qword [rdi+7*sizeof(qword)]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -458,32 +484,32 @@ _dataW   = _frame+sizeof(qword)     ;; W[t] values
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-ALIGN IPP_ALIGN_FACTOR
-sha512_block2_loop:
+align IPP_ALIGN_FACTOR
+.sha512_block2_loop:
    lea      r12, [rsi+MBS_SHA512]      ; next block
 
-   cmp      r14, MBS_SHA512            ; if single block processed
+   cmp      r14, MBS_SHA512            ; %if single block processed
    cmovbe   r12, rsi                   ; use the same data block address
 
-   lea      rbp, ymmword ptr SHA512_YMM_K    ; ptr to SHA512 consts
+   lea      rbp, [rel SHA512_YMM_K]    ; to SHA512 consts
 
-   vmovdqu  W0L, xmmword ptr [rsi]           ; load data block
-   vmovdqu  W1L, xmmword ptr [rsi+1*sizeof(xmmword)]
-   vmovdqu  W2L, xmmword ptr [rsi+2*sizeof(xmmword)]
-   vmovdqu  W3L, xmmword ptr [rsi+3*sizeof(xmmword)]
-   vmovdqu  W4L, xmmword ptr [rsi+4*sizeof(xmmword)]
-   vmovdqu  W5L, xmmword ptr [rsi+5*sizeof(xmmword)]
-   vmovdqu  W6L, xmmword ptr [rsi+6*sizeof(xmmword)]
-   vmovdqu  W7L, xmmword ptr [rsi+7*sizeof(xmmword)]
+   vmovdqu  W0L, xmmword [rsi]           ; load data block
+   vmovdqu  W1L, xmmword [rsi+1*sizeof(xmmword)]
+   vmovdqu  W2L, xmmword [rsi+2*sizeof(xmmword)]
+   vmovdqu  W3L, xmmword [rsi+3*sizeof(xmmword)]
+   vmovdqu  W4L, xmmword [rsi+4*sizeof(xmmword)]
+   vmovdqu  W5L, xmmword [rsi+5*sizeof(xmmword)]
+   vmovdqu  W6L, xmmword [rsi+6*sizeof(xmmword)]
+   vmovdqu  W7L, xmmword [rsi+7*sizeof(xmmword)]
 
-   vinserti128 W0, W0, xmmword ptr[r12], 1   ; merge next data block
-   vinserti128 W1, W1, xmmword ptr[r12+1*sizeof(xmmword)], 1
-   vinserti128 W2, W2, xmmword ptr[r12+2*sizeof(xmmword)], 1
-   vinserti128 W3, W3, xmmword ptr[r12+3*sizeof(xmmword)], 1
-   vinserti128 W4, W4, xmmword ptr[r12+4*sizeof(xmmword)], 1
-   vinserti128 W5, W5, xmmword ptr[r12+5*sizeof(xmmword)], 1
-   vinserti128 W6, W6, xmmword ptr[r12+6*sizeof(xmmword)], 1
-   vinserti128 W7, W7, xmmword ptr[r12+7*sizeof(xmmword)], 1
+   vinserti128 W0, W0, xmmword [r12], 1   ; merge next data block
+   vinserti128 W1, W1, xmmword [r12+1*sizeof(xmmword)], 1
+   vinserti128 W2, W2, xmmword [r12+2*sizeof(xmmword)], 1
+   vinserti128 W3, W3, xmmword [r12+3*sizeof(xmmword)], 1
+   vinserti128 W4, W4, xmmword [r12+4*sizeof(xmmword)], 1
+   vinserti128 W5, W5, xmmword [r12+5*sizeof(xmmword)], 1
+   vinserti128 W6, W6, xmmword [r12+6*sizeof(xmmword)], 1
+   vinserti128 W7, W7, xmmword [r12+7*sizeof(xmmword)], 1
 
    vpshufb  W0, W0, YMM_SHUFB_BSWAP
    vpshufb  W1, W1, YMM_SHUFB_BSWAP
@@ -494,23 +520,23 @@ sha512_block2_loop:
    vpshufb  W6, W6, YMM_SHUFB_BSWAP
    vpshufb  W7, W7, YMM_SHUFB_BSWAP
 
-   vpaddq   yT1, W0, ymmword ptr[rbp]
-   vmovdqa  ymmword ptr [rsp], yT1
-   vpaddq   yT2, W1, ymmword ptr[rbp+1*sizeof(ymmword)]
-   vmovdqa  ymmword ptr [rsp+1*sizeof(ymmword)], yT2
-   vpaddq   yT3, W2, ymmword ptr[rbp+2*sizeof(ymmword)]
-   vmovdqa  ymmword ptr [rsp+2*sizeof(ymmword)], yT3
-   vpaddq   yT4, W3, ymmword ptr[rbp+3*sizeof(ymmword)]
-   vmovdqa  ymmword ptr [rsp+3*sizeof(ymmword)], yT4
+   vpaddq   yT1, W0, ymmword [rbp]
+   vmovdqa  ymmword [rsp], yT1
+   vpaddq   yT2, W1, ymmword [rbp+1*sizeof(ymmword)]
+   vmovdqa  ymmword [rsp+1*sizeof(ymmword)], yT2
+   vpaddq   yT3, W2, ymmword [rbp+2*sizeof(ymmword)]
+   vmovdqa  ymmword [rsp+2*sizeof(ymmword)], yT3
+   vpaddq   yT4, W3, ymmword [rbp+3*sizeof(ymmword)]
+   vmovdqa  ymmword [rsp+3*sizeof(ymmword)], yT4
 
-   vpaddq   yT1, W4, ymmword ptr[rbp+4*sizeof(ymmword)]
-   vmovdqa  ymmword ptr [rsp+4*sizeof(ymmword)], yT1
-   vpaddq   yT2, W5, ymmword ptr[rbp+5*sizeof(ymmword)]
-   vmovdqa  ymmword ptr [rsp+5*sizeof(ymmword)], yT2
-   vpaddq   yT3, W6, ymmword ptr[rbp+6*sizeof(ymmword)]
-   vmovdqa  ymmword ptr [rsp+6*sizeof(ymmword)], yT3
-   vpaddq   yT4, W7, ymmword ptr[rbp+7*sizeof(ymmword)]
-   vmovdqa  ymmword ptr [rsp+7*sizeof(ymmword)], yT4
+   vpaddq   yT1, W4, ymmword [rbp+4*sizeof(ymmword)]
+   vmovdqa  ymmword [rsp+4*sizeof(ymmword)], yT1
+   vpaddq   yT2, W5, ymmword [rbp+5*sizeof(ymmword)]
+   vmovdqa  ymmword [rsp+5*sizeof(ymmword)], yT2
+   vpaddq   yT3, W6, ymmword [rbp+6*sizeof(ymmword)]
+   vmovdqa  ymmword [rsp+6*sizeof(ymmword)], yT3
+   vpaddq   yT4, W7, ymmword [rbp+7*sizeof(ymmword)]
+   vmovdqa  ymmword [rsp+7*sizeof(ymmword)], yT4
 
    add      rbp, 8*sizeof(ymmword)
 
@@ -519,8 +545,8 @@ sha512_block2_loop:
    mov      T1, hF   ; T1 = f
    xor      T5, hC
 
-ALIGN IPP_ALIGN_FACTOR
-block1_shed_proc:
+align IPP_ALIGN_FACTOR
+.block1_shed_proc:
    SHA512_2ROUND_SHED   0
    SHA512_2ROUND_SHED   2
    SHA512_2ROUND_SHED   4
@@ -534,8 +560,8 @@ block1_shed_proc:
    add      rbp, 8*sizeof(ymmword)
 
    ;; and repeat
-   cmp      dword ptr[rbp-sizeof(qword)],04a475817h
-   jne      block1_shed_proc
+   cmp      dword [rbp-sizeof(qword)],04a475817h
+   jne      .block1_shed_proc
 
    ;; the rest 16 rounds
    SHA512_ROUND  0, hA,hB,hC,hD,hE,hF,hG,hH
@@ -558,21 +584,21 @@ block1_shed_proc:
 
    sub      rsp, ((80-16)/2)*sizeof(ymmword)  ; restore stack to W
 
-   mov   rdi, qword ptr[rsp+_hash-_dataW] ; restore hash pointer
-   mov   r14, qword ptr[rsp+_len-_dataW]  ; restore data length
+   mov   rdi, qword [rsp+_hash-_dataW] ; restore hash pointer
+   mov   r14, qword [rsp+_len-_dataW]  ; restore data length
 
    ;; update hash values by 1-st data block
-   UPDATE_HASH    qword ptr [rdi],   hA
-   UPDATE_HASH    qword ptr [rdi+1*sizeof(qword)], hB
-   UPDATE_HASH    qword ptr [rdi+2*sizeof(qword)], hC
-   UPDATE_HASH    qword ptr [rdi+3*sizeof(qword)], hD
-   UPDATE_HASH    qword ptr [rdi+4*sizeof(qword)], hE
-   UPDATE_HASH    qword ptr [rdi+5*sizeof(qword)], hF
-   UPDATE_HASH    qword ptr [rdi+6*sizeof(qword)], hG
-   UPDATE_HASH    qword ptr [rdi+7*sizeof(qword)], hH
+   UPDATE_HASH    qword [rdi],   hA
+   UPDATE_HASH    qword [rdi+1*sizeof(qword)], hB
+   UPDATE_HASH    qword [rdi+2*sizeof(qword)], hC
+   UPDATE_HASH    qword [rdi+3*sizeof(qword)], hD
+   UPDATE_HASH    qword [rdi+4*sizeof(qword)], hE
+   UPDATE_HASH    qword [rdi+5*sizeof(qword)], hF
+   UPDATE_HASH    qword [rdi+6*sizeof(qword)], hG
+   UPDATE_HASH    qword [rdi+7*sizeof(qword)], hH
 
    cmp   r14, MBS_SHA512*2
-   jl    done
+   jl    .done
 
    ;; do 80 rounds for the next block
    add      rsp, 2*sizeof(qword)          ; restore stack to next block W
@@ -583,8 +609,8 @@ block1_shed_proc:
    mov      T1, hF   ; T1 = f
    xor      T5, hC
 
-ALIGN IPP_ALIGN_FACTOR
-block2_proc:
+align IPP_ALIGN_FACTOR
+.block2_proc:
    SHA512_ROUND  0, hA,hB,hC,hD,hE,hF,hG,hH
    SHA512_ROUND  1, hH,hA,hB,hC,hD,hE,hF,hG
    SHA512_ROUND  2, hG,hH,hA,hB,hC,hD,hE,hF
@@ -595,37 +621,37 @@ block2_proc:
    SHA512_ROUND  7, hB,hC,hD,hE,hF,hG,hH,hA
    add      rsp, 4*sizeof(ymmword)
    cmp      rsp, rbp
-   jb       block2_proc
+   jb       .block2_proc
    add      hA, T3
 
    sub      rsp, (80/2)*sizeof(ymmword)+2*sizeof(qword) ; restore stack to W
 
-   mov   rdi, qword ptr[rsp+_hash-_dataW] ; restore hash pointer
-   mov   r14, qword ptr[rsp+_len-_dataW]  ; restore data length
+   mov   rdi, qword [rsp+_hash-_dataW] ; restore hash pointer
+   mov   r14, qword [rsp+_len-_dataW]  ; restore data length
 
    ;; update hash values by 1-st data block
-   UPDATE_HASH    qword ptr [rdi],   hA
-   UPDATE_HASH    qword ptr [rdi+1*sizeof(qword)], hB
-   UPDATE_HASH    qword ptr [rdi+2*sizeof(qword)], hC
-   UPDATE_HASH    qword ptr [rdi+3*sizeof(qword)], hD
-   UPDATE_HASH    qword ptr [rdi+4*sizeof(qword)], hE
-   UPDATE_HASH    qword ptr [rdi+5*sizeof(qword)], hF
-   UPDATE_HASH    qword ptr [rdi+6*sizeof(qword)], hG
-   UPDATE_HASH    qword ptr [rdi+7*sizeof(qword)], hH
+   UPDATE_HASH    qword [rdi],   hA
+   UPDATE_HASH    qword [rdi+1*sizeof(qword)], hB
+   UPDATE_HASH    qword [rdi+2*sizeof(qword)], hC
+   UPDATE_HASH    qword [rdi+3*sizeof(qword)], hD
+   UPDATE_HASH    qword [rdi+4*sizeof(qword)], hE
+   UPDATE_HASH    qword [rdi+5*sizeof(qword)], hF
+   UPDATE_HASH    qword [rdi+6*sizeof(qword)], hG
+   UPDATE_HASH    qword [rdi+7*sizeof(qword)], hH
 
    add      rsi, MBS_SHA512*2                ; move data pointer
    sub      r14, MBS_SHA512*2                ; update data length
-   mov      qword ptr[rsp+_len-_dataW], r14
-   jg       sha512_block2_loop
+   mov      qword [rsp+_len-_dataW], r14
+   jg       .sha512_block2_loop
 
-done:
-   mov   rsp, qword ptr[rsp+_frame-_dataW]
+.done:
+   mov   rsp, qword [rsp+_frame-_dataW]
    REST_XMM_AVX
    REST_GPR
    ret
-IPPASM UpdateSHA512 ENDP
+ENDFUNC UpdateSHA512
 
-ENDIF    ;; _IPP32E_L9 and above
-ENDIF    ;; _FEATURE_OFF_ / _FEATURE_TICKTOCK_
-ENDIF    ;; _ENABLE_ALG_SHA512_
-END
+%endif    ;; _IPP32E_L9 and above
+%endif    ;; _FEATURE_OFF_ / _FEATURE_TICKTOCK_
+%endif    ;; _ENABLE_ALG_SHA512_
+

@@ -38,17 +38,17 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Low level Big Number reduction Support
-; 
+;
 ;
 
-IFNDEF _PCPMRED_INC_
-_PCPMRED_INC_ = 1
+%ifndef _PCPMRED_INC_
+%assign _PCPMRED_INC_  1
 
-include pcpmred_basic.inc
+%include "pcpmred_basic.inc"
 
 
 ;
@@ -57,8 +57,8 @@ include pcpmred_basic.inc
 ;  rsi - modulus
 ;  rdx - modulus legth
 ;  r8  - m'
-ALIGN IPP_ALIGN_FACTOR
-mred_8N PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_8N,PRIVATE
    push     r15      ; save reduction address
 
    sub      rsp, sizeof(qword)*8 ; allocate U space
@@ -68,7 +68,7 @@ mred_8N PROC PRIVATE
 
    xor      rax, rax ; init global carry
 
-passLoop:
+.passLoop:
                      ; save:
    push     rdi      ;  - buffer address
    push     rsi      ;  - modulus address
@@ -85,14 +85,14 @@ passLoop:
    mov      rdx, r8  ; copy m'
 
    ; load low part of the product into r8,r9,r10,r11,r12,r13,r14,r15
-   mov      r8, qword ptr [rdi]
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
    pop      rdx      ; restore modulus counter
@@ -109,9 +109,9 @@ passLoop:
    adc      rax, 0
    push     rax
 
-   jmp      entryInnerLoop
+   jmp      .entryInnerLoop
 
-innerLoop:
+.innerLoop:
    push     rdx         ; save modulus counter
    call     mla_8x8
    pop      rdx         ; restore modulus counter
@@ -129,11 +129,11 @@ innerLoop:
    adc      rax, 0
    push     rax
 
-entryInnerLoop:
+.entryInnerLoop:
    add      rdi, sizeof(qword)*8
    add      rsi, sizeof(qword)*8
    sub      rdx, 8
-   jg       innerLoop
+   jg       .innerLoop
 
    ; single pass completion
    pop      rax         ; new global carry
@@ -149,14 +149,14 @@ entryInnerLoop:
    adc      r15, 0
    adc      rax, 0      ; update global carry
 
-   mov      qword ptr[rdi+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+sizeof(qword)*5], r13
-   mov      qword ptr[rdi+sizeof(qword)*6], r14
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*5], r13
+   mov      qword [rdi+sizeof(qword)*6], r14
+   mov      qword [rdi+sizeof(qword)*7], r15
    ;
    ; end of single pass
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -169,7 +169,7 @@ entryInnerLoop:
    pop      rdi      ;  - buffer address
    add      rdi, sizeof(qword)*8
    sub      rbx, 8
-   jg       passLoop
+   jg       .passLoop
 
    add      rsp, sizeof(qword)*8    ; release U space
 
@@ -193,7 +193,8 @@ entryInnerLoop:
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-mred_8N ENDP
+ENDFUNC mred_8N
+
 
 ;
 ;  r15 - reduction
@@ -201,8 +202,8 @@ mred_8N ENDP
 ;  rsi - modulus
 ;  rdx - modulus legth
 ;  r8  - m'
-ALIGN IPP_ALIGN_FACTOR
-mred_N PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_N,PRIVATE
    push     r15      ; save reduction address
 
    sub      rsp, sizeof(qword)*8 ; allocate U space
@@ -213,11 +214,11 @@ mred_N PROC PRIVATE
 
    xor      rax, rax ; init carryGBL
 
-   mov      r15, 7                        ; n = modulus_len%8
+   mov      r15, dword 7                  ; n = modulus_len%8
    and      r15, rdx
    GET_EP   rbp, mla_8xl_tail, r15        ; tail procedure (mla_8xn) address
 
-passLoop:
+.passLoop:
                      ; save:
    push     rdi      ;  - buffer address
    push     rsi      ;  - modulus address
@@ -236,14 +237,14 @@ passLoop:
    mov      rdx, r8  ; copy m'
 
    ; load low part of the product into r8,r9,r10,r11,r12,r13,r14,r15
-   mov      r8, qword ptr [rdi]
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
    pop      rdx         ; restore modulus counter
@@ -251,14 +252,14 @@ passLoop:
    xor      rax, rax    ; init carryLCL
    push     rax
 
-   jmp      entryInnerLoop
+   jmp      .entryInnerLoop
 
-innerLoop:
+.innerLoop:
    push     rdx         ; save modulus counter
    call     mla_8x8
    pop      rdx         ; restore modulus counter
 
-entryInnerLoop:
+.entryInnerLoop:
    pop      rax         ; restore carryLCL
    shr      rax, 1
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(8+0)], r8, [rdi+sizeof(qword)*(8+0)], rbx
@@ -275,10 +276,10 @@ entryInnerLoop:
    add      rdi, sizeof(qword)*8
    add      rsi, sizeof(qword)*8
    sub      rdx, 8
-   jnc      innerLoop
+   jnc      .innerLoop
 
    add      rdx, 8
-   jz       complete_regular_pass
+   jz       .complete_regular_pass
 
    ; tail of single pass
    mov      rax, [rsp+sizeof(qword)]      ; procedure address
@@ -295,30 +296,30 @@ entryInnerLoop:
    mov      rbx, rdx
 
    dec      rbx
-   jz       mt_1
+   jz       .mt_1
    dec      rbx
-   jz       mt_2
+   jz       .mt_2
    dec      rbx
-   jz       mt_3
+   jz       .mt_3
    dec      rbx
-   jz       mt_4
+   jz       .mt_4
    dec      rbx
-   jz       mt_5
+   jz       .mt_5
    dec      rbx
-   jz       mt_6
-mt_7: op_reg_mem adc, r9, [rdi+sizeof(qword)*1], rbx
-mt_6: op_reg_mem adc, r10,[rdi+sizeof(qword)*2], rbx
-mt_5: op_reg_mem adc, r11,[rdi+sizeof(qword)*3], rbx
-mt_4: op_reg_mem adc, r12,[rdi+sizeof(qword)*4], rbx
-mt_3: op_reg_mem adc, r13,[rdi+sizeof(qword)*5], rbx
-mt_2: op_reg_mem adc, r14,[rdi+sizeof(qword)*6], rbx
-mt_1: op_reg_mem adc, r15,[rdi+sizeof(qword)*7], rbx
+   jz       .mt_6
+.mt_7: op_reg_mem adc, r9, [rdi+sizeof(qword)*1], rbx
+.mt_6: op_reg_mem adc, r10,[rdi+sizeof(qword)*2], rbx
+.mt_5: op_reg_mem adc, r11,[rdi+sizeof(qword)*3], rbx
+.mt_4: op_reg_mem adc, r12,[rdi+sizeof(qword)*4], rbx
+.mt_3: op_reg_mem adc, r13,[rdi+sizeof(qword)*5], rbx
+.mt_2: op_reg_mem adc, r14,[rdi+sizeof(qword)*6], rbx
+.mt_1: op_reg_mem adc, r15,[rdi+sizeof(qword)*7], rbx
 
    adc   rax, 0         ; update carryLCL
    push  rax
 
    ; single pass completion
-complete_regular_pass:
+.complete_regular_pass:
    pop      rax         ; carryLCL
    pop      rbp         ; mla_8xn procedure
 
@@ -333,14 +334,14 @@ complete_regular_pass:
    adc      r15, 0
    adc      rax, 0      ; update carryGBL
 
-   mov      qword ptr[rdi+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+sizeof(qword)*5], r13
-   mov      qword ptr[rdi+sizeof(qword)*6], r14
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*5], r13
+   mov      qword [rdi+sizeof(qword)*6], r14
+   mov      qword [rdi+sizeof(qword)*7], r15
 ;;
 ;; end of regular pass
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -353,10 +354,10 @@ complete_regular_pass:
    pop      rdi      ;  - buffer address
    add      rdi, sizeof(qword)*8
    sub      rbx, 8
-   jnc      passLoop
+   jnc      .passLoop
 
    add      rbx, 8
-   jz       complete_reduction
+   jz       .complete_reduction
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -376,14 +377,14 @@ complete_regular_pass:
    mov      rdx, r8  ; copy m'
 
    ; load low part of the product into r8,r9,r10,r11,r12,r13,r14,r15
-   mov      r8, qword ptr [rdi]
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    GET_EP   rax, mred8x_start, rbx, rbp   ; procedure mred8xn_start address
 
@@ -393,24 +394,24 @@ complete_regular_pass:
    xor      rax, rax    ; init carryCLC
    push     rax
 
-   jmp      entryTailLoop
+   jmp      .entryTailLoop
 
-tailLoop:
-   mov      r8, qword ptr [rdi]
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+.tailLoop:
+   mov      r8, qword [rdi]
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    mov      rax, [rsp+sizeof(qword)]      ; procedure address
    push     rdx         ; save modulus counter
    call     rax
    pop      rdx         ; restore modulus counter
 
-entryTailLoop:
+.entryTailLoop:
    pop      rax         ; restore carryLCL
    shr      rax, 1
    adc      r8,  0
@@ -425,68 +426,68 @@ entryTailLoop:
 
    mov      rbx, [rsp+sizeof(qword)*2]    ; modulus_len%7
    cmp      rbx, 1
-   jz       tt_1
+   jz       .tt_1
    cmp      rbx, 2
-   jz       tt_2
+   jz       .tt_2
    cmp      rbx, 3
-   jz       tt_3
+   jz       .tt_3
    cmp      rbx, 4
-   jz       tt_4
+   jz       .tt_4
    cmp      rbx, 5
-   jz       tt_5
+   jz       .tt_5
    cmp      rbx, 6
-   jz       tt_6
-tt_7: op_reg_mem adc, r9, [rdi+rbx*sizeof(qword)+sizeof(qword)*1], rbp
-tt_6: op_reg_mem adc, r10,[rdi+rbx*sizeof(qword)+sizeof(qword)*2], rbp
-tt_5: op_reg_mem adc, r11,[rdi+rbx*sizeof(qword)+sizeof(qword)*3], rbp
-tt_4: op_reg_mem adc, r12,[rdi+rbx*sizeof(qword)+sizeof(qword)*4], rbp
-tt_3: op_reg_mem adc, r13,[rdi+rbx*sizeof(qword)+sizeof(qword)*5], rbp
-tt_2: op_reg_mem adc, r14,[rdi+rbx*sizeof(qword)+sizeof(qword)*6], rbp
-tt_1: op_reg_mem adc, r15,[rdi+rbx*sizeof(qword)+sizeof(qword)*7], rbp
+   jz       .tt_6
+.tt_7: op_reg_mem adc, r9, [rdi+rbx*sizeof(qword)+sizeof(qword)*1], rbp
+.tt_6: op_reg_mem adc, r10,[rdi+rbx*sizeof(qword)+sizeof(qword)*2], rbp
+.tt_5: op_reg_mem adc, r11,[rdi+rbx*sizeof(qword)+sizeof(qword)*3], rbp
+.tt_4: op_reg_mem adc, r12,[rdi+rbx*sizeof(qword)+sizeof(qword)*4], rbp
+.tt_3: op_reg_mem adc, r13,[rdi+rbx*sizeof(qword)+sizeof(qword)*5], rbp
+.tt_2: op_reg_mem adc, r14,[rdi+rbx*sizeof(qword)+sizeof(qword)*6], rbp
+.tt_1: op_reg_mem adc, r15,[rdi+rbx*sizeof(qword)+sizeof(qword)*7], rbp
 
    adc      rax, 0
    push     rax         ; update store carryLCL
 
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*5], r13
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*6], r14
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*7], r15
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*0], r8
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*1], r9
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*2], r10
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*3], r11
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*4], r12
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*5], r13
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*6], r14
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*7], r15
 
    add      rsi, sizeof(qword)*8
    add      rdi, sizeof(qword)*8
    sub      rdx, 8
-   jnc      tailLoop
+   jnc      .tailLoop
 
    add      rdx, 8
 
    ; load data depending on length of tail
    mov      rbx, rdx
 
-   mov      r8,  qword ptr[rdi]
+   mov      r8,  qword [rdi]
    dec      rbx
-   jz       get_tail_proc
-   mov      r9,  qword ptr[rdi+sizeof(qword)]
+   jz       .get_tail_proc
+   mov      r9,  qword [rdi+sizeof(qword)]
    dec      rbx
-   jz       get_tail_proc
-   mov      r10, qword ptr[rdi+sizeof(qword)*2]
+   jz       .get_tail_proc
+   mov      r10, qword [rdi+sizeof(qword)*2]
    dec      rbx
-   jz       get_tail_proc
-   mov      r11, qword ptr[rdi+sizeof(qword)*3]
+   jz       .get_tail_proc
+   mov      r11, qword [rdi+sizeof(qword)*3]
    dec      rbx
-   jz       get_tail_proc
-   mov      r12, qword ptr[rdi+sizeof(qword)*4]
+   jz       .get_tail_proc
+   mov      r12, qword [rdi+sizeof(qword)*4]
    dec      rbx
-   jz       get_tail_proc
-   mov      r13, qword ptr[rdi+sizeof(qword)*5]
+   jz       .get_tail_proc
+   mov      r13, qword [rdi+sizeof(qword)*5]
    dec      rbx
-   jz       get_tail_proc
-   mov      r14, qword ptr[rdi+sizeof(qword)*6]
+   jz       .get_tail_proc
+   mov      r14, qword [rdi+sizeof(qword)*6]
 
-get_tail_proc:
+.get_tail_proc:
    ; multiply
 ;  GET_EP   rax, mla_8xl_tail, rdx, rbp   ; tail procedure mla_8xn address
    GET_EP   rax, mla_lxl_short, rdx, rbp  ; tail procedure mla_lxl address
@@ -503,24 +504,24 @@ get_tail_proc:
    mov      rbx, rdx
    op_reg_mem adc, r8, [rdi+sizeof(qword)*0], rbp
    dec      rbx
-   jz       add_carry1
+   jz       .add_carry1
    op_reg_mem adc, r9, [rdi+sizeof(qword)*1], rbp
    dec      rbx
-   jz       add_carry1
+   jz       .add_carry1
    op_reg_mem adc, r10,[rdi+sizeof(qword)*2], rbp
    dec      rbx
-   jz       add_carry1
+   jz       .add_carry1
    op_reg_mem adc, r11,[rdi+sizeof(qword)*3], rbp
    dec      rbx
-   jz       add_carry1
+   jz       .add_carry1
    op_reg_mem adc, r12,[rdi+sizeof(qword)*4], rbp
    dec      rbx
-   jz       add_carry1
+   jz       .add_carry1
    op_reg_mem adc, r13,[rdi+sizeof(qword)*5], rbp
    dec      rbx
-   jz       add_carry1
+   jz       .add_carry1
    op_reg_mem adc, r14,[rdi+sizeof(qword)*6], rbp
-add_carry1:
+.add_carry1:
    adc      rax, 0
 
    pop      rbp         ; mul_8xn procedure
@@ -528,32 +529,32 @@ add_carry1:
    ; accumulate carryGBL and store hight product above
    pop      rbx         ; carryGBL
    add      r8,  rbx
-   mov      qword ptr[rdi+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*0], r8
    dec      rdx
-   jz       add_carry2
+   jz       .add_carry2
    adc      r9,  0
-   mov      qword ptr[rdi+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*1], r9
    dec      rdx
-   jz       add_carry2
+   jz       .add_carry2
    adc      r10, 0
-   mov      qword ptr[rdi+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*2], r10
    dec      rdx
-   jz       add_carry2
+   jz       .add_carry2
    adc      r11, 0
-   mov      qword ptr[rdi+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*3], r11
    dec      rdx
-   jz       add_carry2
+   jz       .add_carry2
    adc      r12, 0
-   mov      qword ptr[rdi+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*4], r12
    dec      rdx
-   jz       add_carry2
+   jz       .add_carry2
    adc      r13, 0
-   mov      qword ptr[rdi+sizeof(qword)*5], r13
+   mov      qword [rdi+sizeof(qword)*5], r13
    dec      rdx
-   jz       add_carry2
+   jz       .add_carry2
    adc      r14, 0
-   mov      qword ptr[rdi+sizeof(qword)*6], r14
-add_carry2:
+   mov      qword [rdi+sizeof(qword)*6], r14
+.add_carry2:
    adc      rax, 0      ; update carryGBL
 
 
@@ -565,7 +566,7 @@ add_carry2:
    pop      rdi      ;  - buffer
    lea      rdi, [rdi+rbx*sizeof(qword)]
 
-complete_reduction:
+.complete_reduction:
    add      rsp, sizeof(qword)*8    ; release U space
 
    mov      r14, rdx                ; save modulus length
@@ -588,6 +589,7 @@ complete_reduction:
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-mred_N ENDP
+ENDFUNC mred_N
 
-ENDIF ;; _PCPMRED_INC_
+
+%endif ;; _PCPMRED_INC_

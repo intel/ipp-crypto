@@ -38,24 +38,25 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Cipher function
-; 
+;
 ;     Content:
 ;        cpAESCMAC_Update_AES_NI()
-; 
 ;
-include asmdefs.inc
-include ia_32e.inc
-include ia_32e_regs.inc
-include pcpvariant.inc
+;
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "ia_32e_regs.inc"
+%include "pcpvariant.inc"
 
-IF (_AES_NI_ENABLING_ EQ _FEATURE_ON_) OR (_AES_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-IF (_IPP32E GE _IPP32E_Y8)
+%if (_AES_NI_ENABLING_ == _FEATURE_ON_) || (_AES_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+%if (_IPP32E >= _IPP32E_Y8)
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
+
 
 ;***************************************************************
 ;* Purpose:    AES-CMAC update
@@ -72,64 +73,65 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;;
 ;; Caller = ippsAES_CMACUpdate
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM cpAESCMAC_Update_AES_NI PROC PUBLIC FRAME
-      USES_GPR rsi, rdi
-      LOCAL_FRAME = 0
-      USES_XMM
-      COMP_ABI 5
-;; rdi:     pDigest:  PTR DWORD,    ; input  blocks address
-;; rsi:     pInput:   PTR DWORD,    ; output blocks address
+align IPP_ALIGN_FACTOR
+IPPASM cpAESCMAC_Update_AES_NI,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi
+        USES_XMM
+        COMP_ABI 5
+;; rdi:     pDigest:  DWORD,    ; input  blocks address
+;; rsi:     pInput:   DWORD,    ; output blocks address
 ;; rdx:     length:       DWORD,    ; lenght in bytes (multiple 16)
 ;; rcx:     nr:           DWORD     ; number of rounds
-;; r8:      pRKey:    PTR DWORD     ; pointer to keys
+;; r8:      pRKey:    DWORD     ; pointer to keys
 
-SC        equ (4)
-BYTES_PER_BLK = (16)
+%xdefine SC  (4)
+%assign BYTES_PER_BLK  (16)
 
    movsxd   rdx, edx                ; input length
-   movdqu   xmm0, oword ptr [rdi]   ; digest
+   movdqu   xmm0, oword [rdi]   ; digest
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;;
 ;; pseudo-pipelined processing
 ;;
-blks_loop:
-   movdqu   xmm1, oword ptr[rsi]       ; input block
+.blks_loop:
+   movdqu   xmm1, oword [rsi]       ; input block
 
-   movdqa   xmm4, oword ptr[r8]
+   movdqa   xmm4, oword [r8]
    mov      r9, r8                     ; save pointer to the key material
 
    pxor     xmm0, xmm1                 ; digest ^ src[]
 
    pxor     xmm0, xmm4                 ; whitening
 
-   movdqa   xmm4, oword ptr[r9+16]
+   movdqa   xmm4, oword [r9+16]
    add      r9, 16
 
    mov      r10, rcx                   ; counter depending on key length
    sub      r10, 1
-  ALIGN IPP_ALIGN_FACTOR
-cipher_loop:
+align IPP_ALIGN_FACTOR
+.cipher_loop:
    aesenc      xmm0, xmm4             ; regular round
-   movdqa      xmm4, oword ptr[r9+16]
+   movdqa      xmm4, oword [r9+16]
    add         r9, 16
    dec         r10
-   jnz         cipher_loop
+   jnz         .cipher_loop
    aesenclast  xmm0, xmm4             ; irregular round
 
    add         rsi, BYTES_PER_BLK     ; advance pointers
    sub         rdx, BYTES_PER_BLK     ; decrease counter
-   jnz         blks_loop
+   jnz         .blks_loop
 
    pxor     xmm4, xmm4
-   movdqu   oword ptr[rdi], xmm0     ; store updated digest digest
+   movdqu   oword [rdi], xmm0     ; store updated digest digest
 
    REST_XMM
    REST_GPR
    ret
-IPPASM cpAESCMAC_Update_AES_NI ENDP
-ENDIF
+ENDFUNC cpAESCMAC_Update_AES_NI
 
-ENDIF ;; _AES_NI_ENABLING_
-END
+%endif
+
+%endif ;; _AES_NI_ENABLING_
+

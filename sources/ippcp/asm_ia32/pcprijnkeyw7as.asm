@@ -38,28 +38,28 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Key Expansion Support
-; 
+;
 ;     Content:
 ;        SubsDword_8uT()
-; 
 ;
-.686P
-.XMM
-.MODEL FLAT,C
-
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
-
-IF _IPP GE _IPP_W7
-
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+;
 
 
-CACHE_LINE_SIZE   equ (64)
+
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+%if (_IPP >= _IPP_W7)
+
+segment .text align=IPP_ALIGN_FACTOR
+
+
+%xdefine CACHE_LINE_SIZE  (64)
 
 ;***************************************************************
 ;* Purpose:    Mitigation of the Key Expansion procedure
@@ -68,49 +68,51 @@ CACHE_LINE_SIZE   equ (64)
 ;*                      const Ipp8u* pTbl,
 ;*                            int tblBytes)
 ;***************************************************************
-ALIGN IPP_ALIGN_FACTOR
-IPPASM Touch_SubsDword_8uT PROC NEAR C PUBLIC \
-USES esi edi ebx,\
-inp:     DWORD,\   ; input dword
-pTbl: PTR BYTE,\   ; Rijndael's S-box
-tblLen:  DWORD    ; length of table (bytes)
+align IPP_ALIGN_FACTOR
+IPPASM Touch_SubsDword_8uT,PUBLIC
+  USES_GPR esi,edi,ebx
+
+%xdefine inp    [esp + ARG_1 + 0*sizeof(dword)] ; input dword
+%xdefine pTbl   [esp + ARG_1 + 1*sizeof(dword)] ; Rijndael's S-box
+%xdefine tblLen [esp + ARG_1 + 2*sizeof(dword)] ; length of table (bytes)
 
    mov      esi, pTbl   ; tbl address and
    mov      edx, tblLen ; length
    xor      ecx, ecx
-touch_tbl:
+.touch_tbl:
    mov      eax, [esi+ecx]
    add      ecx, CACHE_LINE_SIZE
    cmp      ecx, edx
-   jl       touch_tbl
+   jl       .touch_tbl
 
    mov      edx, inp
 
    mov      eax, edx
    and      eax, 0FFh         ; b[0]
-   movzx    eax, BYTE PTR[esi+eax]
+   movzx    eax, BYTE [esi+eax]
 
    shr      edx, 8
    mov      ebx, edx
    and      ebx, 0FFh         ; b[1]
-   movzx    ebx, BYTE PTR[esi+ebx]
+   movzx    ebx, BYTE [esi+ebx]
    shl      ebx, 8
 
    shr      edx, 8
    mov      ecx, edx
    and      ecx, 0FFh         ; b[2]
-   movzx    ecx, BYTE PTR[esi+ecx]
+   movzx    ecx, BYTE [esi+ecx]
    shl      ecx, 16
 
    shr      edx, 8
-   movzx    edx, BYTE PTR[esi+edx]
+   movzx    edx, BYTE [esi+edx]
    shl      edx, 24
 
    or       eax, ebx
    or       eax, ecx
    or       eax, edx
+   REST_GPR
    ret
-IPPASM Touch_SubsDword_8uT ENDP
+ENDFUNC Touch_SubsDword_8uT
 
-ENDIF
-END
+%endif
+

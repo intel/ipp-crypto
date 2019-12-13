@@ -38,23 +38,23 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Cipher function
-; 
+;
 ;     Content:
 ;        EncryptCBC_RIJ128pipe_AES_NI()
-; 
 ;
-.686P
-.XMM
-.MODEL FLAT,C
+;
 
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
 ;***************************************************************
@@ -68,25 +68,26 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;*                                const Ipp8u* pIV)
 ;***************************************************************
 
-;IF (_IPP GE _IPP_P8) AND (_IPP LT _IPP_G9)
-IF (_IPP GE _IPP_P8)
+;%if (_IPP >= _IPP_P8) && (_IPP < _IPP_G9)
+%if (_IPP >= _IPP_P8)
 ;;
 ;; Lib = P8
 ;;
 ;; Caller = ippsRijndael128EncryptCBC
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM EncryptCBC_RIJ128_AES_NI PROC NEAR C PUBLIC \
-USES esi edi,\
-pInpBlk:PTR BYTE,\  ; input  block address
-pOutBlk:PTR BYTE,\  ; output block address
-nr:DWORD,\          ; number of rounds
-pKey:PTR DWORD,\    ; key material address
-len:DWORD,\         ; length (bytes)
-pIV:PTR BYTE        ; IV
+align IPP_ALIGN_FACTOR
+IPPASM EncryptCBC_RIJ128_AES_NI,PUBLIC
+  USES_GPR esi,edi
 
-SC        equ (4)
-BYTES_PER_BLK = (16)
+%xdefine pInpBlk [esp + ARG_1 + 0*sizeof(dword)] ; input  block address
+%xdefine pOutBlk [esp + ARG_1 + 1*sizeof(dword)] ; output block address
+%xdefine nr      [esp + ARG_1 + 2*sizeof(dword)] ; number of rounds
+%xdefine pKey    [esp + ARG_1 + 3*sizeof(dword)] ; key material address
+%xdefine len     [esp + ARG_1 + 4*sizeof(dword)] ; length (bytes)
+%xdefine pIV     [esp + ARG_1 + 5*sizeof(dword)] ; IV
+
+%xdefine SC  (4)
+%assign BYTES_PER_BLK  (16)
 
    mov      edx, pIV          ; IV address
    mov      esi,pInpBlk       ; input data address
@@ -94,37 +95,37 @@ BYTES_PER_BLK = (16)
    mov      eax,nr            ; number of rounds
    mov      edi,pOutBlk       ; output data address
 
-   movdqu   xmm0, oword ptr [edx]   ; IV
+   movdqu   xmm0, oword [edx]   ; IV
 
    mov      edx, len          ; length of stream
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;;
 ;; block-by-block processing
 ;;
-blks_loop:
-   movdqu   xmm1, oword ptr[esi]       ; input block
+.blks_loop:
+   movdqu   xmm1, oword [esi]       ; input block
 
-   movdqa   xmm4, oword ptr[ecx]       ; preload key material
+   movdqa   xmm4, oword [ecx]       ; preload key material
 
    pxor     xmm0, xmm1                 ; src[] ^ iv
 
    pxor     xmm0, xmm4                 ; whitening
 
-   movdqa   xmm4, oword ptr[ecx+16]    ; preload key material
+   movdqa   xmm4, oword [ecx+16]    ; preload key material
    add      ecx, 16
 
    sub      eax, 1                     ; counter depending on key length
-  ALIGN IPP_ALIGN_FACTOR
-cipher_loop:
+align IPP_ALIGN_FACTOR
+.cipher_loop:
    aesenc      xmm0, xmm4              ; regular round
-   movdqa      xmm4, oword ptr[ecx+16]
+   movdqa      xmm4, oword [ecx+16]
    add         ecx, 16
    sub         eax, 1
-   jnz         cipher_loop
+   jnz         .cipher_loop
    aesenclast  xmm0, xmm4              ; irregular round
 
-   movdqu      oword ptr[edi], xmm0    ; store output block
+   movdqu      oword [edi], xmm0    ; store output block
 
    mov         ecx, pKey               ; restore key pointer
    mov         eax, nr                 ; resrore number of rounds
@@ -132,9 +133,10 @@ cipher_loop:
    add         esi, BYTES_PER_BLK      ; advance pointers
    add         edi, BYTES_PER_BLK
    sub         edx, BYTES_PER_BLK      ; decrease counter
-   jnz         blks_loop
+   jnz         .blks_loop
 
+   REST_GPR
    ret
-IPPASM EncryptCBC_RIJ128_AES_NI ENDP
-ENDIF
-END
+ENDFUNC EncryptCBC_RIJ128_AES_NI
+%endif
+

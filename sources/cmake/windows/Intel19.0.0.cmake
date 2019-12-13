@@ -59,6 +59,11 @@ set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /DYNAMICBASE")
 if(${ARCH} MATCHES "ia32")
   # When /SAFESEH is specified, the linker will only produce an image if it can also produce a table of the image's safe exception handlers.
   set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /SAFESEH")
+else()
+  # The /LARGEADDRESSAWARE option tells the linker that the application can handle addresses larger than 2 gigabytes. 
+  set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /LARGEADDRESSAWARE")
+  # This option modifies the header of an executable image, a .dll file or .exe file, to indicate whether ASLR with 64-bit addresses is supported.
+  set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /HIGHENTROPYVA")
 endif(${ARCH} MATCHES "ia32")
 
 # supress warning LNK4221:
@@ -66,9 +71,15 @@ endif(${ARCH} MATCHES "ia32")
 set(LINK_FLAG_STATIC_WINDOWS  "${LINK_FLAG_STATIC_WINDOWS} /ignore:4221")
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /ignore:4221")
 
-# Link to libc for debug purposes (printf, etc)
-set(LINK_LIB_STATIC_RELEASE libcmt)
-set(LINK_LIB_STATIC_DEBUG libcmtd)
+if (MSVC_VERSION LESS_EQUAL 1800) # VS2013
+  # Link to C runtime, used in dlls
+  set(LINK_LIB_STATIC_RELEASE libcmt)
+  set(LINK_LIB_STATIC_DEBUG libcmtd)
+else()
+  # Link to universal C runtime and MSVC runtime. Used in dlls.
+  set(LINK_LIB_STATIC_RELEASE libcmt libucrt libvcruntime)
+  set(LINK_LIB_STATIC_DEBUG libcmtd libucrtd libvcruntime)
+endif()
 
 # compiler
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBRARY_DEFINES}")

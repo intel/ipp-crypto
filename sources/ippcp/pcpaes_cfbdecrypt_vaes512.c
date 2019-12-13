@@ -58,7 +58,7 @@
 #include "pcpaes_encrypt_vaes512.h"
 
 #if(_IPP32E>=_IPP32E_K0)
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4310) // zmmintrin.h bug: truncation of constant value
 #endif
 
@@ -265,4 +265,6 @@ void DecryptCFB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,       // pointer to the ci
 }
 
 #endif /* _IPP32E>=_IPP32E_K0                                   */
+#else
+typedef int to_avoid_translation_unit_is_empty_warning;
 #endif /* #if !defined (_MSC_VER) || defined (__INTEL_COMPILER) */

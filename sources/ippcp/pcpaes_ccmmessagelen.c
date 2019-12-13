@@ -51,13 +51,8 @@
 #include "pcpaesauthccm.h"
 #include "pcptool.h"
 
-#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
-#  pragma message("_ALG_AES_SAFE_COMPOSITE_GF_ enabled")
-#elif (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-#  pragma message("_ALG_AES_SAFE_COMPACT_SBOX_ enabled")
+#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
 #  include "pcprijtables.h"
-#else
-#  pragma message("_ALG_AES_SAFE_ disabled")
 #endif
 
 /*F*
@@ -68,7 +63,6 @@
 // Returns:                Reason:
 //    ippStsNullPtrErr        pState == NULL
 //    ippStsContextMatchErr   !VALID_AESCCM_ID()
-//    ippStsLengthErr         msgLen <= 0
 //    ippStsNoErr             no errors
 //
 // Parameters:
@@ -82,9 +76,6 @@ IPPFUN(IppStatus, ippsAES_CCMMessageLen,(Ipp64u msgLen, IppsAES_CCMState* pState
    IPP_BAD_PTR1_RET(pState);
    pState = (IppsAES_CCMState*)( IPP_ALIGNED_PTR(pState, AESCCM_ALIGNMENT) );
    IPP_BADARG_RET(!VALID_AESCCM_ID(pState), ippStsContextMatchErr);
-
-   /* test message length */
-   IPP_BADARG_RET(msgLen <=0, ippStsLengthErr);
 
    /* init for new message */
    AESCCM_MSGLEN(pState) = msgLen;

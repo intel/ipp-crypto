@@ -301,9 +301,8 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys,(const IppsBigNumState* pSrcPublicExp,
             /* compute Qinv = 1/Q mod P */
             COPY_BNU(pPhiBuf, pFactorP,nsP);
             ns = cpModInv_BNU(pInvQ, pFactorQ,nsQ, pPhiBuf,nsP, pExpD, pExpDBuf, pPhi);
-            /* expand invQ and convert into montgomery domain */
+            /* expand invQ */
             ZEXPAND_BNU(pInvQ, ns, nsP);
-            MOD_METHOD(pMontP)->encode(pInvQ, pInvQ, (gsModEngine*)pMontP);
 
             cpMul_BNU_school(pProdN, pFactorP, nsP, pFactorQ, nsQ);
             gsModEngineInit(pMontN, (Ipp32u*)pProdN, factorPbitSize+factorQbitSize, MOD_ENGINE_RSA_POOL_SIZE, gsModArithRSA());

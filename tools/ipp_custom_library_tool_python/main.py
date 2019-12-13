@@ -37,7 +37,8 @@ if __name__ == '__main__':
                                   help='Turns on console version of tool',
                                   action='store_true')
     arguments_parser.add_argument('-cp', '--cryptography',
-                                  help='Build DLL with Intel® Integrated Performance Primitives Cryptography functionalities',
+                                  help='Build DLL with Intel® Integrated Performance Primitives Cryptography '
+                                       'functionalities',
                                   action='store_true')
     arguments_parser.add_argument('-f', '--function',
                                   help='Name of function that has to be in final dynamic library (appendable)',
@@ -81,7 +82,13 @@ if __name__ == '__main__':
         domains = set()
         functions = []
 
-        package = tool.utils.IPPCP if args.cryptography else tool.utils.IPP
+        if not args.cryptography:
+            package = tool.utils.IPP
+            root = tool.utils.IPPROOT
+        else:
+            package = tool.utils.IPPCP
+            root = tool.utils.IPPCRYPTOROOT
+
         thread_mode = (tool.utils.MULTI_THREADED if args.multi_threaded else tool.utils.SINGLE_THREADED)
         threading_layer_type = tool.utils.ThreadingLayerType.NONE
         target_system = args.target_system if args.target_system else tool.utils.HOST_SYSTEM
@@ -118,8 +125,8 @@ if __name__ == '__main__':
                 print("Android NDK isn't set")
                 exit()
 
-        if not os.getenv(package + 'ROOT') or not os.path.exists(os.environ[package + 'ROOT']):
-            print('Please, set ' + package + 'ROOT')
+        if not os.getenv(root) or not os.path.exists(os.environ[root]):
+            print('Please, set ' + root)
             exit()
 
         if args.generate:
@@ -147,28 +154,27 @@ if __name__ == '__main__':
 
         else:
             if args.ia32:
-                build_status = build(package,
-                                     tool.utils.HOST_SYSTEM,
-                                     target_system,
-                                     functions,
-                                     path,
-                                     args.name,
-                                     tool.utils.IA32,
-                                     args.multi_threaded,
-                                     args.cnl,
-                                     threading_layer_type)
+                build(package,
+                      tool.utils.HOST_SYSTEM,
+                      target_system,
+                      functions,
+                      path,
+                      args.name,
+                      tool.utils.IA32,
+                      args.multi_threaded,
+                      args.cnl,
+                      threading_layer_type)
             if args.intel64:
-                build_status = build(package,
-                                     tool.utils.HOST_SYSTEM,
-                                     target_system,
-                                     functions,
-                                     path,
-                                     args.name,
-                                     tool.utils.INTEL64,
-                                     args.multi_threaded,
-                                     args.cnl,
-                                     threading_layer_type)
-            print('Build completed!') if build_status else print("Build Failed")
+                build(package,
+                      tool.utils.HOST_SYSTEM,
+                      target_system,
+                      functions,
+                      path,
+                      args.name,
+                      tool.utils.INTEL64,
+                      args.multi_threaded,
+                      args.cnl,
+                      threading_layer_type)
     else:
         from PyQt5.QtWidgets import QApplication
         from gui.app import MainAppWindow

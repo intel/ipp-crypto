@@ -67,7 +67,9 @@
 
 #include "pcpvariant.h"
 
-#pragma warning( disable : 4996 4324 4206)
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER) // for MSVC
+#pragma warning(disable : 4324) // structures padding warning
+#endif
 
 /* ippCP length */
 typedef int cpSize;

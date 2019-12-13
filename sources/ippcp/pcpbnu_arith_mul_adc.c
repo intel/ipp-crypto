@@ -68,12 +68,6 @@
 //    pR    resultant BigNum
 //
 *F*/
-#if defined(_USE_C_cpMulAdc_BNU_school_)
-#pragma message ("C version of cpMulAdc_BNU_school: ON")
-#else
-#pragma message ("C version of cpMulAdc_BNU_school: OFF")
-#endif
-
 #if !((_IPP==_IPP_V8) || \
       (_IPP==_IPP_P8) || \
       (_IPP>=_IPP_G9) || \

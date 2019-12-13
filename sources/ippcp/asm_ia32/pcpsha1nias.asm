@@ -38,53 +38,37 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Message block processing according to SHA-1
-; 
+;
 ;     Content:
 ;        UpdateSHA1ni
-; 
 ;
-.686P
-.387
-.XMM
-.MODEL FLAT,C
-
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
-INCLUDE pcpvariant.inc
-
-IF (_ENABLE_ALG_SHA1_)
-IF (_SHA_NI_ENABLING_ EQ _FEATURE_ON_) OR (_SHA_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-
-IFDEF IPP_PIC
-LD_ADDR MACRO reg:REQ, addr:REQ
-LOCAL LABEL
-        call     LABEL
-LABEL:  pop      reg
-        sub      reg, LABEL-addr
-ENDM
-
-ELSE
-LD_ADDR MACRO reg:REQ, addr:REQ
-        lea      reg, addr
-ENDM
-ENDIF
+;
 
 
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 
-ALIGN IPP_ALIGN_FACTOR
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+%include "pcpvariant.inc"
+
+%if (_ENABLE_ALG_SHA1_)
+%if (_SHA_NI_ENABLING_ == _FEATURE_ON_) || (_SHA_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+
+segment .text align=IPP_ALIGN_FACTOR
+
+align IPP_ALIGN_FACTOR
 CODE_DATA:
 UPPER_DWORD_MASK \
       DQ    00000000000000000h, 0ffffffff00000000h
 PSHUFFLE_BYTE_FLIP_MASK \
       DB    15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;*****************************************************************************************
 ;* Purpose:     Update internal digest according to message block
 ;*
@@ -92,35 +76,38 @@ ALIGN IPP_ALIGN_FACTOR
 ;*
 ;*****************************************************************************************
 
-IFNDEF _VXWORKS
+%ifndef _VXWORKS
 
-IPPASM UpdateSHA1ni PROC NEAR C PUBLIC \
-USES  esi edi,\
-pDigest:PTR DWORD,\  ; pointer to the in/out digest
-pMsg:   PTR BYTE,\   ; pointer to the inp message
-msgLen: DWORD        ; message length
+IPPASM UpdateSHA1ni,PUBLIC
+  USES_GPR esi,edi,ebp
 
-MBS_SHA1 equ   (64)  ; SHA-1 message block length (bytes)
+  mov   ebp, esp ; save original esp to use it to reach parameters
 
-HASH_PTR equ   edi   ; 1st arg
-MSG_PTR  equ   esi   ; 2nd arg
-MSG_LEN  equ   edx   ; 3rd arg
+%xdefine pDigest [ebp + ARG_1 + 0*sizeof(dword)] ; pointer to the in/out digest
+%xdefine pMsg    [ebp + ARG_1 + 1*sizeof(dword)] ; pointer to the inp message
+%xdefine msgLen  [ebp + ARG_1 + 2*sizeof(dword)] ; message length
 
-ABCD     equ   xmm0
-E0       equ   xmm1  ; Need two E's b/c they ping pong
-E1       equ   xmm2
-MSG0     equ   xmm3
-MSG1     equ   xmm4
-MSG2     equ   xmm5
-MSG3     equ   xmm6
-SHUF_MASK   equ   xmm7
+%xdefine MBS_SHA1  (64) ; SHA-1 message block length (bytes)
+
+%xdefine HASH_PTR  edi  ; 1st arg
+%xdefine MSG_PTR   esi  ; 2nd arg
+%xdefine MSG_LEN   edx  ; 3rd arg
+
+%xdefine ABCD      xmm0
+%xdefine E0        xmm1 ; Need two E's b/c they ping pong
+%xdefine E1        xmm2
+%xdefine MSG0      xmm3
+%xdefine MSG1      xmm4
+%xdefine MSG2      xmm5
+%xdefine MSG3      xmm6
+%xdefine SHUF_MASK xmm7
 
 ;
 ; stack frame
 ;
-abcd_save   equ   eax
-e_save      equ   eax+sizeof(oword)
-frame_size  equ   sizeof(oword)+sizeof(oword)
+%xdefine abcd_save  eax
+%xdefine e_save     eax+sizeof(oword)
+%xdefine frame_size sizeof(oword)+sizeof(oword)
 
    sub      esp, (frame_size+16)
    lea      eax, [esp+16]
@@ -128,7 +115,7 @@ frame_size  equ   sizeof(oword)+sizeof(oword)
 
    mov      MSG_LEN, msgLen   ; message length
    test     MSG_LEN, MSG_LEN
-   jz       quit
+   jz       .quit
 
    mov      HASH_PTR, pDigest ; digest
    mov      MSG_PTR, pMsg     ; and message pointers
@@ -136,14 +123,14 @@ frame_size  equ   sizeof(oword)+sizeof(oword)
    LD_ADDR  ecx, CODE_DATA
 
 ;; load initial hash values
-   movdqu   ABCD, oword ptr[HASH_PTR]
-   pinsrd   E0, dword ptr[HASH_PTR+16], 3
-  ;pand     E0, oword ptr[UPPER_DWORD_MASK]
-   pand     E0, oword ptr[ecx+(UPPER_DWORD_MASK-CODE_DATA)]
+   movdqu   ABCD, oword [HASH_PTR]
+   pinsrd   E0, dword [HASH_PTR+16], 3
+  ;pand     E0, oword [UPPER_DWORD_MASK]
+   pand     E0, oword [ecx+(UPPER_DWORD_MASK-CODE_DATA)]
    pshufd   ABCD, ABCD, 01Bh
 
-  ;movdqa   SHUF_MASK, oword ptr[PSHUFFLE_BYTE_FLIP_MASK]
-   movdqa   SHUF_MASK, oword ptr[ecx+(PSHUFFLE_BYTE_FLIP_MASK-CODE_DATA)]
+  ;movdqa   SHUF_MASK, oword [PSHUFFLE_BYTE_FLIP_MASK]
+   movdqa   SHUF_MASK, oword [ecx+(PSHUFFLE_BYTE_FLIP_MASK-CODE_DATA)]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -151,39 +138,39 @@ frame_size  equ   sizeof(oword)+sizeof(oword)
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-sha1_block_loop:
-   movdqa   oword ptr[abcd_save], ABCD
-   movdqa   oword ptr[e_save], E0
+.sha1_block_loop:
+   movdqa   oword [abcd_save], ABCD
+   movdqa   oword [e_save], E0
 
    ;; rounds 0-3
-   movdqu      MSG0, oword ptr[MSG_PTR +0*16]
+   movdqu      MSG0, oword [MSG_PTR +0*16]
    pshufb      MSG0, SHUF_MASK
    paddd       E0, MSG0
    movdqa      E1, ABCD
    sha1rnds4   ABCD, E0, 0
-   ;movdqu      oword ptr[rcx+16*0], ABCD
+   ;movdqu      oword [rcx+16*0], ABCD
 
    ;; rounds 4-7
-   movdqu      MSG1, oword ptr[MSG_PTR +1*16]
+   movdqu      MSG1, oword [MSG_PTR +1*16]
    pshufb      MSG1, SHUF_MASK
    sha1nexte   E1, MSG1
    movdqa      E0, ABCD
    sha1rnds4   ABCD, E1, 0
    sha1msg1    MSG0, MSG1
-   ;movdqu      oword ptr[rcx+16*1], ABCD
+   ;movdqu      oword [rcx+16*1], ABCD
 
    ;; rounds 8-11
-   movdqu      MSG2, oword ptr[MSG_PTR +2*16]
+   movdqu      MSG2, oword [MSG_PTR +2*16]
    pshufb      MSG2, SHUF_MASK
    sha1nexte   E0, MSG2
    movdqa      E1, ABCD
    sha1rnds4   ABCD, E0, 0
    sha1msg1    MSG1, MSG2
    pxor        MSG0, MSG2
-   ;movdqu      oword ptr[rcx+16*2], ABCD
+   ;movdqu      oword [rcx+16*2], ABCD
 
    ;; rounds 12-15
-   movdqu      MSG3, oword ptr[MSG_PTR +3*16]
+   movdqu      MSG3, oword [MSG_PTR +3*16]
    pshufb      MSG3, SHUF_MASK
    sha1nexte   E1, MSG3
    movdqa      E0, ABCD
@@ -191,7 +178,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E1, 0
    sha1msg1    MSG2, MSG3
    pxor        MSG1, MSG3
-   ;movdqu      oword ptr[rcx+16*3], ABCD
+   ;movdqu      oword [rcx+16*3], ABCD
 
    ;; rounds 16-19
    sha1nexte   E0, MSG0
@@ -200,7 +187,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E0, 0
    sha1msg1    MSG3, MSG0
    pxor        MSG2, MSG0
-   ;movdqu      oword ptr[rcx+16*4], ABCD
+   ;movdqu      oword [rcx+16*4], ABCD
 
    ;; rounds 20-23
    sha1nexte   E1, MSG1
@@ -209,7 +196,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E1, 1
    sha1msg1    MSG0, MSG1
    pxor        MSG3, MSG1
-   ;movdqu      oword ptr[rcx+16*5], ABCD
+   ;movdqu      oword [rcx+16*5], ABCD
 
    ;; rounds 24-27
    sha1nexte   E0, MSG2
@@ -218,7 +205,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E0, 1
    sha1msg1    MSG1, MSG2
    pxor        MSG0, MSG2
-   ;movdqu      oword ptr[rcx+16*6], ABCD
+   ;movdqu      oword [rcx+16*6], ABCD
 
    ;; rounds 28-31
    sha1nexte   E1, MSG3
@@ -227,7 +214,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E1, 1
    sha1msg1    MSG2, MSG3
    pxor        MSG1, MSG3
-   ;movdqu      oword ptr[rcx+16*7], ABCD
+   ;movdqu      oword [rcx+16*7], ABCD
 
    ;; rounds 32-35
    sha1nexte   E0, MSG0
@@ -236,7 +223,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E0, 1
    sha1msg1    MSG3, MSG0
    pxor        MSG2, MSG0
-   ;movdqu      oword ptr[rcx+16*8], ABCD
+   ;movdqu      oword [rcx+16*8], ABCD
 
    ;; rounds 36-39
    sha1nexte   E1, MSG1
@@ -245,7 +232,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E1, 1
    sha1msg1    MSG0, MSG1
    pxor        MSG3, MSG1
-   ;movdqu      oword ptr[rcx+16*9], ABCD
+   ;movdqu      oword [rcx+16*9], ABCD
 
    ;; rounds 40-43
    sha1nexte   E0, MSG2
@@ -254,7 +241,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E0, 2
    sha1msg1    MSG1, MSG2
    pxor        MSG0, MSG2
-   ;movdqu      oword ptr[rcx+16*10], ABCD
+   ;movdqu      oword [rcx+16*10], ABCD
 
    ;; rounds 44-47
    sha1nexte   E1, MSG3
@@ -263,7 +250,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E1, 2
    sha1msg1    MSG2, MSG3
    pxor        MSG1, MSG3
-   ;movdqu      oword ptr[rcx+16*11], ABCD
+   ;movdqu      oword [rcx+16*11], ABCD
 
    ;; rounds 48-51
    sha1nexte   E0, MSG0
@@ -272,7 +259,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E0, 2
    sha1msg1    MSG3, MSG0
    pxor  MSG2, MSG0
-   ;movdqu      oword ptr[rcx+16*12], ABCD
+   ;movdqu      oword [rcx+16*12], ABCD
 
    ;; rounds 52-55
    sha1nexte   E1, MSG1
@@ -281,7 +268,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E1, 2
    sha1msg1    MSG0, MSG1
    pxor        MSG3, MSG1
-   ;movdqu      oword ptr[rcx+16*13], ABCD
+   ;movdqu      oword [rcx+16*13], ABCD
 
    ;; rounds 56-59
    sha1nexte   E0, MSG2
@@ -290,7 +277,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E0, 2
    sha1msg1    MSG1, MSG2
    pxor        MSG0, MSG2
-   ;movdqu      oword ptr[rcx+16*14], ABCD
+   ;movdqu      oword [rcx+16*14], ABCD
 
    ;; rounds 60-63
    sha1nexte   E1, MSG3
@@ -299,7 +286,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E1, 3
    sha1msg1    MSG2, MSG3
    pxor        MSG1, MSG3
-   ;movdqu      oword ptr[rcx+16*15], ABCD
+   ;movdqu      oword [rcx+16*15], ABCD
 
    ;; rounds 64-67
    sha1nexte   E0, MSG0
@@ -308,7 +295,7 @@ sha1_block_loop:
    sha1rnds4   ABCD, E0, 3
    sha1msg1    MSG3, MSG0
    pxor        MSG2, MSG0
-   ;movdqu      oword ptr[rcx+16*16], ABCD
+   ;movdqu      oword [rcx+16*16], ABCD
 
    ;; rounds 68-71
    sha1nexte   E1, MSG1
@@ -316,67 +303,71 @@ sha1_block_loop:
    sha1msg2    MSG2, MSG1
    sha1rnds4   ABCD, E1, 3
    pxor        MSG3, MSG1
-   ;movdqu      oword ptr[rcx+16*17], ABCD
+   ;movdqu      oword [rcx+16*17], ABCD
 
    ;; rounds 72-75
    sha1nexte   E0, MSG2
    movdqa      E1, ABCD
    sha1msg2    MSG3, MSG2
    sha1rnds4   ABCD, E0, 3
-   ;movdqu      oword ptr[rcx+16*18], ABCD
+   ;movdqu      oword [rcx+16*18], ABCD
 
    ;; rounds 76-79
    sha1nexte   E1, MSG3
    movdqa      E0, ABCD
    sha1rnds4   ABCD, E1, 3
-   ;movdqu      oword ptr[rcx+16*19], ABCD
+   ;movdqu      oword [rcx+16*19], ABCD
 
    ;; add current hash values with previously saved
-   sha1nexte   E0, oword ptr[e_save]
-   paddd       ABCD, oword ptr[abcd_save]
+   sha1nexte   E0, oword [e_save]
+   paddd       ABCD, oword [abcd_save]
 
    add         MSG_PTR, MBS_SHA1
    sub         MSG_LEN, MBS_SHA1
-   jg          sha1_block_loop
+   jg          .sha1_block_loop
 
    ;; write hash values back in the correct order
    pshufd      ABCD, ABCD, 01Bh
-   movdqu      oword ptr[HASH_PTR], ABCD
-   pextrd      dword ptr[HASH_PTR+16], E0, 3
+   movdqu      oword [HASH_PTR], ABCD
+   pextrd      dword [HASH_PTR+16], E0, 3
 
-quit:
+.quit:
    add   esp, (frame_size+16)
+   REST_GPR
    ret
-IPPASM UpdateSHA1ni ENDP
+ENDFUNC UpdateSHA1ni
 
-ELSE ;; no sha ni support in VxWorks - therefore we temporary use db
-IPPASM UpdateSHA1ni PROC NEAR C PUBLIC \
-USES esi edi,\
-pDigest:PTR DWORD,\  ; pointer to the in/out digest
-pMsg:   PTR BYTE,\   ; pointer to the inp message
-msgLen: DWORD        ; message length
+%else ;; no sha ni support in VxWorks - therefore we temporary use db
+IPPASM UpdateSHA1ni,PUBLIC
+  USES_GPR esi,edi,ebp
 
-MBS_SHA1 equ   (64)  ; SHA-1 message block length (bytes)
+  mov   ebp, esp ; save original esp to use it to reach parameters
 
-HASH_PTR equ   edi   ; 1st arg
-MSG_PTR  equ   esi   ; 2nd arg
-MSG_LEN  equ   edx   ; 3rd arg
+%xdefine pDigest [ebp + ARG_1 + 0*sizeof(dword)] ; pointer to the in/out digest
+%xdefine pMsg    [ebp + ARG_1 + 1*sizeof(dword)] ; pointer to the inp message
+%xdefine msgLen  [ebp + ARG_1 + 2*sizeof(dword)] ; message length
 
-ABCD     equ   xmm0
-E0       equ   xmm1  ; Need two E's b/c they ping pong
-E1       equ   xmm2
-MSG0     equ   xmm3
-MSG1     equ   xmm4
-MSG2     equ   xmm5
-MSG3     equ   xmm6
-SHUF_MASK   equ   xmm7
+%xdefine MBS_SHA1  (64) ; SHA-1 message block length (bytes)
+
+%xdefine HASH_PTR  edi  ; 1st arg
+%xdefine MSG_PTR   esi  ; 2nd arg
+%xdefine MSG_LEN   edx  ; 3rd arg
+
+%xdefine ABCD      xmm0
+%xdefine E0        xmm1 ; Need two E's b/c they ping pong
+%xdefine E1        xmm2
+%xdefine MSG0      xmm3
+%xdefine MSG1      xmm4
+%xdefine MSG2      xmm5
+%xdefine MSG3      xmm6
+%xdefine SHUF_MASK xmm7
 
 ;
 ; stack frame
 ;
-abcd_save   equ   eax
-e_save      equ   eax+sizeof(oword)
-frame_size  equ   sizeof(oword)+sizeof(oword)
+%xdefine abcd_save  eax
+%xdefine e_save     eax+sizeof(oword)
+%xdefine frame_size sizeof(oword)+sizeof(oword)
 
    sub      esp, (frame_size+16)
    lea      eax, [esp+16]
@@ -384,7 +375,7 @@ frame_size  equ   sizeof(oword)+sizeof(oword)
 
    mov      MSG_LEN, msgLen   ; message length
    test     MSG_LEN, MSG_LEN
-   jz       quit
+   jz       .quit
 
    mov      HASH_PTR, pDigest ; digest
    mov      MSG_PTR, pMsg     ; and message pointers
@@ -392,14 +383,14 @@ frame_size  equ   sizeof(oword)+sizeof(oword)
    LD_ADDR  ecx, CODE_DATA
 
 ;; load initial hash values
-   movdqu   ABCD, oword ptr[HASH_PTR]
-   pinsrd   E0, dword ptr[HASH_PTR+16], 3
-  ;pand     E0, oword ptr[UPPER_DWORD_MASK]
-   pand     E0, oword ptr[ecx+(UPPER_DWORD_MASK-CODE_DATA)]
+   movdqu   ABCD, oword [HASH_PTR]
+   pinsrd   E0, dword [HASH_PTR+16], 3
+  ;pand     E0, oword [UPPER_DWORD_MASK]
+   pand     E0, oword [ecx+(UPPER_DWORD_MASK-CODE_DATA)]
    pshufd   ABCD, ABCD, 01Bh
 
-  ;movdqa   SHUF_MASK, oword ptr[PSHUFFLE_BYTE_FLIP_MASK]
-   movdqa   SHUF_MASK, oword ptr[ecx+(PSHUFFLE_BYTE_FLIP_MASK-CODE_DATA)]
+  ;movdqa   SHUF_MASK, oword [PSHUFFLE_BYTE_FLIP_MASK]
+   movdqa   SHUF_MASK, oword [ecx+(PSHUFFLE_BYTE_FLIP_MASK-CODE_DATA)]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -407,39 +398,39 @@ frame_size  equ   sizeof(oword)+sizeof(oword)
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-sha1_block_loop:
-   movdqa   oword ptr[abcd_save], ABCD
-   movdqa   oword ptr[e_save], E0
+.sha1_block_loop:
+   movdqa   oword [abcd_save], ABCD
+   movdqa   oword [e_save], E0
 
    ;; rounds 0-3
-   movdqu      MSG0, oword ptr[MSG_PTR +0*16]
+   movdqu      MSG0, oword [MSG_PTR +0*16]
    pshufb      MSG0, SHUF_MASK
    paddd       E0, MSG0
    movdqa      E1, ABCD
    db 0FH,03AH,0CCH,0C1H,00H ;; sha1rnds4   ABCD, E0, 0
-   ;movdqu      oword ptr[rcx+16*0], ABCD
+   ;movdqu      oword [rcx+16*0], ABCD
 
    ;; rounds 4-7
-   movdqu      MSG1, oword ptr[MSG_PTR +1*16]
+   movdqu      MSG1, oword [MSG_PTR +1*16]
    pshufb      MSG1, SHUF_MASK
    db 0FH,038H,0C8H,0D4H ;; sha1nexte   E1, MSG1
    movdqa      E0, ABCD
    db 0FH,03AH,0CCH,0C2H,00H ;; sha1rnds4   ABCD, E1, 0
    db 0FH,038H,0C9H,0DCH ;; sha1msg1    MSG0, MSG1
-   ;movdqu      oword ptr[rcx+16*1], ABCD
+   ;movdqu      oword [rcx+16*1], ABCD
 
    ;; rounds 8-11
-   movdqu      MSG2, oword ptr[MSG_PTR +2*16]
+   movdqu      MSG2, oword [MSG_PTR +2*16]
    pshufb      MSG2, SHUF_MASK
    db 0FH,038H,0C8H,0CDH ;; sha1nexte   E0, MSG2
    movdqa      E1, ABCD
    db 0FH,03AH,0CCH,0C1H,00H ;; sha1rnds4   ABCD, E0, 0
    db 0FH,038H,0C9H,0E5H ;; sha1msg1    MSG1, MSG2
    pxor        MSG0, MSG2
-   ;movdqu      oword ptr[rcx+16*2], ABCD
+   ;movdqu      oword [rcx+16*2], ABCD
 
    ;; rounds 12-15
-   movdqu      MSG3, oword ptr[MSG_PTR +3*16]
+   movdqu      MSG3, oword [MSG_PTR +3*16]
    pshufb      MSG3, SHUF_MASK
    db 0FH,038H,0C8H,0D6H ;; sha1nexte   E1, MSG3
    movdqa      E0, ABCD
@@ -447,7 +438,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C2H,00H ;; sha1rnds4   ABCD, E1, 0
    db 0FH,038H,0C9H,0EEH ;; sha1msg1    MSG2, MSG3
    pxor        MSG1, MSG3
-   ;movdqu      oword ptr[rcx+16*3], ABCD
+   ;movdqu      oword [rcx+16*3], ABCD
 
    ;; rounds 16-19
    db 0FH,038H,0C8H,0CBH ;; sha1nexte   E0, MSG0
@@ -456,7 +447,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C1H,00H ;; sha1rnds4   ABCD, E0, 0
    db 0FH,038H,0C9H,0F3H ;; sha1msg1    MSG3, MSG0
    pxor        MSG2, MSG0
-   ;movdqu      oword ptr[rcx+16*4], ABCD
+   ;movdqu      oword [rcx+16*4], ABCD
 
    ;; rounds 20-23
    db 0FH,038H,0C8H,0D4H ;; sha1nexte   E1, MSG1
@@ -465,7 +456,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C2H,01H ;; sha1rnds4   ABCD, E1, 1
    db 0FH,038H,0C9H,0DCH ;; sha1msg1    MSG0, MSG1
    pxor        MSG3, MSG1
-   ;movdqu      oword ptr[rcx+16*5], ABCD
+   ;movdqu      oword [rcx+16*5], ABCD
 
    ;; rounds 24-27
    db 0FH,038H,0C8H,0CDH ;; sha1nexte   E0, MSG2
@@ -474,7 +465,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C1H,01H ;; sha1rnds4   ABCD, E0, 1
    db 0FH,038H,0C9H,0E5H ;; sha1msg1    MSG1, MSG2
    pxor        MSG0, MSG2
-   ;movdqu      oword ptr[rcx+16*6], ABCD
+   ;movdqu      oword [rcx+16*6], ABCD
 
    ;; rounds 28-31
    db 0FH,038H,0C8H,0D6H ;; sha1nexte   E1, MSG3
@@ -483,7 +474,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C2H,01H ;; sha1rnds4   ABCD, E1, 1
    db 0FH,038H,0C9H,0EEH ;; sha1msg1    MSG2, MSG3
    pxor        MSG1, MSG3
-   ;movdqu      oword ptr[rcx+16*7], ABCD
+   ;movdqu      oword [rcx+16*7], ABCD
 
    ;; rounds 32-35
    db 0FH,038H,0C8H,0CBH ;; sha1nexte   E0, MSG0
@@ -492,7 +483,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C1H,01H ;; sha1rnds4   ABCD, E0, 1
    db 0FH,038H,0C9H,0F3H ;; sha1msg1    MSG3, MSG0
    pxor        MSG2, MSG0
-   ;movdqu      oword ptr[rcx+16*8], ABCD
+   ;movdqu      oword [rcx+16*8], ABCD
 
    ;; rounds 36-39
    db 0FH,038H,0C8H,0D4H ;; sha1nexte   E1, MSG1
@@ -501,7 +492,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C2H,01H ;; sha1rnds4   ABCD, E1, 1
    db 0FH,038H,0C9H,0DCH ;; sha1msg1    MSG0, MSG1
    pxor        MSG3, MSG1
-   ;movdqu      oword ptr[rcx+16*9], ABCD
+   ;movdqu      oword [rcx+16*9], ABCD
 
    ;; rounds 40-43
    db 0FH,038H,0C8H,0CDH ;; sha1nexte   E0, MSG2
@@ -510,7 +501,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C1H,02H ;; sha1rnds4   ABCD, E0, 2
    db 0FH,038H,0C9H,0E5H ;; sha1msg1    MSG1, MSG2
    pxor        MSG0, MSG2
-   ;movdqu      oword ptr[rcx+16*10], ABCD
+   ;movdqu      oword [rcx+16*10], ABCD
 
    ;; rounds 44-47
    db 0FH,038H,0C8H,0D6H ;; sha1nexte   E1, MSG3
@@ -519,7 +510,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C2H,02H ;; sha1rnds4   ABCD, E1, 2
    db 0FH,038H,0C9H,0EEH ;; sha1msg1    MSG2, MSG3
    pxor        MSG1, MSG3
-   ;movdqu      oword ptr[rcx+16*11], ABCD
+   ;movdqu      oword [rcx+16*11], ABCD
 
    ;; rounds 48-51
    db 0FH,038H,0C8H,0CBH ;; sha1nexte   E0, MSG0
@@ -528,7 +519,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C1H,02H ;; sha1rnds4   ABCD, E0, 2
    db 0FH,038H,0C9H,0F3H ;; sha1msg1    MSG3, MSG0
    pxor  MSG2, MSG0
-   ;movdqu      oword ptr[rcx+16*12], ABCD
+   ;movdqu      oword [rcx+16*12], ABCD
 
    ;; rounds 52-55
    db 0FH,038H,0C8H,0D4H ;; sha1nexte   E1, MSG1
@@ -537,7 +528,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C2H,02H ;; sha1rnds4   ABCD, E1, 2
    db 0FH,038H,0C9H,0DCH ;; sha1msg1    MSG0, MSG1
    pxor        MSG3, MSG1
-   ;movdqu      oword ptr[rcx+16*13], ABCD
+   ;movdqu      oword [rcx+16*13], ABCD
 
    ;; rounds 56-59
    db 0FH,038H,0C8H,0CDH ;; sha1nexte   E0, MSG2
@@ -546,7 +537,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C1H,02H ;; sha1rnds4   ABCD, E0, 2
    db 0FH,038H,0C9H,0E5H ;; sha1msg1    MSG1, MSG2
    pxor        MSG0, MSG2
-   ;movdqu      oword ptr[rcx+16*14], ABCD
+   ;movdqu      oword [rcx+16*14], ABCD
 
    ;; rounds 60-63
    db 0FH,038H,0C8H,0D6H ;; sha1nexte   E1, MSG3
@@ -555,7 +546,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C2H,03H ;; sha1rnds4   ABCD, E1, 3
    db 0FH,038H,0C9H,0EEH ;; sha1msg1    MSG2, MSG3
    pxor        MSG1, MSG3
-   ;movdqu      oword ptr[rcx+16*15], ABCD
+   ;movdqu      oword [rcx+16*15], ABCD
 
    ;; rounds 64-67
    db 0FH,038H,0C8H,0CBH ;; sha1nexte   E0, MSG0
@@ -564,7 +555,7 @@ sha1_block_loop:
    db 0FH,03AH,0CCH,0C1H,03H ;; sha1rnds4   ABCD, E0, 3
    db 0FH,038H,0C9H,0F3H ;; sha1msg1    MSG3, MSG0
    pxor        MSG2, MSG0
-   ;movdqu      oword ptr[rcx+16*16], ABCD
+   ;movdqu      oword [rcx+16*16], ABCD
 
    ;; rounds 68-71
    db 0FH,038H,0C8H,0D4H ;; sha1nexte   E1, MSG1
@@ -572,41 +563,42 @@ sha1_block_loop:
    db 0FH,038H,0CAH,0ECH ;; sha1msg2    MSG2, MSG1
    db 0FH,03AH,0CCH,0C2H,03H ;; sha1rnds4   ABCD, E1, 3
    pxor        MSG3, MSG1
-   ;movdqu      oword ptr[rcx+16*17], ABCD
+   ;movdqu      oword [rcx+16*17], ABCD
 
    ;; rounds 72-75
    db 0FH,038H,0C8H,0CDH ;; sha1nexte   E0, MSG2
    movdqa      E1, ABCD
    db 0FH,038H,0CAH,0F5H ;; sha1msg2    MSG3, MSG2
    db 0FH,03AH,0CCH,0C1H,03H ;; sha1rnds4   ABCD, E0, 3
-   ;movdqu      oword ptr[rcx+16*18], ABCD
+   ;movdqu      oword [rcx+16*18], ABCD
 
    ;; rounds 76-79
    db 0FH,038H,0C8H,0D6H ;; sha1nexte   E1, MSG3
    movdqa      E0, ABCD
    db 0FH,03AH,0CCH,0C2H,03H ;; sha1rnds4   ABCD, E1, 3
-   ;movdqu      oword ptr[rcx+16*19], ABCD
+   ;movdqu      oword [rcx+16*19], ABCD
 
    ;; add current hash values with previously saved
-   db 0FH,038H,0C8H,048H,10h ;; sha1nexte   E0, oword ptr[e_save]
-   paddd       ABCD, oword ptr[abcd_save]
+   db 0FH,038H,0C8H,048H,10h ;; sha1nexte   E0, oword [e_save]
+   paddd       ABCD, oword [abcd_save]
 
    add         MSG_PTR, MBS_SHA1
    sub         MSG_LEN, MBS_SHA1
-   jg          sha1_block_loop
+   jg          .sha1_block_loop
 
    ;; write hash values back in the correct order
    pshufd      ABCD, ABCD, 01Bh
-   movdqu      oword ptr[HASH_PTR], ABCD
-   pextrd      dword ptr[HASH_PTR+16], E0, 3
+   movdqu      oword [HASH_PTR], ABCD
+   pextrd      dword [HASH_PTR+16], E0, 3
 
-quit:
+.quit:
    add   esp, (frame_size+16)
+   REST_GPR
    ret
-IPPASM UpdateSHA1ni ENDP
+ENDFUNC UpdateSHA1ni
 
-ENDIF ;; VxWorks
+%endif ;; VxWorks
 
-ENDIF    ;; _FEATURE_ON_ / _FEATURE_TICKTOCK_
-ENDIF    ;; _ENABLE_ALG_SHA1_
-END
+%endif    ;; _FEATURE_ON_ / _FEATURE_TICKTOCK_
+%endif    ;; _ENABLE_ALG_SHA1_
+

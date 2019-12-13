@@ -56,7 +56,6 @@
 #if ((_IPP <_IPP_V8) && (_IPP32E <_IPP32E_U8)) /* no pshufb instruction */
 
 #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-#pragma message("_ALG_AES_SAFE_COMPACT_SBOX_ enabled")
 
 #include "pcprij128safe2.h"
 #include "pcprijtables.h"

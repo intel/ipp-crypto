@@ -67,7 +67,8 @@
 // Parameters:
 //     feBitSize        Size, in bytes, of the odd prime number q (modulus of GF(q)).
 //     pSize            Pointer to the buffer size, in bytes, needed for the IppsGFpState
-//                      context.//     
+//                      context.
+//     
 *F*/
 
 IPPFUN(IppStatus, ippsGFpGetSize,(int feBitSize, int* pSize))

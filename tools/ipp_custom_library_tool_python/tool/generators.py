@@ -44,6 +44,7 @@ def generate_windows_for_windows(package,
     compiler = COMPILERS[WINDOWS][architecture]
     omp_flag = (' /openmp' if threading_layer_type == ThreadingLayerType.OPENMP else '')
     cmp_args = COMPILERS_FLAGS[WINDOWS][architecture] + omp_flag
+    root = IPPROOT if package == IPP else IPPCRYPTOROOT
     main_file = os.path.join(library_path, MAIN_FILE)
     main_object = os.path.join(destination, 'main.obj')
     linker = LINKERS[WINDOWS][architecture]
@@ -62,11 +63,11 @@ def generate_windows_for_windows(package,
 
     return GENERATOR_FORMAT[WINDOWS][WINDOWS].format(threading=threading,
                                                      architecture=architecture,
+                                                     root=root,
                                                      destination=destination,
                                                      sub_command=sub_command,
                                                      compiler=compiler,
                                                      cmp_args=cmp_args,
-                                                     package=package,
                                                      main_file=main_file,
                                                      main_object=main_object,
                                                      linker=linker,
@@ -87,6 +88,7 @@ def generate_android_for_windows(package,
     destination = os.path.join(library_path, architecture)
     compiler = COMPILERS[ANDROID][architecture]
     cmp_args = COMPILERS_FLAGS[ANDROID][architecture]
+    root = IPPROOT if package == IPP else IPPCRYPTOROOT
     main_file = os.path.join(library_path, MAIN_FILE)
     main_object = os.path.join(destination, 'main.o')
     linker = LINKERS[ANDROID][architecture]
@@ -106,11 +108,11 @@ def generate_android_for_windows(package,
 
     return GENERATOR_FORMAT[WINDOWS][ANDROID].format(threading=threading,
                                                      destination=destination,
+                                                     root=root,
                                                      architecture=architecture,
                                                      sub_command=sub_command,
                                                      compiler=compiler,
                                                      cmp_args=cmp_args,
-                                                     package=package,
                                                      main_file=main_file,
                                                      main_object=main_object,
                                                      linker=linker,
@@ -143,6 +145,7 @@ def generate_linux_for_linux(package,
     destination = os.path.join(library_path, architecture)
     compiler = COMPILERS[LINUX][architecture]
     gcc_args = COMPILERS_FLAGS[LINUX][architecture]
+    root = IPPROOT if package == IPP else IPPCRYPTOROOT
     main_file = os.path.join(library_path, MAIN_FILE)
     main_object = os.path.join(destination, 'main.o')
     linker = LINKERS[LINUX][architecture]
@@ -156,18 +159,18 @@ def generate_linux_for_linux(package,
                                    threading_layer_type,
                                    multi_threaded)
     sys_libs_path = SYS_LIBS_PATH[LINUX][architecture]
-    compiler_libs_path = COMPILER_LIBS_PATH[LINUX][architecture].format(package=package)
+    compiler_libs_path = COMPILER_LIBS_PATH[LINUX][architecture]
     exp_libs = EXP_LIBS[LINUX][threading_layer_type]
     if multi_threaded and threading_layer_type!=ThreadingLayerType.OPENMP:
         exp_libs += EXP_LIBS[LINUX][ThreadingLayerType.OPENMP]
 
     return GENERATOR_FORMAT[LINUX][LINUX].format(threading=threading,
                                                  architecture=architecture,
+                                                 root=root,
                                                  destination=destination,
                                                  sub_command=sub_command,
                                                  compiler=compiler,
                                                  gcc_args=gcc_args,
-                                                 package=package,
                                                  main_file=main_file,
                                                  main_object=main_object,
                                                  linker=linker,
@@ -191,6 +194,7 @@ def generate_android_for_linux(package,
     destination = os.path.join(library_path, architecture)
     compiler = COMPILERS[ANDROID][architecture]
     compiler_args = COMPILERS_FLAGS[ANDROID][architecture]
+    root = IPPROOT if package == IPP else IPPCRYPTOROOT
     main_file = os.path.join(library_path, MAIN_FILE)
     main_object = os.path.join(destination, 'main.o')
     linker = LINKERS[ANDROID][architecture]
@@ -208,10 +212,10 @@ def generate_android_for_linux(package,
     return GENERATOR_FORMAT[LINUX][ANDROID].format(threading=threading,
                                                    destination=destination,
                                                    architecture=architecture,
+                                                   root=root,
                                                    sub_command=sub_command,
                                                    compiler=compiler,
                                                    cmp_args=compiler_args,
-                                                   package=package,
                                                    main_file=main_file,
                                                    main_object=main_object,
                                                    linker=linker,
@@ -244,6 +248,7 @@ def generate_macosx_for_macosx(package,
     destination = os.path.join(library_path, architecture)
     compiler = COMPILERS[MACOSX][architecture]
     clang_args = COMPILERS_FLAGS[MACOSX][architecture]
+    root = IPPROOT if package == IPP else IPPCRYPTOROOT
     main_file = os.path.join(library_path, MAIN_FILE)
     main_object = os.path.join(destination, 'main.o')
     linker = LINKERS[MACOSX][architecture]
@@ -256,7 +261,7 @@ def generate_macosx_for_macosx(package,
                                    architecture,
                                    threading_layer_type,
                                    multi_threaded)
-    compiler_lib_path = COMPILER_LIBS_PATH[MACOSX][architecture].format(package=package)
+    compiler_lib_path = COMPILER_LIBS_PATH[MACOSX][architecture]
     exp_libs = EXP_LIBS[MACOSX][threading_layer_type]
     if multi_threaded and threading_layer_type != ThreadingLayerType.OPENMP:
         exp_libs += EXP_LIBS[MACOSX][ThreadingLayerType.OPENMP]
@@ -266,11 +271,11 @@ def generate_macosx_for_macosx(package,
 
     return GENERATOR_FORMAT[MACOSX][MACOSX].format(threading=threading,
                                                    architecture=architecture,
+                                                   root=root,
                                                    destination=destination,
                                                    sub_command=sub_command,
                                                    compiler=compiler,
                                                    clang_args=clang_args,
-                                                   package=package,
                                                    main_file=main_file,
                                                    main_object=main_object,
                                                    linker=linker,
@@ -294,6 +299,7 @@ def generate_android_for_macosx(package,
     destination = os.path.join(library_path, architecture)
     compiler = COMPILERS[ANDROID][architecture]
     cmp_args = COMPILERS_FLAGS[ANDROID][architecture]
+    root = IPPROOT if package == IPP else IPPCRYPTOROOT
     main_file = os.path.join(library_path, MAIN_FILE)
     main_object = os.path.join(destination, 'main.o')
     linker = LINKERS[ANDROID][architecture]
@@ -310,11 +316,11 @@ def generate_android_for_macosx(package,
 
     return GENERATOR_FORMAT[MACOSX][ANDROID].format(threading=threading,
                                                     architecture=architecture,
+                                                    root=root,
                                                     destination=destination,
                                                     sub_command=sub_command,
                                                     compiler=compiler,
                                                     cmp_args=cmp_args,
-                                                    package=package,
                                                     main_file=main_file,
                                                     main_object=main_object,
                                                     linker=linker,
@@ -376,25 +382,27 @@ def create_android_export_file(export_file, functions_list):
     create_linux_export_file(export_file, functions_list)
 
 
-def list_to_arguments(libraries_list, package, host_system):
+def list_to_arguments(libraries_list, root, host_system):
     family = WINDOWS if host_system == WINDOWS else UNIX
 
     path_to_library = OS_FAMILY[family][ENV_PREFIX] \
-                      + package + 'ROOT' + OS_FAMILY[family][ENV_POSTFIX] \
+                      + root + OS_FAMILY[family][ENV_POSTFIX] \
                       + OS_FAMILY[family][DIR_SEPARATOR] \
                       + 'lib' + OS_FAMILY[family][DIR_SEPARATOR]
 
     return ' '.join(['"' + path_to_library + library + '"'
                      for library in libraries_list
                      if os.path.exists(os.path.join(path_to_library.replace(OS_FAMILY[family][ENV_PREFIX] +
-                                                                            package + 'ROOT' +
+                                                                            root +
                                                                             OS_FAMILY[family][ENV_POSTFIX],
-                                                                            os.environ[package + 'ROOT']),
-                                                    library))])
+                                                                            os.environ[root]),
+                                                                            library))])
 
 
 def get_libraries_list(package, host_system, target_system, architecture, threading_type, multithreaded):
-    if os.path.exists(os.path.join(os.environ[package + 'ROOT'], 'lib', architecture)):
+    root = IPPROOT if package == IPP else IPPCRYPTOROOT
+
+    if os.path.exists(os.path.join(os.environ[root], 'lib', architecture)):
         arch_dir = architecture
     else:
         arch_dir = architecture + '_' + target_system.lower()[:3]
@@ -414,7 +422,7 @@ def get_libraries_list(package, host_system, target_system, architecture, thread
                        [target_system]
                        [package]
                        [thread_mode]]
-    return list_to_arguments(libraries_list, package, host_system)
+    return list_to_arguments(libraries_list, root, host_system)
 
 
 GENERATORS = {

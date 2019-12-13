@@ -107,17 +107,16 @@ IPPFUN(IppStatus, ippsAES_SIVEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
    /* test arrays of input AD[] */
    IPP_BAD_PTR2_RET(pAD, pADlen);
    IPP_BADARG_RET(0>numAD, ippStsLengthErr);
-   #ifdef _IPP_DEBUG
+
    {
       int n;
-      for(n=0; n<numAD; n++) {
+      for (n = 0; n < numAD; n++) {
          /* test input message and it's length */
-         IPP_BADARG_RET((pADlen[n]<0), ippStsLengthErr);
+         IPP_BADARG_RET((pADlen[n] < 0), ippStsLengthErr);
          /* test source pointer */
          IPP_BADARG_RET((pADlen[n] && !pAD[n]), ippStsNullPtrErr);
       }
    }
-   #endif
 
    {
       int n;

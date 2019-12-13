@@ -150,14 +150,11 @@ IPPFUN(IppStatus, ippsDLPGenerateDH,(const IppsBigNumState* pSeedIn,
       }
 
       /* test SeedOut if requested */
-      #if defined( _IPP_DEBUG )
       if(pSeedOut) {
          pSeedOut = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSeedOut, BN_ALIGNMENT) );
          IPP_BADARG_RET(!BN_VALID_ID(pSeedOut), ippStsContextMatchErr);
          IPP_BADARG_RET(DLP_BITSIZER(pDL)>BITSIZE(BNU_CHUNK_T)*BN_ROOM(pSeedOut), ippStsRangeErr);
       }
-      #endif
-
 
       /*
       // generation DSA domain parameters

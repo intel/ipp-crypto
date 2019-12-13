@@ -50,59 +50,13 @@
 */
 
 #include "owncp.h"
-#include "pcpsms4.h"
-#include "pcptool.h"
 
 #if !defined _PCP_SMS4_ENCRYPT_CBC_H
 #define _PCP_SMS4_ENCRYPT_CBC_H
 
-/*F*
-//    Name: ippsSMS4EncryptCBC
-//
-// Purpose: SMS4-CBC encryption.
-//
-// Returns:                Reason:
-//    ippStsNullPtrErr        pCtx == NULL
-//                            pSrc == NULL
-//                            pDst == NULL
-//                            pIV  == NULL
-//    ippStsContextMatchErr   !VALID_SMS_ID()
-//    ippStsLengthErr         len <1
-//    ippStsUnderRunErr       0!=(dataLen%MBS_SMS4)
-//    ippStsNoErr             no errors
-//
-// Parameters:
-//    pSrc        pointer to the source data buffer
-//    pDst        pointer to the target data buffer
-//    dataLen     input/output buffer length (in bytes)
-//    pCtx        pointer to the SMS4 context
-//    pIV         pointer to the initialization vector
-//
-*F*/
-static void cpEncryptSMS4_cbc(const Ipp8u* pIV,
-                              const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
-                              const IppsSMS4Spec* pCtx)
-{
-   const Ipp32u* pRoundKeys = SMS4_RK(pCtx);
-
-   /* read IV */
-   Ipp32u iv[MBS_SMS4/sizeof(Ipp32u)];
-   CopyBlock16(pIV, iv);
-
-   /* do encryption */
-   for(; dataLen>0; dataLen-=MBS_SMS4, pSrc+=MBS_SMS4, pDst+=MBS_SMS4) {
-      iv[0] ^= ((Ipp32u*)pSrc)[0];
-      iv[1] ^= ((Ipp32u*)pSrc)[1];
-      iv[2] ^= ((Ipp32u*)pSrc)[2];
-      iv[3] ^= ((Ipp32u*)pSrc)[3];
-
-      cpSMS4_Cipher(pDst, (Ipp8u*)iv, pRoundKeys);
-
-      iv[0] = ((Ipp32u*)pDst)[0];
-      iv[1] = ((Ipp32u*)pDst)[1];
-      iv[2] = ((Ipp32u*)pDst)[2];
-      iv[3] = ((Ipp32u*)pDst)[3];
-   }
-}
+#define cpEncryptSMS4_cbc OWNAPI(cpEncryptSMS4_cbc)
+void cpEncryptSMS4_cbc(const Ipp8u* pIV,
+                       const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
+                       const IppsSMS4Spec* pCtx);
 
 #endif /* #if !defined _PCP_SMS4_ENCRYPT_CBC_H */

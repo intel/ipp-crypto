@@ -55,11 +55,7 @@
 #include "pcphash.h"
 #include "pcptool.h"
 
-#if !defined(_ENABLE_ALG_SHA256_) && !defined(_ENABLE_ALG_SHA224_)
-#pragma message("IPP_ALG_HASH_SHA256 disabled")
-
-#else
-#pragma message("IPP_ALG_HASH_SHA256 enabled")
+#if defined(_ENABLE_ALG_SHA256_) || defined(_ENABLE_ALG_SHA224_)
 
 #if !((_IPP==_IPP_M5) || \
       (_IPP==_IPP_W7) || (_IPP==_IPP_T7) || \
@@ -118,7 +114,6 @@
 //
 *F*/
 #if defined(_ALG_SHA256_COMPACT_)
-#pragma message("SHA256 compact")
 
 void UpdateSHA256(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam)
 {

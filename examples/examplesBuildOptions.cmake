@@ -63,7 +63,7 @@ if(WIN32)
 
   set(LINK_FLAG_S_ST_WINDOWS "/nologo /NODEFAULTLIB /VERBOSE:SAFESEH /INCREMENTAL:NO /NXCOMPAT /DYNAMICBASE /SUBSYSTEM:CONSOLE")
 
-  ippcp_extend_variable(CMAKE_CXX_FLAGS "/TP /nologo /W3 /EHa /Zm512 /wd4996 /GS")
+  ippcp_extend_variable(CMAKE_CXX_FLAGS "/TP /nologo /W3 /EHa /Zm512 /GS")
   # Intel compiler-specific option
   if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
     ippcp_extend_variable(CMAKE_CXX_FLAGS "-nologo -Qfp-speculation:safe -Qfreestanding")
@@ -94,7 +94,7 @@ if(UNIX)
     endif()
   else()
     # macOS
-    set(LINK_FLAG_S_ST_MACOSX "-Wl,-macosx_version_min,10.8")
+    set(LINK_FLAG_S_ST_MACOSX "-Wl,-macosx_version_min,10.12")
 
     ippcp_extend_variable(CMAKE_CXX_FLAGS "-fpic")
     if(${ARCH} MATCHES "ia32")

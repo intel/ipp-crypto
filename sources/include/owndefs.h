@@ -58,6 +58,7 @@
   #include "ippcpdefs.h"
 #endif
 
+#if !defined(__INLINE)
 #if defined(__INTEL_COMPILER) || defined(_MSC_VER)
   #define __INLINE static __inline
 #elif defined( __GNUC__ )
@@ -65,6 +66,7 @@
 #else
   #define __INLINE static
 #endif
+#endif /*__INLINE*/
 
 #if defined(__INTEL_COMPILER)
  #define __RESTRICT restrict
@@ -111,12 +113,16 @@
     #define __ALIGN8  __declspec (align(8))
     #define __ALIGN16 __declspec (align(16))
     #define __ALIGN32 __declspec (align(32))
-    #define __ALIGN64 __declspec (align(64))
+    #if !defined(__ALIGN64)
+        #define __ALIGN64 __declspec (align(64))
+    #endif/*__ALIGN64*/
 #elif defined(__GNUC__)
     #define __ALIGN8  __attribute__((aligned(8)))
     #define __ALIGN16 __attribute__((aligned(16)))
     #define __ALIGN32 __attribute__((aligned(32)))
-    #define __ALIGN64 __attribute__((aligned(64)))
+    #if !defined(__ALIGN64)
+        #define __ALIGN64 __attribute__((aligned(64)))
+    #endif/*__ALIGN64*/
 #else
    #error Intel, MS or GNU C compiler required
 #endif
@@ -229,7 +235,7 @@
       #define IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
     #endif
   #else
-    #if defined(linux32e) && !defined(IPP_PIC)
+    #if defined(LINUX32E) && !defined(IPP_PIC)
       #define IPPFUN(type,name,arg) __attribute__((force_align_arg_pointer)) extern type IPP_STDCALL name arg
     #else
       #define   IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
@@ -390,38 +396,29 @@ typedef enum {
 #define IPP_NOERROR_RET()  return ippStsNoErr
 #define IPP_ERROR_RET( ErrCode )  return (ErrCode)
 
-#ifdef _IPP_DEBUG
+#define IPP_BADARG_RET( expr, ErrCode )\
+            {if (expr) { IPP_ERROR_RET( ErrCode ); }}
 
-    #define IPP_BADARG_RET( expr, ErrCode )\
-                {if (expr) { IPP_ERROR_RET( ErrCode ); }}
+#define IPP_BAD_SIZE_RET( n )\
+            IPP_BADARG_RET( (n)<=0, ippStsSizeErr )
 
-#else
+#define IPP_BAD_STEP_RET( n )\
+            IPP_BADARG_RET( (n)<=0, ippStsStepErr )
 
-    #define IPP_BADARG_RET( expr, ErrCode )
+#define IPP_BAD_PTR1_RET( ptr )\
+            IPP_BADARG_RET( NULL==(ptr), ippStsNullPtrErr )
 
-#endif
+#define IPP_BAD_PTR2_RET( ptr1, ptr2 )\
+            {IPP_BAD_PTR1_RET( ptr1 ); IPP_BAD_PTR1_RET( ptr2 )}
 
+#define IPP_BAD_PTR3_RET( ptr1, ptr2, ptr3 )\
+            {IPP_BAD_PTR2_RET( ptr1, ptr2 ); IPP_BAD_PTR1_RET( ptr3 )}
 
-    #define IPP_BAD_SIZE_RET( n )\
-                IPP_BADARG_RET( (n)<=0, ippStsSizeErr )
+#define IPP_BAD_PTR4_RET( ptr1, ptr2, ptr3, ptr4 )\
+            {IPP_BAD_PTR2_RET( ptr1, ptr2 ); IPP_BAD_PTR2_RET( ptr3, ptr4 )}
 
-    #define IPP_BAD_STEP_RET( n )\
-                IPP_BADARG_RET( (n)<=0, ippStsStepErr )
-
-    #define IPP_BAD_PTR1_RET( ptr )\
-                IPP_BADARG_RET( NULL==(ptr), ippStsNullPtrErr )
-
-    #define IPP_BAD_PTR2_RET( ptr1, ptr2 )\
-                {IPP_BAD_PTR1_RET( ptr1 ); IPP_BAD_PTR1_RET( ptr2 )}
-
-    #define IPP_BAD_PTR3_RET( ptr1, ptr2, ptr3 )\
-                {IPP_BAD_PTR2_RET( ptr1, ptr2 ); IPP_BAD_PTR1_RET( ptr3 )}
-
-    #define IPP_BAD_PTR4_RET( ptr1, ptr2, ptr3, ptr4 )\
-                {IPP_BAD_PTR2_RET( ptr1, ptr2 ); IPP_BAD_PTR2_RET( ptr3, ptr4 )}
-
-    #define IPP_BAD_ISIZE_RET(roi) \
-               IPP_BADARG_RET( ((roi).width<=0 || (roi).height<=0), ippStsSizeErr)
+#define IPP_BAD_ISIZE_RET(roi) \
+            IPP_BADARG_RET( ((roi).width<=0 || (roi).height<=0), ippStsSizeErr)
 
 /* ////////////////////////////////////////////////////////////////////////// */
 /*                              internal messages                             */
@@ -618,7 +615,7 @@ extern double            __intel_castu64_f64(unsigned __int64 val);
 #if defined( _MERGED_BLD )
    #if !defined( _IPP_DYNAMIC )
       /* WIN-32, WIN-64 */
-      #if defined(_WIN32) || defined(_WIN64)
+      #if defined(WIN32) || defined(WIN32E)
          #if ( defined(_W7) || defined(_M7) )
          #define _IPP_DATA 1
          #endif

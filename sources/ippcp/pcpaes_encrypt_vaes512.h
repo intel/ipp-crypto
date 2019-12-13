@@ -56,7 +56,7 @@
 #include "pcpaesm.h"
 
 #if(_IPP32E>=_IPP32E_K0)
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4305) // zmmintrin.h bug: conversion from int to _mmask8
 #endif
 ////////////////////////////////////////////////////////////////////////////////

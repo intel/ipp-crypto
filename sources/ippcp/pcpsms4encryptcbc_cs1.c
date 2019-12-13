@@ -117,6 +117,9 @@ IPPFUN(IppStatus, ippsSMS4EncryptCBC_CS1,(const Ipp8u* pSrc, Ipp8u* pDst, int le
 
          /* encrypt last padded block */
          cpSMS4_Cipher(pDst-MBS_SMS4+tail, lastIV, SMS4_RK(pCtx));
+
+         /* clear secret data */
+         PurgeBlock(lastIV, sizeof(lastIV));
       }
 
       return ippStsNoErr;

@@ -45,9 +45,9 @@
 set(OS_DEFAULT_COMPILER Intel19.0.0)
 
 if(${ARCH} MATCHES "ia32")
-  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -Dlinux -Dlinux32 -D_ARCH_IA32") # 32bit linux
+  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -Dlinux -DLINUX32 -D_ARCH_IA32") # 32bit linux
 else()
-  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -Dlinux -Dlinux32e -D_ARCH_EM64T") # 64bit linux
+  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -Dlinux -DLINUX32E -D_ARCH_EM64T") # 64bit linux
 endif(${ARCH} MATCHES "ia32")
 
 if(NOT NONPIC_LIB)

@@ -38,36 +38,36 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
-; 
+;
 ;     Content:
 ;        cpAddSub_BNU()
 ;
 
-.686P
-.XMM
-.MODEL FLAT,C
-
-INCLUDE asmdefs.inc
-include pcpvariant.inc
-
-IF _ENABLE_KARATSUBA_
-
-IF _IPP GE _IPP_W7
-
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 
 
-ALIGN IPP_ALIGN_FACTOR
-IPPASM cpAddSub_BNU PROC NEAR C PUBLIC \
-      USES esi edi ebx,\
-      pDst:  PTR DWORD,\    ; target address
-      pSrcA: PTR DWORD,\    ; source address (A)
-      pSrcB: PTR DWORD,\    ; source address (B)
-      pSrcC: PTR DWORD,\    ; source address (C)
-      len:       DWORD     ; length of BNU
+
+
+%include "asmdefs.inc"
+%include "pcpvariant.inc"
+
+%if _ENABLE_KARATSUBA_
+
+%if (_IPP >= _IPP_W7)
+
+segment .text align=IPP_ALIGN_FACTOR
+
+align IPP_ALIGN_FACTOR
+IPPASM cpAddSub_BNU,PUBLIC
+  USES_GPR esi,edi,ebx
+
+%xdefine pDst  [esp + ARG_1 + 0*sizeof(dword)] ; target address
+%xdefine pSrcA [esp + ARG_1 + 1*sizeof(dword)] ; source address (A)
+%xdefine pSrcB [esp + ARG_1 + 2*sizeof(dword)] ; source address (B)
+%xdefine pSrcC [esp + ARG_1 + 3*sizeof(dword)] ; source address (C)
+%xdefine len   [esp + ARG_1 + 4*sizeof(dword)] ; length of BNU
 
    mov   eax,pSrcA   ; srcA
    mov   ebx,pSrcB   ; srcB
@@ -84,26 +84,27 @@ IPPASM cpAddSub_BNU PROC NEAR C PUBLIC \
 
    pandn mm0,mm0
 
-ALIGN IPP_ALIGN_FACTOR
-main_loop:
-   movd     mm1,DWORD PTR[eax + esi]
-   movd     mm2,DWORD PTR[ebx + esi]
-   movd     mm3,DWORD PTR[ecx + esi]
+align IPP_ALIGN_FACTOR
+.main_loop:
+   movd     mm1,DWORD [eax + esi]
+   movd     mm2,DWORD [ebx + esi]
+   movd     mm3,DWORD [ecx + esi]
 
    paddq    mm0,mm1
    paddq    mm0,mm2
    psubq    mm0,mm3
-   movd     DWORD PTR[edi + esi],mm0
+   movd     DWORD [edi + esi],mm0
    pshufw   mm0,mm0,11111110b
 
    add      esi,4
-   jnz      main_loop
+   jnz      .main_loop
 
    movd     eax,mm0
    emms
+   REST_GPR
    ret
-IPPASM cpAddSub_BNU endp
+ENDFUNC cpAddSub_BNU
 
-ENDIF    ;; _IPP_W7
-ENDIF    ;; _ENABLE_KARATSUBA_
-END
+%endif    ;; _IPP_W7
+%endif    ;; _ENABLE_KARATSUBA_
+

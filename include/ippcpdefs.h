@@ -74,35 +74,39 @@ extern "C" {
 
 #endif
 
-#if (defined( __ICL ) || defined( __ECL ) || defined(_MSC_VER)) && !defined( _PCS ) && !defined( _PCS_GENSTUBS )
-  #if( __INTEL_COMPILER >= 1100 ) /* icl 11.0 supports additional comment */
-    #if( _MSC_VER >= 1400 )
-      #define IPP_DEPRECATED( comment ) __declspec( deprecated ( comment ))
-    #else
-      #pragma message ("your icl version supports additional comment for deprecated functions but it can't be displayed")
-      #pragma message ("because internal _MSC_VER macro variable setting requires compatibility with MSVC7.1")
-      #pragma message ("use -Qvc8 switch for icl command line to see these additional comments")
-      #define IPP_DEPRECATED( comment ) __declspec( deprecated )
-    #endif
-  #elif( _MSC_FULL_VER >= 140050727 )&&( !defined( __INTEL_COMPILER )) /* VS2005 supports additional comment */
-    #define IPP_DEPRECATED( comment ) __declspec( deprecated ( comment ))
-  #elif( _MSC_VER <= 1200 )&&( !defined( __INTEL_COMPILER )) /* VS 6 doesn't support deprecation */
-    #define IPP_DEPRECATED( comment )
-  #else
-    #define IPP_DEPRECATED( comment ) __declspec( deprecated )
-  #endif
-#elif (defined(__ICC) || defined(__ECC) || defined( __GNUC__ )) && !defined( _PCS ) && !defined( _PCS_GENSTUBS )
-  #if defined( __GNUC__ )
-    #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 5
-      #define IPP_DEPRECATED( message ) __attribute__(( deprecated( message )))
-    #else
-      #define IPP_DEPRECATED( message ) __attribute__(( deprecated ))
-    #endif
-  #else
-    #define IPP_DEPRECATED( comment ) __attribute__(( deprecated ))
-  #endif
+#if !defined(_NO_IPP_DEPRECATED)
+   #if (defined( __ICL ) || defined( __ECL ) || defined(_MSC_VER)) && !defined( _PCS ) && !defined( _PCS_GENSTUBS )
+     #if( __INTEL_COMPILER >= 1100 ) /* icl 11.0 supports additional comment */
+       #if( _MSC_VER >= 1400 )
+         #define IPP_DEPRECATED( comment ) __declspec( deprecated ( comment ))
+       #else
+         #pragma message ("your icl version supports additional comment for deprecated functions but it can't be displayed")
+         #pragma message ("because internal _MSC_VER macro variable setting requires compatibility with MSVC7.1")
+         #pragma message ("use -Qvc8 switch for icl command line to see these additional comments")
+         #define IPP_DEPRECATED( comment ) __declspec( deprecated )
+       #endif
+     #elif( _MSC_FULL_VER >= 140050727 )&&( !defined( __INTEL_COMPILER )) /* VS2005 supports additional comment */
+       #define IPP_DEPRECATED( comment ) __declspec( deprecated ( comment ))
+     #elif( _MSC_VER <= 1200 )&&( !defined( __INTEL_COMPILER )) /* VS 6 doesn't support deprecation */
+       #define IPP_DEPRECATED( comment )
+     #else
+       #define IPP_DEPRECATED( comment ) __declspec( deprecated )
+     #endif
+   #elif (defined(__ICC) || defined(__ECC) || defined( __GNUC__ )) && !defined( _PCS ) && !defined( _PCS_GENSTUBS )
+     #if defined( __GNUC__ )
+       #if (__GNUC__ * 100 + __GNUC_MINOR__) >= 405
+         #define IPP_DEPRECATED( message ) __attribute__(( deprecated( message )))
+       #else
+         #define IPP_DEPRECATED( message ) __attribute__(( deprecated ))
+       #endif
+     #else
+       #define IPP_DEPRECATED( comment ) __attribute__(( deprecated ))
+     #endif
+   #else
+     #define IPP_DEPRECATED( comment )
+   #endif
 #else
-  #define IPP_DEPRECATED( comment )
+   #define IPP_DEPRECATED( comment )
 #endif
 
 #if (defined( __ICL ) || defined( __ECL ) || defined(_MSC_VER))

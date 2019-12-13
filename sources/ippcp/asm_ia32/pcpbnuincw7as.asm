@@ -44,28 +44,29 @@
 ;     Content:
 ;        cpInc_BNU()
 ;
-.686P
-.387
-.XMM
-.MODEL FLAT,C
 
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
 
-IF _IPP GE _IPP_W7
-INCLUDE pcpvariant.inc
 
-IF (_USE_C_cpInc_BNU_ EQ 0)
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 
-ALIGN IPP_ALIGN_FACTOR
-IPPASM cpInc_BNU PROC NEAR C PUBLIC \
-      USES esi edi ebx,\
-      pDst:  PTR DWORD,\    ; target address
-      pSrc:  PTR DWORD,\    ; source address
-      len:       DWORD,\    ; length of BNU
-      value:     DWORD     ; increment val
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+%if (_IPP >= _IPP_W7)
+%include "pcpvariant.inc"
+
+%if (_USE_C_cpInc_BNU_ == 0)
+
+segment .text align=IPP_ALIGN_FACTOR
+
+align IPP_ALIGN_FACTOR
+IPPASM cpInc_BNU,PUBLIC
+  USES_GPR esi,edi,ebx
+
+%xdefine pDst  [esp + ARG_1 + 0*sizeof(dword)] ; target address
+%xdefine pSrc  [esp + ARG_1 + 1*sizeof(dword)] ; source address
+%xdefine len   [esp + ARG_1 + 2*sizeof(dword)] ; length of BNU
+%xdefine value [esp + ARG_1 + 3*sizeof(dword)] ; increment val
 
    mov   edi, pDst   ; dst
    mov   esi, pSrc   ; src
@@ -76,23 +77,24 @@ IPPASM cpInc_BNU PROC NEAR C PUBLIC \
 
    xor   ecx,ecx
 
-ALIGN IPP_ALIGN_FACTOR
-main_loop:
-   movd     mm1,DWORD PTR[esi + ecx]
+align IPP_ALIGN_FACTOR
+.main_loop:
+   movd     mm1,DWORD [esi + ecx]
    paddq    mm1,mm0
-   movd     DWORD PTR[edi + ecx],mm1
+   movd     DWORD [edi + ecx],mm1
    pshufw   mm0,mm1,11111110b
    movd     eax, mm0
 
    add      ecx,4
    cmp      ecx,edx
-   jl       main_loop
+   jl       .main_loop
 
-exit_loop:
+.exit_loop:
    emms
+   REST_GPR
    ret
-IPPASM cpInc_BNU endp
-ENDIF
+ENDFUNC cpInc_BNU
+%endif
 
-ENDIF
-END
+%endif
+

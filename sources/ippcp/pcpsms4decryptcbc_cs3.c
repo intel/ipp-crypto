@@ -93,8 +93,18 @@ IPPFUN(IppStatus, ippsSMS4DecryptCBC_CS3,(const Ipp8u* pSrc, Ipp8u* pDst, int le
    IPP_BADARG_RET((len<=MBS_SMS4), ippStsLengthErr);
 
    {
-      Ipp8u lastIV[MBS_SMS4];
-      Ipp8u lastDecBlk[MBS_SMS4+MBS_SMS4];
+      __ALIGN16 Ipp8u TMP[3*MBS_SMS4+1];
+
+      /*
+         lastIV     size = MBS_SMS4
+         lastDecBlk size = 2*MBS_SMS4
+         c          size = 1
+      */
+
+      Ipp8u*     lastIV = TMP;
+      Ipp8u* lastDecBlk = TMP + MBS_SMS4;
+      Ipp8u*          c = TMP + 3*MBS_SMS4;
+
       int n;
 
       int tail = len & (MBS_SMS4-1); /* length of the last partial block */
@@ -121,12 +131,15 @@ IPPFUN(IppStatus, ippsSMS4DecryptCBC_CS3,(const Ipp8u* pSrc, Ipp8u* pDst, int le
       cpSMS4_Cipher(lastDecBlk, lastDecBlk, SMS4_DRK(pCtx));
 
       for(n=0; n<MBS_SMS4; n++) {
-         Ipp8u c = pSrc[n];
+         *c = pSrc[n];
          pDst[n] = lastDecBlk[n] ^ lastIV[n];
-         lastIV[n] = c;
+         lastIV[n] = *c;
       }
       for(tail+=MBS_SMS4; n<tail; n++)
          pDst[n] = lastDecBlk[n] ^ pSrc[n];
+
+      /* clear secret data */
+      PurgeBlock(TMP, sizeof(TMP));
 
       return ippStsNoErr;
    }

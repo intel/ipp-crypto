@@ -38,13 +38,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     AES encryption/decryption (CBC mode)
 //     AES encryption/decryption (CBC-CS mode)
-// 
+//
 //  Contents:
 //     ippsAESDecryptCBC()
 //
@@ -58,13 +58,8 @@
 #if !defined(_PCP_AES_CBC_H_)
 #define _PCP_AES_CBC_H_
 
-#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
-#  pragma message("_ALG_AES_SAFE_COMPOSITE_GF_ enabled")
-#elif (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-#  pragma message("_ALG_AES_SAFE_COMPACT_SBOX_ enabled")
+#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
 #  include "pcprijtables.h"
-#else
-#  pragma message("_ALG_AES_SAFE_ disabled")
 #endif
 
 /*
@@ -131,16 +126,14 @@ void cpDecryptAES_cbc(const Ipp8u* pIV,
 
       /* inplace block-by-block decryption */
       else {
-         Ipp32u tmpInp[NB(128)];
          Ipp32u tmpOut[NB(128)];
 
          while(nBlocks) {
-            CopyBlock16(pSrc, tmpInp);
-            //decoder(tmpInp, tmpOut, RIJ_NR(pCtx), RIJ_DKEYS(pCtx), (const Ipp32u (*)[256])RIJ_DEC_SBOX(pCtx));
+            //decoder(pSrc, tmpOut, RIJ_NR(pCtx), RIJ_DKEYS(pCtx), (const Ipp32u (*)[256])RIJ_DEC_SBOX(pCtx));
             #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-            decoder((Ipp8u*)tmpInp, (Ipp8u*)tmpOut, RIJ_NR(pCtx), RIJ_EKEYS(pCtx), RijDecSbox/*NULL*/);
+            decoder(pSrc, (Ipp8u*)tmpOut, RIJ_NR(pCtx), RIJ_EKEYS(pCtx), RijDecSbox/*NULL*/);
             #else
-            decoder((Ipp8u*)tmpInp, (Ipp8u*)tmpOut, RIJ_NR(pCtx), RIJ_DKEYS(pCtx), NULL);
+            decoder(pSrc, (Ipp8u*)tmpOut, RIJ_NR(pCtx), RIJ_DKEYS(pCtx), NULL);
             #endif
 
             tmpOut[0] ^= iv[0];
@@ -148,12 +141,12 @@ void cpDecryptAES_cbc(const Ipp8u* pIV,
             tmpOut[2] ^= iv[2];
             tmpOut[3] ^= iv[3];
 
-            CopyBlock16(tmpOut, pDst);
+            iv[0] = ((Ipp32u*)pSrc)[0];
+            iv[1] = ((Ipp32u*)pSrc)[1];
+            iv[2] = ((Ipp32u*)pSrc)[2];
+            iv[3] = ((Ipp32u*)pSrc)[3];
 
-            iv[0] = tmpInp[0];
-            iv[1] = tmpInp[1];
-            iv[2] = tmpInp[2];
-            iv[3] = tmpInp[3];
+            CopyBlock16(tmpOut, pDst);
 
             pSrc += MBS_RIJ128;
             pDst += MBS_RIJ128;

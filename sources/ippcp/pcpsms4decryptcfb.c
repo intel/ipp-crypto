@@ -84,8 +84,15 @@ void cpDecryptSMS4_cfb(const Ipp8u* pIV,
                       const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks, int cfbBlkSize,
                       const IppsSMS4Spec* pCtx)
 {
-   Ipp32u tmpInp[2*MBS_SMS4/sizeof(Ipp32u)];
-   Ipp32u tmpOut[  MBS_SMS4/sizeof(Ipp32u)];
+   __ALIGN16 Ipp32u TMP[3*MBS_SMS4/sizeof(Ipp32u)];
+
+   /*
+      tmpInp size = 2*MBS_SMS4/sizeof(Ipp32u)
+      tmpOut size =   MBS_SMS4/sizeof(Ipp32u)
+   */
+
+   Ipp32u* tmpInp = TMP; 
+   Ipp32u* tmpOut = TMP + 2*MBS_SMS4/sizeof(Ipp32u);
 
    /* read IV */
    CopyBlock16(pIV, tmpInp);
@@ -122,6 +129,8 @@ void cpDecryptSMS4_cfb(const Ipp8u* pIV,
       pDst += cfbBlkSize;
       nBlocks--;
    }
+
+   PurgeBlock(TMP, sizeof(TMP));
 }
 
 IPPFUN(IppStatus, ippsSMS4DecryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, int cfbBlkSize,

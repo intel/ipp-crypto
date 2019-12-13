@@ -38,32 +38,34 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Low level Big Number multiplication Support
-; 
+;
 ;
 
-IFNDEF _PCPBNUMUL_INC_
-_PCPBNUMUL_INC_ = 1
+%ifndef _PCPBNUMUL_INC_
+%assign _PCPBNUMUL_INC_  1
 
-include pcpbnumul_basic.inc
+%include "pcpbnumul_basic.inc"
 
-CLEAR MACRO rPtr, rLen
-LOCAL L_1
-L_1:
-   mov   qword ptr[rPtr], rax
-   add   rPtr, sizeof(qword)
-   sub   rLen, 1
-   jnz   L_1
-ENDM
+%macro CLEAR 2.nolist
+  %xdefine %%rPtr %1
+  %xdefine %%rLen %2
+
+%%L_1:
+   mov   qword [%%rPtr], rax
+   add   %%rPtr, sizeof(qword)
+   sub   %%rLen, 1
+   jnz   %%L_1
+%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (8*n)x(8*m) multiplier
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-mul_8Nx8M PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mul_8Nx8M,PRIVATE
    push     rbx   ;; nsB
    push     rdi   ;; pR
    push     rsi   ;; pA
@@ -72,27 +74,27 @@ mul_8Nx8M PROC PRIVATE
 ;;;
 ;;; init
 ;;;
-mul_loopA:
+.mul_loopA:
    push     rdx   ;; nsA
    call     mla_8x8
    add      rdi, sizeof(qword)*8    ; adv pR
    add      rsi, sizeof(qword)*8    ; adv pA
    pop      rdx                     ; nsA--
    sub      rdx, 8
-   jnz      mul_loopA
+   jnz      .mul_loopA
 
-   mov      qword ptr[rdi+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*2],r10
-   mov      qword ptr[rdi+sizeof(qword)*3],r11
-   mov      qword ptr[rdi+sizeof(qword)*4],r12
-   mov      qword ptr[rdi+sizeof(qword)*5],r13
-   mov      qword ptr[rdi+sizeof(qword)*6],r14
-   mov      qword ptr[rdi+sizeof(qword)*7],r15
+   mov      qword [rdi+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*2],r10
+   mov      qword [rdi+sizeof(qword)*3],r11
+   mov      qword [rdi+sizeof(qword)*4],r12
+   mov      qword [rdi+sizeof(qword)*5],r13
+   mov      qword [rdi+sizeof(qword)*6],r14
+   mov      qword [rdi+sizeof(qword)*7],r15
 
-   jmp      mla_enrty
+   jmp      .mla_entry
 
-mla_loopB:
+.mla_loopB:
    push     rbx   ;; nsB
 
    push     rdi   ;; pR
@@ -102,59 +104,59 @@ mla_loopB:
    xor      rax, rax ; c-flag
    push     rax
 
-   mov      r8, qword ptr[rdi+sizeof(qword)*0]
-   mov      r9, qword ptr[rdi+sizeof(qword)*1]
-   mov      r10,qword ptr[rdi+sizeof(qword)*2]
-   mov      r11,qword ptr[rdi+sizeof(qword)*3]
-   mov      r12,qword ptr[rdi+sizeof(qword)*4]
-   mov      r13,qword ptr[rdi+sizeof(qword)*5]
-   mov      r14,qword ptr[rdi+sizeof(qword)*6]
-   mov      r15,qword ptr[rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi+sizeof(qword)*0]
+   mov      r9, qword [rdi+sizeof(qword)*1]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
-loopA:
+.loopA:
    push     rdx                  ; nsA
    call     mla_8x8
    add      rdi, sizeof(qword)*8
    add      rsi, sizeof(qword)*8
    pop      rdx                  ; nsA--
    sub      rdx, 8
-   jz       exit_loopA
+   jz       .exit_loopA
 
    pop      rax                  ; restore c-flag
    neg      rax
-   op_reg_mem adc, r8, qword ptr[rdi+sizeof(qword)*0], rax
-   op_reg_mem adc, r9, qword ptr[rdi+sizeof(qword)*1], rax
-   op_reg_mem adc, r10,qword ptr[rdi+sizeof(qword)*2], rax
-   op_reg_mem adc, r11,qword ptr[rdi+sizeof(qword)*3], rax
-   op_reg_mem adc, r12,qword ptr[rdi+sizeof(qword)*4], rax
-   op_reg_mem adc, r13,qword ptr[rdi+sizeof(qword)*5], rax
-   op_reg_mem adc, r14,qword ptr[rdi+sizeof(qword)*6], rax
-   op_reg_mem adc, r15,qword ptr[rdi+sizeof(qword)*7], rax
+   op_reg_mem adc, r8, qword [rdi+sizeof(qword)*0], rax
+   op_reg_mem adc, r9, qword [rdi+sizeof(qword)*1], rax
+   op_reg_mem adc, r10,qword [rdi+sizeof(qword)*2], rax
+   op_reg_mem adc, r11,qword [rdi+sizeof(qword)*3], rax
+   op_reg_mem adc, r12,qword [rdi+sizeof(qword)*4], rax
+   op_reg_mem adc, r13,qword [rdi+sizeof(qword)*5], rax
+   op_reg_mem adc, r14,qword [rdi+sizeof(qword)*6], rax
+   op_reg_mem adc, r15,qword [rdi+sizeof(qword)*7], rax
    sbb      rax, rax             ; save c-flag
    push     rax
-   jmp      loopA
+   jmp      .loopA
 
-exit_loopA:
+.exit_loopA:
    pop      rax                  ; restore c-flag
    neg      rax
    adc      r8, 0
-   mov      qword ptr[rdi+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*0], r8
    adc      r9, 0
-   mov      qword ptr[rdi+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*1], r9
    adc      r10,0
-   mov      qword ptr[rdi+sizeof(qword)*2],r10
+   mov      qword [rdi+sizeof(qword)*2],r10
    adc      r11,0
-   mov      qword ptr[rdi+sizeof(qword)*3],r11
+   mov      qword [rdi+sizeof(qword)*3],r11
    adc      r12,0
-   mov      qword ptr[rdi+sizeof(qword)*4],r12
+   mov      qword [rdi+sizeof(qword)*4],r12
    adc      r13,0
-   mov      qword ptr[rdi+sizeof(qword)*5],r13
+   mov      qword [rdi+sizeof(qword)*5],r13
    adc      r14,0
-   mov      qword ptr[rdi+sizeof(qword)*6],r14
+   mov      qword [rdi+sizeof(qword)*6],r14
    adc      r15,0
-   mov      qword ptr[rdi+sizeof(qword)*7],r15
+   mov      qword [rdi+sizeof(qword)*7],r15
 
-mla_enrty:
+.mla_entry:
    pop      rdx   ; restore nsA
    pop      rsi   ; restore pA
    pop      rdi
@@ -163,51 +165,52 @@ mla_enrty:
    add      rcx, sizeof(qword)*8
    pop      rbx   ;; nsB--
    sub      rbx, 8
-   jnz      mla_loopB
+   jnz      .mla_loopB
    ret
-mul_8Nx8M ENDP
+ENDFUNC mul_8Nx8M
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; simplest general case N x M multiplier
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-mla_simple  PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mla_simple,PRIVATE
    xor      rax, rax       ; carry = 0
 
    mov      r11, rdx
    cmp      r11, rbx
-   jge      ms_mla_entry
+   jge      .ms_mla_entry
    SWAP     r11, rbx
    SWAP     rsi, rcx
-   jmp      ms_mla_entry
+   jmp      .ms_mla_entry
 
-ms_loopB:
+.ms_loopB:
    push     rbx   ;; nsB
    push     rdi   ;; pR
    push     rsi   ;; pA
    push     r11   ;; nsA
    push     rax   ;; save previous pass carry
 
-   mov      rdx, qword ptr[rcx]  ; pB[]
+   mov      rdx, qword [rcx]  ; pB[]
    xor      r10, r10             ; extension
-ms_loopA:
-   gsmulx   r9, r8, qword ptr[rsi]
+.ms_loopA:
+   gsmulx   r9, r8, qword [rsi]
    add      rdi, sizeof(qword)
    add      rsi, sizeof(qword)
    add      r8, r10
    adc      r9, 0
-   add      r8, qword ptr[rdi-sizeof(qword)]
+   add      r8, qword [rdi-sizeof(qword)]
    adc      r9, 0
-   mov      qword ptr[rdi-sizeof(qword)], r8
+   mov      qword [rdi-sizeof(qword)], r8
    mov      r10, r9
    sub      r11, 1
-   jnz      ms_loopA
+   jnz      .ms_loopA
 
    pop      rax                  ; restore carry
    shr      rax, 1
 
-   adc      r10, qword ptr[rdi]
-   mov      qword ptr[rdi], r10
+   adc      r10, qword [rdi]
+   mov      qword [rdi], r10
    adc      rax, 0               ; save carry
 
    pop      r11   ; restore nsA
@@ -218,36 +221,37 @@ ms_loopA:
    add      rdi, sizeof(qword)
    add      rcx, sizeof(qword)
 
-ms_mla_entry:
+.ms_mla_entry:
    sub      rbx, 1
-   jnc      ms_loopB
+   jnc      .ms_loopB
    ret
-mla_simple ENDP
+ENDFUNC mla_simple
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general case N x M multiplier
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-mul_NxM PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mul_NxM,PRIVATE
 ;
 ; stack struct
 ;
-nsB_cnt  = 0                        ; rest of B operand
-ptrR     = nsB_cnt+sizeof(qword)    ; current product pointer
-ptrA     = ptrR+sizeof(qword)       ; ponter to A operand (pA)
-nsA      = ptrA+sizeof(qword)       ; length of A operand (nsA)
-nsA_cnt  = nsA+sizeof(qword)        ; rest of A operand
-carry    = nsA_cnt+sizeof(qword)    ; carry
-tailproc = carry+sizeof(qword)      ; mla_8xn procedure
-stack_mem= tailproc+sizeof(qword)   ; size of stack allocation
+%assign nsB_cnt   0                      ; rest of B operand
+%assign ptrR      nsB_cnt+sizeof(qword)  ; current product pointer
+%assign ptrA      ptrR+sizeof(qword)     ; ponter to A operand (pA)
+%assign nsA       ptrA+sizeof(qword)     ; length of A operand (nsA)
+%assign nsA_cnt   nsA+sizeof(qword)      ; rest of A operand
+%assign carry     nsA_cnt+sizeof(qword)  ; carry
+%assign tailproc  carry+sizeof(qword)    ; mla_8xn procedure
+%assign stack_mem tailproc+sizeof(qword) ; size of stack allocation
 
    sub      rsp, stack_mem       ; allocate stack
 
    cmp      rbx, 8
-   jge      regular_entry
+   jge      .regular_entry
    cmp      rdx, 8
-   jge      irregular_entry
+   jge      .irregular_entry
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -262,14 +266,14 @@ stack_mem= tailproc+sizeof(qword)   ; size of stack allocation
    CLEAR    rbp, r8
 
    call     mla_simple
-   jmp      quit
+   jmp      .quit
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; irregular init
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-irregular_entry:
+.irregular_entry:
    mov      [rsp+nsB_cnt], rbx
    mov      [rsp+nsA], rdx
    mov      [rsp+nsA_cnt], rdx
@@ -277,21 +281,21 @@ irregular_entry:
    GET_EP   rax, mla_8xl_tail, rbx, rbp   ; tail procedure (mla_8xn) address
    mov      [rsp+tailproc], rax
 
-   jmp      irr_init_entry
+   jmp      .irr_init_entry
 
-irr_init_loop:
+.irr_init_loop:
    mov      [rsp+nsA_cnt], rdx   ; save A counter
    call     rax
 
    mov      rbx, [rsp+nsB_cnt]
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*5], r13
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*6], r14
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*7], r15
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*0], r8
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*1], r9
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*2], r10
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*3], r11
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*4], r12
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*5], r13
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*6], r14
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*7], r15
 
    add      rsi, sizeof(qword)*8
    add      rdi, sizeof(qword)*8
@@ -306,35 +310,35 @@ irr_init_loop:
    xor      r15,r15
 
    ; load data depending on nsB length
-   mov      r8,  qword ptr[rdi]
+   mov      r8,  qword [rdi]
    cmp      rbx, 1
-   jz       continue
-   mov      r9,  qword ptr[rdi+sizeof(qword)]
+   jz       .continue
+   mov      r9,  qword [rdi+sizeof(qword)]
    cmp      rbx, 2
-   jz       continue
-   mov      r10, qword ptr[rdi+sizeof(qword)*2]
+   jz       .continue
+   mov      r10, qword [rdi+sizeof(qword)*2]
    cmp      rbx, 3
-   jz       continue
-   mov      r11, qword ptr[rdi+sizeof(qword)*3]
+   jz       .continue
+   mov      r11, qword [rdi+sizeof(qword)*3]
    cmp      rbx, 4
-   jz       continue
-   mov      r12, qword ptr[rdi+sizeof(qword)*4]
+   jz       .continue
+   mov      r12, qword [rdi+sizeof(qword)*4]
    cmp      rbx, 5
-   jz       continue
-   mov      r13, qword ptr[rdi+sizeof(qword)*5]
+   jz       .continue
+   mov      r13, qword [rdi+sizeof(qword)*5]
    cmp      rbx, 6
-   jz       continue
-   mov      r14, qword ptr[rdi+sizeof(qword)*6]
-continue:
+   jz       .continue
+   mov      r14, qword [rdi+sizeof(qword)*6]
+.continue:
    mov      rdx, [rsp+nsA_cnt]   ; nsA
 
-irr_init_entry:
+.irr_init_entry:
    sub      rdx, 8
    mov      rax, [rsp+tailproc]
-   jnc      irr_init_loop
+   jnc      .irr_init_loop
 
    add      rdx, 8
-   jz       quit
+   jz       .quit
 
    ; clear uninitialized rest of product
    lea      rbp, [rdi+rbx*sizeof(qword)]
@@ -343,14 +347,14 @@ irr_init_entry:
 
    mov      rdx, [rsp+nsA_cnt]
    call     mla_simple
-   jmp      quit
+   jmp      .quit
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; regular ep
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-regular_entry:
+.regular_entry:
    sub      rbx, 8
    xor      rax, rax
    mov      [rsp+nsB_cnt], rbx
@@ -369,17 +373,17 @@ regular_entry:
 ;; regular init
 ;;
    sub      rdx, 8   ;; nsA counter
-init_loopA:
+.init_loopA:
    mov      [rsp+nsA_cnt], rdx      ; nsA
    call     mla_8x8
    mov      rdx, [rsp+nsA_cnt]
    add      rdi, sizeof(qword)*8    ; adv ptrR
    add      rsi, sizeof(qword)*8    ; adv ptrA
    sub      rdx, 8                  ; nsA -= 8
-   jnc      init_loopA
+   jnc      .init_loopA
 
    add      rdx, 8
-   jz       init_complete
+   jz       .init_complete
 
    mov      [rsp+nsA_cnt], rdx
 
@@ -391,74 +395,74 @@ init_loopA:
    mov      rdx, [rsp+nsA_cnt]
    lea      rdi, [rdi+rdx*sizeof(qword)]
 
-init_complete:
-   mov      qword ptr[rdi+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*2],r10
-   mov      qword ptr[rdi+sizeof(qword)*3],r11
-   mov      qword ptr[rdi+sizeof(qword)*4],r12
-   mov      qword ptr[rdi+sizeof(qword)*5],r13
-   mov      qword ptr[rdi+sizeof(qword)*6],r14
-   mov      qword ptr[rdi+sizeof(qword)*7],r15
+.init_complete:
+   mov      qword [rdi+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*2],r10
+   mov      qword [rdi+sizeof(qword)*3],r11
+   mov      qword [rdi+sizeof(qword)*4],r12
+   mov      qword [rdi+sizeof(qword)*5],r13
+   mov      qword [rdi+sizeof(qword)*6],r14
+   mov      qword [rdi+sizeof(qword)*7],r15
 
-   jmp      mla_enrty
+   jmp      .mla_entry
 
 ;;
 ;; regular mla passes
 ;;
-mla_loopB:
+.mla_loopB:
    mov      [rsp+nsB_cnt], rbx   ; update B conter
    mov      [rsp+ptrR], rdi        ; update current product pointer
 
    xor      rax, rax             ; init carry
    mov      [rsp+carry], rax
 
-   mov      r8, qword ptr[rdi+sizeof(qword)*0]
-   mov      r9, qword ptr[rdi+sizeof(qword)*1]
-   mov      r10,qword ptr[rdi+sizeof(qword)*2]
-   mov      r11,qword ptr[rdi+sizeof(qword)*3]
-   mov      r12,qword ptr[rdi+sizeof(qword)*4]
-   mov      r13,qword ptr[rdi+sizeof(qword)*5]
-   mov      r14,qword ptr[rdi+sizeof(qword)*6]
-   mov      r15,qword ptr[rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi+sizeof(qword)*0]
+   mov      r9, qword [rdi+sizeof(qword)*1]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    sub      rdx, 8
-loopA:
+.loopA:
    mov      [rsp+nsA_cnt], rdx   ; save A counter
    call     mla_8x8
    mov      rdx, [rsp+nsA_cnt]   ; A counter
    add      rdi, sizeof(qword)*8
    add      rsi, sizeof(qword)*8
    sub      rdx, 8               ; nsA -= 8
-   jc       exit_loopA
+   jc       .exit_loopA
 
    mov      rax, [rsp+carry]     ; restore carry
    shr      rax, 1
-   op_reg_mem adc, r8, qword ptr[rdi+sizeof(qword)*0], rbx
-   op_reg_mem adc, r9, qword ptr[rdi+sizeof(qword)*1], rbx
-   op_reg_mem adc, r10,qword ptr[rdi+sizeof(qword)*2], rbx
-   op_reg_mem adc, r11,qword ptr[rdi+sizeof(qword)*3], rbx
-   op_reg_mem adc, r12,qword ptr[rdi+sizeof(qword)*4], rbx
-   op_reg_mem adc, r13,qword ptr[rdi+sizeof(qword)*5], rbx
-   op_reg_mem adc, r14,qword ptr[rdi+sizeof(qword)*6], rbx
-   op_reg_mem adc, r15,qword ptr[rdi+sizeof(qword)*7], rbx
+   op_reg_mem adc, r8, qword [rdi+sizeof(qword)*0], rbx
+   op_reg_mem adc, r9, qword [rdi+sizeof(qword)*1], rbx
+   op_reg_mem adc, r10,qword [rdi+sizeof(qword)*2], rbx
+   op_reg_mem adc, r11,qword [rdi+sizeof(qword)*3], rbx
+   op_reg_mem adc, r12,qword [rdi+sizeof(qword)*4], rbx
+   op_reg_mem adc, r13,qword [rdi+sizeof(qword)*5], rbx
+   op_reg_mem adc, r14,qword [rdi+sizeof(qword)*6], rbx
+   op_reg_mem adc, r15,qword [rdi+sizeof(qword)*7], rbx
    adc      rax, 0               ; save carry
    mov      [rsp+carry], rax
-   jmp      loopA
+   jmp      .loopA
 
-exit_loopA:
+.exit_loopA:
    add      rdx, 8
-   jz       complete_reg_loopB
+   jz       .complete_reg_loopB
 
    mov      [rsp+nsA_cnt], rdx
 
    ; put zeros
    xor      rax, rax
-put_zero:
-   mov      qword ptr[rdi+rdx*sizeof(qword)], rax
+.put_zero:
+   mov      qword [rdi+rdx*sizeof(qword)], rax
    add      rdx,1
    cmp      rdx, 8
-   jl       put_zero
+   jl       .put_zero
 
    mov      rax, [rsp+carry]     ; restore carry
    shr      rax, 1
@@ -485,35 +489,35 @@ put_zero:
    shr      rax, 1
 
    dec      rdx
-   jz       mt_1
+   jz       .mt_1
    dec      rdx
-   jz       mt_2
+   jz       .mt_2
    dec      rdx
-   jz       mt_3
+   jz       .mt_3
    dec      rdx
-   jz       mt_4
+   jz       .mt_4
    dec      rdx
-   jz       mt_5
+   jz       .mt_5
    dec      rdx
-   jz       mt_6
-mt_7: adc   r9, 0
-mt_6: adc   r10,0
-mt_5: adc   r11,0
-mt_4: adc   r12,0
-mt_3: adc   r13,0
-mt_2: adc   r14,0
-mt_1: adc   r15,0
-   mov      qword ptr[rdi+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*2],r10
-   mov      qword ptr[rdi+sizeof(qword)*3],r11
-   mov      qword ptr[rdi+sizeof(qword)*4],r12
-   mov      qword ptr[rdi+sizeof(qword)*5],r13
-   mov      qword ptr[rdi+sizeof(qword)*6],r14
-   mov      qword ptr[rdi+sizeof(qword)*7],r15
-   jmp      mla_enrty
+   jz       .mt_6
+.mt_7: adc   r9, 0
+.mt_6: adc   r10,0
+.mt_5: adc   r11,0
+.mt_4: adc   r12,0
+.mt_3: adc   r13,0
+.mt_2: adc   r14,0
+.mt_1: adc   r15,0
+   mov      qword [rdi+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*2],r10
+   mov      qword [rdi+sizeof(qword)*3],r11
+   mov      qword [rdi+sizeof(qword)*4],r12
+   mov      qword [rdi+sizeof(qword)*5],r13
+   mov      qword [rdi+sizeof(qword)*6],r14
+   mov      qword [rdi+sizeof(qword)*7],r15
+   jmp      .mla_entry
 
-complete_reg_loopB:
+.complete_reg_loopB:
    mov      rax, [rsp+carry]     ; restore carry
    add      r8, rax
    adc      r9, 0
@@ -523,16 +527,16 @@ complete_reg_loopB:
    adc      r13,0
    adc      r14,0
    adc      r15,0
-   mov      qword ptr[rdi+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*2],r10
-   mov      qword ptr[rdi+sizeof(qword)*3],r11
-   mov      qword ptr[rdi+sizeof(qword)*4],r12
-   mov      qword ptr[rdi+sizeof(qword)*5],r13
-   mov      qword ptr[rdi+sizeof(qword)*6],r14
-   mov      qword ptr[rdi+sizeof(qword)*7],r15
+   mov      qword [rdi+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*2],r10
+   mov      qword [rdi+sizeof(qword)*3],r11
+   mov      qword [rdi+sizeof(qword)*4],r12
+   mov      qword [rdi+sizeof(qword)*5],r13
+   mov      qword [rdi+sizeof(qword)*6],r14
+   mov      qword [rdi+sizeof(qword)*7],r15
 
-mla_enrty:
+.mla_entry:
                                  ; restore:
    mov      rbx, [rsp+nsB_cnt]   ; - B counter
    mov      rdi, [rsp+ptrR]      ; - ptrR
@@ -542,10 +546,10 @@ mla_enrty:
    add      rcx, sizeof(qword)*8 ; adv pB
    add      rdi, sizeof(qword)*8 ; adv ptrR
    sub      rbx, 8               ; nsB -= 8
-   jnc      mla_loopB
+   jnc      .mla_loopB
 
    add      rbx, 8
-   jz       quit
+   jz       .quit
 
 ;;
 ;; final mla pass
@@ -564,21 +568,21 @@ mla_enrty:
    mov      [rsp+carry], rax
 
    sub      rdx, 8
-tail_loopA:
-   mov      r8, qword ptr [rdi]
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+.tail_loopA:
+   mov      r8, qword [rdi]
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    mov      [rsp+nsA_cnt], rdx   ; save A counter
    mov      rax, [rsp+tailproc]
    call     rax
 
-enrty_tail_loopA:
+.entry_tail_loopA:
    mov      rax, [rsp+carry]     ; restore carry
    shr      rax, 1
    adc      r8,  0
@@ -594,91 +598,92 @@ enrty_tail_loopA:
    mov      rbx, [rsp+nsB_cnt]   ; nsB
    mov      rbp, rbx
    dec      rbp
-   jz       tt_1
+   jz       .tt_1
    dec      rbp
-   jz       tt_2
+   jz       .tt_2
    dec      rbp
-   jz       tt_3
+   jz       .tt_3
    dec      rbp
-   jz       tt_4
+   jz       .tt_4
    dec      rbp
-   jz       tt_5
+   jz       .tt_5
    dec      rbp
-   jz       tt_6
-tt_7: op_reg_mem adc, r9, [rdi+rbx*sizeof(qword)+sizeof(qword)*1], rbp
-tt_6: op_reg_mem adc, r10,[rdi+rbx*sizeof(qword)+sizeof(qword)*2], rbp
-tt_5: op_reg_mem adc, r11,[rdi+rbx*sizeof(qword)+sizeof(qword)*3], rbp
-tt_4: op_reg_mem adc, r12,[rdi+rbx*sizeof(qword)+sizeof(qword)*4], rbp
-tt_3: op_reg_mem adc, r13,[rdi+rbx*sizeof(qword)+sizeof(qword)*5], rbp
-tt_2: op_reg_mem adc, r14,[rdi+rbx*sizeof(qword)+sizeof(qword)*6], rbp
-tt_1: op_reg_mem adc, r15,[rdi+rbx*sizeof(qword)+sizeof(qword)*7], rbp
+   jz       .tt_6
+.tt_7: op_reg_mem adc, r9, [rdi+rbx*sizeof(qword)+sizeof(qword)*1], rbp
+.tt_6: op_reg_mem adc, r10,[rdi+rbx*sizeof(qword)+sizeof(qword)*2], rbp
+.tt_5: op_reg_mem adc, r11,[rdi+rbx*sizeof(qword)+sizeof(qword)*3], rbp
+.tt_4: op_reg_mem adc, r12,[rdi+rbx*sizeof(qword)+sizeof(qword)*4], rbp
+.tt_3: op_reg_mem adc, r13,[rdi+rbx*sizeof(qword)+sizeof(qword)*5], rbp
+.tt_2: op_reg_mem adc, r14,[rdi+rbx*sizeof(qword)+sizeof(qword)*6], rbp
+.tt_1: op_reg_mem adc, r15,[rdi+rbx*sizeof(qword)+sizeof(qword)*7], rbp
    adc      rax, 0
    mov      [rsp+carry], rax  ; update carry
 
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*5], r13
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*6], r14
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*7], r15
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*0], r8
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*1], r9
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*2], r10
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*3], r11
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*4], r12
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*5], r13
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*6], r14
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*7], r15
 
    mov      rdx, [rsp+nsA_cnt]      ; A counter
    add      rsi, sizeof(qword)*8    ; adv pA
    add      rdi, sizeof(qword)*8    ; adv pR
    sub      rdx, 8                  ; nsA -= 8
-   jnc      tail_loopA
+   jnc      .tail_loopA
 
    add      rdx, 8
-   jz       quit
+   jz       .quit
 
    ; carry propagation
    mov      rax, [rsp+carry]
    mov      rbp, rbx
 
    dec      rbp
-   mov      r8, qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*0]
+   mov      r8, qword [rdi+rbx*sizeof(qword)+sizeof(qword)*0]
    add      r8, rax
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*0], r8
-   jz       simple
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*0], r8
+   jz       .simple
    dec      rbp
-   mov      r9, qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*1]
+   mov      r9, qword [rdi+rbx*sizeof(qword)+sizeof(qword)*1]
    adc      r9, 0
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*1], r9
-   jz       simple
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*1], r9
+   jz       .simple
    dec      rbp
-   mov      r10,qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*2]
+   mov      r10,qword [rdi+rbx*sizeof(qword)+sizeof(qword)*2]
    adc      r10, 0
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*2], r10
-   jz       simple
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*2], r10
+   jz       .simple
    dec      rbp
-   mov      r11,qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*3]
+   mov      r11,qword [rdi+rbx*sizeof(qword)+sizeof(qword)*3]
    adc      r11, 0
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*3], r11
-   jz       simple
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*3], r11
+   jz       .simple
    dec      rbp
-   mov      r12,qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*4]
+   mov      r12,qword [rdi+rbx*sizeof(qword)+sizeof(qword)*4]
    adc      r12, 0
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*4], r12
-   jz       simple
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*4], r12
+   jz       .simple
    dec      rbp
-   mov      r13,qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*5]
+   mov      r13,qword [rdi+rbx*sizeof(qword)+sizeof(qword)*5]
    adc      r13, 0
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*5], r13
-   jz       simple
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*5], r13
+   jz       .simple
    dec      rbp
-   mov      r14,qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*6]
+   mov      r14,qword [rdi+rbx*sizeof(qword)+sizeof(qword)*6]
    adc      r14, 0
-   mov      qword ptr[rdi+rbx*sizeof(qword)+sizeof(qword)*6], r14
+   mov      qword [rdi+rbx*sizeof(qword)+sizeof(qword)*6], r14
 
-simple:
+.simple:
    call     mla_simple
 
 
-quit:
+.quit:
    add      rsp, stack_mem       ; release stack
    ret
-mul_NxM ENDP
+ENDFUNC mul_NxM
 
-ENDIF ;; _PCPBNUMUL_INC_
+
+%endif ;; _PCPBNUMUL_INC_

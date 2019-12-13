@@ -57,7 +57,6 @@
 */
 #if !((_IPP>=_IPP_M5) || (_IPP32E>=_IPP32E_M7))
 
-#pragma message("pure C uses")
 void ARCFourProcessData(const Ipp8u *pSrc, Ipp8u *pDst, int length, IppsARCFourState *pCtx)
 {
    if(length) {

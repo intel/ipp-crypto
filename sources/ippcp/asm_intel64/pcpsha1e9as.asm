@@ -38,30 +38,30 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Message block processing according to SHA1
-; 
+;
 ;     Content:
 ;        UpdateSHA1
-; 
 ;
-include asmdefs.inc
-include ia_32e.inc
-include pcpvariant.inc
+;
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "pcpvariant.inc"
 
-IF (_ENABLE_ALG_SHA1_)
-IF (_SHA_NI_ENABLING_ EQ _FEATURE_OFF_) OR (_SHA_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-;;IF (_IPP32E GE _IPP32E_E9 )
-IF (_IPP32E EQ _IPP32E_E9 )
+%if (_ENABLE_ALG_SHA1_)
+%if (_SHA_NI_ENABLING_ == _FEATURE_OFF_) || (_SHA_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+;;%if (_IPP32E >= _IPP32E_E9 )
+%if (_IPP32E == _IPP32E_E9 )
 
 ;;
 ;; SHA1 constants K[i]
-SHA1_K1 equ (05a827999h)
-SHA1_K2 equ (06ed9eba1h)
-SHA1_K3 equ (08f1bbcdch)
-SHA1_K4 equ (0ca62c1d6h)
+%xdefine SHA1_K1  (05a827999h)
+%xdefine SHA1_K2  (06ed9eba1h)
+%xdefine SHA1_K3  (08f1bbcdch)
+%xdefine SHA1_K4  (0ca62c1d6h)
 
 ;;
 ;; Magic functions defined in FIPS 180-1
@@ -71,204 +71,253 @@ SHA1_K4 equ (0ca62c1d6h)
 ;; - T2 is the temporary
 ;;
 
-F1 MACRO B,C,D       ;; F1 = ((D ^ (B & (C ^ D)))
-   mov   T1,C
-   xor   T1,D
-   and   T1,B
-   xor   T1,D
-ENDM
+%macro F1 3.nolist
+  %xdefine %%B %1
+  %xdefine %%C %2
+  %xdefine %%D %3
 
-F2 MACRO B,C,D       ;; F2 = (B ^ C ^ D)
-   mov   T1,D
-   xor   T1,C
-   xor   T1,B
-ENDM
+   mov   T1,%%C
+   xor   T1,%%D
+   and   T1,%%B
+   xor   T1,%%D
+%endmacro
 
+%macro F2 3.nolist
+  %xdefine %%B %1
+  %xdefine %%C %2
+  %xdefine %%D %3
 
-F3 MACRO B,C,D       ;; F3 = ((B & C) | (B & D) | (C & D)) = B&C | (B|C)&D
-   mov   T1,C
-   mov   T2,B
-   or    T1,B
-   and   T2,C
-   and   T1,D
+   mov   T1,%%D
+   xor   T1,%%C
+   xor   T1,%%B
+%endmacro
+
+%macro F3 3.nolist
+  %xdefine %%B %1
+  %xdefine %%C %2
+  %xdefine %%D %3
+
+   mov   T1,%%C
+   mov   T2,%%B
+   or    T1,%%B
+   and   T2,%%C
+   and   T1,%%D
    or    T1,T2
-ENDM
+%endmacro
 
-F4 MACRO B,C,D       ;; F4 =F2 = (B ^ C ^ D)
-   F2    B,C,D
-ENDM
+%macro F4 3.nolist
+  %xdefine %%B %1
+  %xdefine %%C %2
+  %xdefine %%D %3
+
+   F2    %%B,%%C,%%D
+%endmacro
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;
 ;; rotations
 ;;
 
-ROL_5 MACRO x
-   shld  x,x, 5
-ENDM
+%macro ROL_5 1.nolist
+  %xdefine %%x %1
 
-ROL_30 MACRO x
-   shld  x,x, 30
-ENDM
+   shld  %%x,%%x, 5
+%endmacro
+
+%macro ROL_30 1.nolist
+  %xdefine %%x %1
+
+   shld  %%x,%%x, 30
+%endmacro
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;
 ;; textual rotation of W array
 ;;
-ROTATE_W MACRO
-    W_minus_32    textequ  W_minus_28
-    W_minus_28    textequ  W_minus_24
-    W_minus_24    textequ  W_minus_20
-    W_minus_20    textequ  W_minus_16
-    W_minus_16    textequ  W_minus_12
-    W_minus_12    textequ  W_minus_08
-    W_minus_08    textequ  W_minus_04
-    W_minus_04    textequ  W
-    W             textequ  W_minus_32
-ENDM
-
+%macro ROTATE_W 0.nolist
+  %xdefine W_minus_32   W_minus_28
+  %xdefine W_minus_28   W_minus_24
+  %xdefine W_minus_24   W_minus_20
+  %xdefine W_minus_20   W_minus_16
+  %xdefine W_minus_16   W_minus_12
+  %xdefine W_minus_12   W_minus_08
+  %xdefine W_minus_08   W_minus_04
+  %xdefine W_minus_04   W
+  %xdefine W   W_minus_32
+%endmacro
 
 ;;
 ;; SHA1 update round:
 ;;    - F1 magic is used (and imbedded into the macros directly)
 ;;    - 16 bytes of input are swapped
 ;;
-SHA1_UPDATE_RND_F1_BSWAP MACRO A,B,C,D,E, nr, Wchunk
-   vpshufb  W, Wchunk, XMM_SHUFB_BSWAP
-   vpaddd   Wchunk, W, oword ptr [K_XMM]
-   vmovdqa  oword ptr [rsp + (nr AND 15)*4], Wchunk
-   mov      T1,C   ; F1
-   mov      T2,A
-   xor      T1,D   ; F1
-   and      T1,B   ; F1
+%macro SHA1_UPDATE_RND_F1_BSWAP 7.nolist
+  %xdefine %%A %1
+  %xdefine %%B %2
+  %xdefine %%C %3
+  %xdefine %%D %4
+  %xdefine %%E %5
+  %xdefine %%nr %6
+  %xdefine %%Wchunk %7
+
+   vpshufb  W, %%Wchunk, XMM_SHUFB_BSWAP
+   vpaddd   %%Wchunk, W, oword [K_XMM]
+   vmovdqa  oword [rsp + (%%nr & 15)*4], %%Wchunk
+   mov      T1,%%C   ; F1
+   mov      T2,%%A
+   xor      T1,%%D   ; F1
+   and      T1,%%B   ; F1
    ROL_5    T2
-   xor      T1,D   ; F1
-   add      E, T2
-   ROL_30   B
-   add      T1, dword ptr [rsp + (nr AND 15)*4]
-   add      E,T1
+   xor      T1,%%D   ; F1
+   add      %%E, T2
+   ROL_30   %%B
+   add      T1, dword [rsp + (%%nr & 15)*4]
+   add      %%E,T1
 
    ROTATE_W
-ENDM
+%endmacro
 
 ;;
 ;; SHA1 update round:
 ;;    - F1 magic is used (and imbedded into the macros directly)
 ;;
-SHA1_UPDATE_RND_F1 MACRO A,B,C,D,E, nr
-   mov      T1,C   ; F1
-   mov      T2,A
-   xor      T1,D   ; F1
+%macro SHA1_UPDATE_RND_F1 6.nolist
+  %xdefine %%A %1
+  %xdefine %%B %2
+  %xdefine %%C %3
+  %xdefine %%D %4
+  %xdefine %%E %5
+  %xdefine %%nr %6
+
+   mov      T1,%%C   ; F1
+   mov      T2,%%A
+   xor      T1,%%D   ; F1
    ROL_5    T2
-   and      T1,B   ; F1
-   xor      T1,D   ; F1
-   add      E, T2
-   ROL_30   B
-   add      T1, dword ptr [rsp + (nr AND 15)*4]
-   add      E,T1
-ENDM
+   and      T1,%%B   ; F1
+   xor      T1,%%D   ; F1
+   add      %%E, T2
+   ROL_30   %%B
+   add      T1, dword [rsp + (%%nr & 15)*4]
+   add      %%E,T1
+%endmacro
 
 ;;
 ;; update W
 ;;
-W_CALC MACRO nr
-   W_CALC_ahead = 8
+%macro W_CALC 1.nolist
+  %xdefine %%nr %1
 
-   i = (nr + W_CALC_ahead)
+  %assign %%W_CALC_ahead  8
 
-   IF (i LT 20)
-      K_XMM    textequ <K_BASE>
-   ELSEIF (i LT 40)
-      K_XMM    textequ <K_BASE+16>
-   ELSEIF (i LT 60)
-      K_XMM    textequ <K_BASE+32>
-   ELSE
-      K_XMM    textequ <K_BASE+48>
-   ENDIF
+  %assign %%i  (%%nr + %%W_CALC_ahead)
 
-   IF (i LT 32)
-      IF ((i AND 3) EQ 0)        ;; just scheduling to interleave with ALUs
+   %if (%%i < 20)
+  %xdefine K_XMM  K_BASE
+   %elif (%%i < 40)
+  %xdefine K_XMM  K_BASE+16
+   %elif (%%i < 60)
+  %xdefine K_XMM  K_BASE+32
+   %else
+  %xdefine K_XMM  K_BASE+48
+   %endif
+
+   %if (%%i < 32)
+      %if ((%%i & 3) == 0)        ;; just scheduling to interleave with ALUs
          vpalignr W, W_minus_12, W_minus_16, 8       ; w[i-14]
          vpsrldq  W_TMP, W_minus_04, 4               ; w[i-3]
          vpxor    W, W, W_minus_08
-      ELSEIF ((i AND 3) EQ 1)
+      %elif ((%%i & 3) == 1)
          vpxor    W_TMP, W_TMP, W_minus_16
          vpxor    W, W, W_TMP
          vpslldq  W_TMP2, W, 12
-      ELSEIF ((i AND 3) EQ 2)
+      %elif ((%%i & 3) == 2)
          vpslld   W_TMP, W, 1
          vpsrld   W, W, 31
          vpor     W_TMP, W_TMP, W
          vpslld   W, W_TMP2, 2
          vpsrld   W_TMP2, W_TMP2, 30
-      ELSEIF ((i AND 3) EQ 3)
+      %elif ((%%i & 3) == 3)
          vpxor    W_TMP, W_TMP, W
          vpxor    W, W_TMP, W_TMP2
-         vpaddd   W_TMP, W, oword ptr [K_XMM]
-         vmovdqa  oword ptr [rsp + ((i AND (NOT 3)) AND 15)*4],W_TMP
+         vpaddd   W_TMP, W, oword [K_XMM]
+         vmovdqa  oword [rsp + ((%%i & (~3)) & 15)*4],W_TMP
 
          ROTATE_W
-      ENDIF
+      %endif
 
-;; ELSEIF (i LT 83)
-   ELSEIF (i LT 80)
-      IF ((i AND 3) EQ 0)  ;; scheduling to interleave with ALUs
+;; %elif (i < 83)
+   %elif (%%i < 80)
+      %if ((%%i & 3) == 0)  ;; scheduling to interleave with ALUs
          vpalignr W_TMP, W_minus_04, W_minus_08, 8
          vpxor    W, W, W_minus_28      ;; W == W_minus_32
-      ELSEIF ((i AND 3) EQ 1)
+      %elif ((%%i & 3) == 1)
          vpxor    W_TMP, W_TMP, W_minus_16
          vpxor    W, W, W_TMP
-      ELSEIF ((i AND 3) EQ 2)
+      %elif ((%%i & 3) == 2)
          vpslld   W_TMP, W, 2
          vpsrld   W, W, 30
          vpor     W, W_TMP, W
-      ELSEIF ((i AND 3) EQ 3)
-         vpaddd   W_TMP, W, oword ptr [K_XMM]
-         vmovdqa  oword ptr [rsp + ((i AND (NOT 3)) AND 15)*4],W_TMP
+      %elif ((%%i & 3) == 3)
+         vpaddd   W_TMP, W, oword [K_XMM]
+         vmovdqa  oword [rsp + ((%%i & (~3)) & 15)*4],W_TMP
 
          ROTATE_W
-      ENDIF
+      %endif
 
-   ENDIF
-ENDM
+   %endif
+%endmacro
 
 ;;
 ;; Regular hash update
 ;;
-SHA1_UPDATE_REGULAR MACRO A,B,C,D,E, nr, MagiF
-   W_CALC   nr
+%macro SHA1_UPDATE_REGULAR 7.nolist
+  %xdefine %%A %1
+  %xdefine %%B %2
+  %xdefine %%C %3
+  %xdefine %%D %4
+  %xdefine %%E %5
+  %xdefine %%nr %6
+  %xdefine %%MagiF %7
 
-   add      E, dword ptr [rsp + (nr AND 15)*4]
-   MagiF    B,C,D
-   add      D, dword ptr [rsp +((nr+1) AND 15)*4]
-   ROL_30   B
-   mov      T3,A
-   add      E, T1
+   W_CALC   %%nr
+
+   add      %%E, dword [rsp + (%%nr & 15)*4]
+   %%MagiF    %%B,%%C,%%D
+   add      %%D, dword [rsp +((%%nr+1) & 15)*4]
+   ROL_30   %%B
+   mov      T3,%%A
+   add      %%E, T1
    ROL_5    T3
-   add      T3, E
-   mov      E, T3
+   add      T3, %%E
+   mov      %%E, T3
 
-   W_CALC   nr+1
+   W_CALC   %%nr+1
 
    ROL_5    T3
-   add      D,T3
-   MagiF    A,B,C
-   add      D, T1
-   ROL_30   A
+   add      %%D,T3
+   %%MagiF    %%A,%%B,%%C
+   add      %%D, T1
+   ROL_30   %%A
 
 ; write: %1, %2
 ; rotate: %1<=%4, %2<=%5, %3<=%1, %4<=%2, %5<=%3
-ENDM
+%endmacro
 
 ;; update hash macro
-UPDATE_HASH MACRO hash0, hashAdd
-     add    hashAdd, hash0
-     mov    hash0, hashAdd
-ENDM
+%macro UPDATE_HASH 2.nolist
+  %xdefine %%hash0 %1
+  %xdefine %%hashAdd %2
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+     add    %%hashAdd, %%hash0
+     mov    %%hash0, %%hashAdd
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
+segment .text align=IPP_ALIGN_FACTOR
+
+
+align IPP_ALIGN_FACTOR
 
 K_XMM_AR       dd SHA1_K1, SHA1_K1, SHA1_K1, SHA1_K1
                dd SHA1_K2, SHA1_K2, SHA1_K2, SHA1_K2
@@ -300,44 +349,43 @@ shuffle_mask   DD 00010203h
 ;;
 
 ;; assign hash values to GPU registers
-A textequ <ecx>
-B textequ <eax>
-C textequ <edx>
-D textequ <r8d>
-E textequ <r9d>
+%xdefine A      ecx
+%xdefine B      eax
+%xdefine C      edx
+%xdefine D      r8d
+%xdefine E      r9d
 
 ;; temporary
-T1 textequ <r10d>
-T2 textequ <r11d>
-T3 textequ <r13d>
-T4 textequ <r13d>
+%xdefine T1     r10d
+%xdefine T2     r11d
+%xdefine T3     r13d
+%xdefine T4     r13d
 
-W_TMP    textequ <xmm0>
-W_TMP2   textequ <xmm1>
+%xdefine W_TMP  xmm0
+%xdefine W_TMP2 xmm1
 
-W0  textequ <xmm2>
-W4  textequ <xmm3>
-W8  textequ <xmm4>
-W12 textequ <xmm5>
-W16 textequ <xmm6>
-W20 textequ <xmm7>
-W24 textequ <xmm8>
-W28 textequ <xmm9>
+%xdefine W0     xmm2
+%xdefine W4     xmm3
+%xdefine W8     xmm4
+%xdefine W12    xmm5
+%xdefine W16    xmm6
+%xdefine W20    xmm7
+%xdefine W24    xmm8
+%xdefine W28    xmm9
 
 ;; endianness swap constant
-XMM_SHUFB_BSWAP textequ <xmm10>
+%xdefine XMM_SHUFB_BSWAP  xmm10
 
-;; K_BASE contains K_XMM_AR address
-K_BASE textequ <r12>
+;; K_BASE contains [K_XMM_AR] address
+%xdefine K_BASE  r12
 
 
-ALIGN IPP_ALIGN_FACTOR
-IPPASM UpdateSHA1 PROC PUBLIC FRAME
-      USES_GPR rdi,rsi,r12,r13,r14
-      ;;LOCAL_FRAME = (16*4+16*10)
-      LOCAL_FRAME = (16*4)
-      USES_XMM_AVX xmm6,xmm7,xmm8,xmm9,xmm10
-      COMP_ABI 4
+align IPP_ALIGN_FACTOR
+IPPASM UpdateSHA1,PUBLIC
+%assign LOCAL_FRAME (16*4)
+        USES_GPR rdi,rsi,r12,r13,r14
+        USES_XMM_AVX xmm6,xmm7,xmm8,xmm9,xmm10
+        COMP_ABI 4
 
 ;;
 ;; rdi = digest ptr
@@ -345,12 +393,12 @@ IPPASM UpdateSHA1 PROC PUBLIC FRAME
 ;; rdx = data length
 ;; rcx = dummy
 
-MBS_SHA1 equ   (64)
+%xdefine MBS_SHA1    (64)
 
    movsxd         r14, edx
 
-   movdqa         XMM_SHUFB_BSWAP, oword ptr shuffle_mask   ; load shuffle mask
-   lea            K_BASE, K_XMM_AR                          ; SHA1 const array address
+   movdqa         XMM_SHUFB_BSWAP, oword [rel shuffle_mask]   ; load shuffle mask
+   lea            K_BASE, [rel K_XMM_AR]                          ; SHA1 const array address
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -358,33 +406,33 @@ MBS_SHA1 equ   (64)
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-sha1_block_loop:
-   mov            A, dword ptr [rdi]         ; load initial hash value
-   mov            B, dword ptr [rdi+4]
-   mov            C, dword ptr [rdi+8]
-   mov            D, dword ptr [rdi+12]
-   mov            E, dword ptr [rdi+16]
+.sha1_block_loop:
+   mov            A, dword [rdi]         ; load initial hash value
+   mov            B, dword [rdi+4]
+   mov            C, dword [rdi+8]
+   mov            D, dword [rdi+12]
+   mov            E, dword [rdi+16]
 
-   movdqu         W28, oword ptr [rsi]       ; load buffer content
-   movdqu         W24, oword ptr [rsi+16]
-   movdqu         W20, oword ptr [rsi+32]
-   movdqu         W16, oword ptr [rsi+48]
+   movdqu         W28, oword [rsi]       ; load buffer content
+   movdqu         W24, oword [rsi+16]
+   movdqu         W20, oword [rsi+32]
+   movdqu         W16, oword [rsi+48]
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;;SHA1_MAIN_BODY
 
-   W           textequ  W0
-   W_minus_04  textequ  W4
-   W_minus_08  textequ  W8
-   W_minus_12  textequ  W12
-   W_minus_16  textequ  W16
-   W_minus_20  textequ  W20
-   W_minus_24  textequ  W24
-   W_minus_28  textequ  W28
-   W_minus_32  textequ  W
+%xdefine W   W0
+%xdefine W_minus_04   W4
+%xdefine W_minus_08   W8
+%xdefine W_minus_12   W12
+%xdefine W_minus_16   W16
+%xdefine W_minus_20   W20
+%xdefine W_minus_24   W24
+%xdefine W_minus_28   W28
+%xdefine W_minus_32   W
 
    ;; assignment
-   K_XMM textequ <K_BASE>
+%xdefine K_XMM  K_BASE
 
 ;;F textequ <F1>
    SHA1_UPDATE_RND_F1_BSWAP   A,B,C,D,E, 0, W28
@@ -464,22 +512,22 @@ sha1_block_loop:
    SHA1_UPDATE_REGULAR        C,D,E,A,B,78, F4
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-   UPDATE_HASH    dword ptr [rdi],   A
-   UPDATE_HASH    dword ptr [rdi+4], B
-   UPDATE_HASH    dword ptr [rdi+8], C
-   UPDATE_HASH    dword ptr [rdi+12],D
-   UPDATE_HASH    dword ptr [rdi+16],E
+   UPDATE_HASH    dword [rdi],   A
+   UPDATE_HASH    dword [rdi+4], B
+   UPDATE_HASH    dword [rdi+8], C
+   UPDATE_HASH    dword [rdi+12],D
+   UPDATE_HASH    dword [rdi+16],E
 
    add            rsi, MBS_SHA1
    sub            r14, MBS_SHA1
-   jg             sha1_block_loop
+   jg             .sha1_block_loop
 
    REST_XMM_AVX
    REST_GPR
    ret
-IPPASM UpdateSHA1 ENDP
+ENDFUNC UpdateSHA1
 
-ENDIF    ;; _IPP32E GE _IPP32E_E9
-ENDIF    ;; _FEATURE_OFF_ / _FEATURE_TICKTOCK_
-ENDIF    ;; _ENABLE_ALG_SHA1_
-END
+%endif    ;; _IPP32E >= _IPP32E_E9
+%endif    ;; _FEATURE_OFF_ / _FEATURE_TICKTOCK_
+%endif    ;; _ENABLE_ALG_SHA1_
+

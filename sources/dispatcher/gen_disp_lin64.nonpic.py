@@ -74,7 +74,7 @@ curLine = 0
 FunType = ""
 FunName = ""
 FunArg = ""
-  
+
 if(compiler == "GNU"):
     while (isFunctionFound == True):
 
@@ -92,30 +92,34 @@ if(compiler == "GNU"):
             ## create dispatcher files ASM
             ##################################################
             ASMDISP= open( os.sep.join([OutDir, "jmp_" + FunName+"_" + hashlib.sha512(FunName.encode('utf-8')).hexdigest()[:8] +".asm"]), 'w' )
+
+            for cpu in cpulist:
+                ASMDISP.write("extern "+cpu+"_"+FunName+":function\n")
+
+            ASMDISP.write("extern ippcpJumpIndexForMergedLibs\n")
+            ASMDISP.write("extern ippcpSafeInit:function\n\n")
             ASMDISP.write("""
-.data
-.align 8
-.quad  .Lin_{FunName}
+segment .data
+align 8
+dq  .Lin_{FunName}
 .Larraddr_{FunName}:
 """.format(FunName=FunName))
 
             for cpu in cpulist:
-                ASMDISP.write("    .quad "+cpu+"_"+FunName+"\n")
+                ASMDISP.write("    dq "+cpu+"_"+FunName+"\n")
 
             ASMDISP.write("""
-.text
-.globl {FunName}
+segment .text
+global {FunName}:function ({FunName}.LEnd{FunName} - {FunName})
 .Lin_{FunName}:
     call ippcpSafeInit
-    .align 16
+    align 16
 
 {FunName}:
-    movslq  ippcpJumpIndexForMergedLibs,%rax
-    leaq    .Larraddr_{FunName}(%rip),%r11
-    jmpq    *(%r11,%rax,8)
-
-.type {FunName}, @function
-.size {FunName}, .-{FunName}
+    movsxd  rax, dword [ippcpJumpIndexForMergedLibs]
+    lea     r11, [rel .Larraddr_{FunName}]
+    jmp     qword [r11 + rax*8]
+.LEnd{FunName}:
 """.format(FunName=FunName))
             ASMDISP.close()
 else:

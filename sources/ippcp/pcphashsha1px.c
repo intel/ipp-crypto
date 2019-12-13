@@ -55,12 +55,6 @@
 #include "pcphash.h"
 #include "pcptool.h"
 
-//#if !defined(_ENABLE_ALG_SHA1_)
-//#pragma message("IPP_ALG_HASH_SHA1 disabled")
-
-//#else
-//#pragma message("IPP_ALG_HASH_SHA1 enabled")
-
 #if !((_IPP==_IPP_M5) || \
       (_IPP==_IPP_W7) || (_IPP==_IPP_T7) || \
       (_IPP==_IPP_V8) || (_IPP==_IPP_P8) || \
@@ -115,10 +109,6 @@ __INLINE Ipp32u MagicFun(int s, Ipp32u b, Ipp32u c, Ipp32u d)
 //    uniParam pointer to the optional parameter
 //
 *F*/
-#if defined(_ALG_SHA1_COMPACT_)
-#pragma message("SHA1 compact")
-#endif
-
 void UpdateSHA1(void* uinHash, const Ipp8u* mblk, int mlen, const void *uniParam)
 {
    Ipp32u* data = (Ipp32u*)mblk;
@@ -208,4 +198,3 @@ void UpdateSHA1(void* uinHash, const Ipp8u* mblk, int mlen, const void *uniParam
 }
 
 #endif
-//#endif /* IPP_ALG_HASH_SHA1 */

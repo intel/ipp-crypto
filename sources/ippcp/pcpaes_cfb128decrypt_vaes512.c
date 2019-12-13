@@ -55,7 +55,7 @@
 #include "pcpaes_encrypt_vaes512.h"
 
 #if(_IPP32E>=_IPP32E_K0)
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4310) // zmmintrin.h bug: truncation of constant value
 #endif
 

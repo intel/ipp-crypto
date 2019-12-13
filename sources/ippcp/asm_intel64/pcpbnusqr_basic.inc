@@ -38,836 +38,960 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Low level Big Number squaring Support
-; 
+;
 ;
 
-IFNDEF _PCPBNSQR_BASIC_ADCX_INC_
-_PCPBNSQR_BASIC_ADCX_INC_ = 1
+%ifndef _PCPBNSQR_BASIC_ADCX_INC_
+%assign _PCPBNSQR_BASIC_ADCX_INC_  1
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Fixed-size (1-8 qwords) squar operations
+;; Fixed-size (1-8 qwords) square operations
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; acc:a1 = src * mem + a1
-MULADD1x MACRO    acc, a1, src, mem
-IFDIFI <src>,<rdx>
-   mov   rdx, src
-ENDIF
-gsmulx   acc, rax, mem
-   add   a1, rax
-   adc   acc, 0
-ENDM
+%macro MULADD1x 4.nolist
+  %xdefine %%acc %1
+  %xdefine %%a1 %2
+  %xdefine %%src %3
+  %xdefine %%mem %4
+
+%ifnidni %%src,rdx
+   mov   rdx, %%src
+%endif
+gsmulx   %%acc, rax, %%mem
+   add   %%a1, rax
+   adc   %%acc, 0
+%endmacro
 
 ; acc:a1 = src * mem + a1 + acc
-MULADDx  MACRO acc, a1, src, mem, H
-IFDIFI <src>,<rdx>
-   mov   rdx, src
-ENDIF
-gsmulx   H,rax, mem
-   add   a1, rax
-   adc   H, 0
-   add   a1, acc
-   adc   H, 0
-   mov   acc, H
-ENDM
+%macro MULADDx 5.nolist
+  %xdefine %%acc %1
+  %xdefine %%a1 %2
+  %xdefine %%src %3
+  %xdefine %%mem %4
+  %xdefine %%H %5
 
+%ifnidni %%src,rdx
+   mov   rdx, %%src
+%endif
+
+gsmulx   %%H,rax, %%mem
+   add   %%a1, rax
+   adc   %%H, 0
+   add   %%a1, %%acc
+   adc   %%H, 0
+   mov   %%acc, %%H
+%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; assignment
 ;;
-pDst  equ   rdi
-pSrc  equ   rsi
-pA    equ   rsi
+%xdefine pDst  rdi
+%xdefine pSrc  rsi
+%xdefine pA    rsi
 
-A     equ   rcx
-x0    equ   r8
-x1    equ   r9
-x2    equ   r10
-x3    equ   r11
-x4    equ   r12
-x5    equ   r13
-x6    equ   r14
-x7    equ   r15
-x8    equ   rbx
-t0    equ   rbp
+%xdefine A     rcx
+%xdefine x0    r8
+%xdefine x1    r9
+%xdefine x2    r10
+%xdefine x3    r11
+%xdefine x4    r12
+%xdefine x5    r13
+%xdefine x6    r14
+%xdefine x7    r15
+%xdefine x8    rbx
+%xdefine t0    rbp
 
 
 ;;
 ;; 1*qword squarer
 ;;
-SQR_64   MACRO pDst, pA
-   mov   rdx, qword ptr [pA]
-gsmulx   rdx, rax, rdx
-   mov   qword ptr [pDst], rax
-   mov   qword ptr [pDst+sizeof(qword)], rdx
-ENDM
+%macro SQR_64 2.nolist
+  %xdefine %%pDst %1
+  %xdefine %%pA %2
 
-ALIGN IPP_ALIGN_FACTOR
-sqr_1 PROC PRIVATE
+   mov   rdx, qword [%%pA]
+gsmulx   rdx, rax, rdx
+   mov   qword [%%pDst], rax
+   mov   qword [%%pDst+sizeof(qword)], rdx
+%endmacro
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_1,PRIVATE
    SQR_64       pDst, pA
    ret
-sqr_1 ENDP
+ENDFUNC sqr_1
+
 
 
 ;;
 ;; 2*qword squarer
 ;;
-SQR_128 MACRO  pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
-   mov   rdx, qword ptr [pA]
-gsmulx   x1,x0,qword ptr [rsi+sizeof(qword)*1]  ; a[0]*a[1]
+%macro SQR_128 13.nolist
+  %xdefine %%pDst %1
+  %xdefine %%pA %2
+  %xdefine %%x7 %3
+  %xdefine %%x6 %4
+  %xdefine %%x5 %5
+  %xdefine %%x4 %6
+  %xdefine %%x3 %7
+  %xdefine %%x2 %8
+  %xdefine %%x1 %9
+  %xdefine %%x0 %10
+  %xdefine %%A %11
+  %xdefine %%x8 %12
+  %xdefine %%t0 %13
 
-gsmulx   x3,x2,rdx                           ; a[0]^2
-   mov   rdx, qword ptr [pA+sizeof(qword)]   ; a[1]
+   mov   rdx, qword [%%pA]
+gsmulx   %%x1,%%x0,qword [rsi+sizeof(qword)*1]  ; a[0]*a[1]
+
+gsmulx   %%x3,%%x2,rdx                           ; a[0]^2
+   mov   rdx, qword [%%pA+sizeof(qword)]   ; a[1]
 gsmulx   rdx,rax,rdx                         ; a[1]^2
 
-   xor   A, A
-   add   x0, x0
-   adc   x1, x1
-   adc   A, 0
+   xor   %%A, %%A
+   add   %%x0, %%x0
+   adc   %%x1, %%x1
+   adc   %%A, 0
 
-   mov   qword ptr[pDst+sizeof(qword)*0], x2
-   add   x3, x0
-   mov   qword ptr[pDst+sizeof(qword)*1], x3
-   adc   rax, x1
-   mov   qword ptr[pDst+sizeof(qword)*2], rax
-   adc   rdx, A
-   mov   qword ptr[pDst+sizeof(qword)*3], rdx
-ENDM
+   mov   qword [%%pDst+sizeof(qword)*0], %%x2
+   add   %%x3, %%x0
+   mov   qword [%%pDst+sizeof(qword)*1], %%x3
+   adc   rax, %%x1
+   mov   qword [%%pDst+sizeof(qword)*2], rax
+   adc   rdx, %%A
+   mov   qword [%%pDst+sizeof(qword)*3], rdx
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
-sqr_2 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_2,PRIVATE
    SQR_128    pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    ret
-sqr_2 ENDP
+ENDFUNC sqr_2
+
 
 
 ;;
 ;; 3*qword squarer
 ;;
-SQR_192  MACRO pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
-   mov      rdx, [pA]
-gsmulx      x1,x0, [pA+sizeof(qword)*1]
-   MULADD1x x2, x1, rdx, [pA+sizeof(qword)*2]
+%macro SQR_192 13.nolist
+  %xdefine %%pDst %1
+  %xdefine %%pA %2
+  %xdefine %%x7 %3
+  %xdefine %%x6 %4
+  %xdefine %%x5 %5
+  %xdefine %%x4 %6
+  %xdefine %%x3 %7
+  %xdefine %%x2 %8
+  %xdefine %%x1 %9
+  %xdefine %%x0 %10
+  %xdefine %%A %11
+  %xdefine %%x8 %12
+  %xdefine %%t0 %13
 
-   mov      rdx, qword ptr [pA+sizeof(qword)*1]
-gsmulx      x3, rax, qword ptr [pA+sizeof(qword)*2]
-   add      x2, rax
-   adc      x3, 0
+   mov      rdx, [%%pA]
+gsmulx      %%x1,%%x0, [%%pA+sizeof(qword)*1]
+   MULADD1x %%x2, %%x1, rdx, [%%pA+sizeof(qword)*2]
 
-   mov      rdx, qword ptr [pA+ sizeof(qword)*0]
+   mov      rdx, qword [%%pA+sizeof(qword)*1]
+gsmulx      %%x3, rax, qword [%%pA+sizeof(qword)*2]
+   add      %%x2, rax
+   adc      %%x3, 0
 
-   xor      A, A
-   add      x0, x0
-   adc      x1, x1
-   adc      x2, x2
-   adc      x3, x3
-   adc      A, A
+   mov      rdx, qword [%%pA+ sizeof(qword)*0]
+
+   xor      %%A, %%A
+   add      %%x0, %%x0
+   adc      %%x1, %%x1
+   adc      %%x2, %%x2
+   adc      %%x3, %%x3
+   adc      %%A, %%A
 
    ;; add sqr(a[0]),...,sqr(a[2])
 gsmulx      rax, rdx, rdx                 ; a[0]^2
-   mov      [pDst+sizeof(qword)*0], rdx
-   mov      rdx, [pA+sizeof(qword)*1]
-   add      x0, rax
-   mov      [pDst+sizeof(qword)*1], x0
+   mov      [%%pDst+sizeof(qword)*0], rdx
+   mov      rdx, [%%pA+sizeof(qword)*1]
+   add      %%x0, rax
+   mov      [%%pDst+sizeof(qword)*1], %%x0
 
 gsmulx      rax, rdx, rdx                 ; a[1]^2
-   adc      x1, rdx
-   mov      [pDst+sizeof(qword)*2], x1
-   mov      rdx, [pA+sizeof(qword)*2]
-   adc      x2, rax
-   mov      [pDst+sizeof(qword)*3], x2
+   adc      %%x1, rdx
+   mov      [%%pDst+sizeof(qword)*2], %%x1
+   mov      rdx, [%%pA+sizeof(qword)*2]
+   adc      %%x2, rax
+   mov      [%%pDst+sizeof(qword)*3], %%x2
 
 gsmulx      rax, rdx, rdx                 ; a[2]^2
-   adc      x3, rdx
-   mov      [pDst+sizeof(qword)*4], x3
-   adc      A, rax
-   mov      [pDst+sizeof(qword)*5], A
-ENDM
+   adc      %%x3, rdx
+   mov      [%%pDst+sizeof(qword)*4], %%x3
+   adc      %%A, rax
+   mov      [%%pDst+sizeof(qword)*5], %%A
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
-sqr_3 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_3,PRIVATE
    SQR_192  pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    ret
-sqr_3 ENDP
+ENDFUNC sqr_3
+
 
 
 ;;
 ;; 4*qword squarer
 ;;
-SQR_256  MACRO pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
-   mov      rdx, [pA]
-gsmulx      x1,x0, [pA+sizeof(qword)*1]
-   MULADD1x x2, x1, rdx, [pA+sizeof(qword)*2]
-   MULADD1x x3, x2, rdx, [pA+sizeof(qword)*3]
+%macro SQR_256 13.nolist
+  %xdefine %%pDst %1
+  %xdefine %%pA %2
+  %xdefine %%x7 %3
+  %xdefine %%x6 %4
+  %xdefine %%x5 %5
+  %xdefine %%x4 %6
+  %xdefine %%x3 %7
+  %xdefine %%x2 %8
+  %xdefine %%x1 %9
+  %xdefine %%x0 %10
+  %xdefine %%A %11
+  %xdefine %%x8 %12
+  %xdefine %%t0 %13
 
-   mov      rdx, qword ptr [pA+sizeof(qword)*1]
-gsmulx      A, rax, qword ptr [pA+sizeof(qword)*2]
-   xor      x4, x4
-   add      x2, rax
-   adc      x3, A
-   adc      x4, 0
-gsmulx      A, rax, qword ptr [pA+sizeof(qword)*3]
-   add      x3, rax
-   adc      x4, A
+   mov      rdx, [%%pA]
+gsmulx      %%x1,%%x0, [%%pA+sizeof(qword)*1]
+   MULADD1x %%x2, %%x1, rdx, [%%pA+sizeof(qword)*2]
+   MULADD1x %%x3, %%x2, rdx, [%%pA+sizeof(qword)*3]
 
-   mov      rdx, qword ptr [pA+sizeof(qword)*2]
-gsmulx      x5, rax, qword ptr [pA+sizeof(qword)*3]
-   add      x4, rax
-   adc      x5, 0
+   mov      rdx, qword [%%pA+sizeof(qword)*1]
+gsmulx      %%A, rax, qword [%%pA+sizeof(qword)*2]
+   xor      %%x4, %%x4
+   add      %%x2, rax
+   adc      %%x3, %%A
+   adc      %%x4, 0
+gsmulx      %%A, rax, qword [%%pA+sizeof(qword)*3]
+   add      %%x3, rax
+   adc      %%x4, %%A
 
-   mov      rdx, [pA+sizeof(qword)*0]
+   mov      rdx, qword [%%pA+sizeof(qword)*2]
+gsmulx      %%x5, rax, qword [%%pA+sizeof(qword)*3]
+   add      %%x4, rax
+   adc      %%x5, 0
+
+   mov      rdx, [%%pA+sizeof(qword)*0]
 
    ;; --- double x0...x5
-   xor      A, A
-   add      x0, x0
-   adc      x1, x1
-   adc      x2, x2
-   adc      x3, x3
-   adc      x4, x4
-   adc      x5, x5
-   adc      A, 0
+   xor      %%A, %%A
+   add      %%x0, %%x0
+   adc      %%x1, %%x1
+   adc      %%x2, %%x2
+   adc      %%x3, %%x3
+   adc      %%x4, %%x4
+   adc      %%x5, %%x5
+   adc      %%A, 0
 
    ;; add sqr(a[0]),...,sqr(a[3])
 gsmulx      rax, rdx, rdx                 ; a[0]^2
-   mov      [pDst+sizeof(qword)*0], rdx
-   mov      rdx, [pA+sizeof(qword)*1]
-   add      x0, rax
-   mov      [pDst+sizeof(qword)*1], x0
+   mov      [%%pDst+sizeof(qword)*0], rdx
+   mov      rdx, [%%pA+sizeof(qword)*1]
+   add      %%x0, rax
+   mov      [%%pDst+sizeof(qword)*1], %%x0
 
 gsmulx      rax, rdx, rdx                 ; a[1]^2
-   adc      x1, rdx
-   mov      [pDst+sizeof(qword)*2], x1
-   mov      rdx, [pA+sizeof(qword)*2]
-   adc      x2, rax
-   mov      [pDst+sizeof(qword)*3], x2
+   adc      %%x1, rdx
+   mov      [%%pDst+sizeof(qword)*2], %%x1
+   mov      rdx, [%%pA+sizeof(qword)*2]
+   adc      %%x2, rax
+   mov      [%%pDst+sizeof(qword)*3], %%x2
 
 gsmulx      rax, rdx, rdx                 ; a[2]^2
-   adc      x3, rdx
-   mov      [pDst+sizeof(qword)*4], x3
-   mov      rdx, [pA+sizeof(qword)*3]
-   adc      x4, rax
-   mov      [pDst+sizeof(qword)*5], x4
+   adc      %%x3, rdx
+   mov      [%%pDst+sizeof(qword)*4], %%x3
+   mov      rdx, [%%pA+sizeof(qword)*3]
+   adc      %%x4, rax
+   mov      [%%pDst+sizeof(qword)*5], %%x4
 
 gsmulx      rax, rdx, rdx                 ; a[3]^2
-   adc      x5, rdx
-   mov      [pDst+sizeof(qword)*6], x5
-   adc      A, rax
-   mov      [pDst+sizeof(qword)*7], A
-ENDM
+   adc      %%x5, rdx
+   mov      [%%pDst+sizeof(qword)*6], %%x5
+   adc      %%A, rax
+   mov      [%%pDst+sizeof(qword)*7], %%A
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
-sqr_4 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_4,PRIVATE
    SQR_256  pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    ret
-sqr_4 ENDP
+ENDFUNC sqr_4
+
 
 
 ;;
 ;; 5*qword squarer
 ;;
-SQR_320  MACRO pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
-   mov      rdx, [pA]
-gsmulx      x1,x0, [pA+sizeof(qword)*1]
-   MULADD1x x2, x1, rdx, [pA+sizeof(qword)*2]
-   MULADD1x x3, x2, rdx, [pA+sizeof(qword)*3]
-   MULADD1x x4, x3, rdx, [pA+sizeof(qword)*4]
+%macro SQR_320 13.nolist
+  %xdefine %%pDst %1
+  %xdefine %%pA %2
+  %xdefine %%x7 %3
+  %xdefine %%x6 %4
+  %xdefine %%x5 %5
+  %xdefine %%x4 %6
+  %xdefine %%x3 %7
+  %xdefine %%x2 %8
+  %xdefine %%x1 %9
+  %xdefine %%x0 %10
+  %xdefine %%A %11
+  %xdefine %%x8 %12
+  %xdefine %%t0 %13
 
-   mov      rdx, [pA + sizeof(qword)*1]
-gsmulx      t0, rax, [pA+sizeof(qword)*2]
-   add      x2, rax
-   adc      t0, 0
-   MULADDx  t0, x3, rdx, [pA+sizeof(qword)*3], A
-   MULADDx  t0, x4, rdx, [pA+sizeof(qword)*4], A
-   mov      x5, t0
+mov      rdx, [%%pA]
+gsmulx      %%x1,%%x0, [%%pA+sizeof(qword)*1]
+   MULADD1x %%x2, %%x1, rdx, [%%pA+sizeof(qword)*2]
+   MULADD1x %%x3, %%x2, rdx, [%%pA+sizeof(qword)*3]
+   MULADD1x %%x4, %%x3, rdx, [%%pA+sizeof(qword)*4]
 
-   mov      rdx, qword ptr [pA+sizeof(qword)*2]
-gsmulx      A, rax, qword ptr [pA+sizeof(qword)*3]
-   xor      x6, x6
-   add      x4, rax
-   adc      x5, A
-   adc      x6, 0
-gsmulx      A, rax, qword ptr [pA+sizeof(qword)*4]
-   add      x5, rax
-   adc      x6, A
+   mov      rdx, [%%pA + sizeof(qword)*1]
+gsmulx      %%t0, rax, [%%pA+sizeof(qword)*2]
+   add      %%x2, rax
+   adc      %%t0, 0
+   MULADDx  %%t0, %%x3, rdx, [%%pA+sizeof(qword)*3], %%A
+   MULADDx  %%t0, %%x4, rdx, [%%pA+sizeof(qword)*4], %%A
+   mov      %%x5, %%t0
 
-   mov      rdx, qword ptr [pA+sizeof(qword)*3]
-gsmulx      x7, rax, qword ptr [pA+sizeof(qword)*4]
-   add      x6, rax
-   adc      x7, 0
+   mov      rdx, qword [%%pA+sizeof(qword)*2]
+gsmulx      %%A, rax, qword [%%pA+sizeof(qword)*3]
+   xor      %%x6, %%x6
+   add      %%x4, rax
+   adc      %%x5, %%A
+   adc      %%x6, 0
+gsmulx      %%A, rax, qword [%%pA+sizeof(qword)*4]
+   add      %%x5, rax
+   adc      %%x6, %%A
 
-   mov      rdx, [pA+sizeof(qword)*0]
+   mov      rdx, qword [%%pA+sizeof(qword)*3]
+gsmulx      %%x7, rax, qword [%%pA+sizeof(qword)*4]
+   add      %%x6, rax
+   adc      %%x7, 0
+
+   mov      rdx, [%%pA+sizeof(qword)*0]
 
    ;; --- double x0...x5
-   xor      A, A
-   add      x0, x0
-   adc      x1, x1
-   adc      x2, x2
-   adc      x3, x3
-   adc      x4, x4
-   adc      x5, x5
-   adc      x6, x6
-   adc      x7, x7
-   adc      A, 0
+   xor      %%A, %%A
+   add      %%x0, %%x0
+   adc      %%x1, %%x1
+   adc      %%x2, %%x2
+   adc      %%x3, %%x3
+   adc      %%x4, %%x4
+   adc      %%x5, %%x5
+   adc      %%x6, %%x6
+   adc      %%x7, %%x7
+   adc      %%A, 0
 
    ;; add sqr(a[0]),...,sqr(a[4])
 gsmulx      rax, rdx, rdx                 ; a[0]^2
-   mov      [pDst+sizeof(qword)*0], rdx
-   mov      rdx, [pA+sizeof(qword)*1]
-   add      x0, rax
-   mov      [pDst+sizeof(qword)*1], x0
+   mov      [%%pDst+sizeof(qword)*0], rdx
+   mov      rdx, [%%pA+sizeof(qword)*1]
+   add      %%x0, rax
+   mov      [%%pDst+sizeof(qword)*1], %%x0
 
 gsmulx      rax, rdx, rdx                 ; a[1]^2
-   adc      x1, rdx
-   mov      [pDst+sizeof(qword)*2], x1
-   mov      rdx, [pA+sizeof(qword)*2]
-   adc      x2, rax
-   mov      [pDst+sizeof(qword)*3], x2
+   adc      %%x1, rdx
+   mov      [%%pDst+sizeof(qword)*2], %%x1
+   mov      rdx, [%%pA+sizeof(qword)*2]
+   adc      %%x2, rax
+   mov      [%%pDst+sizeof(qword)*3], %%x2
 
 gsmulx      rax, rdx, rdx                 ; a[2]^2
-   adc      x3, rdx
-   mov      [pDst+sizeof(qword)*4], x3
-   mov      rdx, [pA+sizeof(qword)*3]
-   adc      x4, rax
-   mov      [pDst+sizeof(qword)*5], x4
+   adc      %%x3, rdx
+   mov      [%%pDst+sizeof(qword)*4], %%x3
+   mov      rdx, [%%pA+sizeof(qword)*3]
+   adc      %%x4, rax
+   mov      [%%pDst+sizeof(qword)*5], %%x4
 
 gsmulx      rax, rdx, rdx                 ; a[3]^2
-   adc      x5, rdx
-   mov      [pDst+sizeof(qword)*6], x5
-   mov      rdx, [pA+sizeof(qword)*4]
-   adc      x6, rax
-   mov      [pDst+sizeof(qword)*7], x6
+   adc      %%x5, rdx
+   mov      [%%pDst+sizeof(qword)*6], %%x5
+   mov      rdx, [%%pA+sizeof(qword)*4]
+   adc      %%x6, rax
+   mov      [%%pDst+sizeof(qword)*7], %%x6
 
 gsmulx      rax, rdx, rdx                 ; a[4]^2
-   adc      x7, rdx
-   mov      [pDst+sizeof(qword)*8], x7
-   mov      rdx, [pA+sizeof(qword)*5]
-   adc      A, rax
-   mov      [pDst+sizeof(qword)*9], A
-ENDM
+   adc      %%x7, rdx
+   mov      [%%pDst+sizeof(qword)*8], %%x7
+   mov      rdx, [%%pA+sizeof(qword)*5]
+   adc      %%A, rax
+   mov      [%%pDst+sizeof(qword)*9], %%A
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
-sqr_5 PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_5,PRIVATE
    SQR_320  pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    ret
-sqr_5 ENDP
+ENDFUNC sqr_5
+
 
 
 ;;
 ;; 6*qword squarer
 ;;
-SQR_384  MACRO pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
-   mov      rdx, [pA]
-gsmulx      x1,x0, [pA+sizeof(qword)*1]
-   MULADD1x x2, x1, rdx, [pA+sizeof(qword)*2]
-   MULADD1x x3, x2, rdx, [pA+sizeof(qword)*3]
-   MULADD1x x4, x3, rdx, [pA+sizeof(qword)*4]
-   MULADD1x x5, x4, rdx, [pA+sizeof(qword)*5]
+%macro SQR_384 13.nolist
+  %xdefine %%pDst %1
+  %xdefine %%pA %2
+  %xdefine %%x7 %3
+  %xdefine %%x6 %4
+  %xdefine %%x5 %5
+  %xdefine %%x4 %6
+  %xdefine %%x3 %7
+  %xdefine %%x2 %8
+  %xdefine %%x1 %9
+  %xdefine %%x0 %10
+  %xdefine %%A %11
+  %xdefine %%x8 %12
+  %xdefine %%t0 %13
 
-   mov      rdx, [pA + sizeof(qword)*1]
-gsmulx      t0, rax, [pA+sizeof(qword)*2]
-   add      x2, rax
-   adc      t0, 0
-   MULADDx  t0, x3, rdx, [pA+sizeof(qword)*3], A
-   MULADDx  t0, x4, rdx, [pA+sizeof(qword)*4], A
-   MULADDx  t0, x5, rdx, [pA+sizeof(qword)*5], A
-   mov      x6, t0
+mov      rdx, [%%pA]
+gsmulx      %%x1,%%x0, [%%pA+sizeof(qword)*1]
+   MULADD1x %%x2, %%x1, rdx, [%%pA+sizeof(qword)*2]
+   MULADD1x %%x3, %%x2, rdx, [%%pA+sizeof(qword)*3]
+   MULADD1x %%x4, %%x3, rdx, [%%pA+sizeof(qword)*4]
+   MULADD1x %%x5, %%x4, rdx, [%%pA+sizeof(qword)*5]
 
-   mov      rdx, [pA+sizeof(qword)*2]
-gsmulx      t0, rax, [pA+sizeof(qword)*3]
-   add      x4, rax
-   adc      t0, 0
-   MULADDx  t0, x5, rdx, [pA+sizeof(qword)*4], A
-   MULADDx  t0, x6, rdx, [pA+sizeof(qword)*5], A
-   mov      x7, t0
+   mov      rdx, [%%pA + sizeof(qword)*1]
+gsmulx      %%t0, rax, [%%pA+sizeof(qword)*2]
+   add      %%x2, rax
+   adc      %%t0, 0
+   MULADDx  %%t0, %%x3, rdx, [%%pA+sizeof(qword)*3], %%A
+   MULADDx  %%t0, %%x4, rdx, [%%pA+sizeof(qword)*4], %%A
+   MULADDx  %%t0, %%x5, rdx, [%%pA+sizeof(qword)*5], %%A
+   mov      %%x6, %%t0
 
-   mov      rdx, qword ptr [pA+sizeof(qword)*3]
-gsmulx      A, rax, qword ptr [pA+sizeof(qword)*4]
-   xor      x8, x8
-   add      x6, rax
-   adc      x7, A
-   adc      x8, 0
-gsmulx      A, rax, qword ptr [pA+sizeof(qword)*5]
-   add      x7, rax
-   adc      x8, A
+   mov      rdx, [%%pA+sizeof(qword)*2]
+gsmulx      %%t0, rax, [%%pA+sizeof(qword)*3]
+   add      %%x4, rax
+   adc      %%t0, 0
+   MULADDx  %%t0, %%x5, rdx, [%%pA+sizeof(qword)*4], %%A
+   MULADDx  %%t0, %%x6, rdx, [%%pA+sizeof(qword)*5], %%A
+   mov      %%x7, %%t0
 
-   mov      rdx, qword ptr [pA+sizeof(qword)*4]
-gsmulx      t0, rax, qword ptr [pA+sizeof(qword)*5]
-   add      x8, rax
-   adc      t0, 0
+   mov      rdx, qword [%%pA+sizeof(qword)*3]
+gsmulx      %%A, rax, qword [%%pA+sizeof(qword)*4]
+   xor      %%x8, %%x8
+   add      %%x6, rax
+   adc      %%x7, %%A
+   adc      %%x8, 0
+gsmulx      %%A, rax, qword [%%pA+sizeof(qword)*5]
+   add      %%x7, rax
+   adc      %%x8, %%A
 
-   mov      rdx, [pA+sizeof(qword)*0]
+   mov      rdx, qword [%%pA+sizeof(qword)*4]
+gsmulx      %%t0, rax, qword [%%pA+sizeof(qword)*5]
+   add      %%x8, rax
+   adc      %%t0, 0
+
+   mov      rdx, [%%pA+sizeof(qword)*0]
 
    ;; --- double x0...x7,x8,t0
-   xor      A, A
-   add      x0, x0
-   adc      x1, x1
-   adc      x2, x2
-   adc      x3, x3
-   adc      x4, x4
-   adc      x5, x5
-   adc      x6, x6
-   adc      x7, x7
-   adc      x8, x8
-   adc      t0, t0
-   adc      A, 0
+   xor      %%A, %%A
+   add      %%x0, %%x0
+   adc      %%x1, %%x1
+   adc      %%x2, %%x2
+   adc      %%x3, %%x3
+   adc      %%x4, %%x4
+   adc      %%x5, %%x5
+   adc      %%x6, %%x6
+   adc      %%x7, %%x7
+   adc      %%x8, %%x8
+   adc      %%t0, %%t0
+   adc      %%A, 0
 
    ;; add sqr(a[0]),...,sqr(a[5])
 gsmulx      rax, rdx, rdx                 ; a[0]^2
-   mov      [pDst+sizeof(qword)*0], rdx
-   mov      rdx, [pA+sizeof(qword)*1]
-   add      x0, rax
-   mov      [pDst+sizeof(qword)*1], x0
+   mov      [%%pDst+sizeof(qword)*0], rdx
+   mov      rdx, [%%pA+sizeof(qword)*1]
+   add      %%x0, rax
+   mov      [%%pDst+sizeof(qword)*1], %%x0
 
 gsmulx      rax, rdx, rdx                 ; a[1]^2
-   adc      x1, rdx
-   mov      [pDst+sizeof(qword)*2], x1
-   mov      rdx, [pA+sizeof(qword)*2]
-   adc      x2, rax
-   mov      [pDst+sizeof(qword)*3], x2
+   adc      %%x1, rdx
+   mov      [%%pDst+sizeof(qword)*2], %%x1
+   mov      rdx, [%%pA+sizeof(qword)*2]
+   adc      %%x2, rax
+   mov      [%%pDst+sizeof(qword)*3], %%x2
 
 gsmulx      rax, rdx, rdx                 ; a[2]^2
-   adc      x3, rdx
-   mov      [pDst+sizeof(qword)*4], x3
-   mov      rdx, [pA+sizeof(qword)*3]
-   adc      x4, rax
-   mov      [pDst+sizeof(qword)*5], x4
+   adc      %%x3, rdx
+   mov      [%%pDst+sizeof(qword)*4], %%x3
+   mov      rdx, [%%pA+sizeof(qword)*3]
+   adc      %%x4, rax
+   mov      [%%pDst+sizeof(qword)*5], %%x4
 
 gsmulx      rax, rdx, rdx                 ; a[3]^2
-   adc      x5, rdx
-   mov      [pDst+sizeof(qword)*6], x5
-   mov      rdx, [pA+sizeof(qword)*4]
-   adc      x6, rax
-   mov      [pDst+sizeof(qword)*7], x6
+   adc      %%x5, rdx
+   mov      [%%pDst+sizeof(qword)*6], %%x5
+   mov      rdx, [%%pA+sizeof(qword)*4]
+   adc      %%x6, rax
+   mov      [%%pDst+sizeof(qword)*7], %%x6
 
 gsmulx      rax, rdx, rdx                 ; a[4]^2
-   adc      x7, rdx
-   mov      [pDst+sizeof(qword)*8], x7
-   mov      rdx, [pA+sizeof(qword)*5]
-   adc      x8, rax
-   mov      [pDst+sizeof(qword)*9], x8
+   adc      %%x7, rdx
+   mov      [%%pDst+sizeof(qword)*8], %%x7
+   mov      rdx, [%%pA+sizeof(qword)*5]
+   adc      %%x8, rax
+   mov      [%%pDst+sizeof(qword)*9], %%x8
 
 gsmulx      rax, rdx, rdx                 ; a[5]^2
-   adc      t0, rdx
-   mov      [pDst+sizeof(qword)*10], t0
-   adc      A, rax
-   mov      [pDst+sizeof(qword)*11], A
-ENDM
+   adc      %%t0, rdx
+   mov      [%%pDst+sizeof(qword)*10], %%t0
+   adc      %%A, rax
+   mov      [%%pDst+sizeof(qword)*11], %%A
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
-sqr_6 PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_6,PRIVATE
    SQR_384  pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    ret
-sqr_6 ENDP
+ENDFUNC sqr_6
+
 
 
 ;;
 ;; 7*qword squarer
 ;;
-SQR_448  MACRO    pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
+%macro SQR_448 13.nolist
+  %xdefine %%pDst %1
+  %xdefine %%pA %2
+  %xdefine %%x7 %3
+  %xdefine %%x6 %4
+  %xdefine %%x5 %5
+  %xdefine %%x4 %6
+  %xdefine %%x3 %7
+  %xdefine %%x2 %8
+  %xdefine %%x1 %9
+  %xdefine %%x0 %10
+  %xdefine %%A %11
+  %xdefine %%x8 %12
+  %xdefine %%t0 %13
+
    ;; ------------------
    ;; first pass 01...06
    ;; ------------------
-   mov      rdx, [pA]
-gsmulx      x1,x0, [pA+sizeof(qword)*1]
-   MULADD1x x2, x1, rdx, [pA+sizeof(qword)*2]
-   MULADD1x x3, x2, rdx, [pA+sizeof(qword)*3]
-   MULADD1x x4, x3, rdx, [pA+sizeof(qword)*4]
-   MULADD1x x5, x4, rdx, [pA+sizeof(qword)*5]
-   MULADD1x x6, x5, rdx, [pA+sizeof(qword)*6]
+   mov      rdx, [%%pA]
+gsmulx      %%x1,%%x0, [%%pA+sizeof(qword)*1]
+   MULADD1x %%x2, %%x1, rdx, [%%pA+sizeof(qword)*2]
+   MULADD1x %%x3, %%x2, rdx, [%%pA+sizeof(qword)*3]
+   MULADD1x %%x4, %%x3, rdx, [%%pA+sizeof(qword)*4]
+   MULADD1x %%x5, %%x4, rdx, [%%pA+sizeof(qword)*5]
+   MULADD1x %%x6, %%x5, rdx, [%%pA+sizeof(qword)*6]
 
    ;; ------------------
    ;; second pass 12...16
    ;; ------------------
-   mov      rdx, [pA + sizeof(qword)*1]
-gsmulx      t0, rax, [pA+sizeof(qword)*2]
-   add      x2, rax
-   adc      t0, 0
+   mov      rdx, [%%pA + sizeof(qword)*1]
+gsmulx      %%t0, rax, [%%pA+sizeof(qword)*2]
+   add      %%x2, rax
+   adc      %%t0, 0
 
-   MULADDx  t0, x3, rdx, [pA+sizeof(qword)*3], A
-   MULADDx  t0, x4, rdx, [pA+sizeof(qword)*4], A
-   MULADDx  t0, x5, rdx, [pA+sizeof(qword)*5], A
-   MULADDx  t0, x6, rdx, [pA+sizeof(qword)*6], A
-   mov      x7, t0
+   MULADDx  %%t0, %%x3, rdx, [%%pA+sizeof(qword)*3], %%A
+   MULADDx  %%t0, %%x4, rdx, [%%pA+sizeof(qword)*4], %%A
+   MULADDx  %%t0, %%x5, rdx, [%%pA+sizeof(qword)*5], %%A
+   MULADDx  %%t0, %%x6, rdx, [%%pA+sizeof(qword)*6], %%A
+   mov      %%x7, %%t0
 
    ;; ------------------
    ;; third pass 23...25
    ;; ------------------
-   mov      rdx, [pA+sizeof(qword)*2]
-gsmulx      t0, rax, [pA+sizeof(qword)*3]
-   add      x4, rax
-   adc      t0, 0
+   mov      rdx, [%%pA+sizeof(qword)*2]
+gsmulx      %%t0, rax, [%%pA+sizeof(qword)*3]
+   add      %%x4, rax
+   adc      %%t0, 0
 
-   xor      x8, x8
-   MULADDx  t0, x5, rdx, [pA+sizeof(qword)*4], A
-   MULADDx  t0, x6, rdx, [pA+sizeof(qword)*5], A
-   add      x7, t0
-   adc      x8, 0
+   xor      %%x8, %%x8
+   MULADDx  %%t0, %%x5, rdx, [%%pA+sizeof(qword)*4], %%A
+   MULADDx  %%t0, %%x6, rdx, [%%pA+sizeof(qword)*5], %%A
+   add      %%x7, %%t0
+   adc      %%x8, 0
 
    ;; ------------------
    ;; fourth pass 34
    ;; ------------------
-   mov      rax, [pA+sizeof(qword)*3]
-   mul      qword ptr[pA+sizeof(qword)*4]
-   add      x6, rax
+   mov      rax, [%%pA+sizeof(qword)*3]
+   mul      qword [%%pA+sizeof(qword)*4]
+   add      %%x6, rax
    adc      rdx, 0
-   add      x7, rdx
-   adc      x8, 0
+   add      %%x7, rdx
+   adc      %%x8, 0
 
-   mov      rdx, [pA+sizeof(qword)*0]
+   mov      rdx, [%%pA+sizeof(qword)*0]
 
    ;; --- double x0...x6
-   xor      A, A
-   add      x0, x0
-   adc      x1, x1
-   adc      x2, x2
-   adc      x3, x3
-   adc      x4, x4
-   adc      x5, x5
-   adc      x6, x6
-   adc      A, 0
+   xor      %%A, %%A
+   add      %%x0, %%x0
+   adc      %%x1, %%x1
+   adc      %%x2, %%x2
+   adc      %%x3, %%x3
+   adc      %%x4, %%x4
+   adc      %%x5, %%x5
+   adc      %%x6, %%x6
+   adc      %%A, 0
 
    ;; add sqr(a[0]),...,sqr(a[3])
 gsmulx      rax, rdx, rdx                 ; a[0]^2
-   mov      [pDst+sizeof(qword)*0], rdx
-   mov      rdx, [pA+sizeof(qword)*1]
-   add      x0, rax
-   mov      [pDst+sizeof(qword)*1], x0
+   mov      [%%pDst+sizeof(qword)*0], rdx
+   mov      rdx, [%%pA+sizeof(qword)*1]
+   add      %%x0, rax
+   mov      [%%pDst+sizeof(qword)*1], %%x0
 
 gsmulx      rax, rdx, rdx                 ; a[1]^2
-   adc      x1, rdx
-   mov      [pDst+sizeof(qword)*2], x1
-   mov      rdx, [pA+sizeof(qword)*2]
-   adc      x2, rax
-   mov      [pDst+sizeof(qword)*3], x2
+   adc      %%x1, rdx
+   mov      [%%pDst+sizeof(qword)*2], %%x1
+   mov      rdx, [%%pA+sizeof(qword)*2]
+   adc      %%x2, rax
+   mov      [%%pDst+sizeof(qword)*3], %%x2
 
 gsmulx      rax, rdx, rdx                 ; a[2]^2
-   adc      x3, rdx
-   mov      [pDst+sizeof(qword)*4], x3
-   mov      rdx, [pA+sizeof(qword)*3]
-   adc      x4, rax
-   mov      [pDst+sizeof(qword)*5], x4
+   adc      %%x3, rdx
+   mov      [%%pDst+sizeof(qword)*4], %%x3
+   mov      rdx, [%%pA+sizeof(qword)*3]
+   adc      %%x4, rax
+   mov      [%%pDst+sizeof(qword)*5], %%x4
 
 gsmulx      rax, rdx, rdx                 ; a[3]^2
-   adc      x5, rdx
-   mov      [pDst+sizeof(qword)*6], x5
-   adc      x6, rax
-   mov      [pDst+sizeof(qword)*7], x6
-   adc      A, 0
+   adc      %%x5, rdx
+   mov      [%%pDst+sizeof(qword)*6], %%x5
+   adc      %%x6, rax
+   mov      [%%pDst+sizeof(qword)*7], %%x6
+   adc      %%A, 0
 
    ;; ------------------
    ;; third pass complete 26
    ;; ------------------
-   mov      rax, [pA+sizeof(qword)*2]
-   xor      x0, x0
+   mov      rax, [%%pA+sizeof(qword)*2]
+   xor      %%x0, %%x0
 
-   mul      qword ptr[pA+sizeof(qword)*6]
-   add      x7, rax
+   mul      qword [%%pA+sizeof(qword)*6]
+   add      %%x7, rax
    adc      rdx, 0
-   add      x8, rdx
-   adc      x0, 0
+   add      %%x8, rdx
+   adc      %%x0, 0
 
    ;; ------------------
    ;; forth pass complete 35...36
    ;; ------------------
-   mov      rdx, [pA+sizeof(qword)*3]
-gsmulx      x6, rax, [pA+sizeof(qword)*5]
-   add      x7, rax
-   adc      x8, x6
-   adc      x0, 0
-gsmulx      x6, rax, [pA+sizeof(qword)*6]
-   add      x8, rax
-   adc      x0, x6
+   mov      rdx, [%%pA+sizeof(qword)*3]
+gsmulx      %%x6, rax, [%%pA+sizeof(qword)*5]
+   add      %%x7, rax
+   adc      %%x8, %%x6
+   adc      %%x0, 0
+gsmulx      %%x6, rax, [%%pA+sizeof(qword)*6]
+   add      %%x8, rax
+   adc      %%x0, %%x6
 
    ;; ------------------
    ;; fifth pass 45...46
    ;; ------------------
-   mov      rdx, [pA+sizeof(qword)*4]
-gsmulx      x6, rax, [pA+sizeof(qword)*5]
-   xor      x1, x1
-   add      x8, rax
-   adc      x0, x6
-   adc      x1, 0
-gsmulx      x6, rax, [pA+sizeof(qword)*6]
-   add      x0, rax
-   adc      x1, x6
+   mov      rdx, [%%pA+sizeof(qword)*4]
+gsmulx      %%x6, rax, [%%pA+sizeof(qword)*5]
+   xor      %%x1, %%x1
+   add      %%x8, rax
+   adc      %%x0, %%x6
+   adc      %%x1, 0
+gsmulx      %%x6, rax, [%%pA+sizeof(qword)*6]
+   add      %%x0, rax
+   adc      %%x1, %%x6
 
    ;; ------------------
    ;; six pass 56
    ;; ------------------
-   mov      rax, [pA+sizeof(qword)*5]
-   xor      x2, x2
-   mul      qword ptr [pA + sizeof(qword)*6]
-   add      x1, rax
-   adc      x2, rdx
+   mov      rax, [%%pA+sizeof(qword)*5]
+   xor      %%x2, %%x2
+   mul      qword [%%pA + sizeof(qword)*6]
+   add      %%x1, rax
+   adc      %%x2, rdx
 
-   mov      rdx, [pA+sizeof(qword)*4]
+   mov      rdx, [%%pA+sizeof(qword)*4]
 
    ;; --- double x7, x8, x0, x1, x2
-   xor      x3, x3
-   add      x7, x7
-   adc      x8, x8
-   adc      x0, x0
-   adc      x1, x1
-   adc      x2, x2
-   adc      x3, 0
+   xor      %%x3, %%x3
+   add      %%x7, %%x7
+   adc      %%x8, %%x8
+   adc      %%x0, %%x0
+   adc      %%x1, %%x1
+   adc      %%x2, %%x2
+   adc      %%x3, 0
 
 gsmulx      rax, rdx, rdx                 ; a[4]^2
-   add      rdx, A
+   add      rdx, %%A
    adc      rax, 0
-   add      x7, rdx
-   mov      rdx, [pA+sizeof(qword)*5]
-   mov      [pDst+sizeof(qword)*8], x7
-   adc      x8, rax
-   mov      [pDst+sizeof(qword)*9], x8
+   add      %%x7, rdx
+   mov      rdx, [%%pA+sizeof(qword)*5]
+   mov      [%%pDst+sizeof(qword)*8], %%x7
+   adc      %%x8, rax
+   mov      [%%pDst+sizeof(qword)*9], %%x8
 
 gsmulx      rax, rdx, rdx                 ; a[5]^2
-   adc      x0, rdx
-   mov      [pDst+sizeof(qword)*10], x0
-   mov      rdx, [pA+sizeof(qword)*6]
-   adc      x1, rax
-   mov      [pDst+sizeof(qword)*11], x1
+   adc      %%x0, rdx
+   mov      [%%pDst+sizeof(qword)*10], %%x0
+   mov      rdx, [%%pA+sizeof(qword)*6]
+   adc      %%x1, rax
+   mov      [%%pDst+sizeof(qword)*11], %%x1
 
 gsmulx      rax, rdx, rdx                 ; a[6]^2
-   adc      x2, rdx
-   mov      [pDst+sizeof(qword)*12], x2
-   adc      x3, rax
-   mov      [pDst+sizeof(qword)*13], x3
-ENDM
+   adc      %%x2, rdx
+   mov      [%%pDst+sizeof(qword)*12], %%x2
+   adc      %%x3, rax
+   mov      [%%pDst+sizeof(qword)*13], %%x3
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
-sqr_7 PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_7,PRIVATE
    SQR_448  pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    ret
-sqr_7 ENDP
+ENDFUNC sqr_7
+
 
 
 ;;
 ;; 8*qword squarer
 ;;
-SQR_512  MACRO    pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
-   ;; ----------------------------------
+%macro SQR_512 13.nolist
+  %xdefine %%pDst %1
+  %xdefine %%pA %2
+  %xdefine %%x7 %3
+  %xdefine %%x6 %4
+  %xdefine %%x5 %5
+  %xdefine %%x4 %6
+  %xdefine %%x3 %7
+  %xdefine %%x2 %8
+  %xdefine %%x1 %9
+  %xdefine %%x0 %10
+  %xdefine %%A %11
+  %xdefine %%x8 %12
+  %xdefine %%t0 %13
+
+;; ----------------------------------
    ;; first pass a[0]*a[1],...,a[0]*a[7]
    ;; ----------------------------------
-   mov      rdx, [pA]
-gsmulx      x1,x0, [pA+sizeof(qword)*1]
-   MULADD1x x2, x1, rdx, [pA+sizeof(qword)*2]
-   MULADD1x x3, x2, rdx, [pA+sizeof(qword)*3]
-   MULADD1x x4, x3, rdx, [pA+sizeof(qword)*4]
-   MULADD1x x5, x4, rdx, [pA+sizeof(qword)*5]
-   MULADD1x x6, x5, rdx, [pA+sizeof(qword)*6]
-   MULADD1x x7, x6, rdx, [pA+sizeof(qword)*7]
+   mov      rdx, [%%pA]
+gsmulx      %%x1,%%x0, [%%pA+sizeof(qword)*1]
+   MULADD1x %%x2, %%x1, rdx, [%%pA+sizeof(qword)*2]
+   MULADD1x %%x3, %%x2, rdx, [%%pA+sizeof(qword)*3]
+   MULADD1x %%x4, %%x3, rdx, [%%pA+sizeof(qword)*4]
+   MULADD1x %%x5, %%x4, rdx, [%%pA+sizeof(qword)*5]
+   MULADD1x %%x6, %%x5, rdx, [%%pA+sizeof(qword)*6]
+   MULADD1x %%x7, %%x6, rdx, [%%pA+sizeof(qword)*7]
 
    ;; -----------------------------------
    ;; second pass a[1]*a[2],...,a[1]*a[6]
    ;; -----------------------------------
-   mov      rdx, [pA + sizeof(qword)*1]
-gsmulx      t0, rax, [pA+sizeof(qword)*2]
-   add      x2, rax
-   adc      t0, 0
-   xor      x8, x8
+   mov      rdx, [%%pA + sizeof(qword)*1]
+gsmulx      %%t0, rax, [%%pA+sizeof(qword)*2]
+   add      %%x2, rax
+   adc      %%t0, 0
+   xor      %%x8, %%x8
 
-   MULADDx  t0, x3, rdx, [pA+sizeof(qword)*3], A
-   MULADDx  t0, x4, rdx, [pA+sizeof(qword)*4], A
-   MULADDx  t0, x5, rdx, [pA+sizeof(qword)*5], A
-   MULADDx  t0, x6, rdx, [pA+sizeof(qword)*6], A
-   add      x7, t0
-   adc      x8, 0
+   MULADDx  %%t0, %%x3, rdx, [%%pA+sizeof(qword)*3], %%A
+   MULADDx  %%t0, %%x4, rdx, [%%pA+sizeof(qword)*4], %%A
+   MULADDx  %%t0, %%x5, rdx, [%%pA+sizeof(qword)*5], %%A
+   MULADDx  %%t0, %%x6, rdx, [%%pA+sizeof(qword)*6], %%A
+   add      %%x7, %%t0
+   adc      %%x8, 0
 
    ;; ----------------------------------
    ;; third pass a[2]*a[3],...,a[2]*a[5]
    ;; ----------------------------------
-   mov      rdx, [pA+sizeof(qword)*2]
-gsmulx      t0, rax, [pA+sizeof(qword)*3]
-   add      x4, rax
-   adc      t0, 0
+   mov      rdx, [%%pA+sizeof(qword)*2]
+gsmulx      %%t0, rax, [%%pA+sizeof(qword)*3]
+   add      %%x4, rax
+   adc      %%t0, 0
 
-   MULADDx  t0, x5, rdx, [pA+sizeof(qword)*4], A
-   MULADDx  t0, x6, rdx, [pA+sizeof(qword)*5], A
-   add      x7, t0
-   adc      x8, 0
+   MULADDx  %%t0, %%x5, rdx, [%%pA+sizeof(qword)*4], %%A
+   MULADDx  %%t0, %%x6, rdx, [%%pA+sizeof(qword)*5], %%A
+   add      %%x7, %%t0
+   adc      %%x8, 0
 
    ;; ---------------------
    ;; fourth pass a[3]*a[4]
    ;; ---------------------
-   mov      rax, [pA+sizeof(qword)*3]
-   mul      qword ptr [pA+sizeof(qword)*4]
-   add      x6, rax
+   mov      rax, [%%pA+sizeof(qword)*3]
+   mul      qword [%%pA+sizeof(qword)*4]
+   add      %%x6, rax
    adc      rdx, 0
-   add      x7, rdx
-   adc      x8, 0
+   add      %%x7, rdx
+   adc      %%x8, 0
 
-   mov      rdx, [pA+sizeof(qword)*0]
+   mov      rdx, [%%pA+sizeof(qword)*0]
 
    ;; double x0,...,x6
-   xor      A, A
-   add      x0, x0
-   adc      x1, x1
-   adc      x2, x2
-   adc      x3, x3
-   adc      x4, x4
-   adc      x5, x5
-   adc      x6, x6
-   adc      A, 0
+   xor      %%A, %%A
+   add      %%x0, %%x0
+   adc      %%x1, %%x1
+   adc      %%x2, %%x2
+   adc      %%x3, %%x3
+   adc      %%x4, %%x4
+   adc      %%x5, %%x5
+   adc      %%x6, %%x6
+   adc      %%A, 0
 
    ;; add sqr(a[0]),...,sqr(a[3])
 gsmulx      rax, rdx, rdx                 ; a[0]^2
-   mov      [pDst+sizeof(qword)*0], rdx
-   mov      rdx, [pA+sizeof(qword)*1]
-   add      x0, rax
-   mov      [pDst+sizeof(qword)*1], x0
+   mov      [%%pDst+sizeof(qword)*0], rdx
+   mov      rdx, [%%pA+sizeof(qword)*1]
+   add      %%x0, rax
+   mov      [%%pDst+sizeof(qword)*1], %%x0
 
 gsmulx      rax, rdx, rdx                 ; a[1]^2
-   adc      x1, rdx
-   mov      [pDst+sizeof(qword)*2], x1
-   mov      rdx, [pA+sizeof(qword)*2]
-   adc      x2, rax
-   mov      [pDst+sizeof(qword)*3], x2
+   adc      %%x1, rdx
+   mov      [%%pDst+sizeof(qword)*2], %%x1
+   mov      rdx, [%%pA+sizeof(qword)*2]
+   adc      %%x2, rax
+   mov      [%%pDst+sizeof(qword)*3], %%x2
 
 gsmulx      rax, rdx, rdx                 ; a[2]^2
-   adc      x3, rdx
-   mov      [pDst+sizeof(qword)*4], x3
-   mov      rdx, [pA+sizeof(qword)*3]
-   adc      x4, rax
-   mov      [pDst+sizeof(qword)*5], x4
+   adc      %%x3, rdx
+   mov      [%%pDst+sizeof(qword)*4], %%x3
+   mov      rdx, [%%pA+sizeof(qword)*3]
+   adc      %%x4, rax
+   mov      [%%pDst+sizeof(qword)*5], %%x4
 
 gsmulx      rax, rdx, rdx                 ; a[3]^2
-   adc      x5, rdx
-   mov      [pDst+sizeof(qword)*6], x5
-   adc      x6, rax
-   mov      [pDst+sizeof(qword)*7], x6
-   adc      A, 0
+   adc      %%x5, rdx
+   mov      [%%pDst+sizeof(qword)*6], %%x5
+   adc      %%x6, rax
+   mov      [%%pDst+sizeof(qword)*7], %%x6
+   adc      %%A, 0
 
    ;; ----------------------------
    ;; second pass (cont) a[1]*a[7]
    ;; ----------------------------
-   mov      rax, [pA+sizeof(qword)*1]
-   xor      x0, x0
-   mul      qword ptr[pA+sizeof(qword)*7]
-   add      x7, rax
+   mov      rax, [%%pA+sizeof(qword)*1]
+   xor      %%x0, %%x0
+   mul      qword [%%pA+sizeof(qword)*7]
+   add      %%x7, rax
    adc      rdx, 0
-   add      x8, rdx
-   adc      x0, 0
+   add      %%x8, rdx
+   adc      %%x0, 0
 
    ;; -----------------------------------------
    ;; third pass (cont) a[2]*a[6],...,a[2]*a[7]
    ;; -----------------------------------------
-   mov      rdx, [pA+sizeof(qword)*2]
-gsmulx      x6, rax, [pA+sizeof(qword)*6]
-   add      x7, rax
-   adc      x8, x6
-   adc      x0, 0
-gsmulx      x6, rax, [pA+sizeof(qword)*7]
-   xor      x1, x1
-   add      x8, rax
-   adc      x0, x6
-   adc      x1, 0
+   mov      rdx, [%%pA+sizeof(qword)*2]
+gsmulx      %%x6, rax, [%%pA+sizeof(qword)*6]
+   add      %%x7, rax
+   adc      %%x8, %%x6
+   adc      %%x0, 0
+gsmulx      %%x6, rax, [%%pA+sizeof(qword)*7]
+   xor      %%x1, %%x1
+   add      %%x8, rax
+   adc      %%x0, %%x6
+   adc      %%x1, 0
 
    ;; -----------------------------------
    ;; fourth pass a[3]*a[5],...,a[3]*a[7]
    ;; -----------------------------------
-   mov      rdx, [pA+sizeof(qword)*3]
-gsmulx      x6, rax, [pA+sizeof(qword)*5]
-   add      x7, rax
-   adc      x6, 0
-   add      x8, x6
-   adc      x0, 0
-   adc      x1, 0
-gsmulx      x6, rax, [pA+sizeof(qword)*6]
-   add      x8, rax
-   adc      x6, 0
-   add      x0, x6
-   adc      x1, 0
-gsmulx      x6, rax, [pA+sizeof(qword)*7]
-   add      x0, rax
-   adc      x6, 0
-   add      x1, x6
+   mov      rdx, [%%pA+sizeof(qword)*3]
+gsmulx      %%x6, rax, [%%pA+sizeof(qword)*5]
+   add      %%x7, rax
+   adc      %%x6, 0
+   add      %%x8, %%x6
+   adc      %%x0, 0
+   adc      %%x1, 0
+gsmulx      %%x6, rax, [%%pA+sizeof(qword)*6]
+   add      %%x8, rax
+   adc      %%x6, 0
+   add      %%x0, %%x6
+   adc      %%x1, 0
+gsmulx      %%x6, rax, [%%pA+sizeof(qword)*7]
+   add      %%x0, rax
+   adc      %%x6, 0
+   add      %%x1, %%x6
    ;; carry out should be 0
 
    ;; -----------------------------------
    ;; fifth pass a[4]*a[5],...,a[4]*a[7]
    ;; -----------------------------------
-   mov      rdx, [pA+sizeof(qword)*4]
+   mov      rdx, [%%pA+sizeof(qword)*4]
 
-gsmulx      x2, rax, [pA+sizeof(qword)*5]
-   add      x8, rax
-   adc      x2, 0
+gsmulx      %%x2, rax, [%%pA+sizeof(qword)*5]
+   add      %%x8, rax
+   adc      %%x2, 0
 
-   MULADDx  x2, x0, rdx, [pA+sizeof(qword)*6], x6
-   MULADDx  x2, x1, rdx, [pA+sizeof(qword)*7], x6
+   MULADDx  %%x2, %%x0, rdx, [%%pA+sizeof(qword)*6], %%x6
+   MULADDx  %%x2, %%x1, rdx, [%%pA+sizeof(qword)*7], %%x6
 
    ;; -----------------------------------------------------------
    ;; sixth pass a[5]*a[6],...,a[5]*a[7] & seventh pass a[6]*a[7]
    ;; -----------------------------------------------------------
-   mov      rdx, [pA+sizeof(qword)*5]
+   mov      rdx, [%%pA+sizeof(qword)*5]
 
-gsmulx      x3, rax, [pA+sizeof(qword)*6]
-   add      x1, rax
-   adc      x3, 0
+gsmulx      %%x3, rax, [%%pA+sizeof(qword)*6]
+   add      %%x1, rax
+   adc      %%x3, 0
 
-   MULADDx  x3, x2, rdx, [pA+sizeof(qword)*7], x6
+   MULADDx  %%x3, %%x2, rdx, [%%pA+sizeof(qword)*7], %%x6
 
-   mov      rax, [pA+sizeof(qword)*6]
-   mul      qword ptr[pA+sizeof(qword)*7]
-   add      x3, rax
+   mov      rax, [%%pA+sizeof(qword)*6]
+   mul      qword [%%pA+sizeof(qword)*7]
+   add      %%x3, rax
    adc      rdx, 0
-   mov      x4, rdx
+   mov      %%x4, rdx
 
-   mov      rdx, [pA+sizeof(qword)*4]
+   mov      rdx, [%%pA+sizeof(qword)*4]
 
    ;; --- double x7, x8, x0, ..., x4
-   xor      x5, x5
-   add      x7, x7
-   adc      x8, x8
-   adc      x0, x0
-   adc      x1, x1
-   adc      x2, x2
-   adc      x3, x3
-   adc      x4, x4
-   adc      x5, 0
+   xor      %%x5, %%x5
+   add      %%x7, %%x7
+   adc      %%x8, %%x8
+   adc      %%x0, %%x0
+   adc      %%x1, %%x1
+   adc      %%x2, %%x2
+   adc      %%x3, %%x3
+   adc      %%x4, %%x4
+   adc      %%x5, 0
 
    ;; add sqr(a[4]),...,sqr(a[7])
 gsmulx      rax, rdx, rdx                 ; a[4]^2
-   add      rdx, A
+   add      rdx, %%A
    adc      rax, 0
-   add      x7, rdx
-   mov      rdx, [pA+sizeof(qword)*5]
-   mov      [pDst+sizeof(qword)*8], x7
-   adc      x8, rax
-   mov      [pDst+sizeof(qword)*9], x8
+   add      %%x7, rdx
+   mov      rdx, [%%pA+sizeof(qword)*5]
+   mov      [%%pDst+sizeof(qword)*8], %%x7
+   adc      %%x8, rax
+   mov      [%%pDst+sizeof(qword)*9], %%x8
 
 gsmulx      rax, rdx, rdx                 ; a[5]^2
-   adc      x0, rdx
-   mov      [pDst+sizeof(qword)*10], x0
-   mov      rdx, [pA+sizeof(qword)*6]
-   adc      x1, rax
-   mov      [pDst+sizeof(qword)*11], x1
+   adc      %%x0, rdx
+   mov      [%%pDst+sizeof(qword)*10], %%x0
+   mov      rdx, [%%pA+sizeof(qword)*6]
+   adc      %%x1, rax
+   mov      [%%pDst+sizeof(qword)*11], %%x1
 
 gsmulx      rax, rdx, rdx                 ; a[6]^2
-   adc      x2, rdx
-   mov      [pDst+sizeof(qword)*12], x2
-   mov      rdx, [pA+sizeof(qword)*7]
-   adc      x3, rax
-   mov      [pDst+sizeof(qword)*13], x3
+   adc      %%x2, rdx
+   mov      [%%pDst+sizeof(qword)*12], %%x2
+   mov      rdx, [%%pA+sizeof(qword)*7]
+   adc      %%x3, rax
+   mov      [%%pDst+sizeof(qword)*13], %%x3
 
 gsmulx      rax, rdx, rdx                 ; a[7]^2
-   adc      x4, rdx
-   mov      [pDst+sizeof(qword)*14], x4
-   adc      x5, rax
-   mov      [pDst+sizeof(qword)*15], x5
-ENDM
+   adc      %%x4, rdx
+   mov      [%%pDst+sizeof(qword)*14], %%x4
+   adc      %%x5, rax
+   mov      [%%pDst+sizeof(qword)*15], %%x5
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
-sqr_8 PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_8,PRIVATE
    SQR_512  pDst, pA, x7, x6, x5, x4, x3, x2, x1, x0, A, x8, t0
    ret
-sqr_8 ENDP
+ENDFUNC sqr_8
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -879,125 +1003,145 @@ sqr_8 ENDP
 ; Out:            x0 x7 x6 x5 x4 x3 x2 x1
 ;                                        [dst]
 
-SQR_512_TRIANGLE_STEP   MACRO    HEAD_X, X7, X6, X5, X4, X3, X2, X1, X0, TAIL_X, pDst, pA, TMP1, TMP2
-IFNB <X0>
-gsmulx   TMP1, rax, [pA+sizeof(qword)*0]     ; TMP1:rax = rdx * pA[0]
-   add   X0, rax
-   adc   TMP1, 0
-ENDIF
+%macro SQR_512_TRIANGLE_STEP 14.nolist
+  %xdefine %%HEAD_X %1
+  %xdefine %%X7 %2
+  %xdefine %%X6 %3
+  %xdefine %%X5 %4
+  %xdefine %%X4 %5
+  %xdefine %%X3 %6
+  %xdefine %%X2 %7
+  %xdefine %%X1 %8
+  %xdefine %%X0 %9
+  %xdefine %%TAIL_X %10
+  %xdefine %%pDst %11
+  %xdefine %%pA %12
+  %xdefine %%TMP1 %13
+  %xdefine %%TMP2 %14
 
-IFNB <TAIL_X>
-   mov   pDst, TAIL_X
-ENDIF
+%ifnempty %%X0
+gsmulx   %%TMP1, rax, [%%pA+sizeof(qword)*0]     ; TMP1:rax = rdx * pA[0]
+   add   %%X0, rax
+   adc   %%TMP1, 0
+%endif
 
-IFNB <X1>
-gsmulx   TMP2, rax, [pA+sizeof(qword)*1]   ; TMP2:rax = rdx * pA[1]
-   add   X1, rax
-   adc   TMP2, 0
-IFNB <X0>
-   add   X1, TMP1
-   adc   TMP2, 0
-ENDIF
-ENDIF
+%ifnempty %%TAIL_X
+   mov   %%pDst, %%TAIL_X
+%endif
 
-IFNB <X2>
-gsmulx   TMP1, rax, [pA+sizeof(qword)*2]     ; TMP1:rax = rdx * pA[2]
-   add   X2, rax
-   adc   TMP1, 0
-IFNB <X1>
-   add   X2, TMP2
-   adc   TMP1, 0
-ENDIF
-ENDIF
+%ifnempty %%X1
+gsmulx   %%TMP2, rax, [%%pA+sizeof(qword)*1]   ; TMP2:rax = rdx * pA[1]
+   add   %%X1, rax
+   adc   %%TMP2, 0
+%ifnempty %%X0
+   add   %%X1, %%TMP1
+   adc   %%TMP2, 0
+%endif
+%endif
 
-IFNB <X3>
-gsmulx   TMP2, rax, [pA+sizeof(qword)*3]     ; TMP2:rax = rdx * pA[3]
-   add   X3, rax
-   adc   TMP2, 0
-IFNB <X2>
-   add   X3, TMP1
-   adc   TMP2, 0
-ENDIF
-ENDIF
+%ifnempty %%X2
+gsmulx   %%TMP1, rax, [%%pA+sizeof(qword)*2]     ; TMP1:rax = rdx * pA[2]
+   add   %%X2, rax
+   adc   %%TMP1, 0
+%ifnempty %%X1
+   add   %%X2, %%TMP2
+   adc   %%TMP1, 0
+%endif
+%endif
 
-IFNB <X4>
-gsmulx   TMP1, rax, [pA+sizeof(qword)*4]     ; TMP1:rax = rdx * pA[4]
-   add   X4, rax
-   adc   TMP1, 0
-IFNB <X3>
-   add   X4, TMP2
-   adc   TMP1, 0
-ENDIF
-ENDIF
+%ifnempty %%X3
+gsmulx   %%TMP2, rax, [%%pA+sizeof(qword)*3]     ; TMP2:rax = rdx * pA[3]
+   add   %%X3, rax
+   adc   %%TMP2, 0
+%ifnempty %%X2
+   add   %%X3, %%TMP1
+   adc   %%TMP2, 0
+%endif
+%endif
 
-IFNB <X5>
-gsmulx   TMP2, rax, [pA+sizeof(qword)*5]     ; TMP2:rax = rdx * pA[5]
-   add   X5, rax
-   adc   TMP2, 0
-IFNB <X4>
-   add   X5, TMP1
-   adc   TMP2, 0
-ENDIF
-ENDIF
+%ifnempty %%X4
+gsmulx   %%TMP1, rax, [%%pA+sizeof(qword)*4]     ; TMP1:rax = rdx * pA[4]
+   add   %%X4, rax
+   adc   %%TMP1, 0
+%ifnempty %%X3
+   add   %%X4, %%TMP2
+   adc   %%TMP1, 0
+%endif
+%endif
 
-IFNB <X6>
-gsmulx   TMP1, rax, [pA+sizeof(qword)*6]     ; TMP1:rax = rdx * pA[6]
-   add   X6, rax
-   adc   TMP1, 0
-IFNB <X5>
-   add   X6, TMP2
-   adc   TMP1, 0
-ENDIF
-ENDIF
+%ifnempty %%X5
+gsmulx   %%TMP2, rax, [%%pA+sizeof(qword)*5]     ; TMP2:rax = rdx * pA[5]
+   add   %%X5, rax
+   adc   %%TMP2, 0
+%ifnempty %%X4
+   add   %%X5, %%TMP1
+   adc   %%TMP2, 0
+%endif
+%endif
 
-IFNB <X7>
-gsmulx   HEAD_X, rax, [pA+sizeof(qword)*7]   ; X0:rax = rdx * pA[7]
-   add   X7, rax
-   adc   HEAD_X, 0
-IFNB <X6>
-   add   X7, TMP1
-   adc   HEAD_X, 0
-ENDIF
-ENDIF
-ENDM
+%ifnempty %%X6
+gsmulx   %%TMP1, rax, [%%pA+sizeof(qword)*6]     ; TMP1:rax = rdx * pA[6]
+   add   %%X6, rax
+   adc   %%TMP1, 0
+%ifnempty %%X5
+   add   %%X6, %%TMP2
+   adc   %%TMP1, 0
+%endif
+%endif
+
+%ifnempty %%X7
+gsmulx   %%HEAD_X, rax, [%%pA+sizeof(qword)*7]   ; X0:rax = rdx * pA[7]
+   add   %%X7, rax
+   adc   %%HEAD_X, 0
+%ifnempty %%X6
+   add   %%X7, %%TMP1
+   adc   %%HEAD_X, 0
+%endif
+%endif
+%endmacro
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; square and add diagonal terms
 
-ADD_DIAG  MACRO   N, pDst, pSrc
-   mov      r8, qword ptr[pDst+sizeof(qword)*0]
-   mov      r9, qword ptr[pDst+sizeof(qword)*1]
-IF N GT 1
-   mov      r10,qword ptr[pDst+sizeof(qword)*2]
-   mov      r11,qword ptr[pDst+sizeof(qword)*3]
-IF N GT 2
-   mov      r12,qword ptr[pDst+sizeof(qword)*4]
-   mov      r13,qword ptr[pDst+sizeof(qword)*5]
-IF N GT 3
-   mov      r14,qword ptr[pDst+sizeof(qword)*6]
-   mov      r15,qword ptr[pDst+sizeof(qword)*7]
-ENDIF
-ENDIF
-ENDIF
+%macro ADD_DIAG 3.nolist
+  %xdefine %%N %1
+  %xdefine %%pDst %2
+  %xdefine %%pSrc %3
+
+mov      r8, qword [%%pDst+sizeof(qword)*0]
+   mov      r9, qword [%%pDst+sizeof(qword)*1]
+%if %%N > 1
+   mov      r10,qword [%%pDst+sizeof(qword)*2]
+   mov      r11,qword [%%pDst+sizeof(qword)*3]
+%if %%N > 2
+   mov      r12,qword [%%pDst+sizeof(qword)*4]
+   mov      r13,qword [%%pDst+sizeof(qword)*5]
+%if %%N > 3
+   mov      r14,qword [%%pDst+sizeof(qword)*6]
+   mov      r15,qword [%%pDst+sizeof(qword)*7]
+%endif
+%endif
+%endif
 
    xor      rbp, rbp
    add      r8, r8
    adc      r9, r9
-IF N GT 1
+%if %%N > 1
    adc      r10,r10
    adc      r11,r11
-IF N GT 2
+%if %%N > 2
    adc      r12,r12
    adc      r13,r13
-IF N GT 3
+%if %%N > 3
    adc      r14,r14
    adc      r15,r15
-ENDIF
-ENDIF
-ENDIF
+%endif
+%endif
+%endif
    adc      rbp, 0
 
-   mov      rdx, [pSrc+sizeof(qword)*0]
+   mov      rdx, [%%pSrc+sizeof(qword)*0]
 gsmulx      rdx, rax, rdx
    add      rax, rbx
    adc      rdx, 0
@@ -1005,59 +1149,61 @@ gsmulx      rdx, rax, rdx
    mov      rbx, rbp
    adc      r9, rdx
 
-IF N GT 1
-   mov      rdx, [pSrc+sizeof(qword)*1]
+%if %%N > 1
+   mov      rdx, [%%pSrc+sizeof(qword)*1]
 gsmulx      rdx, rax, rdx
    adc      r10,rax
    adc      r11,rdx
 
-IF N GT 2
-   mov      rdx, [pSrc+sizeof(qword)*2]
+%if %%N > 2
+   mov      rdx, [%%pSrc+sizeof(qword)*2]
 gsmulx      rdx, rax, rdx
    adc      r12,rax
    adc      r13,rdx
 
-IF N GT 3
-   mov      rdx, [pSrc+sizeof(qword)*3]
+%if %%N > 3
+   mov      rdx, [%%pSrc+sizeof(qword)*3]
 gsmulx      rdx, rax, rdx
    adc      r14,rax
    adc      r15,rdx
-ENDIF
-ENDIF
-ENDIF
+%endif
+%endif
+%endif
 
    adc      rbx, 0
-   mov      qword ptr[pDst+sizeof(qword)*0], r8
-   mov      qword ptr[pDst+sizeof(qword)*1], r9
-IF N GT 1
-   mov      qword ptr[pDst+sizeof(qword)*2], r10
-   mov      qword ptr[pDst+sizeof(qword)*3], r11
-IF N GT 2
-   mov      qword ptr[pDst+sizeof(qword)*4], r12
-   mov      qword ptr[pDst+sizeof(qword)*5], r13
-IF N GT 3
-   mov      qword ptr[pDst+sizeof(qword)*6], r14
-   mov      qword ptr[pDst+sizeof(qword)*7], r15
-ENDIF
-ENDIF
-ENDIF
-ENDM
+   mov      qword [%%pDst+sizeof(qword)*0], r8
+   mov      qword [%%pDst+sizeof(qword)*1], r9
+%if %%N > 1
+   mov      qword [%%pDst+sizeof(qword)*2], r10
+   mov      qword [%%pDst+sizeof(qword)*3], r11
+%if %%N > 2
+   mov      qword [%%pDst+sizeof(qword)*4], r12
+   mov      qword [%%pDst+sizeof(qword)*5], r13
+%if %%N > 3
+   mov      qword [%%pDst+sizeof(qword)*6], r14
+   mov      qword [%%pDst+sizeof(qword)*7], r15
+%endif
+%endif
+%endif
+%endmacro
+
 
 
 ;; rbp = local carry
 ;; rbx = global carry
-ALIGN IPP_ALIGN_FACTOR
-add_diag_4 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC add_diag_4,PRIVATE
    ADD_DIAG 4, rdi, rsi
    ret
-add_diag_4 ENDP
+ENDFUNC add_diag_4
+
 
 
 ;;
 ;; 8*qword triangle
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr8_triangle PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr8_triangle,PRIVATE
    ;; A[0]*A[1..7]
    mov      rdx, [rsi+sizeof(qword)*0]
    SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,r11,r10, r9,   , r8,  [rdi+sizeof(qword)*0],rsi, rbx,rbp
@@ -1086,33 +1232,34 @@ sqr8_triangle PROC PRIVATE
    mov      rdx, [rsi+sizeof(qword)*6]
    SQR_512_TRIANGLE_STEP   r14, r13,   ,   ,   ,   ,   ,   ,   , r14, [rdi+sizeof(qword)*6],rsi, rbx,rbp
    ret
-sqr8_triangle ENDP
+ENDFUNC sqr8_triangle
+
 
 
 ;;
 ;; 9*qword squarer
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr_9 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_9,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
    xor      r15, r15
    call     mla_8x1
 
-   mov      qword ptr[rdi+sizeof(qword)*(1+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(1+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(1+2)], r10
-   mov      qword ptr[rdi+sizeof(qword)*(1+3)], r11
-   mov      qword ptr[rdi+sizeof(qword)*(1+4)], r12
-   mov      qword ptr[rdi+sizeof(qword)*(1+5)], r13
-   mov      qword ptr[rdi+sizeof(qword)*(1+6)], r14
-   mov      qword ptr[rdi+sizeof(qword)*(1+7)], r15
+   mov      qword [rdi+sizeof(qword)*(1+0)], r8
+   mov      qword [rdi+sizeof(qword)*(1+1)], r9
+   mov      qword [rdi+sizeof(qword)*(1+2)], r10
+   mov      qword [rdi+sizeof(qword)*(1+3)], r11
+   mov      qword [rdi+sizeof(qword)*(1+4)], r12
+   mov      qword [rdi+sizeof(qword)*(1+5)], r13
+   mov      qword [rdi+sizeof(qword)*(1+6)], r14
+   mov      qword [rdi+sizeof(qword)*(1+7)], r15
 
    xor      rbx, rbx
-   mov      qword ptr[rdi+sizeof(qword)*(1+8)], rbx
+   mov      qword [rdi+sizeof(qword)*(1+8)], rbx
 
    sub      rdi, sizeof(qword)*8
 
@@ -1127,37 +1274,38 @@ sqr_9 PROC PRIVATE
    sub      rsi, sizeof(qword)*8
    sub      rdi, sizeof(qword)*16
    ret
-sqr_9 ENDP
+ENDFUNC sqr_9
+
 
 
 ;;
 ;; 10*qword squarer
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr_10 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_10,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
    xor      r15, r15
    call     mla_8x2
 
-   mov      qword ptr[rdi+sizeof(qword)*(2+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(2+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(2+2)], r10
-   mov      qword ptr[rdi+sizeof(qword)*(2+3)], r11
-   mov      qword ptr[rdi+sizeof(qword)*(2+4)], r12
-   mov      qword ptr[rdi+sizeof(qword)*(2+5)], r13
-   mov      qword ptr[rdi+sizeof(qword)*(2+6)], r14
+   mov      qword [rdi+sizeof(qword)*(2+0)], r8
+   mov      qword [rdi+sizeof(qword)*(2+1)], r9
+   mov      qword [rdi+sizeof(qword)*(2+2)], r10
+   mov      qword [rdi+sizeof(qword)*(2+3)], r11
+   mov      qword [rdi+sizeof(qword)*(2+4)], r12
+   mov      qword [rdi+sizeof(qword)*(2+5)], r13
+   mov      qword [rdi+sizeof(qword)*(2+6)], r14
 
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP  r8, r15, , , , , , , , , , <rsi+sizeof(qword)*2>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP  r8, r15, , , , , , , , , , {rsi+sizeof(qword)*2}, rbx,rbp
 
    xor      rbx, rbx
-   mov      qword ptr[rdi+sizeof(qword)*(2+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(2+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(2+9)], rbx
+   mov      qword [rdi+sizeof(qword)*(2+7)], r15
+   mov      qword [rdi+sizeof(qword)*(2+8)], r8
+   mov      qword [rdi+sizeof(qword)*(2+9)], rbx
 
    sub      rdi, sizeof(qword)*8
 
@@ -1172,15 +1320,16 @@ sqr_10 PROC PRIVATE
    sub      rsi, sizeof(qword)*8
    sub      rdi, sizeof(qword)*16
    ret
-sqr_10 ENDP
+ENDFUNC sqr_10
+
 
 ;;
 ;; 10*qword squarer
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr_11 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_11,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
@@ -1192,25 +1341,25 @@ sqr_11 PROC PRIVATE
    sub      rdi, sizeof(qword)*1
    sub      rcx, sizeof(qword)*1
 
-   mov      qword ptr[rdi+sizeof(qword)*(3+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(3+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(3+2)], r10
-   mov      qword ptr[rdi+sizeof(qword)*(3+3)], r11
-   mov      qword ptr[rdi+sizeof(qword)*(3+4)], r12
+   mov      qword [rdi+sizeof(qword)*(3+0)], r8
+   mov      qword [rdi+sizeof(qword)*(3+1)], r9
+   mov      qword [rdi+sizeof(qword)*(3+2)], r10
+   mov      qword [rdi+sizeof(qword)*(3+3)], r11
+   mov      qword [rdi+sizeof(qword)*(3+4)], r12
 
 
 ;  SQR_512_TRIANGLE_STEP     H,  p7, p6, p5, p4, p3, p2, p1, p0,  T, <dst>,<src>, rbx,rbp
 ;                          ------------------------------
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP    r8, r15,r14,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(3+5)],<rsi+sizeof(qword)*3>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*9]
-   SQR_512_TRIANGLE_STEP    r9,  r8,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(3+6)],<rsi+sizeof(qword)*3>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP    r8, r15,r14,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(3+5)],{rsi+sizeof(qword)*3}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*9]
+   SQR_512_TRIANGLE_STEP    r9,  r8,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(3+6)],{rsi+sizeof(qword)*3}, rbx,rbp
 
    xor      rbx, rbx
-   mov      qword ptr[rdi+sizeof(qword)*(3+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(3+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(3+9)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(3+10)],rbx
+   mov      qword [rdi+sizeof(qword)*(3+7)], r15
+   mov      qword [rdi+sizeof(qword)*(3+8)], r8
+   mov      qword [rdi+sizeof(qword)*(3+9)], r9
+   mov      qword [rdi+sizeof(qword)*(3+10)],rbx
 
    sub      rdi, sizeof(qword)*8
 
@@ -1225,15 +1374,16 @@ sqr_11 PROC PRIVATE
    sub      rsi, sizeof(qword)*(4*2)
    sub      rdi, sizeof(qword)*(8*2)
    ret
-sqr_11 ENDP
+ENDFUNC sqr_11
+
 
 ;;
 ;; 12*qword squarer
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr_12 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_12,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
@@ -1245,26 +1395,26 @@ sqr_12 PROC PRIVATE
    sub      rdi, sizeof(qword)*2
    sub      rcx, sizeof(qword)*2
 
-   mov      qword ptr[rdi+sizeof(qword)*(4+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(4+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(4+2)], r10
-   mov      qword ptr[rdi+sizeof(qword)*(4+3)], r11
+   mov      qword [rdi+sizeof(qword)*(4+0)], r8
+   mov      qword [rdi+sizeof(qword)*(4+1)], r9
+   mov      qword [rdi+sizeof(qword)*(4+2)], r10
+   mov      qword [rdi+sizeof(qword)*(4+3)], r11
 
 ;  SQR_512_TRIANGLE_STEP     H,  p7, p6, p5, p4, p3, p2, p1, p0,  T, <dst>,<src>, rbx,rbp
 ;                          ------------------------------
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(4+4)],<rsi+sizeof(qword)*4>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*9]
-   SQR_512_TRIANGLE_STEP    r9,  r8,r15,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(4+5)],<rsi+sizeof(qword)*4>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*10]
-   SQR_512_TRIANGLE_STEP   r10,  r9,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(4+6)],<rsi+sizeof(qword)*4>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(4+4)],{rsi+sizeof(qword)*4}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*9]
+   SQR_512_TRIANGLE_STEP    r9,  r8,r15,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(4+5)],{rsi+sizeof(qword)*4}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*10]
+   SQR_512_TRIANGLE_STEP   r10,  r9,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(4+6)],{rsi+sizeof(qword)*4}, rbx,rbp
 
    xor      rbx, rbx
-   mov      qword ptr[rdi+sizeof(qword)*(4+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(4+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(4+9)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(4+10)],r10
-   mov      qword ptr[rdi+sizeof(qword)*(4+11)],rbx
+   mov      qword [rdi+sizeof(qword)*(4+7)], r15
+   mov      qword [rdi+sizeof(qword)*(4+8)], r8
+   mov      qword [rdi+sizeof(qword)*(4+9)], r9
+   mov      qword [rdi+sizeof(qword)*(4+10)],r10
+   mov      qword [rdi+sizeof(qword)*(4+11)],rbx
 
    sub      rdi, sizeof(qword)*8
 
@@ -1279,15 +1429,16 @@ sqr_12 PROC PRIVATE
    sub      rsi, sizeof(qword)*(4*2)
    sub      rdi, sizeof(qword)*(8*2)
    ret
-sqr_12 ENDP
+ENDFUNC sqr_12
+
 
 ;;
 ;; 13*qword squarer
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr_13 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_13,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
@@ -1302,28 +1453,28 @@ sqr_13 PROC PRIVATE
    sub      rdi, sizeof(qword)*3
    sub      rcx, sizeof(qword)*3
 
-   mov      qword ptr[rdi+sizeof(qword)*(5+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(5+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(5+2)], r10
+   mov      qword [rdi+sizeof(qword)*(5+0)], r8
+   mov      qword [rdi+sizeof(qword)*(5+1)], r9
+   mov      qword [rdi+sizeof(qword)*(5+2)], r10
 
 ;  SQR_512_TRIANGLE_STEP     H,  p7, p6, p5, p4, p3, p2, p1, p0,  T, <dst>,<src>, rbx,rbp
 ;                          ------------------------------
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(5+3)],<rsi+sizeof(qword)*5>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*9]
-   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(5+4)],<rsi+sizeof(qword)*5>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*10]
-   SQR_512_TRIANGLE_STEP   r10,  r9, r8,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(5+5)],<rsi+sizeof(qword)*5>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*11]
-   SQR_512_TRIANGLE_STEP   r11, r10,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(5+6)],<rsi+sizeof(qword)*5>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(5+3)],{rsi+sizeof(qword)*5}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*9]
+   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(5+4)],{rsi+sizeof(qword)*5}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*10]
+   SQR_512_TRIANGLE_STEP   r10,  r9, r8,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(5+5)],{rsi+sizeof(qword)*5}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*11]
+   SQR_512_TRIANGLE_STEP   r11, r10,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(5+6)],{rsi+sizeof(qword)*5}, rbx,rbp
 
    xor      rbx, rbx
-   mov      qword ptr[rdi+sizeof(qword)*(5+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(5+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(5+9)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(5+10)],r10
-   mov      qword ptr[rdi+sizeof(qword)*(5+11)],r11
-   mov      qword ptr[rdi+sizeof(qword)*(5+12)],rbx
+   mov      qword [rdi+sizeof(qword)*(5+7)], r15
+   mov      qword [rdi+sizeof(qword)*(5+8)], r8
+   mov      qword [rdi+sizeof(qword)*(5+9)], r9
+   mov      qword [rdi+sizeof(qword)*(5+10)],r10
+   mov      qword [rdi+sizeof(qword)*(5+11)],r11
+   mov      qword [rdi+sizeof(qword)*(5+12)],rbx
 
    sub      rdi, sizeof(qword)*8
 
@@ -1341,15 +1492,16 @@ sqr_13 PROC PRIVATE
    sub      rsi, sizeof(qword)*(4*3)
    sub      rdi, sizeof(qword)*(8*3)
    ret
-sqr_13 ENDP
+ENDFUNC sqr_13
+
 
 ;;
 ;; 14*qword squarer
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr_14 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_14,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
@@ -1364,30 +1516,30 @@ sqr_14 PROC PRIVATE
    sub      rdi, sizeof(qword)*4
    sub      rcx, sizeof(qword)*4
 
-   mov      qword ptr[rdi+sizeof(qword)*(6+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(6+1)], r9
+   mov      qword [rdi+sizeof(qword)*(6+0)], r8
+   mov      qword [rdi+sizeof(qword)*(6+1)], r9
 
 ;  SQR_512_TRIANGLE_STEP     H,  p7, p6, p5, p4, p3, p2, p1, p0,  T, <dst>,<src>, rbx,rbp
 ;                          ------------------------------
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,r11,   ,   ,   ,  r10,[rdi+sizeof(qword)*(6+2)],<rsi+sizeof(qword)*6>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*9]
-   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,r13,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(6+3)],<rsi+sizeof(qword)*6>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*10]
-   SQR_512_TRIANGLE_STEP   r10,  r9, r8,r15,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(6+4)],<rsi+sizeof(qword)*6>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*11]
-   SQR_512_TRIANGLE_STEP   r11, r10, r9,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(6+5)],<rsi+sizeof(qword)*6>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*12]
-   SQR_512_TRIANGLE_STEP   r12, r11,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(6+6)],<rsi+sizeof(qword)*6>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,r11,   ,   ,   ,  r10,[rdi+sizeof(qword)*(6+2)],{rsi+sizeof(qword)*6}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*9]
+   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,r13,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(6+3)],{rsi+sizeof(qword)*6}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*10]
+   SQR_512_TRIANGLE_STEP   r10,  r9, r8,r15,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(6+4)],{rsi+sizeof(qword)*6}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*11]
+   SQR_512_TRIANGLE_STEP   r11, r10, r9,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(6+5)],{rsi+sizeof(qword)*6}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*12]
+   SQR_512_TRIANGLE_STEP   r12, r11,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(6+6)],{rsi+sizeof(qword)*6}, rbx,rbp
 
    xor      rbx, rbx
-   mov      qword ptr[rdi+sizeof(qword)*(6+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(6+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(6+9)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(6+10)],r10
-   mov      qword ptr[rdi+sizeof(qword)*(6+11)],r11
-   mov      qword ptr[rdi+sizeof(qword)*(6+12)],r12
-   mov      qword ptr[rdi+sizeof(qword)*(6+13)],rbx
+   mov      qword [rdi+sizeof(qword)*(6+7)], r15
+   mov      qword [rdi+sizeof(qword)*(6+8)], r8
+   mov      qword [rdi+sizeof(qword)*(6+9)], r9
+   mov      qword [rdi+sizeof(qword)*(6+10)],r10
+   mov      qword [rdi+sizeof(qword)*(6+11)],r11
+   mov      qword [rdi+sizeof(qword)*(6+12)],r12
+   mov      qword [rdi+sizeof(qword)*(6+13)],rbx
 
    sub      rdi, sizeof(qword)*8
 
@@ -1405,15 +1557,16 @@ sqr_14 PROC PRIVATE
    sub      rsi, sizeof(qword)*(4*3)
    sub      rdi, sizeof(qword)*(8*3)
    ret
-sqr_14 ENDP
+ENDFUNC sqr_14
+
 
 ;;
 ;; 15*qword squarer
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr_15 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_15,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
@@ -1431,32 +1584,32 @@ sqr_15 PROC PRIVATE
    sub      rdi, sizeof(qword)*5
    sub      rcx, sizeof(qword)*5
 
-   mov      qword ptr[rdi+sizeof(qword)*(7+0)], r8
+   mov      qword [rdi+sizeof(qword)*(7+0)], r8
 
 ;  SQR_512_TRIANGLE_STEP     H,  p7, p6, p5, p4, p3, p2, p1, p0,  T, <dst>,<src>, rbx,rbp
 ;                          ------------------------------
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,r11,r10,   ,   ,  r9, [rdi+sizeof(qword)*(7+1)],<rsi+sizeof(qword)*7>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*9]
-   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,r13,r12,   ,   ,   ,  r10,[rdi+sizeof(qword)*(7+2)],<rsi+sizeof(qword)*7>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*10]
-   SQR_512_TRIANGLE_STEP   r10,  r9, r8,r15,r14,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(7+3)],<rsi+sizeof(qword)*7>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*11]
-   SQR_512_TRIANGLE_STEP   r11, r10, r9, r8,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(7+4)],<rsi+sizeof(qword)*7>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*12]
-   SQR_512_TRIANGLE_STEP   r12, r11,r10,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(7+5)],<rsi+sizeof(qword)*7>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*13]
-   SQR_512_TRIANGLE_STEP   r13, r12,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(7+6)],<rsi+sizeof(qword)*7>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,r11,r10,   ,   ,  r9, [rdi+sizeof(qword)*(7+1)],{rsi+sizeof(qword)*7}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*9]
+   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,r13,r12,   ,   ,   ,  r10,[rdi+sizeof(qword)*(7+2)],{rsi+sizeof(qword)*7}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*10]
+   SQR_512_TRIANGLE_STEP   r10,  r9, r8,r15,r14,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(7+3)],{rsi+sizeof(qword)*7}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*11]
+   SQR_512_TRIANGLE_STEP   r11, r10, r9, r8,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(7+4)],{rsi+sizeof(qword)*7}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*12]
+   SQR_512_TRIANGLE_STEP   r12, r11,r10,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(7+5)],{rsi+sizeof(qword)*7}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*13]
+   SQR_512_TRIANGLE_STEP   r13, r12,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(7+6)],{rsi+sizeof(qword)*7}, rbx,rbp
 
    xor      rbx, rbx
-   mov      qword ptr[rdi+sizeof(qword)*(7+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(7+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(7+9)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(7+10)],r10
-   mov      qword ptr[rdi+sizeof(qword)*(7+11)],r11
-   mov      qword ptr[rdi+sizeof(qword)*(7+12)],r12
-   mov      qword ptr[rdi+sizeof(qword)*(7+13)],r13
-   mov      qword ptr[rdi+sizeof(qword)*(7+14)],rbx
+   mov      qword [rdi+sizeof(qword)*(7+7)], r15
+   mov      qword [rdi+sizeof(qword)*(7+8)], r8
+   mov      qword [rdi+sizeof(qword)*(7+9)], r9
+   mov      qword [rdi+sizeof(qword)*(7+10)],r10
+   mov      qword [rdi+sizeof(qword)*(7+11)],r11
+   mov      qword [rdi+sizeof(qword)*(7+12)],r12
+   mov      qword [rdi+sizeof(qword)*(7+13)],r13
+   mov      qword [rdi+sizeof(qword)*(7+14)],rbx
 
    sub      rdi, sizeof(qword)*8
 
@@ -1474,16 +1627,17 @@ sqr_15 PROC PRIVATE
    sub      rsi, sizeof(qword)*(4*3)
    sub      rdi, sizeof(qword)*(8*3)
    ret
-sqr_15 ENDP
+ENDFUNC sqr_15
+
 
 ;;
 ;; 16*qword squarer
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr_16 PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr_16,PRIVATE
    call     sqr8_triangle
 
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
 
    mov      rcx, rsi
    add      rsi, sizeof(qword)*8
@@ -1510,15 +1664,15 @@ sqr_16 PROC PRIVATE
    call     sqr8_triangle
 
    xor      rbx, rbx
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
-   mov      qword ptr[rdi+sizeof(qword)*8], r8
-   mov      qword ptr[rdi+sizeof(qword)*9], r9
-   mov      qword ptr[rdi+sizeof(qword)*10],r10
-   mov      qword ptr[rdi+sizeof(qword)*11],r11
-   mov      qword ptr[rdi+sizeof(qword)*12],r12
-   mov      qword ptr[rdi+sizeof(qword)*13],r13
-   mov      qword ptr[rdi+sizeof(qword)*14],r14
-   mov      qword ptr[rdi+sizeof(qword)*15],rbx
+   mov      qword [rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*8], r8
+   mov      qword [rdi+sizeof(qword)*9], r9
+   mov      qword [rdi+sizeof(qword)*10],r10
+   mov      qword [rdi+sizeof(qword)*11],r11
+   mov      qword [rdi+sizeof(qword)*12],r12
+   mov      qword [rdi+sizeof(qword)*13],r13
+   mov      qword [rdi+sizeof(qword)*14],r14
+   mov      qword [rdi+sizeof(qword)*15],rbx
 
    sub      rsi, sizeof(qword)*8
    sub      rdi, sizeof(qword)*16
@@ -1537,16 +1691,17 @@ sqr_16 PROC PRIVATE
    sub      rsi, sizeof(qword)*12
    sub      rdi, sizeof(qword)*24
    ret
-sqr_16 ENDP
+ENDFUNC sqr_16
+
 
 
 ;;
 ;; 9*qword triangle
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr9_triangle PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr9_triangle,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
    xor      r15, r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
@@ -1554,260 +1709,267 @@ sqr9_triangle PROC PRIVATE
    call     mla_8x1
 
    xor      rax, rax
-   mov      qword ptr[rdi+sizeof(qword)*(1+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(1+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(1+2)], r10
-   mov      qword ptr[rdi+sizeof(qword)*(1+3)], r11
-   mov      qword ptr[rdi+sizeof(qword)*(1+4)], r12
-   mov      qword ptr[rdi+sizeof(qword)*(1+5)], r13
-   mov      qword ptr[rdi+sizeof(qword)*(1+6)], r14
-   mov      qword ptr[rdi+sizeof(qword)*(1+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(1+8)], rax
+   mov      qword [rdi+sizeof(qword)*(1+0)], r8
+   mov      qword [rdi+sizeof(qword)*(1+1)], r9
+   mov      qword [rdi+sizeof(qword)*(1+2)], r10
+   mov      qword [rdi+sizeof(qword)*(1+3)], r11
+   mov      qword [rdi+sizeof(qword)*(1+4)], r12
+   mov      qword [rdi+sizeof(qword)*(1+5)], r13
+   mov      qword [rdi+sizeof(qword)*(1+6)], r14
+   mov      qword [rdi+sizeof(qword)*(1+7)], r15
+   mov      qword [rdi+sizeof(qword)*(1+8)], rax
 
    sub      rdi, sizeof(qword)*8
    ret
-sqr9_triangle ENDP
+ENDFUNC sqr9_triangle
+
 
 ;;
 ;; 10*qword triangle
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr10_triangle PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr10_triangle,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
    xor      r15, r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
    call     mla_8x2
 
-   mov      qword ptr[rdi+sizeof(qword)*(2+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(2+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(2+2)], r10
-   mov      qword ptr[rdi+sizeof(qword)*(2+3)], r11
-   mov      qword ptr[rdi+sizeof(qword)*(2+4)], r12
-   mov      qword ptr[rdi+sizeof(qword)*(2+5)], r13
-   mov      qword ptr[rdi+sizeof(qword)*(2+6)], r14
+   mov      qword [rdi+sizeof(qword)*(2+0)], r8
+   mov      qword [rdi+sizeof(qword)*(2+1)], r9
+   mov      qword [rdi+sizeof(qword)*(2+2)], r10
+   mov      qword [rdi+sizeof(qword)*(2+3)], r11
+   mov      qword [rdi+sizeof(qword)*(2+4)], r12
+   mov      qword [rdi+sizeof(qword)*(2+5)], r13
+   mov      qword [rdi+sizeof(qword)*(2+6)], r14
 
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP  r8, r15, , , , , , , , , , <rsi+sizeof(qword)*2>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP  r8, r15, , , , , , , , , , {rsi+sizeof(qword)*2}, rbx,rbp
 
    xor      rax, rax
-   mov      qword ptr[rdi+sizeof(qword)*(2+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(2+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(2+9)], rax
+   mov      qword [rdi+sizeof(qword)*(2+7)], r15
+   mov      qword [rdi+sizeof(qword)*(2+8)], r8
+   mov      qword [rdi+sizeof(qword)*(2+9)], rax
 
    sub      rdi, sizeof(qword)*8
    ret
-sqr10_triangle ENDP
+ENDFUNC sqr10_triangle
+
 
 ;;
 ;; 11*qword triangle
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr11_triangle PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr11_triangle,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
    xor      r15, r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
    call     mla_8x3
 
-   mov      qword ptr[rdi+sizeof(qword)*(3+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(3+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(3+2)], r10
-   mov      qword ptr[rdi+sizeof(qword)*(3+3)], r11
-   mov      qword ptr[rdi+sizeof(qword)*(3+4)], r12
+   mov      qword [rdi+sizeof(qword)*(3+0)], r8
+   mov      qword [rdi+sizeof(qword)*(3+1)], r9
+   mov      qword [rdi+sizeof(qword)*(3+2)], r10
+   mov      qword [rdi+sizeof(qword)*(3+3)], r11
+   mov      qword [rdi+sizeof(qword)*(3+4)], r12
 
 ;  SQR_512_TRIANGLE_STEP     H,  p7, p6, p5, p4, p3, p2, p1, p0,  T, <dst>,<src>, rbx,rbp
 ;                          ------------------------------
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP    r8, r15,r14,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(3+5)],<rsi+sizeof(qword)*3>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*9]
-   SQR_512_TRIANGLE_STEP    r9,  r8,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(3+6)],<rsi+sizeof(qword)*3>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP    r8, r15,r14,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(3+5)],{rsi+sizeof(qword)*3}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*9]
+   SQR_512_TRIANGLE_STEP    r9,  r8,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(3+6)],{rsi+sizeof(qword)*3}, rbx,rbp
 
    xor      rax, rax
-   mov      qword ptr[rdi+sizeof(qword)*(3+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(3+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(3+9)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(3+10)],rax
+   mov      qword [rdi+sizeof(qword)*(3+7)], r15
+   mov      qword [rdi+sizeof(qword)*(3+8)], r8
+   mov      qword [rdi+sizeof(qword)*(3+9)], r9
+   mov      qword [rdi+sizeof(qword)*(3+10)],rax
 
    sub      rdi, sizeof(qword)*8
    ret
-sqr11_triangle ENDP
+ENDFUNC sqr11_triangle
+
 
 ;;
 ;; 12*qword triangle
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr12_triangle PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr12_triangle,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
    xor      r15, r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
    call     mla_8x4
 
-   mov      qword ptr[rdi+sizeof(qword)*(4+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(4+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(4+2)], r10
-   mov      qword ptr[rdi+sizeof(qword)*(4+3)], r11
+   mov      qword [rdi+sizeof(qword)*(4+0)], r8
+   mov      qword [rdi+sizeof(qword)*(4+1)], r9
+   mov      qword [rdi+sizeof(qword)*(4+2)], r10
+   mov      qword [rdi+sizeof(qword)*(4+3)], r11
 
 ;  SQR_512_TRIANGLE_STEP     H,  p7, p6, p5, p4, p3, p2, p1, p0,  T, <dst>,<src>, rbx,rbp
 ;                          ------------------------------
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(4+4)],<rsi+sizeof(qword)*4>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*9]
-   SQR_512_TRIANGLE_STEP    r9,  r8,r15,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(4+5)],<rsi+sizeof(qword)*4>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*10]
-   SQR_512_TRIANGLE_STEP   r10,  r9,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(4+6)],<rsi+sizeof(qword)*4>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(4+4)],{rsi+sizeof(qword)*4}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*9]
+   SQR_512_TRIANGLE_STEP    r9,  r8,r15,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(4+5)],{rsi+sizeof(qword)*4}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*10]
+   SQR_512_TRIANGLE_STEP   r10,  r9,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(4+6)],{rsi+sizeof(qword)*4}, rbx,rbp
 
    xor      rax, rax
-   mov      qword ptr[rdi+sizeof(qword)*(4+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(4+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(4+9)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(4+10)],r10
-   mov      qword ptr[rdi+sizeof(qword)*(4+11)],rax
+   mov      qword [rdi+sizeof(qword)*(4+7)], r15
+   mov      qword [rdi+sizeof(qword)*(4+8)], r8
+   mov      qword [rdi+sizeof(qword)*(4+9)], r9
+   mov      qword [rdi+sizeof(qword)*(4+10)],r10
+   mov      qword [rdi+sizeof(qword)*(4+11)],rax
 
    sub      rdi, sizeof(qword)*8
    ret
-sqr12_triangle ENDP
+ENDFUNC sqr12_triangle
+
 
 ;;
 ;; 13*qword triangle
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr13_triangle PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr13_triangle,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
    xor      r15, r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
    call     mla_8x5
 
-   mov      qword ptr[rdi+sizeof(qword)*(5+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(5+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(5+2)], r10
+   mov      qword [rdi+sizeof(qword)*(5+0)], r8
+   mov      qword [rdi+sizeof(qword)*(5+1)], r9
+   mov      qword [rdi+sizeof(qword)*(5+2)], r10
 
 ;  SQR_512_TRIANGLE_STEP     H,  p7, p6, p5, p4, p3, p2, p1, p0,  T, <dst>,<src>, rbx,rbp
 ;                          ------------------------------
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(5+3)],<rsi+sizeof(qword)*5>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*9]
-   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(5+4)],<rsi+sizeof(qword)*5>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*10]
-   SQR_512_TRIANGLE_STEP   r10,  r9, r8,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(5+5)],<rsi+sizeof(qword)*5>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*11]
-   SQR_512_TRIANGLE_STEP   r11, r10,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(5+6)],<rsi+sizeof(qword)*5>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(5+3)],{rsi+sizeof(qword)*5}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*9]
+   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(5+4)],{rsi+sizeof(qword)*5}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*10]
+   SQR_512_TRIANGLE_STEP   r10,  r9, r8,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(5+5)],{rsi+sizeof(qword)*5}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*11]
+   SQR_512_TRIANGLE_STEP   r11, r10,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(5+6)],{rsi+sizeof(qword)*5}, rbx,rbp
 
    xor      rax, rax
-   mov      qword ptr[rdi+sizeof(qword)*(5+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(5+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(5+9)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(5+10)],r10
-   mov      qword ptr[rdi+sizeof(qword)*(5+11)],r11
-   mov      qword ptr[rdi+sizeof(qword)*(5+12)],rax
+   mov      qword [rdi+sizeof(qword)*(5+7)], r15
+   mov      qword [rdi+sizeof(qword)*(5+8)], r8
+   mov      qword [rdi+sizeof(qword)*(5+9)], r9
+   mov      qword [rdi+sizeof(qword)*(5+10)],r10
+   mov      qword [rdi+sizeof(qword)*(5+11)],r11
+   mov      qword [rdi+sizeof(qword)*(5+12)],rax
 
    sub      rdi, sizeof(qword)*8
    ret
-sqr13_triangle ENDP
+ENDFUNC sqr13_triangle
+
 
 ;;
 ;; 14*qword triangle
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr14_triangle PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr14_triangle,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
    xor      r15, r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
    call     mla_8x6
 
-   mov      qword ptr[rdi+sizeof(qword)*(6+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(6+1)], r9
+   mov      qword [rdi+sizeof(qword)*(6+0)], r8
+   mov      qword [rdi+sizeof(qword)*(6+1)], r9
 
 ;  SQR_512_TRIANGLE_STEP     H,  p7, p6, p5, p4, p3, p2, p1, p0,  T, <dst>,<src>, rbx,rbp
 ;                          ------------------------------
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,r11,   ,   ,   ,  r10,[rdi+sizeof(qword)*(6+2)],<rsi+sizeof(qword)*6>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*9]
-   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,r13,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(6+3)],<rsi+sizeof(qword)*6>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*10]
-   SQR_512_TRIANGLE_STEP   r10,  r9, r8,r15,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(6+4)],<rsi+sizeof(qword)*6>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*11]
-   SQR_512_TRIANGLE_STEP   r11, r10, r9,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(6+5)],<rsi+sizeof(qword)*6>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*12]
-   SQR_512_TRIANGLE_STEP   r12, r11,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(6+6)],<rsi+sizeof(qword)*6>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,r11,   ,   ,   ,  r10,[rdi+sizeof(qword)*(6+2)],{rsi+sizeof(qword)*6}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*9]
+   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,r13,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(6+3)],{rsi+sizeof(qword)*6}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*10]
+   SQR_512_TRIANGLE_STEP   r10,  r9, r8,r15,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(6+4)],{rsi+sizeof(qword)*6}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*11]
+   SQR_512_TRIANGLE_STEP   r11, r10, r9,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(6+5)],{rsi+sizeof(qword)*6}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*12]
+   SQR_512_TRIANGLE_STEP   r12, r11,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(6+6)],{rsi+sizeof(qword)*6}, rbx,rbp
 
    xor      rax, rax
-   mov      qword ptr[rdi+sizeof(qword)*(6+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(6+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(6+9)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(6+10)],r10
-   mov      qword ptr[rdi+sizeof(qword)*(6+11)],r11
-   mov      qword ptr[rdi+sizeof(qword)*(6+12)],r12
-   mov      qword ptr[rdi+sizeof(qword)*(6+13)],rax
+   mov      qword [rdi+sizeof(qword)*(6+7)], r15
+   mov      qword [rdi+sizeof(qword)*(6+8)], r8
+   mov      qword [rdi+sizeof(qword)*(6+9)], r9
+   mov      qword [rdi+sizeof(qword)*(6+10)],r10
+   mov      qword [rdi+sizeof(qword)*(6+11)],r11
+   mov      qword [rdi+sizeof(qword)*(6+12)],r12
+   mov      qword [rdi+sizeof(qword)*(6+13)],rax
 
    sub      rdi, sizeof(qword)*8
    ret
-sqr14_triangle ENDP
+ENDFUNC sqr14_triangle
+
 
 ;;
 ;; 15*qword triangle
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr15_triangle PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr15_triangle,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
    xor      r15, r15
 
    lea      rcx, [rsi+sizeof(qword)*8]
    add      rdi, sizeof(qword)*8
    call     mla_8x7
 
-   mov      qword ptr[rdi+sizeof(qword)*(7+0)], r8
+   mov      qword [rdi+sizeof(qword)*(7+0)], r8
 
 ;  SQR_512_TRIANGLE_STEP     H,  p7, p6, p5, p4, p3, p2, p1, p0,  T, <dst>,<src>, rbx,rbp
 ;                          ------------------------------
-   mov      rdx, qword ptr[rsi+sizeof(qword)*8]
-   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,r11,r10,   ,   ,  r9, [rdi+sizeof(qword)*(7+1)],<rsi+sizeof(qword)*7>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*9]
-   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,r13,r12,   ,   ,   ,  r10,[rdi+sizeof(qword)*(7+2)],<rsi+sizeof(qword)*7>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*10]
-   SQR_512_TRIANGLE_STEP   r10,  r9, r8,r15,r14,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(7+3)],<rsi+sizeof(qword)*7>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*11]
-   SQR_512_TRIANGLE_STEP   r11, r10, r9, r8,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(7+4)],<rsi+sizeof(qword)*7>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*12]
-   SQR_512_TRIANGLE_STEP   r12, r11,r10,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(7+5)],<rsi+sizeof(qword)*7>, rbx,rbp
-   mov      rdx, qword ptr[rsi+sizeof(qword)*13]
-   SQR_512_TRIANGLE_STEP   r13, r12,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(7+6)],<rsi+sizeof(qword)*7>, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*8]
+   SQR_512_TRIANGLE_STEP    r8, r15,r14,r13,r12,r11,r10,   ,   ,  r9, [rdi+sizeof(qword)*(7+1)],{rsi+sizeof(qword)*7}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*9]
+   SQR_512_TRIANGLE_STEP    r9,  r8,r15,r14,r13,r12,   ,   ,   ,  r10,[rdi+sizeof(qword)*(7+2)],{rsi+sizeof(qword)*7}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*10]
+   SQR_512_TRIANGLE_STEP   r10,  r9, r8,r15,r14,   ,   ,   ,   ,  r11,[rdi+sizeof(qword)*(7+3)],{rsi+sizeof(qword)*7}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*11]
+   SQR_512_TRIANGLE_STEP   r11, r10, r9, r8,   ,   ,   ,   ,   ,  r12,[rdi+sizeof(qword)*(7+4)],{rsi+sizeof(qword)*7}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*12]
+   SQR_512_TRIANGLE_STEP   r12, r11,r10,   ,   ,   ,   ,   ,   ,  r13,[rdi+sizeof(qword)*(7+5)],{rsi+sizeof(qword)*7}, rbx,rbp
+   mov      rdx, qword [rsi+sizeof(qword)*13]
+   SQR_512_TRIANGLE_STEP   r13, r12,   ,   ,   ,   ,   ,   ,   ,  r14,[rdi+sizeof(qword)*(7+6)],{rsi+sizeof(qword)*7}, rbx,rbp
 
    xor      rax, rax
-   mov      qword ptr[rdi+sizeof(qword)*(7+7)], r15
-   mov      qword ptr[rdi+sizeof(qword)*(7+8)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(7+9)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(7+10)],r10
-   mov      qword ptr[rdi+sizeof(qword)*(7+11)],r11
-   mov      qword ptr[rdi+sizeof(qword)*(7+12)],r12
-   mov      qword ptr[rdi+sizeof(qword)*(7+13)],r13
-   mov      qword ptr[rdi+sizeof(qword)*(7+14)],rax
+   mov      qword [rdi+sizeof(qword)*(7+7)], r15
+   mov      qword [rdi+sizeof(qword)*(7+8)], r8
+   mov      qword [rdi+sizeof(qword)*(7+9)], r9
+   mov      qword [rdi+sizeof(qword)*(7+10)],r10
+   mov      qword [rdi+sizeof(qword)*(7+11)],r11
+   mov      qword [rdi+sizeof(qword)*(7+12)],r12
+   mov      qword [rdi+sizeof(qword)*(7+13)],r13
+   mov      qword [rdi+sizeof(qword)*(7+14)],rax
 
    sub      rdi, sizeof(qword)*8
    ret
-sqr15_triangle ENDP
+ENDFUNC sqr15_triangle
+
 
 ;;
 ;; 16*qword triangle
 ;;
-ALIGN IPP_ALIGN_FACTOR
-sqr16_triangle PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sqr16_triangle,PRIVATE
    call     sqr8_triangle
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*7], r15
    xor      r15, r15
 
    mov      rcx, rsi
@@ -1819,45 +1981,46 @@ sqr16_triangle PROC PRIVATE
    call     sqr8_triangle
 
    xor      rax, rax
-   mov      qword ptr[rdi+sizeof(qword)*7], r15
-   mov      qword ptr[rdi+sizeof(qword)*8], r8
-   mov      qword ptr[rdi+sizeof(qword)*9], r9
-   mov      qword ptr[rdi+sizeof(qword)*10],r10
-   mov      qword ptr[rdi+sizeof(qword)*11],r11
-   mov      qword ptr[rdi+sizeof(qword)*12],r12
-   mov      qword ptr[rdi+sizeof(qword)*13],r13
-   mov      qword ptr[rdi+sizeof(qword)*14],r14
-   mov      qword ptr[rdi+sizeof(qword)*15],rax
+   mov      qword [rdi+sizeof(qword)*7], r15
+   mov      qword [rdi+sizeof(qword)*8], r8
+   mov      qword [rdi+sizeof(qword)*9], r9
+   mov      qword [rdi+sizeof(qword)*10],r10
+   mov      qword [rdi+sizeof(qword)*11],r11
+   mov      qword [rdi+sizeof(qword)*12],r12
+   mov      qword [rdi+sizeof(qword)*13],r13
+   mov      qword [rdi+sizeof(qword)*14],r14
+   mov      qword [rdi+sizeof(qword)*15],rax
 
    sub      rsi, sizeof(qword)*8
    sub      rdi, sizeof(qword)*16
    ret
-sqr16_triangle ENDP
+ENDFUNC sqr16_triangle
 
-sqr_l_basic    DQ    sqr_1 - sqr_l_basic
-               DQ    sqr_2 - sqr_l_basic
-               DQ    sqr_3 - sqr_l_basic
-               DQ    sqr_4 - sqr_l_basic
-               DQ    sqr_5 - sqr_l_basic
-               DQ    sqr_6 - sqr_l_basic
-               DQ    sqr_7 - sqr_l_basic
-               DQ    sqr_8 - sqr_l_basic
-               DQ    sqr_9 - sqr_l_basic
-               DQ    sqr_10- sqr_l_basic
-               DQ    sqr_11- sqr_l_basic
-               DQ    sqr_12- sqr_l_basic
-               DQ    sqr_13- sqr_l_basic
-               DQ    sqr_14- sqr_l_basic
-               DQ    sqr_15- sqr_l_basic
-               DQ    sqr_16- sqr_l_basic
 
-sqrN_triangle  DQ    sqr9_triangle  - sqrN_triangle
-               DQ    sqr10_triangle - sqrN_triangle
-               DQ    sqr11_triangle - sqrN_triangle
-               DQ    sqr12_triangle - sqrN_triangle
-               DQ    sqr13_triangle - sqrN_triangle
-               DQ    sqr14_triangle - sqrN_triangle
-               DQ    sqr15_triangle - sqrN_triangle
-               DQ    sqr16_triangle - sqrN_triangle
+sqr_l_basic    dq    sqr_1 - sqr_l_basic
+               dq    sqr_2 - sqr_l_basic
+               dq    sqr_3 - sqr_l_basic
+               dq    sqr_4 - sqr_l_basic
+               dq    sqr_5 - sqr_l_basic
+               dq    sqr_6 - sqr_l_basic
+               dq    sqr_7 - sqr_l_basic
+               dq    sqr_8 - sqr_l_basic
+               dq    sqr_9 - sqr_l_basic
+               dq    sqr_10- sqr_l_basic
+               dq    sqr_11- sqr_l_basic
+               dq    sqr_12- sqr_l_basic
+               dq    sqr_13- sqr_l_basic
+               dq    sqr_14- sqr_l_basic
+               dq    sqr_15- sqr_l_basic
+               dq    sqr_16- sqr_l_basic
 
-ENDIF ;; _PCPBNSQR_BASIC_ADCX_INC_
+sqrN_triangle  dq    sqr9_triangle  - sqrN_triangle
+               dq    sqr10_triangle - sqrN_triangle
+               dq    sqr11_triangle - sqrN_triangle
+               dq    sqr12_triangle - sqrN_triangle
+               dq    sqr13_triangle - sqrN_triangle
+               dq    sqr14_triangle - sqrN_triangle
+               dq    sqr15_triangle - sqrN_triangle
+               dq    sqr16_triangle - sqrN_triangle
+
+%endif ;; _PCPBNSQR_BASIC_ADCX_INC_

@@ -38,13 +38,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     Internal Definitions of Block Cipher Tools
-// 
-// 
+//
+//
 */
 
 #if !defined(_CP_TOOL_H)
@@ -207,15 +207,15 @@ __INLINE int EquBlock(const void* pSrc1, const void* pSrc2, int len)
    const Ipp8u* p1 = (const Ipp8u*)pSrc1;
    const Ipp8u* p2 = (const Ipp8u*)pSrc2;
    int k;
-   int isEqu;
-   for(k=0, isEqu=1; k<len && isEqu; k++)
-      isEqu = (p1[k] == p2[k]);
-   return isEqu;
+   int isNotEqu;
+   for(k=0, isNotEqu=0; k<len; k++)
+      isNotEqu |= (p1[k]^p2[k]);
+   return !isNotEqu;
 }
 
 
-/* addition functions for CTR mode of diffenent block ciphers */
-/* const-exe-time version */
+/* addition (incrementation) functions for CTR mode of diffenent block ciphers */
+/* constant execution time version */
 __INLINE void StdIncrement(Ipp8u* pCounter, int blkBitSize, int numSize)
 {
    int maskPosition = (blkBitSize -numSize)/8;

@@ -38,23 +38,23 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Cipher function
-; 
+;
 ;     Content:
 ;        Encrypt_RIJ128_AES_NI()
-; 
 ;
-.686P
-.XMM
-.MODEL FLAT,C
+;
 
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
 ;***************************************************************
@@ -68,8 +68,8 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;*
 ;***************************************************************
 
-;IF (_IPP GE _IPP_P8) AND (_IPP LT _IPP_G9)
-IF (_IPP GE _IPP_P8)
+;%if (_IPP >= _IPP_P8) && (_IPP < _IPP_G9)
+%if (_IPP >= _IPP_P8)
 ;;
 ;; Lib = P8
 ;;
@@ -82,59 +82,61 @@ IF (_IPP GE _IPP_P8)
 ;; Caller = ippsDAARijndael128Final
 ;; Caller = ippsDAARijndael128MessageDigest
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM Encrypt_RIJ128_AES_NI PROC NEAR C PUBLIC \
-USES  esi edi,\
-pInpBlk:PTR DWORD,\    ; input  block address
-pOutBlk:PTR DWORD,\    ; output block address
-nr:DWORD,\             ; number of rounds
-pKey:PTR DWORD         ; key material address
+align IPP_ALIGN_FACTOR
+IPPASM Encrypt_RIJ128_AES_NI,PUBLIC
+  USES_GPR esi,edi
 
-SC equ   (4)
+%xdefine pInpBlk [esp + ARG_1 + 0*sizeof(dword)] ; input  block address
+%xdefine pOutBlk [esp + ARG_1 + 1*sizeof(dword)] ; output block address
+%xdefine nr      [esp + ARG_1 + 2*sizeof(dword)] ; number of rounds
+%xdefine pKey    [esp + ARG_1 + 3*sizeof(dword)] ; key material address
+
+%xdefine SC    (4)
 
    mov      esi,pInpBlk       ; input data address
    mov      ecx,pKey          ; key material address
    mov      eax,nr            ; number of rounds
    mov      edi,pOutBlk       ; output data address
 
-   movdqu   xmm0, oword ptr[esi] ; input block
-   pxor     xmm0, oword ptr[ecx] ; whitening
+   movdqu   xmm0, oword [esi] ; input block
+   pxor     xmm0, oword [ecx] ; whitening
 
    ; get actual address of key material: pRKeys += (nr-9) * SC
    lea      edx,[eax*4]
    lea      ecx,[ecx+edx*4-9*(SC)*4]; AES-128-keys
 
    cmp      eax,12            ; switch according to number of rounds
-   jl       key_128
-   jz       key_192
+   jl       .key_128
+   jz       .key_192
 
    ;;
    ;; regular rounds
    ;;
-key_256:
-   aesenc      xmm0,oword ptr[ecx-4*4*SC]
-   aesenc      xmm0,oword ptr[ecx-3*4*SC]
-key_192:
-   aesenc      xmm0,oword ptr[ecx-2*4*SC]
-   aesenc      xmm0,oword ptr[ecx-1*4*SC]
-key_128:
-   aesenc      xmm0,oword ptr[ecx+0*4*SC]
-   aesenc      xmm0,oword ptr[ecx+1*4*SC]
-   aesenc      xmm0,oword ptr[ecx+2*4*SC]
-   aesenc      xmm0,oword ptr[ecx+3*4*SC]
-   aesenc      xmm0,oword ptr[ecx+4*4*SC]
-   aesenc      xmm0,oword ptr[ecx+5*4*SC]
-   aesenc      xmm0,oword ptr[ecx+6*4*SC]
-   aesenc      xmm0,oword ptr[ecx+7*4*SC]
-   aesenc      xmm0,oword ptr[ecx+8*4*SC]
+.key_256:
+   aesenc      xmm0,oword [ecx-4*4*SC]
+   aesenc      xmm0,oword [ecx-3*4*SC]
+.key_192:
+   aesenc      xmm0,oword [ecx-2*4*SC]
+   aesenc      xmm0,oword [ecx-1*4*SC]
+.key_128:
+   aesenc      xmm0,oword [ecx+0*4*SC]
+   aesenc      xmm0,oword [ecx+1*4*SC]
+   aesenc      xmm0,oword [ecx+2*4*SC]
+   aesenc      xmm0,oword [ecx+3*4*SC]
+   aesenc      xmm0,oword [ecx+4*4*SC]
+   aesenc      xmm0,oword [ecx+5*4*SC]
+   aesenc      xmm0,oword [ecx+6*4*SC]
+   aesenc      xmm0,oword [ecx+7*4*SC]
+   aesenc      xmm0,oword [ecx+8*4*SC]
    ;;
    ;; last rounds
    ;;
-   aesenclast  xmm0,oword ptr[ecx+9*4*SC]
+   aesenclast  xmm0,oword [ecx+9*4*SC]
 
-   movdqu   oword ptr[edi], xmm0 ; output block
+   movdqu   oword [edi], xmm0 ; output block
 
+   REST_GPR
    ret
-IPPASM Encrypt_RIJ128_AES_NI ENDP
-ENDIF
-END
+ENDFUNC Encrypt_RIJ128_AES_NI
+%endif
+

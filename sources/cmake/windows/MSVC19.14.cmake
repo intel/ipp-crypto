@@ -43,13 +43,15 @@
 #
 
 # linker
-set(LINK_FLAG_STATIC_WINDOWS " ")
+set(LINK_FLAG_STATIC_WINDOWS "/ignore:4221") # ignore warnings about empty obj files
 # Suppresses the display of the copyright banner when the compiler starts up and display of informational messages during compiling.
 set(LINK_FLAG_DYNAMIC_WINDOWS "/nologo")
 # Displays information about modules that are incompatible with safe structured exception handling when /SAFESEH isn't specified.
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /VERBOSE:SAFESEH")
 # Disable incremental linking
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /INCREMENTAL:NO")
+# The /NODEFAULTLIB option tells the linker to remove one or more default libraries from the list of libraries it searches when resolving external references.
+set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /NODEFAULTLIB")
 # Indicates that an executable was tested to be compatible with the Windows Data Execution Prevention feature.
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /NXCOMPAT")
 # Specifies whether to generate an executable image that can be randomly rebased at load time.
@@ -57,11 +59,22 @@ set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /DYNAMICBASE")
 if(${ARCH} MATCHES "ia32")
   # When /SAFESEH is specified, the linker will only produce an image if it can also produce a table of the image's safe exception handlers.
   set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /SAFESEH")
+else()
+  # The /LARGEADDRESSAWARE option tells the linker that the application can handle addresses larger than 2 gigabytes.
+  set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /LARGEADDRESSAWARE")
+  # This option modifies the header of an executable image, a .dll file or .exe file, to indicate whether ASLR with 64-bit addresses is supported.
+  set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /HIGHENTROPYVA")
 endif(${ARCH} MATCHES "ia32")
 
-# Link to libc for debug purposes (printf, etc)
-set(LINK_LIB_STATIC_RELEASE libcmt)
-set(LINK_LIB_STATIC_DEBUG libcmtd)
+if (MSVC_VERSION LESS_EQUAL 1800) # VS2013
+  # Link to C runtime, used in dlls
+  set(LINK_LIB_STATIC_RELEASE libcmt)
+  set(LINK_LIB_STATIC_DEBUG libcmtd)
+else()
+  # Link to universal C runtime and MSVC runtime. Used in dlls.
+  set(LINK_LIB_STATIC_RELEASE libcmt libucrt libvcruntime)
+  set(LINK_LIB_STATIC_DEBUG libcmtd libucrtd libvcruntime)
+endif()
 
 # compiler
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LIBRARY_DEFINES}")
@@ -96,6 +109,8 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zl" CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2" CACHE STRING "" FORCE) # /Ob2 is included in /O2
 # No-debug macro
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /DNDEBUG" CACHE STRING "" FORCE)
+# Warnings = errors
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /WX" CACHE STRING "" FORCE)
 
 set(w7_opt "${w7_opt} /arch:SSE2")
 set(s8_opt "${s8_opt} /arch:SSE2")

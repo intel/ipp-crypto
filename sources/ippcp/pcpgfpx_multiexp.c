@@ -51,6 +51,7 @@
 #include "pcpbnumisc.h"
 #include "pcpgfpxstuff.h"
 #include "gsscramble.h"
+#include "pcpmask_ct.h"
 
 //tbcd: temporary excluded: #include <assert.h>
 
@@ -133,11 +134,14 @@ static void cpPrecomputeMultiExp(BNU_CHUNK_T* pTable, const BNU_CHUNK_T* ppA[], 
 
 static int cpGetMaxBitsizeExponent(const BNU_CHUNK_T* ppE[], int nsE[], int nItems)
 {
-   int n;
+   int n, tmp;
+   Ipp32u mask;
    /* find out the longest exponent */
    int expBitSize = BITSIZE_BNU(ppE[0], nsE[0]);
    for(n=1; n<nItems; n++) {
-      expBitSize = IPP_MAX(expBitSize, BITSIZE_BNU(ppE[n], nsE[n]));
+      tmp = BITSIZE_BNU(ppE[n], nsE[n]);
+      mask = (Ipp32u)cpIsMsb_ct((Ipp32s)(expBitSize - tmp));
+      expBitSize = (expBitSize & ~mask) | (tmp & mask);
    }
    return expBitSize;
 }

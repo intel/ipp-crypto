@@ -83,7 +83,7 @@ IPPFUN(IppStatus, ippsRSA_GetSizePrivateKeyType2,(int factorPbitSize, int factor
 {
    IPP_BAD_PTR1_RET(pKeySize);
    IPP_BADARG_RET((factorPbitSize<=0) || (factorQbitSize<=0), ippStsBadArgErr);
-   IPP_BADARG_RET((factorPbitSize < factorQbitSize), ippStsBadArgErr);
+   //25.09.2019 gres: IPP_BADARG_RET((factorPbitSize < factorQbitSize), ippStsBadArgErr);
    IPP_BADARG_RET((MIN_RSA_SIZE>(factorPbitSize+factorQbitSize) || (factorPbitSize+factorQbitSize)>MAX_RSA_SIZE), ippStsNotSupportedModeErr);
 
    *pKeySize = cpSizeof_RSA_privateKey2(factorPbitSize, factorQbitSize);

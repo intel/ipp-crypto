@@ -59,6 +59,9 @@
 #include "pcpaes_decrypt_vaes512.h"
 
 #if (_IPP32E>=_IPP32E_K0)
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#pragma warning(disable: 4310) // cast truncates constant value in MSVC
+#endif
 
 __INLINE __m512i produceInitial512Tweaks(Ipp8u* pTweak) {
    __ALIGN64 Ipp8u tempTweakBuffer[AES_BLK_SIZE * 4]; // 512 bit
@@ -69,7 +72,7 @@ __INLINE __m512i produceInitial512Tweaks(Ipp8u* pTweak) {
 __INLINE __m512i nextTweaks(__m512i tweak128x4, __m512i polyXor) {
    __m512i swapTweaks = _mm512_shuffle_epi32(tweak128x4, _MM_PERM_BADC);
 
-    __m512i highBits = _mm512_srai_epi64(swapTweaks, 63);
+   __m512i highBits = _mm512_srai_epi64(swapTweaks, 63);
    highBits = _mm512_and_epi64(polyXor, highBits);
    tweak128x4 = _mm512_slli_epi64(tweak128x4, 1);
    swapTweaks = _mm512_slli_epi64(swapTweaks, 1);

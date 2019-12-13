@@ -55,6 +55,9 @@
 #include "pcpaesauthgcm.h"
 
 #if (_IPP32E>=_IPP32E_K0)
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#pragma warning(disable: 4310) // cast truncates constant value in MSVC
+#endif
 
 /* The function calculates multiplication of two 2x128-bit polynomials C = A*B with
    polynomial reduction. 2 polynomials can be processed at one call.
@@ -176,6 +179,8 @@ void AesGcmMulGcm_vaes(Ipp8u* pGHash,
                        const Ipp8u* pHKey,
                        const void * pParam)
 {
+   IPP_UNREFERENCED_PARAMETER(pParam);
+
    __m128i ghash = _mm_maskz_loadu_epi64(0x03, pGHash);
    __m128i hkey  = _mm_maskz_loadu_epi64(0x03, pHKey + 16*3); // NB: hKey is at index 3 in the array
 
@@ -197,7 +202,7 @@ void AesGcmPrecompute_vaes(Ipp8u* const pHtbl,
    __m128i* pDst = (__m128i*)pHtbl;
 
    __m128i xmm0, xmm1;
-   __m256i ymm0, ymm1, ymm2, ymm3, ymm4, ymm5;
+   __m256i ymm0, ymm1, ymm3, ymm4, ymm5;
    __m512i zmm0, zmm1, zmm2;
 
    /* Load initial hKey = E_ctr(key,0^16) */

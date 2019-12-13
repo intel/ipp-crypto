@@ -38,314 +38,321 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  EM64T Cryptography Primitive.
-; 
-; 
+;
+;
 ;
 
-my_pclmulqdq   MACRO xxDst, xxSrc, xxOp
- IF (my_emulator EQ 0)
-   pclmulqdq   xxDst, xxSrc, xxOp
- ELSE
+%macro my_pclmulqdq 3.nolist
+  %xdefine %%xxDst %1
+  %xdefine %%xxSrc %2
+  %xdefine %%xxOp  %3
 
+  %if (my_emulator == 0)
+    pclmulqdq   %%xxDst, %%xxSrc, %%xxOp
+  %else
 ;;
 ;; rsp
 ;; registers <rax,rbx,rcx,rdx,rdi,rsi,rbp,r8,..,r15>
 ;; +00  => xxDst
 ;; +16  => xxSrc
 
-   pushf
-   push     rax
-   push     rbx
-   push     rcx
-   push     rdx
-   push     rdi
-   push     rsi
-   push     rbp
-   push     r8
-   push     r9
-   push     r10
-   push     r11
-   push     r12
-   push     r13
-   push     r14
-   push     r15
+    pushf
+    push     rax
+    push     rbx
+    push     rcx
+    push     rdx
+    push     rdi
+    push     rsi
+    push     rbp
+    push     r8
+    push     r9
+    push     r10
+    push     r11
+    push     r12
+    push     r13
+    push     r14
+    push     r15
 
-   stackSize = (sizeof(oword)*2)
-   sub      rsp,stackSize
+    %assign %%stackSize (sizeof(oword)*2)
+    sub      rsp,%%stackSize
 
-   movdqu   oword ptr [rsp+00], xxDST  ;; save Dst
-   movdqu   oword ptr [rsp+16], xxSrc  ;; save Src
+    movdqu   oword [rsp+00], %%xxDst  ;; save Dst
+    movdqu   oword [rsp+16], %%xxSrc  ;; save Src
 
-   lea      rcx, [rsp+00]
-   lea      rdx, [rsp+16]
-   mov      r8, xxOp
+    lea      rcx, [rsp+00]
+    lea      rdx, [rsp+16]
+    mov      r8, %%xxOp
 
-   sub      rsp, (sizeof(qword)*3)
-   call     emu_pclmulqdq
-   add      rsp, (sizeof(qword)*3)
+    sub      rsp, (sizeof(qword)*3)
+    call     emu_pclmulqdq
+    add      rsp, (sizeof(qword)*3)
 
-   movdqu   xxDst, oword ptr [rsp+00]  ;; return Dst
-  ;movdqu   xxSrc, oword ptr [rsp+16]  ;; return Src
-   add      esp, stackSize
+    movdqu   %%xxDst, oword [rsp+00]  ;; return Dst
+   ;movdqu   xxSrc, oword [rsp+16]  ;; return Src
+    add      esp, %%stackSize
 
-   pop      r15
-   pop      r14
-   pop      r13
-   pop      r12
-   pop      r11
-   pop      r10
-   pop      r9
-   pop      r8
-   pop      rbp
-   pop      rsi
-   pop      rdi
-   pop      rdx
-   pop      rcx
-   pop      rbx
-   pop      rax
-   popf
- ENDIF
-ENDM
+    pop      r15
+    pop      r14
+    pop      r13
+    pop      r12
+    pop      r11
+    pop      r10
+    pop      r9
+    pop      r8
+    pop      rbp
+    pop      rsi
+    pop      rdi
+    pop      rdx
+    pop      rcx
+    pop      rbx
+    pop      rax
+    popf
+  %endif
+%endmacro
 
-my_aesenc MACRO xxDst, xxSrc
-IF (my_emulator EQ 0)
-   aesenc xxDst, xxSRc
-ELSE
+%macro my_aesenc 2.nolist
+  %xdefine %%xxDst %1
+  %xdefine %%xxSrc %2
 
-   pushf
-   push     rax
-   push     rbx
-   push     rcx
-   push     rdx
-   push     rdi
-   push     rsi
-   push     rbp
-   push     r8
-   push     r9
-   push     r10
-   push     r11
-   push     r12
-   push     r13
-   push     r14
-   push     r15
+  %if (my_emulator == 0)
+    aesenc %%xxDst, %%xxSrc
+  %else
+    pushf
+    push     rax
+    push     rbx
+    push     rcx
+    push     rdx
+    push     rdi
+    push     rsi
+    push     rbp
+    push     r8
+    push     r9
+    push     r10
+    push     r11
+    push     r12
+    push     r13
+    push     r14
+    push     r15
 
-   stackSize = (sizeof(oword)*2)
-   sub      rsp,stackSize
+    %assign %%stackSize (sizeof(oword)*2)
+    sub      rsp,%%stackSize
 
-   movdqu   oword ptr [rsp+00], xxDST  ;; save Dst
-   movdqu   oword ptr [rsp+16], xxSrc  ;; save Src
+    movdqu   oword [rsp+00], %%xxDst  ;; save Dst
+    movdqu   oword [rsp+16], %%xxSrc  ;; save Src
 
-   lea      rcx, [rsp+00]
-   lea      rdx, [rsp+16]
+    lea      rcx, [rsp+00]
+    lea      rdx, [rsp+16]
 
-   sub      rsp, (sizeof(qword)*2)
-   call     emu_aesenc
-   add      rsp, (sizeof(qword)*2)
+    sub      rsp, (sizeof(qword)*2)
+    call     emu_aesenc
+    add      rsp, (sizeof(qword)*2)
 
-   movdqu   xxDst, oword ptr [rsp+00]  ;; return Dst
-   add      esp, stackSize
+    movdqu   %%xxDst, oword [rsp+00]  ;; return Dst
+    add      esp, %%stackSize
 
+    pop      r15
+    pop      r14
+    pop      r13
+    pop      r12
+    pop      r11
+    pop      r10
+    pop      r9
+    pop      r8
+    pop      rbp
+    pop      rsi
+    pop      rdi
+    pop      rdx
+    pop      rcx
+    pop      rbx
+    pop      rax
+    popf
+  %endif
+%endmacro
 
-   pop      r15
-   pop      r14
-   pop      r13
-   pop      r12
-   pop      r11
-   pop      r10
-   pop      r9
-   pop      r8
-   pop      rbp
-   pop      rsi
-   pop      rdi
-   pop      rdx
-   pop      rcx
-   pop      rbx
-   pop      rax
-   popf
-ENDIF
-ENDM
+%macro my_aesenclast 2.nolist
+  %xdefine %%xxDst %1
+  %xdefine %%xxSrc %2
 
-my_aesenclast MACRO xxDst, xxSrc
-IF (my_emulator EQ 0)
-   aesenclast xxDst, xxSRc
-ELSE
+  %if (my_emulator == 0)
+    aesenclast %%xxDst, %%xxSrc
+  %else
+    pushf
+    push     rax
+    push     rbx
+    push     rcx
+    push     rdx
+    push     rdi
+    push     rsi
+    push     rbp
+    push     r8
+    push     r9
+    push     r10
+    push     r11
+    push     r12
+    push     r13
+    push     r14
+    push     r15
 
-   pushf
-   push     rax
-   push     rbx
-   push     rcx
-   push     rdx
-   push     rdi
-   push     rsi
-   push     rbp
-   push     r8
-   push     r9
-   push     r10
-   push     r11
-   push     r12
-   push     r13
-   push     r14
-   push     r15
+    %assign %%stackSize (sizeof(oword)*2)
+    sub      rsp,%%stackSize
 
-   stackSize = (sizeof(oword)*2)
-   sub      rsp,stackSize
+    movdqu   oword [rsp+00], %%xxDst  ;; save Dst
+    movdqu   oword [rsp+16], %%xxSrc  ;; save Src
 
-   movdqu   oword ptr [rsp+00], xxDST  ;; save Dst
-   movdqu   oword ptr [rsp+16], xxSrc  ;; save Src
+    lea      rcx, [rsp+00]
+    lea      rdx, [rsp+16]
 
-   lea      rcx, [rsp+00]
-   lea      rdx, [rsp+16]
+    sub      rsp, (sizeof(qword)*2)
+    call     emu_aesenclast
+    add      rsp, (sizeof(qword)*2)
 
-   sub      rsp, (sizeof(qword)*2)
-   call     emu_aesenclast
-   add      rsp, (sizeof(qword)*2)
+    movdqu   %%xxDst, oword [rsp+00]  ;; return Dst
+    add      esp, %%stackSize
 
-   movdqu   xxDst, oword ptr [rsp+00]  ;; return Dst
-   add      esp, stackSize
+    pop      r15
+    pop      r14
+    pop      r13
+    pop      r12
+    pop      r11
+    pop      r10
+    pop      r9
+    pop      r8
+    pop      rbp
+    pop      rsi
+    pop      rdi
+    pop      rdx
+    pop      rcx
+    pop      rbx
+    pop      rax
+    popf
+  %endif
+%endmacro
 
+%macro my_aesdec 2.nolist
+  %xdefine %%xxDst %1
+  %xdefine %%xxSrc %2
 
-   pop      r15
-   pop      r14
-   pop      r13
-   pop      r12
-   pop      r11
-   pop      r10
-   pop      r9
-   pop      r8
-   pop      rbp
-   pop      rsi
-   pop      rdi
-   pop      rdx
-   pop      rcx
-   pop      rbx
-   pop      rax
-   popf
-ENDIF
-ENDM
+  %if (my_emulator == 0)
+    aesdec %%xxDst, %%xxSrc
+  %else
+    pushf
+    push     rax
+    push     rbx
+    push     rcx
+    push     rdx
+    push     rdi
+    push     rsi
+    push     rbp
+    push     r8
+    push     r9
+    push     r10
+    push     r11
+    push     r12
+    push     r13
+    push     r14
+    push     r15
 
-my_aesdec MACRO xxDst, xxSrc
-IF (my_emulator EQ 0)
-   aesdec xxDst, xxSRc
-ELSE
+    %assign %%stackSize (sizeof(oword)*2)
+    sub      rsp,%%stackSize
 
-   pushf
-   push     rax
-   push     rbx
-   push     rcx
-   push     rdx
-   push     rdi
-   push     rsi
-   push     rbp
-   push     r8
-   push     r9
-   push     r10
-   push     r11
-   push     r12
-   push     r13
-   push     r14
-   push     r15
+    movdqu   oword [rsp+00], %%xxDst  ;; save Dst
+    movdqu   oword [rsp+16], %%xxSrc  ;; save Src
 
-   stackSize = (sizeof(oword)*2)
-   sub      rsp,stackSize
+    lea      rcx, [rsp+00]
+    lea      rdx, [rsp+16]
 
-   movdqu   oword ptr [rsp+00], xxDST  ;; save Dst
-   movdqu   oword ptr [rsp+16], xxSrc  ;; save Src
+    sub      rsp, (sizeof(qword)*2)
+    call     emu_aesdec
+    add      rsp, (sizeof(qword)*2)
 
-   lea      rcx, [rsp+00]
-   lea      rdx, [rsp+16]
+    movdqu   %%xxDst, oword [rsp+00]  ;; return Dst
+    add      esp, %%stackSize
 
-   sub      rsp, (sizeof(qword)*2)
-   call     emu_aesdec
-   add      rsp, (sizeof(qword)*2)
+    pop      r15
+    pop      r14
+    pop      r13
+    pop      r12
+    pop      r11
+    pop      r10
+    pop      r9
+    pop      r8
+    pop      rbp
+    pop      rsi
+    pop      rdi
+    pop      rdx
+    pop      rcx
+    pop      rbx
+    pop      rax
+    popf
+  %endif
+%endmacro
 
-   movdqu   xxDst, oword ptr [rsp+00]  ;; return Dst
-   add      esp, stackSize
+%macro my_aesdeclast 2.nolist
+  %xdefine %%xxDst %1
+  %xdefine %%xxSrc %2
 
+  %if (my_emulator == 0)
+    aesenclast %%xxDst, %%xxSrc
+  %else
+    pushf
+    push     rax
+    push     rbx
+    push     rcx
+    push     rdx
+    push     rdi
+    push     rsi
+    push     rbp
+    push     r8
+    push     r9
+    push     r10
+    push     r11
+    push     r12
+    push     r13
+    push     r14
+    push     r15
 
-   pop      r15
-   pop      r14
-   pop      r13
-   pop      r12
-   pop      r11
-   pop      r10
-   pop      r9
-   pop      r8
-   pop      rbp
-   pop      rsi
-   pop      rdi
-   pop      rdx
-   pop      rcx
-   pop      rbx
-   pop      rax
-   popf
-ENDIF
-ENDM
+    %assign %%stackSize (sizeof(oword)*2)
+    sub      rsp,%%stackSize
 
-my_aesdeclast MACRO xxDst, xxSrc
-IF (my_emulator EQ 0)
-   aesenclast xxDst, xxSRc
-ELSE
+    movdqu   oword [rsp+00], %%xxDst  ;; save Dst
+    movdqu   oword [rsp+16], %%xxSrc  ;; save Src
 
-   pushf
-   push     rax
-   push     rbx
-   push     rcx
-   push     rdx
-   push     rdi
-   push     rsi
-   push     rbp
-   push     r8
-   push     r9
-   push     r10
-   push     r11
-   push     r12
-   push     r13
-   push     r14
-   push     r15
+    lea      rcx, [rsp+00]
+    lea      rdx, [rsp+16]
 
-   stackSize = (sizeof(oword)*2)
-   sub      rsp,stackSize
+    sub      rsp, (sizeof(qword)*2)
+    call     emu_aesdeclast
+    add      rsp, (sizeof(qword)*2)
 
-   movdqu   oword ptr [rsp+00], xxDST  ;; save Dst
-   movdqu   oword ptr [rsp+16], xxSrc  ;; save Src
+    movdqu   %%xxDst, oword [rsp+00]  ;; return Dst
+    add      esp, %%stackSize
 
-   lea      rcx, [rsp+00]
-   lea      rdx, [rsp+16]
+    pop      r15
+    pop      r14
+    pop      r13
+    pop      r12
+    pop      r11
+    pop      r10
+    pop      r9
+    pop      r8
+    pop      rbp
+    pop      rsi
+    pop      rdi
+    pop      rdx
+    pop      rcx
+    pop      rbx
+    pop      rax
+    popf
+  %endif
+%endmacro
 
-   sub      rsp, (sizeof(qword)*2)
-   call     emu_aesdeclast
-   add      rsp, (sizeof(qword)*2)
-
-   movdqu   xxDst, oword ptr [rsp+00]  ;; return Dst
-   add      esp, stackSize
-
-
-   pop      r15
-   pop      r14
-   pop      r13
-   pop      r12
-   pop      r11
-   pop      r10
-   pop      r9
-   pop      r8
-   pop      rbp
-   pop      rsi
-   pop      rdi
-   pop      rdx
-   pop      rcx
-   pop      rbx
-   pop      rax
-   popf
-ENDIF
-ENDM
-
- IF (my_emulator NE 0)
-extern emu_pclmulqdq:   proc
-extern emu_aesenc:      proc
-extern emu_aesenclast:  proc
-extern emu_aesdec:      proc
-extern emu_aesdeclast:  proc
-ENDIF
+%if (my_emulator != 0)
+  extern emu_pclmulqdq
+  extern emu_aesenc
+  extern emu_aesenclast
+  extern emu_aesdec
+  extern emu_aesdeclast
+%endif

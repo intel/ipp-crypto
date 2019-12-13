@@ -46,10 +46,6 @@ include (GenerateExportHeader)
 
 set(TARGET_NAME ${LIB_NAME})
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/tools/toolsSpecific.cmake" AND NOT (${CMAKE_C_COMPILER_ID} STREQUAL "GNU") AND NOT(${CMAKE_C_COMPILER_ID} STREQUAL "AppleClang"))
-  include("${CMAKE_SOURCE_DIR}/tools/toolsSpecific.cmake")
-endif()
-
 #Set platform list
 if (NOT MERGED_BLD)
   if(${ARCH} MATCHES "ia32")
@@ -100,10 +96,27 @@ if(PLATFORM_LIST)
     if (PLATFORM_LIST STREQUAL "")
       message (FATAL_ERROR "PLATFORM_LIST cannot be empty")
     endif(PLATFORM_LIST STREQUAL "")
+    message (STATUS "Platform list ......................... " ${PLATFORM_LIST})
   else()
     message (FATAL_ERROR "PLATFORM_LIST cannot be set, when MERGED_BLD is on")
   endif(NOT MERGED_BLD)
 endif()
+
+# Platform-specific definitions
+set(px_def "_PX")
+set(w7_def "_W7")
+set(s8_def "_S8")
+set(p8_def "_P8")
+set(g9_def "_G9")
+set(h9_def "_H9")
+set(mx_def "_PX")
+set(m7_def "_M7")
+set(n8_def "_N8")
+set(y8_def "_Y8")
+set(e9_def "_E9")
+set(l9_def "_L9")
+set(n0_def "_N0")
+set(k0_def "_K0")
 
 if(NOT PLATFORM_LIST)
   set(PLATFORM_LIST ${BASE_PLATFORM_LIST})
@@ -112,22 +125,6 @@ endif()
 if (NOT MERGED_BLD)
   set(PLATFORM_LIST ${PLATFORM_LIST} PARENT_SCOPE)
 endif(NOT MERGED_BLD)
-
-# defines a specific optimization to build
-set(px_opt "-D_PX")
-set(w7_opt "-D_W7")
-set(s8_opt "-D_S8")
-set(p8_opt "-D_P8")
-set(g9_opt "-D_G9")
-set(h9_opt "-D_H9")
-set(mx_opt "-D_PX")
-set(m7_opt "-D_M7")
-set(n8_opt "-D_N8")
-set(y8_opt "-D_Y8")
-set(e9_opt "-D_E9")
-set(l9_opt "-D_L9")
-set(n0_opt "-D_N0")
-set(k0_opt "-D_K0")
 
 # define defaults for every supported compiler
 set(DEFAULT_Intel_COMPILER_VER 19.0.0)
@@ -154,7 +151,7 @@ else()
 endif()
 
 # common build options and ${OS_DEFAULT_COMPILER}
-include("${CMAKE_SOURCE_DIR}/sources/cmake/${OS_STRING}/common.cmake")
+include("${IPP_CRYPTO_DIR}/sources/cmake/${OS_STRING}/common.cmake")
 
 if(("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC") AND (CMAKE_C_COMPILER_VERSION VERSION_LESS DEFAULT_MSVC_COMPILER_VER))
   message(FATAL_ERROR "Microsoft Visual C++ Compiler version must be 19.14 or higher (MSVC 19.14 or higher)")
@@ -164,6 +161,7 @@ if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") AND (CMAKE_C_COMPILER_VERSION VERSI
   message(FATAL_ERROR "GNU C Compiler version must be 8.2 or higher")
 endif()
 
+# Compiler options file
 set(COMPILER_OPTIONS_FILE "${CMAKE_SOURCE_DIR}/sources/cmake/${OS_STRING}")
 if (EXISTS "${COMPILER_OPTIONS_FILE}/${CMAKE_C_COMPILER_ID}${CMAKE_C_COMPILER_VERSION_SHORT}.cmake")
   set(COMPILER_OPTIONS_FILE "${COMPILER_OPTIONS_FILE}/${CMAKE_C_COMPILER_ID}${CMAKE_C_COMPILER_VERSION_SHORT}.cmake")
@@ -182,107 +180,17 @@ else()
     set(COMPILER_OPTIONS_FILE "${COMPILER_OPTIONS_FILE}/${CMAKE_C_COMPILER_ID}${DEFAULT_${CMAKE_C_COMPILER_ID}${CMAKE_C_COMPILER_VERSION_MAJOR}_COMPILER_VER}.cmake")
   endif()
 endif()
-
 message (STATUS "Using compiler options from ........... " ${COMPILER_OPTIONS_FILE})
 
-file(GLOB_RECURSE HEADERS
-    ${IPP_CRYPTO_SOURCES_DIR}/*.h
-    ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}/*.h
-    ${IPP_CRYPTO_INCLUDE_DIR}/ippcp*.h
-   )
-
-file(GLOB_RECURSE SOURCES
-    ${IPP_CRYPTO_SOURCES_DIR}/*.c
-   )
-
-if(WIN32)
-  file(GLOB_RECURSE ASM_SOURCES
-      ${IPP_CRYPTO_SOURCES_DIR}/asm_${ARCH}/*.asm
-  )
-else()
-  if(APPLE)
-      set(ASM_PLAT_ARCH_PATH ${IPP_CRYPTO_SOURCES_DIR}/asm_${ARCH}_gas_converted/macosx)
-  else()
-    if(NONPIC_LIB)
-      set(ASM_PLAT_ARCH_PATH ${IPP_CRYPTO_SOURCES_DIR}/asm_${ARCH}_gas_converted/linux/nonpic)
-    else()
-      set(ASM_PLAT_ARCH_PATH ${IPP_CRYPTO_SOURCES_DIR}/asm_${ARCH}_gas_converted/linux/pic)
-    endif()
-  endif()
-endif(WIN32)
-
-file(GLOB_RECURSE TEST_SOURCES
-    ${IPP_CRYPTO_TEST_DIR}/interface/*.cpp
-  )
-
-
-set(INTERNAL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include/autogen)
-
-if(${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
-  if(NOT ANDROID)
-    include_directories(
-        ${IPP_CRYPTO_SOURCES_DIR}
-        ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}
-        ${IPP_CRYPTO_INCLUDE_DIR}
-        $ENV{ROOT}/compiler/include
-        $ENV{ROOT}/compiler/include/icc
-        $ENV{INCLUDE}
-        ${INTERNAL_INCLUDE_DIR}
-      )
-  else()
-    include_directories(
-        ${IPP_CRYPTO_SOURCES_DIR}
-        ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}
-        ${IPP_CRYPTO_INCLUDE_DIR}
-        $ENV{ANDROID_GNU_X86_TOOLCHAIN}/include
-        $ENV{ANDROID_SYSROOT}/usr/include
-        $ENV{ANDROID_NDK_ROOT}/sources/cxx-stl/stlport/stlport
-        ${INTERNAL_INCLUDE_DIR}
-      )
-  endif()
-elseif(MSVC_IDE)
-  include_directories(
-      ${IPP_CRYPTO_SOURCES_DIR}
-      ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}
-      ${IPP_CRYPTO_INCLUDE_DIR}/
-      $ENV{INCLUDE}
-      ${CMAKE_SYSTEM_INCLUDE_PATH}
-      ${INTERNAL_INCLUDE_DIR}
-    )
-else()
-  include_directories(
-    ${IPP_CRYPTO_SOURCES_DIR}
-    ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}
-    ${IPP_CRYPTO_INCLUDE_DIR}
-    ${CMAKE_SYSTEM_INCLUDE_PATH}
-    ${INTERNAL_INCLUDE_DIR}
-    )
+# Assembler options
+# Note: do not move this initialization after LIBRARY_DEFINES extension
+set(CMAKE_USER_MAKE_RULES_OVERRIDE_ASM "${IPP_CRYPTO_DIR}/sources/cmake/CMakeASM_NASMOptions.txt")
+enable_language(ASM_NASM)
+if(NOT CMAKE_ASM_NASM_COMPILER_LOADED)
+  message(FATAL_ERROR "Can't find assembler")
 endif()
-
-if(WIN32)
-  set(can_use_assembler FALSE)
-  enable_language(ASM_MASM)
-  if(CMAKE_ASM_MASM_COMPILER_WORKS)
-    set(can_use_assembler TRUE)
-  else()
-    message(FATAL_ERROR "Can't find assembler")
-  endif()
-else()
-  set(can_use_assembler FALSE)
-  if(USEYASM)
-    set(CMAKE_ASM-ATT_COMPILER "${USEYASM}")
-  endif(USEYASM)
-  enable_language(ASM-ATT)
-  if(CMAKE_ASM-ATT_COMPILER_WORKS)
-    set(can_use_assembler TRUE)
-  else()
-    message(FATAL_ERROR "Can't find assembler")
-  endif()
-endif(WIN32)
-
-# LIBRARY_DEFINES will be appended to CMAKE_C_FLAGS
-# _IPP_DEBUG - enable bad argument checks
-set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D_IPP_DEBUG")
+message(STATUS "ASM compiler version .................. " ${CMAKE_ASM_NASM_COMPILER})
+message(STATUS "ASM object format ..................... " ${CMAKE_ASM_NASM_OBJECT_FORMAT})
 
 # set Intel(R) IPP revision, if required
 if(IPP_REVISION)
@@ -290,57 +198,20 @@ if(IPP_REVISION)
   set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPP_REVISION=${IPP_REVISION}")
 endif()
 
+set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D_NO_IPP_DEPRECATED") # do not warn about ippcp deprecated functions
+
+# Necessary definitions for rsa_ifma library  
+if ("${ARCH}" STREQUAL "intel64")
+	set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DBN_OPENSSL_DISABLE")
+	set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIFMA_IPPCP_BUILD")
+endif()
+
 include(${COMPILER_OPTIONS_FILE}) # uses ${CMAKE_C_FLAGS} ${LIBRARY_DEFINES} ${<letter>opt} from the scope
-
-if(UNIX AND ARCH MATCHES "ia32")
-  if(NOT APPLE)
-    set(ASMOPTS "--32")
-  elseif(NOT USEYASM)
-    set(ASMOPTS "-arch i386")
-  endif(NOT APPLE)
-endif(UNIX AND ARCH MATCHES "ia32")
-
-if(UNIX)
-  set(CMAKE_ASM-ATT_COMPILE_OBJECT "<CMAKE_ASM-ATT_COMPILER> <SOURCE> ${ASMOPTS} -o <OBJECT>")
-  if(APPLE)
-    if(USEYASM STREQUAL "")
-      set(CMAKE_ASM-ATT_COMPILE_OBJECT "<CMAKE_ASM-ATT_COMPILER> <SOURCE> -q ${ASMOPTS} -o <OBJECT> -xassembler")
-    else()
-      if(${ARCH} MATCHES "ia32")
-        set(CMAKE_ASM-ATT_COMPILE_OBJECT "<CMAKE_ASM-ATT_COMPILER> ${ASMOPTS} -o <OBJECT> -pgas -fmacho32 -mx86 -ax86 <SOURCE>")
-      else()
-        set(CMAKE_ASM-ATT_COMPILE_OBJECT "<CMAKE_ASM-ATT_COMPILER> ${ASMOPTS} -o <OBJECT> -pgas -fmacho64 -mamd64 -ax86 <SOURCE>")
-      endif(${ARCH} MATCHES "ia32")
-    endif(USEYASM STREQUAL "")
-  endif(APPLE)
-endif(UNIX)
 
 if(UNIX)
   set(CMAKE_C_CREATE_SHARED_LIBRARY "<CMAKE_C_COMPILER> <CMAKE_SHARED_LIBRARY_C_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> ${LIB_EXPORT_FILE} <CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
   set(CMAKE_CXX_CREATE_SHARED_LIBRARY "<CMAKE_CXX_COMPILER> <CMAKE_SHARED_LIBRARY_CXX_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> ${LIB_EXPORT_FILE} <CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
 endif(UNIX)
-
-if(WIN32)
-  # Preserves case in public and extern symbols.
-  set(ADD_ASMOPTS "/Cx")
-  if(${ARCH} MATCHES "ia32")
-    # Generates common object file format (COFF) type of object module. Generally required for Win32 assembly language development.
-    # When /SAFESEH is specified, the linker will only produce an image if it can also produce a table of the image's safe exception handlers. 
-    set(ADD_ASMOPTS "${ADD_ASMOPTS} /coff /safeseh")
-  else(${ARCH} MATCHES "ia32")
-    set(ADD_ASMOPTS "${ADD_ASMOPTS} /D_WIN64")
-  endif(${ARCH} MATCHES "ia32")
-
-  foreach(srcfile ${ASM_SOURCES})
-    if(${srcfile} MATCHES ".*asm")
-      set_source_files_properties(${srcfile} PROPERTIES COMPILE_FLAGS ${ADD_ASMOPTS})
-    endif()
-  endforeach()
-endif(WIN32)
-
-if(WIN32)
-  set(CMAKE_ASM_MASM_COMPILE_OBJECT "<CMAKE_ASM_MASM_COMPILER> ${ADD_ASMOPTS} <DEFINES> <INCLUDES> /c  /Fo <OBJECT> <SOURCE>")
-endif(WIN32)
 
 set(THREAD_SUFFIX  "st"  PARENT_SCOPE)
 
@@ -349,46 +220,110 @@ if(NOT MERGED_BLD)
   set(IPPCP_LIB_DYNAMIC "")
 endif(NOT MERGED_BLD)
 
+file(GLOB HEADERS
+    ${IPP_CRYPTO_SOURCES_DIR}/*.h
+    ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}/*.h
+    ${IPP_CRYPTO_INCLUDE_DIR}/ippcp*.h
+   )
+
+file(GLOB SOURCES
+    ${IPP_CRYPTO_SOURCES_DIR}/*.c
+   )
+
+# generate ifma source files and add ifma- sources and headers
+if ("${ARCH}" STREQUAL "intel64")
+  include("${IPP_CRYPTO_SOURCES_DIR}/ifma_rsa_mb/ifma_sources_generation.cmake")
+  
+  file(GLOB IFMA_HEADERS
+  ${IPP_CRYPTO_SOURCES_DIR}/ifma_rsa_mb/include/rsa_ifma/*.h
+  ${IPP_CRYPTO_SOURCES_DIR}/ifma_rsa_mb/include/internal/*.h
+  )
+
+  file(GLOB IFMA_SOURCES
+      ${CMAKE_BINARY_DIR}/sources/ippcp/ifma_rsa_mb/gen/*.c
+      ${IPP_CRYPTO_SOURCES_DIR}/ifma_rsa_mb/src/*.c
+  )
+
+  set(SOURCES ${SOURCES} ${IFMA_SOURCES})
+  set(HEADERS ${HEADERS} ${IFMA_HEADERS})
+endif()
+
+# Because of CMake bug (https://gitlab.kitware.com/cmake/cmake/issues/19178) it is impossible to add
+# target specific NASM compiler options/definitions when using VS generator, but it is possible to specify
+# them based on source files. So, here is the workaround - we spawn same assembler sources across different
+# platform-specific directories and assign different definitions for each directory using set_source_files_properties().
+file(GLOB ASM_SOURCES_ORIGINAL
+        ${IPP_CRYPTO_SOURCES_DIR}/asm_${ARCH}/*.asm
+    )
+foreach(opt ${PLATFORM_LIST})
+    set(asm_cache_dir "${CMAKE_BINARY_DIR}/asm_sources/${opt}/asm_${ARCH}")
+    file(MAKE_DIRECTORY ${asm_cache_dir})
+    # Prefer configure_file() over simple file(COPY) as it creates dependencies, so that cmake project
+    # will be regenerated each time when any original file is changed. This is needed to keep all copied files up-to-date.
+    foreach (file ${ASM_SOURCES_ORIGINAL})
+        configure_file(${file} ${asm_cache_dir} COPYONLY)
+    endforeach()
+    file (GLOB ASM_SOURCES_${opt}
+        ${asm_cache_dir}/*.asm
+    )
+endforeach()
+
+file(GLOB TEST_SOURCES
+    ${IPP_CRYPTO_TEST_DIR}/interface/*.cpp
+  )
+
+set(INTERNAL_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include/autogen)
+
+set (C_INCLUDE_DIRECTORIES
+    ${IPP_CRYPTO_SOURCES_DIR}
+    ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}
+    ${IPP_CRYPTO_INCLUDE_DIR}
+    ${INTERNAL_INCLUDE_DIR}
+	${IPP_CRYPTO_SOURCES_DIR}/ifma_rsa_mb/include/rsa_ifma
+    ${IPP_CRYPTO_SOURCES_DIR}/ifma_rsa_mb/include/internal
+    $<$<C_COMPILER_ID:Intel>:$ENV{ROOT}/compiler/include $ENV{ROOT}/compiler/include/icc>
+    $<$<NOT:$<C_COMPILER_ID:Intel>>:${CMAKE_SYSTEM_INCLUDE_PATH}>
+    $<$<OR:$<C_COMPILER_ID:Intel>,$<BOOL:${MSVC_IDE}>>:$ENV{INCLUDE}>
+    )
+
+set (ASM_INCLUDE_DIRECTORIES
+    ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}
+    ${IPP_CRYPTO_SOURCES_DIR}/asm_${ARCH}
+    )
+
+# Generate single-CPU headers
 if(MERGED_BLD)
   foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
     set(ONE_CPU_FOLDER ${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include/autogen)
-    set(ONE_CPU_GENERATOR  ${CMAKE_SOURCE_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_1cpu_header.py)
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} ${ONE_CPU_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${ONE_CPU_FOLDER})
+    set(ONE_CPU_GENERATOR   ${IPP_CRYPTO_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_1cpu_header.py)
+    execute_process(COMMAND ${Python_EXECUTABLE} ${ONE_CPU_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${ONE_CPU_FOLDER})
   endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
-  set(INTERNAL_GENERATOR  ${CMAKE_SOURCE_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_header.py)
-  execute_process(COMMAND ${PYTHON_EXECUTABLE} ${INTERNAL_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${INTERNAL_INCLUDE_DIR})
+  set(INTERNAL_GENERATOR  ${IPP_CRYPTO_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_header.py)
+  execute_process(COMMAND ${Python_EXECUTABLE} ${INTERNAL_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${INTERNAL_INCLUDE_DIR})
   set(HEADERS ${HEADERS} ${INTERNAL_INCLUDE_DIR}/ippcp_cpuspc.h)
 endif(MERGED_BLD)
 
+# Copy public headers to the output directory
 foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
-   string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )  
+   string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
    file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
    file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippcpdefs.h DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
-   file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippversion.h DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")  
+   file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippversion.h DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
 endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
-
-
-set(ADD_CPINITAS_MERGEDSTATIC on)
+set_source_files_properties(${SOURCES} pcpver.rc PROPERTIES INCLUDE_DIRECTORIES "${C_INCLUDE_DIRECTORIES}")
 
 foreach(opt ${PLATFORM_LIST})
-  if(UNIX)
-    file(GLOB_RECURSE ASM_SOURCES
-      ${ASM_PLAT_ARCH_PATH}/${opt}/singlecpu/*.asm
-      )
-    list(APPEND ASM_SOURCES ${ASM_PLAT_ARCH_PATH}/cpinitas/cpinitas.asm)
-  endif()
-
-  # # Set optimization flags
-
   set(OPT_FLAGS_${opt} ${${opt}_opt})
 
   if(DYNAMIC_LIB AND NOT MERGED_BLD)
     set(IPPCP_DYN_ITER ${TARGET_NAME}_dyn_${opt})
+    set(IPPCP_DYN_ITER_ASMOBJS ${TARGET_NAME}_dyn_${opt}-asmobjs)
     if(WIN32)
-      add_library(${IPPCP_DYN_ITER} SHARED "ippcp.def" ${HEADERS} ${SOURCES} ${ASM_SOURCES} pcpver.rc)
+      add_library(${IPPCP_DYN_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
+      add_library(${IPPCP_DYN_ITER} SHARED "ippcp.def" ${HEADERS} ${SOURCES} pcpver.rc $<TARGET_OBJECTS:${IPPCP_DYN_ITER_ASMOBJS}>)
       set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_WINDOWS})
       foreach(link ${LINK_LIB_STATIC_DEBUG})
         target_link_libraries(${IPPCP_DYN_ITER} debug ${link})
@@ -402,13 +337,16 @@ foreach(opt ${PLATFORM_LIST})
         set_target_properties(${IPPCP_DYN_ITER} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG}})
       endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
     else()
-      add_library(${IPPCP_DYN_ITER} SHARED  ${HEADERS} ${SOURCES} ${ASM_SOURCES})
+      add_library(${IPPCP_DYN_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
+      add_library(${IPPCP_DYN_ITER} SHARED ${HEADERS} ${SOURCES} $<TARGET_OBJECTS:${IPPCP_DYN_ITER_ASMOBJS}>)
       if(APPLE)
         ## gres: copy LINK_FLAG_DYNAMIC_LINUX
         set(LINK_FLAGS ${LINK_FLAG_DYNAMIC_MACOSX})
         ## add export file
         set(LINK_FLAGS "${LINK_FLAGS} -exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.lib-export")
-        set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS "${LINK_FLAGS} -install_name @rpath/libippcp${opt}.dylib")
+        set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS "${LINK_FLAGS}")
+        add_custom_command(TARGET ${IPPCP_DYN_ITER} POST_BUILD COMMAND
+                           ${CMAKE_INSTALL_NAME_TOOL} -id @rpath/lib${TARGET_NAME}${opt}.dylib $<TARGET_FILE:${IPPCP_DYN_ITER}>)
       else()
         ## gres: copy LINK_FLAG_DYNAMIC_LINUX
         set(LINK_FLAGS ${LINK_FLAG_DYNAMIC_LINUX})
@@ -423,41 +361,38 @@ foreach(opt ${PLATFORM_LIST})
         endif()
       endif()
     endif()
-    set_target_properties(${IPPCP_DYN_ITER} PROPERTIES OUTPUT_NAME ${TARGET_NAME}${opt})
-    set_target_properties(${IPPCP_DYN_ITER} PROPERTIES COMPILE_FLAGS "${OPT_FLAGS_${opt}}")
-    target_compile_definitions(${IPPCP_DYN_ITER} PRIVATE _IPP_DYNAMIC)
+    set_target_properties(${IPPCP_DYN_ITER} PROPERTIES OUTPUT_NAME "${TARGET_NAME}${opt}"
+                                                       COMPILE_FLAGS "${OPT_FLAGS_${opt}}"
+                                                       COMPILE_DEFINITIONS "_IPP_DYNAMIC;${${opt}_def}")
     list(APPEND IPPCP_LIB_DYNAMIC ${IPPCP_DYN_ITER})
   endif(DYNAMIC_LIB AND NOT MERGED_BLD)
 
   set(IPPCP_ST_ITER ${TARGET_NAME}_s_${opt})
+  set(IPPCP_ST_ITER_ASMOBJS ${TARGET_NAME}_s_${opt}-asmobjs)
   if(MERGED_BLD)
-    if(UNIX)
-      file(GLOB_RECURSE ASM_SOURCES
-        ${ASM_PLAT_ARCH_PATH}/${opt}/merged/*.asm
-        )
-      if(ADD_CPINITAS_MERGEDSTATIC)
-        set(ADD_CPINITAS_MERGEDSTATIC off)
-        list(APPEND ASM_SOURCES ${ASM_PLAT_ARCH_PATH}/cpinitas/cpinitas.asm)
-      endif()
-    endif()
-
-    add_library(${IPPCP_ST_ITER} OBJECT ${HEADERS} ${SOURCES} ${ASM_SOURCES})
-    set(merged_dependency ${merged_dependency} $<TARGET_OBJECTS:${IPPCP_ST_ITER}>)
-    target_compile_definitions(${IPPCP_ST_ITER} PRIVATE _MERGED_BLD)
+    add_library(${IPPCP_ST_ITER} OBJECT ${HEADERS} ${SOURCES})
+    add_library(${IPPCP_ST_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
+    set(merged_dependency ${merged_dependency} $<TARGET_OBJECTS:${IPPCP_ST_ITER}> $<TARGET_OBJECTS:${IPPCP_ST_ITER_ASMOBJS}>)
   else()
-    add_library(${IPPCP_ST_ITER} STATIC ${HEADERS} ${SOURCES} ${ASM_SOURCES})
+    add_library(${IPPCP_ST_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
+    add_library(${IPPCP_ST_ITER} STATIC ${HEADERS} ${SOURCES} $<TARGET_OBJECTS:${IPPCP_ST_ITER_ASMOBJS}>)
   endif()
-  
+
   if(WIN32)
-    set_target_properties(${IPPCP_ST_ITER} PROPERTIES STATIC_LIBRARY_FLAGS ${LINK_FLAG_STATIC_WINDOWS})
+    set_target_properties(${IPPCP_ST_ITER} ${IPPCP_ST_ITER_ASMOBJS} PROPERTIES STATIC_LIBRARY_FLAGS ${LINK_FLAG_STATIC_WINDOWS})
   endif()
+
+  set_target_properties(${IPPCP_ST_ITER} PROPERTIES COMPILE_FLAGS "${OPT_FLAGS_${opt}}"
+                                                    COMPILE_DEFINITIONS "$<$<BOOL:${MERGED_BLD}>:_MERGED_BLD>;${${opt}_def}")
+
+  set_source_files_properties(${ASM_SOURCES_${opt}} PROPERTIES COMPILE_DEFINITIONS "$<$<BOOL:${MERGED_BLD}>:_MERGED_BLD>;${${opt}_def}"
+                                                               INCLUDE_DIRECTORIES "${ASM_INCLUDE_DIRECTORIES}")
 
   list(APPEND IPPCP_LIB_STATIC ${IPPCP_ST_ITER})
 
-  set_target_properties(${IPPCP_ST_ITER} PROPERTIES COMPILE_FLAGS "${OPT_FLAGS_${opt}}")
   # Set optimization flag for cpinit.c to -O1
   # Fix for problem related with MSVC compiler -O2 optimization
-  if((${ARCH} STREQUAL "intel64") AND ("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")) 
+  if((${ARCH} STREQUAL "intel64") AND ("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC"))
     set_source_files_properties(cpinit.c PROPERTIES COMPILE_FLAGS " -O1")
   endif()
 endforeach()
@@ -498,27 +433,29 @@ if(MERGED_BLD)
     endif()
   endif(WIN32)
 
-  execute_process(COMMAND ${PYTHON_EXECUTABLE} ${DISPATCHER_GENERATOR} ${IPPCP_API} ${DISPATCHER} "${PLATFORM_LIST}" ${CMAKE_C_COMPILER_ID}
+  execute_process(COMMAND ${Python_EXECUTABLE} ${DISPATCHER_GENERATOR} ${IPPCP_API} ${DISPATCHER} "${PLATFORM_LIST}" ${CMAKE_C_COMPILER_ID}
     RESULT_VARIABLE result
     )
 
-  file(GLOB_RECURSE HEADERS
+  file(GLOB HEADERS
     ${CMAKE_BINARY_DIR}/dispatcher/*.h
     )
 
-  file(GLOB_RECURSE SOURCES
+  file(GLOB SOURCES
     ${CMAKE_BINARY_DIR}/dispatcher/*.c
     )
 
-  file(GLOB_RECURSE ASM_SOURCES
+  file(GLOB ASM_SOURCES
     ${CMAKE_BINARY_DIR}/dispatcher/*.asm
     )
 
-  set(SOURCES ${SOURCES} ${ASM_SOURCES} ${merged_dependency})
+  set(SOURCES ${SOURCES} ${merged_dependency})
 
   set(IPPCP_LIB_MERGED ${TARGET_NAME}_s)
+  add_library(${IPPCP_LIB_MERGED} STATIC ${HEADERS} ${SOURCES} ${ASM_SOURCES})
+
   set(IPPCP_LIB_MERGED ${IPPCP_LIB_MERGED} PARENT_SCOPE)
-  add_library(${IPPCP_LIB_MERGED} STATIC ${HEADERS} ${SOURCES})
+
   if(WIN32)
     set_target_properties(${IPPCP_LIB_MERGED} PROPERTIES OUTPUT_NAME "${TARGET_NAME}mt")
     set_target_properties(${IPPCP_LIB_MERGED} PROPERTIES STATIC_LIBRARY_FLAGS ${LINK_FLAG_STATIC_WINDOWS})
@@ -526,12 +463,13 @@ if(MERGED_BLD)
     set_target_properties(${IPPCP_LIB_MERGED} PROPERTIES OUTPUT_NAME "${TARGET_NAME}")
   endif(WIN32)
 
+  set_source_files_properties(${SOURCES} pcpver.rc PROPERTIES INCLUDE_DIRECTORIES "${C_INCLUDE_DIRECTORIES}")
   # protection (_FORTIFY_SOURCE) and optimization flags for dispatcher
   if(UNIX)
     if(${ARCH} MATCHES "ia32")
-      set_target_properties(${IPPCP_LIB_MERGED} PROPERTIES COMPILE_FLAGS "${CC_FLAGS_INLINE_ASM_UNIX_IA32} -D_GNU_SOURCE -D_FORTIFY_SOURCE=2 -O2")
+      set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "${CC_FLAGS_INLINE_ASM_UNIX_IA32} -D_GNU_SOURCE -D_FORTIFY_SOURCE=2 -O2")
     else()
-      set_target_properties(${IPPCP_LIB_MERGED} PROPERTIES COMPILE_FLAGS "${CC_FLAGS_INLINE_ASM_UNIX_INTEL64} -D_GNU_SOURCE -D_FORTIFY_SOURCE=2 -O2")
+      set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "${CC_FLAGS_INLINE_ASM_UNIX_INTEL64} -D_GNU_SOURCE -D_FORTIFY_SOURCE=2 -O2")
     endif()
   endif()
 
@@ -541,7 +479,7 @@ if(MERGED_BLD)
     set(IPPCP_LIB_PCS ${IPPCP_LIB_PCS} PARENT_SCOPE)
 
     if(WIN32)
-      add_library(${IPPCP_LIB_PCS} SHARED ippcp.def emptyfile.c) # emptyfile.c - Visual Studio does not produce a .dll without source files
+      add_library(${IPPCP_LIB_PCS} SHARED ippcp.def emptyfile.c pcpver.rc) # emptyfile.c - Visual Studio does not produce a .dll without source files
       # place the dll to lib folder
       foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
         string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
@@ -551,7 +489,8 @@ if(MERGED_BLD)
       add_library(${IPPCP_LIB_PCS} SHARED emptyfile.c) # emptyfile.c to suppress the cmake warning
     endif()
 
-    set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINKER_LANGUAGE C)
+    set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINKER_LANGUAGE C
+                                                      COMPILE_DEFINITIONS  "_MERGED_BLD")
     target_link_libraries(${IPPCP_LIB_PCS} ${IPPCP_LIB_MERGED}) # link to the static merged
     set_target_properties(${IPPCP_LIB_PCS} PROPERTIES OUTPUT_NAME "${TARGET_NAME}")
 
@@ -568,7 +507,9 @@ if(MERGED_BLD)
         set(LINK_FLAGS ${LINK_FLAG_PCS_MACOSX})
         ## add export file
         set(LINK_FLAGS "${LINK_FLAGS} -exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.lib-export")
-        set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINK_FLAGS "${LINK_FLAGS} -install_name @rpath/libippcp.dylib")
+        set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINK_FLAGS "${LINK_FLAGS}")
+        add_custom_command(TARGET ${IPPCP_LIB_PCS} POST_BUILD COMMAND
+                           ${CMAKE_INSTALL_NAME_TOOL} -id @rpath/lib${TARGET_NAME}.dylib $<TARGET_FILE:${IPPCP_LIB_PCS}>)
       else()
         set(LINK_FLAGS ${LINK_FLAG_PCS_LINUX})
         ## add export file

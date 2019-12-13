@@ -38,27 +38,26 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Inverse Cipher function
-; 
+;
 ;     Content:
 ;        AuthEncrypt_RIJ128_AES_NI()
 ;        DecryptAuth_RIJ128_AES_NI()
-; 
 ;
-include asmdefs.inc
-include ia_32e.inc
-include pcpvariant.inc
+;
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "pcpvariant.inc"
 
-IF (_AES_NI_ENABLING_ EQ _FEATURE_ON_) OR (_AES_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-IF (_IPP32E GE _IPP32E_Y8)
+%if (_AES_NI_ENABLING_ == _FEATURE_ON_) || (_AES_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+%if (_IPP32E >= _IPP32E_Y8)
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
 
-
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 u128_str    DB 15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
 increment   DQ 1,0
 
@@ -86,26 +85,26 @@ increment   DQ 1,0
 ;;
 ;; Caller = ippsAES_CCMEncrypt
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM AuthEncrypt_RIJ128_AES_NI PROC PUBLIC FRAME
-      USES_GPR rsi, rdi, rbx
-      LOCAL_FRAME = 0
-      USES_XMM xmm6, xmm7
-      COMP_ABI 6
-;; rdi:     pInpBlk:  PTR BYTE,  ; input  blocks address
-;; rsi:     pOutBlk:  PTR BYTE,  ; output blocks address
+align IPP_ALIGN_FACTOR
+IPPASM AuthEncrypt_RIJ128_AES_NI,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi,rbx
+        USES_XMM xmm6,xmm7
+        COMP_ABI 6
+;; rdi:     pInpBlk:  BYTE,  ; input  blocks address
+;; rsi:     pOutBlk:  BYTE,  ; output blocks address
 ;; rdx:     nr:          DWORD,  ; number of rounds
-;; rcx      pKey:     PTR BYTE,  ; key material address
+;; rcx      pKey:     BYTE,  ; key material address
 ;; r8d      length:      DWORD,  ; length (bytes)
-;; r9       pLocCtx:  PTR BYTE   ; pointer to the localState
+;; r9       pLocCtx:  BYTE   ; pointer to the localState
 
-BYTES_PER_BLK = (16)
+%assign BYTES_PER_BLK  (16)
 
-   movdqa   xmm0, oword ptr [r9]                   ; MAC
-   movdqa   xmm2, oword ptr [r9+sizeof(oword)]     ; CTRi block
-   movdqa   xmm1, oword ptr [r9+sizeof(oword)*2]   ; CTR mask
+   movdqa   xmm0, oword [r9]                   ; MAC
+   movdqa   xmm2, oword [r9+sizeof(oword)]     ; CTRi block
+   movdqa   xmm1, oword [r9+sizeof(oword)*2]   ; CTR mask
 
-   movdqa   xmm7, oword ptr u128_str
+   movdqa   xmm7, oword [rel u128_str]
 
    pshufb   xmm2, xmm7     ; CTRi block (LE)
    pshufb   xmm1, xmm7     ; CTR mask
@@ -123,57 +122,56 @@ BYTES_PER_BLK = (16)
    neg      rdx
    mov      rbx, rdx
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;;
 ;; block-by-block processing
 ;;
-blk_loop:
-   movdqu   xmm4, oword ptr [rdi]      ; input block src[i]
+.blk_loop:
+   movdqu   xmm4, oword [rdi]      ; input block src[i]
    pxor     xmm0, xmm4                 ; MAC ^= src[i]
 
    movdqa   xmm5, xmm3
-   paddq    xmm2, oword ptr increment  ; advance counter bits
+   paddq    xmm2, oword [rel increment]  ; advance counter bits
    pand     xmm2, xmm1                 ; and mask them
    por      xmm5, xmm2
    pshufb   xmm5, xmm7                 ; CTRi (BE)
 
-   movdqa   xmm6, oword ptr [rcx+rdx]  ; keys for whitening
+   movdqa   xmm6, oword [rcx+rdx]  ; keys for whitening
    add      rdx, 16
 
    pxor     xmm5, xmm6                 ; whitening (CTRi)
    pxor     xmm0, xmm6                 ; whitening (MAC)
 
-   movdqa   xmm6, oword ptr [rcx+rdx]  ; pre load operation's keys
+   movdqa   xmm6, oword [rcx+rdx]  ; pre load operation's keys
 
-  ALIGN IPP_ALIGN_FACTOR
-cipher_loop:
+align IPP_ALIGN_FACTOR
+.cipher_loop:
    aesenc   xmm5, xmm6                 ; regular round (CTRi)
    aesenc   xmm0, xmm6                 ; regular round (MAC)
-   movdqa   xmm6, oword ptr [rcx+rdx+16]
+   movdqa   xmm6, oword [rcx+rdx+16]
    add      rdx, 16
-   jnz      cipher_loop
+   jnz      .cipher_loop
    aesenclast  xmm5, xmm6              ; irregular round (CTRi)
    aesenclast  xmm0, xmm6              ; irregular round (MAC)
 
    pxor     xmm4, xmm5                 ; dst[i] = src[i] ^ ENC(CTRi)
-   movdqu   oword ptr[rsi], xmm4
+   movdqu   oword [rsi], xmm4
 
    mov      rdx, rbx
    add      rsi, BYTES_PER_BLK
    add      rdi, BYTES_PER_BLK
    sub      r8,  BYTES_PER_BLK
-   jnz      blk_loop
+   jnz      .blk_loop
 
-   movdqu   oword ptr[r9], xmm0                 ; update MAC value
-   movdqu   oword ptr[r9+sizeof(oword)], xmm5   ; update ENC(Ctri)
+   movdqu   oword [r9], xmm0                 ; update MAC value
+   movdqu   oword [r9+sizeof(oword)], xmm5   ; update ENC(Ctri)
 
    pxor     xmm6, xmm6
 
    REST_XMM
    REST_GPR
    ret
-IPPASM AuthEncrypt_RIJ128_AES_NI ENDP
-
+ENDFUNC AuthEncrypt_RIJ128_AES_NI
 
 ;***************************************************************
 ;* Purpose:    Decrypt and Authenticate
@@ -199,26 +197,26 @@ IPPASM AuthEncrypt_RIJ128_AES_NI ENDP
 ;;
 ;; Caller = ippsAES_CCMDecrypt
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM DecryptAuth_RIJ128_AES_NI PROC PUBLIC FRAME
-      USES_GPR rsi, rdi, rbx
-      LOCAL_FRAME = sizeof(qword)
-      USES_XMM xmm6, xmm7
-      COMP_ABI 6
-;; rdi:     pInpBlk:  PTR BYTE,  ; input  blocks address
-;; rsi:     pOutBlk:  PTR BYTE,  ; output blocks address
+align IPP_ALIGN_FACTOR
+IPPASM DecryptAuth_RIJ128_AES_NI,PUBLIC
+%assign LOCAL_FRAME sizeof(qword)
+        USES_GPR rsi,rdi,rbx
+        USES_XMM xmm6,xmm7
+        COMP_ABI 6
+;; rdi:     pInpBlk:  BYTE,  ; input  blocks address
+;; rsi:     pOutBlk:  BYTE,  ; output blocks address
 ;; rdx:     nr:          DWORD,  ; number of rounds
-;; rcx      pKey:     PTR BYTE,  ; key material address
+;; rcx      pKey:     BYTE,  ; key material address
 ;; r8d      length:      DWORD,  ; length (bytes)
-;; r9       pLocCtx:  PTR BYTE   ; pointer to the localState
+;; r9       pLocCtx:  BYTE   ; pointer to the localState
 
-BYTES_PER_BLK = (16)
+%assign BYTES_PER_BLK  (16)
 
-   movdqa   xmm0, oword ptr [r9]                   ; MAC
-   movdqa   xmm2, oword ptr [r9+sizeof(oword)]     ; CTRi block
-   movdqa   xmm1, oword ptr [r9+sizeof(oword)*2]   ; CTR mask
+   movdqa   xmm0, oword [r9]                   ; MAC
+   movdqa   xmm2, oword [r9+sizeof(oword)]     ; CTRi block
+   movdqa   xmm1, oword [r9+sizeof(oword)*2]   ; CTR mask
 
-   movdqa   xmm7, oword ptr u128_str
+   movdqa   xmm7, oword [rel u128_str]
 
    pshufb   xmm2, xmm7     ; CTRi block (LE)
    pshufb   xmm1, xmm7     ; CTR mask
@@ -236,59 +234,59 @@ BYTES_PER_BLK = (16)
    neg      rdx
    mov      rbx, rdx
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;;
 ;; block-by-block processing
 ;;
-blk_loop:
+.blk_loop:
 
    ;;;;;;;;;;;;;;;;;
    ;; decryption
    ;;;;;;;;;;;;;;;;;
-   movdqu   xmm4, oword ptr [rdi]      ; input block src[i]
+   movdqu   xmm4, oword [rdi]      ; input block src[i]
 
    movdqa   xmm5, xmm3
-   paddq    xmm2, oword ptr increment  ; advance counter bits
+   paddq    xmm2, oword [rel increment]  ; advance counter bits
    pand     xmm2, xmm1                 ; and mask them
    por      xmm5, xmm2
    pshufb   xmm5, xmm7                 ; CTRi (BE)
 
-   movdqa   xmm6, oword ptr [rcx+rdx]  ; keys for whitening
+   movdqa   xmm6, oword [rcx+rdx]  ; keys for whitening
    add      rdx, 16
 
    pxor     xmm5, xmm6                 ; whitening (CTRi)
-   movdqa   xmm6, oword ptr [rcx+rdx]  ; pre load operation's keys
+   movdqa   xmm6, oword [rcx+rdx]  ; pre load operation's keys
 
-  ALIGN IPP_ALIGN_FACTOR
-cipher_loop:
+align IPP_ALIGN_FACTOR
+.cipher_loop:
    aesenc   xmm5, xmm6                 ; regular round (CTRi)
-   movdqa   xmm6, oword ptr [rcx+rdx+16]
+   movdqa   xmm6, oword [rcx+rdx+16]
    add      rdx, 16
-   jnz      cipher_loop
+   jnz      .cipher_loop
    aesenclast  xmm5, xmm6              ; irregular round (CTRi)
 
    pxor     xmm4, xmm5                 ; dst[i] = src[i] ^ ENC(CTRi)
-   movdqu   oword ptr[rsi], xmm4
+   movdqu   oword [rsi], xmm4
 
    ;;;;;;;;;;;;;;;;;
    ;; update MAC
    ;;;;;;;;;;;;;;;;;
    mov      rdx, rbx
 
-   movdqa   xmm6, oword ptr [rcx+rdx]  ; keys for whitening
+   movdqa   xmm6, oword [rcx+rdx]  ; keys for whitening
    add      rdx, 16
 
    pxor     xmm0, xmm4                 ; MAC ^= dst[i]
    pxor     xmm0, xmm6                 ; whitening (MAC)
 
-   movdqa   xmm6, oword ptr [rcx+rdx]  ; pre load operation's keys
+   movdqa   xmm6, oword [rcx+rdx]  ; pre load operation's keys
 
-  ALIGN IPP_ALIGN_FACTOR
-auth_loop:
+align IPP_ALIGN_FACTOR
+.auth_loop:
    aesenc   xmm0, xmm6                 ; regular round (MAC)
-   movdqa   xmm6, oword ptr [rcx+rdx+16]
+   movdqa   xmm6, oword [rcx+rdx+16]
    add      rdx, 16
-   jnz      auth_loop
+   jnz      .auth_loop
    aesenclast  xmm0, xmm6              ; irregular round (MAC)
 
 
@@ -296,19 +294,19 @@ auth_loop:
    add      rsi, BYTES_PER_BLK
    add      rdi, BYTES_PER_BLK
    sub      r8,  BYTES_PER_BLK
-   jnz      blk_loop
+   jnz      .blk_loop
 
-   movdqu   oword ptr[r9], xmm0                 ; update MAC value
-   movdqu   oword ptr[r9+sizeof(oword)], xmm6   ; update ENC(Ctri)
+   movdqu   oword [r9], xmm0                 ; update MAC value
+   movdqu   oword [r9+sizeof(oword)], xmm6   ; update ENC(Ctri)
 
    pxor     xmm6, xmm6
 
    REST_XMM
    REST_GPR
    ret
-IPPASM DecryptAuth_RIJ128_AES_NI ENDP
+ENDFUNC DecryptAuth_RIJ128_AES_NI
 
-ENDIF
-ENDIF ;; _AES_NI_ENABLING_
+%endif
+%endif ;; _AES_NI_ENABLING_
 
-END
+

@@ -38,145 +38,173 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Message block processing according to SM3
-; 
+;
 ;     Content:
 ;        UpdateSM3
 ;
 
-include asmdefs.inc
-include ia_32e.inc
-include pcpvariant.inc
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "pcpvariant.inc"
 
-IF (_ENABLE_ALG_SM3_)
-IF ((_IPP32E GE _IPP32E_U8 ) AND (_IPP32E LT _IPP32E_E9 )) OR (_IPP32E EQ _IPP32E_N8 )
+%if (_ENABLE_ALG_SM3_)
+%if ((_IPP32E >= _IPP32E_U8 ) && (_IPP32E < _IPP32E_E9 )) || (_IPP32E == _IPP32E_N8 )
 
-a  equ   r8d
-b  equ   r9d
-c  equ   r10d
-d  equ   r11d
-e  equ   r12d
-f  equ   r13d
-g  equ   r14d
-h  equ   r15d
+%xdefine a    r8d
+%xdefine b    r9d
+%xdefine c    r10d
+%xdefine d    r11d
+%xdefine e    r12d
+%xdefine f    r13d
+%xdefine g    r14d
+%xdefine h    r15d
 
-hPtr  equ   rdi
-mPtr  equ   rsi
-kPtr  equ   rcx
+%xdefine hPtr    rdi
+%xdefine mPtr    rsi
+%xdefine kPtr    rcx
 
-t0    equ   eax
-t1    equ   ebx
-t2    equ   ebp
-t3    equ   edx
+%xdefine t0    eax
+%xdefine t1    ebx
+%xdefine t2    ebp
+%xdefine t3    edx
 
-ctr   equ   hPtr
+%xdefine ctr    hPtr
 
+%if (_IPP32E >= _IPP32E_U8 )
 
-IF (_IPP32E GE _IPP32E_U8 )
+%macro ROTL 2.nolist
+  %xdefine %%x %1
+  %xdefine %%n %2
 
-ROTL MACRO x, n
-   shld  x,x, n
-ENDM
+   shld  %%x,%%x, %%n
+%endmacro
 
-ELSE
-ROTL MACRO x, n
-   rol  x, n
-ENDM
-ENDIF
+%else
+%macro ROTL 2.nolist
+  %xdefine %%x %1
+  %xdefine %%n %2
 
-ROUND_00_15 MACRO a,b,c,d,e,f,g,h,i
-   mov   t0, a
-   mov   t1, [kPtr+ctr*sizeof(dword)+i*sizeof(dword)]
+   rol  %%x, %%n
+%endmacro
+
+%endif
+
+%macro ROUND_00_15 9.nolist
+  %xdefine %%a %1
+  %xdefine %%b %2
+  %xdefine %%c %3
+  %xdefine %%d %4
+  %xdefine %%e %5
+  %xdefine %%f %6
+  %xdefine %%g %7
+  %xdefine %%h %8
+  %xdefine %%i %9
+
+   mov   t0, %%a
+   mov   t1, [kPtr+ctr*sizeof(dword)+%%i*sizeof(dword)]
    ROTL  t0, 12   ; t0 = t
    add   t1, t0
-   add   t1, e
+   add   t1, %%e
    ROTL  t1, 7    ; t1 = SS1
    xor   t0, t1   ; t0 = SS2
 
-   mov   t2, b
-   mov   t3, f
+   mov   t2, %%b
+   mov   t3, %%f
 
-   xor   t2, c
-   xor   t3, g
+   xor   t2, %%c
+   xor   t3, %%g
 
-   xor   t2, a     ; t2 = FF
-   xor   t3, e     ; t3 = GG
+   xor   t2, %%a     ; t2 = FF
+   xor   t3, %%e     ; t3 = GG
 
    add   t0, t2    ; t0 = SS2 + FF
    add   t1, t3    ; t1 = SS1 + GG
 
-   add   t0, d     ; t0 = SS2 + FF + d
-   add   t1, h     ; t1 = SS1 + GG + h
+   add   t0, %%d     ; t0 = SS2 + FF + d
+   add   t1, %%h     ; t1 = SS1 + GG + h
 
-   mov   t2, [rsp+ctr*sizeof(dword)+i*sizeof(dword)]     ; t2 = w[i]
+   mov   t2, [rsp+ctr*sizeof(dword)+%%i*sizeof(dword)]     ; t2 = w[i]
    add   t1, t2                                          ; t1 = TT2
-   xor   t2, [rsp+ctr*sizeof(dword)+(i+4)*sizeof(dword)] ; t2 = w[i] ^ w[i+4]
+   xor   t2, [rsp+ctr*sizeof(dword)+(%%i+4)*sizeof(dword)] ; t2 = w[i] ^ w[i+4]
 
    add   t0, t2    ; t0 = TT1
 
-   ROTL  b, 9
-   ROTL  f, 19
-   mov   h, t0
+   ROTL  %%b, 9
+   ROTL  %%f, 19
+   mov   %%h, t0
 
-   mov   d, t1
-   ROTL  d, 8
-   xor   d, t1
-   ROTL  d, 9
-   xor   d, t1
-ENDM
+   mov   %%d, t1
+   ROTL  %%d, 8
+   xor   %%d, t1
+   ROTL  %%d, 9
+   xor   %%d, t1
+%endmacro
 
-ROUND_16_63 MACRO a,b,c,d,e,f,g,h,i
-   mov   t0, a
-   mov   t1, [kPtr+ctr*sizeof(dword)+i*sizeof(dword)]
+%macro ROUND_16_63 9.nolist
+  %xdefine %%a %1
+  %xdefine %%b %2
+  %xdefine %%c %3
+  %xdefine %%d %4
+  %xdefine %%e %5
+  %xdefine %%f %6
+  %xdefine %%g %7
+  %xdefine %%h %8
+  %xdefine %%i %9
+
+   mov   t0, %%a
+   mov   t1, [kPtr+ctr*sizeof(dword)+%%i*sizeof(dword)]
    ROTL  t0, 12
    add   t1, t0
-   add   t1, e
+   add   t1, %%e
    ROTL  t1, 7    ;; t1 = SS1
    xor   t0, t1   ;; t0 = SS2
 
-   mov   t3, b
-   mov   t2, b
-   and   t3, c
-   xor   t2, c
-   and   t2, a
+   mov   t3, %%b
+   mov   t2, %%b
+   and   t3, %%c
+   xor   t2, %%c
+   and   t2, %%a
    add   t2, t3
 
-   mov   t3, f
-   xor   t3, g
-   and   t3, e
-   xor   t3, g
+   mov   t3, %%f
+   xor   t3, %%g
+   and   t3, %%e
+   xor   t3, %%g
 
    add   t0, t2      ;; t0 = SS2 + FF
    add   t1, t3      ;; t1 = SS1 + GG
 
-   add   t0, d       ;; t0 = SS2 + FF + d
-   add   t1, h       ;; t1 = SS1 + GG + h
+   add   t0, %%d       ;; t0 = SS2 + FF + d
+   add   t1, %%h       ;; t1 = SS1 + GG + h
 
-   mov   t2, [rsp+ctr*sizeof(dword)+i*sizeof(dword)]     ;; t2 = w[i]
+   mov   t2, [rsp+ctr*sizeof(dword)+%%i*sizeof(dword)]     ;; t2 = w[i]
    add   t1, t2                                          ;; t1 = TT2
-   xor   t2, [rsp+ctr*sizeof(dword)+(i+4)*sizeof(dword)] ;; t2 = w[i] ^ w[i+4]
+   xor   t2, [rsp+ctr*sizeof(dword)+(%%i+4)*sizeof(dword)] ;; t2 = w[i] ^ w[i+4]
 
    add   t0, t2      ;; t0 = TT1
 
-   ROTL  b, 9
-   ROTL  f, 19
-   mov   h, t0
+   ROTL  %%b, 9
+   ROTL  %%f, 19
+   mov   %%h, t0
 
-   mov   d, t1
-   ROTL  d, 8
-   xor   d, t1
-   ROTL  d, 9
-   xor   d, t1
-ENDM
+   mov   %%d, t1
+   ROTL  %%d, 8
+   xor   %%d, t1
+   ROTL  %%d, 9
+   xor   %%d, t1
+%endmacro
 
-SCHED_16_67 MACRO i
-   mov   t2, [rsp+ctr*sizeof(dword)+(i-3)*sizeof(dword)]    ;; t2 = w[i-3]
+%macro SCHED_16_67 1.nolist
+  %xdefine %%i %1
+
+   mov   t2, [rsp+ctr*sizeof(dword)+(%%i-3)*sizeof(dword)]    ;; t2 = w[i-3]
    ROTL  t2, 15                                             ;; t2 = rol(t2,15)
-   xor   t2, [rsp+ctr*sizeof(dword)+(i-9)*sizeof(dword)]    ;; t2 ^= w[i-9]
-   xor   t2, [rsp+ctr*sizeof(dword)+(i-16)*sizeof(dword)]   ;; t2 ^= w[i-16]
+   xor   t2, [rsp+ctr*sizeof(dword)+(%%i-9)*sizeof(dword)]    ;; t2 ^= w[i-9]
+   xor   t2, [rsp+ctr*sizeof(dword)+(%%i-16)*sizeof(dword)]   ;; t2 ^= w[i-16]
 
    mov   t3, t2
    ROTL  t3, 8
@@ -184,17 +212,16 @@ SCHED_16_67 MACRO i
    ROTL  t3, 15
    xor   t3, t2      ;; t3 = P1
 
-   mov   t2, [rsp+ctr*sizeof(dword)+(i-13)*sizeof(dword)]
-   xor   t3, [rsp+ctr*sizeof(dword)+(i-6)*sizeof(dword)]
+   mov   t2, [rsp+ctr*sizeof(dword)+(%%i-13)*sizeof(dword)]
+   xor   t3, [rsp+ctr*sizeof(dword)+(%%i-6)*sizeof(dword)]
    ROTL  t2, 7
    xor   t3, t2
-   mov   [rsp+ctr*sizeof(dword)+i*sizeof(dword)], t3
-ENDM
+   mov   [rsp+ctr*sizeof(dword)+%%i*sizeof(dword)], t3
+%endmacro
 
+segment .text align=IPP_ALIGN_FACTOR
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
-
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 
 bswap128 DB 3,2,1,0,7,6,5,4,11,10,9,8,15,14,13,12
 
@@ -203,12 +230,12 @@ bswap128 DB 3,2,1,0,7,6,5,4,11,10,9,8,15,14,13,12
 ;                const uint32_t msg[16], int msgLen,
 ;                const uint32_t* K_SM3)
 ;********************************************************************
-ALIGN IPP_ALIGN_FACTOR
-IPPASM UpdateSM3 PROC PUBLIC FRAME
-      USES_GPR rbp,rbx,rsi,rdi,r12,r13,r14,r15
-      LOCAL_FRAME = 68*sizeof(dword)+3*sizeof(qword)
-      USES_XMM
-      COMP_ABI 4
+align IPP_ALIGN_FACTOR
+IPPASM UpdateSM3,PUBLIC
+%assign LOCAL_FRAME 68*sizeof(dword)+3*sizeof(qword)
+        USES_GPR rbp,rbx,rsi,rdi,r12,r13,r14,r15
+        USES_XMM
+        COMP_ABI 4
 
 ;; rdi = hash
 ;; rsi = data buffer
@@ -216,17 +243,17 @@ IPPASM UpdateSM3 PROC PUBLIC FRAME
 ;; rcx = address of SM3 constants
 
 ;; stack structure:
-_w    = 0                     ; msg extension W0, ..., W67
-_hash = _w+68*sizeof(dword)   ; hash
-_msg  = _hash+sizeof(qword)   ; msg pointer
-_len  = _msg+sizeof(qword)    ; msg length
+%assign _w    0                   ; msg extension W0, ..., W67
+%assign _hash _w+68*sizeof(dword) ; hash
+%assign _msg  _hash+sizeof(qword) ; msg pointer
+%assign _len  _msg+sizeof(qword)  ; msg length
 
-MBS_SM3  equ   (64)
+%xdefine MBS_SM3    (64)
 
    movsxd   rdx, edx
 
-   mov      qword ptr[rsp+_hash], hPtr ; save hash pointer
-   mov      qword ptr[rsp+_len], rdx   ; save msg length
+   mov      qword [rsp+_hash], hPtr ; save hash pointer
+   mov      qword [rsp+_len], rdx   ; save msg length
 
    mov   a, [hPtr+0*sizeof(dword)]     ; input hash value
    mov   b, [hPtr+1*sizeof(dword)]
@@ -242,29 +269,29 @@ MBS_SM3  equ   (64)
 ;; process data block
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-main_loop:
+align IPP_ALIGN_FACTOR
+.main_loop:
    xor  ctr, ctr     ; round
 
-   movdqu   xmm0, oword ptr [mPtr+0*sizeof(oword)]
-   movdqu   xmm1, oword ptr [mPtr+1*sizeof(oword)]
-   movdqu   xmm2, oword ptr [mPtr+2*sizeof(oword)]
-   movdqu   xmm3, oword ptr [mPtr+3*sizeof(oword)]
+   movdqu   xmm0, oword [mPtr+0*sizeof(oword)]
+   movdqu   xmm1, oword [mPtr+1*sizeof(oword)]
+   movdqu   xmm2, oword [mPtr+2*sizeof(oword)]
+   movdqu   xmm3, oword [mPtr+3*sizeof(oword)]
    add      mPtr, MBS_SM3
-   mov      qword ptr[rsp+_msg], mPtr ; save msg pointer
+   mov      qword [rsp+_msg], mPtr ; save msg pointer
 
-   pshufb   xmm0, oword ptr bswap128
-   pshufb   xmm1, oword ptr bswap128
-   pshufb   xmm2, oword ptr bswap128
-   pshufb   xmm3, oword ptr bswap128
+   pshufb   xmm0, [rel bswap128]
+   pshufb   xmm1, [rel bswap128]
+   pshufb   xmm2, [rel bswap128]
+   pshufb   xmm3, [rel bswap128]
 
-   movdqu   oword ptr [rsp+0*sizeof(oword)], xmm0
-   movdqu   oword ptr [rsp+1*sizeof(oword)], xmm1
-   movdqu   oword ptr [rsp+2*sizeof(oword)], xmm2
-   movdqu   oword ptr [rsp+3*sizeof(oword)], xmm3
+   movdqu   oword [rsp+0*sizeof(oword)], xmm0
+   movdqu   oword [rsp+1*sizeof(oword)], xmm1
+   movdqu   oword [rsp+2*sizeof(oword)], xmm2
+   movdqu   oword [rsp+3*sizeof(oword)], xmm3
 
-ALIGN IPP_ALIGN_FACTOR
-rounds_00_15:
+align IPP_ALIGN_FACTOR
+.rounds_00_15:
    SCHED_16_67 16
    ROUND_00_15 a,b,c,d,e,f,g,h,0
    SCHED_16_67 17
@@ -283,10 +310,10 @@ rounds_00_15:
    ROUND_00_15 b,c,d,e,f,g,h,a,7
    add      ctr, 8
    cmp      ctr, 16
-   jne      rounds_00_15
+   jne      .rounds_00_15
 
-ALIGN IPP_ALIGN_FACTOR
-rounds_16_47:
+align IPP_ALIGN_FACTOR
+.rounds_16_47:
    SCHED_16_67 16
    ROUND_16_63 a,b,c,d,e,f,g,h,0
    SCHED_16_67 17
@@ -305,15 +332,15 @@ rounds_16_47:
    ROUND_16_63 b,c,d,e,f,g,h,a,7
    add      ctr, 8
    cmp      ctr, 48
-   jne      rounds_16_47
+   jne      .rounds_16_47
 
    SCHED_16_67 16
    SCHED_16_67 17
    SCHED_16_67 18
    SCHED_16_67 19
 
-ALIGN IPP_ALIGN_FACTOR
-rounds_48_63:
+align IPP_ALIGN_FACTOR
+.rounds_48_63:
    ROUND_16_63 a,b,c,d,e,f,g,h,0
    ROUND_16_63 h,a,b,c,d,e,f,g,1
    ROUND_16_63 g,h,a,b,c,d,e,f,2
@@ -324,7 +351,7 @@ rounds_48_63:
    ROUND_16_63 b,c,d,e,f,g,h,a,7
    add      ctr, 8
    cmp      ctr, 64
-   jne      rounds_48_63
+   jne      .rounds_48_63
 
    mov      hPtr, [rsp+_hash]
    mov      mPtr, [rsp+_msg]
@@ -347,14 +374,14 @@ rounds_48_63:
    mov      [hPtr+6*sizeof(dword)], g
    mov      [hPtr+7*sizeof(dword)], h
 
-   sub      qword ptr [rsp+_len], MBS_SM3
-   jne      main_loop
+   sub      qword [rsp+_len], MBS_SM3
+   jne      .main_loop
 
    REST_XMM
    REST_GPR
    ret
-IPPASM UpdateSM3 ENDP
+ENDFUNC UpdateSM3
 
-ENDIF    ;; ((_IPP32E GE _IPP32E_U8 ) AND (_IPP32E LT _IPP32E_E9 )) OR (_IPP32E EQ _IPP32E_N8 )
-ENDIF    ;; _ENABLE_ALG_SM3_
-END
+%endif    ;; ((_IPP32E >= _IPP32E_U8 ) AND (_IPP32E < _IPP32E_E9 )) OR (_IPP32E == _IPP32E_N8 )
+%endif    ;; _ENABLE_ALG_SM3_
+

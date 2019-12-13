@@ -51,13 +51,8 @@
 #include "pcpaesauthccm.h"
 #include "pcptool.h"
 
-#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
-#  pragma message("_ALG_AES_SAFE_COMPOSITE_GF_ enabled")
-#elif (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-#  pragma message("_ALG_AES_SAFE_COMPACT_SBOX_ enabled")
+#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
 #  include "pcprijtables.h"
-#else
-#  pragma message("_ALG_AES_SAFE_ disabled")
 #endif
 
 /*F*
@@ -94,6 +89,12 @@ IPPFUN(IppStatus, ippsAES_CCMInit,(const Ipp8u* pKey, int keyLen,
 
    /* set state ID */
    AESCCM_ID(pState) = idCtxAESCCM;
+
+   /* set default message len*/
+   AESCCM_MSGLEN(pState) = 0;
+
+   /* set default tag len*/
+   AESCCM_TAGLEN(pState) = 4;
 
    /* init AES by the secret key */
    return ippsAESInit(pKey, keyLen, AESCCM_CIPHER(pState), cpSizeofCtx_AES());

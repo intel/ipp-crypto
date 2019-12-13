@@ -56,7 +56,7 @@
 /*F*
 //    Name: ippsSMS4EncryptCTR
 //
-// Purpose: SMS4-CRT encryption.
+// Purpose: SMS4-CTR encryption.
 //
 // Returns:                Reason:
 //    ippStsNullPtrErr        pCtx == NULL

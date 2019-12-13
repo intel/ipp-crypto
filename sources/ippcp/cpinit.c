@@ -297,7 +297,7 @@ IppStatus owncpFeaturesToIdx(  Ipp64u* cpuFeatures, int* index )
    if( ippCPUID_SSE   == ( *cpuFeatures & ippCPUID_SSE   )) {          /* Intel(R) Pentium(R) processor III ia32=PX only */
        mask = SSE_MSK;
        *index = LIB_SSE;
-#if (defined( _WIN64 ) || defined( linux32e ) || defined( OSXEM64T )) && !(defined( _ARCH_LRB2 ))
+#if (defined( WIN32E ) || defined( LINUX32E ) || defined( OSXEM64T )) && !(defined( _ARCH_LRB2 ))
        ownStatus = ippStsNotSupportedCpu;                              /* the lowest CPU supported by Intel(R) Integrated Performance Primitives (Intel(R) IPP) must at least support Intel(R) SSE2 for x64 */
 #endif
    } else 

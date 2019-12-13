@@ -90,37 +90,32 @@ while (isFunctionFound == True):
     DISP= open( os.sep.join([OutDir, filename + ".asm"]), 'w' )
     
     for cpu in cpulist:
-       DISP.write("EXTRN "+cpu+"_"+FunName+":PROC\n")
+       DISP.write("extern "+cpu+"_"+FunName+"\n")
     
-    DISP.write("EXTRN ippcpJumpIndexForMergedLibs:DWORD\n")
-    DISP.write("EXTRN ippcpSafeInit:PROC\n\n")
+    DISP.write("extern ippcpJumpIndexForMergedLibs\n")
+    DISP.write("extern ippcpSafeInit\n\n")
     
-    DISP.write("_DATA SEGMENT\n\n")
+    DISP.write("segment data\n\n")
     
-    DISP.write("        DQ in_"+FunName+"\n")
-    DISP.write(FunName+"_arraddr")
+    DISP.write("    DQ in_"+FunName+"\n")
+    DISP.write(FunName+"_arraddr:\n")
     
     for cpu in cpulist:
        DISP.write("    DQ "+cpu+"_"+FunName+"\n")
     
     DISP.write("""
 
-_DATA ENDS
+segment text
 
-_TEXT SEGMENT
+global {FunName}
 
-in_{FunName} PROC PRIVATE
+in_{FunName}:
    call    ippcpSafeInit
-   ALIGN 16
-{FunName} PROC PUBLIC
-   movsxd  rax, DWORD PTR ippcpJumpIndexForMergedLibs
-   lea     r10, {FunName}_arraddr
-   jmp     qword ptr [r10+rax*8]
-{FunName} ENDP
-in_{FunName} ENDP
-
-_TEXT ENDS
-END
+   align 16
+{FunName}:
+   movsxd  rax, dword [rel ippcpJumpIndexForMergedLibs]
+   lea     r10, [rel {FunName}_arraddr]
+   jmp     qword [r10+rax*8]
 
 """.format(FunName=FunName))
 

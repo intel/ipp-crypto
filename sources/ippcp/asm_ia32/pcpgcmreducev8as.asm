@@ -38,30 +38,30 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Reduction over AES-GCM polynomial (x^128 + x^7 + x^2 + x + 1)
-; 
+;
 ;     Content:
 ;        GCMreduce()
 ;
 
-.686P
-.387
-.XMM
-.MODEL FLAT,C
-
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
-
-IF (_IPP GE _IPP_V8)
-
-my_emulator = 0; set 1 for emulation
-include emulator.inc
 
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+
+
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+%if (_IPP >= _IPP_V8)
+
+%assign my_emulator  0; set 1 for emulation
+%include "emulator.inc"
+
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
 ;*************************************************************
@@ -76,15 +76,16 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;; Caller = ippsRijndael128GCMDecrypt
 ;; Caller = ippsRijndael128GCMGetTag
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM GCMreduce PROC NEAR C PUBLIC \
-      USES esi edi,\
-      pSrc: PTR DWORD,\  ; product
-      pDst: PTR DWORD   ; reduction
+align IPP_ALIGN_FACTOR
+IPPASM GCMreduce,PUBLIC
+  USES_GPR esi,edi
+
+%xdefine pSrc [esp + ARG_1 + 0*sizeof(dword)] ; product
+%xdefine pDst [esp + ARG_1 + 1*sizeof(dword)] ; reduction
 
    mov      esi, pSrc
-   movdqu   xmm3, oword ptr[esi]
-   movdqu   xmm6, oword ptr[esi+16]
+   movdqu   xmm3, oword [esi]
+   movdqu   xmm6, oword [esi+16]
 
    mov      esi, pDst
 
@@ -129,9 +130,10 @@ my_palignr  xmm5,xmm4, 12
    pxor     xmm3, xmm2
    pxor     xmm6, xmm3    ;the result is in xmm6
 
-   movdqu   oword ptr[esi], xmm6
+   movdqu   oword [esi], xmm6
+   REST_GPR
    ret
-IPPASM GCMreduce endp
+ENDFUNC GCMreduce
 
-ENDIF
-END
+%endif
+

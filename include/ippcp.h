@@ -66,8 +66,8 @@ extern "C" {
   #endif
 #endif
 
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(push)
-#ifdef _MSC_VER
 #pragma warning(disable : 4100) // for MSVC, unreferenced param
 #endif
 
@@ -911,6 +911,10 @@ IPPAPI(IppStatus, ippsRSAVerify_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
                                                     Ipp8u* pBuffer))
 /* RSA multi-buffer functions */
 
+IPPAPI(IppStatus, ippsRSA_MB_GetBufferSizePublicKey,(int* pBufferSize, const IppsRSAPublicKeyState* const pKeys[8]))
+
+IPPAPI(IppStatus, ippsRSA_MB_GetBufferSizePrivateKey,(int* pBufferSize, const IppsRSAPrivateKeyState* const pKeys[8]))
+
 IPPAPI(IppStatus, ippsRSA_MB_Encrypt,(const IppsBigNumState* const pPtxts[8],
                                       IppsBigNumState* const pCtxts[8],
                                       const IppsRSAPublicKeyState* const pKeys[8],
@@ -921,6 +925,34 @@ IPPAPI(IppStatus, ippsRSA_MB_Decrypt,(const IppsBigNumState* const pPtxts[8],
                                       const IppsRSAPrivateKeyState* const pKeys[8],
                                       IppStatus statuses[8], Ipp8u* pBuffer))
 
+IPPAPI(IppStatus, ippsRSA_MB_Sign_PSS_rmf, (const Ipp8u* const pMsgs[8], const int msgLens[8],
+                                             const Ipp8u* const pSalts[8], const int saltLens[8],
+                                                   Ipp8u* const pSignts[8],
+                                             const IppsRSAPrivateKeyState* const pPrvKeys[8],
+                                             const IppsRSAPublicKeyState* const pPubKeys[8],
+                                             const IppsHashMethod* pMethod,
+                                                   IppStatus statuses[8], Ipp8u* pBuffer))
+
+IPPAPI(IppStatus, ippsRSA_MB_Verify_PSS_rmf, (const Ipp8u* const pMsgs[8], const int msgLens[8],
+                                             const Ipp8u* const pSignts[8],
+                                                   int pIsValid[8],
+                                             const IppsRSAPublicKeyState* const pPubKeys[8],
+                                             const IppsHashMethod* pMethod,
+                                             IppStatus statuses[8], Ipp8u* pBuffer))
+
+IPPAPI(IppStatus, ippsRSA_MB_Sign_PKCS1v15_rmf, (const Ipp8u* const pMsgs[8], const int msgLens[8],
+                                                      Ipp8u* const pSignts[8],
+                                                const IppsRSAPrivateKeyState* const pPrvKeys[8],
+                                                const IppsRSAPublicKeyState* const pPubKeys[8],
+                                                const IppsHashMethod* pMethod,
+                                                      IppStatus statuses[8], Ipp8u* pBuffer))
+
+IPPAPI(IppStatus, ippsRSA_MB_Verify_PKCS1v15_rmf, (const Ipp8u* const pMsgs[8], const int msgLens[8],
+                                                   const Ipp8u* const pSignts[8],
+                                                         int pIsValid[8],
+                                                   const IppsRSAPublicKeyState* const pPubKeys[8],
+                                                   const IppsHashMethod* pMethod,
+                                                   IppStatus statuses[8], Ipp8u* pBuffer))
 
 /*
 // =========================================================
@@ -1338,7 +1370,9 @@ IPPAPI(IppStatus, ippsGFpECESFinal_SM2, (Ipp8u* pTag, int tagLen, IppsECESState_
 IPPAPI(IppStatus, ippsGFpECESGetBuffersSize_SM2, (int* pPublicKeySize,
                         int* pMaximumTagSize, const IppsECESState_SM2* pState))
 
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(pop)
+#endif
 #ifdef  __cplusplus
 }
 #endif

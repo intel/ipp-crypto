@@ -55,13 +55,8 @@
 #include "pcpaesm.h"
 #include "pcptool.h"
 
-#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
-#  pragma message("_ALG_AES_SAFE_COMPOSITE_GF_ enabled")
-#elif (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-#  pragma message("_ALG_AES_SAFE_COMPACT_SBOX_ enabled")
+#if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
 #  include "pcprijtables.h"
-#else
-#  pragma message("_ALG_AES_SAFE_ disabled")
 #endif
 
 /*F*
@@ -110,8 +105,8 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    // - ghash function
    // - authentication function
    */
-   AESGCM_HASH(pState) = AesGcmMulGcm_table2K;
-   AESGCM_AUTH(pState) = AesGcmAuth_table2K;
+   AESGCM_HASH(pState) = AesGcmMulGcm_table2K_ct;//AesGcmMulGcm_table2K;
+   AESGCM_AUTH(pState) = AesGcmAuth_table2K_ct; //AesGcmAuth_table2K;
    AESGCM_ENC(pState)  = wrpAesGcmEnc_table2K;
    AESGCM_DEC(pState)  = wrpAesGcmDec_table2K;
 

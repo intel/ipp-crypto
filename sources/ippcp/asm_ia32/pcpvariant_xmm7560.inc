@@ -46,23 +46,23 @@
 ;        for code size optimization
 ;
 
-IFDEF _XMM7560_
-IF (_IPP GE _IPP_P8)
+%ifdef _XMM7560_
+%if (_IPP >= _IPP_P8)
 
-OFF = 0
-ON = 1
+%assign OFF 0
+%assign ON  1
 
-;_USE_C_cpAdd_BNU_ = ON
-;_USE_C_cpSub_BNU_ = ON
-;_USE_C_cpInc_BNU_ = ON
-;_USE_C_cpAddMulDgt_BNU_ = ON
-;_USE_C_cpSubMulDgt_BNU_ = ON
-_USE_C_cpMulAdc_BNU_school_ = ON
-_USE_C_cpSqrAdc_BNU_school_ = ON
-_USE_C_cpMontRedAdc_BNU_    = ON
+;%assign _USE_C_cpAdd_BNU_  ON
+;%assign _USE_C_cpSub_BNU_  ON
+;%assign _USE_C_cpInc_BNU_  ON
+;%assign _USE_C_cpAddMulDgt_BNU_  ON
+;%assign _USE_C_cpSubMulDgt_BNU_  ON
+%assign _USE_C_cpMulAdc_BNU_school_  ON
+%assign _USE_C_cpSqrAdc_BNU_school_  ON
+%assign _USE_C_cpMontRedAdc_BNU_     ON
 
-_DISABLE_ECP_256R1_HARDCODED_BP_TBL_ = OFF
-_DISABLE_ECP_384R1_HARDCODED_BP_TBL_ = OFF
+%assign _DISABLE_ECP_256R1_HARDCODED_BP_TBL_  OFF
+%assign _DISABLE_ECP_384R1_HARDCODED_BP_TBL_  OFF
 
-ENDIF
-ENDIF
+%endif
+%endif

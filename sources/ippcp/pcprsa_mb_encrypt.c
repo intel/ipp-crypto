@@ -51,8 +51,13 @@
 */
 
 #include "owncp.h"
-#include "pcpngrsa.h"
 #include "pcpngrsa_mb.h"
+
+#if(_IPP32E>=_IPP32E_K0)
+  #include "rsa_ifma_cp.h"
+  #include "rsa_ifma_status.h"
+  #include "ifma_method.h"
+#endif
 
 /*!
  *  \brief ippsRSA_MB_Encrypt
@@ -65,7 +70,7 @@
  *    \param[in]   pPtxts                 Pointer to the array of plaintexts.
  *    \param[out]  pCtxts                 Pointer to the array of ciphertexts.
  *    \param[in]   pKeys                  Pointer to the array of key contexts.
- *    \param[out]  statuses              Pointer to the array of execution statuses for each performed operation.
+ *    \param[out]  statuses               Pointer to the array of execution statuses for each performed operation.
  *    \param[in]   pBuffer                Pointer to the temporary buffer.
  * 
  *  Returns:                          Reason:
@@ -79,6 +84,7 @@
  *                                        different from sizes of modulus N in oter contexts.
  *    \return ippStsBadArgErr             Indicates an error condition if value or size of exp E in one context is 
  *                                        different from values or sizes of exp E in other contexts.
+ *    \return ippStsContextMatchErr       Indicates an error condition if no valid keys were found.
  *    \return ippStsMbWarning             One or more of performed operation executed with error. Check statuses array for details.
  *    \return ippStsNoErr                 No error.
  */
@@ -87,40 +93,61 @@ IPPFUN(IppStatus, ippsRSA_MB_Encrypt,(const IppsBigNumState* const pPtxts[8],
                                       IppsBigNumState* const pCtxts[8],
                                       const IppsRSAPublicKeyState* const pKeys[8],
                                       IppStatus statuses[8], Ipp8u* pBuffer))
-{    
+{
    IPP_BAD_PTR1_RET(pKeys);
    IPP_BAD_PTR4_RET(pPtxts, pCtxts, pBuffer, statuses);
 
-   #ifdef _IPP_DEBUG
+   int i, valid_key_id;
+   const IppsRSAPublicKeyState* pAlignedKeys[8];
 
-      for(int i=0; i < RSA_MB_MAX_BUF_QUANTITY-1; i++) {
-         if(pKeys[i] && RSA_PUB_KEY_VALID_ID(pKeys[i])) {
-            for(int j=i+1; j < RSA_MB_MAX_BUF_QUANTITY; j++) {
-               if(pKeys[j] && RSA_PUB_KEY_VALID_ID(pKeys[i])) {
-                  IPP_BADARG_RET(RSA_PUB_KEY_BITSIZE_N(pKeys[i]) != RSA_PUB_KEY_BITSIZE_N(pKeys[j]), ippStsSizeErr);
-                  IPP_BADARG_RET(cpCmp_BNU(RSA_PUB_KEY_E(pKeys[i]), RSA_PUB_KEY_BITSIZE_E(pKeys[i])/sizeof(BNU_CHUNK_T), 
-                                           RSA_PUB_KEY_E(pKeys[j]), RSA_PUB_KEY_BITSIZE_E(pKeys[j])/sizeof(BNU_CHUNK_T)), ippStsBadArgErr);
-               }
-            }
-            break;
-         }
-      }
-
-   #endif
-
-   for(int i=0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
-      statuses[i] = ippsRSA_Encrypt(pPtxts[i], pCtxts[i], pKeys[i], pBuffer);
+   for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
+      pAlignedKeys[i] = (IppsRSAPublicKeyState*)(IPP_ALIGNED_PTR(pKeys[i], RSA_PUBLIC_KEY_ALIGNMENT));
    }
 
-   #ifdef _IPP_DEBUG
+   {
+      IppStatus consistencyCheckSts = CheckPublicKeysConsistency(pAlignedKeys, &valid_key_id);
+      if (valid_key_id == -1) {
+         return consistencyCheckSts;
+      }
+   }
 
-      for(int i=0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
+   #if(_IPP32E>=_IPP32E_K0)
+      const int rsa_bitsize = RSA_PUB_KEY_BITSIZE_N(pKeys[valid_key_id]);
+      if (IsFeatureEnabled(ippCPUID_AVX512IFMA) && *(RSA_PUB_KEY_E(pKeys[valid_key_id])) == PUB_EXP_65537 && OPTIMIZED_RSA_SIZE(rsa_bitsize))
+      {
+         const int rsa_bytesize = rsa_bitsize/8;
+         int8u* from_pa[RSA_MB_MAX_BUF_QUANTITY];
+         int64u* n_pa[RSA_MB_MAX_BUF_QUANTITY];
+         const ifma_RSA_Method* m = ifma_cp_RSA_pub65537_Method(rsa_bitsize);
+
+         for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
+            n_pa[i] = MOD_MODULUS(RSA_PUB_KEY_NMONT(pKeys[i]));
+            from_pa[i] = (int8u*)BN_BUFFER(pCtxts[i]);
+            ippsGetOctString_BN(from_pa[i], rsa_bytesize, pPtxts[i]);
+         }
+
+         ifma_status ifma_sts = ifma_cp_rsa52_public_mb8((const int8u* const*)from_pa, from_pa, (const int64u* const*)n_pa, rsa_bitsize, m, pBuffer);
+
+         for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
+            ippsSetOctString_BN(from_pa[i], rsa_bytesize, pCtxts[i]);
+         }
+
+         return convert_ifma_to_ipp_sts(ifma_sts, statuses);
+      }
+
+      else
+   #endif
+   {
+      for(i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
+         statuses[i] = ippsRSA_Encrypt(pPtxts[i], pCtxts[i], pAlignedKeys[i], pBuffer);
+      }
+
+      for(i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
          if(statuses[i] != ippStsNoErr) {
             return ippStsMbWarning;
          }
       }
 
-   #endif
-   
-   return ippStsNoErr;
+      return ippStsNoErr;
+   }
 }

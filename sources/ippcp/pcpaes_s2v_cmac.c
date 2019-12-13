@@ -95,17 +95,14 @@ IPPFUN(IppStatus, ippsAES_S2V_CMAC,(const Ipp8u* pKey, int keyLen,
 
    /* test arrays of input */
    IPP_BAD_PTR2_RET(pAD, pADlen);
-   #ifdef _IPP_DEBUG
-   {
-      int n;
-      for(n=0; n<numAD; n++) {
-         /* test input message and it's length */
-         IPP_BADARG_RET((pADlen[n]<0), ippStsLengthErr);
-         /* test source pointer */
-         IPP_BADARG_RET((pADlen[n] && !pAD[n]), ippStsNullPtrErr);
-      }
+
+   int n;
+   for(n=0; n<numAD; n++) {
+      /* test input message and it's length */
+      IPP_BADARG_RET((pADlen[n]<0), ippStsLengthErr);
+      /* test source pointer */
+      IPP_BADARG_RET((pADlen[n] && !pAD[n]), ippStsNullPtrErr);
    }
-   #endif
 
    {
       Ipp8u ctxBlob[sizeof(IppsAES_CMACState) + AESCMAC_ALIGNMENT];
@@ -120,9 +117,9 @@ IPPFUN(IppStatus, ippsAES_S2V_CMAC,(const Ipp8u* pKey, int keyLen,
          }
 
          else {
-            int n;
-            for(n=0, numAD--; n<numAD; n++)
-               cpAES_S2V_update(V, pAD[n], pADlen[n], pCtx);
+            int i;
+            for(i=0, numAD--; i<numAD; i++)
+               cpAES_S2V_update(V, pAD[i], pADlen[i], pCtx);
              cpAES_S2V_final(V, pAD[numAD], pADlen[numAD], pCtx);
          }
       }

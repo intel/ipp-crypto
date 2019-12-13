@@ -54,6 +54,9 @@
 #include "pcpaes_encrypt_vaes512.h"
 
 #if (_IPP32E>=_IPP32E_K0)
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#pragma warning(disable: 4310) // cast truncates constant value in MSVC
+#endif
 
 #define M512(mem)    (*((__m512i*)((Ipp8u*)(mem))))
 

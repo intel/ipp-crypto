@@ -59,6 +59,7 @@
 
 #include "pcprsa_pkcs1c15_data.h"
 #include "pcprsa_verifysing_pkcs1v15.h"
+#include "pcprsa_pkcs1v15_preproc.h"
 
 IPPFUN(IppStatus, ippsRSAVerify_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
                                               const Ipp8u* pSign, int* pIsValid,
@@ -66,30 +67,19 @@ IPPFUN(IppStatus, ippsRSAVerify_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
                                               const IppsHashMethod* pMethod,
                                                     Ipp8u* pScratchBuffer))
 {
-   IppHashAlgId hashAlg;
+   const IppStatus preprocResult = SingleVerifyPkcs1v15RmfPreproc(pMsg, msgLen, pSign,
+      pIsValid, &pKey, pMethod, pScratchBuffer); // badargs, pointer alignments, set valid = 0
 
-   /* test public key context */
-   IPP_BAD_PTR3_RET(pKey, pScratchBuffer, pMethod);
-   pKey = (IppsRSAPublicKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PUBLIC_KEY_ALIGNMENT) );
-   IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(pKey), ippStsContextMatchErr);
-   IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
+   if (ippStsNoErr != preprocResult) {
+      return preprocResult;
+   }
 
-   /* test hash algorith ID */
-   hashAlg = pMethod->hashAlgId;
-   IPP_BADARG_RET(ippHashAlg_SM3==hashAlg, ippStsNotSupportedModeErr);
-
-   /* test data pointer */
-   IPP_BAD_PTR3_RET(pMsg, pSign, pIsValid);
-   /* test length */
-   IPP_BADARG_RET(msgLen<0, ippStsLengthErr);
-
-   *pIsValid = 0;
    {
       Ipp8u md[IPP_SHA512_DIGEST_BITSIZE/BYTESIZE];
       ippsHashMessage_rmf(pMsg, msgLen, md, pMethod);
 
       return VerifySing(md, pMethod->hashLen,
-                        pksc15_salt[hashAlg].pSalt, pksc15_salt[hashAlg].saltLen,
+                        pksc15_salt[pMethod->hashAlgId].pSalt, pksc15_salt[pMethod->hashAlgId].saltLen,
                         pSign, pIsValid,
                         pKey,
                         (BNU_CHUNK_T*)(IPP_ALIGNED_PTR((pScratchBuffer), (int)sizeof(BNU_CHUNK_T))))? ippStsNoErr : ippStsSizeErr;

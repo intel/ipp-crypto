@@ -38,12 +38,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
+/*
 //  Purpose:
 //     Intel(R) Integrated Performance Primitives. Cryptography Primitives.
 //     Internal Miscellaneous BNU 32 bit Definitions & Function Prototypes
-// 
-// 
+//
+//
 */
 
 #if !defined(_CP_BNU32_MISC_H)
@@ -54,8 +54,15 @@
 #define BITSIZE_BNU32(p,ns)  ((ns)*BNU_CHUNK_32BIT-cpNLZ_BNU32((p)[(ns)-1]))
 
 /* number of leading/trailing zeros */
-#define cpNLZ_BNU32 OWNAPI(cpNLZ_BNU32)
-cpSize  cpNLZ_BNU32(Ipp32u x);
+#if (_IPP < _IPP_H9)
+   #define cpNLZ_BNU32 OWNAPI(cpNLZ_BNU32)
+   cpSize  cpNLZ_BNU32(Ipp32u x);
+#else
+   __INLINE cpSize cpNLZ_BNU32(Ipp32u x)
+   {
+      return _lzcnt_u32(x);
+   }
+#endif
 
 /* most significant BNU bit */
 __INLINE int cpMSBit_BNU32(const Ipp32u* pA, cpSize nsA)
@@ -64,19 +71,15 @@ __INLINE int cpMSBit_BNU32(const Ipp32u* pA, cpSize nsA)
    return nsA*BITSIZE(Ipp32u) - cpNLZ_BNU32(pA[nsA-1]) -1;
 }
 
-
 __INLINE int cpCmp_BNU32(const Ipp32u* pA, cpSize nsA, const Ipp32u* pB, cpSize nsB)
 {
    if(nsA!=nsB)
       return nsA>nsB? 1 : -1;
    else {
-      for(; nsA>0; nsA--) {
-         if(pA[nsA-1] > pB[nsA-1])
-            return 1;
-         else if(pA[nsA-1] < pB[nsA-1])
-            return -1;
-      }
-      return 0;
+      BNU_CHUNK_T idx = 0;
+      for(; nsA>0; nsA--)
+        idx |= ~cpIsEqu_ct(pA[nsA-1], pB[nsA-1]) & cpIsZero_ct(idx) & (nsA-1);
+      return pA[idx] < pB[idx] ? -1 : (pA[idx] > pB[idx] ? 1 : 0);
    }
 }
 

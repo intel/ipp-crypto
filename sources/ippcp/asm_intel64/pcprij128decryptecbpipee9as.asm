@@ -38,25 +38,24 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Inverse Cipher function
-; 
+;
 ;     Content:
 ;        DecryptECB_RIJ128pipe_AES_NI()
-; 
 ;
-include asmdefs.inc
-include ia_32e.inc
-include pcpvariant.inc
+;
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "pcpvariant.inc"
 
-IF (_AES_NI_ENABLING_ EQ _FEATURE_ON_) OR (_AES_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-IF (_IPP32E GE _IPP32E_Y8)
+%if (_AES_NI_ENABLING_ == _FEATURE_ON_) || (_AES_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+%if (_IPP32E >= _IPP32E_Y8)
 
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
-
+segment .text align=IPP_ALIGN_FACTOR
 
 ;***************************************************************
 ;* Purpose:    pipelined RIJ128 ECB decryption
@@ -73,42 +72,42 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;;
 ;; Caller = ippsAESDecryptECB
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM DecryptECB_RIJ128pipe_AES_NI PROC PUBLIC FRAME
-      USES_GPR rsi, rdi
-      LOCAL_FRAME = 0
-      USES_XMM
-      COMP_ABI 5
-;; rdi:     pInpBlk:  PTR DWORD,    ; input  blocks address
-;; rsi:     pOutBlk:  PTR DWORD,    ; output blocks address
+align IPP_ALIGN_FACTOR
+IPPASM DecryptECB_RIJ128pipe_AES_NI,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi
+        USES_XMM
+        COMP_ABI 5
+;; rdi:     pInpBlk:  DWORD,    ; input  blocks address
+;; rsi:     pOutBlk:  DWORD,    ; output blocks address
 ;; rdx:     nr:           DWORD,    ; number of rounds
-;; rcx      pKey:     PTR DWORD     ; key material address
+;; rcx      pKey:     DWORD     ; key material address
 ;; r8d      length:       DWORD     ; length (bytes)
 
-SC        equ (4)
-BLKS_PER_LOOP = (4)
-BYTES_PER_BLK = (16)
-BYTES_PER_LOOP = (BYTES_PER_BLK*BLKS_PER_LOOP)
+%xdefine SC  (4)
+%assign BLKS_PER_LOOP  (4)
+%assign BYTES_PER_BLK  (16)
+%assign BYTES_PER_LOOP  (BYTES_PER_BLK*BLKS_PER_LOOP)
 
    lea      rax,[rdx*SC]               ; keys offset
 
    movsxd   r8, r8d
    sub      r8, BYTES_PER_LOOP
-   jl       short_input
+   jl       .short_input
 
 ;;
 ;; pipelined processing
 ;;
 ;ALIGN IPP_ALIGN_FACTOR
-blks_loop:
+.blks_loop:
    lea      r9,[rcx+rax*4]             ; set pointer to the key material
-   movdqa   xmm4, oword ptr [r9]       ; keys for whitening
+   movdqa   xmm4, oword [r9]       ; keys for whitening
    sub      r9, 16
 
-   movdqu   xmm0, oword ptr[rdi+0*BYTES_PER_BLK]  ; get input blocks
-   movdqu   xmm1, oword ptr[rdi+1*BYTES_PER_BLK]
-   movdqu   xmm2, oword ptr[rdi+2*BYTES_PER_BLK]
-   movdqu   xmm3, oword ptr[rdi+3*BYTES_PER_BLK]
+   movdqu   xmm0, oword [rdi+0*BYTES_PER_BLK]  ; get input blocks
+   movdqu   xmm1, oword [rdi+1*BYTES_PER_BLK]
+   movdqu   xmm2, oword [rdi+2*BYTES_PER_BLK]
+   movdqu   xmm3, oword [rdi+3*BYTES_PER_BLK]
    add      rdi, BYTES_PER_LOOP
 
    pxor     xmm0, xmm4                 ; whitening
@@ -116,88 +115,89 @@ blks_loop:
    pxor     xmm2, xmm4
    pxor     xmm3, xmm4
 
-   movdqa   xmm4, oword ptr [r9]       ; pre load operation's keys
+   movdqa   xmm4, oword [r9]       ; pre load operation's keys
    sub      r9, 16
 
    mov      r10, rdx                   ; counter depending on key length
    sub      r10, 1
 ;ALIGN IPP_ALIGN_FACTOR
-cipher_loop:
+.cipher_loop:
    aesdec      xmm0, xmm4              ; regular round
    aesdec      xmm1, xmm4
    aesdec      xmm2, xmm4
    aesdec      xmm3, xmm4
-   movdqa      xmm4, oword ptr [r9]    ; pre load operation's keys
+   movdqa      xmm4, oword [r9]    ; pre load operation's keys
    sub         r9, 16
    dec         r10
-   jnz         cipher_loop
+   jnz         .cipher_loop
 
    aesdeclast  xmm0, xmm4                 ; irregular round
-   movdqu      oword ptr[rsi+0*BYTES_PER_BLK], xmm0  ; store output blocks
+   movdqu      oword [rsi+0*BYTES_PER_BLK], xmm0  ; store output blocks
 
    aesdeclast  xmm1, xmm4
-   movdqu      oword ptr[rsi+1*BYTES_PER_BLK], xmm1
+   movdqu      oword [rsi+1*BYTES_PER_BLK], xmm1
 
    aesdeclast  xmm2, xmm4
-   movdqu      oword ptr[rsi+2*BYTES_PER_BLK], xmm2
+   movdqu      oword [rsi+2*BYTES_PER_BLK], xmm2
 
    aesdeclast  xmm3, xmm4
-   movdqu      oword ptr[rsi+3*BYTES_PER_BLK], xmm3
+   movdqu      oword [rsi+3*BYTES_PER_BLK], xmm3
 
    add         rsi, BYTES_PER_LOOP
    sub         r8, BYTES_PER_LOOP
-   jge         blks_loop
+   jge         .blks_loop
 
 ;;
 ;; block-by-block processing
 ;;
-short_input:
+.short_input:
    add      r8, BYTES_PER_LOOP
-   jz       quit
+   jz       .quit
 
    lea      r9,[rcx+rax*4]             ; set pointer to the key material
-ALIGN IPP_ALIGN_FACTOR
-single_blk_loop:
-   movdqu   xmm0, oword ptr[rdi]       ; get input block
+align IPP_ALIGN_FACTOR
+.single_blk_loop:
+   movdqu   xmm0, oword [rdi]       ; get input block
    add      rdi,  BYTES_PER_BLK
-   pxor     xmm0, oword ptr [r9]       ; whitening
+   pxor     xmm0, oword [r9]       ; whitening
 
    cmp      rdx,12                     ; switch according to number of rounds
-   jl       key_128_s
-   jz       key_192_s
+   jl       .key_128_s
+   jz       .key_192_s
 
-key_256_s:
-   aesdec      xmm0, oword ptr[rcx+9*SC*4+4*SC*4]
-   aesdec      xmm0, oword ptr[rcx+9*SC*4+3*SC*4]
-key_192_s:
-   aesdec      xmm0, oword ptr[rcx+9*SC*4+2*SC*4]
-   aesdec      xmm0, oword ptr[rcx+9*SC*4+1*SC*4]
-key_128_s:
-   aesdec      xmm0, oword ptr[rcx+9*SC*4-0*SC*4]
-   aesdec      xmm0, oword ptr[rcx+9*SC*4-1*SC*4]
-   aesdec      xmm0, oword ptr[rcx+9*SC*4-2*SC*4]
-   aesdec      xmm0, oword ptr[rcx+9*SC*4-3*SC*4]
-   aesdec      xmm0, oword ptr[rcx+9*SC*4-4*SC*4]
-   aesdec      xmm0, oword ptr[rcx+9*SC*4-5*SC*4]
-   aesdec      xmm0, oword ptr[rcx+9*SC*4-6*SC*4]
-   aesdec      xmm0, oword ptr[rcx+9*SC*4-7*SC*4]
-   aesdec      xmm0, oword ptr[rcx+9*SC*4-8*SC*4]
-   aesdeclast  xmm0, oword ptr[rcx+9*SC*4-9*SC*4]
+.key_256_s:
+   aesdec      xmm0, oword [rcx+9*SC*4+4*SC*4]
+   aesdec      xmm0, oword [rcx+9*SC*4+3*SC*4]
+.key_192_s:
+   aesdec      xmm0, oword [rcx+9*SC*4+2*SC*4]
+   aesdec      xmm0, oword [rcx+9*SC*4+1*SC*4]
+.key_128_s:
+   aesdec      xmm0, oword [rcx+9*SC*4-0*SC*4]
+   aesdec      xmm0, oword [rcx+9*SC*4-1*SC*4]
+   aesdec      xmm0, oword [rcx+9*SC*4-2*SC*4]
+   aesdec      xmm0, oword [rcx+9*SC*4-3*SC*4]
+   aesdec      xmm0, oword [rcx+9*SC*4-4*SC*4]
+   aesdec      xmm0, oword [rcx+9*SC*4-5*SC*4]
+   aesdec      xmm0, oword [rcx+9*SC*4-6*SC*4]
+   aesdec      xmm0, oword [rcx+9*SC*4-7*SC*4]
+   aesdec      xmm0, oword [rcx+9*SC*4-8*SC*4]
+   aesdeclast  xmm0, oword [rcx+9*SC*4-9*SC*4]
 
-   movdqu      oword ptr[rsi], xmm0    ; save output block
+   movdqu      oword [rsi], xmm0    ; save output block
    add         rsi, BYTES_PER_BLK
 
    sub         r8, BYTES_PER_BLK
-   jnz         single_blk_loop
+   jnz         .single_blk_loop
 
-quit:
+.quit:
    pxor  xmm4, xmm4
 
    REST_XMM
    REST_GPR
    ret
-IPPASM DecryptECB_RIJ128pipe_AES_NI ENDP
-ENDIF
+ENDFUNC DecryptECB_RIJ128pipe_AES_NI
 
-ENDIF ;; _AES_NI_ENABLING_
-END
+%endif
+
+%endif ;; _AES_NI_ENABLING_
+

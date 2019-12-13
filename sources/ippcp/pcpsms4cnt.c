@@ -42,7 +42,7 @@
 // 
 //  Purpose:
 //     Cryptography Primitive.
-//     SMS4 S-boxe and othre constants
+//     SMS4 S-box and other constants
 // 
 // 
 */
@@ -74,12 +74,12 @@ const __ALIGN64 Ipp8u SMS4_Sbox[16*16] = {
 };
 
 /* FK[] constants */
-Ipp32u SMS4_FK[4] = {
+__ALIGN16 Ipp32u SMS4_FK[4] = {
    0xA3B1BAC6,0x56AA3350,0x677D9197,0xB27022DC
 };
 
 /* CK[] constants */
-Ipp32u SMS4_CK[32] =
+__ALIGN16 Ipp32u SMS4_CK[32] =
 {
    0x00070E15,0x1C232A31,0x383F464D,0x545B6269,
    0x70777E85,0x8C939AA1,0xA8AFB6BD,0xC4CBD2D9,

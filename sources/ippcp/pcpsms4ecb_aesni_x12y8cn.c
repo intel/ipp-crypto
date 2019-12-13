@@ -55,105 +55,110 @@
 #include "owndefs.h"
 #include "owncp.h"
 #include "pcpsms4.h"
-#include "pcpsms4ecby8cn.h"
+#include "pcptool.h"
 
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
+
+#include "pcpsms4_y8cn.h"
 
 /*
 // (1-3)*MBS_SMS4 processing
 */
+
 static int cpSMS4_ECB_aesni_tail(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey)
 {
-   __m128i T, K0;
-   __m128i K1 = _mm_setzero_si128();
-   __m128i K2 = _mm_setzero_si128();
-   __m128i K3 = _mm_setzero_si128();
+   __ALIGN16 __m128i TMP[6];
+   /*
+      TMP[0] = T
+      TMP[1] = K0
+      TMP[2] = K1
+      TMP[3] = K2
+      TMP[4] = K3
+      TMP[5] = key4
+   */
+
+   TMP[2] = _mm_setzero_si128();
+   TMP[3] = _mm_setzero_si128();
+   TMP[4] = _mm_setzero_si128();
 
    switch (len) {
    case (3*MBS_SMS4):
-      K2 = _mm_shuffle_epi8(_mm_loadu_si128((__m128i*)(pInp+2*MBS_SMS4)), M128(swapBytes));
+      TMP[3] = _mm_shuffle_epi8(_mm_loadu_si128((__m128i*)(pInp+2*MBS_SMS4)), M128(swapBytes));
    case (2*MBS_SMS4):
-      K1 = _mm_shuffle_epi8(_mm_loadu_si128((__m128i*)(pInp+1*MBS_SMS4)), M128(swapBytes));
+      TMP[2] = _mm_shuffle_epi8(_mm_loadu_si128((__m128i*)(pInp+1*MBS_SMS4)), M128(swapBytes));
    case (1*MBS_SMS4):
-      K0 = _mm_shuffle_epi8(_mm_loadu_si128((__m128i*)(pInp+0*MBS_SMS4)), M128(swapBytes));
+      TMP[1] = _mm_shuffle_epi8(_mm_loadu_si128((__m128i*)(pInp+0*MBS_SMS4)), M128(swapBytes));
       break;
    default: return 0;
    }
-   TRANSPOSE_INP(K0,K1,K2,K3, T);
+   TRANSPOSE_INP(TMP[1],TMP[2],TMP[3],TMP[4], TMP[0]);
 
    {
       int itr;
       for(itr=0; itr<8; itr++, pRKey+=4) {
-      __m128i key4 = _mm_loadu_si128((__m128i*)pRKey);
+      TMP[5] = _mm_loadu_si128((__m128i*)pRKey);
 
          /* initial xors */
-         T = _mm_shuffle_epi32(key4, 0x00); /* broadcast(key4[0]) */
-         T = _mm_xor_si128(T, K1);
-         T = _mm_xor_si128(T, K2);
-         T = _mm_xor_si128(T, K3);
+         TMP[0] = _mm_shuffle_epi32(TMP[5], 0x00); /* broadcast(key4 TMP[0]) */
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
          /* Sbox done, now L */
-         K0 = _mm_xor_si128(_mm_xor_si128(K0, T), L(T));
+         TMP[1] = _mm_xor_si128(_mm_xor_si128(TMP[1], TMP[0]), L(TMP[0]));
 
          /* initial xors */
-         T = _mm_shuffle_epi32(key4, 0x55); /* broadcast(key4[1]) */
-         T = _mm_xor_si128(T, K2);
-         T = _mm_xor_si128(T, K3);
-         T = _mm_xor_si128(T, K0);
+         TMP[0] = _mm_shuffle_epi32(TMP[5], 0x55); /* broadcast(key4 TMP[1]) */
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
          /* Sbox done, now L */
-         K1 = _mm_xor_si128(_mm_xor_si128(K1, T), L(T));
+         TMP[2] = _mm_xor_si128(_mm_xor_si128(TMP[2], TMP[0]), L(TMP[0]));
 
          /* initial xors */
-         T = _mm_shuffle_epi32(key4, 0xAA);  /* broadcast(key4[2]) */
-         T = _mm_xor_si128(T, K3);
-         T = _mm_xor_si128(T, K0);
-         T = _mm_xor_si128(T, K1);
+         TMP[0] = _mm_shuffle_epi32(TMP[5], 0xAA);  /* broadcast(key4 TMP[2]) */
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
          /* Sbox done, now L */
-         K2 = _mm_xor_si128(_mm_xor_si128(K2, T), L(T));
+         TMP[3] = _mm_xor_si128(_mm_xor_si128(TMP[3], TMP[0]), L(TMP[0]));
 
          /* initial xors */
-         T = _mm_shuffle_epi32(key4, 0xFF);  /* broadcast(key4[3]) */
-         T = _mm_xor_si128(T, K0);
-         T = _mm_xor_si128(T, K1);
-         T = _mm_xor_si128(T, K2);
+         TMP[0] = _mm_shuffle_epi32(TMP[5], 0xFF);  /* broadcast(key4 TMP[3]) */
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
          /* Sbox done, now L */
-         K3 = _mm_xor_si128(_mm_xor_si128(K3, T), L(T));
+         TMP[4] = _mm_xor_si128(_mm_xor_si128(TMP[4], TMP[0]), L(TMP[0]));
       }
    }
 
-   TRANSPOSE_OUT(K0,K1,K2,K3, T);
-   K3 = _mm_shuffle_epi8(K3, M128(swapBytes));
-   K2 = _mm_shuffle_epi8(K2, M128(swapBytes));
-   K1 = _mm_shuffle_epi8(K1, M128(swapBytes));
-   K0 = _mm_shuffle_epi8(K0, M128(swapBytes));
+   TRANSPOSE_OUT(TMP[1],TMP[2],TMP[3],TMP[4], TMP[0]);
+   TMP[4] = _mm_shuffle_epi8(TMP[4], M128(swapBytes));
+   TMP[3] = _mm_shuffle_epi8(TMP[3], M128(swapBytes));
+   TMP[2] = _mm_shuffle_epi8(TMP[2], M128(swapBytes));
+   TMP[1] = _mm_shuffle_epi8(TMP[1], M128(swapBytes));
 
    switch (len) {
    case (3*MBS_SMS4):
-      _mm_storeu_si128((__m128i*)(pOut+2*MBS_SMS4), K1);
+      _mm_storeu_si128((__m128i*)(pOut+2*MBS_SMS4), TMP[2]);
    case (2*MBS_SMS4):
-      _mm_storeu_si128((__m128i*)(pOut+1*MBS_SMS4), K2);
+      _mm_storeu_si128((__m128i*)(pOut+1*MBS_SMS4), TMP[3]);
    case (1*MBS_SMS4):
-      _mm_storeu_si128((__m128i*)(pOut+0*MBS_SMS4), K3);
+      _mm_storeu_si128((__m128i*)(pOut+0*MBS_SMS4), TMP[4]);
       break;
+   }
+
+   /* clear secret data */
+   for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
+      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
    }
 
    return len;
@@ -166,91 +171,91 @@ static
 //#define cpSMS4_ECB_aesni_x4 OWNAPI(cpSMS4_ECB_aesni_x4)
 int cpSMS4_ECB_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey)
 {
+   __ALIGN16 __m128i TMP[5];
+   /*
+      TMP[0] = T
+      TMP[1] = K0
+      TMP[2] = K1
+      TMP[3] = K2
+      TMP[4] = K3
+   */
    int processedLen = len & -(4*MBS_SMS4);
    int n;
    for(n=0; n<processedLen; n+=(4*MBS_SMS4), pInp+=(4*MBS_SMS4), pOut+=(4*MBS_SMS4)) {
       int itr;
-      __m128i T;
-      __m128i K0 = _mm_loadu_si128((__m128i*)(pInp));
-      __m128i K1 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4));
-      __m128i K2 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*2));
-      __m128i K3 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*3));
-      K0 = _mm_shuffle_epi8(K0, M128(swapBytes));
-      K1 = _mm_shuffle_epi8(K1, M128(swapBytes));
-      K2 = _mm_shuffle_epi8(K2, M128(swapBytes));
-      K3 = _mm_shuffle_epi8(K3, M128(swapBytes));
-      TRANSPOSE_INP(K0,K1,K2,K3, T);
+      TMP[1] = _mm_loadu_si128((__m128i*)(pInp));
+      TMP[2] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4));
+      TMP[3] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*2));
+      TMP[4] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*3));
+      TMP[1] = _mm_shuffle_epi8(TMP[1], M128(swapBytes));
+      TMP[2] = _mm_shuffle_epi8(TMP[2], M128(swapBytes));
+      TMP[3] = _mm_shuffle_epi8(TMP[3], M128(swapBytes));
+      TMP[4] = _mm_shuffle_epi8(TMP[4], M128(swapBytes));
+      TRANSPOSE_INP(TMP[1],TMP[2],TMP[3],TMP[4], TMP[0]);
 
       for(itr=0; itr<8; itr++, pRKey+=4) {
          /* initial xors */
-         T = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[0]), 0);
-         T = _mm_xor_si128(T, K1);
-         T = _mm_xor_si128(T, K2);
-         T = _mm_xor_si128(T, K3);
+         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[0]), 0);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
          /* Sbox done, now L */
-         K0 = _mm_xor_si128(_mm_xor_si128(K0, T), L(T));
+         TMP[1] = _mm_xor_si128(_mm_xor_si128(TMP[1], TMP[0]), L(TMP[0]));
 
          /* initial xors */
-         T = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[1]), 0);
-         T = _mm_xor_si128(T, K2);
-         T = _mm_xor_si128(T, K3);
-         T = _mm_xor_si128(T, K0);
+         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[1]), 0);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
          /* Sbox done, now L */
-         K1 = _mm_xor_si128(_mm_xor_si128(K1, T), L(T));
+         TMP[2] = _mm_xor_si128(_mm_xor_si128(TMP[2], TMP[0]), L(TMP[0]));
 
          /* initial xors */
-         T = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[2]), 0);
-         T = _mm_xor_si128(T, K3);
-         T = _mm_xor_si128(T, K0);
-         T = _mm_xor_si128(T, K1);
+         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[2]), 0);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
          /* Sbox done, now L */
-         K2 = _mm_xor_si128(_mm_xor_si128(K2, T), L(T));
+         TMP[3] = _mm_xor_si128(_mm_xor_si128(TMP[3], TMP[0]), L(TMP[0]));
 
          /* initial xors */
-         T = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[3]), 0);
-         T = _mm_xor_si128(T, K0);
-         T = _mm_xor_si128(T, K1);
-         T = _mm_xor_si128(T, K2);
+         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[3]), 0);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
          /* Sbox done, now L */
-         K3 = _mm_xor_si128(_mm_xor_si128(K3, T), L(T));
+         TMP[4] = _mm_xor_si128(_mm_xor_si128(TMP[4], TMP[0]), L(TMP[0]));
       }
 
       pRKey -= 32;
 
-      TRANSPOSE_OUT(K0,K1,K2,K3, T);
-      K3 = _mm_shuffle_epi8(K3, M128(swapBytes));
-      K2 = _mm_shuffle_epi8(K2, M128(swapBytes));
-      K1 = _mm_shuffle_epi8(K1, M128(swapBytes));
-      K0 = _mm_shuffle_epi8(K0, M128(swapBytes));
-      _mm_storeu_si128((__m128i*)(pOut), K3);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4), K2);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*2), K1);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*3), K0);
+      TRANSPOSE_OUT(TMP[1],TMP[2],TMP[3],TMP[4], TMP[0]);
+      TMP[4] = _mm_shuffle_epi8(TMP[4], M128(swapBytes));
+      TMP[3] = _mm_shuffle_epi8(TMP[3], M128(swapBytes));
+      TMP[2] = _mm_shuffle_epi8(TMP[2], M128(swapBytes));
+      TMP[1] = _mm_shuffle_epi8(TMP[1], M128(swapBytes));
+      _mm_storeu_si128((__m128i*)(pOut), TMP[4]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4), TMP[3]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*2), TMP[2]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*3), TMP[1]);
    }
 
    len -= processedLen;
    if(len)
       processedLen += cpSMS4_ECB_aesni_tail(pOut, pInp, len, pRKey);
+
+   /* clear secret data */
+   for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
+      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+   }
 
    return processedLen;
 }
@@ -262,146 +267,140 @@ static
 //#define cpSMS4_ECB_aesni_x8 OWNAPI(cpSMS4_ECB_aesni_x8)
 int cpSMS4_ECB_aesni_x8(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey)
 {
+   __ALIGN16 __m128i TMP[10];
+   /*
+      TMP[0] = T
+      TMP[1] = U
+      TMP[2] = K0
+      TMP[3] = K1
+      TMP[4] = K2
+      TMP[5] = K3
+      TMP[6] = P0
+      TMP[7] = P1
+      TMP[8] = P2
+      TMP[9] = P3
+   */
+
    int processedLen = len & -(8*MBS_SMS4);
    int n;
    for(n=0; n<processedLen; n+=(8*MBS_SMS4), pInp+=(8*MBS_SMS4), pOut+=(8*MBS_SMS4)) {
       int itr;
-      __m128i T, U;
-      __m128i K0 = _mm_loadu_si128((__m128i*)(pInp));
-      __m128i K1 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4));
-      __m128i K2 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*2));
-      __m128i K3 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*3));
+      TMP[2] = _mm_loadu_si128((__m128i*)(pInp));
+      TMP[3] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4));
+      TMP[4] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*2));
+      TMP[5] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*3));
 
-      __m128i P0 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*4));
-      __m128i P1 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*5));
-      __m128i P2 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*6));
-      __m128i P3 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*7));
+      TMP[6] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*4));
+      TMP[7] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*5));
+      TMP[8] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*6));
+      TMP[9] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*7));
 
-      K0 = _mm_shuffle_epi8(K0, M128(swapBytes));
-      K1 = _mm_shuffle_epi8(K1, M128(swapBytes));
-      K2 = _mm_shuffle_epi8(K2, M128(swapBytes));
-      K3 = _mm_shuffle_epi8(K3, M128(swapBytes));
-      TRANSPOSE_INP(K0,K1,K2,K3, T);
+      TMP[2] = _mm_shuffle_epi8(TMP[2], M128(swapBytes));
+      TMP[3] = _mm_shuffle_epi8(TMP[3], M128(swapBytes));
+      TMP[4] = _mm_shuffle_epi8(TMP[4], M128(swapBytes));
+      TMP[5] = _mm_shuffle_epi8(TMP[5], M128(swapBytes));
+      TRANSPOSE_INP(TMP[2],TMP[3],TMP[4],TMP[5], TMP[0]);
 
-      P0 = _mm_shuffle_epi8(P0, M128(swapBytes));
-      P1 = _mm_shuffle_epi8(P1, M128(swapBytes));
-      P2 = _mm_shuffle_epi8(P2, M128(swapBytes));
-      P3 = _mm_shuffle_epi8(P3, M128(swapBytes));
-      TRANSPOSE_INP(P0,P1,P2,P3, T);
+      TMP[6] = _mm_shuffle_epi8(TMP[6], M128(swapBytes));
+      TMP[7] = _mm_shuffle_epi8(TMP[7], M128(swapBytes));
+      TMP[8] = _mm_shuffle_epi8(TMP[8], M128(swapBytes));
+      TMP[9] = _mm_shuffle_epi8(TMP[9], M128(swapBytes));
+      TRANSPOSE_INP(TMP[6],TMP[7],TMP[8],TMP[9], TMP[0]);
 
       for(itr=0; itr<8; itr++, pRKey+=4) {
          /* initial xors */
-         U = T = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[0]), 0);
-         T = _mm_xor_si128(T, K1);
-         T = _mm_xor_si128(T, K2);
-         T = _mm_xor_si128(T, K3);
-         U = _mm_xor_si128(U, P1);
-         U = _mm_xor_si128(U, P2);
-         U = _mm_xor_si128(U, P3);
+         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[0]), 0);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[5]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[7]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[8]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[9]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         U = affine(U, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         U = _mm_aesenclast_si128(U, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         U = _mm_shuffle_epi8(U, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
-         U = affine(U, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
+         TMP[1] = sBox(TMP[1]);
          /* Sbox done, now L */
-         K0 = _mm_xor_si128(_mm_xor_si128(K0, T), L(T));
-         P0 = _mm_xor_si128(_mm_xor_si128(P0, U), L(U));
+         TMP[2] = _mm_xor_si128(_mm_xor_si128(TMP[2], TMP[0]), L(TMP[0]));
+         TMP[6] = _mm_xor_si128(_mm_xor_si128(TMP[6], TMP[1]), L(TMP[1]));
 
          /* initial xors */
-         U = T = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[1]), 0);
-         T = _mm_xor_si128(T, K2);
-         T = _mm_xor_si128(T, K3);
-         T = _mm_xor_si128(T, K0);
-         U = _mm_xor_si128(U, P2);
-         U = _mm_xor_si128(U, P3);
-         U = _mm_xor_si128(U, P0);
+         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[1]), 0);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[5]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[8]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[9]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[6]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         U = affine(U, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         U = _mm_aesenclast_si128(U, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         U = _mm_shuffle_epi8(U, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
-         U = affine(U, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
+         TMP[1] = sBox(TMP[1]);
          /* Sbox done, now L */
-         K1 = _mm_xor_si128(_mm_xor_si128(K1, T), L(T));
-         P1 = _mm_xor_si128(_mm_xor_si128(P1, U), L(U));
+         TMP[3] = _mm_xor_si128(_mm_xor_si128(TMP[3], TMP[0]), L(TMP[0]));
+         TMP[7] = _mm_xor_si128(_mm_xor_si128(TMP[7], TMP[1]), L(TMP[1]));
 
          /* initial xors */
-         U = T = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[2]), 0);
-         T = _mm_xor_si128(T, K3);
-         T = _mm_xor_si128(T, K0);
-         T = _mm_xor_si128(T, K1);
-         U = _mm_xor_si128(U, P3);
-         U = _mm_xor_si128(U, P0);
-         U = _mm_xor_si128(U, P1);
+         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[2]), 0);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[5]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[9]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[6]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[7]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         U = affine(U, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         U = _mm_aesenclast_si128(U, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         U = _mm_shuffle_epi8(U, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
-         U = affine(U, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
+         TMP[1] = sBox(TMP[1]);
          /* Sbox done, now L */
-         K2 = _mm_xor_si128(_mm_xor_si128(K2, T), L(T));
-         P2 = _mm_xor_si128(_mm_xor_si128(P2, U), L(U));
+         TMP[4] = _mm_xor_si128(_mm_xor_si128(TMP[4], TMP[0]), L(TMP[0]));
+         TMP[8] = _mm_xor_si128(_mm_xor_si128(TMP[8], TMP[1]), L(TMP[1]));
 
          /* initial xors */
-         U = T = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[3]), 0);
-         T = _mm_xor_si128(T, K0);
-         T = _mm_xor_si128(T, K1);
-         T = _mm_xor_si128(T, K2);
-         U = _mm_xor_si128(U, P0);
-         U = _mm_xor_si128(U, P1);
-         U = _mm_xor_si128(U, P2);
+         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[3]), 0);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[6]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[7]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[8]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         U = affine(U, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         U = _mm_aesenclast_si128(U, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         U = _mm_shuffle_epi8(U, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
-         U = affine(U, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
+         TMP[1] = sBox(TMP[1]);
          /* Sbox done, now L */
-         K3 = _mm_xor_si128(_mm_xor_si128(K3, T), L(T));
-         P3 = _mm_xor_si128(_mm_xor_si128(P3, U), L(U));
+         TMP[5] = _mm_xor_si128(_mm_xor_si128(TMP[5], TMP[0]), L(TMP[0]));
+         TMP[9] = _mm_xor_si128(_mm_xor_si128(TMP[9], TMP[1]), L(TMP[1]));
       }
 
       pRKey -= 32;
 
-      TRANSPOSE_OUT(K0,K1,K2,K3, T);
-      K3 = _mm_shuffle_epi8(K3, M128(swapBytes));
-      K2 = _mm_shuffle_epi8(K2, M128(swapBytes));
-      K1 = _mm_shuffle_epi8(K1, M128(swapBytes));
-      K0 = _mm_shuffle_epi8(K0, M128(swapBytes));
-      _mm_storeu_si128((__m128i*)(pOut), K3);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4), K2);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*2), K1);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*3), K0);
+      TRANSPOSE_OUT(TMP[2],TMP[3],TMP[4],TMP[5], TMP[0]);
+      TMP[5] = _mm_shuffle_epi8(TMP[5], M128(swapBytes));
+      TMP[4] = _mm_shuffle_epi8(TMP[4], M128(swapBytes));
+      TMP[3] = _mm_shuffle_epi8(TMP[3], M128(swapBytes));
+      TMP[2] = _mm_shuffle_epi8(TMP[2], M128(swapBytes));
+      _mm_storeu_si128((__m128i*)(pOut), TMP[5]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4), TMP[4]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*2), TMP[3]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*3), TMP[2]);
 
-      TRANSPOSE_OUT(P0,P1,P2,P3, T);
-      P3 = _mm_shuffle_epi8(P3, M128(swapBytes));
-      P2 = _mm_shuffle_epi8(P2, M128(swapBytes));
-      P1 = _mm_shuffle_epi8(P1, M128(swapBytes));
-      P0 = _mm_shuffle_epi8(P0, M128(swapBytes));
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*4), P3);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*5), P2);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*6), P1);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*7), P0);
+      TRANSPOSE_OUT(TMP[6],TMP[7],TMP[8],TMP[9], TMP[0]);
+      TMP[9] = _mm_shuffle_epi8(TMP[9], M128(swapBytes));
+      TMP[8] = _mm_shuffle_epi8(TMP[8], M128(swapBytes));
+      TMP[7] = _mm_shuffle_epi8(TMP[7], M128(swapBytes));
+      TMP[6] = _mm_shuffle_epi8(TMP[6], M128(swapBytes));
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*4), TMP[9]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*5), TMP[8]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*6), TMP[7]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*7), TMP[6]);
    }
 
 
    len -= processedLen;
    if(len)
       processedLen += cpSMS4_ECB_aesni_x4(pOut, pInp, len, pRKey);
+   
+   /* clear secret data */
+   for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
+      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+   }
 
    return processedLen;
 }
@@ -417,207 +416,194 @@ int cpSMS4_ECB_aesni_x12(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* 
 int cpSMS4_ECB_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey)
 #endif
 {
+   __ALIGN16 __m128i TMP[15];
+   /*
+      TMP[ 0] = T
+      TMP[ 1] = U
+      TMP[ 2] = V
+      TMP[ 3] = K0
+      TMP[ 4] = K1
+      TMP[ 5] = K2
+      TMP[ 6] = K3
+      TMP[ 7] = P0
+      TMP[ 8] = P1
+      TMP[ 9] = P2
+      TMP[10] = P3
+      TMP[11] = Q0
+      TMP[12] = Q1
+      TMP[13] = Q2
+      TMP[14] = Q3
+   */
+
    int processedLen = len -(len % (12*MBS_SMS4));
    int n;
    for(n=0; n<processedLen; n+=(12*MBS_SMS4), pInp+=(12*MBS_SMS4), pOut+=(12*MBS_SMS4)) {
       int itr;
-      __m128i T;
 
-      __m128i K0 = _mm_loadu_si128((__m128i*)(pInp));
-      __m128i K1 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4));
-      __m128i K2 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*2));
-      __m128i K3 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*3));
+      TMP[3] = _mm_loadu_si128((__m128i*)(pInp));
+      TMP[4] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4));
+      TMP[5] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*2));
+      TMP[6] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*3));
 
-      __m128i P0 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*4));
-      __m128i P1 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*5));
-      __m128i P2 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*6));
-      __m128i P3 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*7));
+      TMP[7] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*4));
+      TMP[8] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*5));
+      TMP[9] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*6));
+      TMP[10] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*7));
 
-      __m128i Q0 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*8));
-      __m128i Q1 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*9));
-      __m128i Q2 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*10));
-      __m128i Q3 = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*11));
+      TMP[11] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*8));
+      TMP[12] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*9));
+      TMP[13] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*10));
+      TMP[14] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*11));
 
-      K0 = _mm_shuffle_epi8(K0, M128(swapBytes));
-      K1 = _mm_shuffle_epi8(K1, M128(swapBytes));
-      K2 = _mm_shuffle_epi8(K2, M128(swapBytes));
-      K3 = _mm_shuffle_epi8(K3, M128(swapBytes));
-      TRANSPOSE_INP(K0,K1,K2,K3, T);
+      TMP[3] = _mm_shuffle_epi8(TMP[3], M128(swapBytes));
+      TMP[4] = _mm_shuffle_epi8(TMP[4], M128(swapBytes));
+      TMP[5] = _mm_shuffle_epi8(TMP[5], M128(swapBytes));
+      TMP[6] = _mm_shuffle_epi8(TMP[6], M128(swapBytes));
+      TRANSPOSE_INP(TMP[3],TMP[4],TMP[5],TMP[6], TMP[0]);
 
-      P0 = _mm_shuffle_epi8(P0, M128(swapBytes));
-      P1 = _mm_shuffle_epi8(P1, M128(swapBytes));
-      P2 = _mm_shuffle_epi8(P2, M128(swapBytes));
-      P3 = _mm_shuffle_epi8(P3, M128(swapBytes));
-      TRANSPOSE_INP(P0,P1,P2,P3, T);
+      TMP[7] = _mm_shuffle_epi8(TMP[7], M128(swapBytes));
+      TMP[8] = _mm_shuffle_epi8(TMP[8], M128(swapBytes));
+      TMP[9] = _mm_shuffle_epi8(TMP[9], M128(swapBytes));
+      TMP[10] = _mm_shuffle_epi8(TMP[10], M128(swapBytes));
+      TRANSPOSE_INP(TMP[7],TMP[8],TMP[9],TMP[10], TMP[0]);
 
-      Q0 = _mm_shuffle_epi8(Q0, M128(swapBytes));
-      Q1 = _mm_shuffle_epi8(Q1, M128(swapBytes));
-      Q2 = _mm_shuffle_epi8(Q2, M128(swapBytes));
-      Q3 = _mm_shuffle_epi8(Q3, M128(swapBytes));
-      TRANSPOSE_INP(Q0,Q1,Q2,Q3, T);
+      TMP[11] = _mm_shuffle_epi8(TMP[11], M128(swapBytes));
+      TMP[12] = _mm_shuffle_epi8(TMP[12], M128(swapBytes));
+      TMP[13] = _mm_shuffle_epi8(TMP[13], M128(swapBytes));
+      TMP[14] = _mm_shuffle_epi8(TMP[14], M128(swapBytes));
+      TRANSPOSE_INP(TMP[11],TMP[12],TMP[13],TMP[14], TMP[0]);
 
       for(itr=0; itr<8; itr++, pRKey+=4) {
          /* initial xors */
-         __m128i U =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[0]), 0);
-         __m128i V = U;
-         T = U;
-         T = _mm_xor_si128(T, K1);
-         T = _mm_xor_si128(T, K2);
-         T = _mm_xor_si128(T, K3);
-         U = _mm_xor_si128(U, P1);
-         U = _mm_xor_si128(U, P2);
-         U = _mm_xor_si128(U, P3);
-         V = _mm_xor_si128(V, Q1);
-         V = _mm_xor_si128(V, Q2);
-         V = _mm_xor_si128(V, Q3);
+         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[0]), 0);
+         TMP[2] = TMP[1];
+         TMP[0] = TMP[1];
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[5]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[6]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[8]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[9]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[10]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[12]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[13]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[14]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         U = affine(U, M128(inpMaskLO), M128(inpMaskHI));
-         V = affine(V, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         U = _mm_aesenclast_si128(U, M128(encKey));
-         V = _mm_aesenclast_si128(V, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         U = _mm_shuffle_epi8(U, M128(maskSrows));
-         V = _mm_shuffle_epi8(V, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
-         U = affine(U, M128(outMaskLO), M128(outMaskHI));
-         V = affine(V, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
+         TMP[1] = sBox(TMP[1]);
+         TMP[2] = sBox(TMP[2]);
          /* Sbox done, now L */
-         K0 = _mm_xor_si128(_mm_xor_si128(K0, T), L(T));
-         P0 = _mm_xor_si128(_mm_xor_si128(P0, U), L(U));
-         Q0 = _mm_xor_si128(_mm_xor_si128(Q0, V), L(V));
+         TMP[3] = _mm_xor_si128(_mm_xor_si128(TMP[3], TMP[0]), L(TMP[0]));
+         TMP[7] = _mm_xor_si128(_mm_xor_si128(TMP[7], TMP[1]), L(TMP[1]));
+         TMP[11] = _mm_xor_si128(_mm_xor_si128(TMP[11], TMP[2]), L(TMP[2]));
 
          /* initial xors */
-         U =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[1]), 0);
-         V = U;
-         T = U;
-         T = _mm_xor_si128(T, K2);
-         T = _mm_xor_si128(T, K3);
-         T = _mm_xor_si128(T, K0);
-         U = _mm_xor_si128(U, P2);
-         U = _mm_xor_si128(U, P3);
-         U = _mm_xor_si128(U, P0);
-         V = _mm_xor_si128(V, Q2);
-         V = _mm_xor_si128(V, Q3);
-         V = _mm_xor_si128(V, Q0);
+         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[1]), 0);
+         TMP[2] = TMP[1];
+         TMP[0] = TMP[1];
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[5]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[6]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[9]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[10]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[7]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[13]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[14]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[11]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         U = affine(U, M128(inpMaskLO), M128(inpMaskHI));
-         V = affine(V, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         U = _mm_aesenclast_si128(U, M128(encKey));
-         V = _mm_aesenclast_si128(V, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         U = _mm_shuffle_epi8(U, M128(maskSrows));
-         V = _mm_shuffle_epi8(V, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
-         U = affine(U, M128(outMaskLO), M128(outMaskHI));
-         V = affine(V, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
+         TMP[1] = sBox(TMP[1]);
+         TMP[2] = sBox(TMP[2]);
          /* Sbox done, now L */
-         K1 = _mm_xor_si128(_mm_xor_si128(K1, T), L(T));
-         P1 = _mm_xor_si128(_mm_xor_si128(P1, U), L(U));
-         Q1 = _mm_xor_si128(_mm_xor_si128(Q1, V), L(V));
+         TMP[4] = _mm_xor_si128(_mm_xor_si128(TMP[4], TMP[0]), L(TMP[0]));
+         TMP[8] = _mm_xor_si128(_mm_xor_si128(TMP[8], TMP[1]), L(TMP[1]));
+         TMP[12] = _mm_xor_si128(_mm_xor_si128(TMP[12], TMP[2]), L(TMP[2]));
 
          /* initial xors */
-         U =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[2]), 0);
-         V = U;
-         T = U;
-         T = _mm_xor_si128(T, K3);
-         T = _mm_xor_si128(T, K0);
-         T = _mm_xor_si128(T, K1);
-         U = _mm_xor_si128(U, P3);
-         U = _mm_xor_si128(U, P0);
-         U = _mm_xor_si128(U, P1);
-         V = _mm_xor_si128(V, Q3);
-         V = _mm_xor_si128(V, Q0);
-         V = _mm_xor_si128(V, Q1);
+         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[2]), 0);
+         TMP[2] = TMP[1];
+         TMP[0] = TMP[1];
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[6]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[10]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[7]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[8]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[14]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[11]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[12]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         U = affine(U, M128(inpMaskLO), M128(inpMaskHI));
-         V = affine(V, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         U = _mm_aesenclast_si128(U, M128(encKey));
-         V = _mm_aesenclast_si128(V, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         U = _mm_shuffle_epi8(U, M128(maskSrows));
-         V = _mm_shuffle_epi8(V, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
-         U = affine(U, M128(outMaskLO), M128(outMaskHI));
-         V = affine(V, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
+         TMP[1] = sBox(TMP[1]);
+         TMP[2] = sBox(TMP[2]);
          /* Sbox done, now L */
-         K2 = _mm_xor_si128(_mm_xor_si128(K2, T), L(T));
-         P2 = _mm_xor_si128(_mm_xor_si128(P2, U), L(U));
-         Q2 = _mm_xor_si128(_mm_xor_si128(Q2, V), L(V));
+         TMP[5] = _mm_xor_si128(_mm_xor_si128(TMP[5], TMP[0]), L(TMP[0]));
+         TMP[9] = _mm_xor_si128(_mm_xor_si128(TMP[9], TMP[1]), L(TMP[1]));
+         TMP[13] = _mm_xor_si128(_mm_xor_si128(TMP[13], TMP[2]), L(TMP[2]));
 
          /* initial xors */
-         U =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[3]), 0);
-         V = U;
-         T = U;
-         T = _mm_xor_si128(T, K0);
-         T = _mm_xor_si128(T, K1);
-         T = _mm_xor_si128(T, K2);
-         U = _mm_xor_si128(U, P0);
-         U = _mm_xor_si128(U, P1);
-         U = _mm_xor_si128(U, P2);
-         V = _mm_xor_si128(V, Q0);
-         V = _mm_xor_si128(V, Q1);
-         V = _mm_xor_si128(V, Q2);
+         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[3]), 0);
+         TMP[2] = TMP[1];
+         TMP[0] = TMP[1];
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
+         TMP[0] = _mm_xor_si128(TMP[0], TMP[5]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[7]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[8]);
+         TMP[1] = _mm_xor_si128(TMP[1], TMP[9]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[11]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[12]);
+         TMP[2] = _mm_xor_si128(TMP[2], TMP[13]);
          /* Sbox */
-         T = affine(T, M128(inpMaskLO), M128(inpMaskHI));
-         U = affine(U, M128(inpMaskLO), M128(inpMaskHI));
-         V = affine(V, M128(inpMaskLO), M128(inpMaskHI));
-         T = _mm_aesenclast_si128(T, M128(encKey));
-         U = _mm_aesenclast_si128(U, M128(encKey));
-         V = _mm_aesenclast_si128(V, M128(encKey));
-         T = _mm_shuffle_epi8(T, M128(maskSrows));
-         U = _mm_shuffle_epi8(U, M128(maskSrows));
-         V = _mm_shuffle_epi8(V, M128(maskSrows));
-         T = affine(T, M128(outMaskLO), M128(outMaskHI));
-         U = affine(U, M128(outMaskLO), M128(outMaskHI));
-         V = affine(V, M128(outMaskLO), M128(outMaskHI));
+         TMP[0] = sBox(TMP[0]);
+         TMP[1] = sBox(TMP[1]);
+         TMP[2] = sBox(TMP[2]);
          /* Sbox done, now L */
-         K3 = _mm_xor_si128(_mm_xor_si128(K3, T), L(T));
-         P3 = _mm_xor_si128(_mm_xor_si128(P3, U), L(U));
-         Q3 = _mm_xor_si128(_mm_xor_si128(Q3, V), L(V));
+         TMP[6] = _mm_xor_si128(_mm_xor_si128(TMP[6], TMP[0]), L(TMP[0]));
+         TMP[10] = _mm_xor_si128(_mm_xor_si128(TMP[10], TMP[1]), L(TMP[1]));
+         TMP[14] = _mm_xor_si128(_mm_xor_si128(TMP[14], TMP[2]), L(TMP[2]));
       }
 
       pRKey -= 32;
 
-      TRANSPOSE_OUT(K0,K1,K2,K3, T);
-      K3 = _mm_shuffle_epi8(K3, M128(swapBytes));
-      K2 = _mm_shuffle_epi8(K2, M128(swapBytes));
-      K1 = _mm_shuffle_epi8(K1, M128(swapBytes));
-      K0 = _mm_shuffle_epi8(K0, M128(swapBytes));
-      _mm_storeu_si128((__m128i*)(pOut), K3);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4), K2);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*2), K1);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*3), K0);
+      TRANSPOSE_OUT(TMP[3],TMP[4],TMP[5],TMP[6], TMP[0]);
+      TMP[6] = _mm_shuffle_epi8(TMP[6], M128(swapBytes));
+      TMP[5] = _mm_shuffle_epi8(TMP[5], M128(swapBytes));
+      TMP[4] = _mm_shuffle_epi8(TMP[4], M128(swapBytes));
+      TMP[3] = _mm_shuffle_epi8(TMP[3], M128(swapBytes));
+      _mm_storeu_si128((__m128i*)(pOut), TMP[6]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4), TMP[5]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*2), TMP[4]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*3), TMP[3]);
 
-      TRANSPOSE_OUT(P0,P1,P2,P3, T);
-      P3 = _mm_shuffle_epi8(P3, M128(swapBytes));
-      P2 = _mm_shuffle_epi8(P2, M128(swapBytes));
-      P1 = _mm_shuffle_epi8(P1, M128(swapBytes));
-      P0 = _mm_shuffle_epi8(P0, M128(swapBytes));
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*4), P3);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*5), P2);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*6), P1);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*7), P0);
+      TRANSPOSE_OUT(TMP[7],TMP[8],TMP[9],TMP[10], TMP[0]);
+      TMP[10] = _mm_shuffle_epi8(TMP[10], M128(swapBytes));
+      TMP[9] = _mm_shuffle_epi8(TMP[9], M128(swapBytes));
+      TMP[8] = _mm_shuffle_epi8(TMP[8], M128(swapBytes));
+      TMP[7] = _mm_shuffle_epi8(TMP[7], M128(swapBytes));
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*4), TMP[10]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*5), TMP[9]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*6), TMP[8]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*7), TMP[7]);
 
-      TRANSPOSE_OUT(Q0,Q1,Q2,Q3, T);
-      Q3 = _mm_shuffle_epi8(Q3, M128(swapBytes));
-      Q2 = _mm_shuffle_epi8(Q2, M128(swapBytes));
-      Q1 = _mm_shuffle_epi8(Q1, M128(swapBytes));
-      Q0 = _mm_shuffle_epi8(Q0, M128(swapBytes));
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*8), Q3);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*9), Q2);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*10), Q1);
-      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*11), Q0);
+      TRANSPOSE_OUT(TMP[11],TMP[12],TMP[13],TMP[14], TMP[0]);
+      TMP[14] = _mm_shuffle_epi8(TMP[14], M128(swapBytes));
+      TMP[13] = _mm_shuffle_epi8(TMP[13], M128(swapBytes));
+      TMP[12] = _mm_shuffle_epi8(TMP[12], M128(swapBytes));
+      TMP[11] = _mm_shuffle_epi8(TMP[11], M128(swapBytes));
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*8), TMP[14]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*9), TMP[13]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*10), TMP[12]);
+      _mm_storeu_si128((__m128i*)(pOut+MBS_SMS4*11), TMP[11]);
    }
 
    len -= processedLen;
    if(len)
       processedLen += cpSMS4_ECB_aesni_x8(pOut, pInp, len, pRKey);
+   
+   /* clear secret data */
+   for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
+      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+   }
 
    return processedLen;
 }

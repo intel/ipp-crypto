@@ -14,7 +14,6 @@ Intel(R) Integrated Performance Primitives Cryptography
   - [Linux\* OS](#linux-os)
     - [C/C++\* Compilers](#cc-compilers-1)
     - [Binary Tools](#binary-tools)
-    - [Android\* NDK Version:](#android-ndk-version)
   - [macOS\*](#macos)
     - [C/C++\* Compilers](#cc-compilers-2)
     - [Assembly Compilers](#assembly-compilers-1)
@@ -28,6 +27,7 @@ Intel(R) Integrated Performance Primitives Cryptography
     - [macOS\*](#macos-1)
 - [Building an application tied to a specific CPU](#building-an-application-tied-to-a-specific-cpu)
 - [Intel IPP Custom Library Tool](#intel-ipp-custom-library-tool)
+- [RSA IFMA Muti-buffer Library](#rsa-ifma-muti-buffer-library)
 - [How to Contribute](#how-to-contribute)
 - [See Also](#see-also)
 - [Legal Information](#legal-information)
@@ -87,51 +87,45 @@ only on the operating systems and tools listed below:
 Common Requirements for All Supported Operating Systems
 -----------------
 
--   CMake 3.7.2
+-   CMake 3.15
 
--   Python 2.7
+-   Python 2.7.15
+
+-   The Netwide Assembler (NASM) 2.15
 
 Windows\* OS
 -----------------
 
--   Windows Server\* 2012
+-   Windows Server\* 2016
 
 ### C/C++\* Compilers
-- Intel(R) C++ Compiler 19.0 for Windows\* OS
+- Intel(R) C++ Compiler 19.0 Update 4 for Windows\* OS
 
 -   Microsoft Visual C++ Compiler\* version 19.16
     provided by Microsoft Visual Studio\* 2017 version 15.9
 
-### Assembly Compilers
--   Microsoft Macro Assembler 14
-
 Linux\* OS
 -----------------
 
--   Red Hat\* Enterprise Linux\* 6
+-   Red Hat\* Enterprise Linux\* 7
 
 ### C/C++\* Compilers
--   Intel(R) C++ Compiler 19.0 for Linux\* OS
+-   Intel(R) C++ Compiler 19.0 Update 4 for Linux\* OS
 
--   GCC 8.2
+-   GCC 8.3
+
+-   GCC 9.1
 
 ### Binary Tools
 -   GNU binutils 2.32
 
-### Android\* NDK Version:
-
--   Android NDK, Revision 10
-
 macOS\*
 -----------------
 
--   macOS\* 10.12\*
+-   macOS\* 10.14
 
 ### C/C++\* Compilers
--   Intel(R) C++ Compiler 19.0 for OS X\* OS
-
-### Assembly Compilers
--   Yasm 1.2.2
+-   Intel(R) C++ Compiler 19.0 Update 4 for OS X\* OS
 
 Building from Source
 =======================================================
@@ -148,8 +142,6 @@ Required Software
 -   Python (see [System Requirements](#system-requirements-to-build-intelr-ipp-cryptography))
 
 -   Microsoft Visual Studio\* (Windows\* OS only)
-
--   Android NDK (only for cross-platform build for Android\* OS on Linux\* OS)
 
 Build Steps
 -----------------
@@ -182,6 +174,10 @@ with the options described in [CMake Arguments](#cmake-arguments).
     ```
     cmake CMakeLists.txt -Bbuild -G"Visual Studio 15 2017 Win64"
     ```
+    For Intel(R) C++ Compiler and Visual Studio\* 2019:
+    ```
+    cmake CMakeLists.txt -Bbuild -G"Visual Studio 16 2019" -T"Intel C++ Compiler 19.0" -Ax64
+    ```
     For MSVC\* Compiler and Visual Studio\* 2019:
     ```
     cmake CMakeLists.txt -Bbuild -G"Visual Studio 16 2019" -Ax64
@@ -202,7 +198,7 @@ with the options described in [CMake Arguments](#cmake-arguments).
 
     For Intel(R) C++ Compiler:
     ```
-    CC=icc CXX=icpc cmake CMakeLists.txt -Bbuild -DARCH=intel64 -DUSEYASM=<path to Yasm compiler>
+    CC=icc CXX=icpc cmake CMakeLists.txt -Bbuild -DARCH=intel64
     ```
     \
     The list of supported CMake arguments is available in the
@@ -305,41 +301,6 @@ CC=<path to C compiler> CXX=<path to C++ compiler> cmake <Arguments>
 
     -   `-DNONPIC_LIB:BOOL=on:` position-dependent code.
 
-    This parameter does not work together with the `--DANDROID` parameter.
-
--   `-DANDROID:BOOL=on` defines cross-platform build for Android\* OS.
-
--   `-D_CMAKE_TOOLCHAIN_PREFIX=<GNU toolchain prefix>` - used only
-    for cross-platform build for Android\* OS. Defines the GNU toolchain
-    prefix to compiler tools. For example, `"i686-linux-android-"`
-    defines the prefix for i686 GNU\* compiler tools, and
-    `"x86_64-linux-android-"` defines the prefix for x86_64 GNU compiler
-    tools.
-
-    **Note:** Before running CMake scripts for cross-platform build for
-    Android\* OS, you need to do the following:
-
-    1.  Set the following environment variables for Android\* NDK:
-
-        -   ANDROID_NDK_ROOT defines the path to the Android\* NDK Root.
-
-        -   ANDROID_SYSROOT defines the path to the Android\* NDK System
-            Root.
-
-        -   ANDROID_GNU_X86_TOOLCHAIN defines the path to the Android\*
-            GNU toolchain.
-
-        -   ANDROID_GNU_X86_LIBPATH defines the path to the Android\* GNU
-            toolchain libraries.
-
-    2.  Add `'$ANDROID_GNU_X86_TOOLCHAIN/bin'` to the `PATH`
-        environment variable.
-
-### macOS\*
-
--   `-DUSEYASM=<path to Yasm* assembly>` - defines the path to the
-    Yasm\* assembly compiler.
-
 Building an application tied to a specific CPU
 =======================================================
 
@@ -362,6 +323,13 @@ The tool is located in `tools/ipp_custom_library_tool_python` directory.
 
 Please refer to the [tool documentation](https://software.intel.com/en-us/ipp-dev-guide-using-custom-library-tool-for-intel-integrated-performance-primitives) for more information.
 
+RSA IFMA Muti-buffer Library
+=======================================================
+
+It is a library separate from Intel IPP Cryptography. The library provides optimized version of RSA multi-buffer based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) Integer Fused Multiply Add (IFMA). Currently, the library is compatible with OpenSSL\* only.
+
+The source of RSA multi-buffer is located in a separate folder: `sources/ippcp/ifma_rsa_mb`.
+
 How to Contribute
 =======================================================
 
@@ -382,23 +350,3 @@ See Also
 -   [Intel(R) Integrated Performance Primitives Product Page](https://software.intel.com/en-us/intel-ipp)
 
 -   [Intel(R) IPP Forum](https://software.intel.com/en-us/forums/intel-integrated-performance-primitives)
-
-Legal Information
-=======================================================
-
-No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document.
-Intel disclaims all express and implied warranties, including without limitation, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement, as well as any warranty arising from course of performance, course of dealing, or usage in trade.
-
-This document contains information on products, services and/or processes in development.  All information provided here is subject to change without notice. Contact your Intel representative to obtain the latest forecast, schedule, specifications and roadmaps.
-
-The products and services described may contain defects or errors known as errata which may cause deviations from published specifications. Current characterized errata are available on request.
-
-Intel, and the Intel logo are trademarks of Intel Corporation in the U.S. and/or other countries.
-
-*Other names and brands may be claimed as the property of others.
-
-© 2019 Intel Corporation.
-
-|Optimization Notice|
-|:------------------|
-|Intel's compilers may or may not optimize to the same degree for non-Intel microprocessors for optimizations that are not unique to Intel microprocessors. These optimizations include SSE2, SSE3, and SSSE3 instruction sets and other optimizations. Intel does not guarantee the availability, functionality, or effectiveness of any optimization on microprocessors not manufactured by Intel. Microprocessor-dependent optimizations in this product are intended for use with Intel microprocessors. Certain optimizations not specific to Intel microarchitecture are reserved for Intel microprocessors. Please refer to the applicable product User and Reference Guides for more information regarding the specific instruction sets covered by this notice. <br><br> Notice revision #20110804|

@@ -38,28 +38,25 @@
 ; limitations under the License.
 ;===============================================================================
 
-INCLUDE asmdefs.inc
+%include "asmdefs.inc"
+%include "ia_emm.inc"
 
-  .686
-  .XMM
-  .model FLAT, C
+%assign LOCAL_ALIGN_FACTOR 32
 
-LOCAL_ALIGN_FACTOR EQU 32
+segment .text align=LOCAL_ALIGN_FACTOR
 
-IPPCODE SEGMENT 'CODE' ALIGN (LOCAL_ALIGN_FACTOR)
-
-IFDEF _IPP_DATA
+%ifdef _IPP_DATA
 
 ;####################################################################
 ;#          void ownGetReg( int* buf, int valueEAX, int valueECX ); #
 ;####################################################################
 
-buf       EQU [esp+12]
-valueEAX  EQU [esp+16]
-valueECX  EQU [esp+20]
+%define buf       [esp+12]
+%define valueEAX  [esp+16]
+%define valueECX  [esp+20]
 
-ALIGN LOCAL_ALIGN_FACTOR
-cpGetReg PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cpGetReg,PUBLIC
 
         push    ebx
         push    esi
@@ -76,564 +73,552 @@ cpGetReg PROC PUBLIC
         pop     esi
         pop     ebx
         ret
-
-cpGetReg ENDP
+ENDFUNC cpGetReg
 
 ;###################################################
 
 ; Feature information after XGETBV(ECX=0), EAX, bits 2,1 ( XMM state and YMM state are enabled by OS )
-XGETBV_MASK          equ   06h
+%assign XGETBV_MASK          06h
 ; OSXSAVE support, feature information after cpuid(1), ECX, bit 27 ( XGETBV is enabled by OS )
-XSAVEXGETBV_FLAG     equ   8000000h
-XGETBV_AVX512_MASK   equ   0E0h
+%assign XSAVEXGETBV_FLAG     8000000h
+%assign XGETBV_AVX512_MASK   0E0h
 
-ALIGN LOCAL_ALIGN_FACTOR
-cp_is_avx_extension PROC NEAR C PUBLIC Uses ebx edx ecx
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cp_is_avx_extension,PUBLIC
+  USES_GPR ebx,edx,ecx
          mov eax, 1
          cpuid
          xor   eax, eax
          and   ecx, 018000000h
          cmp   ecx, 018000000h
-         jne   not_avx
+         jne  .not_avx
          xor   ecx, ecx
-         db 00fh,001h,0d0h        ; xgetbv      
-         mov   ecx, eax           
+         db 00fh,001h,0d0h        ; xgetbv
+         mov   ecx, eax
          xor   eax, eax
          and   ecx, XGETBV_MASK
          cmp   ecx, XGETBV_MASK
-         jne   not_avx
-         mov   eax, 1    
-not_avx:
+         jne  .not_avx
+         mov   eax, 1
+.not_avx:
+         REST_GPR
          ret
-cp_is_avx_extension ENDP
+ENDFUNC cp_is_avx_extension
 
-ALIGN LOCAL_ALIGN_FACTOR
-cp_is_avx512_extension PROC NEAR C PUBLIC Uses ebx edx ecx
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cp_is_avx512_extension,PUBLIC
+  USES_GPR ebx,edx,ecx
          mov eax, 1
          cpuid
          xor   eax, eax
          and   ecx, XSAVEXGETBV_FLAG
          cmp   ecx, XSAVEXGETBV_FLAG
-         jne   not_avx512
+         jne  .not_avx512
          xor   ecx, ecx
-         db 00fh,001h,0d0h        ; xgetbv      
-         mov   ecx, eax           
+         db 00fh,001h,0d0h        ; xgetbv
+         mov   ecx, eax
          xor   eax, eax
          and   ecx, XGETBV_AVX512_MASK
          cmp   ecx, XGETBV_AVX512_MASK
-         jne   not_avx512
-         mov   eax, 1    
-not_avx512:
+         jne  .not_avx512
+         mov   eax, 1
+.not_avx512:
+         REST_GPR
          ret
-cp_is_avx512_extension ENDP
+ENDFUNC cp_is_avx512_extension
 
-IFDEF LINUX32
-  IFNDEF OSX32
+%ifdef LINUX32
+  %ifndef OSX32
 
-%ECHO .weak __ashldi3
-
-ALIGN LOCAL_ALIGN_FACTOR
-__ashldi3 PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC __ashldi3,PUBLIC,WEAK
         mov    eax, [esp+4]
         mov    edx, [esp+8]
         mov    ecx, [esp+12]
         test   cl, 20H
-        je     less
+        je    .less
         mov    edx, eax
         xor    eax, eax
         shl    edx, cl
-        ret    
-less:
+        ret
+.less:
         shld   edx, eax, cl
         shl    eax, cl
-        ret    
-__ashldi3 ENDP
+        ret
+ENDFUNC __ashldi3
 
-%ECHO .weak __ashrdi3
-
-ALIGN LOCAL_ALIGN_FACTOR
-__ashrdi3 PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC __ashrdi3,PUBLIC,WEAK
         mov    eax, [esp+4]
         mov    edx, [esp+8]
         mov    ecx, [esp+12]
         test   cl, 20H
-        je     less
+        je    .less
         mov    eax, edx
         sar    edx, 1FH
         sar    eax, cl
-        ret    
-less:
+        ret
+.less:
         shrd   eax, edx, cl
         sar    edx, cl
-        ret    
-__ashrdi3 ENDP
+        ret
+ENDFUNC __ashrdi3
 
-%ECHO .weak __divdi3
-
-ALIGN LOCAL_ALIGN_FACTOR
-__divdi3 PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC __divdi3,PUBLIC,WEAK
         xor    ecx, ecx
-        mov    eax, dword ptr [8+esp]
+        mov    eax, dword     [8+esp]
         or     eax, eax
-        jge    Apositive
+        jge   .Apositive
         mov    ecx, 1
-        mov    edx, dword ptr [4+esp]
+        mov    edx, dword     [4+esp]
         neg    eax
         neg    edx
         sbb    eax, 0
-        mov    dword ptr [4+esp], edx
-        mov    dword ptr [8+esp], eax
-Apositive:
-        mov    eax, dword ptr [16+esp]
+        mov    dword     [4+esp], edx
+        mov    dword     [8+esp], eax
+.Apositive:
+        mov    eax, dword     [16+esp]
         or     eax,eax
-        jge    ABpositive
+        jge   .ABpositive
         sub    ecx, 1
-        mov    edx, dword ptr [12+esp]
+        mov    edx, dword     [12+esp]
         neg    eax
         neg    edx
         sbb    eax, 0
-        mov    dword ptr [12+esp], edx
-        mov    dword ptr [16+esp], eax
-ABpositive:
-        mov    eax, dword ptr [16+esp]
+        mov    dword     [12+esp], edx
+        mov    dword     [16+esp], eax
+.ABpositive:
+        mov    eax, dword     [16+esp]
         xor    edx, edx
         push   ecx
         test   eax, eax
-        jne    non_zero_hi
-        mov    eax, dword ptr [12+esp]
-        div    dword ptr [16+esp]
+        jne   .non_zero_hi
+        mov    eax, dword     [12+esp]
+        div    dword     [16+esp]
         mov    ecx, eax
-        mov    eax, dword ptr [8+esp]
-        div    dword ptr [16+esp]
+        mov    eax, dword     [8+esp]
+        div    dword     [16+esp]
         mov    edx, ecx
-        jmp    return
-non_zero_hi:
-        mov    ecx, dword ptr [12+esp]
+        jmp   .return
+.non_zero_hi:
+        mov    ecx, dword     [12+esp]
         cmp    eax, ecx
-        jb     divisor_greater
-        jne    return_zero
-        mov    ecx, dword ptr [16+esp]
-        mov    eax, dword ptr [8+esp]
+        jb    .divisor_greater
+        jne   .return_zero
+        mov    ecx, dword     [16+esp]
+        mov    eax, dword     [8+esp]
         cmp    ecx, eax
-        ja     return_zero
-return_one:
+        ja    .return_zero
+.return_one:
         mov    eax, 1
-        jmp    return
-return_zero:
+        jmp   .return
+.return_zero:
         add    esp, 4
         xor    eax, eax
-        ret    
-divisor_greater:
+        ret
+.divisor_greater:
         test   eax, 80000000h
-        jne    return_one
-find_hi_bit:
+        jne   .return_one
+.find_hi_bit:
         bsr    ecx, eax
         add    ecx, 1
-hi_bit_found:
-        mov    edx, dword ptr [16+esp]
+.hi_bit_found:
+        mov    edx, dword     [16+esp]
         push   ebx
         shrd   edx, eax, cl
         mov    ebx, edx
-        mov    eax, dword ptr [12+esp]
-        mov    edx, dword ptr [16+esp]
+        mov    eax, dword     [12+esp]
+        mov    edx, dword     [16+esp]
         shrd   eax, edx, cl
         shr    edx, cl
-make_div:
+.make_div:
         div    ebx
         mov    ebx, eax
-        mul    dword ptr [24+esp]
+        mul    dword     [24+esp]
         mov    ecx, eax
-        mov    eax, dword ptr [20+esp]
+        mov    eax, dword     [20+esp]
         mul    ebx
         add    edx, ecx
-        jb     need_dec
-        cmp    dword ptr [16+esp], edx
-        jb     need_dec
-        ja     after_dec
-        cmp    dword ptr [12+esp], eax
-        jae    after_dec
-need_dec:
+        jb    .need_dec
+        cmp    dword     [16+esp], edx
+        jb    .need_dec
+        ja    .after_dec
+        cmp    dword     [12+esp], eax
+        jae   .after_dec
+.need_dec:
         sub    ebx, 1
-after_dec:
+.after_dec:
         xor    edx, edx
         mov    eax, ebx
         pop    ebx
-return:
+.return:
         pop    ecx
         test   ecx, ecx
-        jne    ch_sign
-        ret    
-ch_sign:
+        jne   .ch_sign
+        ret
+.ch_sign:
         neg    edx
         neg    eax
         sbb    edx, 0
-        ret    
-__divdi3 ENDP
+        ret
+ENDFUNC __divdi3
 
-%ECHO .weak __udivdi3
-
-ALIGN LOCAL_ALIGN_FACTOR
-__udivdi3 PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC __udivdi3,PUBLIC,WEAK
         xor    ecx,ecx
-ABpositive:
-        mov    eax, dword ptr [16+esp]
+.ABpositive:
+        mov    eax, dword     [16+esp]
         xor    edx, edx
         push   ecx
         test   eax, eax
-        jne    non_zero_hi
-        mov    eax, dword ptr [12+esp]
-        div    dword ptr [16+esp]
+        jne   .non_zero_hi
+        mov    eax, dword     [12+esp]
+        div    dword     [16+esp]
         mov    ecx, eax
-        mov    eax, dword ptr [8+esp]
-        div    dword ptr [16+esp]
+        mov    eax, dword     [8+esp]
+        div    dword     [16+esp]
         mov    edx, ecx
-        jmp    return
-non_zero_hi:
-        mov    ecx, dword ptr [12+esp]
+        jmp   .return
+.non_zero_hi:
+        mov    ecx, dword     [12+esp]
         cmp    eax, ecx
-        jb     divisor_greater
-        jne    return_zero
-        mov    ecx, dword ptr [16+esp]
-        mov    eax, dword ptr [8+esp]
+        jb    .divisor_greater
+        jne   .return_zero
+        mov    ecx, dword     [16+esp]
+        mov    eax, dword     [8+esp]
         cmp    ecx, eax
-        ja     return_zero
-return_one:
+        ja    .return_zero
+.return_one:
         mov    eax, 1
-        jmp    return
-return_zero:
+        jmp   .return
+.return_zero:
         add    esp, 4
         xor    eax, eax
-        ret    
-divisor_greater:
+        ret
+.divisor_greater:
         test   eax, 80000000h
-        jne    return_one
-find_hi_bit:
+        jne   .return_one
+.find_hi_bit:
         bsr    ecx, eax
         add    ecx, 1
-hi_bit_found:
-        mov    edx, dword ptr [16+esp]
+.hi_bit_found:
+        mov    edx, dword     [16+esp]
         push   ebx
         shrd   edx, eax, cl
         mov    ebx, edx
-        mov    eax, dword ptr [12+esp]
-        mov    edx, dword ptr [16+esp]
+        mov    eax, dword     [12+esp]
+        mov    edx, dword     [16+esp]
         shrd   eax, edx, cl
         shr    edx, cl
-make_div:
+.make_div:
         div    ebx
         mov    ebx, eax
-        mul    dword ptr [24+esp]
+        mul    dword     [24+esp]
         mov    ecx, eax
-        mov    eax, dword ptr [20+esp]
+        mov    eax, dword     [20+esp]
         mul    ebx
         add    edx, ecx
-        jb     need_dec
-        cmp    dword ptr [16+esp], edx
-        jb     need_dec
-        ja     after_dec
-        cmp    dword ptr [12+esp], eax
-        jae    after_dec
-need_dec:
+        jb    .need_dec
+        cmp    dword     [16+esp], edx
+        jb    .need_dec
+        ja    .after_dec
+        cmp    dword     [12+esp], eax
+        jae   .after_dec
+.need_dec:
         sub    ebx, 1
-after_dec:
+.after_dec:
         xor    edx, edx
         mov    eax, ebx
         pop    ebx
-return:
+.return:
         pop    ecx
         test   ecx, ecx
-        jne    ch_sign
-        ret    
-ch_sign:
+        jne   .ch_sign
+        ret
+.ch_sign:
         neg    edx
         neg    eax
         sbb    edx, 0
-        ret    
-__udivdi3 ENDP        
+        ret
+ENDFUNC __udivdi3
 
-%ECHO .weak __moddi3
-
-ALIGN LOCAL_ALIGN_FACTOR
-__moddi3 PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC __moddi3,PUBLIC,WEAK
         sub    esp, 8
-        mov    dword ptr [esp], 0
-        mov    eax, dword ptr [esp+16]
+        mov    dword     [esp], 0
+        mov    eax, dword     [esp+16]
         or     eax, eax
-        jge    Apositive
-        inc    dword ptr [esp]
-        mov    edx, dword ptr [esp+12]
+        jge   .Apositive
+        inc    dword     [esp]
+        mov    edx, dword     [esp+12]
         neg    eax
         neg    edx
         sbb    eax, 0
-        mov    dword ptr [esp+16], eax
-        mov    dword ptr [esp+12], edx
+        mov    dword     [esp+16], eax
+        mov    dword     [esp+12], edx
 
-Apositive:
-        mov    eax, dword ptr [esp+24]
+.Apositive:
+        mov    eax, dword     [esp+24]
         or     eax, eax
-        jge    ABpositive
-        mov    edx, dword ptr [esp+20]
+        jge   .ABpositive
+        mov    edx, dword     [esp+20]
         neg    eax
         neg    edx
         sbb    eax, 0
-        mov    dword ptr [esp+24], eax
-        mov    dword ptr [esp+20], edx
-        jmp    ABpositive
-        lea    esi, dword ptr [esi]
-        lea    edi, dword ptr [edi]
+        mov    dword     [esp+24], eax
+        mov    dword     [esp+20], edx
+        jmp   .ABpositive
+        lea    esi, [esi]
+        lea    edi, [edi]
 
         sub    esp, 8
-        mov    dword ptr [esp], 0
+        mov    dword     [esp], 0
 
-ABpositive:
-        mov    eax, dword ptr [esp+24]
+.ABpositive:
+        mov    eax, dword     [esp+24]
         test   eax, eax
-        jne    non_zero_hi
-        mov    eax, dword ptr [esp+16]
+        jne   .non_zero_hi
+        mov    eax, dword     [esp+16]
         mov    edx, 0
-        div    dword ptr [esp+20]
+        div    dword     [esp+20]
         mov    ecx, eax
-        mov    eax, dword ptr [12+esp]
-        div    dword ptr [20+esp]
+        mov    eax, dword     [12+esp]
+        div    dword     [20+esp]
         mov    eax, edx
         xor    edx, edx
-        jmp    return
+        jmp   .return
 
-non_zero_hi:
-        mov    ecx, dword ptr [16+esp]
+.non_zero_hi:
+        mov    ecx, dword     [16+esp]
         cmp    eax, ecx
-        jb     divisor_greater
-        jne    return_devisor
-        mov    ecx, dword ptr [20+esp]
-        cmp    ecx, dword ptr [12+esp]
-        ja     return_devisor
+        jb    .divisor_greater
+        jne   .return_devisor
+        mov    ecx, dword     [20+esp]
+        cmp    ecx, dword     [12+esp]
+        ja    .return_devisor
 
-return_dif:
-        mov    eax, dword ptr [12+esp]
-        mov    edx, dword ptr [16+esp]
-        sub    eax, dword ptr [20+esp]
-        sbb    edx, dword ptr [24+esp]
-        jmp    return
+.return_dif:
+        mov    eax, dword     [12+esp]
+        mov    edx, dword     [16+esp]
+        sub    eax, dword     [20+esp]
+        sbb    edx, dword     [24+esp]
+        jmp   .return
 
-return_devisor:
-        mov    eax, dword ptr [12+esp]
-        mov    edx, dword ptr [16+esp]
-        jmp    return
+.return_devisor:
+        mov    eax, dword     [12+esp]
+        mov    edx, dword     [16+esp]
+        jmp   .return
 
-divisor_greater:
+.divisor_greater:
         test   eax, 80000000h
-        jne    return_dif
+        jne   .return_dif
 
-find_hi_bit:
+.find_hi_bit:
         bsr    ecx, eax
         add    ecx, 1
 
-hi_bit_found:
+.hi_bit_found:
         push   ebx
-        mov    edx, dword ptr [24+esp]
+        mov    edx, dword     [24+esp]
         shrd   edx, eax, cl
         mov    ebx, edx
-        mov    eax, dword ptr [16+esp]
-        mov    edx, dword ptr [20+esp]
+        mov    eax, dword     [16+esp]
+        mov    edx, dword     [20+esp]
         shrd   eax, edx, cl
         shr    edx, cl
         div    ebx
         mov    ebx, eax
 
-multiple:
-        mul    dword ptr [28+esp]
+.multiple:
+        mul    dword     [28+esp]
         mov    ecx, eax
-        mov    eax, dword ptr [24+esp]
+        mov    eax, dword     [24+esp]
         mul    ebx
         add    edx, ecx
-        jb     need_dec
-        cmp    dword ptr [20+esp], edx
-        jb     need_dec
-        ja     after_dec
-        cmp    dword ptr [16+esp], eax
-        jb     need_dec
+        jb    .need_dec
+        cmp    dword     [20+esp], edx
+        jb    .need_dec
+        ja    .after_dec
+        cmp    dword     [16+esp], eax
+        jb    .need_dec
 
-after_dec:
+.after_dec:
         mov    ebx, eax
-        mov    eax, dword ptr [16+esp]
+        mov    eax, dword     [16+esp]
         sub    eax, ebx
         mov    ebx, edx
-        mov    edx, dword ptr [20+esp]
+        mov    edx, dword     [20+esp]
         sbb    edx, ebx
         pop    ebx
 
-return:
-        mov    dword ptr [4+esp], eax
-        mov    eax, dword ptr [esp]
+.return:
+        mov    dword     [4+esp], eax
+        mov    eax, dword     [esp]
         test   eax, eax
-        jne    ch_sign
-        mov    eax, dword ptr [4+esp]
+        jne   .ch_sign
+        mov    eax, dword     [4+esp]
         add    esp, 8
-        ret    
+        ret
 
-ch_sign:
-        mov    eax, dword ptr [4+esp]
+.ch_sign:
+        mov    eax, dword     [4+esp]
         neg    edx
         neg    eax
         sbb    edx, 0
         add    esp, 8
-        ret    
+        ret
 
-need_dec:
+.need_dec:
         dec    ebx
         mov    eax, ebx
-        jmp    multiple
-__moddi3 ENDP
+        jmp   .multiple
+ENDFUNC __moddi3
 
-%ECHO .weak __umoddi3
-
-ALIGN LOCAL_ALIGN_FACTOR
-__umoddi3 PROC PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC __umoddi3,PUBLIC,WEAK
         sub    esp, 8
-        mov    dword ptr [esp], 0
+        mov    dword     [esp], 0
 
-ABpositive:
-        mov    eax, dword ptr [esp+24]
+.ABpositive:
+        mov    eax, dword     [esp+24]
         test   eax, eax
-        jne    non_zero_hi
-        mov    eax, dword ptr [esp+16]
+        jne   .non_zero_hi
+        mov    eax, dword     [esp+16]
         mov    edx, 0
-        div    dword ptr [esp+20]
+        div    dword     [esp+20]
         mov    ecx, eax
-        mov    eax, dword ptr [12+esp]
-        div    dword ptr [20+esp]
+        mov    eax, dword     [12+esp]
+        div    dword     [20+esp]
         mov    eax, edx
         xor    edx, edx
-        jmp    return
+        jmp   .return
 
-non_zero_hi:
-        mov    ecx, dword ptr [16+esp]
+.non_zero_hi:
+        mov    ecx, dword     [16+esp]
         cmp    eax, ecx
-        jb     divisor_greater
-        jne    return_devisor
-        mov    ecx, dword ptr [20+esp]
-        cmp    ecx, dword ptr [12+esp]
-        ja     return_devisor
+        jb    .divisor_greater
+        jne   .return_devisor
+        mov    ecx, dword     [20+esp]
+        cmp    ecx, dword     [12+esp]
+        ja    .return_devisor
 
-return_dif:
-        mov    eax, dword ptr [12+esp]
-        mov    edx, dword ptr [16+esp]
-        sub    eax, dword ptr [20+esp]
-        sbb    edx, dword ptr [24+esp]
-        jmp    return
+.return_dif:
+        mov    eax, dword     [12+esp]
+        mov    edx, dword     [16+esp]
+        sub    eax, dword     [20+esp]
+        sbb    edx, dword     [24+esp]
+        jmp   .return
 
-return_devisor:
-        mov    eax, dword ptr [12+esp]
-        mov    edx, dword ptr [16+esp]
-        jmp    return
+.return_devisor:
+        mov    eax, dword     [12+esp]
+        mov    edx, dword     [16+esp]
+        jmp   .return
 
-divisor_greater:
+.divisor_greater:
         test   eax, 80000000h
-        jne    return_dif
+        jne   .return_dif
 
-find_hi_bit:
+.find_hi_bit:
         bsr    ecx, eax
         add    ecx, 1
 
-hi_bit_found:
+.hi_bit_found:
         push   ebx
-        mov    edx, dword ptr [24+esp]
+        mov    edx, dword     [24+esp]
         shrd   edx, eax, cl
         mov    ebx, edx
-        mov    eax, dword ptr [16+esp]
-        mov    edx, dword ptr [20+esp]
+        mov    eax, dword     [16+esp]
+        mov    edx, dword     [20+esp]
         shrd   eax, edx, cl
         shr    edx, cl
         div    ebx
         mov    ebx, eax
 
-multiple:
-        mul    dword ptr [28+esp]
+.multiple:
+        mul    dword     [28+esp]
         mov    ecx, eax
-        mov    eax, dword ptr [24+esp]
+        mov    eax, dword     [24+esp]
         mul    ebx
         add    edx, ecx
-        jb     need_dec
-        cmp    dword ptr [20+esp], edx
-        jb     need_dec
-        ja     after_dec
-        cmp    dword ptr [16+esp], eax
-        jb     need_dec
+        jb    .need_dec
+        cmp    dword     [20+esp], edx
+        jb    .need_dec
+        ja    .after_dec
+        cmp    dword     [16+esp], eax
+        jb    .need_dec
 
-after_dec:
+.after_dec:
         mov    ebx, eax
-        mov    eax, dword ptr [16+esp]
+        mov    eax, dword     [16+esp]
         sub    eax, ebx
         mov    ebx, edx
-        mov    edx, dword ptr [20+esp]
+        mov    edx, dword     [20+esp]
         sbb    edx, ebx
         pop    ebx
 
-return:
-        mov    dword ptr [4+esp], eax
-        mov    eax, dword ptr [esp]
+.return:
+        mov    dword     [4+esp], eax
+        mov    eax, dword     [esp]
         test   eax, eax
-        jne    ch_sign
-        mov    eax, dword ptr [4+esp]
+        jne   .ch_sign
+        mov    eax, dword     [4+esp]
         add    esp, 8
-        ret    
+        ret
 
-ch_sign:
-        mov    eax, dword ptr [4+esp]
+.ch_sign:
+        mov    eax, dword     [4+esp]
         neg    edx
         neg    eax
         sbb    edx, 0
         add    esp, 8
-        ret    
+        ret
 
-need_dec:
+.need_dec:
         dec    ebx
         mov    eax, ebx
-        jmp    multiple
-__umoddi3 ENDP
+        jmp   .multiple
+ENDFUNC __umoddi3
 
-%ECHO .weak __muldi3
-
-ALIGN LOCAL_ALIGN_FACTOR
-__muldi3 PROC PUBLIC
-        mov    eax, dword ptr [esp+8]
-        mul    dword ptr [esp+12]
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC __muldi3,PUBLIC,WEAK
+        mov    eax, dword     [esp+8]
+        mul    dword     [esp+12]
         mov    ecx, eax
-        mov    eax, dword ptr [esp+4]
-        mul    dword ptr [esp+16]
+        mov    eax, dword     [esp+4]
+        mul    dword     [esp+16]
         add    ecx, eax
-        mov    eax, dword ptr [esp+4]
-        mul    dword ptr [esp+12]
+        mov    eax, dword     [esp+4]
+        mul    dword     [esp+12]
         add    edx, ecx
-        ret    
-__muldi3 ENDP
+        ret
+ENDFUNC __muldi3
 
-  ENDIF;  IFNDEF OSX32
-ENDIF; IFDEF LINUX32
-
+  %endif;  IFNDEF OSX32
+%endif; IFDEF LINUX32
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-ALIGN LOCAL_ALIGN_FACTOR
-cp_get_pentium_counter PROC NEAR C PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cp_get_pentium_counter,PUBLIC
          rdtsc
          ret
-cp_get_pentium_counter ENDP
+ENDFUNC cp_get_pentium_counter
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-ALIGN LOCAL_ALIGN_FACTOR
-cpStartTscp PROC NEAR C PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cpStartTscp,PUBLIC
          push     ebx
          xor      eax, eax
          cpuid
          pop      ebx
          rdtscp
          ret
-cpStartTscp ENDP
+ENDFUNC cpStartTscp
 
-ALIGN LOCAL_ALIGN_FACTOR
-cpStopTscp PROC NEAR C PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cpStopTscp,PUBLIC
          rdtscp
          push     eax
          push     edx
@@ -644,20 +629,20 @@ cpStopTscp PROC NEAR C PUBLIC
          pop      edx
          pop      eax
          ret
-cpStopTscp ENDP
+ENDFUNC cpStopTscp
 
-ALIGN LOCAL_ALIGN_FACTOR
-cpStartTsc PROC NEAR C PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cpStartTsc,PUBLIC
          push     ebx
          xor      eax, eax
          cpuid
          pop      ebx
          rdtsc
          ret
-cpStartTsc ENDP
+ENDFUNC cpStartTsc
 
-ALIGN LOCAL_ALIGN_FACTOR
-cpStopTsc PROC NEAR C PUBLIC
+align LOCAL_ALIGN_FACTOR
+DECLARE_FUNC cpStopTsc,PUBLIC
          rdtsc
          push     eax
          push     edx
@@ -668,16 +653,15 @@ cpStopTsc PROC NEAR C PUBLIC
          pop      edx
          pop      eax
          ret
-cpStopTsc ENDP
+ENDFUNC cpStopTsc
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;*****************************************
 ; int cpGetCacheSize( int* tableCache );
-ALIGN LOCAL_ALIGN_FACTOR
-PUBLIC  cpGetCacheSize
-table   EQU 36[esp]
-cpGetCacheSize  PROC
+align LOCAL_ALIGN_FACTOR
+%define table   [36+esp]
+DECLARE_FUNC cpGetCacheSize,PUBLIC
         push    edi
         push    esi
         push    ebx
@@ -692,69 +676,69 @@ cpGetCacheSize  PROC
         cpuid
 
         cmp     al, 1
-        jne     GetCacheSize_11
+        jne    .GetCacheSize_11
 
         test    eax, 080000000h
-        jz      GetCacheSize_00
+        jz     .GetCacheSize_00
         xor     eax, eax
-GetCacheSize_00:
+.GetCacheSize_00:
         test    ebx, 080000000h
-        jz      GetCacheSize_01
+        jz     .GetCacheSize_01
         xor     ebx, ebx
-GetCacheSize_01:
+.GetCacheSize_01:
         test    ecx, 080000000h
-        jz      GetCacheSize_02
+        jz     .GetCacheSize_02
         xor     ecx, ecx
-GetCacheSize_02:
+.GetCacheSize_02:
         test    edx, 080000000h
-        jz      GetCacheSize_03
+        jz     .GetCacheSize_03
         xor     edx, edx
 
-GetCacheSize_03:
+.GetCacheSize_03:
         test    eax, eax
-        jz      GetCacheSize_04
+        jz     .GetCacheSize_04
         mov     [ebp], eax
         add     ebp, 4
         add     esi, 3
-GetCacheSize_04:
+.GetCacheSize_04:
         test    ebx, ebx
-        jz      GetCacheSize_05
+        jz     .GetCacheSize_05
         mov     [ebp], ebx
         add     ebp, 4
         add     esi, 4
-GetCacheSize_05:
+.GetCacheSize_05:
         test    ecx, ecx
-        jz      GetCacheSize_06
+        jz     .GetCacheSize_06
         mov     [ebp], ecx
         add     ebp, 4
         add     esi, 4
-GetCacheSize_06:
+.GetCacheSize_06:
         test    edx, edx
-        jz      GetCacheSize_07
+        jz     .GetCacheSize_07
         mov     [ebp], edx
         add     esi, 4
 
-GetCacheSize_07:
+.GetCacheSize_07:
         test    esi, esi
-        jz      GetCacheSize_11
+        jz     .GetCacheSize_11
         mov     eax, -1
-GetCacheSize_08:
+.GetCacheSize_08:
         xor     edx, edx
         add     edx, [edi]
-        jz      ExitGetCacheSize00
+        jz      .ExitGetCacheSize00
         add     edi, 8
         mov     ecx, esi
-GetCacheSize_09:
-        cmp     dl, BYTE PTR [esp + ecx]
-        je      GetCacheSize_10
+.GetCacheSize_09:
+        cmp     dl, BYTE     [esp + ecx]
+        je     .GetCacheSize_10
         dec     ecx
-        jnz     GetCacheSize_09
-        jmp     GetCacheSize_08
+        jnz    .GetCacheSize_09
+        jmp    .GetCacheSize_08
 
-GetCacheSize_10:
+.GetCacheSize_10:
         mov     eax, [edi - 4]
 
-ExitGetCacheSize00:
+.ExitGetCacheSize00:
         add     esp, 16
         pop     ebp
         pop     ebx
@@ -762,13 +746,11 @@ ExitGetCacheSize00:
         pop     edi
         ret
 
-GetCacheSize_11:
+.GetCacheSize_11:
         mov     eax, -1
-        jmp     ExitGetCacheSize00
+        jmp    .ExitGetCacheSize00
+ENDFUNC cpGetCacheSize
 
-cpGetCacheSize  ENDP
+; *****************************************
 
-;*****************************************
-
-ENDIF ; IPP_DATA
-END
+%endif ; IPP_DATA

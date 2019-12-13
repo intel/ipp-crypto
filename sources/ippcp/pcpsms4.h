@@ -53,10 +53,17 @@
 
 #include "owncp.h"
 
+/* SMS4 round keys number */
+#define SMS4_ROUND_KEYS_NUM (32)
+
+#if SMS4_ROUND_KEYS_NUM != 32
+   #error SMS4_ROUND_KEYS_NUM must be equal 32
+#endif
+
 struct _cpSMS4 {
-   IppCtxId    idCtx;         /* SMS4 spec identifier      */
-   Ipp32u      enc_rkeys[32]; /* enc round keys */
-   Ipp32u      dec_rkeys[32]; /* enc round keys */
+   IppCtxId    idCtx;                              /* SMS4 spec identifier */
+   Ipp32u      enc_rkeys[SMS4_ROUND_KEYS_NUM];     /* enc round keys       */
+   Ipp32u      dec_rkeys[SMS4_ROUND_KEYS_NUM];     /* dec round keys       */
 };
 
 /*
@@ -69,6 +76,10 @@ struct _cpSMS4 {
 
 /* SMS4 data block size (bytes) */
 #define MBS_SMS4  (16)
+
+#if MBS_SMS4 != 16
+   #error MBS_SMS4 must be equal 16
+#endif
 
 /* valid SMS4 context ID */
 #define VALID_SMS4_ID(ctx)   (SMS4_ID((ctx))==idCtxSMS4)
@@ -102,7 +113,9 @@ __INLINE Ipp8u getSboxValue(Ipp8u x)
    BNU_CHUNK_T i_sel = x/sizeof(BNU_CHUNK_T);  /* selection index */
    BNU_CHUNK_T i;
    for(i=0; i<sizeof(SMS4_Sbox)/sizeof(BNU_CHUNK_T); i++) {
-      BNU_CHUNK_T mask = (i==i_sel)? (BNU_CHUNK_T)(-1) : 0;  /* ipp and IPP build specific avoid jump instruction here */
+      BNU_CHUNK_T mask = (i==i_sel)? (BNU_CHUNK_T)(-1) : 0;  
+      /* ipp and IPP build specific avoid jump instruction here */
+      /* Intel(R) C++ Compiler compile this code with movcc instruction */
       selection |= SboxEntry[i] & mask;
    }
    selection >>= (x & SELECTION_BITS)*8;
@@ -136,8 +149,8 @@ __INLINE Ipp32u cpSboxT_SMS4(Ipp32u x)
 }
 
 /* key expansion transformation:
-   - linear Lilear
-   - mixer Mix
+   - linear Linear
+   - mixer Mix (permutation T in the SMS4 standart phraseology)
 */
 __INLINE Ipp32u cpExpKeyLinear_SMS4(Ipp32u x)
 {
@@ -150,8 +163,8 @@ __INLINE Ipp32u cpExpKeyMix_SMS4(Ipp32u x)
 }
 
 /* cipher transformations:
-   - linear Lilear
-   - mixer Mix
+   - linear Linear
+   - mixer Mix (permutation T in the SMS4 standart phraseology)
 */
 __INLINE Ipp32u cpCipherLinear_SMS4(Ipp32u x)
 {
@@ -194,8 +207,5 @@ int     cpSMS4_CTR_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* 
 
 #define cpProcessSMS4_ctr OWNAPI(cpProcessSMS4_ctr)
 IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const IppsSMS4Spec* pCtx, Ipp8u* pCtrValue, int ctrNumBitSize);
-
-#define cpSMS4_SetRoundKeys OWNAPI(cpSMS4_SetRoundKeys)
-void cpSMS4_SetRoundKeys(Ipp32u* pRounKey, const Ipp8u* pKey);
 
 #endif /* _PCP_SMS4_H */

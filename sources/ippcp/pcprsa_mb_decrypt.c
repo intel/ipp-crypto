@@ -51,8 +51,13 @@
 */
 
 #include "owncp.h"
-#include "pcpngrsa.h"
 #include "pcpngrsa_mb.h"
+
+#if(_IPP32E>=_IPP32E_K0)
+  #include "rsa_ifma_cp.h"
+  #include "rsa_ifma_status.h"
+  #include "ifma_method.h"
+#endif
 
 /*!
  *  \brief ippsRSA_MB_Decrypt
@@ -65,7 +70,7 @@
  *    \param[in]   pCtxts                 Pointer to the array of ciphertexts.
  *    \param[out]  pPtxts                 Pointer to the array of plaintexts.
  *    \param[in]   pKeys                  Pointer to the array of key contexts.
- *    \param[out]  statuses              Pointer to the array of execution statuses for each performed operation.
+ *    \param[out]  statuses               Pointer to the array of execution statuses for each performed operation.
  *    \param[in]   pBuffer                Pointer to temporary buffer.
  * 
  *  Returns:                          Reason:
@@ -79,6 +84,7 @@
  *                                        different from sizes of modulus N in oter contexts.
  *    \return ippStsBadArgErr             Indicates an error condition if types of private keys is different 
  *                                        from each other.
+ *    \return ippStsContextMatchErr       Indicates an error condition if no valid keys were found.
  *    \return ippStsMbWarning             One or more of performed operation executed with error. Check statuses array for details.
  *    \return ippStsNoErr                 No error.                        
  */
@@ -87,39 +93,49 @@ IPPFUN(IppStatus, ippsRSA_MB_Decrypt,(const IppsBigNumState* const pCtxts[8],
                                       IppsBigNumState* const pPtxts[8],
                                       const IppsRSAPrivateKeyState* const pKeys[8],
                                       IppStatus statuses[8], Ipp8u* pBuffer))
-{    
+{
    IPP_BAD_PTR1_RET(pKeys);
    IPP_BAD_PTR4_RET(pPtxts, pCtxts, pBuffer, statuses);
 
-   #ifdef _IPP_DEBUG
-   
-      for(int i=0; i < RSA_MB_MAX_BUF_QUANTITY-1; i++) {
-         if(pKeys[i] && RSA_PRV_KEY_VALID_ID(pKeys[i])) {
-            for(int j=i+1; j < RSA_MB_MAX_BUF_QUANTITY; j++) {
-               if(pKeys[j] && RSA_PRV_KEY_VALID_ID(pKeys[j])) {
-                  IPP_BADARG_RET(RSA_PRV_KEY_BITSIZE_N(pKeys[i]) != RSA_PRV_KEY_BITSIZE_N(pKeys[j]), ippStsSizeErr);
-                  IPP_BADARG_RET(RSA_PRV_KEY1_VALID_ID(pKeys[i]) != RSA_PRV_KEY1_VALID_ID(pKeys[j]), ippStsBadArgErr);
-               }
-            }
-            break;
-         }
-      }
+   int i, valid_key_id;
+   const IppsRSAPrivateKeyState* pAlignedKeys[8];
 
-   #endif
-
-   for(int i=0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
-      statuses[i] = ippsRSA_Decrypt(pCtxts[i], pPtxts[i], pKeys[i], pBuffer);
+   for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
+      pAlignedKeys[i] = (IppsRSAPrivateKeyState*)(IPP_ALIGNED_PTR(pKeys[i], RSA_PRIVATE_KEY_ALIGNMENT));
    }
 
-   #ifdef _IPP_DEBUG
+   {
+      IppStatus consistencyCheckSts = CheckPrivateKeysConsistency(pAlignedKeys, &valid_key_id);
+      if (valid_key_id == -1) {
+        return consistencyCheckSts;
+      }
+   }
 
-      for(int i=0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
+   #if(_IPP32E>=_IPP32E_K0)
+      const int rsa_bitsize = RSA_PRV_KEY_BITSIZE_N(pAlignedKeys[valid_key_id]);
+      if (IsFeatureEnabled(ippCPUID_AVX512IFMA) && OPTIMIZED_RSA_SIZE(rsa_bitsize)) {
+         ifma_status ifma_sts;
+         if (RSA_PRV_KEY1_VALID_ID(pAlignedKeys[valid_key_id]))
+            ifma_sts = ifma_RSAprv_cipher(pPtxts, pCtxts, pAlignedKeys, rsa_bitsize, pBuffer);
+         else
+            ifma_sts = ifma_RSAprv_cipher_crt(pPtxts, pCtxts, pAlignedKeys, rsa_bitsize, pBuffer);
+
+         return convert_ifma_to_ipp_sts(ifma_sts, statuses);
+      }
+      else
+   #endif
+
+   {
+      for(i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
+         statuses[i] = ippsRSA_Decrypt(pCtxts[i], pPtxts[i], pAlignedKeys[i], pBuffer);
+      }
+
+      for(i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
          if(statuses[i] != ippStsNoErr) {
             return ippStsMbWarning;
          }
       }
 
-   #endif
-
-   return ippStsNoErr;
+      return ippStsNoErr;
+   }
 }

@@ -41,7 +41,7 @@
 #include "owncp.h"
 
 #if (_IPP32E>=_IPP32E_K0)
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4310) // cast truncates constant value in MSVC
 #endif
 
@@ -296,7 +296,9 @@ static void AMM52x20(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    /* normalize result */
    {
       Ipp64u acc = 0;
+      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unkonwn for msvc
       #pragma nounroll
+      #endif
       for(i=0; i<20; i++) {
          acc += out[i];
          out[i] = acc & EXP_DIGIT_MASK_AVX512;
@@ -388,7 +390,9 @@ static void AMM52x40(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    /* normalize result */
    {
       Ipp64u acc = 0;
+      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unkonwn for msvc
       #pragma nounroll
+      #endif
       for(i=0; i<40; i++) {
          acc += out[i];
          out[i] = acc & EXP_DIGIT_MASK_AVX512;
@@ -509,7 +513,9 @@ static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    /* normalize result */
    {
       Ipp64u acc = 0;
+      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unkonwn for msvc
       #pragma nounroll
+      #endif
       for(i=0; i<60; i++) {
          acc += out[i];
          out[i] = acc & EXP_DIGIT_MASK_AVX512;
@@ -648,7 +654,9 @@ static void AMM52x79(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    /* normalize result */
    {
       Ipp64u acc = 0;
+      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unkonwn for msvc
       #pragma nounroll
+      #endif
       for(i=0; i<79; i++) {
          acc += out[i];
          out[i] = acc & EXP_DIGIT_MASK_AVX512;

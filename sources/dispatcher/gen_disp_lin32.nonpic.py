@@ -47,7 +47,7 @@ import sys
 import os
 import hashlib
 
-Header   = sys.argv[1]    ## Intel(R) IPP Crypto dispatcher will be generated for fucntions in Header 
+Header   = sys.argv[1]    ## Intel(R) IPP Crypto dispatcher will be generated for fucntions in Header
 OutDir   = sys.argv[2]    ## Output folder for generated files
 cpulist  = sys.argv[3]    ## Actual CPU list: semicolon separated string
 compiler = sys.argv[4]
@@ -90,35 +90,36 @@ if(compiler == "GNU"):
                   ## create dispatcher files ASM
                   ##################################################
                   ASMDISP= open( os.sep.join([OutDir, "jmp_" + FunName+"_" + hashlib.sha512(FunName.encode('utf-8')).hexdigest()[:8] +".asm"]), 'w' )
-                  ASMDISP.write("""
-.data
-.align 4
 
-.long  in_{FunName}
+                  for cpu in cpulist:
+                      ASMDISP.write("extern "+cpu+"_"+FunName+":function\n")
+
+                  ASMDISP.write("extern ippcpJumpIndexForMergedLibs\n")
+                  ASMDISP.write("extern ippcpInit:function\n\n")
+                  ASMDISP.write("""
+segment .data
+align 4
+
+dd  in_{FunName}
 arraddr_{FunName}:
 
 """.format(FunName=FunName))
                   size = 4
                   for cpu in cpulist:
                         size = size + 4
-                        ASMDISP.write("    .long "+cpu+"_"+FunName+"\n")
+                        ASMDISP.write("    dd "+cpu+"_"+FunName+"\n")
 
                   ASMDISP.write("""
 
-.type	arraddr_{FunName},@object
-.size	arraddr_{FunName},{size}
-
-.text
-.global {FunName}
+segment .text
+global {FunName}:function ({FunName}.LEnd{FunName} - {FunName})
 in_{FunName}:
     call  ippcpInit
-    .align 16
+    align 16
 {FunName}:
-      mov   ippcpJumpIndexForMergedLibs, %eax
-      jmp   *(arraddr_{FunName})(,%eax,4)
-
-.type {FunName},@function
-.size {FunName},.-{FunName}
+      mov   eax, dword [ippcpJumpIndexForMergedLibs]
+      jmp   dword [rel arraddr_{FunName} + eax*4]
+.LEnd{FunName}:
 """.format(FunName=FunName, size=size))
             ASMDISP.close()
 else:

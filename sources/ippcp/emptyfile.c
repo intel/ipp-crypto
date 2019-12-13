@@ -38,4 +38,6 @@
 * limitations under the License.
 *******************************************************************************/
 
+typedef int to_avoid_translation_unit_is_empty_warning;
+
 /* The empty file to build a dynamic library in Visual Studio. The IDE does not produce a dll without source files */

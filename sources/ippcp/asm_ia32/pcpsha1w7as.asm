@@ -38,56 +38,81 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Message block processing according to SHA1
-; 
+;
 ;     Content:
 ;        UpdateSHA1
-; 
+;
 ;
 
-.686P
-.XMM
-.MODEL FLAT,C
 
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
-INCLUDE pcpvariant.inc
 
-IF (_ENABLE_ALG_SHA1_)
-IF (_SHA_NI_ENABLING_ EQ _FEATURE_OFF_) OR (_SHA_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-IF (_IPP GE _IPP_M5)
+
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+%include "pcpvariant.inc"
+
+%if (_ENABLE_ALG_SHA1_)
+%if (_SHA_NI_ENABLING_ == _FEATURE_OFF_) || (_SHA_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+%if (_IPP >= _IPP_M5)
 
 ;;
 ;; Magic functions defined in FIPS 180-1
 ;;
-MAGIC_F0 MACRO regF:REQ,regB:REQ,regC:REQ,regD:REQ,regT     ;; ((D ^ (B & (C ^ D)))
-    mov  regF,regC
-    xor  regF,regD
-    and  regF,regB
-    xor  regF,regD
-ENDM
+%macro MAGIC_F0 4.nolist
+  %xdefine %%regF %1
+  %xdefine %%regB %2
+  %xdefine %%regC %3
+  %xdefine %%regD %4
 
-MAGIC_F1 MACRO regF:REQ,regB:REQ,regC:REQ,regD:REQ,regT     ;; (B ^ C ^ D)
-    mov  regF,regD
-    xor  regF,regC
-    xor  regF,regB
-ENDM
+    mov  %%regF,%%regC
+    xor  %%regF,%%regD
+    and  %%regF,%%regB
+    xor  %%regF,%%regD
+%endmacro
 
-MAGIC_F2 MACRO regF:REQ,regB:REQ,regC:REQ,regD:REQ,regT:REQ ;; ((B & C) | (B & D) | (C & D))
-    mov  regF,regB
-    mov  regT,regB
-    or   regF,regC
-    and  regT,regC
-    and  regF,regD
-    or   regF,regT
-ENDM
 
-MAGIC_F3 MACRO regF:REQ,regB:REQ,regC:REQ,regD:REQ,regT
-    MAGIC_F1 regF,regB,regC,regD,regT
-ENDM
+%macro MAGIC_F1 4.nolist
+  %xdefine %%regF %1
+  %xdefine %%regB %2
+  %xdefine %%regC %3
+  %xdefine %%regD %4
+
+    mov  %%regF,%%regD
+    xor  %%regF,%%regC
+    xor  %%regF,%%regB
+%endmacro
+
+
+%macro MAGIC_F2 5.nolist
+  %xdefine %%regF %1
+  %xdefine %%regB %2
+  %xdefine %%regC %3
+  %xdefine %%regD %4
+  %xdefine %%regT %5
+
+    mov  %%regF,%%regB
+    mov  %%regT,%%regB
+    or   %%regF,%%regC
+    and  %%regT,%%regC
+    and  %%regF,%%regD
+    or   %%regF,%%regT
+%endmacro
+
+
+%macro MAGIC_F3 4.nolist
+  %xdefine %%regF %1
+  %xdefine %%regB %2
+  %xdefine %%regC %3
+  %xdefine %%regD %4
+
+    MAGIC_F1 %%regF,%%regB,%%regC,%%regD
+%endmacro
+
 
 ;;
 ;; single SHA1 step
@@ -99,26 +124,42 @@ ENDM
 ;;  B = A;
 ;;  A = tmp;
 ;;
-SHA1_STEP MACRO regA:REQ,regB:REQ,regC:REQ,regD:REQ,regE:REQ, regT:REQ,regF:REQ, memW:REQ, immCNT:REQ, MAGIC:REQ
-    add   regE,immCNT
-    add   regE,[memW]
-    mov   regT,regA
-    rol   regT,5
-    add   regE,regT
-    MAGIC   regF,regB,regC,regD,regT          ;; FUN  = MAGIC_Fi(B,C,D)
-    rol   regB,30
-    add   regE,regF
-ENDM
+%macro SHA1_STEP 10.nolist
+  %xdefine %%regA %1
+  %xdefine %%regB %2
+  %xdefine %%regC %3
+  %xdefine %%regD %4
+  %xdefine %%regE %5
+  %xdefine %%regT %6
+  %xdefine %%regF %7
+  %xdefine %%memW %8
+  %xdefine %%immCNT %9
+  %xdefine %%MAGIC %10
+
+    add   %%regE,%%immCNT
+    add   %%regE,[%%memW]
+    mov   %%regT,%%regA
+    rol   %%regT,5
+    add   %%regE,%%regT
+    %%MAGIC   %%regF,%%regB,%%regC,%%regD,%%regT          ;; FUN  = MAGIC_Fi(B,C,D)
+    rol   %%regB,30
+    add   %%regE,%%regF
+%endmacro
+
 
 ;;
 ;; ENDIANNESS
 ;;
-ENDIANNESS MACRO dst:REQ,src:REQ
-    IFDIF <dst>,<src>
-    mov dst,src
-    ENDIF
-    bswap dst
-ENDM
+%macro ENDIANNESS 2.nolist
+  %xdefine %%dst %1
+  %xdefine %%src %2
+
+  %ifnidn %%dst,%%src
+    mov %%dst,%%src
+  %endif
+    bswap %%dst
+%endmacro
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -127,24 +168,29 @@ ENDM
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-UPDATE MACRO nr:REQ,regU:REQ,regT
-   ifb <regT>
-      mov      regU,[esp+((nr-16) and 0Fh)*4]
-      xor      regU,[esp+((nr-14) and 0Fh)*4]
-      xor      regU,[esp+((nr-8)  and 0Fh)*4]
-      xor      regU,[esp+((nr-3)  and 0Fh)*4]
-   else
-      mov      regU,[esp+((nr-16) and 0Fh)*4]
-      mov      regT,[esp+((nr-14) and 0Fh)*4]
-      xor      regU,regT
-      mov      regT,[esp+((nr-8)  and 0Fh)*4]
-      xor      regU,regT
-      mov      regT,[esp+((nr-3)  and 0Fh)*4]
-      xor      regU,regT
-   endif
-   rol      regU,1
-   mov      [esp+(nr and 0Fh)*4],regU
-ENDM
+%macro UPDATE 2-3.nolist
+  %xdefine %%nr %1
+  %xdefine %%regU %2
+  %xdefine %%regT %3
+
+   %ifempty %%regT
+      mov      %%regU,[esp+((%%nr-16)&0Fh)*4]
+      xor      %%regU,[esp+((%%nr-14)&0Fh)*4]
+      xor      %%regU,[esp+((%%nr-8) &0Fh)*4]
+      xor      %%regU,[esp+((%%nr-3) &0Fh)*4]
+   %else
+      mov      %%regU,[esp+((%%nr-16)&0Fh)*4]
+      mov      %%regT,[esp+((%%nr-14)&0Fh)*4]
+      xor      %%regU,%%regT
+      mov      %%regT,[esp+((%%nr-8) &0Fh)*4]
+      xor      %%regU,%%regT
+      mov      %%regT,[esp+((%%nr-3) &0Fh)*4]
+      xor      %%regU,%%regT
+   %endif
+   rol      %%regU,1
+   mov      [esp+(%%nr&0Fh)*4],%%regU
+%endmacro
+
 
 ;;
 ;; single SHA1 step
@@ -156,56 +202,96 @@ ENDM
 ;;  B = A;
 ;;  A = tmp;
 ;;
-SHA1_RND0 MACRO regA:REQ,regB:REQ,regC:REQ,regD:REQ,regE:REQ, regT:REQ,regF:REQ, nr:REQ
-   immCNT = 05A827999h
+%macro SHA1_RND0 8.nolist
+  %xdefine %%regA %1
+  %xdefine %%regB %2
+  %xdefine %%regC %3
+  %xdefine %%regD %4
+  %xdefine %%regE %5
+  %xdefine %%regT %6
+  %xdefine %%regF %7
+  %xdefine %%nr %8
 
-   MAGIC_F0 regF,regB,regC,regD          ;; FUN  = MAGIC_Fi(B,C,D)
-   ror      regB,(32-30)
-   mov      regT,regA
-   rol      regT,5
-   add      regE,[esp+(((nr) and 0Fh)*4)]
-   lea      regE,[regE+regF+immCNT]
-   add      regE,regT
-ENDM
+  %assign %%immCNT  05A827999h
 
-SHA1_RND1 MACRO regA:REQ,regB:REQ,regC:REQ,regD:REQ,regE:REQ, regT:REQ,regF:REQ, nr:REQ
-   immCNT = 06ED9EBA1h
-
-   MAGIC_F1 regF,regB,regC,regD   ;; FUN  = MAGIC_Fi(B,C,D)
-   ror      regB,(32-30)
-   mov      regT,regA
-   rol      regT,5
-   add      regE,[esp+(((nr) and 0Fh)*4)]
-   lea      regE,[regE+regF+immCNT]
-   add      regE,regT
-ENDM
-
-SHA1_RND2 MACRO regA:REQ,regB:REQ,regC:REQ,regD:REQ,regE:REQ, regT:REQ,regF:REQ, nr:REQ
-   immCNT = 08F1BBCDCh
-
-   MAGIC_F2 regF,regB,regC,regD,regT  ;; FUN  = MAGIC_Fi(B,C,D)
-   ror      regB,(32-30)
-   mov      regT,regA
-   rol      regT,5
-   add      regE,[esp+(((nr) and 0Fh)*4)]
-   lea      regE,[regE+regF+immCNT]
-   add      regE,regT
-ENDM
-
-SHA1_RND3 MACRO regA:REQ,regB:REQ,regC:REQ,regD:REQ,regE:REQ, regT:REQ,regF:REQ, nr:REQ
-   immCNT = 0CA62C1D6h
-
-   MAGIC_F3 regF,regB,regC,regD       ;; FUN  = MAGIC_Fi(B,C,D)
-   ror      regB,(32-30)
-   mov      regT,regA
-   rol      regT,5
-   add      regE,[esp+(((nr) and 0Fh)*4)]
-   lea      regE,[regE+regF+immCNT]
-   add      regE,regT
-ENDM
+   MAGIC_F0 %%regF,%%regB,%%regC,%%regD          ;; FUN  = MAGIC_Fi(B,C,D)
+   ror      %%regB,(32-30)
+   mov      %%regT,%%regA
+   rol      %%regT,5
+   add      %%regE,[esp+(((%%nr) & 0Fh)*4)]
+   lea      %%regE,[%%regE+%%regF+%%immCNT]
+   add      %%regE,%%regT
+%endmacro
 
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+%macro SHA1_RND1 8.nolist
+  %xdefine %%regA %1
+  %xdefine %%regB %2
+  %xdefine %%regC %3
+  %xdefine %%regD %4
+  %xdefine %%regE %5
+  %xdefine %%regT %6
+  %xdefine %%regF %7
+  %xdefine %%nr %8
+
+  %assign %%immCNT  06ED9EBA1h
+
+   MAGIC_F1 %%regF,%%regB,%%regC,%%regD   ;; FUN  = MAGIC_Fi(B,C,D)
+   ror      %%regB,(32-30)
+   mov      %%regT,%%regA
+   rol      %%regT,5
+   add      %%regE,[esp+(((%%nr)&0Fh)*4)]
+   lea      %%regE,[%%regE+%%regF+%%immCNT]
+   add      %%regE,%%regT
+%endmacro
+
+
+%macro SHA1_RND2 8.nolist
+  %xdefine %%regA %1
+  %xdefine %%regB %2
+  %xdefine %%regC %3
+  %xdefine %%regD %4
+  %xdefine %%regE %5
+  %xdefine %%regT %6
+  %xdefine %%regF %7
+  %xdefine %%nr %8
+
+  %assign %%immCNT  08F1BBCDCh
+
+   MAGIC_F2 %%regF,%%regB,%%regC,%%regD,%%regT  ;; FUN  = MAGIC_Fi(B,C,D)
+   ror      %%regB,(32-30)
+   mov      %%regT,%%regA
+   rol      %%regT,5
+   add      %%regE,[esp+(((%%nr)&0Fh)*4)]
+   lea      %%regE,[%%regE+%%regF+%%immCNT]
+   add      %%regE,%%regT
+%endmacro
+
+
+%macro SHA1_RND3 8.nolist
+  %xdefine %%regA %1
+  %xdefine %%regB %2
+  %xdefine %%regC %3
+  %xdefine %%regD %4
+  %xdefine %%regE %5
+  %xdefine %%regT %6
+  %xdefine %%regF %7
+  %xdefine %%nr %8
+
+  %assign %%immCNT  0CA62C1D6h
+
+   MAGIC_F3 %%regF,%%regB,%%regC,%%regD       ;; FUN  = MAGIC_Fi(B,C,D)
+   ror      %%regB,(32-30)
+   mov      %%regT,%%regA
+   rol      %%regT,5
+   add      %%regE,[esp+(((%%nr)&0Fh)*4)]
+   lea      %%regE,[%%regE+%%regF+%%immCNT]
+   add      %%regE,%%regT
+%endmacro
+
+
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
 ;*****************************************************************************************
@@ -226,17 +312,18 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;; Caller = ippsHMACSHA1Final
 ;; Caller = ippsHMACSHA1MessageDigest
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM UpdateSHA1 PROC NEAR C PUBLIC \
-USES esi edi ebx ebp,\
-digest:PTR DWORD,\      ; hash address
-mblk:  PTR BYTE,\       ; buffer address
-mlen:  DWORD,\          ; buffer length
-pTable:PTR DWORD        ; pointer to SHA1 const (dummy)
+align IPP_ALIGN_FACTOR
+IPPASM UpdateSHA1,PUBLIC
+  USES_GPR esi,edi,ebx,ebp
 
-MBS_SHA1 equ   (64)
+%xdefine digest [esp + ARG_1 + 0*sizeof(dword)] ; hash address
+%xdefine mblk   [esp + ARG_1 + 1*sizeof(dword)] ; buffer address
+%xdefine mlen   [esp + ARG_1 + 2*sizeof(dword)] ; buffer length
+%xdefine pTable [esp + ARG_1 + 3*sizeof(dword)] ; pointer to SHA1 const (dummy)
 
-stackSize = (16+3)               ; stack size
+%xdefine MBS_SHA1    (64)
+
+%assign stackSize  (16+3)               ; stack size
    mov      eax, pTable          ; dummy
    mov      esi,mblk             ; source data address
    mov      eax,mlen             ; data length
@@ -251,7 +338,7 @@ stackSize = (16+3)               ; stack size
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-sha1_block_loop:
+.sha1_block_loop:
    mov      [esp+stackSize*4-2*4],esi ; save data address
    mov      [esp+stackSize*4-1*4],eax ; save data length
 
@@ -259,7 +346,7 @@ sha1_block_loop:
 ;; initialize the first 16 words in the array W (remember about endian)
 ;;
    xor      ecx,ecx
-loop1:
+.loop1:
    mov      eax,[esi+ecx*4+0*4]
    mov      edx,[esi+ecx*4+1*4]
    ENDIANNESS eax,eax
@@ -268,7 +355,7 @@ loop1:
    mov      [esp+ecx*4+1*4],edx
    add      ecx,2
    cmp      ecx,16
-   jl       loop1
+   jl       .loop1
 
 ;;
 ;; init A, B, C, D, E by the internal digest
@@ -447,13 +534,14 @@ loop1:
 
    add      esi, MBS_SHA1
    sub      eax, MBS_SHA1
-   jg       sha1_block_loop
+   jg       .sha1_block_loop
 
    add      esp,stackSize*4   ; remove local buffer
+   REST_GPR
    ret
-IPPASM UpdateSHA1 ENDP
+ENDFUNC UpdateSHA1
 
-ENDIF    ;; _IPP GE _IPP_M5
-ENDIF    ;; _FEATURE_OFF_ / _FEATURE_TICKTOCK_
-ENDIF    ;; _ENABLE_ALG_SHA1_
-END
+%endif    ;; _IPP >= _IPP_M5
+%endif    ;; _FEATURE_OFF_ / _FEATURE_TICKTOCK_
+%endif    ;; _ENABLE_ALG_SHA1_
+

@@ -38,119 +38,119 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
+;
 ;               Intel(R) Integrated Performance Primitives
 ;                   Cryptographic Primitives (ippcp)
-; 
+;
 ;      Purpose:
 ;         Define ippCP variant
-; 
+;
 ;  do not change definitions below!
-; 
+;
 
 ;;
 ;; modes of the feature
 ;;
-_FEATURE_OFF_      =0   ;; feature is OFF
-_FEATURE_ON_       =1   ;; feature is ON
-_FEATURE_TICKTOCK_ =2   ;; dectect is feature OFF/ON
+%assign _FEATURE_OFF_      0   ;; feature is OFF
+%assign _FEATURE_ON_       1   ;; feature is ON
+%assign _FEATURE_TICKTOCK_ 2   ;; dectect is feature OFF/ON
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;_XMM7560_ = 1
-IFDEF _XMM7560_
-include pcpvariant_xmm7560.inc
-endif
+%ifdef _XMM7560_
+  %include "pcpvariant_xmm7560.inc"
+%endif
 
 ;;_TXT_ACM_ = 1
-IFDEF _TXT_ACM_
-include pcpvariant_txt_acm.inc
-endif
+%ifdef _TXT_ACM_
+  %include "pcpvariant_txt_acm.inc"
+%endif
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;
 ;; it possible to force use of C-version of some implementtaions
 ;; instead of ASM one
 ;;
-IFNDEF _USE_C_cpAdd_BNU_
-_USE_C_cpAdd_BNU_ = _FEATURE_OFF_
-ENDIF
+%ifndef _USE_C_cpAdd_BNU_
+  %assign _USE_C_cpAdd_BNU_ _FEATURE_OFF_
+%endif
 
-IFNDEF _USE_C_cpSub_BNU_
-_USE_C_cpSub_BNU_ = _FEATURE_OFF_
-ENDIF
+%ifndef _USE_C_cpSub_BNU_
+  %assign _USE_C_cpSub_BNU_ _FEATURE_OFF_
+%endif
 
-IFNDEF _USE_C_cpInc_BNU_
-_USE_C_cpInc_BNU_ = _FEATURE_OFF_
-ENDIF
+%ifndef _USE_C_cpInc_BNU_
+  %assign _USE_C_cpInc_BNU_ _FEATURE_OFF_
+%endif
 
-IFNDEF _USE_C_cpAddMulDgt_BNU_
-_USE_C_cpAddMulDgt_BNU_ = _FEATURE_OFF_
-ENDIF
+%ifndef _USE_C_cpAddMulDgt_BNU_
+  %assign _USE_C_cpAddMulDgt_BNU_ _FEATURE_OFF_
+%endif
 
-IFNDEF _USE_C_cpMulAdc_BNU_school_
-_USE_C_cpMulAdc_BNU_school_ = _FEATURE_OFF_
-ENDIF
+%ifndef _USE_C_cpMulAdc_BNU_school_
+  %assign _USE_C_cpMulAdc_BNU_school_ _FEATURE_OFF_
+%endif
 
-IFNDEF _USE_C_cpSqrAdc_BNU_school_
-_USE_C_cpSqrAdc_BNU_school_ = _FEATURE_OFF_
-ENDIF
+%ifndef _USE_C_cpSqrAdc_BNU_school_
+  %assign _USE_C_cpSqrAdc_BNU_school_ _FEATURE_OFF_
+%endif
 
-IFNDEF _USE_C_cpMontRedAdc_BNU_
-_USE_C_cpMontRedAdc_BNU_ = _FEATURE_OFF_
-ENDIF
+%ifndef _USE_C_cpMontRedAdc_BNU_
+  %assign _USE_C_cpMontRedAdc_BNU_ _FEATURE_OFF_
+%endif
 
 ;;
 ;; if there is no outside assignment
 ;; set _SHA_NI_ENABLING_  based on CPU specification
 ;;
-IFNDEF _SHA_NI_ENABLING_
-   IF (_IPP GE _IPP_P8 )
-      _SHA_NI_ENABLING_ = _FEATURE_TICKTOCK_
-   ELSE
-      _SHA_NI_ENABLING_ = _FEATURE_OFF_
-   ENDIF
-ENDIF
+%ifndef _SHA_NI_ENABLING_
+   %if (_IPP >= _IPP_P8 )
+      %assign _SHA_NI_ENABLING_ _FEATURE_TICKTOCK_
+   %else
+      %assign _SHA_NI_ENABLING_ _FEATURE_OFF_
+   %endif
+%endif
 
 ;;
 ;; select Hash algorithm
 ;;
-IFNDEF _DISABLE_ALG_SHA1_
-   _ENABLE_ALG_SHA1_   = _FEATURE_ON_  ;; SHA1 on
-ELSE
-   _ENABLE_ALG_SHA1_   = _FEATURE_OFF_ ;; SHA1 on
-ENDIF
+%ifndef _DISABLE_ALG_SHA1_
+  %assign _ENABLE_ALG_SHA1_   _FEATURE_ON_  ;; SHA1 on
+%else
+  %assign _ENABLE_ALG_SHA1_   _FEATURE_OFF_ ;; SHA1 on
+%endif
 
-IFNDEF _DISABLE_ALG_SHA256_
-   _ENABLE_ALG_SHA256_ = _FEATURE_ON_  ;; SHA256 on
-ELSE
-   _ENABLE_ALG_SHA256_ = _FEATURE_OFF_ ;; SHA256 off
-ENDIF
+%ifndef _DISABLE_ALG_SHA256_
+  %assign _ENABLE_ALG_SHA256_ _FEATURE_ON_  ;; SHA256 on
+%else
+  %assign _ENABLE_ALG_SHA256_ _FEATURE_OFF_ ;; SHA256 off
+%endif
 
-IFNDEF _DISABLE_ALG_SHA521_
-   _ENABLE_ALG_SHA512_ = _FEATURE_ON_  ;; SHA512 on
-ELSE
-   _ENABLE_ALG_SHA512_ = _FEATURE_OFF_ ;; SHA512 off
-ENDIF
+%ifndef _DISABLE_ALG_SHA521_
+  %assign _ENABLE_ALG_SHA512_ _FEATURE_ON_  ;; SHA512 on
+%else
+  %assign _ENABLE_ALG_SHA512_ _FEATURE_OFF_ ;; SHA512 off
+%endif
 
-IFNDEF _DISABLE_ALG_MD5_
-   _ENABLE_ALG_MD5_    = _FEATURE_ON_  ;; MD5 on
-ELSE
-   _ENABLE_ALG_MD5_    = _FEATURE_OFF_ ;; MD5 off
-ENDIF
+%ifndef _DISABLE_ALG_MD5_
+  %assign _ENABLE_ALG_MD5_    _FEATURE_ON_  ;; MD5 on
+%else
+  %assign _ENABLE_ALG_MD5_    _FEATURE_OFF_ ;; MD5 off
+%endif
 
-IFNDEF _DISABLE_ALG_SM3_
-   _ENABLE_ALG_SM3_    = _FEATURE_ON_  ;; SM3 on
-ELSE
-   _ENABLE_ALG_SM3_    = _FEATURE_OFF_ ;; SM3 off
-ENDIF
+%ifndef _DISABLE_ALG_SM3_
+  %assign _ENABLE_ALG_SM3_    _FEATURE_ON_  ;; SM3 on
+%else
+  %assign _ENABLE_ALG_SM3_    _FEATURE_OFF_ ;; SM3 off
+%endif
 
 
-_ENABLE_KARATSUBA_ = 0     ;; not use Karatsuba method for multiplication
+%assign _ENABLE_KARATSUBA_  0     ;; not use Karatsuba method for multiplication
 
-_NUSE    = 0   ;; do not use use
-_USE     = 1   ;; do use
+%assign _NUSE    0   ;; do not use use
+%assign _USE     1   ;; do use
 
 ;; ~ 5.0
-_USE_NN_MUL_BNU_FS_  = _NUSE  ;; use/not use NN version of full-size multiplication
-_USE_NN_MONTMUL_     = _NUSE  ;; use/not use NN version of Montgomery multiplication
+%assign _USE_NN_MUL_BNU_FS_  _NUSE  ;; use/not use NN version of full-size multiplication
+%assign _USE_NN_MONTMUL_     _NUSE  ;; use/not use NN version of Montgomery multiplication
 

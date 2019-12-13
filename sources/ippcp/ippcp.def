@@ -319,8 +319,14 @@ ippsRSASign_PKCS1v15
 ippsRSAVerify_PKCS1v15
 ippsRSASign_PKCS1v15_rmf
 ippsRSAVerify_PKCS1v15_rmf
+ippsRSA_MB_GetBufferSizePublicKey
+ippsRSA_MB_GetBufferSizePrivateKey
+ippsRSA_MB_Sign_PSS_rmf
+ippsRSA_MB_Verify_PSS_rmf
 ippsRSA_MB_Encrypt
 ippsRSA_MB_Decrypt
+ippsRSA_MB_Sign_PKCS1v15_rmf
+ippsRSA_MB_Verify_PKCS1v15_rmf
 ippsDLGetResultString
 ippsDLPGetSize
 ippsDLPInit

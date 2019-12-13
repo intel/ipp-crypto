@@ -38,39 +38,25 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Encrypt/Decrypt byte data stream according to Rijndael128 (GCM mode)
-; 
+;
 ;     Content:
 ;      AesGcmMulGcm_table2K()
 ;      AesGcmAuth_table2K()
 ;
 
-.686P
-.MODEL FLAT,C
-
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
 
 
-IFDEF IPP_PIC
-LD_ADDR MACRO reg:REQ, addr:REQ
-LOCAL LABEL
-        call     LABEL
-LABEL:  pop      reg
-        sub      reg, LABEL-addr
-ENDM
-ELSE
-LD_ADDR MACRO reg:REQ, addr:REQ
-        lea      reg, addr
-ENDM
-ENDIF
 
-IF _IPP GE _IPP_V8
+%include "asmdefs.inc"
+%include "ia_emm.inc"
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+%if (_IPP >= _IPP_V8)
+
+segment .text align=IPP_ALIGN_FACTOR
 
 ;
 ; getAesGcmConst_table_ct provides c-e-t access to pre-computed Ipp16u AesGcmConst_table[256]
@@ -85,16 +71,16 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;  register  ecx destoyed
 ;  registers mmx2, mmx3, mmx6, and mmx7 destoyed
 ;
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 _CONST_DATA:
 _INIT_IDX   DW    000h,001h,002h,003h,004h,005h,006h,007h   ;; initial search inx = {0:1:2:3:4:5:6:7}
 _INCR_IDX   DW    008h,008h,008h,008h,008h,008h,008h,008h   ;; index increment = {8:8:8:8:8:8:8:8}
 
-INIT_IDX equ [ebx+(_INIT_IDX - _CONST_DATA)]
-INCR_IDX equ [ebx+(_INCR_IDX - _CONST_DATA)]
+%xdefine INIT_IDX  [ebx+(_INIT_IDX - _CONST_DATA)]
+%xdefine INCR_IDX  [ebx+(_INCR_IDX - _CONST_DATA)]
 
-ALIGN IPP_ALIGN_FACTOR
-IPPASM getAesGcmConst_table_ct PROC NEAR PRIVATE
+align IPP_ALIGN_FACTOR
+IPPASM getAesGcmConst_table_ct,PRIVATE
    push     ebx
    LD_ADDR  ebx, _CONST_DATA
 
@@ -106,22 +92,22 @@ IPPASM getAesGcmConst_table_ct PROC NEAR PRIVATE
    movd     xmm3, ecx
    pshufd   xmm3, xmm3, 00b            ;; search index xmm3 = broadcast(idx)
 
-   movdqa   xmm6, xmmword ptr INIT_IDX ;; current indexes
+   movdqa   xmm6, xmmword INIT_IDX ;; current indexes
 
    xor      eax, eax
-ALIGN IPP_ALIGN_FACTOR
-search_loop:
+align IPP_ALIGN_FACTOR
+.search_loop:
    movdqa   xmm7, xmm6                             ;; copy current indexes
-   paddw    xmm6, xmmword ptr INCR_IDX             ;; advance current indexes
+   paddw    xmm6, xmmword INCR_IDX             ;; advance current indexes
 
    pcmpeqw  xmm7, xmm3                             ;; selection mask
-   pand     xmm7, xmmword ptr[edx+eax*sizeof(word)];; mask data
+   pand     xmm7, xmmword [edx+eax*sizeof(word)];; mask data
 
    add      eax, 8
    cmp      eax, 256
 
    por      xmm2, xmm7                             ;; and accumulate
-   jl       search_loop
+   jl       .search_loop
 
    movdqa   xmm3, xmm2                 ;; pack result in qword
    psrldq   xmm2, sizeof(xmmword)/2
@@ -137,17 +123,19 @@ search_loop:
    shl      ecx, 4                     ;; rcx *=16 = sizeof(word)*8
    shr      eax, cl
    ret
-IPPASM getAesGcmConst_table_ct ENDP
+ENDFUNC getAesGcmConst_table_ct
+
 
 ;
 ; void AesGcmMulGcm_table2K(Ipp8u* pHash, const Ipp8u* pPrecomputedData, , const void* pParam))
 ;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM AesGcmMulGcm_table2K PROC NEAR C PUBLIC \
-      USES     esi edi ebx,\
-      pHash:   PTR BYTE,\
-      pMulTbl: PTR BYTE,\
-      pParam:  PTR WORD
+align IPP_ALIGN_FACTOR
+IPPASM AesGcmMulGcm_table2K,PUBLIC
+  USES_GPR esi,edi,ebx
+
+%xdefine pHash   [esp + ARG_1 + 0*sizeof(dword)]
+%xdefine pMulTbl [esp + ARG_1 + 1*sizeof(dword)]
+%xdefine pParam  [esp + ARG_1 + 2*sizeof(dword)]
 
    mov      edi, pHash
    movdqu   xmm0, [edi]                ; hash value
@@ -161,108 +149,108 @@ IPPASM AesGcmMulGcm_table2K PROC NEAR C PUBLIC \
    shl      ebx, 4
    and      ebx, 0f0f0f0f0h   ; ebx = 4 x 4_bits (another)
    movzx    ecx, ah
-   movdqa   xmm5, oword ptr [esi+1024+ecx]
+   movdqa   xmm5, oword [esi+1024+ecx]
    movzx    ecx, al
-   movdqa   xmm4, oword ptr [esi+1024+ecx]
+   movdqa   xmm4, oword [esi+1024+ecx]
    shr      eax, 16
    movzx    ecx, ah
-   movdqa   xmm3, oword ptr [esi+1024+ecx]
+   movdqa   xmm3, oword [esi+1024+ecx]
    movzx    ecx, al
-   movdqa   xmm2, oword ptr [esi+1024+ecx]
+   movdqa   xmm2, oword [esi+1024+ecx]
 
    psrldq   xmm0, 4           ; shift xmm0
    movd     eax, xmm0         ; eax = hash[1]
    and      eax, 0f0f0f0f0h   ; eax = 4 x 4_bits
 
    movzx    ecx, bh
-   pxor     xmm5, oword ptr [esi+ 0*256 + ecx]
+   pxor     xmm5, oword [esi+ 0*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm4, oword ptr [esi+ 0*256 + ecx]
+   pxor     xmm4, oword [esi+ 0*256 + ecx]
    shr      ebx, 16
    movzx    ecx, bh
-   pxor     xmm3, oword ptr [esi+ 0*256 + ecx]
+   pxor     xmm3, oword [esi+ 0*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm2, oword ptr [esi+ 0*256 + ecx]
+   pxor     xmm2, oword [esi+ 0*256 + ecx]
 
    movd     ebx, xmm0         ; ebx = hash[1]
    shl      ebx, 4            ; another 4 x 4_bits
    and      ebx, 0f0f0f0f0h
 
    movzx    ecx, ah
-   pxor     xmm5, oword ptr [esi+1024+ 1*256 + ecx]
+   pxor     xmm5, oword [esi+1024+ 1*256 + ecx]
    movzx    ecx, al
-   pxor     xmm4, oword ptr [esi+1024+ 1*256 + ecx]
+   pxor     xmm4, oword [esi+1024+ 1*256 + ecx]
    shr      eax, 16
    movzx    ecx, ah
-   pxor     xmm3, oword ptr [esi+1024+ 1*256 + ecx]
+   pxor     xmm3, oword [esi+1024+ 1*256 + ecx]
    movzx    ecx, al
-   pxor     xmm2, oword ptr [esi+1024+ 1*256 + ecx]
+   pxor     xmm2, oword [esi+1024+ 1*256 + ecx]
    psrldq   xmm0, 4
 
    movd     eax, xmm0            ; eax = hash.2
    and      eax, 0f0f0f0f0h
 
    movzx    ecx, bh
-   pxor     xmm5, oword ptr [esi+ 1*256 + ecx]
+   pxor     xmm5, oword [esi+ 1*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm4, oword ptr [esi+ 1*256 + ecx]
+   pxor     xmm4, oword [esi+ 1*256 + ecx]
    shr      ebx, 16
    movzx    ecx, bh
-   pxor     xmm3, oword ptr [esi+ 1*256 + ecx]
+   pxor     xmm3, oword [esi+ 1*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm2, oword ptr [esi+ 1*256 + ecx]
+   pxor     xmm2, oword [esi+ 1*256 + ecx]
 
    movd     ebx, xmm0
    shl      ebx, 4
    and      ebx, 0f0f0f0f0h
 
    movzx    ecx, ah
-   pxor     xmm5, oword ptr [esi+1024+ 2*256 + ecx]
+   pxor     xmm5, oword [esi+1024+ 2*256 + ecx]
    movzx    ecx, al
-   pxor     xmm4, oword ptr [esi+1024+ 2*256 + ecx]
+   pxor     xmm4, oword [esi+1024+ 2*256 + ecx]
    shr      eax, 16
    movzx    ecx, ah
-   pxor     xmm3, oword ptr [esi+1024+ 2*256 + ecx]
+   pxor     xmm3, oword [esi+1024+ 2*256 + ecx]
    movzx    ecx, al
-   pxor     xmm2, oword ptr [esi+1024+ 2*256 + ecx]
+   pxor     xmm2, oword [esi+1024+ 2*256 + ecx]
 
    psrldq   xmm0, 4
    movd     eax, xmm0         ; eax = hash.3
    and      eax, 0f0f0f0f0h
 
    movzx    ecx, bh
-   pxor     xmm5, oword ptr [esi+ 2*256 + ecx]
+   pxor     xmm5, oword [esi+ 2*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm4, oword ptr [esi+ 2*256 + ecx]
+   pxor     xmm4, oword [esi+ 2*256 + ecx]
    shr      ebx, 16
    movzx    ecx, bh
-   pxor     xmm3, oword ptr [esi+ 2*256 + ecx]
+   pxor     xmm3, oword [esi+ 2*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm2, oword ptr [esi+ 2*256 + ecx]
+   pxor     xmm2, oword [esi+ 2*256 + ecx]
 
    movd     ebx, xmm0
    shl      ebx, 4
    and      ebx, 0f0f0f0f0h
 
    movzx    ecx, ah
-   pxor     xmm5, oword ptr [esi+1024+ 3*256 + ecx]
+   pxor     xmm5, oword [esi+1024+ 3*256 + ecx]
    movzx    ecx, al
-   pxor     xmm4, oword ptr [esi+1024+ 3*256 + ecx]
+   pxor     xmm4, oword [esi+1024+ 3*256 + ecx]
    shr      eax, 16
    movzx    ecx, ah
-   pxor     xmm3, oword ptr [esi+1024+ 3*256 + ecx]
+   pxor     xmm3, oword [esi+1024+ 3*256 + ecx]
    movzx    ecx, al
-   pxor     xmm2, oword ptr [esi+1024+ 3*256 + ecx]
+   pxor     xmm2, oword [esi+1024+ 3*256 + ecx]
 
    movzx    ecx, bh
-   pxor     xmm5, oword ptr [esi+ 3*256 + ecx]
+   pxor     xmm5, oword [esi+ 3*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm4, oword ptr [esi+ 3*256 + ecx]
+   pxor     xmm4, oword [esi+ 3*256 + ecx]
    shr      ebx, 16
    movzx    ecx, bh
-   pxor     xmm3, oword ptr [esi+ 3*256 + ecx]
+   pxor     xmm3, oword [esi+ 3*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm2, oword ptr [esi+ 3*256 + ecx]
+   pxor     xmm2, oword [esi+ 3*256 + ecx]
 
    movdqa   xmm0, xmm3
    pslldq   xmm3, 1
@@ -273,7 +261,7 @@ IPPASM AesGcmMulGcm_table2K PROC NEAR C PUBLIC \
 
    psrldq   xmm0, 15
    movd     ecx, xmm0
-   CALLASM  getAesGcmConst_table_ct ;;movzx    eax, word ptr [edx + ecx*sizeof(word)]
+   CALL_IPPASM  getAesGcmConst_table_ct ;;movzx    eax, word [edx + ecx*sizeof(word)]
    shl      eax, 8
 
    movdqa   xmm0, xmm5
@@ -282,36 +270,38 @@ IPPASM AesGcmMulGcm_table2K PROC NEAR C PUBLIC \
 
    psrldq   xmm1, 15
    movd     ecx, xmm1
-   mov      ebx, eax                ;;xor      ax, word ptr [edx + ecx*sizeof(word)]
-   CALLASM  getAesGcmConst_table_ct ;;
+   mov      ebx, eax                ;;xor      ax, word [edx + ecx*sizeof(word)]
+   CALL_IPPASM  getAesGcmConst_table_ct ;;
    xor      eax, ebx                ;;
    shl      eax, 8
 
    psrldq   xmm0, 15
    movd     ecx, xmm0
-   mov      ebx, eax                ;;xor      ax, word ptr [edx + ecx*sizeof(word)]
-   CALLASM  getAesGcmConst_table_ct ;;
+   mov      ebx, eax                ;;xor      ax, word [edx + ecx*sizeof(word)]
+   CALL_IPPASM  getAesGcmConst_table_ct ;;
    xor      eax, ebx                ;;
 
    movd     xmm0, eax
    pxor     xmm0, xmm4
 
-   movdqu   oword ptr[edi], xmm0    ; store hash value
+   movdqu   oword [edi], xmm0    ; store hash value
 
+   REST_GPR
    ret
-IPPASM AesGcmMulGcm_table2K ENDP
+ENDFUNC AesGcmMulGcm_table2K
 
 ;
 ; void AesGcmAuth_table2K(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pPrecomputedData, const void* pParam)
 ;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM AesGcmAuth_table2K PROC NEAR C PUBLIC \
-      USES     esi edi ebx,\
-      pHash:   PTR BYTE,\
-      pSrc:    PTR BYTE,\
-      len:     DWORD,\
-      pMulTbl: PTR BYTE,\
-      pParam:  PTR WORD
+align IPP_ALIGN_FACTOR
+IPPASM AesGcmAuth_table2K,PUBLIC
+  USES_GPR esi,edi,ebx
+
+%xdefine pHash   [esp + ARG_1 + 0*sizeof(dword)]
+%xdefine pSrc    [esp + ARG_1 + 1*sizeof(dword)]
+%xdefine len     [esp + ARG_1 + 2*sizeof(dword)]
+%xdefine pMulTbl [esp + ARG_1 + 3*sizeof(dword)]
+%xdefine pParam  [esp + ARG_1 + 4*sizeof(dword)]
 
    mov      edi, pHash
    movdqu   xmm0, [edi]                ; hash value
@@ -321,8 +311,8 @@ IPPASM AesGcmAuth_table2K PROC NEAR C PUBLIC \
 
    mov      edx, pParam                ; pointer to the fixed table
 
-ALIGN IPP_ALIGN_FACTOR
-auth_loop:
+align IPP_ALIGN_FACTOR
+.auth_loop:
    movdqu   xmm4, [edi]       ; get src[]
    pxor     xmm0, xmm4        ; hash ^= src[]
 
@@ -332,108 +322,108 @@ auth_loop:
    shl      ebx, 4
    and      ebx, 0f0f0f0f0h   ; ebx = 4 x 4_bits (another)
    movzx    ecx, ah
-   movdqa   xmm5, oword ptr [esi+1024+ecx]
+   movdqa   xmm5, oword [esi+1024+ecx]
    movzx    ecx, al
-   movdqa   xmm4, oword ptr [esi+1024+ecx]
+   movdqa   xmm4, oword [esi+1024+ecx]
    shr      eax, 16
    movzx    ecx, ah
-   movdqa   xmm3, oword ptr [esi+1024+ecx]
+   movdqa   xmm3, oword [esi+1024+ecx]
    movzx    ecx, al
-   movdqa   xmm2, oword ptr [esi+1024+ecx]
+   movdqa   xmm2, oword [esi+1024+ecx]
 
    psrldq   xmm0, 4           ; shift xmm0
    movd     eax, xmm0         ; eax = hash[1]
    and      eax, 0f0f0f0f0h   ; eax = 4 x 4_bits
 
    movzx    ecx, bh
-   pxor     xmm5, oword ptr [esi+ 0*256 + ecx]
+   pxor     xmm5, oword [esi+ 0*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm4, oword ptr [esi+ 0*256 + ecx]
+   pxor     xmm4, oword [esi+ 0*256 + ecx]
    shr      ebx, 16
    movzx    ecx, bh
-   pxor     xmm3, oword ptr [esi+ 0*256 + ecx]
+   pxor     xmm3, oword [esi+ 0*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm2, oword ptr [esi+ 0*256 + ecx]
+   pxor     xmm2, oword [esi+ 0*256 + ecx]
 
    movd     ebx, xmm0         ; ebx = hash[1]
    shl      ebx, 4            ; another 4 x 4_bits
    and      ebx, 0f0f0f0f0h
 
    movzx    ecx, ah
-   pxor     xmm5, oword ptr [esi+1024+ 1*256 + ecx]
+   pxor     xmm5, oword [esi+1024+ 1*256 + ecx]
    movzx    ecx, al
-   pxor     xmm4, oword ptr [esi+1024+ 1*256 + ecx]
+   pxor     xmm4, oword [esi+1024+ 1*256 + ecx]
    shr      eax, 16
    movzx    ecx, ah
-   pxor     xmm3, oword ptr [esi+1024+ 1*256 + ecx]
+   pxor     xmm3, oword [esi+1024+ 1*256 + ecx]
    movzx    ecx, al
-   pxor     xmm2, oword ptr [esi+1024+ 1*256 + ecx]
+   pxor     xmm2, oword [esi+1024+ 1*256 + ecx]
 
    psrldq   xmm0, 4
    movd     eax, xmm0            ; eax = hash[2]
    and      eax, 0f0f0f0f0h
 
    movzx    ecx, bh
-   pxor     xmm5, oword ptr [esi+ 1*256 + ecx]
+   pxor     xmm5, oword [esi+ 1*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm4, oword ptr [esi+ 1*256 + ecx]
+   pxor     xmm4, oword [esi+ 1*256 + ecx]
    shr      ebx, 16
    movzx    ecx, bh
-   pxor     xmm3, oword ptr [esi+ 1*256 + ecx]
+   pxor     xmm3, oword [esi+ 1*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm2, oword ptr [esi+ 1*256 + ecx]
+   pxor     xmm2, oword [esi+ 1*256 + ecx]
 
    movd     ebx, xmm0
    shl      ebx, 4
    and      ebx, 0f0f0f0f0h
 
    movzx    ecx, ah
-   pxor     xmm5, oword ptr [esi+1024+ 2*256 + ecx]
+   pxor     xmm5, oword [esi+1024+ 2*256 + ecx]
    movzx    ecx, al
-   pxor     xmm4, oword ptr [esi+1024+ 2*256 + ecx]
+   pxor     xmm4, oword [esi+1024+ 2*256 + ecx]
    shr      eax, 16
    movzx    ecx, ah
-   pxor     xmm3, oword ptr [esi+1024+ 2*256 + ecx]
+   pxor     xmm3, oword [esi+1024+ 2*256 + ecx]
    movzx    ecx, al
-   pxor     xmm2, oword ptr [esi+1024+ 2*256 + ecx]
+   pxor     xmm2, oword [esi+1024+ 2*256 + ecx]
 
    psrldq   xmm0, 4
    movd     eax, xmm0         ; eax = hash[3]
    and      eax, 0f0f0f0f0h
 
    movzx    ecx, bh
-   pxor     xmm5, oword ptr [esi+ 2*256 + ecx]
+   pxor     xmm5, oword [esi+ 2*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm4, oword ptr [esi+ 2*256 + ecx]
+   pxor     xmm4, oword [esi+ 2*256 + ecx]
    shr      ebx, 16
    movzx    ecx, bh
-   pxor     xmm3, oword ptr [esi+ 2*256 + ecx]
+   pxor     xmm3, oword [esi+ 2*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm2, oword ptr [esi+ 2*256 + ecx]
+   pxor     xmm2, oword [esi+ 2*256 + ecx]
 
    movd     ebx, xmm0
    shl      ebx, 4
    and      ebx, 0f0f0f0f0h
 
    movzx    ecx, ah
-   pxor     xmm5, oword ptr [esi+1024+ 3*256 + ecx]
+   pxor     xmm5, oword [esi+1024+ 3*256 + ecx]
    movzx    ecx, al
-   pxor     xmm4, oword ptr [esi+1024+ 3*256 + ecx]
+   pxor     xmm4, oword [esi+1024+ 3*256 + ecx]
    shr      eax, 16
    movzx    ecx, ah
-   pxor     xmm3, oword ptr [esi+1024+ 3*256 + ecx]
+   pxor     xmm3, oword [esi+1024+ 3*256 + ecx]
    movzx    ecx, al
-   pxor     xmm2, oword ptr [esi+1024+ 3*256 + ecx]
+   pxor     xmm2, oword [esi+1024+ 3*256 + ecx]
 
    movzx    ecx, bh
-   pxor     xmm5, oword ptr [esi+ 3*256 + ecx]
+   pxor     xmm5, oword [esi+ 3*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm4, oword ptr [esi+ 3*256 + ecx]
+   pxor     xmm4, oword [esi+ 3*256 + ecx]
    shr      ebx, 16
    movzx    ecx, bh
-   pxor     xmm3, oword ptr [esi+ 3*256 + ecx]
+   pxor     xmm3, oword [esi+ 3*256 + ecx]
    movzx    ecx, bl
-   pxor     xmm2, oword ptr [esi+ 3*256 + ecx]
+   pxor     xmm2, oword [esi+ 3*256 + ecx]
 
    movdqa   xmm0, xmm3
    pslldq   xmm3, 1
@@ -444,7 +434,7 @@ auth_loop:
    psrldq   xmm0, 15
 
    movd     ecx, xmm0
-   CALLASM  getAesGcmConst_table_ct ;;movzx    eax, word ptr [edx + ecx*sizeof(word)]
+   CALL_IPPASM  getAesGcmConst_table_ct ;;movzx    eax, word [edx + ecx*sizeof(word)]
    shl      eax, 8
 
    movdqa   xmm0, xmm5
@@ -453,29 +443,30 @@ auth_loop:
 
    psrldq   xmm1, 15
    movd     ecx, xmm1
-   mov      ebx, eax                ;;xor      ax, word ptr [edx + ecx*sizeof(word)]
-   CALLASM  getAesGcmConst_table_ct ;;
+   mov      ebx, eax                ;;xor      ax, word [edx + ecx*sizeof(word)]
+   CALL_IPPASM  getAesGcmConst_table_ct ;;
    xor      eax, ebx                ;;
    shl      eax, 8
 
    psrldq   xmm0, 15
    movd     ecx, xmm0
-   mov      ebx, eax                ;;xor      ax, word ptr [edx + ecx*sizeof(word)]
-   CALLASM  getAesGcmConst_table_ct ;;
+   mov      ebx, eax                ;;xor      ax, word [edx + ecx*sizeof(word)]
+   CALL_IPPASM  getAesGcmConst_table_ct ;;
    xor      eax, ebx                ;;
 
    movd     xmm0, eax
    pxor     xmm0, xmm4
 
    add      edi, sizeof(oword)      ; advance src address
-   sub      len, sizeof(oword)      ; decrease counter
-   jnz      auth_loop               ; process next block
+   sub      dword len, sizeof(oword)      ; decrease counter
+   jnz      .auth_loop               ; process next block
 
    mov      edi, pHash
-   movdqu   oword ptr[edi], xmm0    ; store hash value
+   movdqu   oword [edi], xmm0    ; store hash value
 
+   REST_GPR
    ret
-IPPASM AesGcmAuth_table2K ENDP
+ENDFUNC AesGcmAuth_table2K
 
-ENDIF
-END
+%endif
+

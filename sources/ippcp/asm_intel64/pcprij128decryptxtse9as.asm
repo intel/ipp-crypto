@@ -38,26 +38,26 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               AES functions
-; 
+;
 ;     Content:
 ;        cpAESEncryptXTS_AES_NI()
-; 
 ;
-include asmdefs.inc
-include ia_32e.inc
-include pcpvariant.inc
+;
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "pcpvariant.inc"
 
-IF (_AES_NI_ENABLING_ EQ _FEATURE_ON_) OR (_AES_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-IF (_IPP32E GE _IPP32E_Y8)
+%if (_AES_NI_ENABLING_ == _FEATURE_ON_) || (_AES_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+%if (_IPP32E >= _IPP32E_Y8)
 
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 
 ALPHA_MUL_CNT  dq 00000000000000087h, 00000000000000001h
 
@@ -81,69 +81,93 @@ ALPHA_MUL_CNT  dq 00000000000000087h, 00000000000000001h
 ;;    twk = twk*alpha
 ;;    twk2= twk2 *2     - auxillary
 ;;
-OUTER_MUL_X MACRO ktwk, twk, key, mul_cnt, twk2, mask
-   movdqa   mask, twk2
-   paddd    twk2, twk2
-   movdqa   ktwk, twk
-   psrad    mask, 31
-   paddq    twk, twk
-   pand     mask, mul_cnt
-   pxor     ktwk, key
-   pxor     twk, mask
-ENDM
-LAST_OUTER_MUL_X MACRO ktwk, twk, key, mul_cnt, twk2
-   movdqa   ktwk, twk
-   psrad    twk2, 31
-   paddq    twk, twk
-   pand     twk2, mul_cnt
-   pxor     ktwk, key
-   pxor     twk, twk2
-ENDM
+%macro OUTER_MUL_X 6.nolist
+  %xdefine %%ktwk %1
+  %xdefine %%twk %2
+  %xdefine %%key %3
+  %xdefine %%mul_cnt %4
+  %xdefine %%twk2 %5
+  %xdefine %%mask %6
 
-INNER_MUL_X MACRO ktwk, twk, key, mul_cnt, twk2, mask
-   movdqa   mask, twk2
-   paddd    twk2, twk2
-   psrad    mask, 31
-   paddq    twk, twk
-   pand     mask, mul_cnt
-   pxor     twk, mask
-   IFDIF    <key>,<ktwk>
-   movdqa   key, ktwk
-   ENDIF
-   pxor     ktwk, twk
-ENDM
+   movdqa   %%mask, %%twk2
+   paddd    %%twk2, %%twk2
+   movdqa   %%ktwk, %%twk
+   psrad    %%mask, 31
+   paddq    %%twk, %%twk
+   pand     %%mask, %%mul_cnt
+   pxor     %%ktwk, %%key
+   pxor     %%twk, %%mask
+%endmacro
 
-LAST_INNER_MUL_X MACRO twk, mul_cnt, twk2
-   psrad    twk2, 31
-   paddq    twk, twk
-   pand     twk2, mul_cnt
-   pxor     twk, twk2
-ENDM
+%macro LAST_OUTER_MUL_X 5.nolist
+  %xdefine %%ktwk %1
+  %xdefine %%twk %2
+  %xdefine %%key %3
+  %xdefine %%mul_cnt %4
+  %xdefine %%twk2 %5
 
+   movdqa   %%ktwk, %%twk
+   psrad    %%twk2, 31
+   paddq    %%twk, %%twk
+   pand     %%twk2, %%mul_cnt
+   pxor     %%ktwk, %%key
+   pxor     %%twk, %%twk2
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
-IPPASM cpAESDecryptXTS_AES_NI PROC PUBLIC FRAME
-      USES_GPR rsi,rdi
-      LOCAL_FRAME = sizeof(oword)*6
-      USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12,xmm13,xmm14,xmm15
-      COMP_ABI 6
-;; rdi:        pOutBlk:     PTR BYTE      ; pointer to the output bloak
-;; rsi:        pInpBlk:     PTR BYTE      ; pointer to the input block
+%macro INNER_MUL_X 6.nolist
+  %xdefine %%ktwk %1
+  %xdefine %%twk %2
+  %xdefine %%key %3
+  %xdefine %%mul_cnt %4
+  %xdefine %%twk2 %5
+  %xdefine %%mask %6
+
+   movdqa   %%mask, %%twk2
+   paddd    %%twk2, %%twk2
+   psrad    %%mask, 31
+   paddq    %%twk, %%twk
+   pand     %%mask, %%mul_cnt
+   pxor     %%twk, %%mask
+%ifnidn    %%key,%%ktwk
+   movdqa   %%key, %%ktwk
+%endif
+   pxor     %%ktwk, %%twk
+%endmacro
+
+%macro LAST_INNER_MUL_X 3.nolist
+  %xdefine %%twk %1
+  %xdefine %%mul_cnt %2
+  %xdefine %%twk2 %3
+
+   psrad    %%twk2, 31
+   paddq    %%twk, %%twk
+   pand     %%twk2, %%mul_cnt
+   pxor     %%twk, %%twk2
+%endmacro
+
+align IPP_ALIGN_FACTOR
+IPPASM cpAESDecryptXTS_AES_NI,PUBLIC
+%assign LOCAL_FRAME sizeof(oword)*6
+        USES_GPR rsi,rdi
+        USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12,xmm13,xmm14,xmm15
+        COMP_ABI 6
+;; rdi:        pOutBlk:     BYTE      ; pointer to the output bloak
+;; rsi:        pInpBlk:     BYTE      ; pointer to the input block
 ;; edx:        nBlocks          DWORD     ; number of blocks
-;; rcx:        pKey:        PTR BYTE      ; key material address
+;; rcx:        pKey:        BYTE      ; key material address
 ;; r8d:        nr:              DWORD     ; number of rounds
-;; r9          pTweak:      PTR BYTE      ; pointer to the input/outpout (ciphertext) tweak
+;; r9          pTweak:      BYTE      ; pointer to the input/outpout (ciphertext) tweak
 
-AES_BLOCK = (16)
+%assign AES_BLOCK  (16)
 
    movsxd   r8,  r8d                         ; number of cipher rounds
 
-   movdqu   xmm15, xmmword ptr[r9]           ; input tweak value
+   movdqu   xmm15, xmmword [r9]           ; input tweak value
 
    shl      r8, 4                            ; key schedule length (bytes)
 
-   movdqa   xmm0, xmmword ptr[rcx+r8]        ; key[0]
-   movdqa   xmm8, xmmword ptr ALPHA_MUL_CNT  ; mul constant
+   movdqa   xmm0, xmmword [rcx+r8]        ; key[0]
+   movdqa   xmm8, xmmword [rel ALPHA_MUL_CNT]  ; mul constant
 
    pshufd   xmm9, xmm15, 5Fh                 ; {twk[1]:twk[1]:twk[3]:twk[3]} - auxillary value
 
@@ -162,26 +186,26 @@ AES_BLOCK = (16)
    pxor     xmm15, xmm0                ; add key[0]
 
    sub      rdx, 6         ; test input length
-   jc       short_input
+   jc       .short_input
 
 ;;
 ;; blocks processing
 ;;
-ALIGN IPP_ALIGN_FACTOR
-blks_loop:
-   pxor     xmm0, xmmword ptr[rcx]     ; key[0]^key[last]
+align IPP_ALIGN_FACTOR
+.blks_loop:
+   pxor     xmm0, xmmword [rcx]     ; key[0]^key[last]
 
    lea      rax, [r8-6*AES_BLOCK]      ; cipher_loop counter
    lea      r10, [rcx+6*AES_BLOCK]     ; mov key pointer down
 
-   movdqu   xmm2, xmmword ptr[rsi]              ; src[0] - src[7]
-   movdqu   xmm3, xmmword ptr[rsi+AES_BLOCK]
-   movdqu   xmm4, xmmword ptr[rsi+2*AES_BLOCK]
-   movdqu   xmm5, xmmword ptr[rsi+3*AES_BLOCK]
-   movdqu   xmm6, xmmword ptr[rsi+4*AES_BLOCK]
-   movdqu   xmm7, xmmword ptr[rsi+5*AES_BLOCK]
+   movdqu   xmm2, xmmword [rsi]              ; src[0] - src[7]
+   movdqu   xmm3, xmmword [rsi+AES_BLOCK]
+   movdqu   xmm4, xmmword [rsi+2*AES_BLOCK]
+   movdqu   xmm5, xmmword [rsi+3*AES_BLOCK]
+   movdqu   xmm6, xmmword [rsi+4*AES_BLOCK]
+   movdqu   xmm7, xmmword [rsi+5*AES_BLOCK]
 
-   movdqa   xmm1, xmmword ptr[rcx+r8-1*AES_BLOCK] ; key[1]
+   movdqa   xmm1, xmmword [rcx+r8-1*AES_BLOCK] ; key[1]
 
    pxor     xmm2, xmm10                         ; src[] ^twk[] ^ key[0]
    pxor     xmm3, xmm11
@@ -196,18 +220,18 @@ blks_loop:
    pxor     xmm13, xmm0
    pxor     xmm14, xmm0
    pxor     xmm15, xmm0
-   movdqa   xmm0, xmmword ptr[rcx+r8-2*AES_BLOCK]  ; key[2]
+   movdqa   xmm0, xmmword [rcx+r8-2*AES_BLOCK]  ; key[2]
 
-   movdqa   xmmword ptr[rsp+0*AES_BLOCK], xmm10
-   movdqa   xmmword ptr[rsp+1*AES_BLOCK], xmm11
-   movdqa   xmmword ptr[rsp+2*AES_BLOCK], xmm12
-   movdqa   xmmword ptr[rsp+3*AES_BLOCK], xmm13
-   movdqa   xmmword ptr[rsp+4*AES_BLOCK], xmm14
-   movdqa   xmmword ptr[rsp+5*AES_BLOCK], xmm15
+   movdqa   xmmword [rsp+0*AES_BLOCK], xmm10
+   movdqa   xmmword [rsp+1*AES_BLOCK], xmm11
+   movdqa   xmmword [rsp+2*AES_BLOCK], xmm12
+   movdqa   xmmword [rsp+3*AES_BLOCK], xmm13
+   movdqa   xmmword [rsp+4*AES_BLOCK], xmm14
+   movdqa   xmmword [rsp+5*AES_BLOCK], xmm15
    add      rsi, 6*AES_BLOCK
 
-ALIGN IPP_ALIGN_FACTOR
-cipher_loop:
+align IPP_ALIGN_FACTOR
+.cipher_loop:
    sub      rax, 2*AES_BLOCK  ; dec loop counter
    aesdec   xmm2, xmm1     ; regular rounds 3 - (last-2)
    aesdec   xmm3, xmm1
@@ -215,21 +239,21 @@ cipher_loop:
    aesdec   xmm5, xmm1
    aesdec   xmm6, xmm1
    aesdec   xmm7, xmm1
-   movdqa   xmm1, xmmword ptr[r10+rax-1*AES_BLOCK]
+   movdqa   xmm1, xmmword [r10+rax-1*AES_BLOCK]
    aesdec   xmm2, xmm0
    aesdec   xmm3, xmm0
    aesdec   xmm4, xmm0
    aesdec   xmm5, xmm0
    aesdec   xmm6, xmm0
    aesdec   xmm7, xmm0
-   movdqa   xmm0, xmmword ptr[r10+rax-2*AES_BLOCK]
-   jnz      cipher_loop
+   movdqa   xmm0, xmmword [r10+rax-2*AES_BLOCK]
+   jnz      .cipher_loop
 
-   movdqa   xmm10, xmmword ptr[rcx+r8] ; key[0]
+   movdqa   xmm10, xmmword [rcx+r8] ; key[0]
 
    movdqa   xmm15, xmm8             ; restore tweak value
    pshufd   xmm9,  xmm8, 5Fh        ; {twk[1]:twk[1]:twk[3]:twk[3]} - auxillary value
-   movdqa   xmm8, xmmword ptr ALPHA_MUL_CNT     ; mul constant
+   movdqa   xmm8, xmmword [rel ALPHA_MUL_CNT]     ; mul constant
 
    ;
    ; last 6 rounds (5 regular rounds + irregular)
@@ -241,7 +265,7 @@ cipher_loop:
    aesdec   xmm5, xmm1
    aesdec   xmm6, xmm1
    aesdec   xmm7, xmm1
-   movdqa   xmm1, xmmword ptr[rcx+3*AES_BLOCK]
+   movdqa   xmm1, xmmword [rcx+3*AES_BLOCK]
 
    INNER_MUL_X xmm10, xmm15, xmm11,  xmm8, xmm9, xmm14
 
@@ -251,7 +275,7 @@ cipher_loop:
    aesdec   xmm5, xmm0
    aesdec   xmm6, xmm0
    aesdec   xmm7, xmm0
-   movdqa   xmm0, xmmword ptr[rcx+2*AES_BLOCK]
+   movdqa   xmm0, xmmword [rcx+2*AES_BLOCK]
 
    INNER_MUL_X xmm11, xmm15, xmm12,  xmm8, xmm9, xmm14
 
@@ -261,7 +285,7 @@ cipher_loop:
    aesdec   xmm5, xmm1
    aesdec   xmm6, xmm1
    aesdec   xmm7, xmm1
-   movdqa   xmm1, xmmword ptr[rcx+1*AES_BLOCK]
+   movdqa   xmm1, xmmword [rcx+1*AES_BLOCK]
 
    INNER_MUL_X xmm12, xmm15, xmm13,  xmm8, xmm9, xmm14
 
@@ -283,85 +307,85 @@ cipher_loop:
 
    INNER_MUL_X xmm14, xmm15, xmm0,   xmm8, xmm9, xmm0
 
-   aesdeclast xmm2, xmmword ptr[rsp]            ; final irregular round
-   aesdeclast xmm3, xmmword ptr[rsp+1*AES_BLOCK]
-   aesdeclast xmm4, xmmword ptr[rsp+2*AES_BLOCK]
-   aesdeclast xmm5, xmmword ptr[rsp+3*AES_BLOCK]
-   aesdeclast xmm6, xmmword ptr[rsp+4*AES_BLOCK]
-   aesdeclast xmm7, xmmword ptr[rsp+5*AES_BLOCK]
+   aesdeclast xmm2, xmmword [rsp]            ; final irregular round
+   aesdeclast xmm3, xmmword [rsp+1*AES_BLOCK]
+   aesdeclast xmm4, xmmword [rsp+2*AES_BLOCK]
+   aesdeclast xmm5, xmmword [rsp+3*AES_BLOCK]
+   aesdeclast xmm6, xmmword [rsp+4*AES_BLOCK]
+   aesdeclast xmm7, xmmword [rsp+5*AES_BLOCK]
 
    LAST_INNER_MUL_X xmm15, xmm8, xmm9
    movdqa   xmm8, xmm15                ; save tweak for next iteration
    pxor     xmm15, xmm0                ; add key[0]
 
-   movdqu   xmmword ptr[rdi+0*AES_BLOCK], xmm2  ; store output blocks
-   movdqu   xmmword ptr[rdi+1*AES_BLOCK], xmm3
-   movdqu   xmmword ptr[rdi+2*AES_BLOCK], xmm4
-   movdqu   xmmword ptr[rdi+3*AES_BLOCK], xmm5
-   movdqu   xmmword ptr[rdi+4*AES_BLOCK], xmm6
-   movdqu   xmmword ptr[rdi+5*AES_BLOCK], xmm7
+   movdqu   xmmword [rdi+0*AES_BLOCK], xmm2  ; store output blocks
+   movdqu   xmmword [rdi+1*AES_BLOCK], xmm3
+   movdqu   xmmword [rdi+2*AES_BLOCK], xmm4
+   movdqu   xmmword [rdi+3*AES_BLOCK], xmm5
+   movdqu   xmmword [rdi+4*AES_BLOCK], xmm6
+   movdqu   xmmword [rdi+5*AES_BLOCK], xmm7
    add      rdi, 6*AES_BLOCK
 
    sub      rdx, 6
-   jnc      blks_loop
+   jnc      .blks_loop
 
-short_input:
+.short_input:
    add      rdx, 6
-   jz       quit
+   jz       .quit
 
-   movdqa   xmmword ptr[rsp+0*AES_BLOCK], xmm10    ; save pre-computed twae
-   movdqa   xmmword ptr[rsp+1*AES_BLOCK], xmm11
-   movdqa   xmmword ptr[rsp+2*AES_BLOCK], xmm12
-   movdqa   xmmword ptr[rsp+3*AES_BLOCK], xmm13
-   movdqa   xmmword ptr[rsp+4*AES_BLOCK], xmm14
-   movdqa   xmmword ptr[rsp+5*AES_BLOCK], xmm15
+   movdqa   xmmword [rsp+0*AES_BLOCK], xmm10    ; save pre-computed twae
+   movdqa   xmmword [rsp+1*AES_BLOCK], xmm11
+   movdqa   xmmword [rsp+2*AES_BLOCK], xmm12
+   movdqa   xmmword [rsp+3*AES_BLOCK], xmm13
+   movdqa   xmmword [rsp+4*AES_BLOCK], xmm14
+   movdqa   xmmword [rsp+5*AES_BLOCK], xmm15
 
 ;;
 ;; block-by-block processing
 ;;
-   movdqa   xmm0, xmmword ptr[rcx+r8]  ; key[0]
-   pxor     xmm0, xmmword ptr[rcx]     ; key[0] ^ key[last]
+   movdqa   xmm0, xmmword [rcx+r8]  ; key[0]
+   pxor     xmm0, xmmword [rcx]     ; key[0] ^ key[last]
 
    xor   rax, rax
 
-single_blk_loop:
-   movdqu   xmm2, xmmword ptr[rsi]     ; input block
-   movdqa   xmm1, xmmword ptr[rsp+rax] ; tweak ^ key[0]
+.single_blk_loop:
+   movdqu   xmm2, xmmword [rsi]     ; input block
+   movdqa   xmm1, xmmword [rsp+rax] ; tweak ^ key[0]
    add      rsi, AES_BLOCK
 
    pxor     xmm2, xmm1     ; src[] ^tweak ^ key[0]
    pxor     xmm1, xmm0     ; tweak ^ key[lasl]
    cmp      r8, 12*16      ; switch according to number of rounds
-   jl       key_128_s
+   jl       .key_128_s
 
-key_256_s:
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK+4*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK+3*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK+2*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK+1*AES_BLOCK]
-key_128_s:
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK-0*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK-1*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK-2*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK-3*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK-4*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK-5*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK-6*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK-7*AES_BLOCK]
-   aesdec      xmm2, xmmword ptr[rcx+9*AES_BLOCK-8*AES_BLOCK]
+.key_256_s:
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK+4*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK+3*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK+2*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK+1*AES_BLOCK]
+.key_128_s:
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK-0*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK-1*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK-2*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK-3*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK-4*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK-5*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK-6*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK-7*AES_BLOCK]
+   aesdec      xmm2, xmmword [rcx+9*AES_BLOCK-8*AES_BLOCK]
    aesdeclast  xmm2, xmm1
 
-   movdqu      xmmword ptr[rdi], xmm2        ; output block
+   movdqu      xmmword [rdi], xmm2        ; output block
    add         rdi, AES_BLOCK
    add         rax, AES_BLOCK
    sub         rdx, 1
-   jnz         single_blk_loop
+   jnz         .single_blk_loop
 
-   movdqa      xmm10, xmmword ptr[rsp+rax]   ; tweak ^ key[0]
+   movdqa      xmm10, xmmword [rsp+rax]   ; tweak ^ key[0]
 
-quit:
-   pxor     xmm10, xmmword ptr[rcx+r8]       ; remove key[0]
-   movdqu   xmmword ptr[r9], xmm10           ; and save tweak value
+.quit:
+   pxor     xmm10, xmmword [rcx+r8]       ; remove key[0]
+   movdqu   xmmword [r9], xmm10           ; and save tweak value
 
    pxor     xmm0, xmm0
    pxor     xmm1, xmm1
@@ -369,8 +393,8 @@ quit:
    REST_XMM
    REST_GPR
    ret
-IPPASM cpAESDecryptXTS_AES_NI ENDP
+ENDFUNC cpAESDecryptXTS_AES_NI
 
-ENDIF ;; _AES_NI_ENABLING_
-ENDIF ;;_IPP32E_Y8
-END
+%endif ;; _AES_NI_ENABLING_
+%endif ;;_IPP32E_Y8
+

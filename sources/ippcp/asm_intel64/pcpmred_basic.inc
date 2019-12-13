@@ -38,11 +38,11 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Low level Big Number reduction Support
-; 
+;
 ;
 
 
@@ -54,498 +54,531 @@
 ;
 ;  X7,X6,X5,X4,X3,X2,X1,X0 contains already preloaded (low) product
 ;
-MRED_FIX MACRO mSize, rRed, rProduct, rModulus,M0, TMPH,TMP, X0,X1,X2,X3,X4,X5,X6,X7
-   mov      rdx, M0
-   imul     rdx, X0
-   MLA_FIX  mSize, , rModulus, TMPH,TMP, X0,X1,X2,X3,X4,X5,X6,X7
-IF mSize GT 1
-   mov      rdx, M0
-   imul     rdx, X0
-   MLA_FIX  mSize, , rModulus, TMPH,TMP, X0,X1,X2,X3,X4,X5,X6,X7
-IF mSize GT 2
-   mov      rdx, M0
-   imul     rdx, X0
-   MLA_FIX  mSize, , rModulus, TMPH,TMP, X0,X1,X2,X3,X4,X5,X6,X7
-IF mSize GT 3
-   mov      rdx, M0
-   imul     rdx, X0
-   MLA_FIX  mSize, , rModulus, TMPH,TMP, X0,X1,X2,X3,X4,X5,X6,X7
-IF mSize GT 4
-   mov      rdx, M0
-   imul     rdx, X0
-   MLA_FIX  mSize, , rModulus, TMPH,TMP, X0,X1,X2,X3,X4,X5,X6,X7
-IF mSize GT 5
-   mov      rdx, M0
-   imul     rdx, X0
-   MLA_FIX  mSize, , rModulus, TMPH,TMP, X0,X1,X2,X3,X4,X5,X6,X7
-IF mSize GT 6
-   mov      rdx, M0
-   imul     rdx, X0
-   MLA_FIX  mSize, , rModulus, TMPH,TMP, X0,X1,X2,X3,X4,X5,X6,X7
-IF mSize GT 7
-   mov      rdx, M0
-   imul     rdx, X0
-   MLA_FIX  mSize, , rModulus, TMPH,TMP, X0,X1,X2,X3,X4,X5,X6,X7
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
+%macro MRED_FIX 8-15.nolist
+  %xdefine %%mSize %1
+  %xdefine %%rRed %2
+  %xdefine %%rProduct %3
+  %xdefine %%rModulus %4
+  %xdefine %%M0 %5
+  %xdefine %%TMPH %6
+  %xdefine %%TMP %7
+  %xdefine %%X0 %8
+  %xdefine %%X1 %9
+  %xdefine %%X2 %10
+  %xdefine %%X3 %11
+  %xdefine %%X4 %12
+  %xdefine %%X5 %13
+  %xdefine %%X6 %14
+  %xdefine %%X7 %15
 
-   xor      TMP, TMP
-   add      X0, qword ptr[rProduct+sizeof(qword)*(mSize+0)]
-   mov      qword ptr[rProduct+sizeof(qword)*(mSize+0)], X0
-IF mSize GT 1
-   adc      X1, qword ptr[rProduct+sizeof(qword)*(mSize+1)]
-   mov      qword ptr[rProduct+sizeof(qword)*(mSize+1)], X1
-IF mSize GT 2
-   adc      X2, qword ptr[rProduct+sizeof(qword)*(mSize+2)]
-   mov      qword ptr[rProduct+sizeof(qword)*(mSize+2)], X2
-IF mSize GT 3
-   adc      X3, qword ptr[rProduct+sizeof(qword)*(mSize+3)]
-   mov      qword ptr[rProduct+sizeof(qword)*(mSize+3)], X3
-IF mSize GT 4
-   adc      X4, qword ptr[rProduct+sizeof(qword)*(mSize+4)]
-   mov      qword ptr[rProduct+sizeof(qword)*(mSize+4)], X4
-IF mSize GT 5
-   adc      X5, qword ptr[rProduct+sizeof(qword)*(mSize+5)]
-   mov      qword ptr[rProduct+sizeof(qword)*(mSize+5)], X5
-IF mSize GT 6
-   adc      X6, qword ptr[rProduct+sizeof(qword)*(mSize+6)]
-   mov      qword ptr[rProduct+sizeof(qword)*(mSize+6)], X6
-IF mSize GT 7
-   adc      X7, qword ptr[rProduct+sizeof(qword)*(mSize+7)]
-   mov      qword ptr[rProduct+sizeof(qword)*(mSize+7)], X7
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-   adc      TMP, 0
+   mov      rdx, %%M0
+   imul     rdx, %%X0
+   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+%if %%mSize > 1
+   mov      rdx, %%M0
+   imul     rdx, %%X0
+   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+%endif
+%if %%mSize > 2
+   mov      rdx, %%M0
+   imul     rdx, %%X0
+   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+%endif
+%if %%mSize > 3
+   mov      rdx, %%M0
+   imul     rdx, %%X0
+   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+%endif
+%if %%mSize > 4
+   mov      rdx, %%M0
+   imul     rdx, %%X0
+   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+%endif
+%if %%mSize > 5
+   mov      rdx, %%M0
+   imul     rdx, %%X0
+   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+%endif
+%if %%mSize > 6
+   mov      rdx, %%M0
+   imul     rdx, %%X0
+   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+%endif
+%if %%mSize > 7
+   mov      rdx, %%M0
+   imul     rdx, %%X0
+   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+%endif
 
-   sub      X0, qword ptr[rModulus+sizeof(qword)*0]
-IF mSize GT 1
-   sbb      X1, qword ptr[rModulus+sizeof(qword)*1]
-IF mSize GT 2
-   sbb      X2, qword ptr[rModulus+sizeof(qword)*2]
-IF mSize GT 3
-   sbb      X3, qword ptr[rModulus+sizeof(qword)*3]
-IF mSize GT 4
-   sbb      X4, qword ptr[rModulus+sizeof(qword)*4]
-IF mSize GT 5
-   sbb      X5, qword ptr[rModulus+sizeof(qword)*5]
-IF mSize GT 6
-   sbb      X6, qword ptr[rModulus+sizeof(qword)*6]
-IF mSize GT 7
-   sbb      X7, qword ptr[rModulus+sizeof(qword)*7]
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-   sbb      TMP, 0
+   xor      %%TMP, %%TMP
+   add      %%X0, qword [%%rProduct+sizeof(qword)*(%%mSize+0)]
+   mov      qword [%%rProduct+sizeof(qword)*(%%mSize+0)], %%X0
+%if %%mSize > 1
+   adc      %%X1, qword [%%rProduct+sizeof(qword)*(%%mSize+1)]
+   mov      qword [%%rProduct+sizeof(qword)*(%%mSize+1)], %%X1
+%endif
+%if %%mSize > 2
+   adc      %%X2, qword [%%rProduct+sizeof(qword)*(%%mSize+2)]
+   mov      qword [%%rProduct+sizeof(qword)*(%%mSize+2)], %%X2
+%endif
+%if %%mSize > 3
+   adc      %%X3, qword [%%rProduct+sizeof(qword)*(%%mSize+3)]
+   mov      qword [%%rProduct+sizeof(qword)*(%%mSize+3)], %%X3
+%endif
+%if %%mSize > 4
+   adc      %%X4, qword [%%rProduct+sizeof(qword)*(%%mSize+4)]
+   mov      qword [%%rProduct+sizeof(qword)*(%%mSize+4)], %%X4
+%endif
+%if %%mSize > 5
+   adc      %%X5, qword [%%rProduct+sizeof(qword)*(%%mSize+5)]
+   mov      qword [%%rProduct+sizeof(qword)*(%%mSize+5)], %%X5
+%endif
+%if %%mSize > 6
+   adc      %%X6, qword [%%rProduct+sizeof(qword)*(%%mSize+6)]
+   mov      qword [%%rProduct+sizeof(qword)*(%%mSize+6)], %%X6
+%endif
+%if %%mSize > 7
+   adc      %%X7, qword [%%rProduct+sizeof(qword)*(%%mSize+7)]
+   mov      qword [%%rProduct+sizeof(qword)*(%%mSize+7)], %%X7
+%endif
+   adc      %%TMP, 0
 
-   mov      rax, qword ptr[rProduct+sizeof(qword)*(mSize+0)]
-   cmovae   rax, X0
-   mov      qword ptr[rRed+sizeof(qword)*0], rax
-IF mSize GT 1
-   mov      rax, qword ptr[rProduct+sizeof(qword)*(mSize+1)]
-   cmovae   rax, X1
-   mov      qword ptr[rRed+sizeof(qword)*1], rax
-IF mSize GT 2
-   mov      rax, qword ptr[rProduct+sizeof(qword)*(mSize+2)]
-   cmovae   rax, X2
-   mov      qword ptr[rRed+sizeof(qword)*2], rax
-IF mSize GT 3
-   mov      rax, qword ptr[rProduct+sizeof(qword)*(mSize+3)]
-   cmovae   rax, X3
-   mov      qword ptr[rRed+sizeof(qword)*3], rax
-IF mSize GT 4
-   mov      rax, qword ptr[rProduct+sizeof(qword)*(mSize+4)]
-   cmovae   rax, X4
-   mov      qword ptr[rRed+sizeof(qword)*4], rax
-IF mSize GT 5
-   mov      rax, qword ptr[rProduct+sizeof(qword)*(mSize+5)]
-   cmovae   rax, X5
-   mov      qword ptr[rRed+sizeof(qword)*5], rax
-IF mSize GT 6
-   mov      rax, qword ptr[rProduct+sizeof(qword)*(mSize+6)]
-   cmovae   rax, X6
-   mov      qword ptr[rRed+sizeof(qword)*6], rax
-IF mSize GT 7
-   mov      rax, qword ptr[rProduct+sizeof(qword)*(mSize+7)]
-   cmovae   rax, X7
-   mov      qword ptr[rRed+sizeof(qword)*7], rax
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDIF
-ENDM
+   sub      %%X0, qword [%%rModulus+sizeof(qword)*0]
+%if %%mSize > 1
+   sbb      %%X1, qword [%%rModulus+sizeof(qword)*1]
+%endif
+%if %%mSize > 2
+   sbb      %%X2, qword [%%rModulus+sizeof(qword)*2]
+%endif
+%if %%mSize > 3
+   sbb      %%X3, qword [%%rModulus+sizeof(qword)*3]
+%endif
+%if %%mSize > 4
+   sbb      %%X4, qword [%%rModulus+sizeof(qword)*4]
+%endif
+%if %%mSize > 5
+   sbb      %%X5, qword [%%rModulus+sizeof(qword)*5]
+%endif
+%if %%mSize > 6
+   sbb      %%X6, qword [%%rModulus+sizeof(qword)*6]
+%endif
+%if %%mSize > 7
+   sbb      %%X7, qword [%%rModulus+sizeof(qword)*7]
+%endif
+   sbb      %%TMP, 0
 
+   mov      rax, qword [%%rProduct+sizeof(qword)*(%%mSize+0)]
+   cmovae   rax, %%X0
+   mov      qword [%%rRed+sizeof(qword)*0], rax
+%if %%mSize > 1
+   mov      rax, qword [%%rProduct+sizeof(qword)*(%%mSize+1)]
+   cmovae   rax, %%X1
+   mov      qword [%%rRed+sizeof(qword)*1], rax
+%endif
+%if %%mSize > 2
+   mov      rax, qword [%%rProduct+sizeof(qword)*(%%mSize+2)]
+   cmovae   rax, %%X2
+   mov      qword [%%rRed+sizeof(qword)*2], rax
+%endif
+%if %%mSize > 3
+   mov      rax, qword [%%rProduct+sizeof(qword)*(%%mSize+3)]
+   cmovae   rax, %%X3
+   mov      qword [%%rRed+sizeof(qword)*3], rax
+%endif
+%if %%mSize > 4
+   mov      rax, qword [%%rProduct+sizeof(qword)*(%%mSize+4)]
+   cmovae   rax, %%X4
+   mov      qword [%%rRed+sizeof(qword)*4], rax
+%endif
+%if %%mSize > 5
+   mov      rax, qword [%%rProduct+sizeof(qword)*(%%mSize+5)]
+   cmovae   rax, %%X5
+   mov      qword [%%rRed+sizeof(qword)*5], rax
+%endif
+%if %%mSize > 6
+   mov      rax, qword [%%rProduct+sizeof(qword)*(%%mSize+6)]
+   cmovae   rax, %%X6
+   mov      qword [%%rRed+sizeof(qword)*6], rax
+%endif
+%if %%mSize > 7
+   mov      rax, qword [%%rProduct+sizeof(qword)*(%%mSize+7)]
+   cmovae   rax, %%X7
+   mov      qword [%%rRed+sizeof(qword)*7], rax
+%endif
 
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
-sub_N PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC sub_N,PRIVATE
    xor      rax, rax    ; cf = 0
-sub_next:
+.sub_next:
    lea      rdi, [rdi+sizeof(qword)]
-   mov      r8, qword ptr[rsi]
-   mov      r9, qword ptr[rcx]
+   mov      r8, qword [rsi]
+   mov      r9, qword [rcx]
    lea      rsi, [rsi+sizeof(qword)]
    lea      rcx, [rcx+sizeof(qword)]
    sbb      r8, r9
-   mov      qword ptr[rdi-sizeof(qword)], r8
+   mov      qword [rdi-sizeof(qword)], r8
    dec      rdx
-   jnz      sub_next
+   jnz      .sub_next
    adc      rax, 0
    ret
-sub_N ENDP
+ENDFUNC sub_N
 
-ALIGN IPP_ALIGN_FACTOR
-copy_ae_N PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC copy_ae_N,PRIVATE
    lea      rdi, [rdi+sizeof(qword)]
-   mov      r8, qword ptr[rsi]      ; src1[]
-   mov      r9, qword ptr[rcx]      ; src2[]
+   mov      r8, qword [rsi]      ; src1[]
+   mov      r9, qword [rcx]      ; src2[]
    lea      rsi, [rsi+sizeof(qword)]
    lea      rcx, [rcx+sizeof(qword)]
    cmovae   r8, r9
-   mov      qword ptr[rdi-sizeof(qword)], r8
+   mov      qword [rdi-sizeof(qword)], r8
    dec      rdx
    jnz      copy_ae_N
    ret
-copy_ae_N ENDP
+ENDFUNC copy_ae_N
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; mredN_start procedures
-ALIGN IPP_ALIGN_FACTOR
-mred1_start PROC PRIVATE
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred1_start,PRIVATE
    MLA_FIX  1,, rsi, rbx,rbp, r8
    ret
-mred1_start ENDP
+ENDFUNC mred1_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred2_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred2_start,PRIVATE
    MLA_FIX  2,, rsi, rbx,rbp, r8,r9
    ret
-mred2_start ENDP
+ENDFUNC mred2_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred3_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred3_start,PRIVATE
    MLA_FIX  3,, rsi, rbx,rbp, r8,r9,r10
    ret
-mred3_start ENDP
+ENDFUNC mred3_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred4_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred4_start,PRIVATE
    MLA_FIX  4,, rsi, rbx,rbp, r8,r9,r10,r11
    ret
-mred4_start ENDP
+ENDFUNC mred4_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred5_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred5_start,PRIVATE
    MLA_FIX  5,, rsi, rbx,rbp, r8,r9,r10,r11,r12
    ret
-mred5_start ENDP
+ENDFUNC mred5_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred6_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred6_start,PRIVATE
    MLA_FIX  6,, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13
    ret
-mred6_start ENDP
+ENDFUNC mred6_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred7_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred7_start,PRIVATE
    MLA_FIX  7,, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13,r14
    ret
-mred7_start ENDP
+ENDFUNC mred7_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred8_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred8_start,PRIVATE
    MLA_FIX  8,, rsi, rbx,rbp, r8,r9,r10,r11,r12,r13,r14,r15
    ret
-mred8_start ENDP
+ENDFUNC mred8_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred8x1_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred8x1_start,PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*0], rdx
+   mov      qword [rcx+sizeof(qword)*0], rdx
    call     mred8_start
    mov      [rdi], rax
 
    pop      rdx      ; resrore m'
    ret
-mred8x1_start ENDP
+ENDFUNC mred8x1_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred8x2_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred8x2_start,PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*0], rdx
+   mov      qword [rcx+sizeof(qword)*0], rdx
    call     mred8_start
    mov      [rdi], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*1], rdx
+   mov      qword [rcx+sizeof(qword)*1], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*1], rax
 
    pop      rdx      ; resrore m'
    ret
-mred8x2_start ENDP
+ENDFUNC mred8x2_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred8x3_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred8x3_start,PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*0], rdx
+   mov      qword [rcx+sizeof(qword)*0], rdx
    call     mred8_start
    mov      [rdi], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*1], rdx
+   mov      qword [rcx+sizeof(qword)*1], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*1], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*2], rdx
+   mov      qword [rcx+sizeof(qword)*2], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*2], rax
 
    pop      rdx      ; resrore m'
    ret
-mred8x3_start ENDP
+ENDFUNC mred8x3_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred8x4_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred8x4_start,PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*0], rdx
+   mov      qword [rcx+sizeof(qword)*0], rdx
    call     mred8_start
    mov      [rdi], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*1], rdx
+   mov      qword [rcx+sizeof(qword)*1], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*1], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*2], rdx
+   mov      qword [rcx+sizeof(qword)*2], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*2], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*3], rdx
+   mov      qword [rcx+sizeof(qword)*3], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*3], rax
 
    pop      rdx      ; resrore m'
    ret
-mred8x4_start ENDP
+ENDFUNC mred8x4_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred8x5_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred8x5_start,PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*0], rdx
+   mov      qword [rcx+sizeof(qword)*0], rdx
    call     mred8_start
    mov      [rdi], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*1], rdx
+   mov      qword [rcx+sizeof(qword)*1], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*1], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*2], rdx
+   mov      qword [rcx+sizeof(qword)*2], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*2], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*3], rdx
+   mov      qword [rcx+sizeof(qword)*3], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*3], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*4], rdx
+   mov      qword [rcx+sizeof(qword)*4], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*4], rax
 
    pop      rdx      ; resrore m'
    ret
-mred8x5_start ENDP
+ENDFUNC mred8x5_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred8x6_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred8x6_start,PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*0], rdx
+   mov      qword [rcx+sizeof(qword)*0], rdx
    call     mred8_start
    mov      [rdi], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*1], rdx
+   mov      qword [rcx+sizeof(qword)*1], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*1], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*2], rdx
+   mov      qword [rcx+sizeof(qword)*2], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*2], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*3], rdx
+   mov      qword [rcx+sizeof(qword)*3], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*3], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*4], rdx
+   mov      qword [rcx+sizeof(qword)*4], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*4], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*5], rdx
+   mov      qword [rcx+sizeof(qword)*5], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*5], rax
 
    pop      rdx      ; resrore m'
    ret
-mred8x6_start ENDP
+ENDFUNC mred8x6_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred8x7_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred8x7_start,PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*0], rdx
+   mov      qword [rcx+sizeof(qword)*0], rdx
    call     mred8_start
    mov      [rdi], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*1], rdx
+   mov      qword [rcx+sizeof(qword)*1], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*1], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*2], rdx
+   mov      qword [rcx+sizeof(qword)*2], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*2], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*3], rdx
+   mov      qword [rcx+sizeof(qword)*3], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*3], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*4], rdx
+   mov      qword [rcx+sizeof(qword)*4], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*4], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*5], rdx
+   mov      qword [rcx+sizeof(qword)*5], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*5], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*6], rdx
+   mov      qword [rcx+sizeof(qword)*6], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*6], rax
 
    pop      rdx      ; resrore m'
    ret
-mred8x7_start ENDP
+ENDFUNC mred8x7_start
 
-ALIGN IPP_ALIGN_FACTOR
-mred8x8_start PROC PRIVATE
+
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred8x8_start,PRIVATE
    push     rdx      ; save m'
 
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*0], rdx
+   mov      qword [rcx+sizeof(qword)*0], rdx
    call     mred8_start
    mov      [rdi], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*1], rdx
+   mov      qword [rcx+sizeof(qword)*1], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*1], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*2], rdx
+   mov      qword [rcx+sizeof(qword)*2], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*2], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*3], rdx
+   mov      qword [rcx+sizeof(qword)*3], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*3], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*4], rdx
+   mov      qword [rcx+sizeof(qword)*4], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*4], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*5], rdx
+   mov      qword [rcx+sizeof(qword)*5], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*5], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*6], rdx
+   mov      qword [rcx+sizeof(qword)*6], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*6], rax
 
    mov      rdx, [rsp]
    gsmulx   rbx, rdx, r8
-   mov      qword ptr[rcx+sizeof(qword)*7], rdx
+   mov      qword [rcx+sizeof(qword)*7], rdx
    call     mred8_start
    mov      [rdi+sizeof(qword)*7], rax
 
    pop      rdx      ; resrore m'
    ret
-mred8x8_start ENDP
+ENDFUNC mred8x8_start
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -575,17 +608,17 @@ mred8x8_start ENDP
 ;;
 ;; 5*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_5 PROC  PRIVATE
-MSIZE = 5
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_5,PRIVATE
+%assign MSIZE  5
    push     r8       ; m'
 
    ; load low half of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
 
    ; ui = x[i]*m'
    ; reduction += ui*modulus
@@ -610,15 +643,15 @@ MSIZE = 5
    ; finalize cf, reduction += U0*modulus operation
    xor      rax, rax
    op_reg_mem add, r8, [rdi+sizeof(qword)*(MSIZE+0)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+0)], r8
+   mov        qword [rdi+sizeof(qword)*(MSIZE+0)], r8
    op_reg_mem adc, r9, [rdi+sizeof(qword)*(MSIZE+1)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+1)], r9
+   mov        qword [rdi+sizeof(qword)*(MSIZE+1)], r9
    op_reg_mem adc, r10,[rdi+sizeof(qword)*(MSIZE+2)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+2)], r10
+   mov        qword [rdi+sizeof(qword)*(MSIZE+2)], r10
    op_reg_mem adc, r11,[rdi+sizeof(qword)*(MSIZE+3)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+3)], r11
+   mov        qword [rdi+sizeof(qword)*(MSIZE+3)], r11
    op_reg_mem adc, r12,[rdi+sizeof(qword)*(MSIZE+4)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+4)], r12
+   mov        qword [rdi+sizeof(qword)*(MSIZE+4)], r12
    adc      rax, 0
 
    ; reduction -= modulus
@@ -630,39 +663,40 @@ MSIZE = 5
    sbb      rax, 0
 
    ; copy under cf   [r15] = cf? [r15] : {r8-r12}
-   mov      rax, qword ptr[rdi+sizeof(qword)*(MSIZE+0)]
-   mov      rbx, qword ptr[rdi+sizeof(qword)*(MSIZE+1)]
-   mov      rcx, qword ptr[rdi+sizeof(qword)*(MSIZE+2)]
-   mov      rdx, qword ptr[rdi+sizeof(qword)*(MSIZE+3)]
-   mov      rbp, qword ptr[rdi+sizeof(qword)*(MSIZE+4)]
+   mov      rax, qword [rdi+sizeof(qword)*(MSIZE+0)]
+   mov      rbx, qword [rdi+sizeof(qword)*(MSIZE+1)]
+   mov      rcx, qword [rdi+sizeof(qword)*(MSIZE+2)]
+   mov      rdx, qword [rdi+sizeof(qword)*(MSIZE+3)]
+   mov      rbp, qword [rdi+sizeof(qword)*(MSIZE+4)]
    cmovae   rax, r8
    cmovae   rbx, r9
    cmovae   rcx, r10
    cmovae   rdx, r11
    cmovae   rbp, r12
-   mov      qword ptr[r15+sizeof(qword)*0], rax
-   mov      qword ptr[r15+sizeof(qword)*1], rbx
-   mov      qword ptr[r15+sizeof(qword)*2], rcx
-   mov      qword ptr[r15+sizeof(qword)*3], rdx
-   mov      qword ptr[r15+sizeof(qword)*4], rbp
+   mov      qword [r15+sizeof(qword)*0], rax
+   mov      qword [r15+sizeof(qword)*1], rbx
+   mov      qword [r15+sizeof(qword)*2], rcx
+   mov      qword [r15+sizeof(qword)*3], rdx
+   mov      qword [r15+sizeof(qword)*4], rbp
    ret
-mred_5 ENDP
+ENDFUNC mred_5
+
 
 ;;
 ;; 6*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_6 PROC PRIVATE
-MSIZE = 6
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_6,PRIVATE
+%assign MSIZE  6
    push     r8       ; m'
 
    ; load low half of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
 
    ; ui = x[i]*m'
    ; reduction += ui*modulus
@@ -690,17 +724,17 @@ MSIZE = 6
    ; finalize cf, reduction += U0*modulus operation
    xor      rax, rax
    op_reg_mem add, r8, [rdi+sizeof(qword)*(MSIZE+0)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+0)], r8
+   mov        qword [rdi+sizeof(qword)*(MSIZE+0)], r8
    op_reg_mem adc, r9, [rdi+sizeof(qword)*(MSIZE+1)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+1)], r9
+   mov        qword [rdi+sizeof(qword)*(MSIZE+1)], r9
    op_reg_mem adc, r10,[rdi+sizeof(qword)*(MSIZE+2)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+2)], r10
+   mov        qword [rdi+sizeof(qword)*(MSIZE+2)], r10
    op_reg_mem adc, r11,[rdi+sizeof(qword)*(MSIZE+3)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+3)], r11
+   mov        qword [rdi+sizeof(qword)*(MSIZE+3)], r11
    op_reg_mem adc, r12,[rdi+sizeof(qword)*(MSIZE+4)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+4)], r12
+   mov        qword [rdi+sizeof(qword)*(MSIZE+4)], r12
    op_reg_mem adc, r13,[rdi+sizeof(qword)*(MSIZE+5)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+5)], r13
+   mov        qword [rdi+sizeof(qword)*(MSIZE+5)], r13
    adc      rax, 0
 
    ; reduction -= modulus
@@ -713,43 +747,44 @@ MSIZE = 6
    sbb      rax, 0
 
    ; copy under cf   [r15] = cf? [r15] : {r8-r13}
-   mov      rax, qword ptr[rdi+sizeof(qword)*(MSIZE+0)]
-   mov      rbx, qword ptr[rdi+sizeof(qword)*(MSIZE+1)]
-   mov      rcx, qword ptr[rdi+sizeof(qword)*(MSIZE+2)]
-   mov      rdx, qword ptr[rdi+sizeof(qword)*(MSIZE+3)]
-   mov      rbp, qword ptr[rdi+sizeof(qword)*(MSIZE+4)]
-   mov      rsi, qword ptr[rdi+sizeof(qword)*(MSIZE+5)]
+   mov      rax, qword [rdi+sizeof(qword)*(MSIZE+0)]
+   mov      rbx, qword [rdi+sizeof(qword)*(MSIZE+1)]
+   mov      rcx, qword [rdi+sizeof(qword)*(MSIZE+2)]
+   mov      rdx, qword [rdi+sizeof(qword)*(MSIZE+3)]
+   mov      rbp, qword [rdi+sizeof(qword)*(MSIZE+4)]
+   mov      rsi, qword [rdi+sizeof(qword)*(MSIZE+5)]
    cmovae   rax, r8
    cmovae   rbx, r9
    cmovae   rcx, r10
    cmovae   rdx, r11
    cmovae   rbp, r12
    cmovae   rsi, r13
-   mov      qword ptr[r15+sizeof(qword)*0], rax
-   mov      qword ptr[r15+sizeof(qword)*1], rbx
-   mov      qword ptr[r15+sizeof(qword)*2], rcx
-   mov      qword ptr[r15+sizeof(qword)*3], rdx
-   mov      qword ptr[r15+sizeof(qword)*4], rbp
-   mov      qword ptr[r15+sizeof(qword)*5], rsi
+   mov      qword [r15+sizeof(qword)*0], rax
+   mov      qword [r15+sizeof(qword)*1], rbx
+   mov      qword [r15+sizeof(qword)*2], rcx
+   mov      qword [r15+sizeof(qword)*3], rdx
+   mov      qword [r15+sizeof(qword)*4], rbp
+   mov      qword [r15+sizeof(qword)*5], rsi
    ret
-mred_6 ENDP
+ENDFUNC mred_6
+
 
 ;;
 ;; 7*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_7 PROC PRIVATE
-MSIZE = 7
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_7,PRIVATE
+%assign MSIZE  7
    push     r8       ; m'
 
    ; load low half of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
 
    ; ui = x[i]*m'
    ; reduction += ui*modulus
@@ -780,19 +815,19 @@ MSIZE = 7
    ; finalize cf, reduction += U0*modulus operation
    xor      rax, rax
    op_reg_mem add, r8, [rdi+sizeof(qword)*(MSIZE+0)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+0)], r8
+   mov        qword [rdi+sizeof(qword)*(MSIZE+0)], r8
    op_reg_mem adc, r9, [rdi+sizeof(qword)*(MSIZE+1)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+1)], r9
+   mov        qword [rdi+sizeof(qword)*(MSIZE+1)], r9
    op_reg_mem adc, r10,[rdi+sizeof(qword)*(MSIZE+2)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+2)], r10
+   mov        qword [rdi+sizeof(qword)*(MSIZE+2)], r10
    op_reg_mem adc, r11,[rdi+sizeof(qword)*(MSIZE+3)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+3)], r11
+   mov        qword [rdi+sizeof(qword)*(MSIZE+3)], r11
    op_reg_mem adc, r12,[rdi+sizeof(qword)*(MSIZE+4)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+4)], r12
+   mov        qword [rdi+sizeof(qword)*(MSIZE+4)], r12
    op_reg_mem adc, r13,[rdi+sizeof(qword)*(MSIZE+5)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+5)], r13
+   mov        qword [rdi+sizeof(qword)*(MSIZE+5)], r13
    op_reg_mem adc, r14,[rdi+sizeof(qword)*(MSIZE+6)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+6)], r14
+   mov        qword [rdi+sizeof(qword)*(MSIZE+6)], r14
    adc      rax, 0
 
    ; reduction -= modulus
@@ -806,13 +841,13 @@ MSIZE = 7
    sbb      rax, 0
 
    ; copy under cf   [r15] = cf? [r15] : {r8-r14}
-   mov      rax, qword ptr[rdi+sizeof(qword)*(MSIZE+0)]
-   mov      rbx, qword ptr[rdi+sizeof(qword)*(MSIZE+1)]
-   mov      rcx, qword ptr[rdi+sizeof(qword)*(MSIZE+2)]
-   mov      rdx, qword ptr[rdi+sizeof(qword)*(MSIZE+3)]
-   mov      rbp, qword ptr[rdi+sizeof(qword)*(MSIZE+4)]
-   mov      rsi, qword ptr[rdi+sizeof(qword)*(MSIZE+5)]
-   mov      rdi, qword ptr[rdi+sizeof(qword)*(MSIZE+6)]
+   mov      rax, qword [rdi+sizeof(qword)*(MSIZE+0)]
+   mov      rbx, qword [rdi+sizeof(qword)*(MSIZE+1)]
+   mov      rcx, qword [rdi+sizeof(qword)*(MSIZE+2)]
+   mov      rdx, qword [rdi+sizeof(qword)*(MSIZE+3)]
+   mov      rbp, qword [rdi+sizeof(qword)*(MSIZE+4)]
+   mov      rsi, qword [rdi+sizeof(qword)*(MSIZE+5)]
+   mov      rdi, qword [rdi+sizeof(qword)*(MSIZE+6)]
    cmovae   rax, r8
    cmovae   rbx, r9
    cmovae   rcx, r10
@@ -820,34 +855,35 @@ MSIZE = 7
    cmovae   rbp, r12
    cmovae   rsi, r13
    cmovae   rdi, r14
-   mov      qword ptr[r15+sizeof(qword)*0], rax
-   mov      qword ptr[r15+sizeof(qword)*1], rbx
-   mov      qword ptr[r15+sizeof(qword)*2], rcx
-   mov      qword ptr[r15+sizeof(qword)*3], rdx
-   mov      qword ptr[r15+sizeof(qword)*4], rbp
-   mov      qword ptr[r15+sizeof(qword)*5], rsi
-   mov      qword ptr[r15+sizeof(qword)*6], rdi
+   mov      qword [r15+sizeof(qword)*0], rax
+   mov      qword [r15+sizeof(qword)*1], rbx
+   mov      qword [r15+sizeof(qword)*2], rcx
+   mov      qword [r15+sizeof(qword)*3], rdx
+   mov      qword [r15+sizeof(qword)*4], rbp
+   mov      qword [r15+sizeof(qword)*5], rsi
+   mov      qword [r15+sizeof(qword)*6], rdi
    ret
-mred_7 ENDP
+ENDFUNC mred_7
+
 
 ;;
 ;; 8*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_8 PROC PRIVATE
-MSIZE = 8
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_8,PRIVATE
+%assign MSIZE  8
    push     r15      ; save reduction address
    push     r8       ; m'
 
    ; load low half of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    ; ui = x[i]*m'
    ; reduction += ui*modulus
@@ -881,21 +917,21 @@ MSIZE = 8
    ; finalize cf, reduction += U0*modulus operation
    xor      rax, rax
    op_reg_mem add, r8, [rdi+sizeof(qword)*(MSIZE+0)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+0)], r8
+   mov        qword [rdi+sizeof(qword)*(MSIZE+0)], r8
    op_reg_mem adc, r9, [rdi+sizeof(qword)*(MSIZE+1)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+1)], r9
+   mov        qword [rdi+sizeof(qword)*(MSIZE+1)], r9
    op_reg_mem adc, r10,[rdi+sizeof(qword)*(MSIZE+2)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+2)], r10
+   mov        qword [rdi+sizeof(qword)*(MSIZE+2)], r10
    op_reg_mem adc, r11,[rdi+sizeof(qword)*(MSIZE+3)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+3)], r11
+   mov        qword [rdi+sizeof(qword)*(MSIZE+3)], r11
    op_reg_mem adc, r12,[rdi+sizeof(qword)*(MSIZE+4)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+4)], r12
+   mov        qword [rdi+sizeof(qword)*(MSIZE+4)], r12
    op_reg_mem adc, r13,[rdi+sizeof(qword)*(MSIZE+5)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+5)], r13
+   mov        qword [rdi+sizeof(qword)*(MSIZE+5)], r13
    op_reg_mem adc, r14,[rdi+sizeof(qword)*(MSIZE+6)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+6)], r14
+   mov        qword [rdi+sizeof(qword)*(MSIZE+6)], r14
    op_reg_mem adc, r15,[rdi+sizeof(qword)*(MSIZE+7)], rbx
-   mov        qword ptr[rdi+sizeof(qword)*(MSIZE+7)], r15
+   mov        qword [rdi+sizeof(qword)*(MSIZE+7)], r15
    adc      rax, 0
 
    ; reduction -= modulus
@@ -911,40 +947,41 @@ MSIZE = 8
 
    pop      rsi         ; address of reduction
    ; copy under cf   [rsi] = cf? [rdi] : {r8-r15}
-   mov      rax, qword ptr[rdi+sizeof(qword)*(MSIZE+0)]
-   mov      rbx, qword ptr[rdi+sizeof(qword)*(MSIZE+1)]
-   mov      rcx, qword ptr[rdi+sizeof(qword)*(MSIZE+2)]
-   mov      rdx, qword ptr[rdi+sizeof(qword)*(MSIZE+3)]
+   mov      rax, qword [rdi+sizeof(qword)*(MSIZE+0)]
+   mov      rbx, qword [rdi+sizeof(qword)*(MSIZE+1)]
+   mov      rcx, qword [rdi+sizeof(qword)*(MSIZE+2)]
+   mov      rdx, qword [rdi+sizeof(qword)*(MSIZE+3)]
    cmovae   rax, r8
    cmovae   rbx, r9
    cmovae   rcx, r10
    cmovae   rdx, r11
-   mov      qword ptr[rsi+sizeof(qword)*0], rax
-   mov      qword ptr[rsi+sizeof(qword)*1], rbx
-   mov      qword ptr[rsi+sizeof(qword)*2], rcx
-   mov      qword ptr[rsi+sizeof(qword)*3], rdx
+   mov      qword [rsi+sizeof(qword)*0], rax
+   mov      qword [rsi+sizeof(qword)*1], rbx
+   mov      qword [rsi+sizeof(qword)*2], rcx
+   mov      qword [rsi+sizeof(qword)*3], rdx
 
-   mov      rax, qword ptr[rdi+sizeof(qword)*(MSIZE+4)]
-   mov      rbx, qword ptr[rdi+sizeof(qword)*(MSIZE+5)]
-   mov      rcx, qword ptr[rdi+sizeof(qword)*(MSIZE+6)]
-   mov      rdx, qword ptr[rdi+sizeof(qword)*(MSIZE+7)]
+   mov      rax, qword [rdi+sizeof(qword)*(MSIZE+4)]
+   mov      rbx, qword [rdi+sizeof(qword)*(MSIZE+5)]
+   mov      rcx, qword [rdi+sizeof(qword)*(MSIZE+6)]
+   mov      rdx, qword [rdi+sizeof(qword)*(MSIZE+7)]
    cmovae   rax, r12
    cmovae   rbx, r13
    cmovae   rcx, r14
    cmovae   rdx, r15
-   mov      qword ptr[rsi+sizeof(qword)*4], rax
-   mov      qword ptr[rsi+sizeof(qword)*5], rbx
-   mov      qword ptr[rsi+sizeof(qword)*6], rcx
-   mov      qword ptr[rsi+sizeof(qword)*7], rdx
+   mov      qword [rsi+sizeof(qword)*4], rax
+   mov      qword [rsi+sizeof(qword)*5], rbx
+   mov      qword [rsi+sizeof(qword)*6], rcx
+   mov      qword [rsi+sizeof(qword)*7], rdx
    ret
-mred_8 ENDP
+ENDFUNC mred_8
+
 
 ;;
 ;; 9*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_9 PROC PRIVATE
-MSIZE = 9
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_9,PRIVATE
+%assign MSIZE  9
    push     r15      ; save reduction address
 
    sub      rsp, sizeof(qword)*8    ; allocate U space
@@ -958,14 +995,14 @@ MSIZE = 9
 ;;
 
    ; load low part of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
 
@@ -990,13 +1027,13 @@ MSIZE = 9
 
    pop      rax
    shr      rax, 1
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], r14
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], r14
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7], r15, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7], rbx
    adc      rax, 0
    push     rax         ; store carryGBL
@@ -1006,28 +1043,28 @@ MSIZE = 9
 ;;
    sub      rsi, sizeof(qword)*8
 
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    mov      rdx, [rsp+sizeof(qword)]
    call     mred8x1_start
 
    xor      rax, rax    ; init carryLCL
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], r14
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], r14
    mov      r8, r15
-   add      r8, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
+   add      r8, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
    adc      rax, 0
    push     rax         ; store carryLCL
 
@@ -1043,7 +1080,7 @@ MSIZE = 9
 
    pop      rbx         ; carryGBL
    add      r8,  rbx
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
    adc      rax, 0      ; update carryGBL
 
 
@@ -1056,26 +1093,27 @@ MSIZE = 9
 
    mov      rbx, rax       ; save carryGBL
 
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    call     sub_N          ; reduction = buffer - modulus
    sub      rbx, rax       ; rbx = borrow
 
    sub      rdi, sizeof(qword)*MSIZE      ; reduction
    sub      rsi, sizeof(qword)*MSIZE      ; buffer (src1)
    mov      rcx, rdi                      ; reduction (src2)
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    shr      rbx,1          ; restore cf
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-mred_9 ENDP
+ENDFUNC mred_9
+
 
 ;;
 ;; 10*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_10 PROC PRIVATE
-MSIZE = 10
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_10,PRIVATE
+%assign MSIZE  10
    push     r15      ; save reduction address
 
    sub      rsp, sizeof(qword)*8    ; allocate U space
@@ -1089,14 +1127,14 @@ MSIZE = 10
 ;;
 
    ; load low part of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
 
@@ -1121,12 +1159,12 @@ MSIZE = 10
 
    pop      rax
    shr      rax, 1
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], r14, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7], r15, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7], rbx
    adc      rax, 0
@@ -1137,29 +1175,29 @@ MSIZE = 10
 ;;
    sub      rsi, sizeof(qword)*8
 
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    mov      rdx, [rsp+sizeof(qword)]
    call     mred8x2_start
 
    xor      rax, rax    ; init carryLCL
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
    mov      r8, r14
    mov      r9, r15
-   add      r8, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
-   adc      r9, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
+   add      r8, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
+   adc      r9, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
    adc      rax, 0
    push     rax         ; store carryLCL
 
@@ -1177,8 +1215,8 @@ MSIZE = 10
    pop      rbx         ; carryGBL
    add      r8, rbx
    adc      r9, 0
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
    adc      rax, 0      ; update carryGBL
 
 
@@ -1191,26 +1229,27 @@ MSIZE = 10
 
    mov      rbx, rax       ; save carryGBL
 
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    call     sub_N          ; reduction = buffer - modulus
    sub      rbx, rax       ; rbx = borrow
 
    sub      rdi, sizeof(qword)*MSIZE      ; reduction
    sub      rsi, sizeof(qword)*MSIZE      ; buffer (src1)
    mov      rcx, rdi                      ; reduction (src2)
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    shr      rbx,1          ; restore cf
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-mred_10 ENDP
+ENDFUNC mred_10
+
 
 ;;
 ;; 11*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_11 PROC PRIVATE
-MSIZE = 11
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_11,PRIVATE
+%assign MSIZE  11
    push     r15      ; save reduction address
 
    sub      rsp, sizeof(qword)*8    ; allocate U space
@@ -1224,14 +1263,14 @@ MSIZE = 11
 ;;
 
    ; load low part of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
 
@@ -1256,11 +1295,11 @@ MSIZE = 11
 
    pop      rax
    shr      rax, 1
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], r14, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7], r15, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7], rbx
@@ -1272,30 +1311,30 @@ MSIZE = 11
 ;;
    sub      rsi, sizeof(qword)*8
 
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    mov      rdx, [rsp+sizeof(qword)]
    call     mred8x3_start
 
    xor      rax, rax    ; init carryLCL
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
    mov      r8, r13
    mov      r9, r14
    mov      r10,r15
-   add      r8, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5]
-   adc      r9, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
-   adc      r10,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
+   add      r8, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5]
+   adc      r9, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
+   adc      r10,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
    adc      rax, 0
    push     rax         ; store carryLCL
 
@@ -1315,9 +1354,9 @@ MSIZE = 11
    add      r8, rbx
    adc      r9, 0
    adc      r10,0
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
    adc      rax, 0      ; update carryGBL
 
 
@@ -1330,26 +1369,27 @@ MSIZE = 11
 
    mov      rbx, rax       ; save carryGBL
 
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    call     sub_N          ; reduction = buffer - modulus
    sub      rbx, rax       ; rbx = borrow
 
    sub      rdi, sizeof(qword)*MSIZE      ; reduction
    sub      rsi, sizeof(qword)*MSIZE      ; buffer (src1)
    mov      rcx, rdi                      ; reduction (src2)
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    shr      rbx,1          ; restore cf
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-mred_11 ENDP
+ENDFUNC mred_11
+
 
 ;;
 ;; 12*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_12 PROC PRIVATE
-MSIZE = 12
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_12,PRIVATE
+%assign MSIZE  12
    push     r15      ; save reduction address
 
    sub      rsp, sizeof(qword)*8    ; allocate U space
@@ -1363,14 +1403,14 @@ MSIZE = 12
 ;;
 
    ; load low part of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
 
@@ -1395,10 +1435,10 @@ MSIZE = 12
 
    pop      rax
    shr      rax, 1
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], r14, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], rbx
@@ -1411,31 +1451,31 @@ MSIZE = 12
 ;;
    sub      rsi, sizeof(qword)*8
 
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    mov      rdx, [rsp+sizeof(qword)]
    call     mred8x4_start
 
    xor      rax, rax    ; init carryLCL
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
    mov      r8, r12
    mov      r9, r13
    mov      r10,r14
    mov      r11,r15
-   add      r8, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4]
-   adc      r9, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5]
-   adc      r10,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
-   adc      r11,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
+   add      r8, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4]
+   adc      r9, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5]
+   adc      r10,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
+   adc      r11,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
    adc      rax, 0
    push     rax         ; store carryLCL
 
@@ -1457,10 +1497,10 @@ MSIZE = 12
    adc      r9, 0
    adc      r10,0
    adc      r11,0
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
    adc      rax, 0      ; update carryGBL
 
 
@@ -1473,26 +1513,27 @@ MSIZE = 12
 
    mov      rbx, rax       ; save carryGBL
 
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    call     sub_N          ; reduction = buffer - modulus
    sub      rbx, rax       ; rbx = borrow
 
    sub      rdi, sizeof(qword)*MSIZE      ; reduction
    sub      rsi, sizeof(qword)*MSIZE      ; buffer (src1)
    mov      rcx, rdi                      ; reduction (src2)
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    shr      rbx,1          ; restore cf
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-mred_12 ENDP
+ENDFUNC mred_12
+
 
 ;;
 ;; 13*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_13 PROC PRIVATE
-MSIZE = 13
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_13,PRIVATE
+%assign MSIZE  13
    push     r15      ; save reduction address
 
    sub      rsp, sizeof(qword)*8    ; allocate U space
@@ -1506,14 +1547,14 @@ MSIZE = 13
 ;;
 
    ; load low part of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
 
@@ -1538,9 +1579,9 @@ MSIZE = 13
 
    pop      rax
    shr      rax, 1
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], rbx
@@ -1554,32 +1595,32 @@ MSIZE = 13
 ;;
    sub      rsi, sizeof(qword)*8
 
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    mov      rdx, [rsp+sizeof(qword)]
    call     mred8x5_start
 
    xor      rax, rax    ; init carryLCL
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
    mov      r8, r11
    mov      r9, r12
    mov      r10,r13
    mov      r11,r14
    mov      r12,r15
-   add      r8, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3]
-   adc      r9, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4]
-   adc      r10,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5]
-   adc      r11,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
-   adc      r12,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
+   add      r8, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3]
+   adc      r9, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4]
+   adc      r10,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5]
+   adc      r11,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
+   adc      r12,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
    adc      rax, 0
    push     rax         ; store carryLCL
 
@@ -1603,11 +1644,11 @@ MSIZE = 13
    adc      r10,0
    adc      r11,0
    adc      r12,0
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
    adc      rax, 0      ; update carryGBL
 
 
@@ -1620,26 +1661,27 @@ MSIZE = 13
 
    mov      rbx, rax       ; save carryGBL
 
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    call     sub_N          ; reduction = buffer - modulus
    sub      rbx, rax       ; rbx = borrow
 
    sub      rdi, sizeof(qword)*MSIZE      ; reduction
    sub      rsi, sizeof(qword)*MSIZE      ; buffer (src1)
    mov      rcx, rdi                      ; reduction (src2)
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    shr      rbx,1          ; restore cf
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-mred_13 ENDP
+ENDFUNC mred_13
+
 
 ;;
 ;; 14*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_14 PROC PRIVATE
-MSIZE = 14
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_14,PRIVATE
+%assign MSIZE  14
    push     r15      ; save reduction address
 
    sub      rsp, sizeof(qword)*8    ; allocate U space
@@ -1653,14 +1695,14 @@ MSIZE = 14
 ;;
 
    ; load low part of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
 
@@ -1685,8 +1727,8 @@ MSIZE = 14
 
    pop      rax
    shr      rax, 1
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], rbx
@@ -1701,33 +1743,33 @@ MSIZE = 14
 ;;
    sub      rsi, sizeof(qword)*8
 
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    mov      rdx, [rsp+sizeof(qword)]
    call     mred8x6_start
 
    xor      rax, rax    ; init carryLCL
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
    mov      r8, r10
    mov      r9, r11
    mov      r10,r12
    mov      r11,r13
    mov      r12,r14
    mov      r13,r15
-   add      r8, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2]
-   adc      r9, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3]
-   adc      r10,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4]
-   adc      r11,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5]
-   adc      r12,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
-   adc      r13,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
+   add      r8, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2]
+   adc      r9, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3]
+   adc      r10,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4]
+   adc      r11,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5]
+   adc      r12,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
+   adc      r13,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
    adc      rax, 0
    push     rax         ; store carryLCL
 
@@ -1753,12 +1795,12 @@ MSIZE = 14
    adc      r11,0
    adc      r12,0
    adc      r13,0
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
    adc      rax, 0      ; update carryGBL
 
 
@@ -1771,26 +1813,27 @@ MSIZE = 14
 
    mov      rbx, rax       ; save carryGBL
 
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    call     sub_N          ; reduction = buffer - modulus
    sub      rbx, rax       ; rbx = borrow
 
    sub      rdi, sizeof(qword)*MSIZE      ; reduction
    sub      rsi, sizeof(qword)*MSIZE      ; buffer (src1)
    mov      rcx, rdi                      ; reduction (src2)
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    shr      rbx,1          ; restore cf
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-mred_14 ENDP
+ENDFUNC mred_14
+
 
 ;;
 ;; 15*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_15 PROC PRIVATE
-MSIZE = 15
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_15,PRIVATE
+%assign MSIZE  15
    push     r15      ; save reduction address
 
    sub      rsp, sizeof(qword)*8    ; allocate U space
@@ -1804,14 +1847,14 @@ MSIZE = 15
 ;;
 
    ; load low part of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
 
@@ -1836,7 +1879,7 @@ MSIZE = 15
 
    pop      rax
    shr      rax, 1
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1],  r9, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], rbx
    op_mem_reg_mem adc, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11, [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], rbx
@@ -1852,20 +1895,20 @@ MSIZE = 15
 ;;
    sub      rsi, sizeof(qword)*8
 
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    mov      rdx, [rsp+sizeof(qword)]
    call     mred8x7_start
 
    xor      rax, rax    ; init carryLCL
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
    mov      r8, r9
    mov      r9, r10
    mov      r10,r11
@@ -1873,13 +1916,13 @@ MSIZE = 15
    mov      r12,r13
    mov      r13,r14
    mov      r14,r15
-   add      r8, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1]
-   adc      r9, qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2]
-   adc      r10,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3]
-   adc      r11,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4]
-   adc      r12,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5]
-   adc      r13,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
-   adc      r14,qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
+   add      r8, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1]
+   adc      r9, qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2]
+   adc      r10,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3]
+   adc      r11,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4]
+   adc      r12,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5]
+   adc      r13,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6]
+   adc      r14,qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*7]
    adc      rax, 0
    push     rax         ; store carryLCL
 
@@ -1907,13 +1950,13 @@ MSIZE = 15
    adc      r12,0
    adc      r13,0
    adc      r14,0
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
-   mov      qword ptr[rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], r14
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*0], r8
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*1], r9
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*2], r10
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*3], r11
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*4], r12
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*5], r13
+   mov      qword [rdi+sizeof(qword)*(MSIZE-8)+sizeof(qword)*6], r14
    adc      rax, 0      ; update carryGBL
 
 
@@ -1926,26 +1969,27 @@ MSIZE = 15
 
    mov      rbx, rax       ; save carryGBL
 
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    call     sub_N          ; reduction = buffer - modulus
    sub      rbx, rax       ; rbx = borrow
 
    sub      rdi, sizeof(qword)*MSIZE      ; reduction
    sub      rsi, sizeof(qword)*MSIZE      ; buffer (src1)
    mov      rcx, rdi                      ; reduction (src2)
-   mov      rdx, MSIZE
+   mov      rdx, dword MSIZE
    shr      rbx,1          ; restore cf
    call     copy_ae_N      ; copy under cf, reduction = cf? buffer : reduction
 
    ret
-mred_15 ENDP
+ENDFUNC mred_15
+
 
 ;;
 ;; 16*qword modulus length
 ;;
-ALIGN IPP_ALIGN_FACTOR
-mred_16 PROC PRIVATE
-MSIZE = 16
+align IPP_ALIGN_FACTOR
+DECLARE_FUNC mred_16,PRIVATE
+%assign MSIZE  16
    push     r15                     ; save reduction address
 
    sub      rsp, sizeof(qword)*8    ; allocate U space
@@ -1954,14 +1998,14 @@ MSIZE = 16
    mov      rdx, r8                 ; copy m'
 
    ; load low part of the product
-   mov      r8, qword ptr [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]     ; x0,x1,x2,x3,x4,x5,x6,x7
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
 
@@ -1999,14 +2043,14 @@ MSIZE = 16
 
    sub      rsi, sizeof(qword)*8
 
-   mov      r8, qword ptr [rdi]
-   mov      r9, qword ptr [rdi+sizeof(qword)]
-   mov      r10,qword ptr [rdi+sizeof(qword)*2]
-   mov      r11,qword ptr [rdi+sizeof(qword)*3]
-   mov      r12,qword ptr [rdi+sizeof(qword)*4]
-   mov      r13,qword ptr [rdi+sizeof(qword)*5]
-   mov      r14,qword ptr [rdi+sizeof(qword)*6]
-   mov      r15,qword ptr [rdi+sizeof(qword)*7]
+   mov      r8, qword [rdi]
+   mov      r9, qword [rdi+sizeof(qword)]
+   mov      r10,qword [rdi+sizeof(qword)*2]
+   mov      r11,qword [rdi+sizeof(qword)*3]
+   mov      r12,qword [rdi+sizeof(qword)*4]
+   mov      r13,qword [rdi+sizeof(qword)*5]
+   mov      r14,qword [rdi+sizeof(qword)*6]
+   mov      r15,qword [rdi+sizeof(qword)*7]
 
    call     mred8x8_start
 
@@ -2052,14 +2096,14 @@ MSIZE = 16
    adc      r15, 0
    adc      rax, 0
 
-   mov      qword ptr[rdi+sizeof(qword)*(8+0)], r8
-   mov      qword ptr[rdi+sizeof(qword)*(8+1)], r9
-   mov      qword ptr[rdi+sizeof(qword)*(8+2)], r10
-   mov      qword ptr[rdi+sizeof(qword)*(8+3)], r11
-   mov      qword ptr[rdi+sizeof(qword)*(8+4)], r12
-   mov      qword ptr[rdi+sizeof(qword)*(8+5)], r13
-   mov      qword ptr[rdi+sizeof(qword)*(8+6)], r14
-   mov      qword ptr[rdi+sizeof(qword)*(8+7)], r15
+   mov      qword [rdi+sizeof(qword)*(8+0)], r8
+   mov      qword [rdi+sizeof(qword)*(8+1)], r9
+   mov      qword [rdi+sizeof(qword)*(8+2)], r10
+   mov      qword [rdi+sizeof(qword)*(8+3)], r11
+   mov      qword [rdi+sizeof(qword)*(8+4)], r12
+   mov      qword [rdi+sizeof(qword)*(8+5)], r13
+   mov      qword [rdi+sizeof(qword)*(8+6)], r14
+   mov      qword [rdi+sizeof(qword)*(8+7)], r15
 
    add      rsp, sizeof(qword)*8    ; release U space
 
@@ -2085,69 +2129,70 @@ MSIZE = 16
    sbb      rax, 0
 
    ; copy under cf   [rbp] = cf? [rdi] : [rbp]
-   mov      rax, qword ptr[rdi+sizeof(qword)*8 ]
-   mov      rbx, qword ptr[rdi+sizeof(qword)*9 ]
-   mov      rcx, qword ptr[rdi+sizeof(qword)*10]
-   mov      rdx, qword ptr[rdi+sizeof(qword)*11]
+   mov      rax, qword [rdi+sizeof(qword)*8 ]
+   mov      rbx, qword [rdi+sizeof(qword)*9 ]
+   mov      rcx, qword [rdi+sizeof(qword)*10]
+   mov      rdx, qword [rdi+sizeof(qword)*11]
    cmovae   rax, r8
    cmovae   rbx, r9
    cmovae   rcx, r10
    cmovae   rdx, r11
-   mov      qword ptr[rbp+sizeof(qword)*8 ], rax
-   mov      qword ptr[rbp+sizeof(qword)*9 ], rbx
-   mov      qword ptr[rbp+sizeof(qword)*10], rcx
-   mov      qword ptr[rbp+sizeof(qword)*11], rdx
+   mov      qword [rbp+sizeof(qword)*8 ], rax
+   mov      qword [rbp+sizeof(qword)*9 ], rbx
+   mov      qword [rbp+sizeof(qword)*10], rcx
+   mov      qword [rbp+sizeof(qword)*11], rdx
 
-   mov      rax, qword ptr[rdi+sizeof(qword)*12]
-   mov      rbx, qword ptr[rdi+sizeof(qword)*13]
-   mov      rcx, qword ptr[rdi+sizeof(qword)*14]
-   mov      rdx, qword ptr[rdi+sizeof(qword)*15]
+   mov      rax, qword [rdi+sizeof(qword)*12]
+   mov      rbx, qword [rdi+sizeof(qword)*13]
+   mov      rcx, qword [rdi+sizeof(qword)*14]
+   mov      rdx, qword [rdi+sizeof(qword)*15]
    cmovae   rax, r12
    cmovae   rbx, r13
    cmovae   rcx, r14
    cmovae   rdx, r15
-   mov      qword ptr[rbp+sizeof(qword)*12], rax
-   mov      qword ptr[rbp+sizeof(qword)*13], rbx
-   mov      qword ptr[rbp+sizeof(qword)*14], rcx
-   mov      qword ptr[rbp+sizeof(qword)*15], rdx
+   mov      qword [rbp+sizeof(qword)*12], rax
+   mov      qword [rbp+sizeof(qword)*13], rbx
+   mov      qword [rbp+sizeof(qword)*14], rcx
+   mov      qword [rbp+sizeof(qword)*15], rdx
 
-   mov      r8,  qword ptr[rbp+sizeof(qword)*0]
-   mov      r9,  qword ptr[rbp+sizeof(qword)*1]
-   mov      r10, qword ptr[rbp+sizeof(qword)*2]
-   mov      r11, qword ptr[rbp+sizeof(qword)*3]
-   mov      r12, qword ptr[rbp+sizeof(qword)*4]
-   mov      r13, qword ptr[rbp+sizeof(qword)*5]
-   mov      r14, qword ptr[rbp+sizeof(qword)*6]
-   mov      r15, qword ptr[rbp+sizeof(qword)*7]
+   mov      r8,  qword [rbp+sizeof(qword)*0]
+   mov      r9,  qword [rbp+sizeof(qword)*1]
+   mov      r10, qword [rbp+sizeof(qword)*2]
+   mov      r11, qword [rbp+sizeof(qword)*3]
+   mov      r12, qword [rbp+sizeof(qword)*4]
+   mov      r13, qword [rbp+sizeof(qword)*5]
+   mov      r14, qword [rbp+sizeof(qword)*6]
+   mov      r15, qword [rbp+sizeof(qword)*7]
 
-   mov      rax, qword ptr[rdi+sizeof(qword)*0]
-   mov      rbx, qword ptr[rdi+sizeof(qword)*1]
-   mov      rcx, qword ptr[rdi+sizeof(qword)*2]
-   mov      rdx, qword ptr[rdi+sizeof(qword)*3]
+   mov      rax, qword [rdi+sizeof(qword)*0]
+   mov      rbx, qword [rdi+sizeof(qword)*1]
+   mov      rcx, qword [rdi+sizeof(qword)*2]
+   mov      rdx, qword [rdi+sizeof(qword)*3]
    cmovae   rax, r8
    cmovae   rbx, r9
    cmovae   rcx, r10
    cmovae   rdx, r11
-   mov      qword ptr[rbp+sizeof(qword)*0], rax
-   mov      qword ptr[rbp+sizeof(qword)*1], rbx
-   mov      qword ptr[rbp+sizeof(qword)*2], rcx
-   mov      qword ptr[rbp+sizeof(qword)*3], rdx
+   mov      qword [rbp+sizeof(qword)*0], rax
+   mov      qword [rbp+sizeof(qword)*1], rbx
+   mov      qword [rbp+sizeof(qword)*2], rcx
+   mov      qword [rbp+sizeof(qword)*3], rdx
 
-   mov      rax, qword ptr[rdi+sizeof(qword)*4]
-   mov      rbx, qword ptr[rdi+sizeof(qword)*5]
-   mov      rcx, qword ptr[rdi+sizeof(qword)*6]
-   mov      rdx, qword ptr[rdi+sizeof(qword)*7]
+   mov      rax, qword [rdi+sizeof(qword)*4]
+   mov      rbx, qword [rdi+sizeof(qword)*5]
+   mov      rcx, qword [rdi+sizeof(qword)*6]
+   mov      rdx, qword [rdi+sizeof(qword)*7]
    cmovae   rax, r12
    cmovae   rbx, r13
    cmovae   rcx, r14
    cmovae   rdx, r15
-   mov      qword ptr[rbp+sizeof(qword)*4], rax
-   mov      qword ptr[rbp+sizeof(qword)*5], rbx
-   mov      qword ptr[rbp+sizeof(qword)*6], rcx
-   mov      qword ptr[rbp+sizeof(qword)*7], rdx
+   mov      qword [rbp+sizeof(qword)*4], rax
+   mov      qword [rbp+sizeof(qword)*5], rbx
+   mov      qword [rbp+sizeof(qword)*6], rcx
+   mov      qword [rbp+sizeof(qword)*7], rdx
 
    ret
-mred_16 ENDP
+ENDFUNC mred_16
+
 
 
 mred_short  DQ    mred_5  - mred_short

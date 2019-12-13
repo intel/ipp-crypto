@@ -47,7 +47,7 @@ import sys
 import os
 import hashlib
 
-Header   = sys.argv[1]    ## Intel(R) IPP Crypto dispatcher will be generated for fucntions in Header 
+Header   = sys.argv[1]    ## Intel(R) IPP Crypto dispatcher will be generated for fucntions in Header
 OutDir   = sys.argv[2]    ## Output folder for generated files
 cpulist  = sys.argv[3]    ## Actual CPU list: semicolon separated string
 compiler = sys.argv[4]
@@ -93,31 +93,35 @@ if(compiler == "GNU"):
             ## create dispatcher files ASM
             ##################################################
             ASMDISP= open( os.sep.join([OutDir, "jmp_" + FunName+"_" + hashlib.sha512(FunName.encode('utf-8')).hexdigest()[:8] +".asm"]), 'w' )
+
+            for cpu in cpulist:
+                ASMDISP.write("extern "+cpu+"_"+FunName+":function\n")
+
+            ASMDISP.write("extern ippcpJumpIndexForMergedLibs\n")
+            ASMDISP.write("extern ippcpSafeInit:function\n\n")
             ASMDISP.write("""
-.data
-.align 8
-.quad  .Lin_{FunName}
+segment .data
+align 8
+dq  .Lin_{FunName}
 .Larraddr_{FunName}:
 """.format(FunName=FunName))
 
             for cpu in cpulist:
-                ASMDISP.write("    .quad "+cpu+"_"+FunName+"\n")
+                ASMDISP.write("    dq "+cpu+"_"+FunName+"\n")
 
             ASMDISP.write("""
-.text
-.globl {FunName}
+segment .text
+global {FunName}:function ({FunName}.LEnd{FunName} - {FunName})
 .Lin_{FunName}:
-    call ippcpSafeInit@PLT
-    .align 16
+    call ippcpSafeInit wrt ..plt
+    align 16
 
 {FunName}:
-movq    ippcpJumpIndexForMergedLibs@GOTPCREL(%rip),%rax
-movslq  (%rax),%rax
-leaq    .Larraddr_{FunName}(%rip),%r11
-jmpq    *(%r11,%rax,8)
-
-.type {FunName}, @function
-.size {FunName}, .-{FunName}
+    mov     rax, qword [rel ippcpJumpIndexForMergedLibs wrt ..gotpc]
+    movsxd  rax, dword [rax]
+    lea     r11, [rel .Larraddr_{FunName}]
+    jmp     qword [r11+rax*8]
+.LEnd{FunName}:
 """.format(FunName=FunName))
             ASMDISP.close()
 

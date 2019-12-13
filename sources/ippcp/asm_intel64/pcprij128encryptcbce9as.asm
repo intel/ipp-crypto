@@ -38,24 +38,25 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Cipher function
-; 
+;
 ;     Content:
 ;        EncryptCBC_RIJ128_AES_NI()
-; 
 ;
-include asmdefs.inc
-include ia_32e.inc
-include ia_32e_regs.inc
-include pcpvariant.inc
+;
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "ia_32e_regs.inc"
+%include "pcpvariant.inc"
 
-IF (_AES_NI_ENABLING_ EQ _FEATURE_ON_) OR (_AES_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-IF (_IPP32E GE _IPP32E_Y8)
+%if (_AES_NI_ENABLING_ == _FEATURE_ON_) || (_AES_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+%if (_IPP32E >= _IPP32E_Y8)
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
+
 
 ;***************************************************************
 ;* Purpose:    RIJ128 CBC encryption
@@ -73,67 +74,68 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;;
 ;; Caller = ippsAESEncryptCBC
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM EncryptCBC_RIJ128_AES_NI PROC PUBLIC FRAME
-      USES_GPR rsi, rdi
-      LOCAL_FRAME = 0
-      USES_XMM
-      COMP_ABI 6
-;; rdi:     pInpBlk:  PTR DWORD,    ; input  blocks address
-;; rsi:     pOutBlk:  PTR DWORD,    ; output blocks address
+align IPP_ALIGN_FACTOR
+IPPASM EncryptCBC_RIJ128_AES_NI,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi
+        USES_XMM
+        COMP_ABI 6
+;; rdi:     pInpBlk:  DWORD,    ; input  blocks address
+;; rsi:     pOutBlk:  DWORD,    ; output blocks address
 ;; rdx:     nr:           DWORD,    ; number of rounds
-;; rcx      pKey:     PTR DWORD     ; key material address
+;; rcx      pKey:     DWORD     ; key material address
 ;; r8d      length:       DWORD     ; length (bytes)
-;; r9       pIV:      PTR DWORD     ; IV address
+;; r9       pIV:      DWORD     ; IV address
 
-SC        equ (4)
-BYTES_PER_BLK = (16)
+%xdefine SC  (4)
+%assign BYTES_PER_BLK  (16)
 
    movsxd   r8, r8d                 ; input length
-   movdqu   xmm0, oword ptr [r9]    ; IV
+   movdqu   xmm0, oword [r9]    ; IV
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;;
 ;; pseudo-pipelined processing
 ;;
-blks_loop:
-   movdqu   xmm1, oword ptr[rdi]       ; input block
+.blks_loop:
+   movdqu   xmm1, oword [rdi]       ; input block
 
-   movdqa   xmm4, oword ptr[rcx]
+   movdqa   xmm4, oword [rcx]
    mov      r9, rcx                    ; set pointer to the key material
 
    pxor     xmm0, xmm1                 ; src[] ^ iv
 
    pxor     xmm0, xmm4                 ; whitening
 
-   movdqa   xmm4, oword ptr[r9+16]
+   movdqa   xmm4, oword [r9+16]
    add      r9, 16
 
    mov      r10, rdx                   ; counter depending on key length
    sub      r10, 1
-  ALIGN IPP_ALIGN_FACTOR
-cipher_loop:
+align IPP_ALIGN_FACTOR
+.cipher_loop:
    aesenc      xmm0, xmm4             ; regular round
-   movdqa      xmm4, oword ptr[r9+16]
+   movdqa      xmm4, oword [r9+16]
    add         r9, 16
    dec         r10
-   jnz         cipher_loop
+   jnz         .cipher_loop
    aesenclast  xmm0, xmm4             ; irregular round
 
-   movdqu      oword ptr[rsi], xmm0    ; store output block
+   movdqu      oword [rsi], xmm0    ; store output block
 
    add         rdi, BYTES_PER_BLK      ; advance pointers
    add         rsi, BYTES_PER_BLK
    sub         r8, BYTES_PER_BLK       ; decrease counter
-   jnz         blks_loop
+   jnz         .blks_loop
 
    pxor  xmm4, xmm4
 
    REST_XMM
    REST_GPR
    ret
-IPPASM EncryptCBC_RIJ128_AES_NI ENDP
-ENDIF
+ENDFUNC EncryptCBC_RIJ128_AES_NI
 
-ENDIF ;; _AES_NI_ENABLING_
-END
+%endif
+
+%endif ;; _AES_NI_ENABLING_
+

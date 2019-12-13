@@ -21,6 +21,8 @@ from enum import Enum
 
 IPP = 'IPP'
 IPPCP = 'IPPCP'
+IPPROOT = 'IPPROOT'
+IPPCRYPTOROOT = 'IPPCRYPTOROOT'
 WINDOWS = 'Windows'
 UNIX = 'Unix'
 LINUX = 'Linux'
@@ -39,8 +41,7 @@ THREADING_LAYER = 'Threading layer'
 HOST_SYSTEM = WINDOWS
 PATH_TO_PACKAGE_REGULAR_EXPRESSION = '(?P<path>.*).tools'
 VERSION_REGULAR_EXPRESSION = '.*VERSION_STR.*"(?P<ver>.*)".*'
-PATH_TO_CNL_REGULAR_EXPRESSION = '(?P<cnl>.*\d).\w*.ipp'
-PATH_TO_ONEAPI_REGULAR_EXPRESSION='(?P<oneapi>.*).ipp'
+PATH_TO_CNL_REGULAR_EXPRESSION = '(?P<cnl>.*compilers_and_libraries\w*)\W.*'
 FUNCTION_NAME_REGULAR_EXPRESSION = 'IPPAPI\s*\(.*,\s*(?P<function_name>\S*)\s*,.*'
 TBB_EXP_LIB = ' "$TBB_PATH/lib/libtbb.dylib"'
 

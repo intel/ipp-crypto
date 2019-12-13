@@ -59,6 +59,16 @@ class FunctionsMenu(QWidget):
             'IPP TL': {},
             'IPP Cryptography': {}
         }
+        self.path_to_libs = {
+            utils.IPP: {
+                utils.INTEL64: '',
+                utils.IA32: ''
+            },
+            utils.IPPCP: {
+                utils.INTEL64: '',
+                utils.IA32: ''
+            }
+        }
 
         # Preparing elements by giving initial values, etc
         self.ipp.setText('IPP ver. None')
@@ -150,26 +160,25 @@ class FunctionsMenu(QWidget):
         else:
             return False
 
-        if utils.HOST_SYSTEM == MACOSX:
-            self.intel64_libs_path = path
-        else:
-            self.intel64_libs_path = self.get_path_to_libs(path, 'intel64')
-        self.ia32_libs_path = self.get_path_to_libs(path, 'ia32')
+        self.get_path_to_libs(package, path)
 
-        return True if self.check_libs(self.ia32_libs_path) or \
-                       self.check_libs(self.intel64_libs_path) else False
+        return True if [self.check_libs(self.path_to_libs[package][arch])
+                        for arch in self.path_to_libs[package].keys()] else False
 
     def check_batch(self, package, path):
         return os.path.exists(os.path.join(path, 'bin', package.lower() + 'vars' + BATCH_EXTENSIONS[utils.HOST_SYSTEM])) \
-               or os.path.exists(os.path.join(path, 'env', package.lower() + 'vars' + BATCH_EXTENSIONS[utils.HOST_SYSTEM]))
+               or os.path.exists(os.path.join(path, 'env', 'vars' + BATCH_EXTENSIONS[utils.HOST_SYSTEM]))
 
-    def get_path_to_libs(self, path, arch):
-        if os.path.exists(os.path.join(path, 'lib', arch)):
-            return os.path.join(path, 'lib', arch)
-        elif os.path.exists(os.path.join(path, 'lib', arch + '_' + utils.HOST_SYSTEM.lower()[:3])):
-            return os.path.join(path, 'lib', arch + '_' + utils.HOST_SYSTEM.lower()[:3])
-        else:
-            return ''
+    def get_path_to_libs(self, package, path):
+        if utils.HOST_SYSTEM == MACOSX and os.path.exists(os.path.join(path, 'lib')):
+            self.path_to_libs[package][utils.INTEL64] = os.path.join(path, 'lib')
+            return
+
+        for arch in self.path_to_libs[package].keys():
+            if os.path.exists(os.path.join(path, 'lib', arch)):
+                self.path_to_libs[package][arch]= os.path.join(path, 'lib', arch)
+            elif os.path.exists(os.path.join(path, 'lib', arch + '_' + utils.HOST_SYSTEM.lower()[:3])):
+                self.path_to_libs[package][arch] = os.path.join(path, 'lib', arch + '_' + utils.HOST_SYSTEM.lower()[:3])
 
     def check_libs(self, path):
         if path:
@@ -241,13 +250,13 @@ class FunctionsMenu(QWidget):
     def on_build_pressed(self):
         if self.ipp.isChecked():
             package = utils.IPP
-            version = self.ipp_version
+            root = utils.IPPROOT
         else:
             package = utils.IPPCP
-            version = self.ippcp_version
+            root = utils.IPPCRYPTOROOT
 
-        os.environ[package + 'ROOT'] = settings.CONFIGS[package]['Path']
-        self.get_path_to_cnl(settings.CONFIGS[package]['Path'], version)
+        os.environ[root] = settings.CONFIGS[package]['Path']
+        self.get_path_to_cnl(settings.CONFIGS[package]['Path'])
 
         while not os.path.exists(os.path.join(utils.COMPILERS_AND_LIBRARIES_PATH,
                                               utils.HOST_SYSTEM.lower(),
@@ -383,7 +392,7 @@ class FunctionsMenu(QWidget):
             return ''
 
     def get_version(self, path, package):
-        path_to_header = os.path.join(path, 'include', package.lower() + 'version.h')
+        path_to_header = os.path.join(path, 'include', 'ippversion.h')
 
         if os.path.exists(path_to_header):
             header = open(path_to_header, 'r')
@@ -395,9 +404,8 @@ class FunctionsMenu(QWidget):
 
         return 'None'
 
-    def get_path_to_cnl(self, path, version):
-        if re.compile(utils.PATH_TO_CNL_REGULAR_EXPRESSION).match(path):
-            utils.COMPILERS_AND_LIBRARIES_PATH = re.match(utils.PATH_TO_CNL_REGULAR_EXPRESSION, path).group('cnl')
-        elif re.compile(utils.PATH_TO_ONEAPI_REGULAR_EXPRESSION).match(path):
-            oneapi_path = re.match(utils.PATH_TO_ONEAPI_REGULAR_EXPRESSION, path).group('oneapi')
-            utils.COMPILERS_AND_LIBRARIES_PATH = os.path.join(oneapi_path, 'compiler', version)
+    def get_path_to_cnl(self, path):
+        match = re.match(utils.PATH_TO_CNL_REGULAR_EXPRESSION, path)
+
+        if match:
+            utils.COMPILERS_AND_LIBRARIES_PATH = match.group('cnl')

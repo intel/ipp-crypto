@@ -38,18 +38,19 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
+/*
 //  Purpose:
 //     Intel(R) Integrated Performance Primitives. Cryptography Primitives.
 //     Internal Miscellaneous BNU Definitions & Function Prototypes
-// 
-// 
+//
+//
 */
 
 #if !defined(_PCP_BNUMISC_H)
 #define _PCP_BNUMISC_H
 
 #include "pcpbnuimpl.h"
+#include "pcpmask_ct.h"
 
 
 /* bit operations */
@@ -124,7 +125,7 @@ __INLINE int cpFix_BNU(const BNU_CHUNK_T* pA, int nsA)
    return nsA;
 }
 
-/*   Name: cpCmp_BNU 
+/*   Name: cpCmp_BNU
 //
 // Purpose: Compare two BigNums.
 //
@@ -145,13 +146,10 @@ __INLINE int cpCmp_BNU(const BNU_CHUNK_T* pA, cpSize nsA, const BNU_CHUNK_T* pB,
    if(nsA!=nsB)
       return nsA>nsB? 1 : -1;
    else {
-      for(; nsA>0; nsA--) {
-         if(pA[nsA-1] > pB[nsA-1])
-            return 1;
-         else if(pA[nsA-1] < pB[nsA-1])
-            return -1;
-      }
-      return 0;
+      BNU_CHUNK_T idx = 0;
+      for(; nsA>0; nsA--)
+        idx |= ~cpIsEqu_ct(pA[nsA-1], pB[nsA-1]) & cpIsZero_ct(idx) & (nsA-1);
+      return pA[idx] < pB[idx] ? -1 : (pA[idx] > pB[idx] ? 1 : 0);
    }
 }
 
@@ -190,8 +188,19 @@ __INLINE int cpTst_BNU(const BNU_CHUNK_T* pA, int nsA)
 }
 
 /* number of leading/trailing zeros */
-#define cpNLZ_BNU OWNAPI(cpNLZ_BNU)
- cpSize cpNLZ_BNU(BNU_CHUNK_T x);
+#if !((_IPP >= _IPP_H9) || (_IPP32E >= _IPP32E_L9))
+   #define cpNLZ_BNU OWNAPI(cpNLZ_BNU)
+   cpSize cpNLZ_BNU(BNU_CHUNK_T x);
+#else
+   __INLINE cpSize cpNLZ_BNU(BNU_CHUNK_T x)
+   {
+      #if (BNU_CHUNK_BITS == BNU_CHUNK_64BIT)
+         return (cpSize)_lzcnt_u64(x);
+      #else
+         return (cpSize)_lzcnt_u32(x);
+      #endif
+   }
+#endif
 
 #define cpNTZ_BNU OWNAPI(cpNTZ_BNU)
  cpSize cpNTZ_BNU(BNU_CHUNK_T x);

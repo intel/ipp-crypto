@@ -100,8 +100,15 @@ IPPFUN(IppStatus, ippsSMS4EncryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, i
    IPP_BADARG_RET((len%cfbBlkSize), ippStsUnderRunErr);
 
    {
-      Ipp32u tmpInp[2*MBS_SMS4/sizeof(Ipp32u)];
-      Ipp32u tmpOut[  MBS_SMS4/sizeof(Ipp32u)];
+      __ALIGN16 Ipp32u TMP[3*MBS_SMS4];
+
+      /*
+         tmpInp     size = 2*MBS_SMS4
+         tmpOut     size = MBS_SMS4
+      */
+
+      Ipp32u*     tmpInp = TMP;
+      Ipp32u*     tmpOut = TMP + 2*MBS_SMS4;
 
       /* read IV */
       CopyBlock16(pIV, tmpInp);
@@ -134,6 +141,9 @@ IPPFUN(IppStatus, ippsSMS4EncryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, i
          pDst += cfbBlkSize;
          len -= cfbBlkSize;
       }
+
+      /* clear secret data */
+      PurgeBlock(TMP, sizeof(TMP));
 
       return ippStsNoErr;
    }

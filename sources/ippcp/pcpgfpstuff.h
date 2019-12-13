@@ -52,6 +52,7 @@
 #include "owncp.h"
 #include "pcpgfpmethod.h"
 #include "pcpmontgomery.h"
+#include "pcpmask_ct.h"
 
 /* GF element */
 typedef struct _cpGFpElement {
@@ -136,9 +137,7 @@ __INLINE BNU_CHUNK_T* cpGFpElementCopyPadd(BNU_CHUNK_T* pR, int nsR, const BNU_C
 }
 __INLINE int cpGFpElementCmp(const BNU_CHUNK_T* pE, const BNU_CHUNK_T* pX, int nsE)
 {
-   for(; nsE>1 && pE[nsE-1]==pX[nsE-1]; nsE--)
-      ;
-   return pE[nsE-1]==pX[nsE-1]? 0 : pE[nsE-1]>pX[nsE-1]? 1:-1;
+   return cpCmp_BNU(pE, nsE, pX, nsE);
 }
 
 __INLINE int cpGFpElementIsEquChunk(const BNU_CHUNK_T* pE, int nsE, BNU_CHUNK_T x)

@@ -48,16 +48,16 @@
 ;  do not changes in definitions below!
 ;
 
-IFDEF _TXT_ACM_
+%ifdef _TXT_ACM_
 
 ;;
 ;; HASH algs outside settings
 ;;
-_SHA_NI_ENABLING_ = _FEATURE_TICKTOCK_
+%assign _SHA_NI_ENABLING_ _FEATURE_TICKTOCK_
 
 ;;
 ;; select Hash algorithm
 ;;
- ;;_ENABLE_ALG_MD5_ = _FEATURE_OFF_
+; %assign _ENABLE_ALG_MD5_ _FEATURE_OFF_
 
-ENDIF
+%endif

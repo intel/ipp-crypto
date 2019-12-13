@@ -38,23 +38,24 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Big Number Operations
-; 
+;
 ;     Content:
 ;        cpInc_BNU()
 ;        cpDec_BNU()
-; 
+;
 ;
 
-include asmdefs.inc
-include ia_32e.inc
+%include "asmdefs.inc"
+%include "ia_32e.inc"
 
-IF _IPP32E GE _IPP32E_M7
+%if (_IPP32E >= _IPP32E_M7)
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
+
 
 ;*************************************************************
 ;* Ipp64u cpInc_BNU(Ipp64u* pDst,
@@ -62,13 +63,12 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;*                   Ipp64u increment)
 ;* returns carry
 ;*************************************************************
-ALIGN IPP_ALIGN_FACTOR
-IPPASM cpInc_BNU PROC PUBLIC FRAME
-
-    USES_GPR rsi,rdi
-    LOCAL_FRAME = 0
-    USES_XMM
-    COMP_ABI 4
+align IPP_ALIGN_FACTOR
+IPPASM cpInc_BNU,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi
+        USES_XMM
+        COMP_ABI 4
 
 ; rdi = pDst
 ; rsi = pSrc
@@ -77,9 +77,9 @@ IPPASM cpInc_BNU PROC PUBLIC FRAME
 
    movsxd   rdx, edx    ; length
 
-   mov      r8, qword ptr [rsi]     ; r[0] = r[0]+increment
+   mov      r8, qword [rsi]     ; r[0] = r[0]+increment
    add      r8, rcx
-   mov      qword ptr [rdi], r8
+   mov      qword [rdi], r8
 
    lea      rsi, [rsi+rdx*sizeof(qword)]
    lea      rdi, [rdi+rdx*sizeof(qword)]
@@ -88,38 +88,39 @@ IPPASM cpInc_BNU PROC PUBLIC FRAME
    sbb      rax, rax                ; save cf
    neg      rcx                     ; rcx = negative length (bytes)
    add      rcx, sizeof(qword)
-   jrcxz    exit
+   jrcxz    .exit
    add      rax, rax                ; restore cf
-   jnc      copy
+   jnc      .copy
 
-ALIGN IPP_ALIGN_FACTOR
-inc_loop:
-   mov      r8, qword ptr [rsi+rcx]
+align IPP_ALIGN_FACTOR
+.inc_loop:
+   mov      r8, qword [rsi+rcx]
    adc      r8, 0
-   mov      qword ptr [rdi+rcx], r8
+   mov      qword [rdi+rcx], r8
    lea      rcx, [rcx+sizeof(qword)]
-   jrcxz    exit_loop
-   jnc      exit_loop
-   jmp      inc_loop
-exit_loop:
+   jrcxz    .exit_loop
+   jnc      .exit_loop
+   jmp      .inc_loop
+.exit_loop:
    sbb      rax, rax                ; save cf
 
-copy:
+.copy:
    cmp      rsi, rdi
-   jz       exit
-   jrcxz    exit
-copy_loop:
-   mov      r8, qword ptr [rsi+rcx]
-   mov      qword ptr [rdi+rcx], r8
+   jz       .exit
+   jrcxz    .exit
+.copy_loop:
+   mov      r8, qword [rsi+rcx]
+   mov      qword [rdi+rcx], r8
    add      rcx, sizeof(qword)
-   jnz      copy_loop
+   jnz      .copy_loop
 
-exit:
+.exit:
    neg      rax
    REST_XMM
    REST_GPR
    ret
-IPPASM cpInc_BNU ENDP
+ENDFUNC cpInc_BNU
+
 
 
 ;*************************************************************
@@ -128,13 +129,12 @@ IPPASM cpInc_BNU ENDP
 ;*                   Ipp64u increment)
 ;* returns borrow
 ;*************************************************************
-ALIGN IPP_ALIGN_FACTOR
-IPPASM cpDec_BNU PROC PUBLIC FRAME
-
-    USES_GPR rsi,rdi
-    LOCAL_FRAME = 0
-    USES_XMM
-    COMP_ABI 4
+align IPP_ALIGN_FACTOR
+IPPASM cpDec_BNU,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi
+        USES_XMM
+        COMP_ABI 4
 
 ; rdi = pDst
 ; rsi = pSrc
@@ -143,9 +143,9 @@ IPPASM cpDec_BNU PROC PUBLIC FRAME
 
    movsxd   rdx, edx    ; length
 
-   mov      r8, qword ptr [rsi]     ; r[0] = r[0]+increment
+   mov      r8, qword [rsi]     ; r[0] = r[0]+increment
    sub      r8, rcx
-   mov      qword ptr [rdi], r8
+   mov      qword [rdi], r8
 
    lea      rsi, [rsi+rdx*sizeof(qword)]
    lea      rdi, [rdi+rdx*sizeof(qword)]
@@ -154,38 +154,38 @@ IPPASM cpDec_BNU PROC PUBLIC FRAME
    sbb      rax, rax                ; save cf
    neg      rcx                     ; rcx = negative length (bytes)
    add      rcx, sizeof(qword)
-   jrcxz    exit
+   jrcxz    .exit
    add      rax, rax                ; restore cf
-   jnc      copy
+   jnc      .copy
 
-ALIGN IPP_ALIGN_FACTOR
-inc_loop:
-   mov      r8, qword ptr [rsi+rcx]
+align IPP_ALIGN_FACTOR
+.inc_loop:
+   mov      r8, qword [rsi+rcx]
    sbb      r8, 0
-   mov      qword ptr [rdi+rcx], r8
+   mov      qword [rdi+rcx], r8
    lea      rcx, [rcx+sizeof(qword)]
-   jrcxz    exit_loop
-   jnc      exit_loop
-   jmp      inc_loop
-exit_loop:
+   jrcxz    .exit_loop
+   jnc      .exit_loop
+   jmp      .inc_loop
+.exit_loop:
    sbb      rax, rax                ; save cf
 
-copy:
+.copy:
    cmp      rsi, rdi
-   jz       exit
-   jrcxz    exit
-copy_loop:
-   mov      r8, qword ptr [rsi+rcx]
-   mov      qword ptr [rdi+rcx], r8
+   jz       .exit
+   jrcxz    .exit
+.copy_loop:
+   mov      r8, qword [rsi+rcx]
+   mov      qword [rdi+rcx], r8
    add      rcx, sizeof(qword)
-   jnz      copy_loop
+   jnz      .copy_loop
 
-exit:
+.exit:
    neg      rax
    REST_XMM
    REST_GPR
    ret
-IPPASM cpDec_BNU ENDP
+ENDFUNC cpDec_BNU
 
-ENDIF
-END
+%endif
+

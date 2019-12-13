@@ -55,11 +55,7 @@
 #include "pcphash.h"
 #include "pcptool.h"
 
-#if !defined(_ENABLE_ALG_SM3_)
-#pragma message("IPP_ALG_HASH_SM3 disabled")
-
-#else
-#pragma message("IPP_ALG_HASH_SM3 enabled")
+#if defined(_ENABLE_ALG_SM3_)
 
 #if !((_IPP32E>=_IPP32E_U8) || (_IPP32E==_IPP32E_N8) )
 
@@ -168,7 +164,6 @@
 //
 *F*/
 #if defined(_ALG_SM3_COMPACT_)
-#pragma message("SM3 compact")
 
 __INLINE Ipp32u MagicFF(int s, Ipp32u a, Ipp32u b, Ipp32u c)
 {

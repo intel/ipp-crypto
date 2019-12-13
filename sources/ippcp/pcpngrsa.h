@@ -92,7 +92,7 @@ struct _cpRSA_private_key {
    BNU_CHUNK_T*   pDataD;        /* private exp */
    BNU_CHUNK_T*   pDataDp;       /* dp private exp */
    BNU_CHUNK_T*   pDataDq;       /* dq private exp */
-   BNU_CHUNK_T*   pDataQinv;     /* qinv coeff */
+   BNU_CHUNK_T*   pDataQinv;     /* qinv coeff in residue domain */
 
    gsModEngine* pMontP;          /* montgomery engine (P) */
    gsModEngine* pMontQ;          /* montgomery engine (Q) */

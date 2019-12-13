@@ -38,99 +38,103 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael-128 (AES) cipher functions.
 ;               (It's the special free from Sbox/tables implementation)
-; 
+;
 ;     Content:
 ;        SafeDecrypt_RIJ128()
-; 
+;
 ;     History:
-; 
+;
 ;   Notes.
 ;   The implementation is based on
 ;   isomorphism between native GF(2^8) and composite GF((2^4)^2).
-; 
 ;
-include asmdefs.inc
-include ia_32e.inc
-include ia_32e_regs.inc
-include pcpvariant.inc
+;
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "ia_32e_regs.inc"
+%include "pcpvariant.inc"
 
-IF (_AES_NI_ENABLING_ EQ _FEATURE_OFF_) OR (_AES_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-IF (_IPP32E GE _IPP32E_U8)
+%if (_AES_NI_ENABLING_ == _FEATURE_OFF_) || (_AES_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+%if (_IPP32E >= _IPP32E_U8)
+
+%macro PTRANSFORM 6.nolist
+  %xdefine %%dst %1
+  %xdefine %%src %2
+  %xdefine %%memTransLO %3
+  %xdefine %%memTransHI %4
+  %xdefine %%tmp %5
+  %xdefine %%srcLO %6
+
+   movdqa   %%dst, oword [rel %%memTransLO]     ;; LO transformation
+   movdqa   %%tmp, oword [rel %%memTransHI]     ;; HI transformation
+
+   movdqa   %%srcLO, %%src     ;; split src:
+   psrlw    %%src, 4         ;;
+   pand     %%srcLO, xmm7    ;; low 4 bits -> srcLO
+   pand     %%src, xmm7      ;; upper 4 bits -> src
+
+   pshufb   %%dst, %%srcLO     ;; transformation
+   pshufb   %%tmp, %%src
+   pxor     %%dst, %%tmp
+%endmacro
+
+%macro PLOOKUP_MEM 3.nolist
+  %xdefine %%dst %1
+  %xdefine %%src %2
+  %xdefine %%Table %3
+
+   movdqa   %%dst, OWORD [rel %%Table]
+   pshufb   %%dst,%%src
+%endmacro
+
+%macro PREDUCE_MOD15 2.nolist
+  %xdefine %%dst %1
+  %xdefine %%src %2
+
+   movdqa   %%dst, %%src
+   pcmpgtb  %%src, xmm7
+   psubb    %%dst, %%src
+%endmacro
+
+%macro PINVERSE_GF16_INV 6.nolist
+  %xdefine %%xmmB %1
+  %xdefine %%xmmC %2
+  %xdefine %%xmmP %3
+  %xdefine %%xmmQ %4
+  %xdefine %%xmmD %5
+  %xdefine %%xmmT %6
+
+   PLOOKUP_MEM    %%xmmT, %%xmmC, GF16_logTbl    ;; xmmT = index_of(c)
+   pxor           %%xmmC, %%xmmB
+   PLOOKUP_MEM    %%xmmQ, %%xmmC, GF16_logTbl    ;; xmmQ = index_of(b xor c)
+
+   PLOOKUP_MEM    %%xmmD, %%xmmB, GF16_sqr1      ;; xmmD = sqr(b)*beta^14
+   PLOOKUP_MEM    %%xmmP, %%xmmB, GF16_logTbl    ;; xmmP = index_of(b)
+
+   paddb          %%xmmT, %%xmmQ                                     ;; xmmT = index_of(c) + index_of(b xor c)
+   PREDUCE_MOD15  %%xmmC, %%xmmT                                     ;;
+   PLOOKUP_MEM    %%xmmT, %%xmmC, GF16_expTbl    ;; c*(b xor c)
+
+   pxor           %%xmmD, %%xmmT                                     ;; xmmD = delta = (c*(b xor c)) xor (sqr(b)*beta^14)
+   PLOOKUP_MEM    %%xmmT, %%xmmD, GF16_invLog    ;; xmmT = index_of( inv(delta) )
+
+   paddb          %%xmmQ, %%xmmT  ;; xmmQ = index_of((b xor c) * inv(delta))
+   paddb          %%xmmP, %%xmmT  ;; xmmP = index_of(b * inv(delta))
+   PREDUCE_MOD15  %%xmmT, %%xmmQ
+   PLOOKUP_MEM    %%xmmC, %%xmmT, GF16_expTbl
+   PREDUCE_MOD15  %%xmmT, %%xmmP
+   PLOOKUP_MEM    %%xmmB, %%xmmT, GF16_expTbl
+%endmacro
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
-IFDEF xxIPP_PIC
-
-LD_ADDR MACRO reg:REQ, addr:REQ
-LOCAL LABEL
-        call     LABEL
-LABEL:  pop      reg
-        sub      reg, LABEL-addr
-ENDM
-
-ELSE
-LD_ADDR MACRO reg:REQ, addr:REQ
-        lea      reg, addr
-ENDM
-ENDIF
-
-PTRANSFORM MACRO dst,src, memTransLO, memTransHI, tmp, srcLO
-   movdqa   dst, oword ptr memTransLO     ;; LO transformation
-   movdqa   tmp, oword ptr memTransHI     ;; HI transformation
-
-   movdqa   srcLO, src     ;; split src:
-   psrlw    src, 4         ;;
-   pand     srcLO, xmm7    ;; low 4 bits -> srcLO
-   pand     src, xmm7      ;; upper 4 bits -> src
-
-   pshufb   dst, srcLO     ;; transformation
-   pshufb   tmp, src
-   pxor     dst, tmp
-ENDM
-
-PLOOKUP_MEM MACRO dst, src, Table
-   movdqa   dst, OWORD PTR Table
-   pshufb   dst,src
-ENDM
-
-PREDUCE_MOD15 MACRO dst, src
-   movdqa   dst, src
-   pcmpgtb  src, xmm7
-   psubb    dst, src
-ENDM
-
-
-PINVERSE_GF16_INV MACRO xmmB,xmmC, xmmP,xmmQ,xmmD,xmmT
-   PLOOKUP_MEM    xmmT, xmmC, GF16_logTbl    ;; xmmT = index_of(c)
-   pxor           xmmC, xmmB
-   PLOOKUP_MEM    xmmQ, xmmC, GF16_logTbl    ;; xmmQ = index_of(b xor c)
-
-   PLOOKUP_MEM    xmmD, xmmB, GF16_sqr1      ;; xmmD = sqr(b)*beta^14
-   PLOOKUP_MEM    xmmP, xmmB, GF16_logTbl    ;; xmmP = index_of(b)
-
-   paddb          xmmT, xmmQ                                     ;; xmmT = index_of(c) + index_of(b xor c)
-   PREDUCE_MOD15  xmmC, xmmT                                     ;;
-   PLOOKUP_MEM    xmmT, xmmC, GF16_expTbl    ;; c*(b xor c)
-
-   pxor           xmmD, xmmT                                     ;; xmmD = delta = (c*(b xor c)) xor (sqr(b)*beta^14)
-   PLOOKUP_MEM    xmmT, xmmD, GF16_invLog    ;; xmmT = index_of( inv(delta) )
-
-   paddb          xmmQ, xmmT  ;; xmmQ = index_of((b xor c) * inv(delta))
-   paddb          xmmP, xmmT  ;; xmmP = index_of(b * inv(delta))
-   PREDUCE_MOD15  xmmT, xmmQ
-   PLOOKUP_MEM    xmmC, xmmT, GF16_expTbl
-   PREDUCE_MOD15  xmmT, xmmP
-   PLOOKUP_MEM    xmmB, xmmT, GF16_expTbl
-ENDM
-
-
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
-
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 
 DECODE_DATA:
 
@@ -289,7 +293,7 @@ ColumnROR    \
    DB 1,2,3,0,5,6,7,4,9,10,11,8,13,14,15,12
 
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;*************************************************************
 ;* void SafeDecrypt_RIJ128(const Ipp8u* pInpBlk,
 ;*                               Ipp8u* pOutBlk,
@@ -301,43 +305,43 @@ ALIGN IPP_ALIGN_FACTOR
 ;;
 ;; Lib = U8
 ;;
-IPPASM SafeDecrypt_RIJ128 PROC PUBLIC FRAME
-      USES_GPR rsi, rdi
-      USES_XMM xmm6,xmm7
-      LOCAL_FRAME = 0
-      COMP_ABI 5
-;; rdi:  pInpBlk:  PTR DWORD,    ; input  block address
-;; rsi:  pOutBlk:  PTR DWORD,    ; output block address
+IPPASM SafeDecrypt_RIJ128,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi
+        USES_XMM xmm6,xmm7
+        COMP_ABI 5
+;; rdi:  pInpBlk:  DWORD,    ; input  block address
+;; rsi:  pOutBlk:  DWORD,    ; output block address
 ;; rdx:  nr:           DWORD,    ; number of rounds
-;; rcx:  pKey:     PTR DWORD     ; key material address
+;; rcx:  pKey:     DWORD     ; key material address
 
-RSIZE = sizeof dword          ; size of row
-SC = 4                        ; columns in STATE
-SSIZE = RSIZE*SC              ; size of state
+%assign RSIZE  sizeof(dword)         ; size of row
+%assign SC  4                        ; columns in STATE
+%assign SSIZE  RSIZE*SC              ; size of state
 
    lea      rax,[rdx*4]
    lea      rcx,[rcx+rax*4]       ; AES-128-keys
 
-   movdqu   xmm0, oword ptr[rdi] ; input block
+   movdqu   xmm0, oword [rdi] ; input block
 
-   movdqa   xmm7, oword ptr GF16_csize
+   movdqa   xmm7, oword [rel GF16_csize]
 
    ;; convert input into the composite GF((2^4)^2)
    PTRANSFORM  xmm2, xmm0, TransFwdLO,TransFwdHI, xmm1, xmm3
 
    ;; initial whitening
-   pxor     xmm2, oword ptr[rcx]
+   pxor     xmm2, oword [rcx]
    sub      rcx, SSIZE
 
    ;; (nr-1) regular rounds
    sub      rdx,1
 
-decode_round:
+.decode_round:
    ;; InvSubByte() Transformation:
 
    ;; affine transformation
    PTRANSFORM  xmm0, xmm2, InvAffineLO,InvAffineHI, xmm1, xmm3
-   pxor        xmm0, oword ptr InvAffineCnt  ; H(c), c=0x05
+   pxor        xmm0, oword [rel InvAffineCnt]  ; H(c), c=0x05
 
    ;; split input by low and upper parts
    movdqa      xmm1, xmm0
@@ -349,28 +353,28 @@ decode_round:
    PINVERSE_GF16_INV xmm1,xmm0, xmm3,xmm2,xmm4,xmm5
 
    ;; InvShiftRows() Transformation:
-   pshufb      xmm0, oword ptr InvShiftRows
-   pshufb      xmm1, oword ptr InvShiftRows
+   pshufb      xmm0, [rel InvShiftRows]
+   pshufb      xmm1, [rel InvShiftRows]
 
    ;; InvMixColumn() Transformation:
    PLOOKUP_MEM xmm2, xmm0, GF16mul_4_2x   ; mul H(0xE) = 0x24
-   pshufb      xmm0, oword ptr ColumnROR
+   pshufb      xmm0, [rel ColumnROR]
    PLOOKUP_MEM xmm3, xmm1, GF16mul_1_6x
-   pshufb      xmm1, oword ptr ColumnROR
+   pshufb      xmm1, [rel ColumnROR]
    pxor        xmm2, xmm3
 
    PLOOKUP_MEM xmm3, xmm0, GF16mul_C_6x   ; mul H(0xB) = 0x6C
-   pshufb      xmm0, oword ptr ColumnROR
+   pshufb      xmm0, [rel ColumnROR]
    pxor        xmm2, xmm3
    PLOOKUP_MEM xmm3, xmm1, GF16mul_3_Ax
-   pshufb      xmm1, oword ptr ColumnROR
+   pshufb      xmm1, [rel ColumnROR]
    pxor        xmm2, xmm3
 
    PLOOKUP_MEM xmm3, xmm0, GF16mul_B_0x   ; mul H(0xD) = 0x0B
-   pshufb      xmm0, oword ptr ColumnROR
+   pshufb      xmm0, [rel ColumnROR]
    pxor        xmm2, xmm3
    PLOOKUP_MEM xmm3, xmm1, GF16mul_0_Bx
-   pshufb      xmm1, oword ptr ColumnROR
+   pshufb      xmm1, [rel ColumnROR]
    pxor        xmm2, xmm3
 
    PLOOKUP_MEM xmm3, xmm0, GF16mul_2_4x   ; mul H(0x9) = 0x42
@@ -379,11 +383,11 @@ decode_round:
    pxor        xmm2, xmm3
 
    ;; AddRoundKey() Transformation:
-   pxor        xmm2, oword ptr[rcx]
+   pxor        xmm2, oword [rcx]
    sub         rcx, SSIZE
 
    sub         rdx,1
-   jg          decode_round
+   jg          .decode_round
 
 
    ;;
@@ -394,7 +398,7 @@ decode_round:
 
    ;; affine transformation
    PTRANSFORM  xmm0, xmm2, InvAffineLO,InvAffineHI, xmm1, xmm3
-   pxor        xmm0, oword ptr InvAffineCnt  ; H(c), c=0x05
+   pxor        xmm0, oword [rel InvAffineCnt]  ; H(c), c=0x05
 
    ;; split input by low and upper parts
    movdqa      xmm1, xmm0
@@ -408,22 +412,22 @@ decode_round:
    ;; InvShiftRows() Transformation:
    psllw       xmm1, 4
    por         xmm1, xmm0
-   pshufb      xmm1, oword ptr InvShiftRows
+   pshufb      xmm1, [rel InvShiftRows]
 
    ;; AddRoundKey() Transformation:
-   pxor        xmm1, oword ptr[rcx]
+   pxor        xmm1, oword [rcx]
 
    ;; convert output into the native GF(2^8)
    PTRANSFORM  xmm0,xmm1, TransInvLO,TransInvHI, xmm2, xmm3
 
-   movdqu      oword ptr[rsi], xmm0
+   movdqu      oword [rsi], xmm0
 
    REST_XMM
    REST_GPR
    ret
-IPPASM SafeDecrypt_RIJ128 ENDP
+ENDFUNC SafeDecrypt_RIJ128
 
-ENDIF
+%endif
 
-ENDIF ;; _AES_NI_ENABLING_
-END
+%endif ;; _AES_NI_ENABLING_
+

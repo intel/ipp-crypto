@@ -38,37 +38,42 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Rijndael Inverse Cipher function
-; 
+;
 ;     Content:
 ;        Encrypt_RIJ128_AES_NI()
-; 
 ;
-.686P
-.XMM
-.MODEL FLAT,C
-
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
+;
 
 
-COPY_8U MACRO  dst, src, limit, tmp
-LOCAL next_byte
+
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+
+%macro COPY_8U 4.nolist
+  %xdefine %%dst %1
+  %xdefine %%src %2
+  %xdefine %%limit %3
+  %xdefine %%tmp %4
+
    xor   ecx, ecx
-next_byte:
-   mov   tmp, byte ptr[src+ecx]
-   mov   byte ptr[dst+ecx], tmp
+%%next_byte:
+   mov   %%tmp, byte [%%src+ecx]
+   mov   byte [%%dst+ecx], %%tmp
    add   ecx, 1
-   cmp   ecx, limit
-   jl    next_byte
-ENDM
+   cmp   ecx, %%limit
+   jl    %%next_byte
+%endmacro
 
 
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
 ;***************************************************************
@@ -83,38 +88,41 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;*                               const Ipp8u* pIV)
 ;***************************************************************
 
-IF (_IPP GE _IPP_P8)
+%if (_IPP >= _IPP_P8)
 ;;
 ;; Lib = P8
 ;;
 ;; Caller = ippsRijndael128DecryptOFB
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM EncryptOFB_RIJ128_AES_NI PROC NEAR C PUBLIC \
-USES esi edi ebx,\
-pInpBlk:PTR BYTE,\  ; input  block address
-pOutBlk:PTR BYTE,\  ; output block address
-nr:DWORD,\          ; number of rounds
-pKey:PTR DWORD,\    ; key material address
-len:DWORD,\         ; length of stream in bytes
-ofbSize:DWORD,\     ; ofb blk size
-pIV:PTR BYTE        ; IV
+align IPP_ALIGN_FACTOR
+IPPASM EncryptOFB_RIJ128_AES_NI,PUBLIC
+  USES_GPR esi,edi,ebx,ebp
 
-SC        equ (4)
-BLKS_PER_LOOP = (4)
+  mov   ebp, esp ; save original esp to use it to reach parameters
 
-tmpInp   equ   esp
-tmpOut   equ   tmpInp+sizeof(oword)
-locDst   equ   tmpOut+sizeof(oword)
-locSrc   equ   locDst+sizeof(oword)*4
-locLen   equ   locSrc+sizeof(oword)*4
-stackLen equ   sizeof(oword)+sizeof(oword)+sizeof(oword)*4+sizeof(oword)*4+sizeof(dword)
+%xdefine pInpBlk [ebp + ARG_1 + 0*sizeof(dword)] ; input  block address
+%xdefine pOutBlk [ebp + ARG_1 + 1*sizeof(dword)] ; output block address
+%xdefine nr      [ebp + ARG_1 + 2*sizeof(dword)] ; number of rounds
+%xdefine pKey    [ebp + ARG_1 + 3*sizeof(dword)] ; key material address
+%xdefine len     [ebp + ARG_1 + 4*sizeof(dword)] ; length of stream in bytes
+%xdefine ofbSize [ebp + ARG_1 + 5*sizeof(dword)] ; ofb blk size
+%xdefine pIV     [ebp + ARG_1 + 6*sizeof(dword)] ; IV
+
+%xdefine SC  (4)
+%assign BLKS_PER_LOOP  (4)
+
+%xdefine tmpInp   esp
+%xdefine tmpOut   tmpInp+sizeof(oword)
+%xdefine locDst   tmpOut+sizeof(oword)
+%xdefine locSrc   locDst+sizeof(oword)*4
+%xdefine locLen   locSrc+sizeof(oword)*4
+%xdefine stackLen sizeof(oword)+sizeof(oword)+sizeof(oword)*4+sizeof(oword)*4+sizeof(dword)
 
    sub      esp,stackLen   ; allocate stack
 
    mov      eax, pIV                   ; get IV
-   movdqu   xmm0, oword ptr[eax]       ;
-   movdqu   oword ptr [tmpInp], xmm0   ; and save into the stack
+   movdqu   xmm0, oword [eax]       ;
+   movdqu   oword [tmpInp], xmm0   ; and save into the stack
 
    mov      eax, nr                    ; number of rounds
    mov      ecx, pKey                  ; key material address
@@ -129,86 +137,88 @@ stackLen equ   sizeof(oword)+sizeof(oword)+sizeof(oword)*4+sizeof(oword)*4+sizeo
    mov      edi, pOutBlk               ; output stream
    mov      ebx, ofbSize               ; cfb blk size
 
-  ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;;
 ;; processing
 ;;
-blks_loop:
+.blks_loop:
    lea      ebx, [ebx*BLKS_PER_LOOP]   ; 4 cfb block
 
    cmp      len, ebx
    cmovl    ebx, len
-   COPY_8U  <locSrc>, esi, ebx, dl     ; move 1-4 input blocks to stack
+   COPY_8U  {locSrc}, esi, ebx, dl     ; move 1-4 input blocks to stack
 
    mov      ecx, pKey
    mov      eax, nr
 
-   mov      dword ptr[locLen], ebx
+   mov      dword [locLen], ebx
    xor      edx, edx                   ; index
 
-  ALIGN IPP_ALIGN_FACTOR
-single_blk:
-   movdqa   xmm3, oword ptr[ecx+eax]   ; preload key material
+align IPP_ALIGN_FACTOR
+.single_blk:
+   movdqa   xmm3, oword [ecx+eax]   ; preload key material
    add      eax, 16
 
-   movdqa   xmm4, oword ptr[ecx+eax]   ; preload next key material
+   movdqa   xmm4, oword [ecx+eax]   ; preload next key material
    pxor     xmm0, xmm3                 ; whitening
 
-ALIGN IPP_ALIGN_FACTOR
-cipher_loop:
+align IPP_ALIGN_FACTOR
+.cipher_loop:
    add         eax, 16
    aesenc      xmm0, xmm4                 ; regular round
-   movdqa      xmm4, oword ptr[ecx+eax]
-   jnz         cipher_loop
+   movdqa      xmm4, oword [ecx+eax]
+   jnz         .cipher_loop
    aesenclast  xmm0, xmm4                 ; irregular round
-   movdqu      oword ptr[tmpOut], xmm0    ; save chipher output
+   movdqu      oword [tmpOut], xmm0    ; save chipher output
 
    mov         eax, ofbSize                  ; cfb blk size
 
-   movdqu      xmm1, oword ptr[locSrc+edx]   ; get src blocks from the stack
+   movdqu      xmm1, oword [locSrc+edx]   ; get src blocks from the stack
    pxor        xmm1, xmm0                    ; xor src
-   movdqu      oword ptr[locDst+edx],xmm1    ;and store into the stack
+   movdqu      oword [locDst+edx],xmm1    ;and store into the stack
 
-   movdqu      xmm0, oword ptr[tmpInp+eax]   ; update chiper input (IV)
-   movdqu      oword ptr[tmpInp], xmm0
+   movdqu      xmm0, oword [tmpInp+eax]   ; update chiper input (IV)
+   movdqu      oword [tmpInp], xmm0
 
    add         edx, eax                      ; advance index
    mov         eax, nr
    cmp         edx, ebx
-   jl          single_blk
+   jl          .single_blk
 
-   COPY_8U     edi, <locDst>, edx, bl     ; move 1-4 blocks to output
+   COPY_8U     edi, {locDst}, edx, bl     ; move 1-4 blocks to output
 
    mov         ebx, ofbSize               ; restore cfb blk size
    add         esi, edx                   ; advance pointers
    add         edi, edx
    sub         len, edx                   ; decrease stream counter
-   jg          blks_loop
+   jg          .blks_loop
 
    mov      eax, pIV                   ; IV address
-   movdqu   xmm0, oword ptr[tmpInp]    ; update IV before return
-   movdqu   oword ptr[eax], xmm0
+   movdqu   xmm0, oword [tmpInp]    ; update IV before return
+   movdqu   oword [eax], xmm0
 
    add      esp,stackLen   ; remove local variables
+   REST_GPR
    ret
-IPPASM EncryptOFB_RIJ128_AES_NI ENDP
+ENDFUNC EncryptOFB_RIJ128_AES_NI
 
 
-ALIGN IPP_ALIGN_FACTOR
-IPPASM EncryptOFB128_RIJ128_AES_NI PROC NEAR C PUBLIC \
-USES esi edi,\
-pInpBlk:PTR BYTE,\  ; input  block address
-pOutBlk:PTR BYTE,\  ; output block address
-nr:DWORD,\          ; number of rounds
-pKey:PTR DWORD,\    ; key material address
-len:DWORD,\         ; length of stream in bytes
-pIV:PTR BYTE        ; IV
+align IPP_ALIGN_FACTOR
+IPPASM EncryptOFB128_RIJ128_AES_NI,PUBLIC
+  USES_GPR esi,edi
 
-SC        equ (4)
-BLKS_PER_LOOP = (4)
+%xdefine pInpBlk [esp + ARG_1 + 0*sizeof(dword)] ; input  block address
+%xdefine pOutBlk [esp + ARG_1 + 1*sizeof(dword)] ; output block address
+%xdefine nr      [esp + ARG_1 + 2*sizeof(dword)] ; number of rounds
+%xdefine pKey    [esp + ARG_1 + 3*sizeof(dword)] ; key material address
+%xdefine len     [esp + ARG_1 + 4*sizeof(dword)] ; length of stream in bytes
+%xdefine pIV     [esp + ARG_1 + 5*sizeof(dword)] ; IV
+
+%xdefine SC  (4)
+%assign BLKS_PER_LOOP  (4)
 
    mov      eax, pIV                   ; get IV
-   movdqu   xmm0, oword ptr[eax]       ;
+   movdqu   xmm0, oword [eax]       ;
 
    mov      eax, nr                    ; number of rounds
    mov      ecx, pKey                  ; key material address
@@ -222,45 +232,45 @@ BLKS_PER_LOOP = (4)
    mov      edi, pOutBlk               ; output stream
    mov      edx, len                   ; length of stream
 
-  ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;;
 ;; processing
 ;;
-blks_loop:
-   movdqa   xmm3, oword ptr[ecx+eax]   ; preload key material
+.blks_loop:
+   movdqa   xmm3, oword [ecx+eax]   ; preload key material
    add      eax, 16
 
-  ALIGN IPP_ALIGN_FACTOR
-single_blk:
-   movdqa   xmm4, oword ptr[ecx+eax]   ; preload next key material
+align IPP_ALIGN_FACTOR
+.single_blk:
+   movdqa   xmm4, oword [ecx+eax]   ; preload next key material
    pxor     xmm0, xmm3                 ; whitening
 
-   movdqu      xmm1, oword ptr[esi]    ; input block
+   movdqu      xmm1, oword [esi]    ; input block
 
-ALIGN IPP_ALIGN_FACTOR
-cipher_loop:
+align IPP_ALIGN_FACTOR
+.cipher_loop:
    add         eax, 16
    aesenc      xmm0, xmm4              ; regular round
-   movdqa      xmm4, oword ptr[ecx+eax]
-   jnz         cipher_loop
+   movdqa      xmm4, oword [ecx+eax]
+   jnz         .cipher_loop
    aesenclast  xmm0, xmm4              ; irregular round
 
    pxor        xmm1, xmm0              ; xor src
-   movdqu      oword ptr[edi],xmm1     ; and store into the dst
+   movdqu      oword [edi],xmm1     ; and store into the dst
 
    mov         eax, nr                 ; restore key material counter
    add         esi, 16                 ; advance pointers
    add         edi, 16
    sub         edx, 16                 ; decrease stream counter
-   jg          blks_loop
+   jg          .blks_loop
 
    mov      eax, pIV                   ; get IV address
-   movdqu   oword ptr[eax], xmm0       ; update IV before return
+   movdqu   oword [eax], xmm0       ; update IV before return
 
+   REST_GPR
    ret
-IPPASM EncryptOFB128_RIJ128_AES_NI ENDP
+ENDFUNC EncryptOFB128_RIJ128_AES_NI
 
-ENDIF
+%endif
 
-END
 

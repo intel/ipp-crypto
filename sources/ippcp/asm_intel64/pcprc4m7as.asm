@@ -38,22 +38,23 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               ARCFour
-; 
+;
 ;     Content:
 ;        ARCFourKernel()
-; 
+;
 ;
 
-include asmdefs.inc
-include ia_32e.inc
+%include "asmdefs.inc"
+%include "ia_32e.inc"
 
-IF _IPP32E GE _IPP32E_M7
+%if (_IPP32E >= _IPP32E_M7)
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
+
 
 ;***************************************************************
 ;* Purpose:     RC4 kernel
@@ -69,68 +70,68 @@ IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 ;; Caller = ippsARCFourEncrypt
 ;; Caller = ippsARCFourDecrypt
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM ARCFourProcessData PROC PUBLIC FRAME
-      USES_GPR  rsi,rdi,rbx,rbp
-      USES_XMM
-      COMP_ABI 4
-;; rdi:  pSrc:  PTR BYTE,    ; input  stream
-;; rsi:  pDst:  PTR BYTE,    ; output stream
+align IPP_ALIGN_FACTOR
+IPPASM ARCFourProcessData,PUBLIC
+        USES_GPR rsi,rdi,rbx,rbp
+        USES_XMM
+        COMP_ABI 4
+;; rdi:  pSrc:  BYTE,    ; input  stream
+;; rsi:  pDst:  BYTE,    ; output stream
 ;; rdx:  len:      DWORD,    ; stream length
-;; rcx:  pCtx:  PTR BYTE     ; context
+;; rcx:  pCtx:  BYTE     ; context
 
    movsxd   r8, edx
    test     r8, r8      ; test length
    mov      rbp, rcx    ; copy pointer context
-   jz       quit
+   jz       .quit
 
-   movzx    rax, byte ptr[rbp+4]       ; extract x
-   movzx    rbx, byte ptr[rbp+8]       ; extract y
+   movzx    rax, byte [rbp+4]       ; extract x
+   movzx    rbx, byte [rbp+8]       ; extract y
 
    lea      rbp, [rbp+12]              ; sbox
 
    add      rax,1                      ; x = (x+1)&0xFF
    movzx    rax, al
-   movzx    rcx, byte ptr [rbp+rax*4]  ; tx = S[x]
+   movzx    rcx, byte [rbp+rax*4]  ; tx = S[x]
 
 ;;
 ;; main code
 ;;
-ALIGN IPP_ALIGN_FACTOR
-main_loop:
+align IPP_ALIGN_FACTOR
+.main_loop:
    add      rbx, rcx                   ; y = (x+tx)&0xFF
    movzx    rbx, bl
    add      rdi, 1
    add      rsi, 1
-   movzx    rdx, byte ptr [rbp+rbx*4]  ; ty = S[y]
+   movzx    rdx, byte [rbp+rbx*4]  ; ty = S[y]
 
-   mov      dword ptr [rbp+rbx*4],ecx  ; S[y] = tx
+   mov      dword [rbp+rbx*4],ecx  ; S[y] = tx
    add      rcx, rdx                   ; tmp_idx = (tx+ty)&0xFF
    movzx    rcx, cl
-   mov      dword ptr [rbp+rax*4],edx  ; S[x] = ty
+   mov      dword [rbp+rax*4],edx  ; S[x] = ty
 
-   mov      dl, byte ptr [rbp+rcx*4]   ; byte of gamma
+   mov      dl, byte [rbp+rcx*4]   ; byte of gamma
    add      rax, 1                     ; next x = (x+1)&0xFF
    movzx    rax, al
 
-   xor      dl,byte ptr [rdi-1]        ; gamma ^= src
+   xor      dl,byte [rdi-1]        ; gamma ^= src
    sub      r8, 1
-   movzx    rcx, byte ptr [rbp+rax*4]  ; next tx = S[x]
-   mov      byte ptr [rsi-1],dl        ; store result
-   jne      main_loop
+   movzx    rcx, byte [rbp+rax*4]  ; next tx = S[x]
+   mov      byte [rsi-1],dl        ; store result
+   jne      .main_loop
 
    lea      rbp, [rbp-12]           ; pointer to context
 
    sub      rax, 1                  ; actual new x counter
    movzx    rax, al
-   mov      dword ptr[rbp+4], eax   ; update x conter
-   mov      dword ptr[rbp+8], ebx   ; updtae y counter
+   mov      dword [rbp+4], eax   ; update x conter
+   mov      dword [rbp+8], ebx   ; updtae y counter
 
-quit:
+.quit:
    REST_XMM
    REST_GPR
    ret
-IPPASM ARCFourProcessData ENDP
+ENDFUNC ARCFourProcessData
 
-ENDIF
-END
+%endif
+

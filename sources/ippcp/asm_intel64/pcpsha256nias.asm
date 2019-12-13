@@ -38,72 +38,73 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Message block processing according to SHA-256
-; 
+;
 ;     Content:
 ;        UpdateSHA256ni
-; 
 ;
-include asmdefs.inc
-include ia_32e.inc
-include pcpvariant.inc
+;
+%include "asmdefs.inc"
+%include "ia_32e.inc"
+%include "pcpvariant.inc"
 
-IF (_ENABLE_ALG_SHA256_)
-IF (_SHA_NI_ENABLING_ EQ _FEATURE_ON_) OR (_SHA_NI_ENABLING_ EQ _FEATURE_TICKTOCK_)
-;;IF (_IPP32E GE _IPP32E_Y8 )
+%if (_ENABLE_ALG_SHA256_)
+%if (_SHA_NI_ENABLING_ == _FEATURE_ON_) || (_SHA_NI_ENABLING_ == _FEATURE_TICKTOCK_)
+;;%if (_IPP32E >= _IPP32E_Y8 )
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
 
-ALIGN IPP_ALIGN_FACTOR
+
+align IPP_ALIGN_FACTOR
 PSHUFFLE_BYTE_FLIP_MASK \
       DB     3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 ;*****************************************************************************************
 ;* Purpose:     Update internal digest according to message block
 ;*
 ;* void UpdateSHA256ni(DigestSHA256 digest, const Ipp8u* msg, int mlen, const void* pParam)
 ;*
 ;*****************************************************************************************
-IFNDEF _VXWORKS
+%ifndef _VXWORKS
 
-IPPASM UpdateSHA256ni PROC PUBLIC FRAME
-      USES_GPR rsi,rdi
-      LOCAL_FRAME = 16*2
-      USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10
-      COMP_ABI 4
+IPPASM UpdateSHA256ni,PUBLIC
+%assign LOCAL_FRAME 16*2
+        USES_GPR rsi,rdi
+        USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10
+        COMP_ABI 4
 
-MBS_SHA256  equ   (64)  ; SHA-256 message block length (bytes)
+%xdefine MBS_SHA256 (64) ; SHA-256 message block length (bytes)
 
-HASH_PTR equ   rdi   ; 1st arg
-MSG_PTR  equ   rsi   ; 2nd arg
-MSG_LEN  equ   rdx   ; 3rd arg
-K256_PTR equ   rcx   ; 4th arg
+%xdefine HASH_PTR   rdi  ; 1st arg
+%xdefine MSG_PTR    rsi  ; 2nd arg
+%xdefine MSG_LEN    rdx  ; 3rd arg
+%xdefine K256_PTR   rcx  ; 4th arg
 
-MSG      equ   xmm0
-STATE0   equ   xmm1
-STATE1   equ   xmm2
-MSGTMP0  equ   xmm3
-MSGTMP1  equ   xmm4
-MSGTMP2  equ   xmm5
-MSGTMP3  equ   xmm6
-MSGTMP4  equ   xmm7
+%xdefine MSG        xmm0
+%xdefine STATE0     xmm1
+%xdefine STATE1     xmm2
+%xdefine MSGTMP0    xmm3
+%xdefine MSGTMP1    xmm4
+%xdefine MSGTMP2    xmm5
+%xdefine MSGTMP3    xmm6
+%xdefine MSGTMP4    xmm7
 
-SHUF_MASK equ  xmm8
+%xdefine SHUF_MASK  xmm8
 
-ABEF_SAVE equ  xmm9
-CDGH_SAVE equ  xmm10
+%xdefine ABEF_SAVE  xmm9
+%xdefine CDGH_SAVE  xmm10
 
    movsxd   MSG_LEN, edx      ; expand mLen
    test     MSG_LEN, MSG_LEN
-   jz       quit
+   jz       .quit
 
    ;; load input hash value, reorder these appropriately
-   movdqu   STATE0, oword ptr[HASH_PTR+0*16]
-   movdqu   STATE1, oword ptr[HASH_PTR+1*16]
+   movdqu   STATE0, oword [HASH_PTR+0*16]
+   movdqu   STATE1, oword [HASH_PTR+1*16]
 
    pshufd   STATE0,  STATE0,  0B1h  ; CDAB
    pshufd   STATE1,  STATE1,  01Bh  ; EFGH
@@ -111,7 +112,7 @@ CDGH_SAVE equ  xmm10
    palignr  STATE0,  STATE1,  8     ; ABEF
    pblendw  STATE1,  MSGTMP4, 0F0h  ; CDGH
 
-   movdqa   SHUF_MASK, oword ptr[PSHUFFLE_BYTE_FLIP_MASK]
+   movdqa   SHUF_MASK, oword [rel PSHUFFLE_BYTE_FLIP_MASK]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -119,44 +120,44 @@ CDGH_SAVE equ  xmm10
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-sha256_block_loop:
+.sha256_block_loop:
    movdqa   ABEF_SAVE, STATE0 ; save for addition after rounds
    movdqa   CDGH_SAVE, STATE1
 
    ;; rounds 0-3
-   movdqu      MSG, oword ptr[MSG_PTR + 0*16]
+   movdqu      MSG, oword [MSG_PTR + 0*16]
    pshufb      MSG, SHUF_MASK
    movdqa      MSGTMP0, MSG
-   paddd       MSG, oword ptr[K256_PTR + 0*16]
+   paddd       MSG, oword [K256_PTR + 0*16]
    sha256rnds2 STATE1, STATE0
    pshufd      MSG, MSG, 0Eh
    sha256rnds2 STATE0, STATE1
 
    ;; rounds 4-7
-   movdqu      MSG, oword ptr[MSG_PTR + 1*16]
+   movdqu      MSG, oword [MSG_PTR + 1*16]
    pshufb      MSG, SHUF_MASK
    movdqa      MSGTMP1, MSG
-   paddd       MSG, oword ptr[K256_PTR + 1*16]
+   paddd       MSG, oword [K256_PTR + 1*16]
    sha256rnds2 STATE1, STATE0
    pshufd      MSG, MSG, 0Eh
    sha256rnds2 STATE0, STATE1
    sha256msg1  MSGTMP0, MSGTMP1
 
    ;; rounds 8-11
-   movdqu      MSG, oword ptr[MSG_PTR + 2*16]
+   movdqu      MSG, oword [MSG_PTR + 2*16]
    pshufb      MSG, SHUF_MASK
    movdqa      MSGTMP2, MSG
-   paddd       MSG, oword ptr[K256_PTR + 2*16]
+   paddd       MSG, oword [K256_PTR + 2*16]
    sha256rnds2 STATE1, STATE0
    pshufd      MSG, MSG, 0Eh
    sha256rnds2 STATE0, STATE1
    sha256msg1  MSGTMP1, MSGTMP2
 
    ;; rounds 12-15
-   movdqu      MSG, oword ptr[MSG_PTR + 3*16]
+   movdqu      MSG, oword [MSG_PTR + 3*16]
    pshufb      MSG, SHUF_MASK
    movdqa      MSGTMP3, MSG
-   paddd       MSG, oword ptr[K256_PTR + 3*16]
+   paddd       MSG, oword [K256_PTR + 3*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP3
    palignr     MSGTMP4, MSGTMP2, 4
@@ -167,7 +168,7 @@ sha256_block_loop:
    sha256msg1  MSGTMP2, MSGTMP3
    ;; rounds 16-19
    movdqa      MSG, MSGTMP0
-   paddd       MSG, oword ptr[K256_PTR + 4*16]
+   paddd       MSG, oword [K256_PTR + 4*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP0
    palignr     MSGTMP4, MSGTMP3, 4
@@ -179,7 +180,7 @@ sha256_block_loop:
 
    ;; rounds 20-23
    movdqa      MSG, MSGTMP1
-   paddd       MSG, oword ptr[K256_PTR + 5*16]
+   paddd       MSG, oword [K256_PTR + 5*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP1
    palignr     MSGTMP4, MSGTMP0, 4
@@ -191,7 +192,7 @@ sha256_block_loop:
 
    ;; rounds 24-27
    movdqa      MSG, MSGTMP2
-   paddd       MSG, oword ptr[K256_PTR + 6*16]
+   paddd       MSG, oword [K256_PTR + 6*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP2
    palignr     MSGTMP4, MSGTMP1, 4
@@ -203,7 +204,7 @@ sha256_block_loop:
 
    ;; rounds 28-31
    movdqa      MSG, MSGTMP3
-   paddd       MSG, oword ptr[K256_PTR + 7*16]
+   paddd       MSG, oword [K256_PTR + 7*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP3
    palignr     MSGTMP4, MSGTMP2, 4
@@ -215,7 +216,7 @@ sha256_block_loop:
 
    ;; rounds 32-35
    movdqa      MSG, MSGTMP0
-   paddd       MSG, oword ptr[K256_PTR + 8*16]
+   paddd       MSG, oword [K256_PTR + 8*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP0
    palignr     MSGTMP4, MSGTMP3, 4
@@ -227,7 +228,7 @@ sha256_block_loop:
 
    ;; rounds 36-39
    movdqa      MSG, MSGTMP1
-   paddd       MSG, oword ptr[K256_PTR + 9*16]
+   paddd       MSG, oword [K256_PTR + 9*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP1
    palignr     MSGTMP4, MSGTMP0, 4
@@ -239,7 +240,7 @@ sha256_block_loop:
 
    ;; rounds 40-43
    movdqa      MSG, MSGTMP2
-   paddd       MSG, oword ptr[K256_PTR + 10*16]
+   paddd       MSG, oword [K256_PTR + 10*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP2
    palignr     MSGTMP4, MSGTMP1, 4
@@ -251,7 +252,7 @@ sha256_block_loop:
 
    ;; rounds 44-47
    movdqa      MSG, MSGTMP3
-   paddd       MSG, oword ptr[K256_PTR + 11*16]
+   paddd       MSG, oword [K256_PTR + 11*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP3
    palignr     MSGTMP4, MSGTMP2, 4
@@ -263,7 +264,7 @@ sha256_block_loop:
 
    ;; rounds 48-51
    movdqa      MSG, MSGTMP0
-   paddd       MSG, oword ptr[K256_PTR + 12*16]
+   paddd       MSG, oword [K256_PTR + 12*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP0
    palignr     MSGTMP4, MSGTMP3, 4
@@ -275,7 +276,7 @@ sha256_block_loop:
 
    ;; rounds 52-55
    movdqa      MSG, MSGTMP1
-   paddd       MSG, oword ptr[K256_PTR + 13*16]
+   paddd       MSG, oword [K256_PTR + 13*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP1
    palignr     MSGTMP4, MSGTMP0, 4
@@ -286,7 +287,7 @@ sha256_block_loop:
 
    ;; rounds 56-59
    movdqa      MSG, MSGTMP2
-   paddd       MSG, oword ptr[K256_PTR + 14*16]
+   paddd       MSG, oword [K256_PTR + 14*16]
    sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP2
    palignr     MSGTMP4, MSGTMP1, 4
@@ -297,7 +298,7 @@ sha256_block_loop:
 
    ;; rounds 60-63
    movdqa      MSG, MSGTMP3
-   paddd       MSG, oword ptr[K256_PTR + 15*16]
+   paddd       MSG, oword [K256_PTR + 15*16]
    sha256rnds2 STATE1, STATE0
    pshufd      MSG, MSG, 0Eh
    sha256rnds2 STATE0, STATE1
@@ -307,7 +308,7 @@ sha256_block_loop:
 
    add         MSG_PTR, MBS_SHA256
    sub         MSG_LEN, MBS_SHA256
-   jg          sha256_block_loop
+   jg          .sha256_block_loop
 
    ; reorder hash
    pshufd      STATE0,  STATE0,  01Bh  ; FEBA
@@ -317,50 +318,50 @@ sha256_block_loop:
    palignr     STATE1,  MSGTMP4, 8     ; HGFE
 
    ; and store it back
-   movdqu      oword ptr[HASH_PTR + 0*16], STATE0
-   movdqu      oword ptr[HASH_PTR + 1*16], STATE1
+   movdqu      oword [HASH_PTR + 0*16], STATE0
+   movdqu      oword [HASH_PTR + 1*16], STATE1
 
-quit:
+.quit:
    REST_XMM
    REST_GPR
    ret
-IPPASM UpdateSHA256ni ENDP
+ENDFUNC UpdateSHA256ni
 
-ELSE ;; no sha ni support in VxWorks - therefore we temporary use db
-IPPASM UpdateSHA256ni PROC PUBLIC FRAME
-      USES_GPR rsi,rdi
-      LOCAL_FRAME = 16*2
-      USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10
-      COMP_ABI 4
+%else ;; no sha ni support in VxWorks - therefore we temporary use db
+IPPASM UpdateSHA256ni,PUBLIC
+%assign LOCAL_FRAME 16*2
+        USES_GPR rsi,rdi
+        USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10
+        COMP_ABI 4
 
-MBS_SHA256  equ   (64)  ; SHA-256 message block length (bytes)
+%xdefine MBS_SHA256 (64) ; SHA-256 message block length (bytes)
 
-HASH_PTR equ   rdi   ; 1st arg
-MSG_PTR  equ   rsi   ; 2nd arg
-MSG_LEN  equ   rdx   ; 3rd arg
-K256_PTR equ   rcx   ; 4th arg
+%xdefine HASH_PTR   rdi  ; 1st arg
+%xdefine MSG_PTR    rsi  ; 2nd arg
+%xdefine MSG_LEN    rdx  ; 3rd arg
+%xdefine K256_PTR   rcx  ; 4th arg
 
-MSG      equ   xmm0
-STATE0   equ   xmm1
-STATE1   equ   xmm2
-MSGTMP0  equ   xmm3
-MSGTMP1  equ   xmm4
-MSGTMP2  equ   xmm5
-MSGTMP3  equ   xmm6
-MSGTMP4  equ   xmm7
+%xdefine MSG        xmm0
+%xdefine STATE0     xmm1
+%xdefine STATE1     xmm2
+%xdefine MSGTMP0    xmm3
+%xdefine MSGTMP1    xmm4
+%xdefine MSGTMP2    xmm5
+%xdefine MSGTMP3    xmm6
+%xdefine MSGTMP4    xmm7
 
-SHUF_MASK equ  xmm8
+%xdefine SHUF_MASK  xmm8
 
-ABEF_SAVE equ  xmm9
-CDGH_SAVE equ  xmm10
+%xdefine ABEF_SAVE  xmm9
+%xdefine CDGH_SAVE  xmm10
 
    movsxd   MSG_LEN, edx      ; expand mLen
    test     MSG_LEN, MSG_LEN
-   jz       quit
+   jz       .quit
 
    ;; load input hash value, reorder these appropriately
-   movdqu   STATE0, oword ptr[HASH_PTR+0*16]
-   movdqu   STATE1, oword ptr[HASH_PTR+1*16]
+   movdqu   STATE0, oword [HASH_PTR+0*16]
+   movdqu   STATE1, oword [HASH_PTR+1*16]
 
    pshufd   STATE0,  STATE0,  0B1h  ; CDAB
    pshufd   STATE1,  STATE1,  01Bh  ; EFGH
@@ -368,7 +369,7 @@ CDGH_SAVE equ  xmm10
    palignr  STATE0,  STATE1,  8     ; ABEF
    pblendw  STATE1,  MSGTMP4, 0F0h  ; CDGH
 
-   movdqa   SHUF_MASK, oword ptr[PSHUFFLE_BYTE_FLIP_MASK]
+   movdqa   SHUF_MASK, oword [rel PSHUFFLE_BYTE_FLIP_MASK]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -376,44 +377,44 @@ CDGH_SAVE equ  xmm10
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-sha256_block_loop:
+.sha256_block_loop:
    movdqa   ABEF_SAVE, STATE0 ; save for addition after rounds
    movdqa   CDGH_SAVE, STATE1
 
    ;; rounds 0-3
-   movdqu      MSG, oword ptr[MSG_PTR + 0*16]
+   movdqu      MSG, oword [MSG_PTR + 0*16]
    pshufb      MSG, SHUF_MASK
    movdqa      MSGTMP0, MSG
-   paddd       MSG, oword ptr[K256_PTR + 0*16]
+   paddd       MSG, oword [K256_PTR + 0*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    pshufd      MSG, MSG, 0Eh
    db 0FH,38H,0CBH,0CAH ;; sha256rnds2 STATE0, STATE1
 
    ;; rounds 4-7
-   movdqu      MSG, oword ptr[MSG_PTR + 1*16]
+   movdqu      MSG, oword [MSG_PTR + 1*16]
    pshufb      MSG, SHUF_MASK
    movdqa      MSGTMP1, MSG
-   paddd       MSG, oword ptr[K256_PTR + 1*16]
+   paddd       MSG, oword [K256_PTR + 1*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    pshufd      MSG, MSG, 0Eh
    db 0FH,38H,0CBH,0CAH ;; sha256rnds2 STATE0, STATE1
    db 0FH,38H,0CCH,0DCH ;; sha256msg1  MSGTMP0, MSGTMP1
 
    ;; rounds 8-11
-   movdqu      MSG, oword ptr[MSG_PTR + 2*16]
+   movdqu      MSG, oword [MSG_PTR + 2*16]
    pshufb      MSG, SHUF_MASK
    movdqa      MSGTMP2, MSG
-   paddd       MSG, oword ptr[K256_PTR + 2*16]
+   paddd       MSG, oword [K256_PTR + 2*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    pshufd      MSG, MSG, 0Eh
    db 0FH,38H,0CBH,0CAH ;; sha256rnds2 STATE0, STATE1
    db 0FH,38H,0CCH,0E5H ;; sha256msg1  MSGTMP1, MSGTMP2
 
    ;; rounds 12-15
-   movdqu      MSG, oword ptr[MSG_PTR + 3*16]
+   movdqu      MSG, oword [MSG_PTR + 3*16]
    pshufb      MSG, SHUF_MASK
    movdqa      MSGTMP3, MSG
-   paddd       MSG, oword ptr[K256_PTR + 3*16]
+   paddd       MSG, oword [K256_PTR + 3*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP3
    palignr     MSGTMP4, MSGTMP2, 4
@@ -424,7 +425,7 @@ sha256_block_loop:
    db 0FH,38H,0CCH,0EEH ;; sha256msg1  MSGTMP2, MSGTMP3
    ;; rounds 16-19
    movdqa      MSG, MSGTMP0
-   paddd       MSG, oword ptr[K256_PTR + 4*16]
+   paddd       MSG, oword [K256_PTR + 4*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP0
    palignr     MSGTMP4, MSGTMP3, 4
@@ -436,7 +437,7 @@ sha256_block_loop:
 
    ;; rounds 20-23
    movdqa      MSG, MSGTMP1
-   paddd       MSG, oword ptr[K256_PTR + 5*16]
+   paddd       MSG, oword [K256_PTR + 5*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP1
    palignr     MSGTMP4, MSGTMP0, 4
@@ -448,7 +449,7 @@ sha256_block_loop:
 
    ;; rounds 24-27
    movdqa      MSG, MSGTMP2
-   paddd       MSG, oword ptr[K256_PTR + 6*16]
+   paddd       MSG, oword [K256_PTR + 6*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP2
    palignr     MSGTMP4, MSGTMP1, 4
@@ -460,7 +461,7 @@ sha256_block_loop:
 
    ;; rounds 28-31
    movdqa      MSG, MSGTMP3
-   paddd       MSG, oword ptr[K256_PTR + 7*16]
+   paddd       MSG, oword [K256_PTR + 7*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP3
    palignr     MSGTMP4, MSGTMP2, 4
@@ -472,7 +473,7 @@ sha256_block_loop:
 
    ;; rounds 32-35
    movdqa      MSG, MSGTMP0
-   paddd       MSG, oword ptr[K256_PTR + 8*16]
+   paddd       MSG, oword [K256_PTR + 8*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP0
    palignr     MSGTMP4, MSGTMP3, 4
@@ -484,7 +485,7 @@ sha256_block_loop:
 
    ;; rounds 36-39
    movdqa      MSG, MSGTMP1
-   paddd       MSG, oword ptr[K256_PTR + 9*16]
+   paddd       MSG, oword [K256_PTR + 9*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP1
    palignr     MSGTMP4, MSGTMP0, 4
@@ -496,7 +497,7 @@ sha256_block_loop:
 
    ;; rounds 40-43
    movdqa      MSG, MSGTMP2
-   paddd       MSG, oword ptr[K256_PTR + 10*16]
+   paddd       MSG, oword [K256_PTR + 10*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP2
    palignr     MSGTMP4, MSGTMP1, 4
@@ -508,7 +509,7 @@ sha256_block_loop:
 
    ;; rounds 44-47
    movdqa      MSG, MSGTMP3
-   paddd       MSG, oword ptr[K256_PTR + 11*16]
+   paddd       MSG, oword [K256_PTR + 11*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP3
    palignr     MSGTMP4, MSGTMP2, 4
@@ -520,7 +521,7 @@ sha256_block_loop:
 
    ;; rounds 48-51
    movdqa      MSG, MSGTMP0
-   paddd       MSG, oword ptr[K256_PTR + 12*16]
+   paddd       MSG, oword [K256_PTR + 12*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP0
    palignr     MSGTMP4, MSGTMP3, 4
@@ -532,7 +533,7 @@ sha256_block_loop:
 
    ;; rounds 52-55
    movdqa      MSG, MSGTMP1
-   paddd       MSG, oword ptr[K256_PTR + 13*16]
+   paddd       MSG, oword [K256_PTR + 13*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP1
    palignr     MSGTMP4, MSGTMP0, 4
@@ -543,7 +544,7 @@ sha256_block_loop:
 
    ;; rounds 56-59
    movdqa      MSG, MSGTMP2
-   paddd       MSG, oword ptr[K256_PTR + 14*16]
+   paddd       MSG, oword [K256_PTR + 14*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    movdqa      MSGTMP4, MSGTMP2
    palignr     MSGTMP4, MSGTMP1, 4
@@ -554,7 +555,7 @@ sha256_block_loop:
 
    ;; rounds 60-63
    movdqa      MSG, MSGTMP3
-   paddd       MSG, oword ptr[K256_PTR + 15*16]
+   paddd       MSG, oword [K256_PTR + 15*16]
    db 0FH,38H,0CBH,0D1H ;; sha256rnds2 STATE1, STATE0
    pshufd      MSG, MSG, 0Eh
    db 0FH,38H,0CBH,0CAH ;; sha256rnds2 STATE0, STATE1
@@ -564,7 +565,7 @@ sha256_block_loop:
 
    add         MSG_PTR, MBS_SHA256
    sub         MSG_LEN, MBS_SHA256
-   jg          sha256_block_loop
+   jg          .sha256_block_loop
 
    ; reorder hash
    pshufd      STATE0,  STATE0,  01Bh  ; FEBA
@@ -574,18 +575,18 @@ sha256_block_loop:
    palignr     STATE1,  MSGTMP4, 8     ; HGFE
 
    ; and store it back
-   movdqu      oword ptr[HASH_PTR + 0*16], STATE0
-   movdqu      oword ptr[HASH_PTR + 1*16], STATE1
+   movdqu      oword [HASH_PTR + 0*16], STATE0
+   movdqu      oword [HASH_PTR + 1*16], STATE1
 
-quit:
+.quit:
    REST_XMM
    REST_GPR
    ret
-IPPASM UpdateSHA256ni ENDP
+ENDFUNC UpdateSHA256ni
 
-ENDIF ;; VxWorks
+%endif ;; VxWorks
 
-;;ENDIF    ;; (_IPP32E GE _IPP32E_Y8)
-ENDIF    ;; _FEATURE_ON_ / _FEATURE_TICKTOCK_
-ENDIF    ;; _ENABLE_ALG_SHA256_
-END
+;;%endif    ;; (_IPP32E >= _IPP32E_Y8)
+%endif    ;; _FEATURE_ON_ / _FEATURE_TICKTOCK_
+%endif    ;; _ENABLE_ALG_SHA256_
+

@@ -50,72 +50,13 @@
 */
 
 #include "owncp.h"
-#include "pcpsms4.h"
-#include "pcptool.h"
 
 #if !defined _PCP_SMS4_DECRYPT_CBC_H
 #define _PCP_SMS4_DECRYPT_CBC_H
 
-/*F*
-//    Name: ippsSMS4DecryptCBC
-//
-// Purpose: SMS4-CBC decryption.
-//
-// Returns:                Reason:
-//    ippStsNullPtrErr        pCtx == NULL
-//                            pSrc == NULL
-//                            pDst == NULL
-//                            pIV  == NULL
-//    ippStsContextMatchErr   !VALID_SMS4_ID()
-//    ippStsLengthErr         len <1
-//    ippStsUnderRunErr       0!=(dataLen%MBS_SMS4)
-//    ippStsNoErr             no errors
-//
-// Parameters:
-//    pSrc        pointer to the source data buffer
-//    pDst        pointer to the target data buffer
-//    dataLen     input/output buffer length (in bytes)
-//    pCtx        pointer to the SMS4 context
-//    pIV         pointer to the initialization vector
-//
-*F*/
-static void cpDecryptSMS4_cbc(const Ipp8u* pIV,
-                              const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
-                              const IppsSMS4Spec* pCtx)
-{
-   const Ipp32u* pRoundKeys = SMS4_DRK(pCtx);
-
-   /* copy IV */
-   Ipp32u iv[MBS_SMS4/sizeof(Ipp32u)];
-   CopyBlock16(pIV, iv);
-
-   /* do decryption */
-   #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
-   if(IsFeatureEnabled(ippCPUID_AES)) {
-      int processedLen = cpSMS4_CBC_dec_aesni(pDst, pSrc, dataLen, pRoundKeys, (Ipp8u*)iv);
-      pSrc += processedLen;
-      pDst += processedLen;
-      dataLen -= processedLen;
-   }
-   #endif
-
-   for(; dataLen>0; dataLen-=MBS_SMS4, pSrc+=MBS_SMS4, pDst+=MBS_SMS4) {
-      Ipp32u tmp[MBS_SMS4/sizeof(ipp32u)];
-
-      cpSMS4_Cipher((Ipp8u*)tmp, (Ipp8u*)pSrc, pRoundKeys);
-
-      tmp[0] ^= iv[0];
-      tmp[1] ^= iv[1];
-      tmp[2] ^= iv[2];
-      tmp[3] ^= iv[3];
-
-      iv[0] = ((Ipp32u*)pSrc)[0];
-      iv[1] = ((Ipp32u*)pSrc)[1];
-      iv[2] = ((Ipp32u*)pSrc)[2];
-      iv[3] = ((Ipp32u*)pSrc)[3];
-
-      CopyBlock16(tmp, pDst);
-   }
-}
+#define cpDecryptSMS4_cbc OWNAPI(cpDecryptSMS4_cbc)
+void cpDecryptSMS4_cbc(const Ipp8u* pIV,
+                       const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
+                       const IppsSMS4Spec* pCtx);
 
 #endif /* #if !defined _PCP_SMS4_DECRYPT_CBC_H */

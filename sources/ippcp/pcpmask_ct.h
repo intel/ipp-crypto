@@ -38,13 +38,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     Constant time Mask operations
-// 
-// 
+//
+//
 */
 
 #if !defined(_PCP_MASK_CT_H)
@@ -125,7 +125,7 @@ __INLINE void cpMaskedCopyBNU_ct(BNU_CHUNK_T* dst, BNU_CHUNK_T mask, const BNU_C
       dst[i] = (src1[i] & mask) ^ (src2[i] & ~mask);
 }
 
-/* test if GF elmement is equal to x chunk */
+/* test if GF element is equal to x chunk */
 __INLINE BNU_CHUNK_T cpIsGFpElemEquChunk_ct(const BNU_CHUNK_T* pE, int nsE, BNU_CHUNK_T x)
 {
    int i;

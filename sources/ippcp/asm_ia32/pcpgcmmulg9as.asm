@@ -38,51 +38,36 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               Reduction over AES-GCM polynomial (x^128 + x^7 + x^2 + x + 1)
-; 
+;
 ;     Content:
 ;        GCMreduce()
 ;
 
-.686P
-.387
-.XMM
-.MODEL FLAT,C
-
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
-
-IF _IPP GE _IPP_P8
-
-my_emulator = 0; set 1 for emulation
-include emulator.inc
 
 
-IFDEF IPP_PIC
-LD_ADDR MACRO reg:REQ, addr:REQ
-LOCAL LABEL
-        call     LABEL
-LABEL:  pop      reg
-        sub      reg, LABEL-addr
-ENDM
-ELSE
-LD_ADDR MACRO reg:REQ, addr:REQ
-        lea      reg, addr
-ENDM
-ENDIF
 
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+%if (_IPP >= _IPP_P8)
+
+%assign my_emulator  0; set 1 for emulation
+%include "emulator.inc"
+
+segment .text align=IPP_ALIGN_FACTOR
 
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 CONST_TABLE:
 _u128_str DB 15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
 
-u128_str equ [eax+(_u128_str - CONST_TABLE)]
+%xdefine u128_str  [eax+(_u128_str - CONST_TABLE)]
 
 
 
@@ -98,20 +83,21 @@ u128_str equ [eax+(_u128_str - CONST_TABLE)]
 ;; Caller = ippsRijndael128GCMDecrypt
 ;; Caller = ippsRijndael128GCMGetTag
 ;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM GCMmul_avx PROC NEAR C PUBLIC \
-      USES esi edi,\
-      pSrc: PTR BYTE,\   ; const multiplier
-      pDst: PTR BYTE    ; multiplier/result
+align IPP_ALIGN_FACTOR
+IPPASM GCMmul_avx,PUBLIC
+  USES_GPR esi,edi
+
+%xdefine pSrc [esp + ARG_1 + 0*sizeof(dword)] ; const multiplier
+%xdefine pDst [esp + ARG_1 + 1*sizeof(dword)] ; multiplier/result
 
    mov      edi, pDst
    mov      esi, pSrc
    LD_ADDR  eax, CONST_TABLE
 
-   movdqu   xmm1, oword ptr[edi]    ; multiplicand and reduced result
-   movdqu   xmm0, oword ptr[esi]    ; const multiplicand
-  ;pshufb   xmm1, oword ptr u128_str; convert 2-nd multiplier
-my_pshufbM  xmm1, oword ptr u128_str; convert 2-nd multiplier
+   movdqu   xmm1, oword [edi]    ; multiplicand and reduced result
+   movdqu   xmm0, oword [esi]    ; const multiplicand
+  ;pshufb   xmm1, oword u128_str; convert 2-nd multiplier
+my_pshufbM  xmm1, u128_str; convert 2-nd multiplier
 
    ;
    ; carry-less multiplication (caratsuba)
@@ -182,12 +168,13 @@ my_palignr  xmm5,xmm4, 12
    pxor     xmm3, xmm2
    pxor     xmm6, xmm3    ;the result is in xmm6
 
-  ;pshufb   xmm6, oword ptr u128_str   ; convert result back
-my_pshufbM  xmm6, oword ptr u128_str   ; convert result back
-   movdqu   oword ptr[edi], xmm6
+  ;pshufb   xmm6, oword u128_str   ; convert result back
+my_pshufbM  xmm6, u128_str   ; convert result back
+   movdqu   oword [edi], xmm6
 
+   REST_GPR
    ret
-IPPASM GCMmul_avx endp
+ENDFUNC GCMmul_avx
 
-ENDIF
-END
+%endif
+

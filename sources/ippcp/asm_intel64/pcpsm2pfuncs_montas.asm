@@ -38,28 +38,27 @@
 ; limitations under the License.
 ;===============================================================================
 
-; 
-; 
+;
+;
 ;     Purpose:  Cryptography Primitive.
 ;               SM2 specific implementation
-; 
+;
 
-include asmdefs.inc
-include ia_32e.inc
+%include "asmdefs.inc"
+%include "ia_32e.inc"
 
-IF _IPP32E GE _IPP32E_M7
+%if (_IPP32E >= _IPP32E_M7)
 
-_xEMULATION_ = 1
-_ADCX_ADOX_ = 1
+%assign _xEMULATION_ 1
+%assign _ADCX_ADOX_  1
 
-.LIST
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
+segment .text align=IPP_ALIGN_FACTOR
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 
 ;; The SM2 polynomial
 Lpoly DQ 0FFFFFFFFFFFFFFFFh,0FFFFFFFF00000000h,0FFFFFFFFFFFFFFFFh,0FFFFFFFEFFFFFFFFh
- 
+
 ;; 2^512 mod P precomputed for SM2 polynomial
 LRR   DQ 00000000200000003h,000000002ffffffffh,00000000100000001h,00000000400000002h
 
@@ -73,30 +72,30 @@ LThree   DD    3,3,3,3,3,3,3,3
 ; void sm2_mul_by_2(uint64_t res[4], uint64_t a[4]);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_mul_by_2 PROC PUBLIC FRAME
-   USES_GPR rsi,rdi,r12,r13
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 2
+align IPP_ALIGN_FACTOR
+IPPASM sm2_mul_by_2,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi,r12,r13
+        USES_XMM
+        COMP_ABI 2
 
-a0 equ r8
-a1 equ r9
-a2 equ r10
-a3 equ r11
+%xdefine a0  r8
+%xdefine a1  r9
+%xdefine a2  r10
+%xdefine a3  r11
 
-t0 equ rax
-t1 equ rdx
-t2 equ rcx
-t3 equ r12
-t4 equ r13
+%xdefine t0  rax
+%xdefine t1  rdx
+%xdefine t2  rcx
+%xdefine t3  r12
+%xdefine t4  r13
 
    xor   t4, t4
 
-   mov   a0, qword ptr[rsi+sizeof(qword)*0]
-   mov   a1, qword ptr[rsi+sizeof(qword)*1]
-   mov   a2, qword ptr[rsi+sizeof(qword)*2]
-   mov   a3, qword ptr[rsi+sizeof(qword)*3]
+   mov   a0, qword [rsi+sizeof(qword)*0]
+   mov   a1, qword [rsi+sizeof(qword)*1]
+   mov   a2, qword [rsi+sizeof(qword)*2]
+   mov   a3, qword [rsi+sizeof(qword)*3]
 
    shld  t4, a3, 1
    shld  a3, a2, 1
@@ -109,10 +108,10 @@ t4 equ r13
    mov   t2, a2
    mov   t3, a3
 
-   sub   t0, qword ptr Lpoly+sizeof(qword)*0
-   sbb   t1, qword ptr Lpoly+sizeof(qword)*1
-   sbb   t2, qword ptr Lpoly+sizeof(qword)*2
-   sbb   t3, qword ptr Lpoly+sizeof(qword)*3
+   sub   t0, qword [rel Lpoly+sizeof(qword)*0]
+   sbb   t1, qword [rel Lpoly+sizeof(qword)*1]
+   sbb   t2, qword [rel Lpoly+sizeof(qword)*2]
+   sbb   t3, qword [rel Lpoly+sizeof(qword)*3]
    sbb   t4, 0
 
    cmovz a0, t0
@@ -120,43 +119,43 @@ t4 equ r13
    cmovz a2, t2
    cmovz a3, t3
 
-   mov   qword ptr[rdi+sizeof(qword)*0], a0
-   mov   qword ptr[rdi+sizeof(qword)*1], a1
-   mov   qword ptr[rdi+sizeof(qword)*2], a2
-   mov   qword ptr[rdi+sizeof(qword)*3], a3
+   mov   qword [rdi+sizeof(qword)*0], a0
+   mov   qword [rdi+sizeof(qword)*1], a1
+   mov   qword [rdi+sizeof(qword)*2], a2
+   mov   qword [rdi+sizeof(qword)*3], a3
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_mul_by_2 ENDP
+ENDFUNC sm2_mul_by_2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; void sm2_div_by_2(uint64_t res[4], uint64_t a[4]);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_div_by_2 PROC PUBLIC FRAME
-   USES_GPR rsi,rdi,r12,r13,r14
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 2
+align IPP_ALIGN_FACTOR
+IPPASM sm2_div_by_2,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi,r12,r13,r14
+        USES_XMM
+        COMP_ABI 2
 
-a0 equ r8
-a1 equ r9
-a2 equ r10
-a3 equ r11
+%xdefine a0  r8
+%xdefine a1  r9
+%xdefine a2  r10
+%xdefine a3  r11
 
-t0 equ rax
-t1 equ rdx
-t2 equ rcx
-t3 equ r12
-t4 equ r13
+%xdefine t0  rax
+%xdefine t1  rdx
+%xdefine t2  rcx
+%xdefine t3  r12
+%xdefine t4  r13
 
-   mov   a0, qword ptr[rsi+sizeof(qword)*0]
-   mov   a1, qword ptr[rsi+sizeof(qword)*1]
-   mov   a2, qword ptr[rsi+sizeof(qword)*2]
-   mov   a3, qword ptr[rsi+sizeof(qword)*3]
+   mov   a0, qword [rsi+sizeof(qword)*0]
+   mov   a1, qword [rsi+sizeof(qword)*1]
+   mov   a2, qword [rsi+sizeof(qword)*2]
+   mov   a3, qword [rsi+sizeof(qword)*3]
 
    xor   t4,  t4
    xor   r14, r14
@@ -166,10 +165,10 @@ t4 equ r13
    mov   t2, a2
    mov   t3, a3
 
-   add   t0, qword ptr Lpoly+sizeof(qword)*0
-   adc   t1, qword ptr Lpoly+sizeof(qword)*1
-   adc   t2, qword ptr Lpoly+sizeof(qword)*2
-   adc   t3, qword ptr Lpoly+sizeof(qword)*3
+   add   t0, qword [rel Lpoly+sizeof(qword)*0]
+   adc   t1, qword [rel Lpoly+sizeof(qword)*1]
+   adc   t2, qword [rel Lpoly+sizeof(qword)*2]
+   adc   t3, qword [rel Lpoly+sizeof(qword)*3]
    adc   t4, 0
    test  a0, 1
 
@@ -184,45 +183,45 @@ t4 equ r13
    shrd  a2, a3, 1
    shrd  a3, r14,1
 
-   mov   qword ptr[rdi+sizeof(qword)*0], a0
-   mov   qword ptr[rdi+sizeof(qword)*1], a1
-   mov   qword ptr[rdi+sizeof(qword)*2], a2
-   mov   qword ptr[rdi+sizeof(qword)*3], a3
+   mov   qword [rdi+sizeof(qword)*0], a0
+   mov   qword [rdi+sizeof(qword)*1], a1
+   mov   qword [rdi+sizeof(qword)*2], a2
+   mov   qword [rdi+sizeof(qword)*3], a3
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_div_by_2 ENDP
+ENDFUNC sm2_div_by_2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; void sm2_mul_by_3(uint64_t res[4], uint64_t a[4]);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_mul_by_3 PROC PUBLIC FRAME
-   USES_GPR rsi,rdi,r12,r13
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 2
+align IPP_ALIGN_FACTOR
+IPPASM sm2_mul_by_3,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi,r12,r13
+        USES_XMM
+        COMP_ABI 2
 
-a0 equ r8
-a1 equ r9
-a2 equ r10
-a3 equ r11
+%xdefine a0  r8
+%xdefine a1  r9
+%xdefine a2  r10
+%xdefine a3  r11
 
-t0 equ rax
-t1 equ rdx
-t2 equ rcx
-t3 equ r12
-t4 equ r13
+%xdefine t0  rax
+%xdefine t1  rdx
+%xdefine t2  rcx
+%xdefine t3  r12
+%xdefine t4  r13
 
    xor   t4, t4
 
-   mov   a0, qword ptr[rsi+sizeof(qword)*0]
-   mov   a1, qword ptr[rsi+sizeof(qword)*1]
-   mov   a2, qword ptr[rsi+sizeof(qword)*2]
-   mov   a3, qword ptr[rsi+sizeof(qword)*3]
+   mov   a0, qword [rsi+sizeof(qword)*0]
+   mov   a1, qword [rsi+sizeof(qword)*1]
+   mov   a2, qword [rsi+sizeof(qword)*2]
+   mov   a3, qword [rsi+sizeof(qword)*3]
 
    shld  t4, a3, 1
    shld  a3, a2, 1
@@ -235,10 +234,10 @@ t4 equ r13
    mov   t2, a2
    mov   t3, a3
 
-   sub   t0, qword ptr Lpoly+sizeof(qword)*0
-   sbb   t1, qword ptr Lpoly+sizeof(qword)*1
-   sbb   t2, qword ptr Lpoly+sizeof(qword)*2
-   sbb   t3, qword ptr Lpoly+sizeof(qword)*3
+   sub   t0, qword [rel Lpoly+sizeof(qword)*0]
+   sbb   t1, qword [rel Lpoly+sizeof(qword)*1]
+   sbb   t2, qword [rel Lpoly+sizeof(qword)*2]
+   sbb   t3, qword [rel Lpoly+sizeof(qword)*3]
    sbb   t4, 0
 
    cmovz a0, t0
@@ -247,10 +246,10 @@ t4 equ r13
    cmovz a3, t3
 
    xor   t4, t4
-   add   a0, qword ptr[rsi+sizeof(qword)*0]
-   adc   a1, qword ptr[rsi+sizeof(qword)*1]
-   adc   a2, qword ptr[rsi+sizeof(qword)*2]
-   adc   a3, qword ptr[rsi+sizeof(qword)*3]
+   add   a0, qword [rsi+sizeof(qword)*0]
+   adc   a1, qword [rsi+sizeof(qword)*1]
+   adc   a2, qword [rsi+sizeof(qword)*2]
+   adc   a3, qword [rsi+sizeof(qword)*3]
    adc   t4, 0
 
    mov   t0, a0
@@ -258,10 +257,10 @@ t4 equ r13
    mov   t2, a2
    mov   t3, a3
 
-   sub   t0, qword ptr Lpoly+sizeof(qword)*0
-   sbb   t1, qword ptr Lpoly+sizeof(qword)*1
-   sbb   t2, qword ptr Lpoly+sizeof(qword)*2
-   sbb   t3, qword ptr Lpoly+sizeof(qword)*3
+   sub   t0, qword [rel Lpoly+sizeof(qword)*0]
+   sbb   t1, qword [rel Lpoly+sizeof(qword)*1]
+   sbb   t2, qword [rel Lpoly+sizeof(qword)*2]
+   sbb   t3, qword [rel Lpoly+sizeof(qword)*3]
    sbb   t4, 0
 
    cmovz a0, t0
@@ -269,50 +268,50 @@ t4 equ r13
    cmovz a2, t2
    cmovz a3, t3
 
-   mov   qword ptr[rdi+sizeof(qword)*0], a0
-   mov   qword ptr[rdi+sizeof(qword)*1], a1
-   mov   qword ptr[rdi+sizeof(qword)*2], a2
-   mov   qword ptr[rdi+sizeof(qword)*3], a3
+   mov   qword [rdi+sizeof(qword)*0], a0
+   mov   qword [rdi+sizeof(qword)*1], a1
+   mov   qword [rdi+sizeof(qword)*2], a2
+   mov   qword [rdi+sizeof(qword)*3], a3
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_mul_by_3 ENDP
+ENDFUNC sm2_mul_by_3
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; void sm2_add(uint64_t res[4], uint64_t a[4], uint64_t b[4]);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_add PROC PUBLIC FRAME
-   USES_GPR rsi,rdi,r12,r13
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 3
+align IPP_ALIGN_FACTOR
+IPPASM sm2_add,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi,r12,r13
+        USES_XMM
+        COMP_ABI 3
 
-a0 equ r8
-a1 equ r9
-a2 equ r10
-a3 equ r11
+%xdefine a0  r8
+%xdefine a1  r9
+%xdefine a2  r10
+%xdefine a3  r11
 
-t0 equ rax
-t1 equ rdx
-t2 equ rcx
-t3 equ r12
-t4 equ r13
+%xdefine t0  rax
+%xdefine t1  rdx
+%xdefine t2  rcx
+%xdefine t3  r12
+%xdefine t4  r13
 
    xor   t4,  t4
 
-   mov   a0, qword ptr[rsi+sizeof(qword)*0]
-   mov   a1, qword ptr[rsi+sizeof(qword)*1]
-   mov   a2, qword ptr[rsi+sizeof(qword)*2]
-   mov   a3, qword ptr[rsi+sizeof(qword)*3]
+   mov   a0, qword [rsi+sizeof(qword)*0]
+   mov   a1, qword [rsi+sizeof(qword)*1]
+   mov   a2, qword [rsi+sizeof(qword)*2]
+   mov   a3, qword [rsi+sizeof(qword)*3]
 
-   add   a0, qword ptr[rdx+sizeof(qword)*0]
-   adc   a1, qword ptr[rdx+sizeof(qword)*1]
-   adc   a2, qword ptr[rdx+sizeof(qword)*2]
-   adc   a3, qword ptr[rdx+sizeof(qword)*3]
+   add   a0, qword [rdx+sizeof(qword)*0]
+   adc   a1, qword [rdx+sizeof(qword)*1]
+   adc   a2, qword [rdx+sizeof(qword)*2]
+   adc   a3, qword [rdx+sizeof(qword)*3]
    adc   t4, 0
 
    mov   t0, a0
@@ -320,10 +319,10 @@ t4 equ r13
    mov   t2, a2
    mov   t3, a3
 
-   sub   t0, qword ptr Lpoly+sizeof(qword)*0
-   sbb   t1, qword ptr Lpoly+sizeof(qword)*1
-   sbb   t2, qword ptr Lpoly+sizeof(qword)*2
-   sbb   t3, qword ptr Lpoly+sizeof(qword)*3
+   sub   t0, qword [rel Lpoly+sizeof(qword)*0]
+   sbb   t1, qword [rel Lpoly+sizeof(qword)*1]
+   sbb   t2, qword [rel Lpoly+sizeof(qword)*2]
+   sbb   t3, qword [rel Lpoly+sizeof(qword)*3]
    sbb   t4, 0
 
    cmovz a0, t0
@@ -331,50 +330,50 @@ t4 equ r13
    cmovz a2, t2
    cmovz a3, t3
 
-   mov   qword ptr[rdi+sizeof(qword)*0], a0
-   mov   qword ptr[rdi+sizeof(qword)*1], a1
-   mov   qword ptr[rdi+sizeof(qword)*2], a2
-   mov   qword ptr[rdi+sizeof(qword)*3], a3
+   mov   qword [rdi+sizeof(qword)*0], a0
+   mov   qword [rdi+sizeof(qword)*1], a1
+   mov   qword [rdi+sizeof(qword)*2], a2
+   mov   qword [rdi+sizeof(qword)*3], a3
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_add ENDP
+ENDFUNC sm2_add
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; void sm2_sub(uint64_t res[4], uint64_t a[4], uint64_t b[4]);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_sub PROC PUBLIC FRAME
-   USES_GPR rsi,rdi,r12,r13
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 3
+align IPP_ALIGN_FACTOR
+IPPASM sm2_sub,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi,r12,r13
+        USES_XMM
+        COMP_ABI 3
 
-a0 equ r8
-a1 equ r9
-a2 equ r10
-a3 equ r11
+%xdefine a0  r8
+%xdefine a1  r9
+%xdefine a2  r10
+%xdefine a3  r11
 
-t0 equ rax
-t1 equ rdx
-t2 equ rcx
-t3 equ r12
-t4 equ r13
+%xdefine t0  rax
+%xdefine t1  rdx
+%xdefine t2  rcx
+%xdefine t3  r12
+%xdefine t4  r13
 
    xor   t4,  t4
 
-   mov   a0, qword ptr[rsi+sizeof(qword)*0]
-   mov   a1, qword ptr[rsi+sizeof(qword)*1]
-   mov   a2, qword ptr[rsi+sizeof(qword)*2]
-   mov   a3, qword ptr[rsi+sizeof(qword)*3]
+   mov   a0, qword [rsi+sizeof(qword)*0]
+   mov   a1, qword [rsi+sizeof(qword)*1]
+   mov   a2, qword [rsi+sizeof(qword)*2]
+   mov   a3, qword [rsi+sizeof(qword)*3]
 
-   sub   a0, qword ptr[rdx+sizeof(qword)*0]
-   sbb   a1, qword ptr[rdx+sizeof(qword)*1]
-   sbb   a2, qword ptr[rdx+sizeof(qword)*2]
-   sbb   a3, qword ptr[rdx+sizeof(qword)*3]
+   sub   a0, qword [rdx+sizeof(qword)*0]
+   sbb   a1, qword [rdx+sizeof(qword)*1]
+   sbb   a2, qword [rdx+sizeof(qword)*2]
+   sbb   a3, qword [rdx+sizeof(qword)*3]
    sbb   t4, 0
 
    mov   t0, a0
@@ -382,10 +381,10 @@ t4 equ r13
    mov   t2, a2
    mov   t3, a3
 
-   add   t0, qword ptr Lpoly+sizeof(qword)*0
-   adc   t1, qword ptr Lpoly+sizeof(qword)*1
-   adc   t2, qword ptr Lpoly+sizeof(qword)*2
-   adc   t3, qword ptr Lpoly+sizeof(qword)*3
+   add   t0, qword [rel Lpoly+sizeof(qword)*0]
+   adc   t1, qword [rel Lpoly+sizeof(qword)*1]
+   adc   t2, qword [rel Lpoly+sizeof(qword)*2]
+   adc   t3, qword [rel Lpoly+sizeof(qword)*3]
    test  t4, t4
 
    cmovnz a0, t0
@@ -393,38 +392,38 @@ t4 equ r13
    cmovnz a2, t2
    cmovnz a3, t3
 
-   mov   qword ptr[rdi+sizeof(qword)*0], a0
-   mov   qword ptr[rdi+sizeof(qword)*1], a1
-   mov   qword ptr[rdi+sizeof(qword)*2], a2
-   mov   qword ptr[rdi+sizeof(qword)*3], a3
+   mov   qword [rdi+sizeof(qword)*0], a0
+   mov   qword [rdi+sizeof(qword)*1], a1
+   mov   qword [rdi+sizeof(qword)*2], a2
+   mov   qword [rdi+sizeof(qword)*3], a3
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_sub ENDP
+ENDFUNC sm2_sub
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; void sm2_neg(uint64_t res[4], uint64_t a[4]);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_neg PROC PUBLIC FRAME
-   USES_GPR rsi,rdi,r12,r13
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 2
+align IPP_ALIGN_FACTOR
+IPPASM sm2_neg,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi,r12,r13
+        USES_XMM
+        COMP_ABI 2
 
-a0 equ r8
-a1 equ r9
-a2 equ r10
-a3 equ r11
+%xdefine a0  r8
+%xdefine a1  r9
+%xdefine a2  r10
+%xdefine a3  r11
 
-t0 equ rax
-t1 equ rdx
-t2 equ rcx
-t3 equ r12
-t4 equ r13
+%xdefine t0  rax
+%xdefine t1  rdx
+%xdefine t2  rcx
+%xdefine t3  r12
+%xdefine t4  r13
 
    xor   t4, t4
 
@@ -433,10 +432,10 @@ t4 equ r13
    xor   a2, a2
    xor   a3, a3
 
-   sub   a0, qword ptr[rsi+sizeof(qword)*0]
-   sbb   a1, qword ptr[rsi+sizeof(qword)*1]
-   sbb   a2, qword ptr[rsi+sizeof(qword)*2]
-   sbb   a3, qword ptr[rsi+sizeof(qword)*3]
+   sub   a0, qword [rsi+sizeof(qword)*0]
+   sbb   a1, qword [rsi+sizeof(qword)*1]
+   sbb   a2, qword [rsi+sizeof(qword)*2]
+   sbb   a3, qword [rsi+sizeof(qword)*3]
    sbb   t4, 0
 
    mov   t0, a0
@@ -444,10 +443,10 @@ t4 equ r13
    mov   t2, a2
    mov   t3, a3
 
-   add   t0, qword ptr Lpoly+sizeof(qword)*0
-   adc   t1, qword ptr Lpoly+sizeof(qword)*1
-   adc   t2, qword ptr Lpoly+sizeof(qword)*2
-   adc   t3, qword ptr Lpoly+sizeof(qword)*3
+   add   t0, qword [rel Lpoly+sizeof(qword)*0]
+   adc   t1, qword [rel Lpoly+sizeof(qword)*1]
+   adc   t2, qword [rel Lpoly+sizeof(qword)*2]
+   adc   t3, qword [rel Lpoly+sizeof(qword)*3]
    test  t4, t4
 
    cmovnz a0, t0
@@ -455,15 +454,15 @@ t4 equ r13
    cmovnz a2, t2
    cmovnz a3, t3
 
-   mov   qword ptr[rdi+sizeof(qword)*0], a0
-   mov   qword ptr[rdi+sizeof(qword)*1], a1
-   mov   qword ptr[rdi+sizeof(qword)*2], a2
-   mov   qword ptr[rdi+sizeof(qword)*3], a3
+   mov   qword [rdi+sizeof(qword)*0], a0
+   mov   qword [rdi+sizeof(qword)*1], a1
+   mov   qword [rdi+sizeof(qword)*2], a2
+   mov   qword [rdi+sizeof(qword)*3], a3
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_neg ENDP
+ENDFUNC sm2_neg
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -473,14 +472,21 @@ IPPASM sm2_neg ENDP
 ; on entry p5=0
 ; on exit  p0=0, p5=0/1
 ;
-sm2_mul_redstep MACRO p5,p4,p3,p2,p1,p0
-   mov   acc6, p0   ;; (u1:u0) = p0*2^32
+%macro sm2_mul_redstep 6.nolist
+  %xdefine %%p5 %1
+  %xdefine %%p4 %2
+  %xdefine %%p3 %3
+  %xdefine %%p2 %4
+  %xdefine %%p1 %5
+  %xdefine %%p0 %6
+
+   mov   acc6, %%p0   ;; (u1:u0) = p0*2^32
    shl   acc6, 32
-   mov   acc7, p0
+   mov   acc7, %%p0
    shr   acc7, 32
 
-   mov   t0, p0
-   mov   t4, p0
+   mov   t0, %%p0
+   mov   t4, %%p0
    xor   t1, t1
    xor   t3, t3
 
@@ -489,60 +495,60 @@ sm2_mul_redstep MACRO p5,p4,p3,p2,p1,p0
    sbb   t3, acc6
    sbb   t4, acc7
 
-   add   p1, t0   ;; (p5:p4:p3:p2:p1) -= (t3:t2:t1:t0)
-   adc   p2, t1
-   adc   p3, t3
-   adc   p4, t4
-   adc   p5, 0    ;; p5 extension
-   xor   p0, p0   ;; p0 = 0;
-ENDM
+   add   %%p1, t0   ;; (p5:p4:p3:p2:p1) -= (t3:t2:t1:t0)
+   adc   %%p2, t1
+   adc   %%p3, t3
+   adc   %%p4, t4
+   adc   %%p5, 0    ;; p5 extension
+   xor   %%p0, %%p0   ;; p0 = 0;
+%endmacro
 
-ALIGN IPP_ALIGN_FACTOR
+align IPP_ALIGN_FACTOR
 sm2_mmull:
 
-acc0 equ r8
-acc1 equ r9
-acc2 equ r10
-acc3 equ r11
-acc4 equ r12
-acc5 equ r13
-acc6 equ r14
-acc7 equ r15
+%xdefine acc0  r8
+%xdefine acc1  r9
+%xdefine acc2  r10
+%xdefine acc3  r11
+%xdefine acc4  r12
+%xdefine acc5  r13
+%xdefine acc6  r14
+%xdefine acc7  r15
 
-t0 equ rcx
-t1 equ rbp
-t2 equ rbx
-t3 equ rdx
-t4 equ rax
-t5 equ r14
+%xdefine t0  rcx
+%xdefine t1  rbp
+%xdefine t2  rbx
+%xdefine t3  rdx
+%xdefine t4  rax
+%xdefine t5  r14
 
 ;        rdi   assumed as result
-aPtr equ rsi
-bPtr equ rbx
-   
+%xdefine aPtr  rsi
+%xdefine bPtr  rbx
+
    xor   acc5, acc5
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;; * b[0]
-   mov   rax, qword ptr[bPtr+sizeof(qword)*0]
-   mul   qword ptr[aPtr+sizeof(qword)*0]
+   mov   rax, qword [bPtr+sizeof(qword)*0]
+   mul   qword [aPtr+sizeof(qword)*0]
    mov   acc0, rax
    mov   acc1, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*0]
-   mul   qword ptr[aPtr+sizeof(qword)*1]
+   mov   rax, qword [bPtr+sizeof(qword)*0]
+   mul   qword [aPtr+sizeof(qword)*1]
    add   acc1, rax
    adc   rdx, 0
    mov   acc2, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*0]
-   mul   qword ptr[aPtr+sizeof(qword)*2]
+   mov   rax, qword [bPtr+sizeof(qword)*0]
+   mul   qword [aPtr+sizeof(qword)*2]
    add   acc2, rax
    adc   rdx, 0
    mov   acc3, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*0]
-   mul   qword ptr[aPtr+sizeof(qword)*3]
+   mov   rax, qword [bPtr+sizeof(qword)*0]
+   mul   qword [aPtr+sizeof(qword)*3]
    add   acc3, rax
    adc   rdx, 0
    mov   acc4, rdx
@@ -553,30 +559,30 @@ bPtr equ rbx
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;; * b[1]
-   mov   rax, qword ptr[bPtr+sizeof(qword)*1]
-   mul   qword ptr[aPtr+sizeof(qword)*0]
+   mov   rax, qword [bPtr+sizeof(qword)*1]
+   mul   qword [aPtr+sizeof(qword)*0]
    add   acc1, rax
    adc   rdx, 0
    mov   t0, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*1]
-   mul   qword ptr[aPtr+sizeof(qword)*1]
+   mov   rax, qword [bPtr+sizeof(qword)*1]
+   mul   qword [aPtr+sizeof(qword)*1]
    add   acc2, t0
    adc   rdx, 0
    add   acc2, rax
    adc   rdx, 0
    mov   t0, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*1]
-   mul   qword ptr[aPtr+sizeof(qword)*2]
+   mov   rax, qword [bPtr+sizeof(qword)*1]
+   mul   qword [aPtr+sizeof(qword)*2]
    add   acc3, t0
    adc   rdx, 0
    add   acc3, rax
    adc   rdx, 0
    mov   t0, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*1]
-   mul   qword ptr[aPtr+sizeof(qword)*3]
+   mov   rax, qword [bPtr+sizeof(qword)*1]
+   mul   qword [aPtr+sizeof(qword)*3]
    add   acc4, t0
    adc   rdx, 0
    add   acc4, rax
@@ -589,30 +595,30 @@ bPtr equ rbx
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;; * b[2]
-   mov   rax, qword ptr[bPtr+sizeof(qword)*2]
-   mul   qword ptr[aPtr+sizeof(qword)*0]
+   mov   rax, qword [bPtr+sizeof(qword)*2]
+   mul   qword [aPtr+sizeof(qword)*0]
    add   acc2, rax
    adc   rdx, 0
    mov   t0, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*2]
-   mul   qword ptr[aPtr+sizeof(qword)*1]
+   mov   rax, qword [bPtr+sizeof(qword)*2]
+   mul   qword [aPtr+sizeof(qword)*1]
    add   acc3, t0
    adc   rdx, 0
    add   acc3, rax
    adc   rdx, 0
    mov   t0, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*2]
-   mul   qword ptr[aPtr+sizeof(qword)*2]
+   mov   rax, qword [bPtr+sizeof(qword)*2]
+   mul   qword [aPtr+sizeof(qword)*2]
    add   acc4, t0
    adc   rdx, 0
    add   acc4, rax
    adc   rdx, 0
    mov   t0, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*2]
-   mul   qword ptr[aPtr+sizeof(qword)*3]
+   mov   rax, qword [bPtr+sizeof(qword)*2]
+   mul   qword [aPtr+sizeof(qword)*3]
    add   acc5, t0
    adc   rdx, 0
    add   acc5, rax
@@ -625,30 +631,30 @@ bPtr equ rbx
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;; * b[3]
-   mov   rax, qword ptr[bPtr+sizeof(qword)*3]
-   mul   qword ptr[aPtr+sizeof(qword)*0]
+   mov   rax, qword [bPtr+sizeof(qword)*3]
+   mul   qword [aPtr+sizeof(qword)*0]
    add   acc3, rax
    adc   rdx, 0
    mov   t0, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*3]
-   mul   qword ptr[aPtr+sizeof(qword)*1]
+   mov   rax, qword [bPtr+sizeof(qword)*3]
+   mul   qword [aPtr+sizeof(qword)*1]
    add   acc4, t0
    adc   rdx, 0
    add   acc4, rax
    adc   rdx, 0
    mov   t0, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*3]
-   mul   qword ptr[aPtr+sizeof(qword)*2]
+   mov   rax, qword [bPtr+sizeof(qword)*3]
+   mul   qword [aPtr+sizeof(qword)*2]
    add   acc5, t0
    adc   rdx, 0
    add   acc5, rax
    adc   rdx, 0
    mov   t0, rdx
 
-   mov   rax, qword ptr[bPtr+sizeof(qword)*3]
-   mul   qword ptr[aPtr+sizeof(qword)*3]
+   mov   rax, qword [bPtr+sizeof(qword)*3]
+   mul   qword [aPtr+sizeof(qword)*3]
    add   acc0, t0
    adc   rdx, 0
    add   acc0, rax
@@ -660,17 +666,17 @@ bPtr equ rbx
    sm2_mul_redstep acc2,acc1,acc0,acc5,acc4,acc3
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   mov   t0, qword ptr Lpoly+sizeof(qword)*0
-   mov   t1, qword ptr Lpoly+sizeof(qword)*1
-   mov   t2, qword ptr Lpoly+sizeof(qword)*2
-   mov   t3, qword ptr Lpoly+sizeof(qword)*3
+   mov   t0, qword [rel Lpoly+sizeof(qword)*0]
+   mov   t1, qword [rel Lpoly+sizeof(qword)*1]
+   mov   t2, qword [rel Lpoly+sizeof(qword)*2]
+   mov   t3, qword [rel Lpoly+sizeof(qword)*3]
 
    mov   t4, acc4
    mov   acc3, acc5
    mov   acc6, acc0
    mov   acc7, acc1
 
-   sub   t4,   t0       ;; test if it exceeds prime value
+   sub   t4,   t0       ;; test %if it exceeds prime value
    sbb   acc3, t1
    sbb   acc6, t2
    sbb   acc7, t3
@@ -681,21 +687,21 @@ bPtr equ rbx
    cmovnc acc0, acc6
    cmovnc acc1, acc7
 
-   mov   qword ptr[rdi+sizeof(qword)*0], acc4
-   mov   qword ptr[rdi+sizeof(qword)*1], acc5
-   mov   qword ptr[rdi+sizeof(qword)*2], acc0
-   mov   qword ptr[rdi+sizeof(qword)*3], acc1
+   mov   qword [rdi+sizeof(qword)*0], acc4
+   mov   qword [rdi+sizeof(qword)*1], acc5
+   mov   qword [rdi+sizeof(qword)*2], acc0
+   mov   qword [rdi+sizeof(qword)*3], acc1
 
    ret
 
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_mul_montl PROC PUBLIC FRAME
-   USES_GPR rbp,rbx, rsi,rdi,r12,r13,r14,r15
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 3
+align IPP_ALIGN_FACTOR
+IPPASM sm2_mul_montl,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rbp,rbx,rsi,rdi,r12,r13,r14,r15
+        USES_XMM
+        COMP_ABI 3
 
-bPtr equ rbx
+%xdefine bPtr  rbx
 
    mov   bPtr, rdx
    call  sm2_mmull
@@ -703,67 +709,67 @@ bPtr equ rbx
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_mul_montl ENDP
+ENDFUNC sm2_mul_montl
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; void sm2_to_mont(uint64_t res[4], uint64_t a[4]);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_to_mont PROC PUBLIC FRAME
-   USES_GPR rbp,rbx, rsi,rdi,r12,r13,r14,r15
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 2
+align IPP_ALIGN_FACTOR
+IPPASM sm2_to_mont,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rbp,rbx,rsi,rdi,r12,r13,r14,r15
+        USES_XMM
+        COMP_ABI 2
 
-   lea   rbx, LRR
+   lea   rbx, [rel LRR]
    call  sm2_mmull
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_to_mont ENDP
+ENDFUNC sm2_to_mont
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; void sm2_mul_montx(uint64_t res[4], uint64_t a[4], uint64_t b[4]);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IF _IPP32E GE _IPP32E_L9
-ALIGN IPP_ALIGN_FACTOR
+%if (_IPP32E >= _IPP32E_L9)
+align IPP_ALIGN_FACTOR
 sm2_mmulx:
 
-acc0 equ r8
-acc1 equ r9
-acc2 equ r10
-acc3 equ r11
-acc4 equ r12
-acc5 equ r13
-acc6 equ r14
-acc7 equ r15
+%xdefine acc0  r8
+%xdefine acc1  r9
+%xdefine acc2  r10
+%xdefine acc3  r11
+%xdefine acc4  r12
+%xdefine acc5  r13
+%xdefine acc6  r14
+%xdefine acc7  r15
 
-t0 equ rax
-t1 equ rdx
-t3 equ rcx
-t4 equ rbp
-t2 equ rbx
+%xdefine t0  rax
+%xdefine t1  rdx
+%xdefine t3  rcx
+%xdefine t4  rbp
+%xdefine t2  rbx
 
 ;        rdi   assumed as result
-aPtr equ rsi
-bPtr equ rbx
+%xdefine aPtr  rsi
+%xdefine bPtr  rbx
 
    xor   acc5, acc5
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;; * b[0]
    xor   rdx, rdx
-   mov   rdx, qword ptr[bPtr+sizeof(qword)*0]
-   mulx  acc1,acc0, qword ptr[aPtr+sizeof(qword)*0]
-   mulx  acc2,t3,   qword ptr[aPtr+sizeof(qword)*1]
+   mov   rdx, qword [bPtr+sizeof(qword)*0]
+   mulx  acc1,acc0, qword [aPtr+sizeof(qword)*0]
+   mulx  acc2,t3,   qword [aPtr+sizeof(qword)*1]
    add   acc1,t3
-   mulx  acc3,t3,   qword ptr[aPtr+sizeof(qword)*2]
-   adc   acc2,t3 
-   mulx  acc4,t3,   qword ptr[aPtr+sizeof(qword)*3]
+   mulx  acc3,t3,   qword [aPtr+sizeof(qword)*2]
+   adc   acc2,t3
+   mulx  acc4,t3,   qword [aPtr+sizeof(qword)*3]
    adc   acc3,t3
    adc   acc4,0
 
@@ -773,26 +779,26 @@ bPtr equ rbx
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;; * b[1]
-   mov   rdx,    qword ptr[bPtr+sizeof(qword)*1]
+   mov   rdx,    qword [bPtr+sizeof(qword)*1]
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*0]
-   adcx  %acc1, t3
-   adox  %acc2, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*0]
+   adcx  acc1, t3
+   adox  acc2, t4
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*1]
-   adcx  %acc2, t3
-   adox  %acc3, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*1]
+   adcx  acc2, t3
+   adox  acc3, t4
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*2]
-   adcx  %acc3, t3
-   adox  %acc4, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*2]
+   adcx  acc3, t3
+   adox  acc4, t4
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*3]
-   adcx  %acc4, t3
-   adox  %acc5, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*3]
+   adcx  acc4, t3
+   adox  acc5, t4
 
-   adcx  %acc5, acc0
-   adox  %acc0, acc0
+   adcx  acc5, acc0
+   adox  acc0, acc0
    adc   acc0, 0
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -801,27 +807,27 @@ bPtr equ rbx
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;; * b[2]
-   mov   rdx,    qword ptr[bPtr+sizeof(qword)*2]
+   mov   rdx,    qword [bPtr+sizeof(qword)*2]
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*0]
-   adcx  %acc2, t3
-   adox  %acc3, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*0]
+   adcx  acc2, t3
+   adox  acc3, t4
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*1]
-   adcx  %acc3, t3
-   adox  %acc4, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*1]
+   adcx  acc3, t3
+   adox  acc4, t4
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*2]
-   adcx  %acc4, t3
-   adox  %acc5, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*2]
+   adcx  acc4, t3
+   adox  acc5, t4
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*3]
-   adcx  %acc5, t3
-   adox  %acc0, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*3]
+   adcx  acc5, t3
+   adox  acc0, t4
 
-   adcx  %acc0, acc1
-   adox  %acc1, acc1
-   
+   adcx  acc0, acc1
+   adox  acc1, acc1
+
    adc   acc1, 0
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -830,26 +836,26 @@ bPtr equ rbx
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;; * b[3]
-   mov   rdx,    qword ptr[bPtr+sizeof(qword)*3]
+   mov   rdx,    qword [bPtr+sizeof(qword)*3]
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*0]
-   adcx  %acc3, t3
-   adox  %acc4, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*0]
+   adcx  acc3, t3
+   adox  acc4, t4
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*1]
-   adcx  %acc4, t3
-   adox  %acc5, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*1]
+   adcx  acc4, t3
+   adox  acc5, t4
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*2]
-   adcx  %acc5, t3
-   adox  %acc0, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*2]
+   adcx  acc5, t3
+   adox  acc0, t4
 
-   mulx  t4, t3, qword ptr[aPtr+sizeof(qword)*3]
-   adcx  %acc0, t3
-   adox  %acc1, t4
+   mulx  t4, t3, qword [aPtr+sizeof(qword)*3]
+   adcx  acc0, t3
+   adox  acc1, t4
 
-   adcx  %acc1, acc2
-   adox  %acc2, acc2
+   adcx  acc1, acc2
+   adox  acc2, acc2
    adc   acc2, 0
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -857,17 +863,17 @@ bPtr equ rbx
    sm2_mul_redstep acc2,acc1,acc0,acc5,acc4,acc3
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   mov   t0, qword ptr Lpoly+sizeof(qword)*0
-   mov   t1, qword ptr Lpoly+sizeof(qword)*1
-   mov   t2, qword ptr Lpoly+sizeof(qword)*2
-   mov   t3, qword ptr Lpoly+sizeof(qword)*3
+   mov   t0, qword [rel Lpoly+sizeof(qword)*0]
+   mov   t1, qword [rel Lpoly+sizeof(qword)*1]
+   mov   t2, qword [rel Lpoly+sizeof(qword)*2]
+   mov   t3, qword [rel Lpoly+sizeof(qword)*3]
 
    mov   t4,   acc4     ;; copy reducted result
    mov   acc3, acc5
    mov   acc6, acc0
    mov   acc7, acc1
 
-   sub   t4,   t0       ;; test if it exceeds prime value
+   sub   t4,   t0       ;; test %if it exceeds prime value
    sbb   acc3, t1
    sbb   acc6, t2
    sbb   acc7, t3
@@ -878,23 +884,23 @@ bPtr equ rbx
    cmovnc acc0, acc6
    cmovnc acc1, acc7
 
-   mov   qword ptr[rdi+sizeof(qword)*0], acc4
-   mov   qword ptr[rdi+sizeof(qword)*1], acc5
-   mov   qword ptr[rdi+sizeof(qword)*2], acc0
-   mov   qword ptr[rdi+sizeof(qword)*3], acc1
+   mov   qword [rdi+sizeof(qword)*0], acc4
+   mov   qword [rdi+sizeof(qword)*1], acc5
+   mov   qword [rdi+sizeof(qword)*2], acc0
+   mov   qword [rdi+sizeof(qword)*3], acc1
 
    ret
-ENDIF
+%endif
 
-IF _IPP32E GE _IPP32E_L9
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_mul_montx PROC PUBLIC FRAME
-   USES_GPR rbp,rbx, rsi,rdi,r12,r13,r14,r15
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 3
+%if _IPP32E >= _IPP32E_L9
+align IPP_ALIGN_FACTOR
+IPPASM sm2_mul_montx,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rbp,rbx,rsi,rdi,r12,r13,r14,r15
+        USES_XMM
+        COMP_ABI 3
 
-bPtr equ rbx
+%xdefine bPtr  rbx
 
    mov   bPtr, rdx
    call  sm2_mmulx
@@ -902,8 +908,9 @@ bPtr equ rbx
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_mul_montx ENDP
-ENDIF ;; _IPP32E_L9
+ENDFUNC sm2_mul_montx
+
+%endif ;; _IPP32E_L9
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -912,80 +919,87 @@ ENDIF ;; _IPP32E_L9
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-sm2_prod_redstep MACRO e,p4,p3,p2,p1,p0
-   mov   t4, p0
-   mov   t0, p0
-   mov   t3, p0
+%macro sm2_prod_redstep 6.nolist
+  %xdefine %%e %1
+  %xdefine %%p4 %2
+  %xdefine %%p3 %3
+  %xdefine %%p2 %4
+  %xdefine %%p1 %5
+  %xdefine %%p0 %6
+
+   mov   t4, %%p0
+   mov   t0, %%p0
+   mov   t3, %%p0
    xor   t1, t1
    xor   t2, t2
-   shl   p0, 32
+   shl   %%p0, 32
    shr   t4, 32  ;; (t4:p0) = p0*2^32
 
-   sub   t0, p0   ;; (t3:t2:t1:t0) = p0*2^256 -p0*2^224 +p0*2^64 -p0*2^96
-   sbb   t1, t4  
-   sbb   t2, p0
+   sub   t0, %%p0   ;; (t3:t2:t1:t0) = p0*2^256 -p0*2^224 +p0*2^64 -p0*2^96
+   sbb   t1, t4
+   sbb   t2, %%p0
    sbb   t3, t4
 
-   xor   p0, p0
-   add   p1, t0   ;; (p5:p4:p3:p2:p1) -= (t3:t2:t1:t0)
-   adc   p2, t1
-   adc   p3, t2
-   adc   p4, t3
-   adc   p0, 0
+   xor   %%p0, %%p0
+   add   %%p1, t0   ;; (p5:p4:p3:p2:p1) -= (t3:t2:t1:t0)
+   adc   %%p2, t1
+   adc   %%p3, t2
+   adc   %%p4, t3
+   adc   %%p0, 0
 
-   IFNB <e>
-   add   p4, e
-   adc   p0, 0
-   ENDIF
-   
-ENDM
+   %ifnempty %%e
+   add   %%p4, %%e
+   adc   %%p0, 0
+   %endif
 
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_sqr_montl PROC PUBLIC FRAME
-   USES_GPR rbp,rbx, rsi,rdi,r12,r13,r14,r15
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 2
+%endmacro
 
-acc0 equ r8
-acc1 equ r9
-acc2 equ r10
-acc3 equ r11
-acc4 equ r12
-acc5 equ r13
-acc6 equ r14
-acc7 equ r15
+align IPP_ALIGN_FACTOR
+IPPASM sm2_sqr_montl,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rbp,rbx,rsi,rdi,r12,r13,r14,r15
+        USES_XMM
+        COMP_ABI 2
 
-t0 equ rcx
-t1 equ rbp
-t2 equ rbx
-t3 equ rdx
-t4 equ rax
+%xdefine acc0  r8
+%xdefine acc1  r9
+%xdefine acc2  r10
+%xdefine acc3  r11
+%xdefine acc4  r12
+%xdefine acc5  r13
+%xdefine acc6  r14
+%xdefine acc7  r15
+
+%xdefine t0  rcx
+%xdefine t1  rbp
+%xdefine t2  rbx
+%xdefine t3  rdx
+%xdefine t4  rax
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   mov   t2, qword ptr[aPtr+sizeof(qword)*0]
-   mov   rax,qword ptr[aPtr+sizeof(qword)*1]
+   mov   t2, qword [aPtr+sizeof(qword)*0]
+   mov   rax,qword [aPtr+sizeof(qword)*1]
    mul   t2
    mov   acc1, rax
    mov   acc2, rdx
-   mov   rax,qword ptr[aPtr+sizeof(qword)*2]
+   mov   rax,qword [aPtr+sizeof(qword)*2]
    mul   t2
    add   acc2, rax
    adc   rdx, 0
    mov   acc3, rdx
-   mov   rax,qword ptr[aPtr+sizeof(qword)*3]
+   mov   rax,qword [aPtr+sizeof(qword)*3]
    mul   t2
    add   acc3, rax
    adc   rdx, 0
    mov   acc4, rdx
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   mov   t2, qword ptr[aPtr+sizeof(qword)*1]
-   mov   rax,qword ptr[aPtr+sizeof(qword)*2]
+   mov   t2, qword [aPtr+sizeof(qword)*1]
+   mov   rax,qword [aPtr+sizeof(qword)*2]
    mul   t2
    add   acc3, rax
    adc   rdx, 0
    mov   t1, rdx
-   mov   rax,qword ptr[aPtr+sizeof(qword)*3]
+   mov   rax,qword [aPtr+sizeof(qword)*3]
    mul   t2
    add   acc4, rax
    adc   rdx, 0
@@ -993,8 +1007,8 @@ t4 equ rax
    adc   rdx, 0
    mov   acc5, rdx
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   mov   t2, qword ptr[aPtr+sizeof(qword)*2]
-   mov   rax,qword ptr[aPtr+sizeof(qword)*3]
+   mov   t2, qword [aPtr+sizeof(qword)*2]
+   mov   rax,qword [aPtr+sizeof(qword)*3]
    mul   t2
    add   acc5, rax
    adc   rdx, 0
@@ -1009,22 +1023,22 @@ t4 equ rax
    shld  acc2, acc1, 1
    shl   acc1, 1
 
-   mov   rax,qword ptr[aPtr+sizeof(qword)*0]
+   mov   rax,qword [aPtr+sizeof(qword)*0]
    mul   rax
    mov   acc0, rax
    add   acc1, rdx
    adc   acc2, 0
-   mov   rax,qword ptr[aPtr+sizeof(qword)*1]
+   mov   rax,qword [aPtr+sizeof(qword)*1]
    mul   rax
    add   acc2, rax
    adc   acc3, rdx
    adc   acc4, 0
-   mov   rax,qword ptr[aPtr+sizeof(qword)*2]
+   mov   rax,qword [aPtr+sizeof(qword)*2]
    mul   rax
    add   acc4, rax
    adc   acc5, rdx
    adc   acc6, 0
-   mov   rax,qword ptr[aPtr+sizeof(qword)*3]
+   mov   rax,qword [aPtr+sizeof(qword)*3]
    mul   rax
    add   acc6, rax
    adc   acc7, rdx
@@ -1036,10 +1050,10 @@ t4 equ rax
    sm2_prod_redstep  acc2,acc7,acc6,acc5,acc4,acc3
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-   mov   t0, qword ptr Lpoly+sizeof(qword)*0
-   mov   t1, qword ptr Lpoly+sizeof(qword)*1
-   mov   t2, qword ptr Lpoly+sizeof(qword)*2
-   mov   t3, qword ptr Lpoly+sizeof(qword)*3
+   mov   t0, qword [rel Lpoly+sizeof(qword)*0]
+   mov   t1, qword [rel Lpoly+sizeof(qword)*1]
+   mov   t2, qword [rel Lpoly+sizeof(qword)*2]
+   mov   t3, qword [rel Lpoly+sizeof(qword)*3]
 
    mov     t4, acc4
    mov   acc0, acc5
@@ -1057,60 +1071,60 @@ t4 equ rax
    cmovnc acc6, acc1
    cmovnc acc7, acc2
 
-   mov   qword ptr[rdi+sizeof(qword)*0], acc4
-   mov   qword ptr[rdi+sizeof(qword)*1], acc5
-   mov   qword ptr[rdi+sizeof(qword)*2], acc6
-   mov   qword ptr[rdi+sizeof(qword)*3], acc7
+   mov   qword [rdi+sizeof(qword)*0], acc4
+   mov   qword [rdi+sizeof(qword)*1], acc5
+   mov   qword [rdi+sizeof(qword)*2], acc6
+   mov   qword [rdi+sizeof(qword)*3], acc7
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_sqr_montl ENDP
+ENDFUNC sm2_sqr_montl
 
-IF _IPP32E GE _IPP32E_L9
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_sqr_montx PROC PUBLIC FRAME
-   USES_GPR rbp,rbx, rsi,rdi,r12,r13,r14,r15
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 2
+%if (_IPP32E >= _IPP32E_L9)
+align IPP_ALIGN_FACTOR
+IPPASM sm2_sqr_montx,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rbp,rbx,rsi,rdi,r12,r13,r14,r15
+        USES_XMM
+        COMP_ABI 2
 
-acc0 equ r8
-acc1 equ r9
-acc2 equ r10
-acc3 equ r11
-acc4 equ r12
-acc5 equ r13
-acc6 equ r14
-acc7 equ r15
+%xdefine acc0  r8
+%xdefine acc1  r9
+%xdefine acc2  r10
+%xdefine acc3  r11
+%xdefine acc4  r12
+%xdefine acc5  r13
+%xdefine acc6  r14
+%xdefine acc7  r15
 
-t0 equ rcx
-t1 equ rbp
-t2 equ rbx
-t3 equ rdx
-t4 equ rax
+%xdefine t0  rcx
+%xdefine t1  rbp
+%xdefine t2  rbx
+%xdefine t3  rdx
+%xdefine t4  rax
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   mov   rdx,  qword ptr[aPtr+sizeof(qword)*0]
-   mulx  acc2, acc1, qword ptr[aPtr+sizeof(qword)*1]
-   mulx  acc3, t0,   qword ptr[aPtr+sizeof(qword)*2]
+   mov   rdx,  qword [aPtr+sizeof(qword)*0]
+   mulx  acc2, acc1, qword [aPtr+sizeof(qword)*1]
+   mulx  acc3, t0,   qword [aPtr+sizeof(qword)*2]
    add   acc2, t0
-   mulx  acc4, t0,   qword ptr[aPtr+sizeof(qword)*3]
+   mulx  acc4, t0,   qword [aPtr+sizeof(qword)*3]
    adc   acc3, t0
    adc   acc4, 0
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   mov   rdx, qword ptr[aPtr+sizeof(qword)*1]
+   mov   rdx, qword [aPtr+sizeof(qword)*1]
    xor   acc5, acc5
-   mulx  t1, t0, qword ptr[aPtr+sizeof(qword)*2]
-   adcx  %acc3, t0
-   adox  %acc4, t1
-   mulx  t1, t0, qword ptr[aPtr+sizeof(qword)*3]
-   adcx  %acc4, t0
-   adox  %acc5, t1
+   mulx  t1, t0, qword [aPtr+sizeof(qword)*2]
+   adcx  acc3, t0
+   adox  acc4, t1
+   mulx  t1, t0, qword [aPtr+sizeof(qword)*3]
+   adcx  acc4, t0
+   adox  acc5, t1
    adc   acc5, 0
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-   mov   rdx, qword ptr[aPtr+sizeof(qword)*2]
-   mulx  acc6, t0, qword ptr[aPtr+sizeof(qword)*3]
+   mov   rdx, qword [aPtr+sizeof(qword)*2]
+   mulx  acc6, t0, qword [aPtr+sizeof(qword)*3]
    add   acc5, t0
    adc   acc6, 0
 
@@ -1125,21 +1139,21 @@ t4 equ rax
    shl   acc1, 1
 
    xor   acc0, acc0
-   mov   rdx, qword ptr[aPtr+sizeof(qword)*0]
+   mov   rdx, qword [aPtr+sizeof(qword)*0]
    mulx  t1, acc0, rdx
-   adcx  %acc1, t1
-   mov   rdx, qword ptr[aPtr+sizeof(qword)*1]
+   adcx  acc1, t1
+   mov   rdx, qword [aPtr+sizeof(qword)*1]
    mulx  t1, t0, rdx
-   adcx  %acc2, t0
-   adcx  %acc3, t1
-   mov   rdx, qword ptr[aPtr+sizeof(qword)*2]
+   adcx  acc2, t0
+   adcx  acc3, t1
+   mov   rdx, qword [aPtr+sizeof(qword)*2]
    mulx  t1, t0, rdx
-   adcx  %acc4, t0
-   adcx  %acc5, t1
-   mov   rdx, qword ptr[aPtr+sizeof(qword)*3]
+   adcx  acc4, t0
+   adcx  acc5, t1
+   mov   rdx, qword [aPtr+sizeof(qword)*3]
    mulx  t1, t0, rdx
-   adcx  %acc6, t0
-   adcx  %acc7, t1
+   adcx  acc6, t0
+   adcx  acc7, t1
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    sm2_prod_redstep      ,acc4,acc3,acc2,acc1,acc0
@@ -1148,10 +1162,10 @@ t4 equ rax
    sm2_prod_redstep  acc2,acc7,acc6,acc5,acc4,acc3
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-   mov   t0, qword ptr Lpoly+sizeof(qword)*0
-   mov   t1, qword ptr Lpoly+sizeof(qword)*1
-   mov   t2, qword ptr Lpoly+sizeof(qword)*2
-   mov   t3, qword ptr Lpoly+sizeof(qword)*3
+   mov   t0, qword [rel Lpoly+sizeof(qword)*0]
+   mov   t1, qword [rel Lpoly+sizeof(qword)*1]
+   mov   t2, qword [rel Lpoly+sizeof(qword)*2]
+   mov   t3, qword [rel Lpoly+sizeof(qword)*3]
 
    mov     t4, acc4
    mov   acc0, acc5
@@ -1169,48 +1183,49 @@ t4 equ rax
    cmovnc acc6, acc1
    cmovnc acc7, acc2
 
-   mov   qword ptr[rdi+sizeof(qword)*0], acc4
-   mov   qword ptr[rdi+sizeof(qword)*1], acc5
-   mov   qword ptr[rdi+sizeof(qword)*2], acc6
-   mov   qword ptr[rdi+sizeof(qword)*3], acc7
+   mov   qword [rdi+sizeof(qword)*0], acc4
+   mov   qword [rdi+sizeof(qword)*1], acc5
+   mov   qword [rdi+sizeof(qword)*2], acc6
+   mov   qword [rdi+sizeof(qword)*3], acc7
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_sqr_montx ENDP
-ENDIF ;; _IPP32E_L9
+ENDFUNC sm2_sqr_montx
+
+%endif ;; _IPP32E_L9
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; void sm2_mont_back(uint64_t res[4], uint64_t a[4]);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_mont_back PROC PUBLIC FRAME
-   USES_GPR rbp,rbx, rsi,rdi,r12,r13,r14,r15
-   LOCAL_FRAME = 0
-   USES_XMM
-   COMP_ABI 2
+align IPP_ALIGN_FACTOR
+IPPASM sm2_mont_back,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rbp,rbx,rsi,rdi,r12,r13,r14,r15
+        USES_XMM
+        COMP_ABI 2
 
-acc0 equ r8
-acc1 equ r9
-acc2 equ r10
-acc3 equ r11
-acc4 equ r12
-acc5 equ r13
-acc6 equ r14
-acc7 equ r15
+%xdefine acc0  r8
+%xdefine acc1  r9
+%xdefine acc2  r10
+%xdefine acc3  r11
+%xdefine acc4  r12
+%xdefine acc5  r13
+%xdefine acc6  r14
+%xdefine acc7  r15
 
-t0 equ rcx
-t1 equ rbp
-t2 equ rbx
-t3 equ rdx
-t4 equ rax
+%xdefine t0  rcx
+%xdefine t1  rbp
+%xdefine t2  rbx
+%xdefine t3  rdx
+%xdefine t4  rax
 
-   mov   acc2, qword ptr[rsi+sizeof(qword)*0]
-   mov   acc3, qword ptr[rsi+sizeof(qword)*1]
-   mov   acc4, qword ptr[rsi+sizeof(qword)*2]
-   mov   acc5, qword ptr[rsi+sizeof(qword)*3]
+   mov   acc2, qword [rsi+sizeof(qword)*0]
+   mov   acc3, qword [rsi+sizeof(qword)*1]
+   mov   acc4, qword [rsi+sizeof(qword)*2]
+   mov   acc5, qword [rsi+sizeof(qword)*3]
    xor   acc0, acc0
    xor   acc1, acc1
 
@@ -1224,10 +1239,10 @@ t4 equ rax
    mov   t2, acc2
    mov   t3, acc3
 
-   sub   t0, qword ptr Lpoly+sizeof(qword)*0
-   sbb   t1, qword ptr Lpoly+sizeof(qword)*1
-   sbb   t2, qword ptr Lpoly+sizeof(qword)*2
-   sbb   t3, qword ptr Lpoly+sizeof(qword)*3
+   sub   t0, qword [rel Lpoly+sizeof(qword)*0]
+   sbb   t1, qword [rel Lpoly+sizeof(qword)*1]
+   sbb   t2, qword [rel Lpoly+sizeof(qword)*2]
+   sbb   t3, qword [rel Lpoly+sizeof(qword)*3]
    sbb   acc4, 0
 
    cmovnc acc0, t0
@@ -1235,52 +1250,52 @@ t4 equ rax
    cmovnc acc2, t2
    cmovnc acc3, t3
 
-   mov   qword ptr[rdi+sizeof(qword)*0], acc0
-   mov   qword ptr[rdi+sizeof(qword)*1], acc1
-   mov   qword ptr[rdi+sizeof(qword)*2], acc2
-   mov   qword ptr[rdi+sizeof(qword)*3], acc3
+   mov   qword [rdi+sizeof(qword)*0], acc0
+   mov   qword [rdi+sizeof(qword)*1], acc1
+   mov   qword [rdi+sizeof(qword)*2], acc2
+   mov   qword [rdi+sizeof(qword)*3], acc3
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_mont_back ENDP
+ENDFUNC sm2_mont_back
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; void sm2_select_pp_w5(SM2_POINT *val, const SM2_POINT *in_t, int index);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_select_pp_w5 PROC PUBLIC FRAME
-   USES_GPR rsi,rdi,r12,r13
-   LOCAL_FRAME = 0
-   USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12,xmm13,xmm14,xmm15
-   COMP_ABI 3
+align IPP_ALIGN_FACTOR
+IPPASM sm2_select_pp_w5,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi,r12,r13
+        USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12,xmm13,xmm14,xmm15
+        COMP_ABI 3
 
-val   equ   rdi
-in_t  equ   rsi
-idx   equ   edx
+%xdefine val   rdi
+%xdefine in_t  rsi
+%xdefine idx   edx
 
-ONE   equ   xmm0
-INDEX equ   xmm1
+%xdefine ONE   xmm0
+%xdefine INDEX xmm1
 
-Ra equ   xmm2
-Rb equ   xmm3
-Rc equ   xmm4
-Rd equ   xmm5
-Re equ   xmm6
-Rf equ   xmm7
+%xdefine Ra    xmm2
+%xdefine Rb    xmm3
+%xdefine Rc    xmm4
+%xdefine Rd    xmm5
+%xdefine Re    xmm6
+%xdefine Rf    xmm7
 
-M0    equ xmm8
-T0a   equ xmm9
-T0b   equ xmm10
-T0c   equ xmm11
-T0d   equ xmm12
-T0e   equ xmm13
-T0f   equ xmm14
-TMP0  equ xmm15
+%xdefine M0   xmm8
+%xdefine T0a  xmm9
+%xdefine T0b  xmm10
+%xdefine T0c  xmm11
+%xdefine T0d  xmm12
+%xdefine T0e  xmm13
+%xdefine T0f  xmm14
+%xdefine TMP0 xmm15
 
-   movdqa   ONE, oword ptr LOne
+   movdqa   ONE, oword [rel LOne]
 
    movdqa   M0, ONE
 
@@ -1295,18 +1310,18 @@ TMP0  equ xmm15
    pxor     Rf, Rf
 
    ; Skip index = 0, is implicictly infty -> load with offset -1
-   mov      rcx, 16
-select_loop_sse_w5:
+   mov      rcx, dword 16
+.select_loop_sse_w5:
       movdqa   TMP0, M0
       pcmpeqd  TMP0, INDEX
       paddd    M0, ONE
 
-      movdqa   T0a, oword ptr[in_t+sizeof(oword)*0]
-      movdqa   T0b, oword ptr[in_t+sizeof(oword)*1]
-      movdqa   T0c, oword ptr[in_t+sizeof(oword)*2]
-      movdqa   T0d, oword ptr[in_t+sizeof(oword)*3]
-      movdqa   T0e, oword ptr[in_t+sizeof(oword)*4]
-      movdqa   T0f, oword ptr[in_t+sizeof(oword)*5]
+      movdqa   T0a, oword [in_t+sizeof(oword)*0]
+      movdqa   T0b, oword [in_t+sizeof(oword)*1]
+      movdqa   T0c, oword [in_t+sizeof(oword)*2]
+      movdqa   T0d, oword [in_t+sizeof(oword)*3]
+      movdqa   T0e, oword [in_t+sizeof(oword)*4]
+      movdqa   T0f, oword [in_t+sizeof(oword)*5]
       add      in_t, sizeof(oword)*6
 
       pand     T0a, TMP0
@@ -1323,54 +1338,54 @@ select_loop_sse_w5:
       por      Re, T0e
       por      Rf, T0f
       dec      rcx
-      jnz      select_loop_sse_w5
+      jnz      .select_loop_sse_w5
 
-   movdqu   oword ptr[val+sizeof(oword)*0], Ra
-   movdqu   oword ptr[val+sizeof(oword)*1], Rb
-   movdqu   oword ptr[val+sizeof(oword)*2], Rc
-   movdqu   oword ptr[val+sizeof(oword)*3], Rd
-   movdqu   oword ptr[val+sizeof(oword)*4], Re
-   movdqu   oword ptr[val+sizeof(oword)*5], Rf
+   movdqu   oword [val+sizeof(oword)*0], Ra
+   movdqu   oword [val+sizeof(oword)*1], Rb
+   movdqu   oword [val+sizeof(oword)*2], Rc
+   movdqu   oword [val+sizeof(oword)*3], Rd
+   movdqu   oword [val+sizeof(oword)*4], Re
+   movdqu   oword [val+sizeof(oword)*5], Rf
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_select_pp_w5 ENDP
+ENDFUNC sm2_select_pp_w5
 
-IF _IPP32E LT _IPP32E_L9
-IFNDEF _DISABLE_ECP_SM2_HARDCODED_BP_TBL_
+%if _IPP32E < _IPP32E_L9
+%ifndef _DISABLE_ECP_SM2_HARDCODED_BP_TBL_
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; void sm2_select_ap_w7(SM2_POINT *val, const SM2_POINT *in_t, int index);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ALIGN IPP_ALIGN_FACTOR
-IPPASM sm2_select_ap_w7 PROC PUBLIC FRAME
-   USES_GPR rsi,rdi,r12,r13
-   LOCAL_FRAME = 0
-   USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12,xmm13,xmm14,xmm15
-   COMP_ABI 3
+align IPP_ALIGN_FACTOR
+IPPASM sm2_select_ap_w7,PUBLIC
+%assign LOCAL_FRAME 0
+        USES_GPR rsi,rdi,r12,r13
+        USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12,xmm13,xmm14,xmm15
+        COMP_ABI 3
 
-val   equ   rdi
-in_t  equ   rsi
-idx   equ   edx
+%xdefine val   rdi
+%xdefine in_t  rsi
+%xdefine idx   edx
 
-ONE   equ   xmm0
-INDEX equ   xmm1
+%xdefine ONE   xmm0
+%xdefine INDEX xmm1
 
-Ra equ   xmm2
-Rb equ   xmm3
-Rc equ   xmm4
-Rd equ   xmm5
+%xdefine Ra    xmm2
+%xdefine Rb    xmm3
+%xdefine Rc    xmm4
+%xdefine Rd    xmm5
 
-M0    equ xmm8
-T0a   equ xmm9
-T0b   equ xmm10
-T0c   equ xmm11
-T0d   equ xmm12
-TMP0  equ xmm15
+%xdefine M0    xmm8
+%xdefine T0a   xmm9
+%xdefine T0b   xmm10
+%xdefine T0c   xmm11
+%xdefine T0d   xmm12
+%xdefine TMP0  xmm15
 
-   movdqa   ONE, oword ptr LOne
+   movdqa   ONE, oword [rel LOne]
 
    pxor     Ra, Ra
    pxor     Rb, Rb
@@ -1383,16 +1398,16 @@ TMP0  equ xmm15
    pshufd   INDEX, INDEX, 0
 
    ; Skip index = 0, is implicictly infty -> load with offset -1
-   mov      rcx, 64
-select_loop_sse_w7:
+   mov      rcx, dword 64
+.select_loop_sse_w7:
       movdqa   TMP0, M0
       pcmpeqd  TMP0, INDEX
       paddd    M0, ONE
 
-      movdqa   T0a, oword ptr[in_t+sizeof(oword)*0]
-      movdqa   T0b, oword ptr[in_t+sizeof(oword)*1]
-      movdqa   T0c, oword ptr[in_t+sizeof(oword)*2]
-      movdqa   T0d, oword ptr[in_t+sizeof(oword)*3]
+      movdqa   T0a, oword [in_t+sizeof(oword)*0]
+      movdqa   T0b, oword [in_t+sizeof(oword)*1]
+      movdqa   T0c, oword [in_t+sizeof(oword)*2]
+      movdqa   T0d, oword [in_t+sizeof(oword)*3]
       add      in_t, sizeof(oword)*4
 
       pand     T0a, TMP0
@@ -1405,19 +1420,20 @@ select_loop_sse_w7:
       por      Rc, T0c
       por      Rd, T0d
       dec      rcx
-      jnz      select_loop_sse_w7
+      jnz      .select_loop_sse_w7
 
-   movdqu   oword ptr[val+sizeof(oword)*0], Ra
-   movdqu   oword ptr[val+sizeof(oword)*1], Rb
-   movdqu   oword ptr[val+sizeof(oword)*2], Rc
-   movdqu   oword ptr[val+sizeof(oword)*3], Rd
+   movdqu   oword [val+sizeof(oword)*0], Ra
+   movdqu   oword [val+sizeof(oword)*1], Rb
+   movdqu   oword [val+sizeof(oword)*2], Rc
+   movdqu   oword [val+sizeof(oword)*3], Rd
 
    REST_XMM
    REST_GPR
    ret
-IPPASM sm2_select_ap_w7 ENDP
-ENDIF
-ENDIF ;; _IPP32E < _IPP32E_L9
+ENDFUNC sm2_select_ap_w7
 
-ENDIF ;; _IPP32E>=_IPP32E_M7
-END
+%endif
+%endif ;; _IPP32E < _IPP32E_L9
+
+%endif ;; _IPP32E>=_IPP32E_M7
+

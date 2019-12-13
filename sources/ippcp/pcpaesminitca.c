@@ -163,7 +163,6 @@ IPPFUN(IppStatus, ippsAESInit,(const Ipp8u* pKey, int keyLen,
                            RIJ_DKEYS(pCtx));
 
             #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPOSITE_GF_)
-            #pragma message("AES round keys: _ALG_AES_SAFE_COMPOSITE_GF_ compatible")
             {
                int nr;
                Ipp8u* pEnc_key = (Ipp8u*)(RIJ_EKEYS(pCtx));
@@ -177,7 +176,6 @@ IPPFUN(IppStatus, ippsAESInit,(const Ipp8u* pKey, int keyLen,
                RIJ_DECODER(pCtx) = SafeDecrypt_RIJ128; /* safe decoder (composite GF)*/
             }
             #else
-            #pragma message("AES round keys: _ALG_AES_SAFE_COMPACT_SBOX_ compatible")
             {
                int nr;
                Ipp8u* pEnc_key = (Ipp8u*)(RIJ_EKEYS(pCtx));

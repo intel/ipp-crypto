@@ -41,35 +41,36 @@
 ;
 ;     Purpose:  Cryptography Primitive.
 ;               Big Number Arithmetic
-; 
+;
 ;     Content:
 ;        cpMulDgt_BNU()
 ;        cpAddMulDgt_BNU()
 ;        cpSubMulDgtBNU()
 ;
-.686P
-.387
-.XMM
-.MODEL FLAT,C
 
-INCLUDE asmdefs.inc
-INCLUDE ia_emm.inc
 
-IF _IPP GE _IPP_W7
-INCLUDE pcpvariant.inc
 
-IPPCODE SEGMENT 'CODE' ALIGN (IPP_ALIGN_FACTOR)
 
-IF (_USE_C_cpAddMulDgt_BNU_ EQ 0)
+
+%include "asmdefs.inc"
+%include "ia_emm.inc"
+
+%if (_IPP >= _IPP_W7)
+%include "pcpvariant.inc"
+
+segment .text align=IPP_ALIGN_FACTOR
+
+%if (_USE_C_cpAddMulDgt_BNU_ == 0)
 ;;
 ;; Ipp32u cpAddMulDgt_BNU(Ipp32u* pDst, const Ipp32u* pSrc, cpSize len, Ipp32u dgt)
 ;;
-IPPASM cpAddMulDgt_BNU PROC NEAR C PUBLIC \
-      USES edi, \
-      pDst: PTR DWORD,  \ ; target address
-      pSrc: PTR DWORD,  \ ; source address
-      len:      DWORD,  \ ; BNU length
-      dgt:      DWORD     ; 32-bit multiplier
+IPPASM cpAddMulDgt_BNU,PUBLIC
+  USES_GPR edi
+
+%xdefine pDst [esp + ARG_1 + 0*sizeof(dword)] ; target address
+%xdefine pSrc [esp + ARG_1 + 1*sizeof(dword)] ; source address
+%xdefine len  [esp + ARG_1 + 2*sizeof(dword)] ; BNU length
+%xdefine dgt  [esp + ARG_1 + 3*sizeof(dword)] ; 32-bit multiplier
 
    mov      eax,pSrc    ; src
    mov      edx,pDst    ; dst
@@ -80,24 +81,25 @@ IPPASM cpAddMulDgt_BNU PROC NEAR C PUBLIC \
    movd     mm0,dgt
    pandn    mm7,mm7 ;c
 
-main_loop:
-   movd     mm1,DWORD PTR[eax + ecx]
-   movd     mm2,DWORD PTR[edx + ecx]
+.main_loop:
+   movd     mm1,DWORD [eax + ecx]
+   movd     mm2,DWORD [edx + ecx]
    pmuludq  mm1,mm0
    paddq    mm7,mm1
    paddq    mm7,mm2
-   movd     DWORD PTR[edx + ecx],mm7
+   movd     DWORD [edx + ecx],mm7
    psrlq    mm7,32
    add      ecx,4
    cmp      ecx,edi
-   jl       main_loop
+   jl       .main_loop
 
    movd     eax,mm7
 
    emms
+   REST_GPR
    ret
-IPPASM cpAddMulDgt_BNU endp
-ENDIF
+ENDFUNC cpAddMulDgt_BNU
+%endif
 
-ENDIF
-END
+%endif
+

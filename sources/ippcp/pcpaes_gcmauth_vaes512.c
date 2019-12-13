@@ -55,6 +55,9 @@
 #include "pcpaesauthgcm.h"
 
 #if (_IPP32E>=_IPP32E_K0)
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#pragma warning(disable: 4310) // cast truncates constant value in MSVC
+#endif
 
 /* AES-GCM authentication function. It calculates GHASH of the source input */
 void AesGcmAuth_vaes(Ipp8u* pGHash,
@@ -63,6 +66,8 @@ void AesGcmAuth_vaes(Ipp8u* pGHash,
                      const Ipp8u* pHKey,
                      const void* pParam)
 {
+   IPP_UNREFERENCED_PARAMETER(pParam);
+
    __m512i* pSrc512  = (__m512i*)pSrc;
    __m512i* pHKey512 = (__m512i*)pHKey;
 
@@ -202,7 +207,6 @@ void AesGcmAuth_vaes(Ipp8u* pGHash,
    // at least one block left (max 3 blocks)
    if (blocks) {
       __mmask8 k8   = (1 << (blocks + blocks)) - 1;   // 64-bit chunks
-      __mmask16 k16 = (1 << (blocks << 2)) - 1;       // 32-bit chunks
 
       __m512i blk0 = _mm512_maskz_loadu_epi64(k8, pSrc512);
       blk0 = _mm512_shuffle_epi8(blk0, M512(swapBytes));

@@ -61,10 +61,11 @@
 /*
 // authenticates n*BLOCK_SIZE bytes
 */
-#if !((_IPP==_IPP_V8) || (_IPP==_IPP_P8) || \
-      (_IPP==_IPP_S8) || (_IPP>=_IPP_G9) || \
-      (_IPP32E==_IPP32E_U8) || (_IPP32E==_IPP32E_Y8) || \
-      (_IPP32E==_IPP32E_N8) || (_IPP32E>=_IPP32E_E9))
+//#if !((_IPP==_IPP_V8) || (_IPP==_IPP_P8) || \
+//      (_IPP==_IPP_S8) || (_IPP>=_IPP_G9) || \
+//      (_IPP32E==_IPP32E_U8) || (_IPP32E==_IPP32E_Y8) || \
+//      (_IPP32E==_IPP32E_N8) || (_IPP32E>=_IPP32E_E9))
+#if 0
 void AesGcmAuth_table2K(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam)
 {
    IPP_UNREFERENCED_PARAMETER(pParam);
@@ -80,4 +81,21 @@ void AesGcmAuth_table2K(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* p
    }
 }
 #endif
+
+void AesGcmAuth_table2K_ct(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam)
+{
+   IPP_UNREFERENCED_PARAMETER(pParam);
+
+   while (len >= BLOCK_SIZE) {
+      /* add src */
+      XorBlock16(pSrc, pHash, pHash);
+      /* hash it */
+      AesGcmMulGcm_table2K_ct(pHash, pHKey, AesGcmConst_table);
+
+      pSrc += BLOCK_SIZE;
+      len -= BLOCK_SIZE;
+   }
+}
+
+//#endif
 
