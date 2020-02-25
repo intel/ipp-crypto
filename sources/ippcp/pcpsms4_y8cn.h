@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2019-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -73,6 +49,9 @@ static __ALIGN16 Ipp8u lowBits4[]  = {0x0f,0x0f,0x0f,0x0f,0x0f,0x0f,0x0f,0x0f,0x
 
 static __ALIGN16 Ipp8u swapBytes[] = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
 
+static __ALIGN16 Ipp8u affineIn[] = { 0x52,0xBC,0x2D,0x02,0x9E,0x25,0xAC,0x34, 0x52,0xBC,0x2D,0x02,0x9E,0x25,0xAC,0x34 };
+static __ALIGN16 Ipp8u affineOut[] = { 0x19,0x8b,0x6c,0x1e,0x51,0x8e,0x2d,0xd7, 0x19,0x8b,0x6c,0x1e,0x51,0x8e,0x2d,0xd7 };
+
 #define M128(mem)    (*((__m128i*)((Ipp8u*)(mem))))
 
 /*
@@ -84,7 +63,7 @@ static __ALIGN16 Ipp8u swapBytes[] = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
 //
 */
 
-__INLINE __m128i affine(__m128i x, __m128i maskLO, __m128i maskHI)
+__FORCEINLINE __m128i affine(__m128i x, __m128i maskLO, __m128i maskHI)
 {
    __m128i T1 = _mm_and_si128(_mm_srli_epi64(x, 4), M128(lowBits4));
    __m128i T0 = _mm_and_si128(x, M128(lowBits4));
@@ -111,17 +90,18 @@ __INLINE __m128i affine(__m128i x, __m128i maskLO, __m128i maskHI)
 //
 */
 
-__INLINE __m128i sBox(__m128i block)
+__FORCEINLINE __m128i sBox(__m128i block)
 {
    block = affine(block, M128(inpMaskLO), M128(inpMaskHI));
    block = _mm_aesenclast_si128(block, M128(encKey));
    block = _mm_shuffle_epi8(block, M128(maskSrows));
    block = affine(block, M128(outMaskLO), M128(outMaskHI));
+   
    return block;
 }
 
 #if (_IPP==_IPP_I0) || (_IPP32E==_IPP32E_N0)
-__INLINE __m128i L(__m128i x)
+__FORCEINLINE __m128i L(__m128i x)
 {
    __m128i T = _mm_slli_epi32(x, 2);
    T = _mm_xor_si128(T, _mm_srli_epi32(x, 30));
@@ -141,7 +121,7 @@ static __ALIGN16 Ipp8u ROL8[] = { 3,0,1,2,  7,4,5,6,  11,8,9,10,  15,12,13,14 };
 static __ALIGN16 Ipp8u ROL16[] = { 2,3,0,1,  6,7,4,5,  10,11,8,9,  14,15,12,13 };
 static __ALIGN16 Ipp8u ROL24[] = { 1,2,3,0,  5,6,7,4,  9,10,11,8,  13,14,15,12 };
 
-__INLINE __m128i L(__m128i x)
+__FORCEINLINE __m128i L(__m128i x)
 {
    __m128i rol2 = _mm_xor_si128(_mm_slli_epi32(x, 2), _mm_srli_epi32(x, 30));
    __m128i rol24 = _mm_shuffle_epi8(x, M128(ROL24));

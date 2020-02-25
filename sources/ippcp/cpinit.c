@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2001-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2001-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -131,7 +107,7 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
 
     cpGetReg((int*)buf, 0, 0);          //get max value for basic info.
     idBaseMax = buf[0];
-    cpGetReg((int*)buf, 0x80000000, 0); //get max value for extended info.
+    cpGetReg((int*)buf, (Ipp32s)0x80000000, 0); //get max value for extended info.
     idExtdMax = buf[0];
 
     cpGetReg( (int*)buf, 1, 0 );
@@ -183,7 +159,8 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
        if( ebx_ & BIT17 ) mask |= ippCPUID_AVX512DQ;  // ebx[17] - Intel(R) AVX-512 Dword & Quadword
        if( ebx_ & BIT30 ) mask |= ippCPUID_AVX512BW;  // ebx[30] - Intel(R) AVX-512 Byte & Word
        if( ebx_ & BIT31 ) mask |= ippCPUID_AVX512VL;  // ebx[31] - Intel(R) AVX-512 Vector Length extensions
-       if( ecx_ & BIT01 ) mask |= ippCPUID_AVX512VBMI; // ecx[01] - Intel(R) AVX-512 Vector Byte Manipulation Instructions
+       if( ecx_ & BIT01 ) mask |= ippCPUID_AVX512VBMI; // ecx[01] - Intel(R) AVX-512 Vector Bit Manipulation Instructions
+       if( ecx_ & BIT06 ) mask |= ippCPUID_AVX512VBMI2; // ecx[06] - Intel(R) AVX-512 Vector Bit Manipulation Instructions 2
        if( edx_ & BIT02 ) mask |= ippCPUID_AVX512_4VNNIW; // edx[02] - Intel(R) AVX-512 Vector instructions for deep learning enhanced word variable precision
        if( edx_ & BIT03 ) mask |= ippCPUID_AVX512_4FMADDPS; // edx[03] - Intel(R) AVX-512 Vector instructions for deep learning floating-point single precision
        // bitwise OR between ippCPUID_MPX & ippCPUID_AVX flags can be used to define that arch is GE than formerly codenamed Skylake
@@ -213,7 +190,7 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
     mask = ( flgFMA && flgINT && flgGPR ) ? (mask | ippCPUID_AVX2) : mask; // to separate Intel(R) AVX2 flags here
 
     if( idExtdMax >= 0x80000001 ){ // get CPUID.eax=0x80000001
-       cpGetReg( (int*)buf, 0x80000001, 0 );
+       cpGetReg( (int*)buf, (Ipp32s)0x80000001, 0 );
        ecx_ = (Ipp32u)buf[2];
            // Intel(R) architecture formerly codenamed Broadwell instructions extention
        if( ecx_ & BIT08 ) mask |= ippCPUID_PREFETCHW; // eax[0x80000001] -->> ecx:: Bit 8: Intel(R) instruction PREFETCHW

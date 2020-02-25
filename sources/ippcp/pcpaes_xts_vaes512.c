@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2019-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -63,13 +39,15 @@
 #pragma warning(disable: 4310) // cast truncates constant value in MSVC
 #endif
 
-__INLINE __m512i produceInitial512Tweaks(Ipp8u* pTweak) {
+__INLINE __m512i produceInitial512Tweaks(Ipp8u* pTweak)
+{
    __ALIGN64 Ipp8u tempTweakBuffer[AES_BLK_SIZE * 4]; // 512 bit
    cpXTSwhitening(tempTweakBuffer, 4 /*512bit*/, pTweak);
    return _mm512_load_epi64(tempTweakBuffer);
 }
 
-__INLINE __m512i nextTweaks(__m512i tweak128x4, __m512i polyXor) {
+__INLINE __m512i nextTweaks(__m512i tweak128x4, __m512i polyXor)
+{
    __m512i swapTweaks = _mm512_shuffle_epi32(tweak128x4, _MM_PERM_BADC);
 
    __m512i highBits = _mm512_srai_epi64(swapTweaks, 63);
@@ -98,7 +76,8 @@ __INLINE __m512i nextTweaks(__m512i tweak128x4, __m512i polyXor) {
    return tweak128x4;
 }
 
-void cpAESEncryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak) {
+void cpAESEncryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak) 
+{
    if (0 == nBlks) {
       return; // do not modify tweak value
    }
@@ -223,12 +202,12 @@ void cpAESEncryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const I
 
    iniTweak = useIniTweaks ? iniTweak : nextTweaks(iniTweak, polyXor);
    {
-      __mmask8 maskTweakToReturn = ((Ipp8u)0x03u << (blocks << 1));
+      __mmask8 maskTweakToReturn = (__mmask8)(((Ipp8u)0x03u << (blocks << 1)));
       _mm512_mask_compressstoreu_epi64(pTweak, maskTweakToReturn /* the first unused tweak */, iniTweak);
    }
 
    if (blocks) {
-      __mmask8 k = (1 << (blocks + blocks)) - 1;
+      __mmask8 k = (__mmask8)((1 << (blocks + blocks)) - 1);
       __m512i blk0 = _mm512_maskz_loadu_epi64(k, pInp512);
 
       blk0 = _mm512_xor_epi64(iniTweak, blk0);
@@ -241,7 +220,8 @@ void cpAESEncryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const I
    }
 }
 
-void cpAESDecryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak) {
+void cpAESDecryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak)
+{
    if (0 == nBlks) {
       return; // do not modify tweak value
    }
@@ -366,12 +346,12 @@ void cpAESDecryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const I
 
    iniTweak = useIniTweaks ? iniTweak : nextTweaks(iniTweak, polyXor);
    {
-      __mmask8 maskTweakToReturn = ((Ipp8u)0x03u << (blocks << 1));
+      __mmask8 maskTweakToReturn = (__mmask8)((Ipp8u)0x03u << (blocks << 1));
       _mm512_mask_compressstoreu_epi64(pTweak, maskTweakToReturn /* the first unused tweak */, iniTweak);
    }
 
    if (blocks) {
-      __mmask8 k = (1 << (blocks + blocks)) - 1;
+      __mmask8 k = (__mmask8)((1 << (blocks + blocks)) - 1);
       __m512i blk0 = _mm512_maskz_loadu_epi64(k, pInp512);
 
       blk0 = _mm512_xor_epi64(iniTweak, blk0);

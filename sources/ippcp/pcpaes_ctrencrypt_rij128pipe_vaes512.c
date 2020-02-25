@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2013-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2013-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -125,7 +101,7 @@ void EncryptCTR_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,
    Ipp64u ctr64_h = ENDIANNESS64(pCtr64[0]); // high 64-bit of BE counter converted to LE
    Ipp64u ctr64_l = ENDIANNESS64(pCtr64[1]); // low 64-bit of BE counter converted to LE
 
-   __m512i ctr512 = _mm512_set4_epi64(ctr64_l, ctr64_h, ctr64_l , ctr64_h);
+   __m512i ctr512 = _mm512_set4_epi64((Ipp64s)ctr64_l, (Ipp64s)ctr64_h, (Ipp64s)ctr64_l , (Ipp64s)ctr64_h);
 
    int blocks;
    __m512i incMsk = M512(startIncLoMask);
@@ -244,8 +220,8 @@ void EncryptCTR_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,
    }
 
    if (blocks) {
-      __mmask8 k8   = (1 << (blocks + blocks)) - 1;   // 64-bit chunks
-      __mmask64 k64 = (1LL << (blocks << 4)) - 1;     // 8-bit chunks
+      __mmask8 k8   = (__mmask8)((1 << (blocks + blocks)) - 1);   // 64-bit chunks
+      __mmask64 k64 = (__mmask64)((1LL << (blocks << 4)) - 1);     // 8-bit chunks
 
       __m512i counter0 = _mm512_maskz_add_epi64(k8, incMsk, ctr512);
       __mmask8 overMsk = _mm512_mask_cmplt_epu64_mask(k8, counter0, ctr512);
@@ -268,8 +244,8 @@ void EncryptCTR_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,
    }
 
    // return last counter
-   __mmask8  lastCtrK8  = blocks == 0 ? 0xC0 : ((Ipp8u)0x03<<((blocks-1)<<1));
-   __mmask64 lastCtrK64 = blocks == 0 ? 0xFFFF000000000000 : ((Ipp64u)0xFFFF<<((blocks-1)<<4));
+   __mmask8  lastCtrK8  = blocks == 0 ? 0xC0 : (__mmask8)((Ipp8u)0x03<<((blocks-1)<<1));
+   __mmask64 lastCtrK64 = blocks == 0 ? 0xFFFF000000000000 : (__mmask64)((Ipp64u)0xFFFF<<((blocks-1)<<4));
 
    ctr512 = adcLo_epi64(M512(incLoByOneMask), ctr512);
 

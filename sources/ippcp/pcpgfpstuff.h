@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2010-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2010-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -122,13 +98,13 @@ __INLINE BNU_CHUNK_T* cpGFpElementCopy(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pE, i
    for(n=0; n<nsE; n++) pR[n] = pE[n];
    return pR;
 }
-__INLINE BNU_CHUNK_T* cpGFpElementPadd(BNU_CHUNK_T* pE, int nsE, BNU_CHUNK_T filler)
+__INLINE BNU_CHUNK_T* cpGFpElementPad(BNU_CHUNK_T* pE, int nsE, BNU_CHUNK_T filler)
 {
    int n;
    for(n=0; n<nsE; n++) pE[n] = filler;
    return pE;
 }
-__INLINE BNU_CHUNK_T* cpGFpElementCopyPadd(BNU_CHUNK_T* pR, int nsR, const BNU_CHUNK_T* pE, int nsE)
+__INLINE BNU_CHUNK_T* cpGFpElementCopyPad(BNU_CHUNK_T* pR, int nsR, const BNU_CHUNK_T* pE, int nsE)
 {
    int n;
    for(n=0; n<nsE; n++) pR[n] = pE[n];
@@ -142,13 +118,16 @@ __INLINE int cpGFpElementCmp(const BNU_CHUNK_T* pE, const BNU_CHUNK_T* pX, int n
 
 __INLINE int cpGFpElementIsEquChunk(const BNU_CHUNK_T* pE, int nsE, BNU_CHUNK_T x)
 {
-   int isEqu = (pE[0] == x);
-   return isEqu && (1==cpGFpElementLen(pE, nsE));
+   BNU_CHUNK_T res = pE[0] ^ x;
+   int n;
+   for(n=1; n<nsE; n++)
+      res |= pE[n];
+   return cpIsZero_ct(res) & 1;
 }
 
 __INLINE BNU_CHUNK_T* cpGFpElementSetChunk(BNU_CHUNK_T* pR, int nsR, BNU_CHUNK_T x)
 {
-   return cpGFpElementCopyPadd(pR, nsR, &x, 1);
+   return cpGFpElementCopyPad(pR, nsR, &x, 1);
 }
 
 __INLINE BNU_CHUNK_T* cpGFpAdd(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsModEngine* pGFE)

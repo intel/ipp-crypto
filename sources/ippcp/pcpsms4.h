@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2013-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2013-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -131,8 +107,8 @@ __INLINE Ipp8u getSboxValue(Ipp8u x)
    Ipp32u _x = x/sizeof(BNU_CHUNK_T);
    Ipp32u i;
    for(i=0; i<sizeof(SMS4_Sbox)/sizeof(BNU_CHUNK_T); i++) {
-      BNS_CHUNK_T mask = cpIsEqu_ct(_x, i);
-      selection |= SboxEntry[i] & mask;
+      BNS_CHUNK_T mask = (BNS_CHUNK_T)cpIsEqu_ct(_x, i);
+      selection |= SboxEntry[i] & (BNU_CHUNK_T)mask;
    }
    selection >>= (x & SELECTION_BITS)*8;
    return (Ipp8u)(selection & 0xFF);
@@ -142,9 +118,9 @@ __INLINE Ipp8u getSboxValue(Ipp8u x)
 __INLINE Ipp32u cpSboxT_SMS4(Ipp32u x)
 {
    Ipp32u y = getSboxValue(x & 0xFF);
-   y |= getSboxValue((x>> 8) & 0xFF) <<8;
-   y |= getSboxValue((x>>16) & 0xFF) <<16;
-   y |= getSboxValue((x>>24) & 0xFF) <<24;
+   y |= (Ipp32u)(getSboxValue((x>> 8) & 0xFF) <<8);
+   y |= (Ipp32u)(getSboxValue((x>>16) & 0xFF) <<16);
+   y |= (Ipp32u)(getSboxValue((x>>24) & 0xFF) <<24);
    return y;
 }
 
@@ -201,7 +177,23 @@ int     cpSMS4_CTR_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* 
     int cpSMS4_CBC_dec_aesni_x12(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV);
 #define cpSMS4_CTR_aesni_x4 OWNAPI(cpSMS4_CTR_aesni_x4)
     int cpSMS4_CTR_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr);
-#endif
+
+#if (_IPP32E>=_IPP32E_K0)
+#if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+
+#define cpSMS4_ECB_gfni_x1 OWNAPI(cpSMS4_ECB_gfni_x1)
+   void cpSMS4_ECB_gfni_x1(Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey);
+#define cpSMS4_ECB_gfni512 OWNAPI(cpSMS4_ECB_gfni512)
+    int cpSMS4_ECB_gfni512(Ipp8u* pDst, const Ipp8u* pSrc, int nLen, const Ipp32u* pRKey);
+#define cpSMS4_CBC_dec_gfni512 OWNAPI(cpSMS4_CBC_dec_gfni512)
+    int cpSMS4_CBC_dec_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV);
+#define cpSMS4_CTR_gfni512 OWNAPI(cpSMS4_CTR_gfni512)
+    int cpSMS4_CTR_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr);
+
+#endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
+#endif /* (_IPP32E>=_IPP32E_K0) */
+
+#endif /* (_IPP>=_IPP_H9) || (_IPP32E>=_IPP32E_L9) */
 
 #endif
 

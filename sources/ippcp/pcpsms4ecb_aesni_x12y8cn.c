@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2014-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2014-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -195,7 +171,7 @@ int cpSMS4_ECB_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
 
       for(itr=0; itr<8; itr++, pRKey+=4) {
          /* initial xors */
-         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[0]), 0);
+         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[0]), 0);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
@@ -205,7 +181,7 @@ int cpSMS4_ECB_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
          TMP[1] = _mm_xor_si128(_mm_xor_si128(TMP[1], TMP[0]), L(TMP[0]));
 
          /* initial xors */
-         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[1]), 0);
+         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[1]), 0);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
@@ -215,7 +191,7 @@ int cpSMS4_ECB_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
          TMP[2] = _mm_xor_si128(_mm_xor_si128(TMP[2], TMP[0]), L(TMP[0]));
 
          /* initial xors */
-         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[2]), 0);
+         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[2]), 0);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
@@ -225,7 +201,7 @@ int cpSMS4_ECB_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
          TMP[3] = _mm_xor_si128(_mm_xor_si128(TMP[3], TMP[0]), L(TMP[0]));
 
          /* initial xors */
-         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[3]), 0);
+         TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[3]), 0);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[1]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
@@ -309,7 +285,7 @@ int cpSMS4_ECB_aesni_x8(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
 
       for(itr=0; itr<8; itr++, pRKey+=4) {
          /* initial xors */
-         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[0]), 0);
+         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[0]), 0);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[5]);
@@ -324,7 +300,7 @@ int cpSMS4_ECB_aesni_x8(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
          TMP[6] = _mm_xor_si128(_mm_xor_si128(TMP[6], TMP[1]), L(TMP[1]));
 
          /* initial xors */
-         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[1]), 0);
+         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[1]), 0);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[5]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
@@ -339,7 +315,7 @@ int cpSMS4_ECB_aesni_x8(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
          TMP[7] = _mm_xor_si128(_mm_xor_si128(TMP[7], TMP[1]), L(TMP[1]));
 
          /* initial xors */
-         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[2]), 0);
+         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[2]), 0);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[5]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
@@ -354,7 +330,7 @@ int cpSMS4_ECB_aesni_x8(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
          TMP[8] = _mm_xor_si128(_mm_xor_si128(TMP[8], TMP[1]), L(TMP[1]));
 
          /* initial xors */
-         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[3]), 0);
+         TMP[1] = TMP[0] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[3]), 0);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[2]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);
          TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
@@ -475,7 +451,7 @@ int cpSMS4_ECB_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKe
 
       for(itr=0; itr<8; itr++, pRKey+=4) {
          /* initial xors */
-         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[0]), 0);
+         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[0]), 0);
          TMP[2] = TMP[1];
          TMP[0] = TMP[1];
          TMP[0] = _mm_xor_si128(TMP[0], TMP[4]);
@@ -497,7 +473,7 @@ int cpSMS4_ECB_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKe
          TMP[11] = _mm_xor_si128(_mm_xor_si128(TMP[11], TMP[2]), L(TMP[2]));
 
          /* initial xors */
-         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[1]), 0);
+         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[1]), 0);
          TMP[2] = TMP[1];
          TMP[0] = TMP[1];
          TMP[0] = _mm_xor_si128(TMP[0], TMP[5]);
@@ -519,7 +495,7 @@ int cpSMS4_ECB_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKe
          TMP[12] = _mm_xor_si128(_mm_xor_si128(TMP[12], TMP[2]), L(TMP[2]));
 
          /* initial xors */
-         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[2]), 0);
+         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[2]), 0);
          TMP[2] = TMP[1];
          TMP[0] = TMP[1];
          TMP[0] = _mm_xor_si128(TMP[0], TMP[6]);
@@ -541,7 +517,7 @@ int cpSMS4_ECB_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKe
          TMP[13] = _mm_xor_si128(_mm_xor_si128(TMP[13], TMP[2]), L(TMP[2]));
 
          /* initial xors */
-         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128(pRKey[3]), 0);
+         TMP[1] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[3]), 0);
          TMP[2] = TMP[1];
          TMP[0] = TMP[1];
          TMP[0] = _mm_xor_si128(TMP[0], TMP[3]);

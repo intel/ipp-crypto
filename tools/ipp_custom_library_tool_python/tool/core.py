@@ -1,5 +1,5 @@
 """
-Copyright 2019 Intel Corporation.
+Copyright 2019-2020 Intel Corporation.
 
 This software and the related documents are Intel copyrighted  materials,  and
 your use of  them is  governed by the  express license  under which  they were
@@ -17,7 +17,7 @@ eement/
 """
 
 import os
-from subprocess import call
+from subprocess import call  # nosec
 
 import tool.utils
 from tool.generators import EXPORT_GENERATORS, GENERATORS
@@ -63,7 +63,7 @@ def generate_script(package,
                                                                   multi_threaded=multi_threaded,
                                                                   threading_layer_type=threading_layer_type,
                                                                   sub_command=sub_command))
-    os.chmod(os.path.join(library_path, tool.utils.BUILD_SCRIPT[architecture][system_host]), 0o755)
+    os.chmod(os.path.join(library_path, tool.utils.BUILD_SCRIPT[architecture][system_host]), 0o745)
 
 
 def build(package,
@@ -103,7 +103,7 @@ def build(package,
                     sub_command=tool.utils.BUILD_COMMANDS[system_host][system_target](package_path, architecture)
                     )
     script_path = os.path.join(library_path, tool.utils.BUILD_SCRIPT[architecture][system_host])
-    call([script_path])
+    call([script_path])  # nosec
     os.remove(os.path.join(library_path, tool.utils.MAIN_FILE))
     os.remove(os.path.join(library_path, tool.utils.BUILD_SCRIPT[architecture][system_host]))
     os.remove(os.path.join(library_path, tool.utils.EXPORT_FILES[system_target]))

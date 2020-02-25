@@ -1,5 +1,5 @@
 """
-Copyright 2019 Intel Corporation.
+Copyright 2019-2020 Intel Corporation.
 
 This software and the related documents are Intel copyrighted  materials,  and
 your use of  them is  governed by the  express license  under which  they were
@@ -170,15 +170,15 @@ class FunctionsMenu(QWidget):
                or os.path.exists(os.path.join(path, 'env', 'vars' + BATCH_EXTENSIONS[utils.HOST_SYSTEM]))
 
     def get_path_to_libs(self, package, path):
-        if utils.HOST_SYSTEM == MACOSX and os.path.exists(os.path.join(path, 'lib')):
-            self.path_to_libs[package][utils.INTEL64] = os.path.join(path, 'lib')
+        if utils.HOST_SYSTEM == MACOSX and os.path.exists(os.path.join(path, utils.LIB)):
+            self.path_to_libs[package][utils.INTEL64] = os.path.join(path, utils.LIB)
             return
 
         for arch in self.path_to_libs[package].keys():
-            if os.path.exists(os.path.join(path, 'lib', arch)):
-                self.path_to_libs[package][arch]= os.path.join(path, 'lib', arch)
-            elif os.path.exists(os.path.join(path, 'lib', arch + '_' + utils.HOST_SYSTEM.lower()[:3])):
-                self.path_to_libs[package][arch] = os.path.join(path, 'lib', arch + '_' + utils.HOST_SYSTEM.lower()[:3])
+            if os.path.exists(os.path.join(path, utils.LIB, arch)):
+                self.path_to_libs[package][arch]= os.path.join(path, utils.LIB, arch)
+            elif os.path.exists(os.path.join(path, utils.LIB, arch + '_' + utils.HOST_SYSTEM.lower()[:3])):
+                self.path_to_libs[package][arch] = os.path.join(path, utils.LIB, arch + '_' + utils.HOST_SYSTEM.lower()[:3])
 
     def check_libs(self, path):
         if path:

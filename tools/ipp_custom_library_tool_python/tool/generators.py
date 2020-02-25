@@ -1,5 +1,5 @@
 """
-Copyright 2019 Intel Corporation.
+Copyright 2019-2020 Intel Corporation.
 
 This software and the related documents are Intel copyrighted  materials,  and
 your use of  them is  governed by the  express license  under which  they were
@@ -94,7 +94,7 @@ def generate_android_for_windows(package,
     linker = LINKERS[ANDROID][architecture]
     linker_args = LINKER_FLAGS[ANDROID][architecture]
     export_file = os.path.join(library_path, EXPORT_FILES[ANDROID])
-    library_file = os.path.join(destination, 'lib' + library_name)
+    library_file = os.path.join(destination, utils.LIB + library_name)
     libraries = get_libraries_list(package,
                                    WINDOWS,
                                    ANDROID,
@@ -151,7 +151,7 @@ def generate_linux_for_linux(package,
     linker = LINKERS[LINUX][architecture]
     ld_args = LINKER_FLAGS[LINUX][architecture]
     export_file = os.path.join(library_path, EXPORT_FILES[LINUX])
-    library_file = os.path.join(destination, 'lib' + library_name)
+    library_file = os.path.join(destination, utils.LIB + library_name)
     libraries = get_libraries_list(package,
                                    LINUX,
                                    LINUX,
@@ -159,7 +159,7 @@ def generate_linux_for_linux(package,
                                    threading_layer_type,
                                    multi_threaded)
     sys_libs_path = SYS_LIBS_PATH[LINUX][architecture]
-    compiler_libs_path = COMPILER_LIBS_PATH[LINUX][architecture]
+    compiler_libs_path = COMPILER_LIBS_PATH[LINUX][architecture].format(cnl_path=utils.COMPILERS_AND_LIBRARIES_PATH)
     exp_libs = EXP_LIBS[LINUX][threading_layer_type]
     if multi_threaded and threading_layer_type!=ThreadingLayerType.OPENMP:
         exp_libs += EXP_LIBS[LINUX][ThreadingLayerType.OPENMP]
@@ -200,7 +200,7 @@ def generate_android_for_linux(package,
     linker = LINKERS[ANDROID][architecture]
     linker_args = LINKER_FLAGS[ANDROID][architecture]
     export_file = os.path.join(library_path, EXPORT_FILES[ANDROID])
-    library_file = os.path.join(destination, 'lib' + library_name)
+    library_file = os.path.join(destination, utils.LIB + library_name)
     libraries = get_libraries_list(package,
                                    LINUX,
                                    ANDROID,
@@ -254,14 +254,14 @@ def generate_macosx_for_macosx(package,
     linker = LINKERS[MACOSX][architecture]
     linker_args = LINKER_FLAGS[MACOSX][architecture]
     export_file = os.path.join(library_path, EXPORT_FILES[MACOSX])
-    library_file = os.path.join(destination, 'lib' + library_name)
+    library_file = os.path.join(destination, utils.LIB + library_name)
     libraries = get_libraries_list(package,
                                    MACOSX,
                                    MACOSX,
                                    architecture,
                                    threading_layer_type,
                                    multi_threaded)
-    compiler_lib_path = COMPILER_LIBS_PATH[MACOSX][architecture]
+    compiler_lib_path = COMPILER_LIBS_PATH[MACOSX][architecture].format(cnl_path=utils.COMPILERS_AND_LIBRARIES_PATH)
     exp_libs = EXP_LIBS[MACOSX][threading_layer_type]
     if multi_threaded and threading_layer_type != ThreadingLayerType.OPENMP:
         exp_libs += EXP_LIBS[MACOSX][ThreadingLayerType.OPENMP]
@@ -305,7 +305,7 @@ def generate_android_for_macosx(package,
     linker = LINKERS[ANDROID][architecture]
     linker_args = LINKER_FLAGS[ANDROID][architecture]
     export_file = os.path.join(library_path, EXPORT_FILES[ANDROID])
-    library_file = os.path.join(destination, 'lib' + library_name)
+    library_file = os.path.join(destination, utils.LIB + library_name)
     libraries = get_libraries_list(package,
                                    MACOSX,
                                    ANDROID,
@@ -388,7 +388,7 @@ def list_to_arguments(libraries_list, root, host_system):
     path_to_library = OS_FAMILY[family][ENV_PREFIX] \
                       + root + OS_FAMILY[family][ENV_POSTFIX] \
                       + OS_FAMILY[family][DIR_SEPARATOR] \
-                      + 'lib' + OS_FAMILY[family][DIR_SEPARATOR]
+                      + utils.LIB + OS_FAMILY[family][DIR_SEPARATOR]
 
     return ' '.join(['"' + path_to_library + library + '"'
                      for library in libraries_list
@@ -402,7 +402,7 @@ def list_to_arguments(libraries_list, root, host_system):
 def get_libraries_list(package, host_system, target_system, architecture, threading_type, multithreaded):
     root = IPPROOT if package == IPP else IPPCRYPTOROOT
 
-    if os.path.exists(os.path.join(os.environ[root], 'lib', architecture)):
+    if os.path.exists(os.path.join(os.environ[root], utils.LIB, architecture)):
         arch_dir = architecture
     else:
         arch_dir = architecture + '_' + target_system.lower()[:3]

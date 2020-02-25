@@ -1,5 +1,5 @@
 """
-Copyright 2019 Intel Corporation.
+Copyright 2019-2020 Intel Corporation.
 
 This software and the related documents are Intel copyrighted  materials,  and
 your use of  them is  governed by the  express license  under which  they were
@@ -30,6 +30,7 @@ MACOSX = 'macOS'
 ANDROID = 'Android'
 TEMPORARY_FOLDER = './tmp'
 MAIN_FILE = 'main.c'
+LIB = 'lib'
 INTEL64 = 'intel64'
 IA32 = 'ia32'
 PROJECT_EXTENSION = '.cltproj'
@@ -423,9 +424,9 @@ STATIC_LIBRARIES_EXTENSIONS = {
 
 LIBRARIES_PREFIX = {
     WINDOWS: '',
-    LINUX: 'lib',
-    MACOSX: 'lib',
-    ANDROID: 'lib'
+    LINUX: LIB,
+    MACOSX: LIB,
+    ANDROID: LIB
 }
 
 SUPPORTED_ARCHITECTURES = {

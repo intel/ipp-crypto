@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2013-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2013-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -64,6 +40,7 @@
 //    ippStsContextMatchErr   !VALID_SMS4_ID()
 //    ippStsLengthErr         len <1
 //    ippStsCTRSizeErr        128 < ctrNumBitSize < 1
+//    ippStsCTRSizeErr        data blocks number > 2^ctrNumBitSize
 //    ippStsNoErr             no errors
 //
 // Parameters:
@@ -98,6 +75,27 @@ IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
    /* test counter block size */
    IPP_BADARG_RET(((MBS_SMS4*8)<ctrNumBitSize)||(ctrNumBitSize<1), ippStsCTRSizeErr);
 
+   /* test counter overflow */
+   if(ctrNumBitSize < (8 * sizeof(int) - 5))
+   {
+      /*
+      // dataLen is int, and it is always positive   
+      // data blocks number compute from dataLen     
+      // by dividing it to MBS_SMS4 = 16           
+      // and additing 1 if dataLen % 16 != 0         
+      // so if ctrNumBitSize >= 8 * sizeof(int) - 5                      
+      // function can process data with any possible 
+      // passed dataLen without counter overflow     
+      */
+      
+      int dataBlocksNum = dataLen >> 4;
+      if(dataLen & 15){
+         dataBlocksNum++;
+      }
+
+      IPP_BADARG_RET(dataBlocksNum > (1 << ctrNumBitSize), ippStsCTRSizeErr);
+   }
+
    {
       __ALIGN16 Ipp8u TMP[2*MBS_SMS4+1];
 
@@ -121,25 +119,36 @@ IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
       /* output is not used together with maskIV, so this is why buffer for both values is the same */
       Ipp8u* maskValue = TMP + 2*MBS_SMS4;
 
-      if(IsFeatureEnabled(ippCPUID_AES)) {
-         if(dataLen>=4*MBS_SMS4) {
-            /* construct ctr mask */
-            int n;
-            int maskPosition = (MBS_SMS4*8-ctrNumBitSize)/8;
-            *maskValue = (Ipp8u)(0xFF >> (MBS_SMS4*8-ctrNumBitSize)%8 );
+      if(dataLen>=4*MBS_SMS4) {
+         /* construct ctr mask */
+         int n;
+         int maskPosition = (MBS_SMS4*8-ctrNumBitSize)/8;
+         *maskValue = (Ipp8u)(0xFF >> (MBS_SMS4*8-ctrNumBitSize)%8 );
 
-            for(n=0; n<maskPosition; n++)
-               maskIV[n] = 0;
-            maskIV[maskPosition] = *maskValue;
-            for(n=maskPosition+1; n < MBS_SMS4; n++)
-               maskIV[n] = 0xFF;
+         for(n=0; n<maskPosition; n++)
+            maskIV[n] = 0;
+         maskIV[maskPosition] = *maskValue;
+         for(n=maskPosition+1; n < MBS_SMS4; n++)
+            maskIV[n] = 0xFF;
 
-            n = cpSMS4_CTR_aesni(pDst, pSrc, dataLen, SMS4_RK(pCtx), maskIV, counter);
-            pSrc += n;
-            pDst += n;
-            dataLen -= n;
+         int processedLen = 0;
 
+         #if (_IPP32E>=_IPP32E_K0)
+         #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+         if (IsFeatureEnabled(ippCPUID_AVX512GFNI)) {
+            processedLen = cpSMS4_CTR_gfni512(pDst, pSrc, dataLen, SMS4_RK(pCtx), maskIV, counter);
          }
+         else
+         #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
+         #endif /* (_IPP32E>=_IPP32E_K0) */
+         if(IsFeatureEnabled(ippCPUID_AES)) {
+            processedLen = cpSMS4_CTR_aesni(pDst, pSrc, dataLen, SMS4_RK(pCtx), maskIV, counter);
+         }
+
+         pSrc += processedLen;
+         pDst += processedLen;
+         dataLen -= processedLen;
+
       }
       #endif
 

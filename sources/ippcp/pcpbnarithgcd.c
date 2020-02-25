@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2002-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2002-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -140,17 +116,17 @@ IPPFUN(IppStatus, ippsGcd_BN, (IppsBigNumState* pA, IppsBigNumState* pB, IppsBig
          Ipp32u* xData = (Ipp32u*)BN_NUMBER(x);
          Ipp32u* yData = (Ipp32u*)BN_NUMBER(y);
          Ipp32u* gData = (Ipp32u*)BN_NUMBER(g);
-         cpSize nsXmax = BN_ROOM(x)*(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
-         cpSize nsYmax = BN_ROOM(y)*(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
-         cpSize nsGmax = BN_ROOM(g)*(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
-         cpSize nsX = BN_SIZE(x)*(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
-         cpSize nsY = BN_SIZE(y)*(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
+         cpSize nsXmax = BN_ROOM(x)*((Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u)));
+         cpSize nsYmax = BN_ROOM(y)*((Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u)));
+         cpSize nsGmax = BN_ROOM(g)*((Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u)));
+         cpSize nsX = BN_SIZE(x)*((Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u)));
+         cpSize nsY = BN_SIZE(y)*((Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u)));
 
          Ipp32u* T;
          Ipp32u* u;
 
-         FIX_BNU(xData, nsX);
-         FIX_BNU(yData, nsY);
+         FIX_BNU32(xData, nsX);
+         FIX_BNU32(yData, nsY);
 
          /* init buffers */
          ZEXPAND_COPY_BNU(xBuffer, nsXmax, xData, nsX);
@@ -173,20 +149,20 @@ IPPFUN(IppStatus, ippsGcd_BN, (IppsBigNumState* pA, IppsBigNumState* pB, IppsBig
             Ipp64s DD = 1;
             Ipp64s t;
 
-            while((yy+CC)!=0 && (yy+DD)!=0) {
-               Ipp64u q  = ( xx + AA ) / ( yy + CC );
-               Ipp64u q1 = ( xx + BB ) / ( yy + DD );
+            while((yy+(Ipp64u)CC)!=0 && (yy+(Ipp64u)DD)!=0) {
+               Ipp64u q  = ( xx + (Ipp64u)AA ) / ( yy + (Ipp64u)CC );
+               Ipp64u q1 = ( xx + (Ipp64u)BB ) / ( yy + (Ipp64u)DD );
                if(q!=q1)
                   break;
-               t = AA - q*CC;
+               t = AA - (Ipp64s)q*CC;
                AA = CC;
                CC = t;
-               t = BB - q*DD;
+               t = BB - (Ipp64s)q*DD;
                BB = DD;
                DD = t;
-               t = xx - q*yy;
+               t = (Ipp64s)(xx - q*yy);
                xx = yy;
-               yy = t;
+               yy = (Ipp64u)t;
             }
 
             if(BB == 0) {
@@ -271,8 +247,8 @@ IPPFUN(IppStatus, ippsGcd_BN, (IppsBigNumState* pA, IppsBigNumState* pB, IppsBig
                COPY_BNU(xBuffer, T, nsY);
             }
 
-            FIX_BNU(xBuffer, nsX);
-            FIX_BNU(yBuffer, nsY);
+            FIX_BNU32(xBuffer, nsX);
+            FIX_BNU32(yBuffer, nsY);
 
             if (nsY > nsX) {
                SWAP_PTR(IppsBigNumState, x, y);

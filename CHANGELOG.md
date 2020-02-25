@@ -2,6 +2,14 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## 2020-02-25
+- GFNI optimization of SMS4 ECB,CBC,CTR modes implemented.
+- Clang9.0 for Linux and Clang11.0 for MacOS support added.
+- RSA multi-buffer Encrypt/Decrypt example added.
+- Added Control-flow Enforcement Technology enabling for NASM compiler on Linux and Windows.
+- API of ippsGFpECSignDSA, ippsGFpECSignNR and ippsGFpECSignSM2 functions changed.
+
+
 ## 2019-12-13
 - Removed Android support. Use Linux libraries instead.
 - Added RSA PSS multi buffer signature generation and verification.

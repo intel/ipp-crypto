@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2019-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -311,9 +287,9 @@ void AesGcmEnc_vaes(Ipp8u* pDst,
    }
 
    if (blocks) {
-      __mmask8 k8   = (1 << (blocks + blocks)) - 1;   // 64-bit chunks
-      __mmask16 k16 = (1 << (blocks << 2)) - 1;       // 32-bit chunks
-      __mmask64 k64 = (1LL << (blocks << 4)) - 1;     // 8-bit chunks
+      __mmask8 k8   = (__mmask8)((1 << (blocks + blocks)) - 1);   // 64-bit chunks
+      __mmask16 k16 = (__mmask16)((1 << (blocks << 2)) - 1);       // 32-bit chunks
+      __mmask64 k64 = (__mmask64)((1LL << (blocks << 4)) - 1);     // 8-bit chunks
 
       counter0 = _mm512_maskz_add_epi32(k16, incMsk, ctr512);
       ctr512 = counter0;
@@ -362,9 +338,9 @@ void AesGcmEnc_vaes(Ipp8u* pDst,
    }
 
    // return last counter
-   __mmask8  lastCtrK8  = blocks == 0 ? 0xC0 : ((Ipp8u)0x03<<((blocks-1)<<1));
-   __mmask16 lastCtrK16 = blocks == 0 ? 0xF000 : ((Ipp16u)0xF<<((blocks-1)<<2));
-   __mmask64 lastCtrK64 = blocks == 0 ? 0xFFFF000000000000 : ((Ipp64u)0xFFFF<<((blocks-1)<<4));
+   __mmask8  lastCtrK8  = blocks == 0 ? 0xC0 : (__mmask8)((Ipp8u)0x03<<((blocks-1)<<1));
+   __mmask16 lastCtrK16 = blocks == 0 ? 0xF000 : (__mmask16)((Ipp16u)0xF<<((blocks-1)<<2));
+   __mmask64 lastCtrK64 = blocks == 0 ? 0xFFFF000000000000 : (__mmask64)((Ipp64u)0xFFFF<<((blocks-1)<<4));
 
    ctr512 = _mm512_maskz_add_epi32(lastCtrK16, M512(inc1_lo32x4), ctr512);
    ctr512 = _mm512_maskz_shuffle_epi8(lastCtrK64, ctr512, M512(swapBytes));

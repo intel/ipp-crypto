@@ -1,5 +1,5 @@
 """
-Copyright 2019 Intel Corporation.
+Copyright 2019-2020 Intel Corporation.
 
 This software and the related documents are Intel copyrighted  materials,  and
 your use of  them is  governed by the  express license  under which  they were
@@ -128,6 +128,8 @@ if __name__ == '__main__':
         if not os.getenv(root) or not os.path.exists(os.environ[root]):
             print('Please, set ' + root)
             exit()
+
+        tool.utils.COMPILERS_AND_LIBRARIES_PATH = args.cnl
 
         if args.generate:
             if args.ia32:

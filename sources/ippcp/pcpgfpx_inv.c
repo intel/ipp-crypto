@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2010-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2010-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -77,16 +53,16 @@ static BNU_CHUNK_T* gfpxPolyDiv(BNU_CHUNK_T* pQ, BNU_CHUNK_T* pR,
             gsModEngine* pBasicGFE = cpGFpBasic(pGroundGFE);
 
             cpGFpInv(pR, pB, pBasicGFE);
-            cpGFpElementPadd(pR+GFP_FELEN(pGroundGFE), termLen-GFP_FELEN(pGroundGFE), 0);
+            cpGFpElementPad(pR+GFP_FELEN(pGroundGFE), termLen-GFP_FELEN(pGroundGFE), 0);
             cpGFpxMul_GFE(pQ, pA, pR, pGFEx);
-            cpGFpElementPadd(pR, elemLen, 0);
+            cpGFpElementPad(pR, elemLen, 0);
             return pR;
          }
       }
 
       if(degA < degB) {
-         cpGFpElementPadd(pQ, elemLen, 0);
-         cpGFpElementCopyPadd(pR, elemLen, pA, (degA+1)*termLen);
+         cpGFpElementPad(pQ, elemLen, 0);
+         cpGFpElementCopyPad(pR, elemLen, pA, (degA+1)*termLen);
          return pR;
       }
 
@@ -99,8 +75,8 @@ static BNU_CHUNK_T* gfpxPolyDiv(BNU_CHUNK_T* pQ, BNU_CHUNK_T* pR,
          BNU_CHUNK_T* pInvB = pProduct + GFP_PELEN(pGroundGFE);
          //tbcd: temporary excluded: assert(NULL!=pProduct);
 
-         cpGFpElementCopyPadd(pR, elemLen, pA, (degA+1)*termLen);
-         cpGFpElementPadd(pQ, elemLen, 0);
+         cpGFpElementCopyPad(pR, elemLen, pA, (degA+1)*termLen);
+         cpGFpElementPad(pQ, elemLen, 0);
 
          cpGFpxInv(pInvB, GFPX_IDX_ELEMENT(pB, degB, termLen), pGroundGFE);
 
@@ -112,7 +88,7 @@ static BNU_CHUNK_T* gfpxPolyDiv(BNU_CHUNK_T* pQ, BNU_CHUNK_T* pR,
                  pGroundGFE);
 
             /* R -= B * q */
-            cpGFpElementPadd(GFPX_IDX_ELEMENT(pR, degA-i, termLen), termLen, 0);
+            cpGFpElementPad(GFPX_IDX_ELEMENT(pR, degA-i, termLen), termLen, 0);
             for(j=0; j<degB; j++) {
                mulF(pProduct,
                     GFPX_IDX_ELEMENT(pB, j ,termLen),
@@ -155,7 +131,7 @@ static BNU_CHUNK_T* gfpxGeneratorDiv(BNU_CHUNK_T* pQ, BNU_CHUNK_T* pR, const BNU
       //tbcd: temporary excluded: assert(NULL!=pInvB);
 
       cpGFpElementCopy(pR, GFP_MODULUS(pGFEx), elemLen);
-      cpGFpElementPadd(pQ, elemLen, 0);
+      cpGFpElementPad(pQ, elemLen, 0);
 
       cpGFpxInv(pInvB, GFPX_IDX_ELEMENT(pB, degB, termLen), pGroundGFE);
 
@@ -187,7 +163,7 @@ BNU_CHUNK_T* cpGFpxInv(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFE
 
       cpGFpxInv(tmpR, pA, pGroundGFE);
 
-      cpGFpElementCopyPadd(pR, GFP_FELEN(pGFEx), tmpR, GFP_FELEN(pGroundGFE));
+      cpGFpElementCopyPad(pR, GFP_FELEN(pGFEx), tmpR, GFP_FELEN(pGroundGFE));
       cpGFpReleasePool(1, pGroundGFE);
       return pR;
    }
@@ -208,7 +184,7 @@ BNU_CHUNK_T* cpGFpxInv(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFE
       //tbcd: temporary excluded: assert(NULL!=lastrem);
 
       cpGFpElementCopy(lastrem, pA, elemLen);
-      cpGFpElementCopyPadd(lastaux, elemLen, GFP_MNT_R(pBasicGFE), GFP_FELEN(pBasicGFE));
+      cpGFpElementCopyPad(lastaux, elemLen, GFP_MNT_R(pBasicGFE), GFP_FELEN(pBasicGFE));
 
       gfpxGeneratorDiv(quo, rem, pA, pGFEx);
       cpGFpxNeg(aux, quo, pGFEx);

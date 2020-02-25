@@ -1,40 +1,16 @@
 ################################################################################
-# Copyright 2019 Intel Corporation
-# All Rights Reserved.
+# Copyright 2019-2020 Intel Corporation
 #
-# If this  software was obtained  under the  Intel Simplified  Software License,
-# the following terms apply:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The source code,  information  and material  ("Material") contained  herein is
-# owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-# Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-# Material  contains  proprietary  information  of  Intel or  its suppliers  and
-# licensors.  The Material is protected by  worldwide copyright  laws and treaty
-# provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-# modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-# in any way without Intel's prior express written permission.  No license under
-# any patent,  copyright or other  intellectual property rights  in the Material
-# is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-# inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-# property rights must be express and approved by Intel in writing.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-# notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-# suppliers or licensors in any way.
-#
-#
-# If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-# "License"), the following terms apply:
-#
-# You may  not use this  file except  in compliance  with  the License.  You may
-# obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-#
-#
-# Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-# distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#
-# See the   License  for the   specific  language   governing   permissions  and
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
 
@@ -75,17 +51,16 @@ if n > 20: # and ( (n % 10) == 0):
     Tv = 10
     Th = 10
     # Number of vertical tiles
-    n_tiled = Tv * int(math.ceil((n + Tv - 1) / Tv))
+    n_tiled = Tv * int(math.ceil((n + Tv - 1) // Tv))
     skip_last_red = n_tiled - n
 
-    res = map(lambda x: "res[%d]" % x, range(0, 2*n_tiled))
-    code += "  __ALIGN64 __m512i res[%d];\n" % (2*n_tiled)
+    res = list(map(lambda x: "res[%d]" % x, range(0, 2*n_tiled)))
+    code += "  __ALIGN64 __m512i res[{}];\n".format(2*n_tiled)
 else:
     n_tiled = n
     tiled_reduction = False
-    res = map(lambda x: "res%d" % x, range(0, 2*n_tiled))
+    res = list(map(lambda x: "res%d" % x, range(0, 2*n_tiled)))
     code += "  __m512i %s;\n" % (", ".join(res))
-
 
 iters=1
 if len(sys.argv) > 3:
@@ -135,35 +110,35 @@ def Weigth(bucket, operation, weight):
 # Squaring with reduction
 for c in range(0,2*(n-1)+1):
     ib = max(0,c - n + 1)
-    ie = (c)/2
+    ie = c // 2
     sum_lo = res[c]
     sum_hi = res[c+1]
 
-    for i in range(ib, ie+1):
+    for i in range(ib, ie + 1):
         if i != c-i:
             # Accumulate sum
-            w = Weigth(c/sqr_tile_size, OperationType.SUM, (c-i))
+            w = Weigth(int(c/sqr_tile_size), OperationType.SUM, (c-i))
             wcode.append(("  {slo} = fma52lo({slo}, a[{i}], a[{j}]);\t// Sum({c})\n"\
                           "  {shi} = fma52hi({shi}, a[{i}], a[{j}]);\t// Sum({c})\n".format(c=c, slo=sum_lo, shi=sum_hi, i=i, j=c-i, w=w), w))
 
 # Double sum
 for c in range(0,2*(n-1)+1):
     ib = max(0,c - n + 1)
-    ie = (c)/2
+    ie = c // 2
     sum_lo = res[c]
     sum_hi = res[c+1]
-    w = Weigth(c/sqr_tile_size, OperationType.DOUBLE, 0)
+    w = Weigth(int(c/sqr_tile_size), OperationType.DOUBLE, 0)
     wcode.append(("    {slo} = add64({slo}, {slo});\t// Double({c})\n".format(c=c, slo=sum_lo, shi=sum_hi), w))
 
 # Adding Square if needed
 for c in range(0,2*(n-1)+1):
     ib = max(0,c - n + 1)
-    ie = (c)/2
+    ie = c // 2
     sum_lo = res[c]
     sum_hi = res[c+1]
-    for i in range(ib, ie+1):
+    for i in range(ib, ie + 1):
         if i == c-i:
-            w = Weigth(c/sqr_tile_size, OperationType.ADD_SQR, 0)
+            w = Weigth(int(c/sqr_tile_size), OperationType.ADD_SQR, 0)
             wcode.append(("      {slo} = fma52lo({slo}, a[{i}], a[{i}]);\t// Add sqr({c})\n"\
                           "      {shi} = fma52hi({shi}, a[{i}], a[{i}]);\t// Add sqr({c})\n".format(c=c, slo=sum_lo, shi=sum_hi, i=i), w))
 
@@ -285,4 +260,4 @@ template = template.replace("{function_name}", function_name)
 template = template.replace("{parameters}", parameters)
 template = template.replace("{code}", code)
 
-print template
+print(template)

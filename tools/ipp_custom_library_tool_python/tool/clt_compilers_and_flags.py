@@ -1,5 +1,5 @@
 """
-Copyright 2019 Intel Corporation.
+Copyright 2019-2020 Intel Corporation.
 
 This software and the related documents are Intel copyrighted  materials,  and
 your use of  them is  governed by the  express license  under which  they were
@@ -134,7 +134,7 @@ GENERATOR_FORMAT = {
                 + '-o "{library_file}.dylib" '
                 + '-exported_symbols_list "{export_file}" '
                 + '"{main_object}" {libraries} -lgcc_s.1 -lm '
-                + '-L"{compiler_lib_path}" {exp_libs}'
+                + '-L"{compiler_lib_path}" {exp_libs}\n\n'
                 + 'if [ -f "{library_file}.dylib" ]; then\n'
                 + '\techo Build dynamic library for {architecture} architecture OK\n'
                 + 'else\n'
@@ -295,12 +295,12 @@ COMPILER_LIBS_PATH = {
         IA32: ''
     },
     LINUX: {
-        INTEL64: COMPILERS_AND_LIBRARIES_PATH + 'linux/compiler/lib/intel64_lin',
-        IA32: COMPILERS_AND_LIBRARIES_PATH + 'linux/compiler/lib/ia32_lin'
+        INTEL64: '{cnl_path}/linux/compiler/lib/intel64_lin',
+        IA32: '{cnl_path}/linux/compiler/lib/ia32_lin'
     },
     MACOSX: {
-        INTEL64: COMPILERS_AND_LIBRARIES_PATH + 'mac/compiler/lib/',
-        IA32: COMPILERS_AND_LIBRARIES_PATH + 'mac/compiler/lib/'
+        INTEL64: '{cnl_path}/mac/compiler/lib/',
+        IA32: '{cnl_path}/mac/compiler/lib/'
     },
     ANDROID: {
         INTEL64: '',

@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2010-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2010-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -80,10 +56,10 @@ typedef struct{
 */
 __INLINE Ipp16u getAesGcmConst_table_ct(int idx)
 {
-   #define TBL_SLOTS_REP_READ  (sizeof(BNU_CHUNK_T)/sizeof(AesGcmConst_table[0]))
+   #define TBL_SLOTS_REP_READ  (Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(AesGcmConst_table[0]))
    const BNU_CHUNK_T* TblEntry = (BNU_CHUNK_T*)AesGcmConst_table;
 
-   BNU_CHUNK_T idx_sel = idx / TBL_SLOTS_REP_READ;  /* selection index */
+   BNU_CHUNK_T idx_sel = (BNU_CHUNK_T)(idx / TBL_SLOTS_REP_READ);  /* selection index */
    BNU_CHUNK_T i;
    BNU_CHUNK_T selection = 0;
    for (i = 0; i<sizeof(AesGcmConst_table) / sizeof(BNU_CHUNK_T); i++) {
@@ -114,10 +90,10 @@ void AesGcmMulGcm_table2K(Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const voi
    XorBlock16(t3, t3, t3);
    XorBlock16(t2, t2, t2);
    #endif
-   PaddBlock(0, t5, sizeof(t5));
-   PaddBlock(0, t4, sizeof(t4));
-   PaddBlock(0, t3, sizeof(t3));
-   PaddBlock(0, t2, sizeof(t2));
+   PadBlock(0, t5, sizeof(t5));
+   PadBlock(0, t4, sizeof(t4));
+   PadBlock(0, t3, sizeof(t3));
+   PadBlock(0, t2, sizeof(t2));
 
    for(nw=0; nw<4; nw++) {
       Ipp32u hashdw = ((Ipp32u*)pGhash)[nw];
@@ -192,10 +168,10 @@ void AesGcmMulGcm_table2K_ct(Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const 
    XorBlock16(t3, t3, t3);
    XorBlock16(t2, t2, t2);
 #endif
-   PaddBlock(0, t5, sizeof(t5));
-   PaddBlock(0, t4, sizeof(t4));
-   PaddBlock(0, t3, sizeof(t3));
-   PaddBlock(0, t2, sizeof(t2));
+   PadBlock(0, t5, sizeof(t5));
+   PadBlock(0, t4, sizeof(t4));
+   PadBlock(0, t3, sizeof(t3));
+   PadBlock(0, t2, sizeof(t2));
 
    for(nw=0; nw<4; nw++) {
       Ipp32u hashdw = ((Ipp32u*)pGhash)[nw];
@@ -208,10 +184,10 @@ void AesGcmMulGcm_table2K_ct(Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const 
 
       int idx;
       for(idx=0; idx<256; idx+=16) {
-         BNU_CHUNK_T mask0 = cpIsEqu_ct(a0, idx);
-         BNU_CHUNK_T mask1 = cpIsEqu_ct(a1, idx);
-         BNU_CHUNK_T mask2 = cpIsEqu_ct(a2, idx);
-         BNU_CHUNK_T mask3 = cpIsEqu_ct(a3, idx);
+         BNU_CHUNK_T mask0 = cpIsEqu_ct(a0, (BNU_CHUNK_T)idx);
+         BNU_CHUNK_T mask1 = cpIsEqu_ct(a1, (BNU_CHUNK_T)idx);
+         BNU_CHUNK_T mask2 = cpIsEqu_ct(a2, (BNU_CHUNK_T)idx);
+         BNU_CHUNK_T mask3 = cpIsEqu_ct(a3, (BNU_CHUNK_T)idx);
          MaskedXorBlock16(t5, pPrecomputeData+1024 +256*nw +idx, t5, mask1);
          MaskedXorBlock16(t4, pPrecomputeData+1024 +256*nw +idx, t4, mask0);
          MaskedXorBlock16(t3, pPrecomputeData+1024 +256*nw +idx, t3, mask3);
@@ -224,10 +200,10 @@ void AesGcmMulGcm_table2K_ct(Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const 
       a2 = EBYTE(a, 2);
       a3 = EBYTE(a, 3);
       for (idx = 0; idx < 256; idx += 16) {
-         BNU_CHUNK_T mask0 = cpIsEqu_ct(a0, idx);
-         BNU_CHUNK_T mask1 = cpIsEqu_ct(a1, idx);
-         BNU_CHUNK_T mask2 = cpIsEqu_ct(a2, idx);
-         BNU_CHUNK_T mask3 = cpIsEqu_ct(a3, idx);
+         BNU_CHUNK_T mask0 = cpIsEqu_ct(a0, (BNU_CHUNK_T)idx);
+         BNU_CHUNK_T mask1 = cpIsEqu_ct(a1, (BNU_CHUNK_T)idx);
+         BNU_CHUNK_T mask2 = cpIsEqu_ct(a2, (BNU_CHUNK_T)idx);
+         BNU_CHUNK_T mask3 = cpIsEqu_ct(a3, (BNU_CHUNK_T)idx);
          MaskedXorBlock16(t5, pPrecomputeData +256*nw +idx, t5, mask1);
          MaskedXorBlock16(t4, pPrecomputeData +256*nw +idx, t4, mask0);
          MaskedXorBlock16(t3, pPrecomputeData +256*nw +idx, t3, mask3);
@@ -269,7 +245,7 @@ __INLINE Ipp16u getAesGcmConst_table_ct(int idx)
    /* indexes step */
    __m128i idx_step = _mm_set1_epi16(sizeof(__m128i) / sizeof(AesGcmConst_table[0]));
    /* broadcast idx */
-   __m128i idx_bcst = _mm_set1_epi16((Ipp16u)idx);
+   __m128i idx_bcst = _mm_set1_epi16((Ipp16s)idx);
 
    /* init accumulator */
    __m128i acc = _mm_setzero_si128();
@@ -317,10 +293,10 @@ void AesGcmMulGcm_table2K_ct(Ipp8u* pHash, const Ipp8u* pPrecomputedData, const 
          Ipp32u a3 = EBYTE(a, 3);
          int idx;
          for (idx = 0; idx < 256; idx += 16) {
-            __m128i mask0 = _mm_set1_epi32((Ipp32u)cpIsEqu_ct(a0, idx));
-            __m128i mask1 = _mm_set1_epi32((Ipp32u)cpIsEqu_ct(a1, idx));
-            __m128i mask2 = _mm_set1_epi32((Ipp32u)cpIsEqu_ct(a2, idx));
-            __m128i mask3 = _mm_set1_epi32((Ipp32u)cpIsEqu_ct(a3, idx));
+            __m128i mask0 = _mm_set1_epi32((Ipp32s)cpIsEqu_ct(a0, (BNU_CHUNK_T)idx));
+            __m128i mask1 = _mm_set1_epi32((Ipp32s)cpIsEqu_ct(a1, (BNU_CHUNK_T)idx));
+            __m128i mask2 = _mm_set1_epi32((Ipp32s)cpIsEqu_ct(a2, (BNU_CHUNK_T)idx));
+            __m128i mask3 = _mm_set1_epi32((Ipp32s)cpIsEqu_ct(a3, (BNU_CHUNK_T)idx));
             t5 = _mm_xor_si128(t5, _mm_and_si128(mask1, _mm_load_si128((__m128i*)(pPrecomputedData + 1024 + 256 * nw + idx))));
             t4 = _mm_xor_si128(t4, _mm_and_si128(mask0, _mm_load_si128((__m128i*)(pPrecomputedData + 1024 + 256 * nw + idx))));
             t3 = _mm_xor_si128(t3, _mm_and_si128(mask3, _mm_load_si128((__m128i*)(pPrecomputedData + 1024 + 256 * nw + idx))));
@@ -333,10 +309,10 @@ void AesGcmMulGcm_table2K_ct(Ipp8u* pHash, const Ipp8u* pPrecomputedData, const 
          a2 = EBYTE(a, 2);
          a3 = EBYTE(a, 3);
          for (idx = 0; idx < 256; idx += 16) {
-            __m128i mask0 = _mm_set1_epi32((Ipp32u)cpIsEqu_ct(a0, idx));
-            __m128i mask1 = _mm_set1_epi32((Ipp32u)cpIsEqu_ct(a1, idx));
-            __m128i mask2 = _mm_set1_epi32((Ipp32u)cpIsEqu_ct(a2, idx));
-            __m128i mask3 = _mm_set1_epi32((Ipp32u)cpIsEqu_ct(a3, idx));
+            __m128i mask0 = _mm_set1_epi32((Ipp32s)cpIsEqu_ct(a0, (BNU_CHUNK_T)idx));
+            __m128i mask1 = _mm_set1_epi32((Ipp32s)cpIsEqu_ct(a1, (BNU_CHUNK_T)idx));
+            __m128i mask2 = _mm_set1_epi32((Ipp32s)cpIsEqu_ct(a2, (BNU_CHUNK_T)idx));
+            __m128i mask3 = _mm_set1_epi32((Ipp32s)cpIsEqu_ct(a3, (BNU_CHUNK_T)idx));
             t5 = _mm_xor_si128(t5, _mm_and_si128(mask1, _mm_load_si128((__m128i*)(pPrecomputedData + 256 * nw + idx))));
             t4 = _mm_xor_si128(t4, _mm_and_si128(mask0, _mm_load_si128((__m128i*)(pPrecomputedData + 256 * nw + idx))));
             t3 = _mm_xor_si128(t3, _mm_and_si128(mask3, _mm_load_si128((__m128i*)(pPrecomputedData + 256 * nw + idx))));
@@ -361,7 +337,7 @@ void AesGcmMulGcm_table2K_ct(Ipp8u* pHash, const Ipp8u* pPrecomputedData, const 
          nw = _mm_cvtsi128_si32(_mm_srli_si128(t5, 15));
          a ^= (Ipp32u)getAesGcmConst_table_ct(nw);
 
-         t2 = _mm_cvtsi32_si128(a);
+         t2 = _mm_cvtsi32_si128((Ipp32s)a);
          t4 = _mm_xor_si128(t4, t2);
          _mm_storeu_si128((__m128i*)pHash, t4);
       }

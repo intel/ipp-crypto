@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2016-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2016-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -146,9 +122,9 @@ typedef void (*cpAMM52)(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp
 
 static void AMM52(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
-   #define NUM64  (sizeof(__m512i)/sizeof(Ipp64u))
+   #define NUM64  ((Ipp32s)(sizeof(__m512i)/sizeof(Ipp64u)))
 
-   __mmask8 k1 = _mm512_kmov(0x02);   /* mask of the 2-nd elment */
+   __mmask8 k1 = (__mmask8)_mm512_kmov(0x02);   /* mask of the 2-nd elment */
 
    __m512i zero = _mm512_setzero_si512(); /* zeros */
 
@@ -171,10 +147,10 @@ static void AMM52(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m
    for(n=0; n<len; n++) {
       /* compute and broadcast y = (r[0]+a[0]*b[0])*k0 */
       Ipp64u y = ((res[0] + a[0]*b[n]) * k0) & EXP_DIGIT_MASK_AVX512;
-      __m512i yn = _mm512_set1_epi64(y);
+      __m512i yn = _mm512_set1_epi64((Ipp64s)y);
 
       /* broadcast b[n] digit */
-      __m512i bn = _mm512_set1_epi64(b[n]);
+      __m512i bn = _mm512_set1_epi64((Ipp64s)b[n]);
 
       int i;
       __m512i rp, ap, mp, d;
@@ -231,7 +207,7 @@ static void AMM52(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m
 
 static void AMM52x20(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
-   __mmask8 k2 = _mm512_kmov(0x0f);   /* mask of the 0-3 elments */
+   __mmask8 k2 = (__mmask8)_mm512_kmov(0x0f);   /* mask of the 0-3 elments */
 
    /* load a */
    __m512i A0 = _mm512_loadu_si512(a);
@@ -249,15 +225,15 @@ static void AMM52x20(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    __m512i R2 = _mm512_setzero_si512();
 
    __m512i ZERO = _mm512_setzero_si512(); /* zeros */
-   __m512i K = _mm512_set1_epi64(k0);
+   __m512i K = _mm512_set1_epi64((Ipp64s)k0);
 
    IPP_UNREFERENCED_PARAMETER(len);
    IPP_UNREFERENCED_PARAMETER(res);
 
-   __mmask8 k1 = _mm512_kmov(0x01);   /* mask of the 0 elment */
+   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 elment */
    int i;
    for(i=0; i<20; i++) {
-      __m512i Bi = _mm512_set1_epi64(b[i]);     /* bloadcast(b[i]) */
+      __m512i Bi = _mm512_set1_epi64((Ipp64s)b[i]);     /* bloadcast(b[i]) */
       __m512i Yi = _mm512_setzero_si512();      /* Yi = 0 */
       __m512i tmp;
 
@@ -331,15 +307,15 @@ static void AMM52x40(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    __m512i R4 = _mm512_setzero_si512();
 
    __m512i ZERO = _mm512_setzero_si512(); /* zeros */
-   __m512i K = _mm512_set1_epi64(k0);
+   __m512i K = _mm512_set1_epi64((Ipp64s)k0);
 
    IPP_UNREFERENCED_PARAMETER(len);
    IPP_UNREFERENCED_PARAMETER(res);
 
-   __mmask8 k1 = _mm512_kmov(0x01);   /* mask of the 0 elment */
+   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 elment */
    int i;
    for(i=0; i<40; i++) {
-      __m512i Bi = _mm512_set1_epi64(b[i]);     /* bloadcast(b[i]) */
+      __m512i Bi = _mm512_set1_epi64((Ipp64s)b[i]);     /* bloadcast(b[i]) */
       __m512i Yi = _mm512_setzero_si512();      /* Yi = 0 */
       __m512i tmp;
 
@@ -403,7 +379,7 @@ static void AMM52x40(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
 
 static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
-   __mmask8 k2 = _mm512_kmov(0x0f);   /* mask of the 0-3 elments */
+   __mmask8 k2 = (__mmask8)_mm512_kmov(0x0f);   /* mask of the 0-3 elments */
 
    /* load a */
    __m512i A0 = _mm512_loadu_si512(a);
@@ -436,15 +412,15 @@ static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    __m512i R7 = _mm512_setzero_si512();
 
    __m512i ZERO = _mm512_setzero_si512(); /* zeros */
-   __m512i K = _mm512_set1_epi64(k0);
+   __m512i K = _mm512_set1_epi64((Ipp64s)k0);
 
    IPP_UNREFERENCED_PARAMETER(len);
    IPP_UNREFERENCED_PARAMETER(res);
 
-   __mmask8 k1 = _mm512_kmov(0x01);   /* mask of the 0 elment */
+   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 elment */
    int i;
    for(i=0; i<60; i++) {
-      __m512i Bi = _mm512_set1_epi64(b[i]);     /* bloadcast(b[i]) */
+      __m512i Bi = _mm512_set1_epi64((Ipp64s)b[i]);     /* bloadcast(b[i]) */
       __m512i Yi = _mm512_setzero_si512();      /* Yi = 0 */
       __m512i tmp;
 
@@ -526,7 +502,7 @@ static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
 
 static void AMM52x79(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
-   __mmask8 k2 = _mm512_kmov(0x7f);   /* mask of the 0-7 elments */
+   __mmask8 k2 = (__mmask8)_mm512_kmov(0x7f);   /* mask of the 0-7 elments */
 
    /* load a */
    __m512i A0 = _mm512_loadu_si512(a);
@@ -565,15 +541,15 @@ static void AMM52x79(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    __m512i R9 = _mm512_setzero_si512();
 
    __m512i ZERO = _mm512_setzero_si512(); /* zeros */
-   __m512i K = _mm512_set1_epi64(k0);
+   __m512i K = _mm512_set1_epi64((Ipp64s)k0);
 
    IPP_UNREFERENCED_PARAMETER(len);
    IPP_UNREFERENCED_PARAMETER(res);
 
-   __mmask8 k1 = _mm512_kmov(0x01);   /* mask of the 0 elment */
+   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 elment */
    int i;
    for(i=0; i<79; i++) {
-      __m512i Bi = _mm512_set1_epi64(b[i]);     /* bloadcast(b[i]) */
+      __m512i Bi = _mm512_set1_epi64((Ipp64s)b[i]);     /* bloadcast(b[i]) */
       __m512i Yi = _mm512_setzero_si512();      /* Yi = 0 */
       __m512i tmp;
 
@@ -708,7 +684,7 @@ cpSize gsMontExpWinBuffer_avx512(int modulusBits)
    cpSize redNum = numofVariable_avx512(modulusBits);       /* "sizeof" variable */
    cpSize redBufferNum = numofVariableBuff_avx512(redNum);  /* "sizeof" variable  buffer */
 
-   cpSize bufferNum = CACHE_LINE_SIZE/sizeof(BNU_CHUNK_T)
+   cpSize bufferNum = CACHE_LINE_SIZE/(Ipp32s)sizeof(BNU_CHUNK_T)
                     + gsGetScrambleBufferSize(redNum, w) /* pre-computed table */
                     + redBufferNum *7;                   /* addition 7 variables */
    return bufferNum;
@@ -1030,7 +1006,7 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
       /* extract 1-st window value */
       Ipp32u eChunk = *((Ipp32u*)((Ipp16u*)redE+ eBit/BITSIZE(Ipp16u)));
       int shift = eBit & 0xF;
-      cpSize windowVal = (eChunk>>shift) &wmask;
+      cpSize windowVal = (cpSize)((eChunk>>shift) &wmask);
 
       /* initialize result */
       ZEXPAND_COPY_BNU(redY, redBufferLen, redTable+windowVal*redLen, redLen);
@@ -1044,7 +1020,7 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
          /* extract next window value */
          eChunk = *((Ipp32u*)((Ipp16u*)redE+ eBit/BITSIZE(Ipp16u)));
          shift = eBit & 0xF;
-         windowVal = (eChunk>>shift) &wmask;
+         windowVal = (cpSize)((eChunk>>shift) &wmask);
 
          /* extract precomputed value and muptiply */
          if(windowVal) {
@@ -1094,7 +1070,7 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
 
    cpSize window = gsMontExp_WinSize(bitsizeE);
    cpSize nPrecomute= 1<<window;
-   BNU_CHUNK_T wmask = nPrecomute -1;
+   BNU_CHUNK_T wmask = (BNU_CHUNK_T)(nPrecomute -1);
    int n;
 
    #ifdef _EXP_AVX512_DEBUG_
@@ -1176,7 +1152,7 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
       /* extract 1-st window value */
       Ipp32u eChunk = *((Ipp32u*)((Ipp16u*)redE+ eBit/BITSIZE(Ipp16u)));
       int shift = eBit & 0xF;
-      cpSize windowVal = (eChunk>>shift) &wmask;
+      cpSize windowVal = (cpSize)((eChunk>>shift) &wmask);
 
       /* initialize result */
       gsScrambleGet_sscm(redY, redLen, redTable, windowVal, window);
@@ -1193,7 +1169,7 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
          /* extract next window value */
          eChunk = *((Ipp32u*)((Ipp16u*)redE+ eBit/BITSIZE(Ipp16u)));
          shift = eBit & 0xF;
-         windowVal = (eChunk>>shift) &wmask;
+         windowVal = (cpSize)((eChunk>>shift) &wmask);
 
          /* exptact precomputed value and muptiply */
          gsScrambleGet_sscm(redT, redLen, redTable, windowVal, window);

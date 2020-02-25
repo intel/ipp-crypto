@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2019-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -45,12 +21,6 @@
 //  Contents: radix conversion
 //
 */
-
-#ifdef IFMA_IPPCP_BUILD
-#include "owndefs.h"
-#endif /* IFMA_IPPCP_BUILD */
-
-#if !defined(IFMA_IPPCP_BUILD) || (_IPP32E>=_IPP32E_K0)
 
 #include "ifma_internal.h"
 #include "immintrin.h"
@@ -287,8 +257,8 @@ void regular13_red16_mb8(int64u (*redOut)[8], const int64u* const pRegInp[8], in
       //__m512i index = index0;
 
       /* read input and store in continuos buffer */
-      __mmask8 k1 = inpLen>=8? 0xff : (1<<inpLen) -1;
-      __mmask8 k2 = inpLen>=8? (1<<(inpLen-8)) -1 : 0;
+      __mmask8 k1 = inpLen>=8? 0xff : (__mmask8)((1<<inpLen) -1);
+      __mmask8 k2 = inpLen>=8? (__mmask8)((1<<(inpLen-8)) -1) : 0;
 
       X0 = _mm512_maskz_loadu_epi64(k1, pRegInp[0]+n);
       X1 = _mm512_maskz_loadu_epi64(k1, pRegInp[1]+n);
@@ -471,8 +441,8 @@ void red16_regular13_mb8(int64u* const pRegOut[8], int64u (*redInp)[8], int bitL
 
       /* store result */
       {
-         __mmask8 k1 = outLen>=8? 0xff : (1<<outLen) -1;
-         __mmask8 k2 = outLen>=8? (1<<(outLen-8)) -1 : 0;
+         __mmask8 k1 = outLen>=8? 0xff : (__mmask8)((1<<outLen) -1);
+         __mmask8 k2 = outLen>=8? (__mmask8)((1<<(outLen-8)) -1) : 0;
 
          _mm512_mask_storeu_epi64(pRegOut[0]+n,   k1, _mm512_maskz_load_epi64(k1, X[0]));
          _mm512_mask_storeu_epi64(pRegOut[0]+n+8, k2, _mm512_maskz_load_epi64(k2, X[0]+8));
@@ -520,12 +490,32 @@ int8u ifma_HexStr8_to_mb8(int64u out_mb8[][8], const int8u* const pStr[8], int b
    return _mm512_cmpneq_epi64_mask(_mm512_loadu_si512((__m512i*)&pStr), _mm512_setzero_si512());
 }
 
-#if defined(_MSC_VER)
-#  include <stdlib.h>
-#  define ENDIANNESS64(x) _byteswap_uint64((x))
+
+#if !defined(BN_OPENSSL_DISABLE)
+    #if defined(__GNUC__)
+        #define ENDIANNESS64(x) __bswap_64((x))
+    #else
+        #include <stdlib.h>
+        #define ENDIANNESS64(x) _byteswap_uint64((x))
+    #endif
 #else
-#  define ENDIANNESS64(x) _bswap64((x))
+    #if defined(_APPLE_CLANG)
+      #include <libkern/OSByteOrder.h>
+      #define ENDIANNESS64(x) OSSwapInt64((x))
+    #else
+      #if defined(_MSC_VER) 
+         #include <stdlib.h>
+         #define ENDIANNESS64(x) _byteswap_uint64((x))
+      #elif defined(__INTEL_COMPILER) 
+         #define ENDIANNESS64(x) _bswap64((x))   
+      #else
+         #include <byteswap.h>
+         #define ENDIANNESS64(x) bswap_64((x))
+      #endif
+    #endif
 #endif
+
+
 
 static int ifmaBNU_OctStr(unsigned char* pStr, const int64u* pA, int nsA)
 {
@@ -550,7 +540,7 @@ int8u ifma_mb8_to_HexStr8(int8u* const pStr[8], int64u inp_mb8[][8], int bitLen)
    #pragma warning(pop)
    #endif
 
-   int numwords = (bitLen + 8*sizeof(int64u)-1)/(8*sizeof(int64u));
+   int numwords = (bitLen + 8*(int)sizeof(int64u)-1)/(8*(int)sizeof(int64u));
    int n;
 
    /* convert result from ifma fmt */
@@ -578,7 +568,7 @@ int8u ifma_BNU_transpose_copy(int64u out_mb8[][8], const int64u* const bn[8], in
    int n, rest;
 
    for(n=0, rest=len; n<len; n+=8, rest-=8) {
-      __mmask8 k = (rest>=8)? 0xFF : (1<<rest) -1;
+      __mmask8 k = (rest>=8)? 0xFF : (__mmask8)((1<<rest) -1);
 
       __m512i X0 = _mm512_maskz_loadu_epi64(k & kbn[0], bn[0]+n);
       __m512i X1 = _mm512_maskz_loadu_epi64(k & kbn[1], bn[1]+n);
@@ -670,4 +660,3 @@ int8u ifma_BN_transpose_copy(int64u out_mb8[][8], const BIGNUM* const bn[8], int
    return _mm512_cmpneq_epi64_mask(_mm512_loadu_si512((__m512i*)&bn), _mm512_setzero_si512());
 }
 #endif /* BN_OPENSSL_DISABLE */
-#endif

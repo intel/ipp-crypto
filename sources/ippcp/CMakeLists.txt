@@ -1,40 +1,16 @@
 #===============================================================================
-# Copyright 2017-2019 Intel Corporation
-# All Rights Reserved.
+# Copyright 2017-2020 Intel Corporation
 #
-# If this  software was obtained  under the  Intel Simplified  Software License,
-# the following terms apply:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The source code,  information  and material  ("Material") contained  herein is
-# owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-# Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-# Material  contains  proprietary  information  of  Intel or  its suppliers  and
-# licensors.  The Material is protected by  worldwide copyright  laws and treaty
-# provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-# modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-# in any way without Intel's prior express written permission.  No license under
-# any patent,  copyright or other  intellectual property rights  in the Material
-# is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-# inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-# property rights must be express and approved by Intel in writing.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-# notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-# suppliers or licensors in any way.
-#
-#
-# If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-# "License"), the following terms apply:
-#
-# You may  not use this  file except  in compliance  with  the License.  You may
-# obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-#
-#
-# Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-# distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#
-# See the   License  for the   specific  language   governing   permissions  and
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
 # limitations under the License.
 #===============================================================================
 
@@ -130,6 +106,8 @@ endif(NOT MERGED_BLD)
 set(DEFAULT_Intel_COMPILER_VER 19.0.0)
 set(DEFAULT_MSVC_COMPILER_VER 19.14)
 set(DEFAULT_GNU_COMPILER_VER 8.2.0)
+set(DEFAULT_APPLE_CLANG_COMPILER_VER 11.0.0)
+set(DEFAULT_CLANG_COMPILER_VER 9.0.0)
 
 set(DEFAULT_Intel18_COMPILER_VER 18.0.0)
 set(DEFAULT_Intel19_COMPILER_VER 19.0.0)
@@ -161,8 +139,21 @@ if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") AND (CMAKE_C_COMPILER_VERSION VERSI
   message(FATAL_ERROR "GNU C Compiler version must be 8.2 or higher")
 endif()
 
+if(("${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang") AND (CMAKE_C_COMPILER_VERSION VERSION_LESS DEFAULT_APPLE_CLANG_COMPILER_VER))
+  message(FATAL_ERROR "Apple Clang C Compiler version must be 11.0 or higher")
+endif()
+
+if(("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang") AND (CMAKE_C_COMPILER_VERSION VERSION_LESS DEFAULT_CLANG_COMPILER_VER))
+  message(FATAL_ERROR "Clang C Compiler version must be 9.0 or higher")
+endif()
+
+if(("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang"))
+  set(CLANG_COMPILER ON)
+  set(CLANG_COMPILER ${CLANG_COMPILER} PARENT_SCOPE)
+endif()
+
 # Compiler options file
-set(COMPILER_OPTIONS_FILE "${CMAKE_SOURCE_DIR}/sources/cmake/${OS_STRING}")
+set(COMPILER_OPTIONS_FILE "${IPP_CRYPTO_DIR}/sources/cmake/${OS_STRING}")
 if (EXISTS "${COMPILER_OPTIONS_FILE}/${CMAKE_C_COMPILER_ID}${CMAKE_C_COMPILER_VERSION_SHORT}.cmake")
   set(COMPILER_OPTIONS_FILE "${COMPILER_OPTIONS_FILE}/${CMAKE_C_COMPILER_ID}${CMAKE_C_COMPILER_VERSION_SHORT}.cmake")
 else()
@@ -200,17 +191,15 @@ endif()
 
 set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D_NO_IPP_DEPRECATED") # do not warn about ippcp deprecated functions
 
-# Necessary definitions for rsa_ifma library  
-if ("${ARCH}" STREQUAL "intel64")
-	set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DBN_OPENSSL_DISABLE")
-	set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIFMA_IPPCP_BUILD")
-endif()
-
 include(${COMPILER_OPTIONS_FILE}) # uses ${CMAKE_C_FLAGS} ${LIBRARY_DEFINES} ${<letter>opt} from the scope
 
 if(UNIX)
   set(CMAKE_C_CREATE_SHARED_LIBRARY "<CMAKE_C_COMPILER> <CMAKE_SHARED_LIBRARY_C_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> ${LIB_EXPORT_FILE} <CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
   set(CMAKE_CXX_CREATE_SHARED_LIBRARY "<CMAKE_CXX_COMPILER> <CMAKE_SHARED_LIBRARY_CXX_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> ${LIB_EXPORT_FILE} <CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
+  if("${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
+    string(REPLACE "<SONAME_FLAG><TARGET_SONAME>" "<SONAME_FLAG> <TARGET_SONAME>" CMAKE_C_CREATE_SHARED_LIBRARY ${CMAKE_C_CREATE_SHARED_LIBRARY})
+    string(REPLACE "<SONAME_FLAG><TARGET_SONAME>" "<SONAME_FLAG> <TARGET_SONAME>" CMAKE_CXX_CREATE_SHARED_LIBRARY ${CMAKE_CXX_CREATE_SHARED_LIBRARY})
+  endif()
 endif(UNIX)
 
 set(THREAD_SUFFIX  "st"  PARENT_SCOPE)
@@ -229,24 +218,6 @@ file(GLOB HEADERS
 file(GLOB SOURCES
     ${IPP_CRYPTO_SOURCES_DIR}/*.c
    )
-
-# generate ifma source files and add ifma- sources and headers
-if ("${ARCH}" STREQUAL "intel64")
-  include("${IPP_CRYPTO_SOURCES_DIR}/ifma_rsa_mb/ifma_sources_generation.cmake")
-  
-  file(GLOB IFMA_HEADERS
-  ${IPP_CRYPTO_SOURCES_DIR}/ifma_rsa_mb/include/rsa_ifma/*.h
-  ${IPP_CRYPTO_SOURCES_DIR}/ifma_rsa_mb/include/internal/*.h
-  )
-
-  file(GLOB IFMA_SOURCES
-      ${CMAKE_BINARY_DIR}/sources/ippcp/ifma_rsa_mb/gen/*.c
-      ${IPP_CRYPTO_SOURCES_DIR}/ifma_rsa_mb/src/*.c
-  )
-
-  set(SOURCES ${SOURCES} ${IFMA_SOURCES})
-  set(HEADERS ${HEADERS} ${IFMA_HEADERS})
-endif()
 
 # Because of CMake bug (https://gitlab.kitware.com/cmake/cmake/issues/19178) it is impossible to add
 # target specific NASM compiler options/definitions when using VS generator, but it is possible to specify
@@ -291,6 +262,12 @@ set (ASM_INCLUDE_DIRECTORIES
     ${IPP_CRYPTO_SOURCES_DIR}/asm_${ARCH}
     )
 
+# generate ifma source files and add ifma- sources and headers
+if ("${ARCH}" STREQUAL "intel64")
+    set(IFMA_IPPCP_BUILD ON)
+    add_subdirectory(ifma_rsa_mb)
+endif()
+
 # Generate single-CPU headers
 if(MERGED_BLD)
   foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
@@ -323,7 +300,7 @@ foreach(opt ${PLATFORM_LIST})
     set(IPPCP_DYN_ITER_ASMOBJS ${TARGET_NAME}_dyn_${opt}-asmobjs)
     if(WIN32)
       add_library(${IPPCP_DYN_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
-      add_library(${IPPCP_DYN_ITER} SHARED "ippcp.def" ${HEADERS} ${SOURCES} pcpver.rc $<TARGET_OBJECTS:${IPPCP_DYN_ITER_ASMOBJS}>)
+      add_library(${IPPCP_DYN_ITER} SHARED "ippcp.def" ${HEADERS} ${SOURCES} pcpver.rc $<TARGET_OBJECTS:${IPPCP_DYN_ITER_ASMOBJS}> $<$<STREQUAL:"${opt}","k0">:$<TARGET_OBJECTS:${LIBRSA_IFMA_TARGET}>>)
       set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_WINDOWS})
       foreach(link ${LINK_LIB_STATIC_DEBUG})
         target_link_libraries(${IPPCP_DYN_ITER} debug ${link})
@@ -338,7 +315,7 @@ foreach(opt ${PLATFORM_LIST})
       endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
     else()
       add_library(${IPPCP_DYN_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
-      add_library(${IPPCP_DYN_ITER} SHARED ${HEADERS} ${SOURCES} $<TARGET_OBJECTS:${IPPCP_DYN_ITER_ASMOBJS}>)
+      add_library(${IPPCP_DYN_ITER} SHARED ${HEADERS} ${SOURCES} $<TARGET_OBJECTS:${IPPCP_DYN_ITER_ASMOBJS}> $<$<STREQUAL:"${opt}","k0">:$<TARGET_OBJECTS:${LIBRSA_IFMA_TARGET}>>)
       if(APPLE)
         ## gres: copy LINK_FLAG_DYNAMIC_LINUX
         set(LINK_FLAGS ${LINK_FLAG_DYNAMIC_MACOSX})
@@ -372,10 +349,10 @@ foreach(opt ${PLATFORM_LIST})
   if(MERGED_BLD)
     add_library(${IPPCP_ST_ITER} OBJECT ${HEADERS} ${SOURCES})
     add_library(${IPPCP_ST_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
-    set(merged_dependency ${merged_dependency} $<TARGET_OBJECTS:${IPPCP_ST_ITER}> $<TARGET_OBJECTS:${IPPCP_ST_ITER_ASMOBJS}>)
+    set(merged_dependency ${merged_dependency} $<TARGET_OBJECTS:${IPPCP_ST_ITER}> $<TARGET_OBJECTS:${IPPCP_ST_ITER_ASMOBJS}> $<$<STREQUAL:"${opt}","k0">:$<TARGET_OBJECTS:${LIBRSA_IFMA_TARGET}>>)
   else()
     add_library(${IPPCP_ST_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
-    add_library(${IPPCP_ST_ITER} STATIC ${HEADERS} ${SOURCES} $<TARGET_OBJECTS:${IPPCP_ST_ITER_ASMOBJS}>)
+    add_library(${IPPCP_ST_ITER} STATIC ${HEADERS} ${SOURCES} $<TARGET_OBJECTS:${IPPCP_ST_ITER_ASMOBJS}> $<$<STREQUAL:"${opt}","k0">:$<TARGET_OBJECTS:${LIBRSA_IFMA_TARGET}>>)
   endif()
 
   if(WIN32)
@@ -433,7 +410,7 @@ if(MERGED_BLD)
     endif()
   endif(WIN32)
 
-  execute_process(COMMAND ${Python_EXECUTABLE} ${DISPATCHER_GENERATOR} ${IPPCP_API} ${DISPATCHER} "${PLATFORM_LIST}" ${CMAKE_C_COMPILER_ID}
+  execute_process(COMMAND ${Python_EXECUTABLE} ${DISPATCHER_GENERATOR} -i ${IPPCP_API} -o ${DISPATCHER} -l "${PLATFORM_LIST}" -c ${CMAKE_C_COMPILER_ID}
     RESULT_VARIABLE result
     )
 
@@ -521,5 +498,6 @@ if(MERGED_BLD)
         endif()
       endif()
     endif(WIN32)
+
   endif(DYNAMIC_LIB)
 endif()

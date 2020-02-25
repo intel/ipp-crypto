@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2002-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2002-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -109,7 +85,7 @@ __INLINE void CopyBlock32(const void* pSrc, void* pDst)
 /*
 // padding data block
 */
-__INLINE void PaddBlock(Ipp8u paddingByte, void* pDst, cpSize numBytes)
+__INLINE void PadBlock(Ipp8u paddingByte, void* pDst, cpSize numBytes)
 {
    Ipp8u* d  = (Ipp8u*)pDst;
    cpSize k;
@@ -225,13 +201,13 @@ __INLINE void StdIncrement(Ipp8u* pCounter, int blkBitSize, int numSize)
    Ipp32u carry = 1;
    for(i=BITS2WORD8_SIZE(blkBitSize)-1; i>=0; i--) {
       int d = maskPosition - i;
-      Ipp8u mask = (Ipp8u)(maskVal | cpIsMsb_ct(d));
+      Ipp8u mask = (Ipp8u)(maskVal | cpIsMsb_ct((BNU_CHUNK_T)d));
 
       Ipp32u x = pCounter[i] + carry;
       Ipp8u y = pCounter[i];
       pCounter[i] = (Ipp8u)((y & ~mask) | (x & mask));
 
-      maskVal &= cpIsMsb_ct(d);
+      maskVal &= cpIsMsb_ct((BNU_CHUNK_T)d);
 
       carry = (x>>8) & 0x1;
    }

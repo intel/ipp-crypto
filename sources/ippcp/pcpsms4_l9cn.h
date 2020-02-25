@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2019-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -84,6 +60,11 @@ static __ALIGN32 Ipp8u swapBytes[] = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12,
 static __ALIGN32 Ipp8u permMask[] = {0x00,0x00,0x00,0x00, 0x04,0x00,0x00,0x00, 0x01,0x00,0x00,0x00, 0x05,0x00,0x00,0x00,
                                      0x02,0x00,0x00,0x00, 0x06,0x00,0x00,0x00, 0x03,0x00,0x00,0x00, 0x07,0x00,0x00,0x00};
 
+static __ALIGN32 Ipp8u affineIn[] = { 0x52,0xBC,0x2D,0x02,0x9E,0x25,0xAC,0x34, 0x52,0xBC,0x2D,0x02,0x9E,0x25,0xAC,0x34,
+                                    0x52,0xBC,0x2D,0x02,0x9E,0x25,0xAC,0x34, 0x52,0xBC,0x2D,0x02,0x9E,0x25,0xAC,0x34 };
+static __ALIGN32 Ipp8u affineOut[] = { 0x19,0x8b,0x6c,0x1e,0x51,0x8e,0x2d,0xd7, 0x19,0x8b,0x6c,0x1e,0x51,0x8e,0x2d,0xd7,
+                                       0x19,0x8b,0x6c,0x1e,0x51,0x8e,0x2d,0xd7, 0x19,0x8b,0x6c,0x1e,0x51,0x8e,0x2d,0xd7 };
+
 #define M256(mem)    (*((__m256i*)((Ipp8u*)(mem))))
 #define M128(mem)    (*((__m128i*)((Ipp8u*)(mem))))
 
@@ -96,7 +77,7 @@ static __ALIGN32 Ipp8u permMask[] = {0x00,0x00,0x00,0x00, 0x04,0x00,0x00,0x00, 0
 //
 */
 
-__INLINE __m256i affine(__m256i x, __m256i maskLO, __m256i maskHI)
+__FORCEINLINE __m256i affine(__m256i x, __m256i maskLO, __m256i maskHI)
 {
    __m256i T1 = _mm256_and_si256(_mm256_srli_epi64(x, 4), M256(lowBits4));
    __m256i T0 = _mm256_and_si256(x, M256(lowBits4));
@@ -105,7 +86,7 @@ __INLINE __m256i affine(__m256i x, __m256i maskLO, __m256i maskHI)
    return _mm256_xor_si256(T0, T1);
 }
 
-__INLINE __m256i AES_ENC_LAST(__m256i x, __m128i key)
+__FORCEINLINE __m256i AES_ENC_LAST(__m256i x, __m128i key)
 {
    __m128i t0 = _mm256_extracti128_si256(x, 0);
    __m128i t1 = _mm256_extracti128_si256(x, 1);
@@ -134,16 +115,17 @@ __INLINE __m256i AES_ENC_LAST(__m256i x, __m128i key)
 //
 */
 
-__INLINE __m256i sBox(__m256i block)
+__FORCEINLINE __m256i sBox(__m256i block)
 {
    block = affine(block, M256(inpMaskLO), M256(inpMaskHI));
    block = AES_ENC_LAST(block, M128(encKey));
    block = _mm256_shuffle_epi8(block, M256(maskSrows));
    block = affine(block, M256(outMaskLO), M256(outMaskHI));
+
    return block;
 }
 
-__INLINE __m256i L(__m256i x)
+__FORCEINLINE __m256i L(__m256i x)
 {
    __m256i T = _mm256_xor_si256(_mm256_slli_epi32(x, 2), _mm256_srli_epi32(x,30));
 

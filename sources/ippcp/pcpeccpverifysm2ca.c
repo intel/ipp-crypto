@@ -1,40 +1,16 @@
 /*******************************************************************************
-* Copyright 2013-2019 Intel Corporation
-* All Rights Reserved.
+* Copyright 2013-2020 Intel Corporation
 *
-* If this  software was obtained  under the  Intel Simplified  Software License,
-* the following terms apply:
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-* The source code,  information  and material  ("Material") contained  herein is
-* owned by Intel Corporation or its  suppliers or licensors,  and  title to such
-* Material remains with Intel  Corporation or its  suppliers or  licensors.  The
-* Material  contains  proprietary  information  of  Intel or  its suppliers  and
-* licensors.  The Material is protected by  worldwide copyright  laws and treaty
-* provisions.  No part  of  the  Material   may  be  used,  copied,  reproduced,
-* modified, published,  uploaded, posted, transmitted,  distributed or disclosed
-* in any way without Intel's prior express written permission.  No license under
-* any patent,  copyright or other  intellectual property rights  in the Material
-* is granted to  or  conferred  upon  you,  either   expressly,  by implication,
-* inducement,  estoppel  or  otherwise.  Any  license   under such  intellectual
-* property rights must be express and approved by Intel in writing.
+*     http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless otherwise agreed by Intel in writing,  you may not remove or alter this
-* notice or  any  other  notice   embedded  in  Materials  by  Intel  or Intel's
-* suppliers or licensors in any way.
-*
-*
-* If this  software  was obtained  under the  Apache License,  Version  2.0 (the
-* "License"), the following terms apply:
-*
-* You may  not use this  file except  in compliance  with  the License.  You may
-* obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-*
-*
-* Unless  required  by   applicable  law  or  agreed  to  in  writing,  software
-* distributed under the License  is distributed  on an  "AS IS"  BASIS,  WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*
-* See the   License  for the   specific  language   governing   permissions  and
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
 
@@ -106,11 +82,13 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
    pGF = ECP_GFP(pEC);
    pGFE = GFP_PMA(pGF);
 
-   /* test message representative */
+   /* test message representative: pMsgDigest>=0 */
    IPP_BAD_PTR1_RET(pMsgDigest);
    pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
+   /* make sure bisize(pMsgDigest) <= bitsize(order) */
+   IPP_BADARG_RET(ECP_ORDBITSIZE(pEC) < cpBN_bitsize(pMsgDigest), ippStsMessageErr);
 
    /* test regular public key */
    IPP_BAD_PTR1_RET(pRegPublic);
@@ -139,9 +117,6 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
       BNU_CHUNK_T* pMsgData = BN_NUMBER(pMsgDigest);
       int msgLen = BN_SIZE(pMsgDigest);
 
-      /* test message value */
-      IPP_BADARG_RET(0<=cpCmp_BNU(pMsgData, msgLen, pOrder, orderLen), ippStsMessageErr);
-
       /* test signature value */
       if(!cpEqu_BNU_CHUNK(BN_NUMBER(pSignR), BN_SIZE(pSignR), 0) &&
          !cpEqu_BNU_CHUNK(BN_NUMBER(pSignS), BN_SIZE(pSignS), 0) &&
@@ -157,14 +132,16 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
          BNU_CHUNK_T* f = t+orderLen;
 
          /* expand signatire's components */
-         cpGFpElementCopyPadd(r, orderLen, BN_NUMBER(pSignR), BN_SIZE(pSignR));
-         cpGFpElementCopyPadd(s, orderLen, BN_NUMBER(pSignS), BN_SIZE(pSignS));
+         cpGFpElementCopyPad(r, orderLen, BN_NUMBER(pSignR), BN_SIZE(pSignR));
+         cpGFpElementCopyPad(s, orderLen, BN_NUMBER(pSignS), BN_SIZE(pSignS));
 
          /* t = (r+s) mod order */
          cpModAdd_BNU(t, r, s, pOrder, orderLen, f);
 
-         /* P = [s]G +[t]regPublic, t = P.x */
-         {
+         /* check if t!=0 */
+         if( !cpIsGFpElemEquChunk_ct(t, orderLen, 0) ) {
+
+            /* P = [s]G +[t]regPublic, t = P.x */
             IppsGFpECPoint P, G;
             cpEcGFpInitPoint(&P, cpEcGFpGetPool(1, pEC),0, pEC);
             cpEcGFpInitPoint(&G, ECP_G(pEC), ECP_AFFINE_POINT|ECP_FINITE_POINT, pEC);
@@ -178,16 +155,18 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
             ns = cpMod_BNU(t, elmLen, pOrder, orderLen);
 
             cpEcGFpReleasePool(1, pEC);
+
+            /* t = (msg+t) mod order */
+            cpGFpElementCopyPad(f, orderLen, pMsgData, msgLen);
+            cpModSub_BNU(f, f, pOrder, pOrder, orderLen, s);
+            cpModAdd_BNU(t, t, f, pOrder, orderLen, s);
+
+            if(GFP_EQ(t, r, orderLen))
+               vResult = ippECValid;
          }
 
-         /* t = (msg+t) mod order */
-         cpGFpElementCopyPadd(f, orderLen, pMsgData, msgLen);
-         cpModAdd_BNU(t, t, f, pOrder, orderLen, f);
-
-         if(GFP_EQ(t, r, orderLen))
-            vResult = ippECValid;
-
          cpGFpReleasePool(4, pGFE);
+
       }
 
       *pResult = vResult;
