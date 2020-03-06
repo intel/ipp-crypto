@@ -608,16 +608,10 @@ extern double            __intel_castu64_f64(unsigned __int64 val);
 
       #elif defined(linux)
          /* LIN-32, LIN-64 */
-         #if !defined(ANDROID)
-            #if ( defined(_W7) || defined(_M7) )
-            #define _IPP_DATA 1
-            #endif
-         /* ANDROID-32, ANDROID-64 */
-         #elif defined(ANDROID)
-            #if ( defined(_S8) || defined(_N8) )
-            #define _IPP_DATA 1
-            #endif
+         #if ( defined(_W7) || defined(_M7) )
+         #define _IPP_DATA 1
          #endif
+
 
       /* OSX-32, OSX-64 */
       #elif defined(OSX32) || defined(OSXEM64T)

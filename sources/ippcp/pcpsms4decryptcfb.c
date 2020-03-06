@@ -131,7 +131,33 @@ IPPFUN(IppStatus, ippsSMS4DecryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, i
    IPP_BADARG_RET((len%cfbBlkSize), ippStsUnderRunErr);
 
    /* do encryption */
-   cpDecryptSMS4_cfb(pIV, pSrc, pDst, len/cfbBlkSize, cfbBlkSize, pCtx);
+   #if (_IPP32E>=_IPP32E_K0)
+   #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+   if (IsFeatureEnabled(ippCPUID_AVX512GFNI)) {
+
+      __ALIGN16 Ipp8u IV[MBS_SMS4];
+         CopyBlock16(pIV, IV);
+
+      if(len/cfbBlkSize >= 4)
+      {
+         cpSMS4_CFB_dec_gfni512(pDst, pSrc, len, cfbBlkSize, (Ipp32u*)SMS4_RK(pCtx), IV); /* pipeline */
+
+         int processedLen = len - (len % (4*cfbBlkSize));
+         pSrc += processedLen;
+         pDst += processedLen;
+         len = len - processedLen;
+      }
+      if(len)
+      {
+         cpDecryptSMS4_cfb(IV, pSrc, pDst, len/cfbBlkSize, cfbBlkSize, pCtx); /* tail */
+      }
+   }
+   else
+   #endif
+   #endif
+   {
+      cpDecryptSMS4_cfb(pIV, pSrc, pDst, len/cfbBlkSize, cfbBlkSize, pCtx);
+   }
 
    return ippStsNoErr;
 }

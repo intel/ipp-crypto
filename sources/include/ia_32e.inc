@@ -22,15 +22,15 @@
 %ifndef __IA_32E_INC__
 %define __IA_32E_INC__ 1
 
-; Force RIP-relative addressing
-; default rel
-
 %ifndef LINUX32E
  %ifndef WIN32E
     %fatal <Platform is not defined { LINUX32E or WIN32E }> \
             LINUX32E or WIN32E - Linux ABI (parameter passing in rdi, rsi, rdx, rcx, r8, r9...)
  %endif
 %endif
+
+; Force RIP-relative addressing
+; default rel
 
 %ifdef LINUX32E
   %ifdef STACK_ABI

@@ -405,68 +405,113 @@ IPPAPI(IppStatus, ippsARCFourDecrypt, (const Ipp8u *pSrc, Ipp8u *pDst, int lengt
 */
 
 /* SHA1 Hash Primitives */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA1GetSize,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA1Init,(IppsSHA1State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA1Duplicate,(const IppsSHA1State* pSrcState, IppsSHA1State* pDstState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA1Pack,(const IppsSHA1State* pState, Ipp8u* pBuffer))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA1Unpack,(const Ipp8u* pBuffer, IppsSHA1State* pState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA1Update,(const Ipp8u* pSrc, int len, IppsSHA1State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA1GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSHA1State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA1Final,(Ipp8u* pMD, IppsSHA1State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA1MessageDigest,(const Ipp8u* pMsg, int len, Ipp8u* pMD))
 
 /* SHA224 Hash Primitives */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA224GetSize,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA224Init,(IppsSHA224State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA224Duplicate,(const IppsSHA224State* pSrcState, IppsSHA224State* pDstState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA224Pack,(const IppsSHA224State* pState, Ipp8u* pBuffer))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA224Unpack,(const Ipp8u* pBuffer, IppsSHA224State* pState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA224Update,(const Ipp8u* pSrc, int len, IppsSHA224State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA224GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSHA224State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA224Final,(Ipp8u* pMD, IppsSHA224State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA224MessageDigest,(const Ipp8u* pMsg, int len, Ipp8u* pMD))
 
 /* SHA256 Hash Primitives */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA256GetSize,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA256Init,(IppsSHA256State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA256Duplicate,(const IppsSHA256State* pSrcState, IppsSHA256State* pDstState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA256Pack,(const IppsSHA256State* pState, Ipp8u* pBuffer))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA256Unpack,(const Ipp8u* pBuffer, IppsSHA256State* pState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA256Update,(const Ipp8u* pSrc, int len, IppsSHA256State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA256GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSHA256State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA256Final,(Ipp8u* pMD, IppsSHA256State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA256MessageDigest,(const Ipp8u* pMsg, int len, Ipp8u* pMD))
 
 /* SHA384 Hash Primitives */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA384GetSize,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA384Init,(IppsSHA384State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA384Duplicate,(const IppsSHA384State* pSrcState, IppsSHA384State* pDstState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA384Pack,(const IppsSHA384State* pState, Ipp8u* pBuffer))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA384Unpack,(const Ipp8u* pBuffer, IppsSHA384State* pState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA384Update,(const Ipp8u* pSrc, int len, IppsSHA384State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA384GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSHA384State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA384Final,(Ipp8u* pMD, IppsSHA384State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA384MessageDigest,(const Ipp8u* pMsg, int len, Ipp8u* pMD))
 
 /* SHA512 Hash Primitives */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA512GetSize,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA512Init,(IppsSHA512State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA512Duplicate,(const IppsSHA512State* pSrcState, IppsSHA512State* pDstState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA512Pack,(const IppsSHA512State* pState, Ipp8u* pBuffer))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA512Unpack,(const Ipp8u* pBuffer, IppsSHA512State* pState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA512Update,(const Ipp8u* pSrc, int len, IppsSHA512State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA512GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSHA512State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA512Final,(Ipp8u* pMD, IppsSHA512State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSHA512MessageDigest,(const Ipp8u* pMsg, int len, Ipp8u* pMD))
 
 /* MD5 Hash Primitives */
@@ -510,29 +555,47 @@ optimized and no security patches will be applied. A more secure alternative is 
 IPPAPI(IppStatus, ippsMD5MessageDigest,(const Ipp8u* pMsg, int len, Ipp8u* pMD))
 
 /* SM3 Hash Primitives */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSM3GetSize,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSM3Init,(IppsSM3State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSM3Duplicate,(const IppsSM3State* pSrcState, IppsSM3State* pDstState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSM3Pack,(const IppsSM3State* pState, Ipp8u* pBuffer))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSM3Unpack,(const Ipp8u* pBuffer, IppsSM3State* pState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSM3Update,(const Ipp8u* pSrc, int len, IppsSM3State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSM3GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSM3State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSM3Final,(Ipp8u* pMD, IppsSM3State* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsSM3MessageDigest,(const Ipp8u* pMsg, int len, Ipp8u* pMD))
 
 /* generalized Hash Primitives */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHashGetSize,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHashInit,(IppsHashState* pState, IppHashAlgId hashAlg))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHashPack,(const IppsHashState* pState, Ipp8u* pBuffer, int bufSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHashUnpack,(const Ipp8u* pBuffer, IppsHashState* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHashDuplicate,(const IppsHashState* pSrcState, IppsHashState* pDstState))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHashUpdate,(const Ipp8u* pSrc, int len, IppsHashState* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHashGetTag,(Ipp8u* pTag, int tagLen, const IppsHashState* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHashFinal,(Ipp8u* pMD, IppsHashState* pState))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHashMessage,(const Ipp8u* pMsg, int len, Ipp8u* pMD, IppHashAlgId hashAlg))
 
 /* method based generalized (reduced memory footprint) Hash Primitives */
@@ -575,6 +638,7 @@ IPPAPI(IppStatus, ippsHashMethodGetInfo,(IppsHashInfo* pInfo, const IppsHashMeth
 IPPAPI(IppStatus, ippsHashGetInfo_rmf,(IppsHashInfo* pInfo, const IppsHashState_rmf* pState))
 
 /* general MGF Primitives*/
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsMGF,(const Ipp8u* pSeed, int seedLen, Ipp8u* pMask, int maskLen, IppHashAlgId hashAlg))
 IPPAPI(IppStatus, ippsMGF1_rmf,(const Ipp8u* pSeed, int seedLen, Ipp8u* pMask, int maskLen, const IppsHashMethod* pMethod))
 IPPAPI(IppStatus, ippsMGF2_rmf,(const Ipp8u* pSeed, int seedLen, Ipp8u* pMask, int maskLen, const IppsHashMethod* pMethod))
@@ -587,16 +651,25 @@ IPPAPI(IppStatus, ippsMGF2_rmf,(const Ipp8u* pSeed, int seedLen, Ipp8u* pMask, i
 */
 
 /* generalized Keyed HMAC primitives */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHMAC_GetSize,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHMAC_Init,(const Ipp8u* pKey, int keyLen, IppsHMACState* pCtx, IppHashAlgId hashAlg))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHMAC_Pack,(const IppsHMACState* pCtx, Ipp8u* pBuffer, int bufSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHMAC_Unpack,(const Ipp8u* pBuffer, IppsHMACState* pCtx))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHMAC_Duplicate,(const IppsHMACState* pSrcCtx, IppsHMACState* pDstCtx))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHMAC_Update,(const Ipp8u* pSrc, int len, IppsHMACState* pCtx))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHMAC_Final,(Ipp8u* pMD, int mdLen, IppsHMACState* pCtx))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHMAC_GetTag,(Ipp8u* pMD, int mdLen, const IppsHMACState* pCtx))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsHMAC_Message,(const Ipp8u* pMsg, int msgLen,
                                     const Ipp8u* pKey, int keyLen,
                                     Ipp8u* pMD, int mdLen,
@@ -780,6 +853,7 @@ IPPAPI(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
                                  IppBitSupplier rndFunc, void* pRndParam))
 
 /* encryption scheme: RSAES-OAEP */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsRSAEncrypt_OAEP,(const Ipp8u* pSrc, int srcLen,
                                        const Ipp8u* pLabel, int labLen, 
                                        const Ipp8u* pSeed,
@@ -788,6 +862,7 @@ IPPAPI(IppStatus, ippsRSAEncrypt_OAEP,(const Ipp8u* pSrc, int srcLen,
                                              IppHashAlgId hashAlg,
                                              Ipp8u* pBuffer))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsRSADecrypt_OAEP,(const Ipp8u* pSrc,
                                        const Ipp8u* pLab, int labLen,
                                              Ipp8u* pDst, int* pDstLen,
@@ -829,6 +904,7 @@ IPPAPI(IppStatus, ippsRSADecrypt_PKCSv15,(const Ipp8u* pSrc,
                                                 Ipp8u* pBuffer))
 
 /* signature scheme : RSA-SSA-PSS */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsRSASign_PSS,(const Ipp8u* pMsg,  int msgLen,
                                    const Ipp8u* pSalt, int saltLen,
                                          Ipp8u* pSign,
@@ -837,6 +913,7 @@ IPPAPI(IppStatus, ippsRSASign_PSS,(const Ipp8u* pMsg,  int msgLen,
                                          IppHashAlgId hashAlg,
                                          Ipp8u* pBuffer))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsRSAVerify_PSS,(const Ipp8u* pMsg,  int msgLen,
                                      const Ipp8u* pSign,
                                            int* pIsValid,
@@ -860,6 +937,7 @@ IPPAPI(IppStatus, ippsRSAVerify_PSS_rmf,(const Ipp8u* pMsg,  int msgLen,
                                                Ipp8u* pBuffer))
 
 /* signature scheme : RSA-SSA-PKCS1-v1_5 */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsRSASign_PKCS1v15,(const Ipp8u* pMsg, int msgLen,
                                               Ipp8u* pSign,
                                         const IppsRSAPrivateKeyState* pPrvKey,
@@ -867,6 +945,7 @@ IPPAPI(IppStatus, ippsRSASign_PKCS1v15,(const Ipp8u* pMsg, int msgLen,
                                               IppHashAlgId hashAlg,
                                               Ipp8u* pBuffer))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsRSAVerify_PKCS1v15,(const Ipp8u* pMsg, int msgLen,
                                           const Ipp8u* pSign, int* pIsValid,
                                           const IppsRSAPublicKeyState* pKey,
@@ -1016,132 +1095,191 @@ IPPAPI( const char*, ippsECCGetResultString, (IppECResult code))
 // EC over Prime Fields
 */
 /* general EC initialization */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetSize,(int feBitSize, int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetSizeStd128r1,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetSizeStd128r2,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetSizeStd192r1,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetSizeStd224r1,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetSizeStd256r1,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetSizeStd384r1,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetSizeStd521r1,(int* pSize))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetSizeStdSM2,  (int* pSize))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPInit,(int feBitSize, IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPInitStd128r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPInitStd128r2,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPInitStd192r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPInitStd224r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPInitStd256r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPInitStd384r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPInitStd521r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPInitStdSM2,  (IppsECCPState* pEC))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSet,(const IppsBigNumState* pPrime,
                                const IppsBigNumState* pA, const IppsBigNumState* pB,
                                const IppsBigNumState* pGX,const IppsBigNumState* pGY,const IppsBigNumState* pOrder,
                                int cofactor,
                                IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetStd,(IppECCType flag, IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetStd128r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetStd128r2,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetStd192r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetStd224r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetStd256r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetStd384r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetStd521r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetStdSM2,  (IppsECCPState* pEC))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPBindGxyTblStd192r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPBindGxyTblStd224r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPBindGxyTblStd256r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPBindGxyTblStd384r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPBindGxyTblStd521r1,(IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPBindGxyTblStdSM2,  (IppsECCPState* pEC))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGet,(IppsBigNumState* pPrime,
                                IppsBigNumState* pA, IppsBigNumState* pB,
                                IppsBigNumState* pGX,IppsBigNumState* pGY,IppsBigNumState* pOrder,
                                int* cofactor,
                                IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetOrderBitSize,(int* pBitSize, IppsECCPState* pEC))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPValidate,(int nTrials, IppECResult* pResult, IppsECCPState* pEC,
                                     IppBitSupplier rndFunc, void* pRndParam))
 
 /* EC Point */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPPointGetSize,(int feBitSize, int* pSize))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPPointInit,(int feBitSize, IppsECCPPointState* pPoint))
 
 /* Setup/retrieve point's coordinates */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetPoint,(const IppsBigNumState* pX, const IppsBigNumState* pY,
                                     IppsECCPPointState* pPoint, IppsECCPState* pEC))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetPointAtInfinity,(IppsECCPPointState* pPoint, IppsECCPState* pEC))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGetPoint,(IppsBigNumState* pX, IppsBigNumState* pY,
                                     const IppsECCPPointState* pPoint, IppsECCPState* pEC))
 
 /* EC Point Operations */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPCheckPoint,(const IppsECCPPointState* pP,
                                       IppECResult* pResult, IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPComparePoint,(const IppsECCPPointState* pP, const IppsECCPPointState* pQ,
                                         IppECResult* pResult, IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPNegativePoint,(const IppsECCPPointState* pP,
                                          IppsECCPPointState* pR, IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPAddPoint,(const IppsECCPPointState* pP, const IppsECCPPointState* pQ,
                                     IppsECCPPointState* pR, IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPMulPointScalar,(const IppsECCPPointState* pP, const IppsBigNumState* pK,
                                           IppsECCPPointState* pR, IppsECCPState* pEC))
 
 /* Key Generation, Setup and Validation */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPGenKeyPair,(IppsBigNumState* pPrivate, IppsECCPPointState* pPublic,
                                       IppsECCPState* pEC,
                                       IppBitSupplier rndFunc, void* pRndParam))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPPublicKey,(const IppsBigNumState* pPrivate,
                                      IppsECCPPointState* pPublic,
                                      IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPValidateKeyPair,(const IppsBigNumState* pPrivate, const IppsECCPPointState* pPublic,
                                            IppECResult* pResult,
                                            IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSetKeyPair,(const IppsBigNumState* pPrivate, const IppsECCPPointState* pPublic,
                                       IppBool regular,
                                       IppsECCPState* pEC))
 
 /* Shared Secret (DH scheme ) */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSharedSecretDH,(const IppsBigNumState* pPrivateA,
                                           const IppsECCPPointState* pPublicB,
                                           IppsBigNumState* pShare,
                                           IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSharedSecretDHC,(const IppsBigNumState* pPrivateA,
                                            const IppsECCPPointState* pPublicB,
                                            IppsBigNumState* pShare,
                                            IppsECCPState* pEC))
 
 /* Sing/Verify */
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSignDSA,(const IppsBigNumState* pMsgDigest,
                         const IppsBigNumState* pPrivate,
                         IppsBigNumState* pSignX, IppsBigNumState* pSignY,
                         IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPVerifyDSA,(const IppsBigNumState* pMsgDigest,
                         const IppsBigNumState* pSignX, const IppsBigNumState* pSignY,
                         IppECResult* pResult,
                         IppsECCPState* pEC))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSignNR,(const IppsBigNumState* pMsgDigest,
                         const IppsBigNumState* pPrivate,
                         IppsBigNumState* pSignX, IppsBigNumState* pSignY,
                         IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPVerifyNR,(const IppsBigNumState* pMsgDigest,
                         const IppsBigNumState* pSignX, const IppsBigNumState* pSignY,
                         IppECResult* pResult,
                         IppsECCPState* pEC))
 
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPSignSM2,(const IppsBigNumState* pMsgDigest,
                         const IppsBigNumState* pRegPrivate,
                         IppsBigNumState* pEphPrivate,
                         IppsBigNumState* pSignR, IppsBigNumState* pSignS,
                         IppsECCPState* pEC))
+IPP_DEPRECATED("is deprecated. This API is considered obsolete and will be removed in one of future IPP releases. Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns.") \
 IPPAPI(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
                         const IppsECCPPointState* pRegPublic,
                         const IppsBigNumState* pSignR, const IppsBigNumState* pSignS,

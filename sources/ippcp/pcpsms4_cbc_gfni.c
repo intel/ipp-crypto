@@ -1169,7 +1169,6 @@ int cpSMS4_CBC_dec_gfni128x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp3
    int n;
    for(n=0; n<processedLen; n+=(4*MBS_SMS4), pInp+=(4*MBS_SMS4), pOut+=(4*MBS_SMS4)) {
       int itr;
-      //TMP[0];
       TMP[5] = _mm_loadu_si128((__m128i*)(pInp));
       TMP[6] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4));
       TMP[7] = _mm_loadu_si128((__m128i*)(pInp+MBS_SMS4*2));

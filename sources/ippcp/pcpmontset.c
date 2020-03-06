@@ -59,7 +59,7 @@ IPPFUN(IppStatus, ippsMontSet,(const Ipp32u* pModulus, int size, IppsMontState* 
 
    /* modulus is not an odd number */
    IPP_BADARG_RET((pModulus[0] & 1) == 0, ippStsBadModulusErr);
-   IPP_BADARG_RET(((Ipp32u)MNT_ROOM(pCtx) < INTERNAL_BNU_LENGTH(size)), ippStsOutOfRangeErr);
+   IPP_BADARG_RET(((Ipp32u)MNT_ROOM(pCtx) < (Ipp32u)INTERNAL_BNU_LENGTH(size)), ippStsOutOfRangeErr);
 
    {
       return cpMontSet(pModulus, size, pCtx);

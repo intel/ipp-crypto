@@ -77,7 +77,7 @@ extern "C" {
 #define AVX3X_MSK ( AVX2_MSK  | ippCPUID_AVX512F | ippCPUID_AVX512CD | ippCPUID_AVX512VL | ippCPUID_AVX512BW | ippCPUID_AVX512DQ )
 #define AVX3M_MSK ( AVX2_MSK  | ippCPUID_AVX512F | ippCPUID_AVX512CD | ippCPUID_AVX512PF | ippCPUID_AVX512ER )
 
-#if defined( _ARCH_IA32 ) && !defined( OSX32 ) && !defined( ANDROID )
+#if defined( _ARCH_IA32 ) && !defined( OSX32 )
   enum lib_enum {
      LIB_W7=0, LIB_S8=1, LIB_P8=2, LIB_G9=3, LIB_H9=4, LIB_NOMORE
   };
@@ -88,28 +88,12 @@ extern "C" {
   };
   #define LIB_PX LIB_S8
   #define LIB_W7 LIB_S8
-#elif defined( ANDROID ) && defined( _ARCH_IA32 )
-  enum lib_enum {
-     LIB_S8=0, LIB_P8=1, LIB_G9=2, LIB_H9=3, LIB_NOMORE
-  };
-  #define LIB_PX LIB_S8
-  #define LIB_W7 LIB_S8
-
-#elif defined( ANDROID ) && defined( _ARCH_EM64T )
-  enum lib_enum {
-     LIB_N8=0, LIB_Y8=1, LIB_E9=2, LIB_L9=3, LIB_NOMORE
-  };
-  #define LIB_PX LIB_N8
-  #define LIB_M7 LIB_N8
-  #define LIB_K0 LIB_L9
-  #define LIB_N0 LIB_L9
-
-#elif defined( _ARCH_EM64T ) && !defined( OSXEM64T ) && !defined( ANDROID ) && !defined( WIN32E ) /* Linux* OS Intel64 supports N0 */
+#elif defined( _ARCH_EM64T ) && !defined( OSXEM64T ) && !defined( WIN32E ) /* Linux* OS Intel64 supports N0 */
   enum lib_enum {
      LIB_M7=0, LIB_N8=1, LIB_Y8=2, LIB_E9=3, LIB_L9=4, LIB_N0=5, LIB_K0=6, LIB_NOMORE
   };
   #define LIB_PX LIB_M7
-#elif defined( _ARCH_EM64T ) && !defined( OSXEM64T ) && !defined( ANDROID ) /* Windows* OS Intel64 doesn't support N0 */
+#elif defined( _ARCH_EM64T ) && !defined( OSXEM64T ) /* Windows* OS Intel64 doesn't support N0 */
   enum lib_enum {
      LIB_M7=0, LIB_N8=1, LIB_Y8=2, LIB_E9=3, LIB_L9=4, LIB_K0=5, LIB_NOMORE
   };
