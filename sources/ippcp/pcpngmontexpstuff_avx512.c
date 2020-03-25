@@ -64,7 +64,7 @@ static void regular_dig52(Ipp64u* out, const Ipp64u* in, int inBitSize)
       Ipp64u digit = getDig52(inStr, 7);
       out[0] = digit & EXP_DIGIT_MASK_AVX512;
       inStr += 6;
-      // #yuriynat: inBitSize -= EXP_DIGIT_MASK_AVX512;
+      // inBitSize -= EXP_DIGIT_MASK_AVX512;
       inBitSize -= EXP_DIGIT_SIZE_AVX512;
       digit = getDig52(inStr, BITS2WORD8_SIZE(inBitSize));
       out[1] = digit>>4;
