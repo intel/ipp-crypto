@@ -31,12 +31,9 @@
 ## Repository Structure
 
 ``` bash
-├── CHANGELOG.md
-├── CMakeLists.txt                               < Main CMake file
+├── data                                         < Repository data (documentation images, etc)
 ├── examples                                     < Examples of the library usage
 ├── include                                      < Public headers
-├── LICENSE
-├── README.md
 ├── sources
 │   ├── cmake                                    < OS-specific CMake files
 │   │   ├── linux
@@ -51,6 +48,12 @@
 │       └── ifma_rsa_mb                          < Sources of RSA IFMA Multi-buffer library
 └── tools
     └── ipp_custom_library_tool_python           < Custom Library Tool
+├── BUILD.md                                     < Build instructions
+├── CHANGELOG.md
+├── CMakeLists.txt                               < Main CMake file
+├── LICENSE
+├── OVERVIEW.md                                  < This file
+└── README.md                                    < High-level information about the product
 ```
 
 ### Branches Description

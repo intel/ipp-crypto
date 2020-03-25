@@ -36,6 +36,7 @@
 - [Common tools](#common-software-requirements)
 - Intel® C++ Compiler 19.0 Update 4 for Windows\* OS
 - Microsoft Visual C++ Compiler\* version 19.16 provided by Microsoft Visual Studio\* 2017 version 15.9
+- Microsoft Visual C++ Compiler\* version 19.24 provided by Microsoft Visual Studio\* 2019 version 16.4
 ### macOS*
 - [Common tools](#common-software-requirements)
 - Intel® C++ Compiler 19.0 Update 4 for macOS\* 
@@ -104,10 +105,17 @@ To build the Intel IPP Cryptography library on Windows* OS, complete the followi
     ```
 
 2. Set the environment variables for one of the supported C/C++ compilers.
+
     For Intel® Compiler instructions, refer to the [Intel® C++ Compiler Developer Guide and Reference](https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference).
     For MSVC* Compiler, refer to [Use the MSVC toolset from the command line](https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=vs-2017).
 
 3. Run CMake\* in the command line.
+
+    ``` bash
+    cmake CMakeLists.txt -B_build -G<vs_generator> [-T"Intel C++ Compiler <version>"] -DBUILD_EXAMPLES:BOOL=ON
+    ```
+
+    For the Visual Studio* generators options, please refer to the [CMake\* generators help](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html#visual-studio-generators). The toolchain switch is optional, specify it if you want to build the library and examples using Intel(R) C++ Compiler.
 
     *Examples*:
 
