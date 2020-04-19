@@ -79,18 +79,34 @@ IPPFUN(IppStatus, ippsAES_GCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
       MulGcm_ hashFunc = AESGCM_HASH(pState);
 
       if( GcmAADprocessing==AESGCM_STATE(pState) ) {
-         /* complete AAD processing */
-         if(AESGCM_BUFLEN(pState))
-            hashFunc(AESGCM_GHASH(pState), AESGCM_HKEY(pState), AesGcmConst_table);
 
-         /* increment counter block */
-         IncrementCounter32(AESGCM_COUNTER(pState));
-         /* and encrypt counter */
-         #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
-         encoder(AESGCM_COUNTER(pState), AESGCM_ECOUNTER(pState), RIJ_NR(pAES), RIJ_EKEYS(pAES), RijEncSbox/*NULL*/);
-         #else
-         encoder(AESGCM_COUNTER(pState), AESGCM_ECOUNTER(pState), RIJ_NR(pAES), RIJ_EKEYS(pAES), NULL);
-         #endif
+         #if(_IPP32E>=_IPP32E_K0)
+
+         if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+            /* complete AAD processing */
+            if(AESGCM_BUFLEN(pState))
+               aes_gcm_aad_hash_finalize_vaes512(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState),
+                                                AESGCM_GHASH(pState), (Ipp64u)AESGCM_BUFLEN(pState), AESGCM_AAD_LEN(pState));
+
+         }
+         else
+
+         #endif /* #if(_IPP32E>=_IPP32E_K0) */
+
+         {
+            /* complete AAD processing */
+            if(AESGCM_BUFLEN(pState))
+               hashFunc(AESGCM_GHASH(pState), AESGCM_HKEY(pState), AesGcmConst_table);
+
+            /* increment counter block */
+            IncrementCounter32(AESGCM_COUNTER(pState));
+            /* and encrypt counter */
+            #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
+            encoder(AESGCM_COUNTER(pState), AESGCM_ECOUNTER(pState), RIJ_NR(pAES), RIJ_EKEYS(pAES), RijEncSbox/*NULL*/);
+            #else
+            encoder(AESGCM_COUNTER(pState), AESGCM_ECOUNTER(pState), RIJ_NR(pAES), RIJ_EKEYS(pAES), NULL);
+            #endif
+         }
 
          /* switch mode and init counters */
          AESGCM_STATE(pState) = GcmTXTprocessing;
@@ -98,10 +114,33 @@ IPPFUN(IppStatus, ippsAES_GCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
          AESGCM_BUFLEN(pState) = 0;
       }
 
+      /* execute encryption with code from Intel IPsec if possible */
+      #if(_IPP32E>=_IPP32E_K0)
+
+      if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+
+         switch AES_GCM_KEY_LEN(pState) {
+            case 16:
+               aes_gcm_enc_128_update_vaes_avx512(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), pDst, pSrc, (Ipp64u)len);
+               break;
+            case 24:
+               aes_gcm_enc_192_update_vaes_avx512(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), pDst, pSrc, (Ipp64u)len);
+               break;
+            case 32:
+               aes_gcm_enc_256_update_vaes_avx512(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), pDst, pSrc, (Ipp64u)len);
+               break;
+         }
+
+         return ippStsNoErr;
+      }
+
+      #endif /* #if(_IPP32E>=_IPP32E_K0) */
+
       /*
       // process text (encrypt and authenticate)
       */
       /* process partial block */
+
       if(AESGCM_BUFLEN(pState)) {
          int locLen = IPP_MIN(len, BLOCK_SIZE-AESGCM_BUFLEN(pState));
          /* ctr encryption */
@@ -139,13 +178,6 @@ IPPFUN(IppStatus, ippsAES_GCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
             Encrypt_ encFunc = AESGCM_ENC(pState);
 
             encFunc(pDst, pSrc, lenBlks, pState);
-
-            #if(_IPP32E>=_IPP32E_K0)
-            if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
-               /* encrypt next counter - can be used for further partial block processing */
-               encoder(AESGCM_COUNTER(pState), AESGCM_ECOUNTER(pState), RIJ_NR(pAES), RIJ_EKEYS(pAES), NULL);
-            }
-            #endif /* #if(_IPP32E>=_IPP32E_K0) */
 
             AESGCM_TXT_LEN(pState) += (Ipp64u)lenBlks;
             pSrc += lenBlks;

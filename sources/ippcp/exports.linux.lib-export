@@ -489,6 +489,8 @@ EXTERN (ippsGFpECSetPointRandom)
 EXTERN (ippsGFpECMakePoint)
 EXTERN (ippsGFpECSetPointHash)
 EXTERN (ippsGFpECSetPointHash_rmf)
+EXTERN (ippsGFpECSetPointHashBackCompatible)
+EXTERN (ippsGFpECSetPointHashBackCompatible_rmf)
 EXTERN (ippsGFpECGetPoint)
 EXTERN (ippsGFpECGetPointRegular)
 EXTERN (ippsGFpECTstPoint)
@@ -1014,6 +1016,8 @@ VERSION {
    ippsGFpECMakePoint;
    ippsGFpECSetPointHash;
    ippsGFpECSetPointHash_rmf;
+   ippsGFpECSetPointHashBackCompatible;
+   ippsGFpECSetPointHashBackCompatible_rmf;
    ippsGFpECGetPoint;
    ippsGFpECGetPointRegular;
    ippsGFpECTstPoint;

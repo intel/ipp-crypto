@@ -40,7 +40,7 @@ static int cpIsCoPrime(BNU_CHUNK_T* pA, int nsA,
         SWAP(nsA, nsB);
     }
     {
-        IppsBigNumState bnA, bnB, bnGcd;
+        __ALIGN8 IppsBigNumState bnA, bnB, bnGcd;
         BNU_CHUNK_T* pDataA = pBuffer;
         BNU_CHUNK_T* pBuffA = pDataA + nsA + 1;
         BNU_CHUNK_T* pDataB = pBuffA + nsA + 1;

@@ -67,5 +67,12 @@ IPPFUN(IppStatus, ippsAES_GCMReset,(IppsAES_GCMState* pState))
    PadBlock(0, AESGCM_ECOUNTER0(pState), BLOCK_SIZE);
    PadBlock(0, AESGCM_GHASH(pState), BLOCK_SIZE);
 
+   #if(_IPP32E>=_IPP32E_K0)
+
+   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) 
+      PadBlock(0, (void*)&AES_GCM_CONTEXT_DATA(pState), sizeof(struct gcm_context_data));
+
+   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+
    return ippStsNoErr;
 }

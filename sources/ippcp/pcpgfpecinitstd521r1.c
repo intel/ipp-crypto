@@ -44,7 +44,8 @@ static void cpGFpECSetStd(int aLen, const BNU_CHUNK_T* pA,
    int elemLen = GFP_FELEN(pGFE);
 
    IppsGFpElement elmA, elmB;
-   IppsBigNumState R, H;
+   __ALIGN8 IppsBigNumState R;
+   __ALIGN8 IppsBigNumState H;
 
    /* convert A ans B coeffs into GF elements */
    cpGFpElementConstruct(&elmA, cpGFpGetPool(1, pGFE), elemLen);

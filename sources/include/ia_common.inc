@@ -17,6 +17,10 @@
 %ifndef __IA_COMMON_INC__
 %define __IA_COMMON_INC__ 1
 
+; use multi-byte nop's sequences to align loops and jmp's when threshold is reached
+%use smartalign
+ALIGNMODE p6,16
+
 ; Declares function, sets visibility and binding and adds __cdecl decoration when needed.
 %macro DECLARE_FUNC 2-3.nolist
   %xdefine %%func_name %1
@@ -78,10 +82,10 @@
   %endif
   %%func_name:
 
-  ; CET enabling
+  ; CET enabling (macOS not supported)
   %if ((IPP_BINARY_FORMAT == 0) || (IPP_BINARY_FORMAT == 3)) ; elf32/win32
     db 0F3h, 00Fh, 01Eh, 0FBh ; endbr32
-  %else ; elf64/win64/macho64
+  %elif ((IPP_BINARY_FORMAT == 1) || (IPP_BINARY_FORMAT == 4)) ; elf64/win64
     db 0F3h, 00Fh, 01Eh, 0FAh ; endbr64
   %endif
 %endmacro

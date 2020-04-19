@@ -62,6 +62,32 @@ IPPFUN(IppStatus, ippsAES_GCMGetTag,(Ipp8u* pDstTag, int tagLen, const IppsAES_G
    IPP_BAD_PTR1_RET(pDstTag);
    IPP_BADARG_RET(tagLen<=0 || tagLen>BLOCK_SIZE, ippStsLengthErr);
 
+   #if(_IPP32E>=_IPP32E_K0)
+
+   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+
+      __ALIGN16 struct gcm_context_data context_data;
+
+      CopyBlock((void*)&AES_GCM_CONTEXT_DATA(pState), (void*)&context_data, sizeof(struct gcm_context_data));
+
+      switch AES_GCM_KEY_LEN(pState) {
+         case 16:
+            aes_gcm_enc_128_finalize_vaes_avx512(&AES_GCM_KEY_DATA(pState), &context_data, pDstTag, (Ipp64u)tagLen);
+            break;
+         case 24:
+            aes_gcm_enc_192_finalize_vaes_avx512(&AES_GCM_KEY_DATA(pState), &context_data, pDstTag, (Ipp64u)tagLen);
+            break;
+         case 32:
+            aes_gcm_enc_256_finalize_vaes_avx512(&AES_GCM_KEY_DATA(pState), &context_data, pDstTag, (Ipp64u)tagLen);
+            break;
+      }
+
+      PurgeBlock((void*)&context_data, sizeof(context_data));
+
+      return ippStsNoErr;
+   }
+
+   #endif /* #if(_IPP32E>=_IPP32E_K0) */
 
    {
       /* get method */

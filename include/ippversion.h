@@ -15,9 +15,10 @@
 *******************************************************************************/
 
 /*
-//              Intel(R) Integrated Performance Primitives (Intel(R) IPP)
-//              Purpose: Describes the Intel(R) IPP version
+// 
+//              Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 //
+//              Purpose: Describes the Intel IPP Cryptography version
 //
 */
 
@@ -27,8 +28,8 @@
 
 #define IPP_VERSION_MAJOR  2020
 #define IPP_VERSION_MINOR  0
-#define IPP_VERSION_UPDATE 1
+#define IPP_VERSION_UPDATE 2
 
-#define IPP_VERSION_STR "2020.0.1"
+#define IPP_VERSION_STR "2020.0.2"
 
 #endif /* IPPVERSION_H__ */

@@ -2,20 +2,25 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
-## 2020-02-25
-- GFNI optimization of SMS4 ECB,CBC,CTR modes implemented.
-- Clang9.0 for Linux and Clang11.0 for MacOS support added.
-- RSA multi-buffer Encrypt/Decrypt example added.
-- Added Control-flow Enforcement Technology enabling for NASM compiler on Linux and Windows.
-- API of ippsGFpECSignDSA, ippsGFpECSignNR and ippsGFpECSignSM2 functions changed.
+## 2020-04-19
+- AES-XTS optimization for Ice Lake with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI) was improved.
+- Fixed a build issue that affect build of the Intel(R) IPP Crypto library with MSVC\* compiler on Windows\* OS.
+- Duplicated APIs of HASH, HMAC, MGF, RSA, ECCP functionality were marked as deprecated.For more information see [Deprecation notes](./DEPRECATION_NOTES.md)
+- Added examples demonstrating usage of SMS4-CBC encryption and decryption.
 
+## 2020-02-25
+- ECB,CBC,CTR modes of SMS4 algorithm were optimized for Ice Lake with average 6x performance improvement.
+- Clang9.0\* for Linux and Clang11.0\* for MacOS support added.
+- RSA multi-buffer Encrypt/Decrypt example added.
+- Added Control-flow Enforcement Technology enabling for NASM\* compiler on Linux and Windows.
+- API of ippsGFpECSignDSA, ippsGFpECSignNR and ippsGFpECSignSM2 functions changed.
 
 ## 2019-12-13
 - Removed Android support. Use Linux libraries instead.
 - Added RSA PSS multi buffer signature generation and verification.
 - Added RSA PKCS#1 v1.5 multi buffer signature generation and verification.
 - Added RSA IFMA Muti-buffer Library.
-- Fixed all build warnings for supported GCC\* and MSVC\* compilres.
+- Fixed all build warnings for supported GCC\* and MSVC\* compilers.
 - Assembler sources were migrated to NASM\* assembler.
 
 ## 2019-09-17

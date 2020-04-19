@@ -15,7 +15,7 @@
 #===============================================================================
 
 #
-# Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
+# Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 #
 
 # linker

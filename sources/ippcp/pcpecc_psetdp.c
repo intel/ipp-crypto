@@ -87,7 +87,8 @@ IppStatus ECCPSetDP(const IppsGFpMethod* method,
       IppsGFpState *   pGF = ECP_GFP(pEC);
 
       IppStatus sts = ippStsNoErr;
-      IppsBigNumState P, H;
+      __ALIGN8 IppsBigNumState P;
+	  __ALIGN8 IppsBigNumState H;
       int primeBitSize = BITSIZE_BNU(pP, pLen);
       //cpConstructBN(&P, pLen, (BNU_CHUNK_T*)pP, NULL);
       //sts = cpGFpSetGFp(&P, primeBitSize, method, pGF);

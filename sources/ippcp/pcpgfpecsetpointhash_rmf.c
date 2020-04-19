@@ -17,7 +17,7 @@
 /*
 //
 //  Purpose:
-//     Intel(R) Integrated Performance Primitives. Cryptography Primitives.
+//     Cryptography Primitives.
 //     EC over GF(p) Operations
 //
 //     Context:

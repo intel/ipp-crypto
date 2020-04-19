@@ -93,7 +93,7 @@ static int cpSeedHW_buffer(Ipp32u* pRand, int bufLen)
 // Name: ippsTRNGenRDSEED
 //
 // Purpose: Generates a true random bit sequence
-//          based on Intel(R) instruction RDSEED of the specified nBits length.
+//          based on Intel® instruction RDSEED of the specified nBits length.
 //
 // Returns:                   Reason:
 //    ippStsNullPtrErr           NULL == pRand
@@ -144,7 +144,7 @@ IPPFUN(IppStatus, ippsTRNGenRDSEED,(Ipp32u* pRand, int nBits, void* pCtx))
 // Name: ippsTRNGenRDSEED_BN
 //
 // Purpose: Generates a true random big number
-//          based on Intel(R) instruction RDSEED of the specified nBits length.
+//          based on Intel® instruction RDSEED of the specified nBits length.
 //
 // Returns:                   Reason:
 //    ippStsNullPtrErr           NULL == pRand

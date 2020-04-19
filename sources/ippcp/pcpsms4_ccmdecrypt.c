@@ -47,6 +47,20 @@
 //    pCtx        pointer to the CCM context
 //
 *F*/
+
+/*
+//
+// NOTE
+//
+// We consider to not spend time for further optimizing of this algoritm because it is not widely using.
+// There is two ways for further optimization:
+// - Add parallel processing of CTR cipher. Performance advantages can be achieved by parallel processing of a big number of blocks.
+// - Try to decreace the memory reading/writing operation number, eg combine two calls of one block encryption 
+// function to single call that procees two blocks with the same key. Performance advantages can be achieved by 
+// reducing of reading/writing operations number, because we do not need to read the key twice in single loop.
+//
+*/
+
 IPPFUN(IppStatus, ippsSMS4_CCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, IppsSMS4_CCMState* pCtx))
 {
    /* test pCtx pointer */

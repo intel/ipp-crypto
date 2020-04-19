@@ -15,7 +15,7 @@
 #===============================================================================
 
 #
-# Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
+# Intel(R) Integrated Performance Primitives Cryptography (Intel(R) IPP Cryptography)
 #
 
 import sys

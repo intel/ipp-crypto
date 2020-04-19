@@ -15,18 +15,25 @@
 #===============================================================================
 
 #
-# Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography examples
+# Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography) examples
 #
 
 # List of examples for targets generation
 set(IPPCP_EXAMPLES
+  # AES examples
   aes/aes-256-ctr-encryption.cpp
   aes/aes-256-ctr-decryption.cpp
+  # RSA SSA-PSS examples
   rsa/rsa-3k-pss-sha384-type1-signature.cpp
   rsa/rsa-1k-pss-sha1-verification.cpp
+  # RSA OAEP examples
   rsa/rsa-1k-oaep-sha1-encryption.cpp
   rsa/rsa-1k-oaep-sha1-type2-decryption.cpp
+  # RSA MB examples
   rsa_mb/rsa_mb-1k-type1-encryption-decryption.cpp
+  # SMS4 examples
+  sms4/sms4-128-cbc-encryption.cpp
+  sms4/sms4-128-cbc-decryption.cpp
   )
 
 cmake_policy(SET CMP0003 NEW)
@@ -71,7 +78,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_LIST_DIR)
 # Build with standalone library
   cmake_minimum_required(VERSION 3.15)
 
-  project("Intel(R) IPP Cryptography Examples" CXX)
+  project("Intel IPP Cryptography Examples" CXX)
   set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 
   option(BUILD_EXAMPLES "Build examples" ON)
@@ -80,7 +87,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_LIST_DIR)
   find_package(IPPCrypto REQUIRED MODULE)
 
   if (NOT IPPCRYPTO_FOUND)
-    message(FATAL_ERROR "No Intel(R) IPP Cryptography library found on the system. To build examples with pre-built library, please specify -DIPPCRYPTO_ROOT_DIR=<path> option, where <path> is the path to directory that contains include/ and lib/ folders of Intel(R) IPP Cryptography product.")
+    message(FATAL_ERROR "No Intel IPP Cryptography library found on the system. To build examples with pre-built library, please specify -DIPPCRYPTO_ROOT_DIR=<path> option, where <path> is the path to directory that contains include/ and lib/ folders of Intel IPP Cryptography product.")
   endif()
 
   # Define library to link
@@ -94,7 +101,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_LIST_DIR)
 else()
 # Build with library sources
   if(NOT BUILD_EXAMPLES OR NOT MERGED_BLD)
-    message(FATAL_ERROR "Only merged library build is currently supported for Intel(R) IPP Cryptography examples. Use -DMERGED_BLD:BOOL=on options.")
+    message(FATAL_ERROR "Only merged library build is currently supported for Intel IPP Cryptography examples. Use -DMERGED_BLD:BOOL=on options.")
   endif()
 endif()
 

@@ -14,12 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography */
+/* Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography) */
 
 /*!
   *
   * \file
-  * \brief Common header for Intel(R) IPP Cryptography examples
+  * \brief Common header for Intel IPP Cryptography examples
   *
   */
 

@@ -14,6 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+//
+//  Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
+//
+
 #include "owndefs.h"
 #include "ippcpdefs.h"
 #include "ippcp.h"
@@ -116,24 +120,24 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
     edx_ = (Ipp32u)buf[3];
     mask = 0;
     if( edx_ & BIT23 ) mask |= ippCPUID_MMX;          // edx[23] - MMX(TM) Technology
-    if( edx_ & BIT25 ) mask |= ippCPUID_SSE;          // edx[25] - Intel(R) Streaming SIMD Extensions (Intel(R) SSE)
-    if( edx_ & BIT26 ) mask |= ippCPUID_SSE2;         // edx[26] - Intel(R) Streaming SIMD Extensions 2 (Intel(R) SSE2)
-    if( ecx_ & BIT00 ) mask |= ippCPUID_SSE3;         // ecx[0]  - Intel(R) Streaming SIMD Extensions 3 (Intel(R) SSE3) (formerly codenamed Prescott)
+    if( edx_ & BIT25 ) mask |= ippCPUID_SSE;          // edx[25] - Intel® Streaming SIMD Extensions (Intel® SSE)
+    if( edx_ & BIT26 ) mask |= ippCPUID_SSE2;         // edx[26] - Intel® Streaming SIMD Extensions 2 (Intel® SSE2)
+    if( ecx_ & BIT00 ) mask |= ippCPUID_SSE3;         // ecx[0]  - Intel® Streaming SIMD Extensions 3 (Intel® SSE3) (formerly codenamed Prescott)
     if( ecx_ & BIT09 ) mask |= ippCPUID_SSSE3;        // ecx[9]  - Supplemental Streaming SIMD Extensions 3 (SSSE3) (formerly codenamed Merom)
-    if( ecx_ & BIT22 ) mask |= ippCPUID_MOVBE;        // ecx[22] - Intel(R) instruction MOVBE (Intel Atom(R) processor)
-    if( ecx_ & BIT19 ) mask |= ippCPUID_SSE41;        // ecx[19] - Intel(R) Streaming SIMD Extensions 4.1 (Intel(R) SSE4.1) (formerly codenamed Penryn)
-    if( ecx_ & BIT20 ) mask |= ippCPUID_SSE42;        // ecx[20] - Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) (formerly codenamed Nenalem)
-    if( ecx_ & BIT28 ) mask |= ippCPUID_AVX;          // ecx[28] - Intel(R) Advanced Vector Extensions (Intel(R) AVX) (formerly codenamed Sandy Bridge)
+    if( ecx_ & BIT22 ) mask |= ippCPUID_MOVBE;        // ecx[22] - Intel® instruction MOVBE (Intel Atom® processor)
+    if( ecx_ & BIT19 ) mask |= ippCPUID_SSE41;        // ecx[19] - Intel® Streaming SIMD Extensions 4.1 (Intel® SSE4.1) (formerly codenamed Penryn)
+    if( ecx_ & BIT20 ) mask |= ippCPUID_SSE42;        // ecx[20] - Intel® Streaming SIMD Extensions 4.2 (Intel® SSE4.2) (formerly codenamed Nenalem)
+    if( ecx_ & BIT28 ) mask |= ippCPUID_AVX;          // ecx[28] - Intel® Advanced Vector Extensions (Intel® AVX) (formerly codenamed Sandy Bridge)
     if(( ecx_ & 0x18000000 ) == 0x18000000 ){
         tmp = (Ipp32u)cp_is_avx_extension();
-        if( tmp & BIT00 ) mask |= ippAVX_ENABLEDBYOS; // Intel(R) AVX is supported by OS
+        if( tmp & BIT00 ) mask |= ippAVX_ENABLEDBYOS; // Intel® AVX is supported by OS
     }
-    if( ecx_ & BIT25 ) mask |= ippCPUID_AES;          // ecx[25] - Intel(R) AES New Instructions
-    if( ecx_ & BIT01 ) mask |= ippCPUID_CLMUL;        // ecx[1]  - Intel(R) instruction PCLMULQDQ
-    if( ecx_ & BIT30 ) mask |= ippCPUID_RDRAND;       // ecx[30] - Intel(R) instruction RDRRAND
-    if( ecx_ & BIT29 ) mask |= ippCPUID_F16C;         // ecx[29] - Intel(R) instruction F16C
-         // Intel(R) AVX2 instructions extention: only if 3 features are enabled at once:
-         // FMA, Intel(R) AVX 256 int & GPR BMI (bit-manipulation);
+    if( ecx_ & BIT25 ) mask |= ippCPUID_AES;          // ecx[25] - Intel® AES New Instructions
+    if( ecx_ & BIT01 ) mask |= ippCPUID_CLMUL;        // ecx[1]  - Intel® instruction PCLMULQDQ
+    if( ecx_ & BIT30 ) mask |= ippCPUID_RDRAND;       // ecx[30] - Intel® instruction RDRRAND
+    if( ecx_ & BIT29 ) mask |= ippCPUID_F16C;         // ecx[29] - Intel® instruction F16C
+         // Intel® AVX2 instructions extention: only if 3 features are enabled at once:
+         // FMA, Intel® AVX 256 int & GPR BMI (bit-manipulation);
     if( ecx_ & BIT12 ) flgFMA = 1; else flgFMA = 0;   // ecx[12] - FMA 128 & 256 bit
     if( idBaseMax >= 7 ){                             // get CPUID.eax = 7
        cpGetReg( (int*)buf, 0x7, 0 );
@@ -141,38 +145,38 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
        ecx_ = (Ipp32u)buf[2];
        edx_ = (Ipp32u)buf[3];
        if( ebx_ & BIT05 ) flgINT = 1;
-       else flgINT = 0;                               //ebx[5], Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2) (int 256bits)
+       else flgINT = 0;                               //ebx[5], Intel® Advanced Vector Extensions 2 (Intel® AVX2) (int 256bits)
            // ebx[3] - enabled ANDN, BEXTR, BLSI, BLSMK, BLSR, TZCNT
            // ebx[8] - enabled BZHI, MULX, PDEP, PEXT, RORX, SARX, SHLX, SHRX
        if(( ebx_ & BIT03 )&&( ebx_ & BIT08 )) flgGPR = 1; 
        else flgGPR = 0;                               // VEX-encoded GPR instructions (GPR BMI)
-           // Intel(R) architecture formerly codenamed Broadwell instructions extention
-       if( ebx_ & BIT19 ) mask |= ippCPUID_ADCOX;     // eax[0x7] -->> ebx:: Bit 19: Intel(R) instructions ADOX/ADCX
-       if( ebx_ & BIT18 ) mask |= ippCPUID_RDSEED;    // eax[0x7] -->> ebx:: Bit 18: Intel(R) instruction RDSEED
-       if( ebx_ & BIT29 ) mask |= ippCPUID_SHA;       // eax[0x7] -->> ebx:: Bit 29: Intel(R) Secure Hash Algorithm Extensions
+           // Intel® architecture formerly codenamed Broadwell instructions extention
+       if( ebx_ & BIT19 ) mask |= ippCPUID_ADCOX;     // eax[0x7] -->> ebx:: Bit 19: Intel® instructions ADOX/ADCX
+       if( ebx_ & BIT18 ) mask |= ippCPUID_RDSEED;    // eax[0x7] -->> ebx:: Bit 18: Intel® instruction RDSEED
+       if( ebx_ & BIT29 ) mask |= ippCPUID_SHA;       // eax[0x7] -->> ebx:: Bit 29: Intel® Secure Hash Algorithm Extensions
 
-       // Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) extention
-       if( ebx_ & BIT16 ) mask |= ippCPUID_AVX512F;   // ebx[16] - Intel(R) AVX-512 Foundation
-       if( ebx_ & BIT26 ) mask |= ippCPUID_AVX512PF;  // ebx[26] - Intel(R) AVX-512 Prefetch instructions
-       if( ebx_ & BIT27 ) mask |= ippCPUID_AVX512ER;  // ebx[27] - Intel(R) AVX-512 Exponential and Reciprocal instructions
-       if( ebx_ & BIT28 ) mask |= ippCPUID_AVX512CD;  // ebx[28] - Intel(R) AVX-512 Conflict Detection
-       if( ebx_ & BIT17 ) mask |= ippCPUID_AVX512DQ;  // ebx[17] - Intel(R) AVX-512 Dword & Quadword
-       if( ebx_ & BIT30 ) mask |= ippCPUID_AVX512BW;  // ebx[30] - Intel(R) AVX-512 Byte & Word
-       if( ebx_ & BIT31 ) mask |= ippCPUID_AVX512VL;  // ebx[31] - Intel(R) AVX-512 Vector Length extensions
-       if( ecx_ & BIT01 ) mask |= ippCPUID_AVX512VBMI; // ecx[01] - Intel(R) AVX-512 Vector Bit Manipulation Instructions
-       if( ecx_ & BIT06 ) mask |= ippCPUID_AVX512VBMI2; // ecx[06] - Intel(R) AVX-512 Vector Bit Manipulation Instructions 2
-       if( edx_ & BIT02 ) mask |= ippCPUID_AVX512_4VNNIW; // edx[02] - Intel(R) AVX-512 Vector instructions for deep learning enhanced word variable precision
-       if( edx_ & BIT03 ) mask |= ippCPUID_AVX512_4FMADDPS; // edx[03] - Intel(R) AVX-512 Vector instructions for deep learning floating-point single precision
+       // Intel® Advanced Vector Extensions 512 (Intel® AVX-512) extention
+       if( ebx_ & BIT16 ) mask |= ippCPUID_AVX512F;   // ebx[16] - Intel® AVX-512 Foundation
+       if( ebx_ & BIT26 ) mask |= ippCPUID_AVX512PF;  // ebx[26] - Intel® AVX-512 Pre Fetch Instructions (PFI)
+       if( ebx_ & BIT27 ) mask |= ippCPUID_AVX512ER;  // ebx[27] - Intel® AVX-512 Exponential and Reciprocal Instructions (ERI)
+       if( ebx_ & BIT28 ) mask |= ippCPUID_AVX512CD;  // ebx[28] - Intel® AVX-512 Conflict Detection
+       if( ebx_ & BIT17 ) mask |= ippCPUID_AVX512DQ;  // ebx[17] - Intel® AVX-512 Dword & Quadword
+       if( ebx_ & BIT30 ) mask |= ippCPUID_AVX512BW;  // ebx[30] - Intel® AVX-512 Byte & Word
+       if( ebx_ & BIT31 ) mask |= ippCPUID_AVX512VL;  // ebx[31] - Intel® AVX-512 Vector Length Extensions (VLE)
+       if( ecx_ & BIT01 ) mask |= ippCPUID_AVX512VBMI; // ecx[01] - Intel® AVX-512 Vector Bit Manipulation Instructions
+       if( ecx_ & BIT06 ) mask |= ippCPUID_AVX512VBMI2; // ecx[06] - Intel® AVX-512 Vector Bit Manipulation Instructions 2
+       if( edx_ & BIT02 ) mask |= ippCPUID_AVX512_4VNNIW; // edx[02] - Intel® AVX-512 Vector instructions for deep learning enhanced word variable precision
+       if( edx_ & BIT03 ) mask |= ippCPUID_AVX512_4FMADDPS; // edx[03] - Intel® AVX-512 Vector instructions for deep learning floating-point single precision
        // bitwise OR between ippCPUID_MPX & ippCPUID_AVX flags can be used to define that arch is GE than formerly codenamed Skylake
-       if( ebx_ & BIT14 ) mask |= ippCPUID_MPX;       // ebx[14] - Intel(R) Memory Protection Extensions (Intel(R) MPX)
-       if( ebx_ & BIT21 ) mask |= ippCPUID_AVX512IFMA;  // ebx[21] - Intel(R) AVX-512 IFMA PMADD52
+       if( ebx_ & BIT14 ) mask |= ippCPUID_MPX;       // ebx[14] - Intel® Memory Protection Extensions (Intel® MPX)
+       if( ebx_ & BIT21 ) mask |= ippCPUID_AVX512IFMA;  // ebx[21] - Intel® AVX-512 IFMA PMADD52
 
        if (ecx_ & BIT08) mask |= ippCPUID_AVX512GFNI;    // test bit ecx[08]
        if (ecx_ & BIT09) mask |= ippCPUID_AVX512VAES;    // test bit ecx[09]
        if (ecx_ & BIT10) mask |= ippCPUID_AVX512VCLMUL;  // test bit ecx[10]
 
        if (mask & ippCPUID_AVX512F) {
-          /* test if Intel(R) AVX-512 is supported by OS */
+          /* test if Intel® AVX-512 is supported by OS */
           if (cp_is_avx512_extension())
             mask |= ippAVX512_ENABLEDBYOS;
 
@@ -187,15 +191,15 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
           #endif
        }
     }
-    mask = ( flgFMA && flgINT && flgGPR ) ? (mask | ippCPUID_AVX2) : mask; // to separate Intel(R) AVX2 flags here
+    mask = ( flgFMA && flgINT && flgGPR ) ? (mask | ippCPUID_AVX2) : mask; // to separate Intel® AVX2 flags here
 
     if( idExtdMax >= 0x80000001 ){ // get CPUID.eax=0x80000001
        cpGetReg( (int*)buf, (Ipp32s)0x80000001, 0 );
        ecx_ = (Ipp32u)buf[2];
-           // Intel(R) architecture formerly codenamed Broadwell instructions extention
-       if( ecx_ & BIT08 ) mask |= ippCPUID_PREFETCHW; // eax[0x80000001] -->> ecx:: Bit 8: Intel(R) instruction PREFETCHW
+           // Intel® architecture formerly codenamed Broadwell instructions extention
+       if( ecx_ & BIT08 ) mask |= ippCPUID_PREFETCHW; // eax[0x80000001] -->> ecx:: Bit 8: Intel® instruction PREFETCHW
     }
-       // Intel(R) architecture formerly codenamed Knights Corner
+       // Intel® architecture formerly codenamed Knights Corner
     if(((( eax_ << 20 ) >> 24 ) ^ 0xb1 ) == 0 ){
         mask = mask | ippCPUID_KNC;
     }
@@ -216,8 +220,8 @@ IPPFUN( int, ippcpGetEnabledNumThreads,( void ))
 
 #define AVX3X_FEATURES ( ippCPUID_AVX512F|ippCPUID_AVX512CD|ippCPUID_AVX512VL|ippCPUID_AVX512BW|ippCPUID_AVX512DQ )
 #define AVX3M_FEATURES ( ippCPUID_AVX512F|ippCPUID_AVX512CD|ippCPUID_AVX512PF|ippCPUID_AVX512ER )
-// AVX3X_FEATURES means Intel(R) Xeon(R) processor
-// AVX3M_FEATURES means Intel(R) Many Integrated Core Architecture
+// AVX3X_FEATURES means Intel® Xeon® processor
+// AVX3M_FEATURES means Intel® Many Integrated Core Architecture
 
 
 IppStatus owncpFeaturesToIdx(  Ipp64u* cpuFeatures, int* index )
@@ -228,66 +232,66 @@ IppStatus owncpFeaturesToIdx(  Ipp64u* cpuFeatures, int* index )
    *index = 0;
 
    if(( AVX3X_FEATURES  == ( *cpuFeatures & AVX3X_FEATURES  ))&&
-      ( ippAVX512_ENABLEDBYOS & cpFeatures )){                         /* Intel(R) architecture formerly codenamed Skylake ia32=S0, x64=K0 */
+      ( ippAVX512_ENABLEDBYOS & cpFeatures )){                         /* Intel® architecture formerly codenamed Skylake ia32=S0, x64=K0 */
          mask = AVX3X_MSK;
          *index = LIB_AVX3X;
    } else 
    if(( AVX3M_FEATURES  == ( *cpuFeatures & AVX3M_FEATURES  ))&&
-      ( ippAVX512_ENABLEDBYOS & cpFeatures )){                         /* Intel(R) architecture formerly codenamed Knights Landing ia32=i0, x64=N0 */
+      ( ippAVX512_ENABLEDBYOS & cpFeatures )){                         /* Intel® architecture formerly codenamed Knights Landing ia32=i0, x64=N0 */
        mask = AVX3M_MSK;
        *index = LIB_AVX3M;
    } else 
    if(( ippCPUID_AVX2  == ( *cpuFeatures & ippCPUID_AVX2  ))&&
-      ( ippAVX_ENABLEDBYOS & cpFeatures )){                            /* Intel(R) architecture formerly codenamed Haswell ia32=H9, x64=L9 */
+      ( ippAVX_ENABLEDBYOS & cpFeatures )){                            /* Intel® architecture formerly codenamed Haswell ia32=H9, x64=L9 */
        mask = AVX2_MSK;
        *index = LIB_AVX2;
    } else 
    if(( ippCPUID_AVX   == ( *cpuFeatures & ippCPUID_AVX   ))&&
-      ( ippAVX_ENABLEDBYOS & cpFeatures )){                            /* Intel(R) architecture formerly codenamed Sandy Bridge ia32=G9, x64=E9 */
+      ( ippAVX_ENABLEDBYOS & cpFeatures )){                            /* Intel® architecture formerly codenamed Sandy Bridge ia32=G9, x64=E9 */
        mask = AVX_MSK;
        *index = LIB_AVX;
    } else 
-   if( ippCPUID_SSE42 == ( *cpuFeatures & ippCPUID_SSE42 )){           /* Intel(R) architecture formerly codenamed Nehalem or Intel(R) architecture formerly codenamed Westmer = Intel(R) architecture formerly codenamed Penryn + Intel(R) SSE4.2 + ?Intel(R) instruction PCLMULQDQ + ?(Intel(R) AES New Instructions) + ?(Intel(R) Secure Hash Algorithm Extensions) */ 
-       mask = SSE42_MSK;                                               /* or new Intel Atom(R) processor formerly codenamed Silvermont */
+   if( ippCPUID_SSE42 == ( *cpuFeatures & ippCPUID_SSE42 )){           /* Intel® architecture formerly codenamed Nehalem or Intel® architecture formerly codenamed Westmer = Intel® architecture formerly codenamed Penryn + Intel® SSE4.2 + ?Intel® instruction PCLMULQDQ + ?(Intel® AES New Instructions) + ?(Intel® Secure Hash Algorithm Extensions) */ 
+       mask = SSE42_MSK;                                               /* or new Intel Atom® processor formerly codenamed Silvermont */
        *index = LIB_SSE42;
    } else 
-   if( ippCPUID_SSE41 == ( *cpuFeatures & ippCPUID_SSE41 )){           /* Intel(R) architecture formerly codenamed Penryn ia32=P8, x64=Y8 */
+   if( ippCPUID_SSE41 == ( *cpuFeatures & ippCPUID_SSE41 )){           /* Intel® architecture formerly codenamed Penryn ia32=P8, x64=Y8 */
        mask = SSE41_MSK;
        *index = LIB_SSE41;
    } else 
-   if( ippCPUID_MOVBE == ( *cpuFeatures & ippCPUID_MOVBE )) {          /* Intel Atom(R) processor formerly codenamed Silverthorne ia32=S8, x64=N8 */
+   if( ippCPUID_MOVBE == ( *cpuFeatures & ippCPUID_MOVBE )) {          /* Intel Atom® processor formerly codenamed Silverthorne ia32=S8, x64=N8 */
        mask = ATOM_MSK;
        *index = LIB_ATOM;
    } else 
-   if( ippCPUID_SSSE3 == ( *cpuFeatures & ippCPUID_SSSE3 )) {          /* Intel(R) architecture formerly codenamed Merom ia32=V8, x64=U8 (letters etymology is unknown) */
+   if( ippCPUID_SSSE3 == ( *cpuFeatures & ippCPUID_SSSE3 )) {          /* Intel® architecture formerly codenamed Merom ia32=V8, x64=U8 (letters etymology is unknown) */
        mask = SSSE3_MSK;
        *index = LIB_SSSE3;
    } else 
-   if( ippCPUID_SSE3  == ( *cpuFeatures & ippCPUID_SSE3  )) {          /* Intel(R) architecture formerly codenamed Prescott ia32=W7, x64=M7 */
+   if( ippCPUID_SSE3  == ( *cpuFeatures & ippCPUID_SSE3  )) {          /* Intel® architecture formerly codenamed Prescott ia32=W7, x64=M7 */
        mask = SSE3_MSK;
        *index = LIB_SSE3;
    } else 
-   if( ippCPUID_SSE2  == ( *cpuFeatures & ippCPUID_SSE2  )) {          /* Intel(R) architecture formerly codenamed Willamette ia32=W7, x64=PX */
+   if( ippCPUID_SSE2  == ( *cpuFeatures & ippCPUID_SSE2  )) {          /* Intel® architecture formerly codenamed Willamette ia32=W7, x64=PX */
        mask = SSE2_MSK;
        *index = LIB_SSE2;
    } else 
-   if( ippCPUID_SSE   == ( *cpuFeatures & ippCPUID_SSE   )) {          /* Intel(R) Pentium(R) processor III ia32=PX only */
+   if( ippCPUID_SSE   == ( *cpuFeatures & ippCPUID_SSE   )) {          /* Intel® Pentium® processor III ia32=PX only */
        mask = SSE_MSK;
        *index = LIB_SSE;
 #if (defined( WIN32E ) || defined( LINUX32E ) || defined( OSXEM64T )) && !(defined( _ARCH_LRB2 ))
-       ownStatus = ippStsNotSupportedCpu;                              /* the lowest CPU supported by Intel(R) Integrated Performance Primitives (Intel(R) IPP) must at least support Intel(R) SSE2 for x64 */
+       ownStatus = ippStsNotSupportedCpu;                              /* the lowest CPU supported by Intel IPP Cryptography must at least support Intel® SSE2 for x64 */
 #endif
    } else 
    if( ippCPUID_MMX   >= ( *cpuFeatures & ippCPUID_MMX   )) {          /* not supported, PX dispatched */
        mask = MMX_MSK;
        *index = LIB_MMX;
-       ownStatus = ippStsNotSupportedCpu; /* the lowest CPU supported by Intel(R) IPP must at least support Intel(R) SSE for ia32 or Intel(R) SSE2 for x64 */
+       ownStatus = ippStsNotSupportedCpu; /* the lowest CPU supported by Intel IPP Cryptography must at least support Intel® SSE for ia32 or Intel® SSE2 for x64 */
    } 
 #if defined ( _IPP_QUARK)
      else {
        mask = PX_MSK;
        *index = LIB_PX;
-       ownStatus = ippStsNoErr; /* the lowest CPU supported by Intel(R) IPP must at least support Intel(R) SSE for ia32 or Intel(R) SSE2 for x64 */
+       ownStatus = ippStsNoErr; /* the lowest CPU supported by Intel IPP Cryptography must at least support Intel® SSE for ia32 or Intel® SSE2 for x64 */
    }
 #endif
 
@@ -348,7 +352,7 @@ IppStatus owncpSetCpuFeaturesAndIdx(Ipp64u cpuFeatures, int* index)
    if (ippCPUID_NOCHECK & cpuFeatures) {
       // if NOCHECK is set - static variable cpFeatures is initialized unconditionally and real CPU features from CPUID are ignored;
       // the one who uses this method of initialization must understand what and why it does and the possible unpredictable consequences.
-      // the only one known purpose for this approach - environments where CPUID instruction is disabled (for example Intel(R) Software Guard Extensions).
+      // the only one known purpose for this approach - environments where CPUID instruction is disabled (for example Intel® Software Guard Extensions).
       cpuFeatures &= (IPP_MAX_64U ^ ippCPUID_NOCHECK);
       cpFeatures = cpuFeatures;
    }
@@ -413,10 +417,10 @@ static struct {
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippcpGetStatusString
-//  Purpose:    transformation of a code of a status Intel(R) IPP to string
+//  Purpose:    transformation of a code of a status Intel IPP Cryptography to string
 //  Returns:
 //  Parameters:
-//    StsCode   Intel(R) IPP status code
+//    StsCode   Intel IPP Cryptography status code
 //
 //  Notes:      not necessary to release the returned string
 */

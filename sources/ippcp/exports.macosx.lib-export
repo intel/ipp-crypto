@@ -489,6 +489,8 @@ _ippsGFpECSetPointRandom
 _ippsGFpECMakePoint
 _ippsGFpECSetPointHash
 _ippsGFpECSetPointHash_rmf
+_ippsGFpECSetPointHashBackCompatible
+_ippsGFpECSetPointHashBackCompatible_rmf
 _ippsGFpECGetPoint
 _ippsGFpECGetPointRegular
 _ippsGFpECTstPoint

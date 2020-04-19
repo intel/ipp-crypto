@@ -15,11 +15,9 @@
 *******************************************************************************/
 
 /*
-//              Intel(R) Integrated Performance Primitives (Intel(R) IPP)
-//              Cryptographic Primitives (ippCP)
+//              Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 //
-//              Purpose: Describes the base Intel(R) IPP version
-//
+//              Purpose: Describes the base Intel IPP Cryptography version
 //
 */
 

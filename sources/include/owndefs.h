@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 //
-// Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
+//  Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 //
 //  Purpose:
 //     Internal definitions
@@ -72,27 +72,27 @@
 
 /* ia32 */
 #define _IPP_PX 0    /* pure C-code                                                                                                            */
-#define _IPP_M5 1    /* Intel(R) Quark(TM) processor                                                                                           */
-#define _IPP_W7 8    /* Intel(R) Streaming SIMD Extensions 2 (Intel(R) SSE2)                                                                   */
-#define _IPP_T7 16   /* Intel(R) Streaming SIMD Extensions 3 (Intel(R) SSE3)                                                                   */
+#define _IPP_M5 1    /* Intel® Quark(TM) processor                                                                                             */
+#define _IPP_W7 8    /* Intel® Streaming SIMD Extensions 2 (Intel® SSE2)                                                                       */
+#define _IPP_T7 16   /* Intel® Streaming SIMD Extensions 3 (Intel® SSE3)                                                                       */
 #define _IPP_V8 32   /* Supplemental Streaming SIMD Extensions 3 (SSSE3)                                                                       */
 #define _IPP_S8 33   /* Supplemental Streaming SIMD Extensions 3 (SSSE3) + MOVBE instruction                                                   */
-#define _IPP_P8 64   /* Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2)                                                               */
-#define _IPP_G9 128  /* Intel(R) Advanced Vector Extensions (Intel(R) AVX)                                                                     */
-#define _IPP_H9 256  /* Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2)                                                                  */
-#define _IPP_I0 512  /* Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX512) - Intel(R) Xeon Phi(TM) Processor (formerly Knights Landing) */
-#define _IPP_S0 1024 /* Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX512) - Intel(R) Xeon(R) Processor (formerly codenamed Skylake)              */
+#define _IPP_P8 64   /* Intel® Streaming SIMD Extensions 4.2 (Intel® SSE4.2)                                                                   */
+#define _IPP_G9 128  /* Intel® Advanced Vector Extensions (Intel® AVX)                                                                         */
+#define _IPP_H9 256  /* Intel® Advanced Vector Extensions 2 (Intel® AVX2)                                                                      */
+#define _IPP_I0 512  /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon Phi(TM) Processor (formerly Knights Landing)       */
+#define _IPP_S0 1024 /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Skylake)            */
 
 /* intel64 */
-#define _IPP32E_PX _IPP_PX /* pure C-code                                                                                                            */
-#define _IPP32E_M7 32      /* Intel(R) Streaming SIMD Extensions 3 (Intel(R) SSE3)                                                                   */
-#define _IPP32E_U8 64      /* Supplemental Streaming SIMD Extensions 3 (SSSE3)                                                                       */
-#define _IPP32E_N8 65      /* Supplemental Streaming SIMD Extensions 3 (SSSE3) + MOVBE instruction                                                   */
-#define _IPP32E_Y8 128     /* Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2)                                                               */
-#define _IPP32E_E9 256     /* Intel(R) Advanced Vector Extensions (Intel(R) AVX)                                                                     */
-#define _IPP32E_L9 512     /* Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2)                                                                  */
-#define _IPP32E_N0 1024    /* Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX512) - Intel(R) Xeon Phi(TM) Processor (formerly Knights Landing) */
-#define _IPP32E_K0 2048    /* Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX512) - Intel(R) Xeon(R) Processor (formerly codenamed Skylake)              */
+#define _IPP32E_PX _IPP_PX /* pure C-code                                                                                                      */
+#define _IPP32E_M7 32      /* Intel® Streaming SIMD Extensions 3 (Intel® SSE3)                                                                 */
+#define _IPP32E_U8 64      /* Supplemental Streaming SIMD Extensions 3 (SSSE3)                                                                 */
+#define _IPP32E_N8 65      /* Supplemental Streaming SIMD Extensions 3 (SSSE3) + MOVBE instruction                                             */
+#define _IPP32E_Y8 128     /* Intel® Streaming SIMD Extensions 4.2 (Intel® SSE4.2)                                                             */
+#define _IPP32E_E9 256     /* Intel® Advanced Vector Extensions (Intel® AVX)                                                                   */
+#define _IPP32E_L9 512     /* Intel® Advanced Vector Extensions 2 (Intel® AVX2)                                                                */
+#define _IPP32E_N0 1024    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon Phi(TM) Processor (formerly Knights Landing) */
+#define _IPP32E_K0 2048    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Skylake)      */
 
 
 #if defined(__INTEL_COMPILER) || (_MSC_VER >= 1300)
@@ -114,17 +114,17 @@
 #endif
 
 /* ia32 */
-#if defined ( _M5 ) /* Intel(R) Quark(TM) processor */
+#if defined ( _M5 ) /* Intel® Quark(TM) processor */
   #define _IPP    _IPP_M5
   #define _IPP32E _IPP32E_PX
   #define OWNAPI(name) m5_##name
 
-#elif defined( _W7 ) /* Intel(R) SSE2 */
+#elif defined( _W7 ) /* Intel® SSE2 */
   #define _IPP    _IPP_W7
   #define _IPP32E _IPP32E_PX
   #define OWNAPI(name) w7_##name
 
-#elif defined( _T7 ) /* Intel(R) SSE3 */
+#elif defined( _T7 ) /* Intel® SSE3 */
   #define _IPP    _IPP_T7
   #define _IPP32E _IPP32E_PX
   #define OWNAPI(name) t7_##name
@@ -139,23 +139,23 @@
   #define _IPP32E _IPP32E_PX
   #define OWNAPI(name) s8_##name
 
-#elif defined( _P8 ) /* Intel(R) SSE4.2 */
+#elif defined( _P8 ) /* Intel® SSE4.2 */
   #define _IPP    _IPP_P8
   #define _IPP32E _IPP32E_PX
   #define OWNAPI(name) p8_##name
 
-#elif defined( _G9 ) /* Intel(R) AVX */
+#elif defined( _G9 ) /* Intel® AVX */
   #define _IPP    _IPP_G9
   #define _IPP32E _IPP32E_PX
   #define OWNAPI(name) g9_##name
 
-#elif defined( _H9 ) /* Intel(R) AVX2 */
+#elif defined( _H9 ) /* Intel® AVX2 */
   #define _IPP    _IPP_H9
   #define _IPP32E _IPP32E_PX
   #define OWNAPI(name) h9_##name
 
 /* intel64 */
-#elif defined( _M7 ) /* Intel(R) SSE3 */
+#elif defined( _M7 ) /* Intel® SSE3 */
   #define _IPP    _IPP_PX
   #define _IPP32E _IPP32E_M7
   #define OWNAPI(name) m7_##name
@@ -170,27 +170,27 @@
   #define _IPP32E _IPP32E_N8
   #define OWNAPI(name) n8_##name
 
-#elif defined( _Y8 ) /* Intel(R) SSE4.2 */
+#elif defined( _Y8 ) /* Intel® SSE4.2 */
   #define _IPP    _IPP_PX
   #define _IPP32E _IPP32E_Y8
   #define OWNAPI(name) y8_##name
 
-#elif defined( _E9 ) /* Intel(R) AVX */
+#elif defined( _E9 ) /* Intel® AVX */
   #define _IPP    _IPP_PX
   #define _IPP32E _IPP32E_E9
   #define OWNAPI(name) e9_##name
 
-#elif defined( _L9 ) /* Intel(R) AVX2 */
+#elif defined( _L9 ) /* Intel® AVX2 */
   #define _IPP    _IPP_PX
   #define _IPP32E _IPP32E_L9
   #define OWNAPI(name) l9_##name
 
-#elif defined( _N0 ) /* Intel(R) AVX512 - formerly Knights Landing */
+#elif defined( _N0 ) /* Intel® AVX512 - formerly Knights Landing */
   #define _IPP    _IPP_PX
   #define _IPP32E _IPP32E_N0
   #define OWNAPI(name) n0_##name
 
-#elif defined( _K0 ) /* Intel(R) AVX512 - formerly codenamed Skylake */
+#elif defined( _K0 ) /* Intel® AVX512 - formerly codenamed Skylake */
   #define _IPP    _IPP_PX
   #define _IPP32E _IPP32E_K0
   #define OWNAPI(name) k0_##name
@@ -316,7 +316,7 @@ extern "C" {
 
 /* /////////////////////////////////////////////////////////////////////////////
 
-           Intel(R) IPP Context Identification
+           Intel IPP Cryptography Context Identification
 
   /////////////////////////////////////////////////////////////////////////// */
 
@@ -608,16 +608,10 @@ extern double            __intel_castu64_f64(unsigned __int64 val);
 
       #elif defined(linux)
          /* LIN-32, LIN-64 */
-         #if !defined(ANDROID)
-            #if ( defined(_W7) || defined(_M7) )
-            #define _IPP_DATA 1
-            #endif
-         /* ANDROID-32, ANDROID-64 */
-         #elif defined(ANDROID)
-            #if ( defined(_S8) || defined(_N8) )
-            #define _IPP_DATA 1
-            #endif
+         #if ( defined(_W7) || defined(_M7) )
+         #define _IPP_DATA 1
          #endif
+
 
       /* OSX-32, OSX-64 */
       #elif defined(OSX32) || defined(OSXEM64T)

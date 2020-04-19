@@ -1,4 +1,4 @@
-# Library Overview <!-- omit in toc -->
+# Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography) Library Overview <!-- omit in toc -->
 
 - [Repository Structure](#repository-structure)
   - [Branches Description](#branches-description)
@@ -80,10 +80,10 @@ By default, the dispatcher chooses the most appropriate optimization for the cur
 | IA-32 Intel® architecture | Intel® 64 architecture | Meaning                                                                              |
 | ------------------------- | ---------------------- | ------------------------------------------------------------------------------------ |
 | px                        | mx                     | Generic code without hardware specific optimizations suitable for any CPU            |
-| w7                        | -                      | Optimized for processors with Intel® Streaming SIMD Extensions 2 (Intel® SSE2)                                             |
-| -                         | m7                     | Optimized for processors with Intel® SSE3                                             |
+| w7                        | -                      | Optimized for processors with Intel® Streaming SIMD Extensions 2 (Intel® SSE2)       |
+| -                         | m7                     | Optimized for processors with Intel® SSE3                                            |
 | s8                        | n8                     | Optimized for processors with Supplemental Streaming SIMD Extensions 3 (SSSE3)       |
-| p8                        | y8                     | Optimized for processors with Intel® SSE4.2                                           |
+| p8                        | y8                     | Optimized for processors with Intel® SSE4.2                                          |
 | g9                        | e9                     | Optimized for processors with Intel® Advanced Vector Extensions (Intel® AVX)         |
 | h9                        | l9                     | Optimized for processors with Intel® Advanced Vector Extensions 2 (Intel® AVX2)      |
 | -                         | k0                     | Optimized for processors with Intel® Advanced Vector Extensions 512 (Intel® AVX-512) |

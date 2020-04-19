@@ -29,6 +29,7 @@
 
 #include "owncp.h"
 #include "pcpaesm.h"
+#include "aes_gcm_vaes.h"
 
 #define BLOCK_SIZE (MBS_RIJ128)
 
@@ -86,6 +87,15 @@ struct _cpAES_GCM {
 										 ... <same 4 vectors for Karatsuba partial products> ...
 									*/
                                     /* - (safe) hKey*(t^i), i=0,...,127             */
+   #if(_IPP32E>=_IPP32E_K0)
+
+   __ALIGN16
+   struct gcm_key_data key_data;
+   __ALIGN16
+   struct gcm_context_data context_data;
+   Ipp64u   keyLen;  /* key length (bytes)             */
+
+   #endif /* #if(_IPP32E>=_IPP32E_K0) */
 };
 
 #define CTR_POS         12
@@ -125,6 +135,14 @@ struct _cpAES_GCM {
 #define AES_GCM_MTBL(stt)        ((stt)->multiplier)
 
 #define AESGCM_VALID_ID(stt)     (AESGCM_ID((stt))==idCtxAESGCM)
+
+#if(_IPP32E>=_IPP32E_K0)
+
+#define AES_GCM_KEY_DATA(stt)        ((stt)->key_data)
+#define AES_GCM_CONTEXT_DATA(stt)    ((stt)->context_data)
+#define AES_GCM_KEY_LEN(stt)         ((stt)->keyLen)
+
+#endif /* #if(_IPP32E>=_IPP32E_K0) */
 
 
 #if 0

@@ -48,10 +48,12 @@ void cpSMS4_ECB_gfni_x1(Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey)
       TMP[5] = key4
    */
 
-   TMP[1] = _mm_shuffle_epi8( _mm_cvtsi32_si128(((Ipp32s*)pInp)[0]), M128(swapBytes));
-   TMP[2] = _mm_shuffle_epi8( _mm_cvtsi32_si128(((Ipp32s*)pInp)[1]), M128(swapBytes));
-   TMP[3] = _mm_shuffle_epi8( _mm_cvtsi32_si128(((Ipp32s*)pInp)[2]), M128(swapBytes));
-   TMP[4] = _mm_shuffle_epi8( _mm_cvtsi32_si128(((Ipp32s*)pInp)[3]), M128(swapBytes));
+   TMP[1] = _mm_loadu_si128((__m128i*)pInp);
+   TMP[1] = _mm_shuffle_epi8(TMP[1], M128(swapBytes));
+
+   TMP[2] = _mm_alignr_epi32(TMP[1], TMP[1], 1);
+   TMP[3] = _mm_alignr_epi32(TMP[1], TMP[1], 2);
+   TMP[4] = _mm_alignr_epi32(TMP[1], TMP[1], 3);
 
    int itr;
    for(itr=0; itr<8; itr++, pRKey+=4) {
@@ -97,10 +99,13 @@ void cpSMS4_ECB_gfni_x1(Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey)
       TMP[4] = _mm_xor_si128(_mm_xor_si128(TMP[4], TMP[0]), L128(TMP[0]));
    }
 
-   ((Ipp32u*)(pOut))[0] = (Ipp32u)_mm_cvtsi128_si32(_mm_shuffle_epi8(TMP[4], M128(swapBytes)));
-   ((Ipp32u*)(pOut))[1] = (Ipp32u)_mm_cvtsi128_si32(_mm_shuffle_epi8(TMP[3], M128(swapBytes)));
-   ((Ipp32u*)(pOut))[2] = (Ipp32u)_mm_cvtsi128_si32(_mm_shuffle_epi8(TMP[2], M128(swapBytes)));
-   ((Ipp32u*)(pOut))[3] = (Ipp32u)_mm_cvtsi128_si32(_mm_shuffle_epi8(TMP[1], M128(swapBytes)));
+   TMP[0] = _mm_unpacklo_epi32(TMP[2], TMP[1]);
+   TMP[5] = _mm_unpacklo_epi32(TMP[4], TMP[3]);
+   TMP[1] = _mm_unpacklo_epi64(TMP[5], TMP[0]);
+
+   TMP[1] = _mm_shuffle_epi8(TMP[1], M128(swapBytes));
+
+   _mm_storeu_si128((__m128i*)pOut, TMP[1]);
 
    /* clear secret data */
    for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){

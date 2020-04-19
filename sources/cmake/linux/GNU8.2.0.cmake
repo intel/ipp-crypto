@@ -15,7 +15,7 @@
 #===============================================================================
 
 #
-# Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
+# Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 #
 
 # Security Linker flags
@@ -111,4 +111,4 @@ set(e9_opt "${e9_opt} -march=sandybridge -mavx -maes -mpclmul -msha -mrdrnd -mrd
 set(l9_opt "${l9_opt} -march=haswell -mavx2 -maes -mpclmul -msha -mrdrnd -mrdseed")
 set(n0_opt "${n0_opt} -march=knl -mavx2 -maes -mavx512f -mavx512cd -mavx512pf -mavx512er -mpclmul -msha -mrdrnd -mrdseed")
 set(k0_opt "${k0_opt} -march=skylake-avx512")
-set(k0_opt "${k0_opt} -maes -mavx512f -mavx512cd -mavx512vl -mavx512bw -mavx512dq -mavx512ifma -mpclmul -msha -mrdrnd -mrdseed -madx -mgfni -mvaes -mvpclmulqdq -mavx512vbmi2")
+set(k0_opt "${k0_opt} -maes -mavx512f -mavx512cd -mavx512vl -mavx512bw -mavx512dq -mavx512ifma -mpclmul -msha -mrdrnd -mrdseed -madx -mgfni -mvaes -mvpclmulqdq -mavx512vbmi -mavx512vbmi2")

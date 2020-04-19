@@ -70,6 +70,37 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    AESGCM_ID(pState) = idCtxAESGCM;
    ippsAES_GCMReset(pState);
 
+   #if(_IPP32E>=_IPP32E_K0)
+
+   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+      /* make sure in legal keyLen */
+      IPP_BADARG_RET(keyLen!=16 && keyLen!=24 && keyLen!=32, ippStsLengthErr);
+   
+      AES_GCM_KEY_LEN(pState) = (Ipp64u)keyLen;
+
+      Ipp8u zeroKey[32] = {0};
+      const Ipp8u* pActualKey = pKey? pKey : zeroKey;
+
+      switch AES_GCM_KEY_LEN(pState) {
+         case 16:
+            aes_keyexp_128_enc_avx2(pActualKey, &AES_GCM_KEY_DATA(pState));
+            aes_gcm_precomp_128_vaes_avx512(&AES_GCM_KEY_DATA(pState));
+            break;
+         case 24:
+            aes_keyexp_192_enc_avx2(pActualKey, &AES_GCM_KEY_DATA(pState));
+            aes_gcm_precomp_192_vaes_avx512(&AES_GCM_KEY_DATA(pState));
+            break;
+         case 32:
+            aes_keyexp_256_enc_avx2(pActualKey, &AES_GCM_KEY_DATA(pState));
+            aes_gcm_precomp_256_vaes_avx512(&AES_GCM_KEY_DATA(pState));
+            break;
+      }
+
+      return ippStsNoErr;
+   }
+
+   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+
    /* init cipher */
    {
       IppStatus sts = ippsAESInit(pKey, keyLen, AESGCM_CIPHER(pState), cpSizeofCtx_AES());
@@ -124,7 +155,7 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
       /* pre-compute hKey<<1, (hKey<<1)^2, (hKey<<1)^3, ... , (hKey<<1)^15 and corresponding
          Karatsuba constant multipliers for aggregated reduction */
-      AesGcmPrecompute_vaes(AESGCM_CPWR(pState), AESGCM_HKEY(pState));
+      AesGcmPrecompute_vaes(AESGCM_CPWR(pState), AESGCM_HKEY(pState));   
    }
    else
    #endif /* #if(_IPP32E>=_IPP32E_K0) */

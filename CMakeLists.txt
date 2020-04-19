@@ -15,12 +15,12 @@
 #===============================================================================
 
 #
-# Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography
+# Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 #
 
 cmake_minimum_required(VERSION 3.1)
 
-set(PROJECT_FULL_NAME "Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography ")
+set(PROJECT_FULL_NAME "Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)")
 set(PROJECT_NAME "Intel(R) IPP Crypto")
 set(PROJECT_VERSION, "2020.0.0")
 
@@ -70,7 +70,7 @@ else()
   endif()
 endif(WIN32 AND (${CMAKE_GENERATOR} MATCHES "Visual Studio"))
 
-if ((NOT NONPIC_LIB) AND (NOT ANDROID) AND (NOT CODE_COVERAGE))
+if ((NOT NONPIC_LIB) AND (NOT CODE_COVERAGE))
   set(DYNAMIC_LIB ON)
 else()
   set(DYNAMIC_LIB OFF)
@@ -156,15 +156,7 @@ else()
   message (STATUS "BUILD_EXAMPLES ........................ off")
 endif()
 
-if(UNIX AND NOT APPLE)
-  if(ANDROID)
-    message (STATUS "CROSS PLATFORM BUILD for ANDROID ...... on")
-  endif()
-else()
-  set(ANDROID, "")
-endif(UNIX AND NOT APPLE)
-
-if((UNIX) AND (NOT APPLE) AND (NOT ANDROID))
+if((UNIX) AND (NOT APPLE))
   set(LINUX ON)
 else()
   set(LINUX OFF)

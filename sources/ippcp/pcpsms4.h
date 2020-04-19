@@ -184,11 +184,13 @@ int     cpSMS4_CTR_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* 
 #define cpSMS4_ECB_gfni_x1 OWNAPI(cpSMS4_ECB_gfni_x1)
    void cpSMS4_ECB_gfni_x1(Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey);
 #define cpSMS4_ECB_gfni512 OWNAPI(cpSMS4_ECB_gfni512)
-    int cpSMS4_ECB_gfni512(Ipp8u* pDst, const Ipp8u* pSrc, int nLen, const Ipp32u* pRKey);
+    int cpSMS4_ECB_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey);
 #define cpSMS4_CBC_dec_gfni512 OWNAPI(cpSMS4_CBC_dec_gfni512)
     int cpSMS4_CBC_dec_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV);
 #define cpSMS4_CTR_gfni512 OWNAPI(cpSMS4_CTR_gfni512)
     int cpSMS4_CTR_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr);
+#define cpSMS4_CFB_dec_gfni512 OWNAPI(cpSMS4_CFB_dec_gfni512)
+   void cpSMS4_CFB_dec_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, int cfbBlkSize, const Ipp32u* pRKey, Ipp8u* pIV);
 
 #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
 #endif /* (_IPP32E>=_IPP32E_K0) */

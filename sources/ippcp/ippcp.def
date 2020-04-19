@@ -491,6 +491,8 @@ ippsGFpECSetPointRandom
 ippsGFpECMakePoint
 ippsGFpECSetPointHash
 ippsGFpECSetPointHash_rmf
+ippsGFpECSetPointHashBackCompatible
+ippsGFpECSetPointHashBackCompatible_rmf
 ippsGFpECGetPoint
 ippsGFpECGetPointRegular
 ippsGFpECSetPointOctString

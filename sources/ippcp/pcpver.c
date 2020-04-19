@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 /*
-//               Intel(R) Integrated Performance Primitives
+//               Intel® Integrated Performance Primitives
 //                   Cryptographic Primitives (ippcp)
 //
 */
@@ -38,40 +38,40 @@ static const IppLibraryVersion ippcpLibVer = {
 #endif /* IPP_REVISION */
        /* targetCpu[4] */
 #if ( _IPP_ARCH == _IPP_ARCH_IA32 ) || ( _IPP_ARCH == _IPP_ARCH_LP32 )
-    #if ( _IPP == _IPP_M5 )             /* Intel(R) Quark(TM) processor - ia32 */
+    #if ( _IPP == _IPP_M5 )             /* Intel® Quark(TM) processor - ia32 */
         GET_LIBRARY_NAME( m5, "586" )
-    #elif ( _IPP == _IPP_H9 )           /* Intel(R) Advanced Vector Extensions 2 - ia32 */
+    #elif ( _IPP == _IPP_H9 )           /* Intel® Advanced Vector Extensions 2 - ia32 */
         GET_LIBRARY_NAME( h9, "AVX2" )
-    #elif ( _IPP == _IPP_G9 )           /* Intel(R) Advanced Vector Extensions - ia32 */
+    #elif ( _IPP == _IPP_G9 )           /* Intel® Advanced Vector Extensions - ia32 */
         GET_LIBRARY_NAME( g9, "AVX" )
-    #elif ( _IPP == _IPP_P8 )           /* Intel(R) Streaming SIMD Extensions 4.2 - ia32 */
+    #elif ( _IPP == _IPP_P8 )           /* Intel® Streaming SIMD Extensions 4.2 (Intel® SSE4.2) - ia32 */
         GET_LIBRARY_NAME( p8, "SSE4.2" )
-    #elif ( _IPP == _IPP_S8 )           /* Supplemental Streaming SIMD Extensions 3 + Intel(R) instruction MOVBE - ia32 */
+    #elif ( _IPP == _IPP_S8 )           /* Supplemental Streaming SIMD Extensions 3 + Intel® instruction MOVBE - ia32 */
         GET_LIBRARY_NAME( s8, "Atom" )
     #elif ( _IPP == _IPP_V8 )           /* Supplemental Streaming SIMD Extensions 3 - ia32 */
         GET_LIBRARY_NAME( v8, "SSSE3" )
-    #elif ( _IPP == _IPP_W7 )           /* Intel(R) Streaming SIMD Extensions 2 - ia32 */
+    #elif ( _IPP == _IPP_W7 )           /* Intel® Streaming SIMD Extensions 2 - ia32 */
         GET_LIBRARY_NAME( w7, "SSE2" )
     #else
         GET_LIBRARY_NAME( px, "PX" )
     #endif
 
 #elif ( _IPP_ARCH == _IPP_ARCH_EM64T ) || ( _IPP_ARCH == _IPP_ARCH_LP64 )
-    #if ( _IPP32E == _IPP32E_K0 )       /* Intel(R) Advanced Vector Extensions 512 (formerly Skylake) - intel64 */
+    #if ( _IPP32E == _IPP32E_K0 )       /* Intel® Advanced Vector Extensions 512 (formerly Skylake) - intel64 */
         GET_LIBRARY_NAME( k0, "AVX-512F/CD/BW/DQ/VL" )
-    #elif ( _IPP32E == _IPP32E_N0 )     /* Intel(R) Advanced Vector Extensions 512 (formerly codenamed Knights Landing) - intel64 */
+    #elif ( _IPP32E == _IPP32E_N0 )     /* Intel® Advanced Vector Extensions 512 (formerly codenamed Knights Landing) - intel64 */
         GET_LIBRARY_NAME( n0, "AVX-512F/CD/ER/PF" )
-    #elif ( _IPP32E == _IPP32E_E9 )     /* Intel(R) Advanced Vector Extensions - intel64 */
+    #elif ( _IPP32E == _IPP32E_E9 )     /* Intel® Advanced Vector Extensions - intel64 */
         GET_LIBRARY_NAME( e9, "AVX" )
-    #elif ( _IPP32E == _IPP32E_L9 )     /* Intel(R) Advanced Vector Extensions 2 - intel64 */
+    #elif ( _IPP32E == _IPP32E_L9 )     /* Intel® Advanced Vector Extensions 2 - intel64 */
         GET_LIBRARY_NAME( l9, "AVX2" )
-    #elif ( _IPP32E == _IPP32E_Y8 )     /* Intel(R) Streaming SIMD Extensions 4.2 - intel64 */
+    #elif ( _IPP32E == _IPP32E_Y8 )     /* Intel® Streaming SIMD Extensions 4.2 - intel64 */
         GET_LIBRARY_NAME( y8, "SSE4.2" )
-    #elif ( _IPP32E == _IPP32E_N8 )     /* Supplemental Streaming SIMD Extensions 3 + Intel(R) instruction MOVBE - intel64 */
+    #elif ( _IPP32E == _IPP32E_N8 )     /* Supplemental Streaming SIMD Extensions 3 + Intel® instruction MOVBE - intel64 */
         GET_LIBRARY_NAME( n8, "Atom" )
     #elif ( _IPP32E == _IPP32E_U8 )     /* Supplemental Streaming SIMD Extensions 3 - intel64 */
         GET_LIBRARY_NAME( u8, "SSSE3" )
-    #elif ( _IPP32E == _IPP32E_M7 )     /* Intel(R) Streaming SIMD Extensions 3 - intel64 */
+    #elif ( _IPP32E == _IPP32E_M7 )     /* Intel® Streaming SIMD Extensions 3 (Intel® SSE3) */
         GET_LIBRARY_NAME( m7, "SSE3" )
     #else
         GET_LIBRARY_NAME( mx, "PX" )

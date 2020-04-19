@@ -130,7 +130,7 @@ To build the Intel IPP Cryptography library on Windows* OS, complete the followi
     *Build from command line:*
 
     ```bash
-    cmake --build build --parallel 4 --target ALL_BUILD --config Release
+    cmake --build . --parallel 4 --target ALL_BUILD --config Release
     ```
 
     *Build from Visual Studio\*:*

@@ -15,8 +15,8 @@
 #===============================================================================
 
 #
-# Intel(R) Integrated Performance Primitives (Intel(R) IPP) Cryptography library
-# detection routine.
+# Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
+# library detection routine.
 #
 # If found the following variables will be available:
 #       IPPCRYPTO_FOUND
@@ -29,11 +29,11 @@ include(FindPackageHandleStandardArgs)
 
 macro(ippcp_not_found)
   set(IPPCRYPTO_FOUND OFF)
-  set(IPPCRYPTO_ROOT_DIR "${IPPCRYPTO_ROOT_DIR}" CACHE PATH "Path to Intel(R) IPP Cryptography root directory")
+  set(IPPCRYPTO_ROOT_DIR "${IPPCRYPTO_ROOT_DIR}" CACHE PATH "Path to Intel IPP Cryptography root directory")
   return()
 endmacro()
 
-# Try to find Intel(R) IPP Cryptography library on the system if root dir is not defined externally
+# Try to find Intel IPP Cryptography library on the system if root dir is not defined externally
 if (NOT IPPCRYPTO_ROOT_DIR OR NOT EXISTS "${IPPCRYPTO_ROOT_DIR}/include/ippcp.h")
   set(ippcp_search_paths
     ${CMAKE_CURRENT_SOURCE_DIR}/../.build
@@ -53,7 +53,7 @@ if (NOT IPPCRYPTO_ROOT_DIR OR NOT EXISTS "${IPPCRYPTO_ROOT_DIR}/include/ippcp.h"
   find_path(IPPCRYPTO_ROOT_DIR include/ippcp.h PATHS ${ippcp_search_paths})
 endif()
 
-set(IPPCRYPTO_INCLUDE_DIRS "${IPPCRYPTO_ROOT_DIR}/include" CACHE PATH "Path to Intel(R) IPP Cryptography library include directory" FORCE)
+set(IPPCRYPTO_INCLUDE_DIRS "${IPPCRYPTO_ROOT_DIR}/include" CACHE PATH "Path to Intel IPP Cryptography library include directory" FORCE)
 
 # Check found directory
 if(NOT IPPCRYPTO_ROOT_DIR
@@ -104,9 +104,9 @@ endforeach()
 
 list(REMOVE_DUPLICATES IPPCRYPTO_LIBRARIES)
 
-message(STATUS "Found Intel(R) IPP Cryptography at: ${IPPCRYPTO_ROOT_DIR}")
+message(STATUS "Found Intel IPP Cryptography at: ${IPPCRYPTO_ROOT_DIR}")
 
 set(IPPCRYPTO_FOUND ON)
-set(IPPCRYPTO_ROOT_DIR "${IPPCRYPTO_ROOT_DIR}" CACHE PATH "Path to Intel(R) IPP Cryptography root directory")
-set(IPPCRYPTO_INCLUDE_DIRS "${IPPCRYPTO_INCLUDE_DIRS}" CACHE PATH "Path to Intel(R) IPP Cryptography include directory")
-set(IPPCRYPTO_LIBRARIES "${IPPCRYPTO_LIBRARIES}" CACHE STRING "Intel(R) IPP Cryptography libraries")
+set(IPPCRYPTO_ROOT_DIR "${IPPCRYPTO_ROOT_DIR}" CACHE PATH "Path to Intel IPP Cryptography root directory")
+set(IPPCRYPTO_INCLUDE_DIRS "${IPPCRYPTO_INCLUDE_DIRS}" CACHE PATH "Path to Intel IPP Cryptography include directory")
+set(IPPCRYPTO_LIBRARIES "${IPPCRYPTO_LIBRARIES}" CACHE STRING "Intel IPP Cryptography libraries")

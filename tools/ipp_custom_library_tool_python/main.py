@@ -65,8 +65,6 @@ if __name__ == '__main__':
                                   help='Specifies target system [' + tool.utils.HOST_SYSTEM + ']')
     arguments_parser.add_argument('-cnl',
                                   help='Path to compilers_and_libraries directory')
-    arguments_parser.add_argument('-andk',
-                                  help='Path to Android NDK')
     arguments_parser.add_argument('-tbb',
                                   help='Set TBB as threading layer',
                                   action='store_true')
@@ -116,14 +114,6 @@ if __name__ == '__main__':
                 functions += map(lambda x: x.replace('\n', ''), functions_list.readlines())
         if args.function:
             functions += args.function
-
-        if target_system == "Android" and not args.generate:
-            if args.andk:
-                thread_mode = tool.utils.MULTI_THREADED
-                tool.utils.ANDROID_NDK_PATH = args.andk
-            else:
-                print("Android NDK isn't set")
-                exit()
 
         if not os.getenv(root) or not os.path.exists(os.environ[root]):
             print('Please, set ' + root)
