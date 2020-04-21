@@ -142,7 +142,7 @@ The corresponding build target names for the libraries are shown at the picture 
 
 Be default, the Intel IPP Cryptography library is built with the [Position Independent Code (PIC)](https://en.wikipedia.org/wiki/Position-independent_code) option.
 
-But on Linux* OS, when the library is supposed to work in kernel space, it is possible to compile the static library in a non-PIC mode. For more information about build options, refer to the [Linux* OS build options](./INSTALL.txt).
+But on Linux* OS, when the library is supposed to work in kernel space, it is possible to compile the static library in a non-PIC mode. For more information about build options, refer to the [Linux* OS build options](./BUILD.md).
 
 ### Target Instruction Set Architecture (ISA)
 

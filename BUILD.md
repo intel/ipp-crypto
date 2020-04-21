@@ -1,4 +1,4 @@
-# How to Build Intel® IPP Cryptography <!-- omit in toc -->
+# How to Build Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography) <!-- omit in toc -->
 
 - [Software Requirements](#software-requirements)
   - [Common](#common)
@@ -17,7 +17,7 @@
   - [How to build a 64-bit generic library without any CPU-specific optimizations?](#how-to-build-a-64-bit-generic-library-without-any-cpu-specific-optimizations)
   - [How to build two libraries with optimizations for Intel® Advanced Vector Extensions 2 and Intel® Advanced Vector Extensions 512 instruction sets?](#how-to-build-two-libraries-with-optimizations-for-intel%c2%ae-advanced-vector-extensions-2-and-intel%c2%ae-advanced-vector-extensions-512-instruction-sets)
   - [How to build a library to work in a kernel space?](#how-to-build-a-library-to-work-in-a-kernel-space)
-- [Incorporating Intel® IPP Cryptography sources into custom build system](#incorporating-intel%c2%ae-ipp-cryptography-sources-into-custom-build-system)
+- [Incorporating Intel IPP Cryptography sources into custom build system](#incorporating-intel%c2%ae-ipp-cryptography-sources-into-custom-build-system)
 
 ## Software Requirements
 ### Common
@@ -54,7 +54,7 @@ To build the Intel IPP Cryptography library on Linux\* OS, complete the followin
 
 2. Set the environment for one of the supported C/C++ compilers.
 
-   *Example for Intel(R) Compiler:*
+   *Example for Intel® Compiler:*
 
     ```bash
     source /opt/intel/bin/compilervars.sh intel64
@@ -267,17 +267,17 @@ add_executable("test_proj" main.cpp)
 target_link_libraries("test_proj" "ippcp_s")
 ```
 
-Also you can use CMake module to find the IPP Crypto library installed on the system. The module location is `examples/FindIPPCrypto.cmake` and here is the example of its usage:
+Also you can use CMake module to find the Intel IPP Cryptography library installed on the system. The module location is `examples/FindIPPCrypto.cmake` and here is the example of its usage:
 
 ``` bash
 find_package(IPPCrypto REQUIRED MODULE)
 
 if (NOT IPPCRYPTO_FOUND)
-   message(FATAL_ERROR "No Intel(R) IPP Cryptography library found on the system.")
+   message(FATAL_ERROR "No Intel IPP Cryptography library found on the system.")
 endif()
 
 # If Intel IPP Cryptography is found, the following variables will be defined:
 #     `IPPCRYPTO_LIBRARIES` - static library name
-#     `IPPCRYPTO_INCLUDE_DIRS` - path to IPP Crypto headers
+#     `IPPCRYPTO_INCLUDE_DIRS` - path to Intel IPP Cryptography headers
 #     `IPPCRYPTO_ROOT_DIR` - library root dir (a folder with 'include' and 'lib' directories)
 ```

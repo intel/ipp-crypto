@@ -52,7 +52,7 @@ set_source_files_properties(${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${ECDSA_SOUR
 # Library
 add_library(${IFMA_LIB_TARGET} STATIC ${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${ED25519_SOURCES})  
 if(NOT BN_OPENSSL_DISABLE)
-    target_link_libraries(${IFMA_LIB_TARGET} OpenSSL::Crypto) # to get includes
+    target_link_libraries(${IFMA_LIB_TARGET} OpenSSL::Crypto)
 else()
     set_target_properties(${IFMA_LIB_TARGET} PROPERTIES COMPILE_DEFINITIONS "BN_OPENSSL_DISABLE")
 endif()

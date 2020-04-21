@@ -1,11 +1,15 @@
-# Intel(R) Integrated Performance Primitives Cryptography (Intel(R) IPP Cryptography)
+# Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
+
+## 2020-04-21
+- Documentation of Crypto Multi-buffer Library was updated.
+- Position Independent Execution (PIE) option was added to Crypto Multi-buffer Library build scripts.
 
 ## 2020-04-19
 - AES-XTS optimization for Ice Lake with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI) was improved.
 - Fixed a build issue that affect build of the Intel(R) IPP Crypto library with MSVC\* compiler on Windows\* OS.
-- Duplicated APIs of HASH, HMAC, MGF, RSA, ECCP functionality were marked as deprecated.For more information see [Deprecation notes](./DEPRECATION_NOTES.md)
+- Duplicated APIs of HASH, HMAC, MGF, RSA, ECCP functionality were marked as deprecated. For more information see [Deprecation notes](./DEPRECATION_NOTES.md)
 - Added examples demonstrating usage of SMS4-CBC encryption and decryption.
 
 ## 2020-02-25
@@ -29,11 +33,11 @@ This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chron
 ## 2019-08-27
 - Added Intel(R) IPP Cryptography library examples: AES-CTR, RSA-OAEP, RSA-PSS.
 - Fixed code generation for kernel code model in Linux* Intel(R) 64 non-PIC builds.
-- Fixes in Intel(R) IPP Custom Library Tool.
+- Fixes in Intel IPP Custom Library Tool.
 
 ## 2019-07-23
 - Added Microsoft\* Visual Studio\* 2019 build support.
-- Added Intel(R) IPP Custom Library Tool.
+- Added Intel IPP Custom Library Tool.
 
 ## 2019-06-24
 - AES-GCM was enabled with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI).
