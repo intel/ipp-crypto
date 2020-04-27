@@ -52,7 +52,8 @@ You can install the Crypto Multi-buffer library in two different ways:
    ``` bash
    make install
    ```
-
+   > **Note**: Installation requires write permissions to the build directory to create the installation manifest file. If it is not feasible in your setup, copy the build to the local directory and change permissions accordingly.
+   
 2. Installation to your own directory.  
    If you want to install the library not by default paths, specify the `CMAKE_INSTALL_PREFIX` variable at the configuration step, for example:
    ``` bash
@@ -75,6 +76,7 @@ You can find the installed files in:
     └── lib
         └── libcrypto_mb.a
 ```
+
 ## How to Build
 
 You can build the library in two ways:

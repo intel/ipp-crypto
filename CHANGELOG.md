@@ -2,6 +2,9 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## 2020-04-27
+- In the Readme file of the Crypto Multi-buffer Library was added the information about possible fails on the installation step, when the library is installed by default paths.
+
 ## 2020-04-21
 - Documentation of Crypto Multi-buffer Library was updated.
 - Position Independent Execution (PIE) option was added to Crypto Multi-buffer Library build scripts.

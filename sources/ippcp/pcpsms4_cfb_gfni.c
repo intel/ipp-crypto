@@ -217,7 +217,7 @@ void cpSMS4_CFB_dec_gfni512(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBlkS
       int itr;
       for (itr = 0; itr < 8; itr++, pRKey += 4) {
          /* initial xors */
-         TMP[19] = TMP[18] = TMP[17] = TMP[16] = _mm512_set1_epi32((Ipp16u)pRKey[0]);
+         TMP[19] = TMP[18] = TMP[17] = TMP[16] = _mm512_set1_epi32((Ipp32s)pRKey[0]);
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[1] );
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[2] );
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[3] );
@@ -242,7 +242,7 @@ void cpSMS4_CFB_dec_gfni512(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBlkS
          TMP[12] = _mm512_xor_si512(_mm512_xor_si512(TMP[12], TMP[19]), L512(TMP[19]));
 
          /* initial xors */
-         TMP[19] = TMP[18] = TMP[17] = TMP[16] = _mm512_set1_epi32((Ipp16u)pRKey[1]);
+         TMP[19] = TMP[18] = TMP[17] = TMP[16] = _mm512_set1_epi32((Ipp32s)pRKey[1]);
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[2] );
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[3] );
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[0] );
@@ -267,7 +267,7 @@ void cpSMS4_CFB_dec_gfni512(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBlkS
          TMP[13] = _mm512_xor_si512(_mm512_xor_si512(TMP[13], TMP[19]), L512(TMP[19]));
 
          /* initial xors */
-         TMP[19] = TMP[18] = TMP[17] = TMP[16] = _mm512_set1_epi32((Ipp16u)pRKey[2]);
+         TMP[19] = TMP[18] = TMP[17] = TMP[16] = _mm512_set1_epi32((Ipp32s)pRKey[2]);
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[3] );
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[0] );
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[1] );
@@ -292,7 +292,7 @@ void cpSMS4_CFB_dec_gfni512(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBlkS
          TMP[14] = _mm512_xor_si512(_mm512_xor_si512(TMP[14], TMP[19]), L512(TMP[19]));
 
          /* initial xors */
-         TMP[19] = TMP[18] = TMP[17] = TMP[16] = _mm512_set1_epi32((Ipp16u)pRKey[3]);
+         TMP[19] = TMP[18] = TMP[17] = TMP[16] = _mm512_set1_epi32((Ipp32s)pRKey[3]);
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[0] );
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[1] );
          TMP[16] = _mm512_xor_si512(TMP[16], TMP[2] );
@@ -512,7 +512,7 @@ void cpSMS4_CFB_dec_gfni512x48(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
       int itr;
       for (itr = 0; itr < 8; itr++, pRKey += 4) {
          /* initial xors */
-         TMP[14] = TMP[13] = TMP[12] = _mm512_set1_epi32((Ipp16u)pRKey[0]);
+         TMP[14] = TMP[13] = TMP[12] = _mm512_set1_epi32((Ipp32s)pRKey[0]);
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[1] );
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[2] );
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[3] );
@@ -532,7 +532,7 @@ void cpSMS4_CFB_dec_gfni512x48(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[8]  = _mm512_xor_si512(_mm512_xor_si512(TMP[8],  TMP[14]), L512(TMP[14]));
 
          /* initial xors */
-         TMP[14] = TMP[13] = TMP[12] = _mm512_set1_epi32((Ipp16u)pRKey[1]);
+         TMP[14] = TMP[13] = TMP[12] = _mm512_set1_epi32((Ipp32s)pRKey[1]);
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[2] );
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[3] );
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[0] );
@@ -552,7 +552,7 @@ void cpSMS4_CFB_dec_gfni512x48(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[9]  = _mm512_xor_si512(_mm512_xor_si512(TMP[9],  TMP[14]), L512(TMP[14]));
 
          /* initial xors */
-         TMP[14] = TMP[13] = TMP[12] = _mm512_set1_epi32((Ipp16u)pRKey[2]);
+         TMP[14] = TMP[13] = TMP[12] = _mm512_set1_epi32((Ipp32s)pRKey[2]);
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[3] );
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[0] );
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[1] );
@@ -572,7 +572,7 @@ void cpSMS4_CFB_dec_gfni512x48(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[10] = _mm512_xor_si512(_mm512_xor_si512(TMP[10], TMP[14]), L512(TMP[14]));
 
          /* initial xors */
-         TMP[14] = TMP[13] = TMP[12] = _mm512_set1_epi32((Ipp16u)pRKey[3]);
+         TMP[14] = TMP[13] = TMP[12] = _mm512_set1_epi32((Ipp32s)pRKey[3]);
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[0] );
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[1] );
          TMP[12] = _mm512_xor_si512(TMP[12], TMP[2] );
@@ -746,7 +746,7 @@ void cpSMS4_CFB_dec_gfni512x32(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
       int itr;
       for (itr = 0; itr < 8; itr++, pRKey += 4) {
          /* initial xors */
-         TMP[9] = TMP[8] = _mm512_set1_epi32((Ipp16u)pRKey[0]);
+         TMP[9] = TMP[8] = _mm512_set1_epi32((Ipp32s)pRKey[0]);
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[1] );
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[2] );
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[3] );
@@ -761,7 +761,7 @@ void cpSMS4_CFB_dec_gfni512x32(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[4]  = _mm512_xor_si512(_mm512_xor_si512(TMP[4],  TMP[9]), L512(TMP[9]));
 
          /* initial xors */
-         TMP[9] = TMP[8] = _mm512_set1_epi32((Ipp16u)pRKey[1]);
+         TMP[9] = TMP[8] = _mm512_set1_epi32((Ipp32s)pRKey[1]);
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[2] );
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[3] );
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[0] );
@@ -776,7 +776,7 @@ void cpSMS4_CFB_dec_gfni512x32(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[5]  = _mm512_xor_si512(_mm512_xor_si512(TMP[5],  TMP[9]), L512(TMP[9]));
 
          /* initial xors */
-         TMP[9] = TMP[8] = _mm512_set1_epi32((Ipp16u)pRKey[2]);
+         TMP[9] = TMP[8] = _mm512_set1_epi32((Ipp32s)pRKey[2]);
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[3] );
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[0] );
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[1] );
@@ -791,7 +791,7 @@ void cpSMS4_CFB_dec_gfni512x32(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[6]  = _mm512_xor_si512(_mm512_xor_si512(TMP[6],  TMP[9]), L512(TMP[9]));
 
          /* initial xors */
-         TMP[9] = TMP[8] = _mm512_set1_epi32((Ipp16u)pRKey[3]);
+         TMP[9] = TMP[8] = _mm512_set1_epi32((Ipp32s)pRKey[3]);
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[0] );
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[1] );
          TMP[8] = _mm512_xor_si512(TMP[8], TMP[2] );
@@ -922,7 +922,7 @@ void cpSMS4_CFB_dec_gfni512x16(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
       int itr;
       for (itr = 0; itr < 8; itr++, pRKey += 4) {
          /* initial xors */
-         TMP[4] = _mm512_set1_epi32((Ipp16u)pRKey[0]);
+         TMP[4] = _mm512_set1_epi32((Ipp32s)pRKey[0]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[1]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[2]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[3]);
@@ -932,7 +932,7 @@ void cpSMS4_CFB_dec_gfni512x16(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[0] = _mm512_xor_si512(_mm512_xor_si512(TMP[0], TMP[4]), L512(TMP[4]));
 
          /* initial xors */
-         TMP[4] = _mm512_set1_epi32((Ipp16u)pRKey[1]);
+         TMP[4] = _mm512_set1_epi32((Ipp32s)pRKey[1]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[2]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[3]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[0]);
@@ -942,7 +942,7 @@ void cpSMS4_CFB_dec_gfni512x16(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[1] = _mm512_xor_si512(_mm512_xor_si512(TMP[1], TMP[4]), L512(TMP[4]));
 
          /* initial xors */
-         TMP[4] = _mm512_set1_epi32((Ipp16u)pRKey[2]);
+         TMP[4] = _mm512_set1_epi32((Ipp32s)pRKey[2]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[3]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[0]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[1]);
@@ -952,7 +952,7 @@ void cpSMS4_CFB_dec_gfni512x16(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[2] = _mm512_xor_si512(_mm512_xor_si512(TMP[2], TMP[4]), L512(TMP[4]));
 
          /* initial xors */
-         TMP[4] = _mm512_set1_epi32((Ipp16u)pRKey[3]);
+         TMP[4] = _mm512_set1_epi32((Ipp32s)pRKey[3]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[0]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[1]);
          TMP[4] = _mm512_xor_si512(TMP[4], TMP[2]);
@@ -1105,7 +1105,7 @@ void cpSMS4_CFB_dec_gfni128x12(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
       int itr;
       for(itr=0; itr<8; itr++, pRKey+=4) {
          /* initial xors */
-         TMP[13] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[0]), 0);
+         TMP[13] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[0]), 0);
          TMP[14] = TMP[13];
          TMP[12] = TMP[13];
          TMP[12] = _mm_xor_si128(TMP[12], TMP[1] );
@@ -1127,7 +1127,7 @@ void cpSMS4_CFB_dec_gfni128x12(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[8] = _mm_xor_si128(_mm_xor_si128(TMP[8], TMP[14]), L128(TMP[14]));
 
          /* initial xors */
-         TMP[13] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[1]), 0);
+         TMP[13] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[1]), 0);
          TMP[14] = TMP[13];
          TMP[12] = TMP[13];
          TMP[12] = _mm_xor_si128(TMP[12], TMP[2] );
@@ -1149,7 +1149,7 @@ void cpSMS4_CFB_dec_gfni128x12(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[9] = _mm_xor_si128(_mm_xor_si128(TMP[9], TMP[14]), L128(TMP[14]));
 
          /* initial xors */
-         TMP[13] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[2]), 0);
+         TMP[13] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[2]), 0);
          TMP[14] = TMP[13];
          TMP[12] = TMP[13];
          TMP[12] = _mm_xor_si128(TMP[12], TMP[3] );
@@ -1171,7 +1171,7 @@ void cpSMS4_CFB_dec_gfni128x12(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
          TMP[10] = _mm_xor_si128(_mm_xor_si128(TMP[10], TMP[14]), L128(TMP[14]));
 
          /* initial xors */
-         TMP[13] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[3]), 0);
+         TMP[13] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[3]), 0);
          TMP[14] = TMP[13];
          TMP[12] = TMP[13];
          TMP[12] = _mm_xor_si128(TMP[12], TMP[0] );
@@ -1358,7 +1358,7 @@ void cpSMS4_CFB_dec_gfni128x8(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
       int itr;
       for(itr=0; itr<8; itr++, pRKey+=4) {
          /* initial xors */
-         TMP[9] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[0]), 0);
+         TMP[9] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[0]), 0);
          TMP[8] = TMP[9];
          TMP[8] = _mm_xor_si128(TMP[8], TMP[1] );
          TMP[8] = _mm_xor_si128(TMP[8], TMP[2] );
@@ -1374,7 +1374,7 @@ void cpSMS4_CFB_dec_gfni128x8(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
          TMP[4] = _mm_xor_si128(_mm_xor_si128(TMP[4], TMP[9]), L128(TMP[9]));
 
          /* initial xors */
-         TMP[9] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[1]), 0);
+         TMP[9] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[1]), 0);
          TMP[8] = TMP[9];
          TMP[8] = _mm_xor_si128(TMP[8], TMP[2] );
          TMP[8] = _mm_xor_si128(TMP[8], TMP[3] );
@@ -1390,7 +1390,7 @@ void cpSMS4_CFB_dec_gfni128x8(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
          TMP[5] = _mm_xor_si128(_mm_xor_si128(TMP[5], TMP[9]), L128(TMP[9]));
 
          /* initial xors */
-         TMP[9] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[2]), 0);
+         TMP[9] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[2]), 0);
          TMP[8] = TMP[9];
          TMP[8] = _mm_xor_si128(TMP[8], TMP[3] );
          TMP[8] = _mm_xor_si128(TMP[8], TMP[0] );
@@ -1406,7 +1406,7 @@ void cpSMS4_CFB_dec_gfni128x8(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
          TMP[6] = _mm_xor_si128(_mm_xor_si128(TMP[6], TMP[9]), L128(TMP[9]));
 
          /* initial xors */
-         TMP[9] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[3]), 0);
+         TMP[9] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[3]), 0);
          TMP[8] = TMP[9];
          TMP[8] = _mm_xor_si128(TMP[8], TMP[0] );
          TMP[8] = _mm_xor_si128(TMP[8], TMP[1] );
@@ -1541,7 +1541,7 @@ void cpSMS4_CFB_dec_gfni128x4(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
       int itr;
       for(itr=0; itr<8; itr++, pRKey+=4) {
          /* initial xors */
-         TMP[4] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[0]), 0);
+         TMP[4] = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[0]), 0);
          TMP[4] = _mm_xor_si128(TMP[4], TMP[1] );
          TMP[4] = _mm_xor_si128(TMP[4], TMP[2] );
          TMP[4] = _mm_xor_si128(TMP[4], TMP[3] );
@@ -1551,7 +1551,7 @@ void cpSMS4_CFB_dec_gfni128x4(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
          TMP[0] = _mm_xor_si128(_mm_xor_si128(TMP[0], TMP[4]), L128(TMP[4]));
 
          /* initial xors */
-         TMP[4] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[1]), 0);
+         TMP[4] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[1]), 0);
          TMP[4] = _mm_xor_si128(TMP[4], TMP[2] );
          TMP[4] = _mm_xor_si128(TMP[4], TMP[3] );
          TMP[4] = _mm_xor_si128(TMP[4], TMP[0] );
@@ -1561,7 +1561,7 @@ void cpSMS4_CFB_dec_gfni128x4(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
          TMP[1] = _mm_xor_si128(_mm_xor_si128(TMP[1], TMP[4]), L128(TMP[4]));
 
          /* initial xors */
-         TMP[4] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[2]), 0);
+         TMP[4] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[2]), 0);
          TMP[4] = _mm_xor_si128(TMP[4], TMP[3] );
          TMP[4] = _mm_xor_si128(TMP[4], TMP[0] );
          TMP[4] = _mm_xor_si128(TMP[4], TMP[1] );
@@ -1571,7 +1571,7 @@ void cpSMS4_CFB_dec_gfni128x4(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
          TMP[2] = _mm_xor_si128(_mm_xor_si128(TMP[2], TMP[4]), L128(TMP[4]));
 
          /* initial xors */
-         TMP[4] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp16u)pRKey[3]), 0);
+         TMP[4] =  _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)pRKey[3]), 0);
          TMP[4] = _mm_xor_si128(TMP[4], TMP[0] );
          TMP[4] = _mm_xor_si128(TMP[4], TMP[1] );
          TMP[4] = _mm_xor_si128(TMP[4], TMP[2] );
