@@ -115,6 +115,8 @@ cmake . -B"../build"
 -DOPENSSL_ROOT_DIR=/path/to/openssl
 ```
 
+Set `-DOPENSSL_USE_STATIC_LIBS=TRUE` if static OpenSSL libraries are preferred. 
+
 ## Usage Examples
 
 You can find the examples of usage of the optimized kernels with Intel IPP Cryptography\* API in the `<ipp-crypto-dir>/examples/rsa_mb` folder.
