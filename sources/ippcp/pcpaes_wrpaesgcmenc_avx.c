@@ -36,7 +36,8 @@
 #endif
 
 
-#if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
+#if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8) 
+#if(_IPP32E<_IPP32E_K0)
 
 /* encrypts and authenticates n*BLOCK_SIZE bytes */
 void wrpAesGcmEnc_avx(Ipp8u* pDst, const Ipp8u* pSrc, int lenBlks, IppsAES_GCMState* pState)
@@ -52,5 +53,6 @@ void wrpAesGcmEnc_avx(Ipp8u* pDst, const Ipp8u* pSrc, int lenBlks, IppsAES_GCMSt
                  AESGCM_HKEY(pState));
 }
 
+#endif /* (_IPP32E<_IPP32E_K0) */
 #endif /* #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8) */
 

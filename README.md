@@ -49,7 +49,7 @@ The library provides a comprehensive set of routines commonly used for cryptogra
 ## Documentation
 
 - [Introduction to Intel IPP Cryptography Library](./OVERVIEW.md)
-- [Introduction to RSA IFMA Library](./sources/ippcp/ifma_rsa_mb/Readme.md)
+- [Introduction to Crypto Multi-buffer Library](./sources/ippcp/crypto_mb/Readme.md)
 - [Intel IPP Cryptography Build Instructions](./BUILD.md)
 - [Intel IPP Release Notes](https://software.intel.com/en-us/articles/intel-ipp-release-notes-and-new-features)
 - [Intel IPP Cryptography Developer Reference](https://software.intel.com/en-us/ipp-crypto-reference)

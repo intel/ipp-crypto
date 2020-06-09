@@ -1,4 +1,4 @@
-﻿#===============================================================================
+#===============================================================================
 # Copyright 2017-2020 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -242,7 +242,7 @@ set (C_INCLUDE_DIRECTORIES
     ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}
     ${IPP_CRYPTO_INCLUDE_DIR}
     ${INTERNAL_INCLUDE_DIR}
-    ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/crypto_mb
+	  ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/crypto_mb
     ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/internal
     $<$<C_COMPILER_ID:Intel>:$ENV{ROOT}/compiler/include $ENV{ROOT}/compiler/include/icc>
     $<$<NOT:$<C_COMPILER_ID:Intel>>:${CMAKE_SYSTEM_INCLUDE_PATH}>
@@ -259,10 +259,12 @@ if ("${ARCH}" STREQUAL "intel64")
     set(IFMA_LIBRARYS_DEFINES
         "NO_USE_MALLOC"
         "_K0"
+        "BN_OPENSSL_DISABLE"
     )
     set(IFMA_COMPILE_OPTIONS "${k0_opt}")
     set(IFMA_INCLUDE_DIRS "${C_INCLUDE_DIRECTORIES}")
     set(BN_OPENSSL_DISABLE ON)
+    set(IFMA_LIB_OBJ_TARGET "crypto_mb-obj")
     add_subdirectory(crypto_mb)
 endif()
 
@@ -298,10 +300,7 @@ foreach(opt ${PLATFORM_LIST})
     set(IPPCP_DYN_ITER_ASMOBJS ${TARGET_NAME}_dyn_${opt}-asmobjs)
     if(WIN32)
       add_library(${IPPCP_DYN_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
-      add_library(${IPPCP_DYN_ITER} SHARED "ippcp.def" ${HEADERS} ${SOURCES} pcpver.rc $<TARGET_OBJECTS:${IPPCP_DYN_ITER_ASMOBJS}>)
-      if("${opt}" STREQUAL "k0")
-        target_link_libraries(${IPPCP_DYN_ITER} crypto_mb)
-      endif()
+      add_library(${IPPCP_DYN_ITER} SHARED "ippcp.def" ${HEADERS} ${SOURCES} pcpver.rc $<TARGET_OBJECTS:${IPPCP_DYN_ITER_ASMOBJS}> $<$<STREQUAL:"${opt}","k0">:$<TARGET_OBJECTS:${IFMA_LIB_OBJ_TARGET}>>)
       set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_WINDOWS})
       foreach(link ${LINK_LIB_STATIC_DEBUG})
         target_link_libraries(${IPPCP_DYN_ITER} debug ${link})
@@ -316,10 +315,7 @@ foreach(opt ${PLATFORM_LIST})
       endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
     else()
       add_library(${IPPCP_DYN_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
-      add_library(${IPPCP_DYN_ITER} SHARED ${HEADERS} ${SOURCES} $<TARGET_OBJECTS:${IPPCP_DYN_ITER_ASMOBJS}>)
-      if("${opt}" STREQUAL "k0")
-        target_link_libraries(${IPPCP_DYN_ITER} crypto_mb)
-      endif()
+      add_library(${IPPCP_DYN_ITER} SHARED ${HEADERS} ${SOURCES} $<TARGET_OBJECTS:${IPPCP_DYN_ITER_ASMOBJS}> $<$<STREQUAL:"${opt}","k0">:$<TARGET_OBJECTS:${IFMA_LIB_OBJ_TARGET}>>)
       if(APPLE)
         ## gres: copy LINK_FLAG_DYNAMIC_LINUX
         set(LINK_FLAGS ${LINK_FLAG_DYNAMIC_MACOSX})
@@ -353,13 +349,10 @@ foreach(opt ${PLATFORM_LIST})
   if(MERGED_BLD)
     add_library(${IPPCP_ST_ITER} OBJECT ${HEADERS} ${SOURCES})
     add_library(${IPPCP_ST_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
-    set(merged_dependency ${merged_dependency} $<TARGET_OBJECTS:${IPPCP_ST_ITER}> $<TARGET_OBJECTS:${IPPCP_ST_ITER_ASMOBJS}>)
+    set(merged_dependency ${merged_dependency} $<TARGET_OBJECTS:${IPPCP_ST_ITER}> $<TARGET_OBJECTS:${IPPCP_ST_ITER_ASMOBJS}> $<$<STREQUAL:"${opt}","k0">:$<TARGET_OBJECTS:${IFMA_LIB_OBJ_TARGET}>>)
   else()
     add_library(${IPPCP_ST_ITER_ASMOBJS} OBJECT ${ASM_SOURCES_${opt}})
-    add_library(${IPPCP_ST_ITER} STATIC ${HEADERS} ${SOURCES} $<TARGET_OBJECTS:${IPPCP_ST_ITER_ASMOBJS}>)
-    if("${opt}" STREQUAL "k0")
-      target_link_libraries(${IPPCP_ST_ITER} crypto_mb)
-    endif()
+    add_library(${IPPCP_ST_ITER} STATIC ${HEADERS} ${SOURCES} $<TARGET_OBJECTS:${IPPCP_ST_ITER_ASMOBJS}> $<$<STREQUAL:"${opt}","k0">:$<TARGET_OBJECTS:${IFMA_LIB_OBJ_TARGET}>>)
   endif()
 
   if(WIN32)
@@ -437,9 +430,6 @@ if(MERGED_BLD)
 
   set(IPPCP_LIB_MERGED ${TARGET_NAME}_s)
   add_library(${IPPCP_LIB_MERGED} STATIC ${HEADERS} ${SOURCES} ${ASM_SOURCES})
-  if ("${ARCH}" STREQUAL "intel64")
-    target_link_libraries(${IPPCP_LIB_MERGED} crypto_mb)
-  endif()
 
   set(IPPCP_LIB_MERGED ${IPPCP_LIB_MERGED} PARENT_SCOPE)
 

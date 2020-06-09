@@ -101,7 +101,8 @@ global {FunName}:function ({FunName}.LEnd{FunName} - {FunName})
     {endbr64}
     movsxd  rax, dword [ippcpJumpIndexForMergedLibs]
     lea     r11, [rel .Larraddr_{FunName}]
-    jmp     qword [r11 + rax*8]
+    mov     r11, qword [r11 + rax*8]
+    jmp     r11
 .LEnd{FunName}:
 """.format(FunName=FunName, endbr64='db 0xf3, 0x0f, 0x1e, 0xfa'))
             ASMDISP.close()
@@ -149,7 +150,8 @@ IPPAPI({FunType}, {FunName},{FunArg})
 {{
     __asm{{
         movsxd rax, dword ptr ippcpJumpIndexForMergedLibs
-        jmp    qword ptr [8*rax+8+arraddr]
+        mov    rax, qword ptr [8*rax+8+arraddr]
+        jmp    rax
     }}
 }}
 

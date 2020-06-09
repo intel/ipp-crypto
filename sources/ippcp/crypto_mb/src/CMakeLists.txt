@@ -31,7 +31,7 @@ if(("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel") AND (CMAKE_C_COMPILER_VERSION VER
 endif()
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common.cmake")
-include(${COMPILER_OPTIONS_FILE}) # get ${CMAKE_C_FLAGS}, ${CMAKE_CXX_FLAGS} and ${AVX512_CFLAGS}
+include(${COMPILER_OPTIONS_FILE}) # Get ${CMAKE_C_FLAGS}, ${CMAKE_CXX_FLAGS} and ${AVX512_CFLAGS}
 
 set(AVX512_LIBRARY_DEFINES "${IFMA_LIBRARYS_DEFINES}" "USE_AMS_5x" "SIMD_LEN=512")
 set(AVX512_CFLAGS "${AVX512_CFLAGS} ${IFMA_COMPILE_OPTIONS}")
@@ -41,28 +41,35 @@ file(GLOB RSA_AVX512_SOURCES    "${CMAKE_CURRENT_SOURCE_DIR}/rsa/*.c"
 file(GLOB COMMON_SOURCES        "${CMAKE_CURRENT_SOURCE_DIR}/common/*.c")
 file(GLOB ED25519_SOURCES       "${CMAKE_CURRENT_SOURCE_DIR}/ecdh/*.c")
 
-if(BN_OPENSSL_PATCH)# Off by default
+if(BN_OPENSSL_PATCH) # Off by default
     list(APPEND AVX512_LIBRARY_DEFINES "BN_OPENSSL_PATCH")
 endif()
 
-set_source_files_properties(${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${ECDSA_SOURCES} ${ED25519_SOURCES}
+set_source_files_properties(${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${ED25519_SOURCES}
                             PROPERTIES COMPILE_DEFINITIONS  "${AVX512_LIBRARY_DEFINES}"
                                        COMPILE_FLAGS        "${AVX512_CFLAGS}")
                                       
 # Library
-add_library(${IFMA_LIB_TARGET} STATIC ${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${ED25519_SOURCES})  
+if(IFMA_LIB_OBJ_TARGET)
+    add_library(${IFMA_LIB_OBJ_TARGET} OBJECT ${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${ED25519_SOURCES})
+    add_library(${IFMA_LIB_TARGET} STATIC $<TARGET_OBJECTS:${IFMA_LIB_OBJ_TARGET}>) 
+else()
+    add_library(${IFMA_LIB_TARGET} STATIC ${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${ED25519_SOURCES}) 
+endif()
+
 if(NOT BN_OPENSSL_DISABLE)
-    target_link_libraries(${IFMA_LIB_TARGET} OpenSSL::Crypto)
+    target_link_libraries(${IFMA_LIB_TARGET} OpenSSL::Crypto) #to get includes
 else()
     set_target_properties(${IFMA_LIB_TARGET} PROPERTIES COMPILE_DEFINITIONS "BN_OPENSSL_DISABLE")
 endif()
+
 
 install(TARGETS ${IFMA_LIB_TARGET} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 install(DIRECTORY ${PUBLIC_HEADERS_DIR}
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include/crypto_mb
         FILES_MATCHING PATTERN "*.h*")
 
-# Aplications. Building only with OpenSSL 
+# Applications. Building only with OpenSSL 
 if(NOT BN_OPENSSL_DISABLE)
     add_subdirectory(apps)
 endif()

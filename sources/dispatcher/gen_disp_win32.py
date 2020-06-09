@@ -99,14 +99,16 @@ while (isFunctionFound == True):
 IPPAPI({FunType}, {FunName},{FunArg})
 {{
   __asm {{mov eax, dword ptr ippcpJumpIndexForMergedLibs}}
-  __asm {{jmp arraddr[eax*4+4]}}
+  __asm {{mov eax, arraddr[eax*4+4]}}
+  __asm {{jmp eax}}
 }};
 
 IPPAPI({FunType}, in_{FunName},{FunArg})
 {{
   __asm {{call ippcpInit}}
   __asm {{mov eax, dword ptr ippcpJumpIndexForMergedLibs }}
-  __asm {{jmp arraddr[eax*4+4]}}
+  __asm {{mov eax, arraddr[eax*4+4]}}
+  __asm {{jmp eax}}
 }};
 """.format(FunType=FunType, FunName=FunName, FunArg=FunArg))
 

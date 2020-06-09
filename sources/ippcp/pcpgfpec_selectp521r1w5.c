@@ -50,7 +50,7 @@ void p521r1_select_ap_w5(BNU_CHUNK_T* pVal, const BNU_CHUNK_T* pTbl, int idx)
 
    /* select point */
    for(i=1; i<=tblLen; i++) {
-      BNU_CHUNK_T mask = cpIsEqu_ct(i, idx);
+      BNU_CHUNK_T mask = cpIsEqu_ct((BNU_CHUNK_T)i, (BNU_CHUNK_T)idx);
       for(n=0; n<LEN_P521_APOINT; n++)
          pVal[n] |= (pTbl[n] & mask);
       pTbl += LEN_P521_APOINT;

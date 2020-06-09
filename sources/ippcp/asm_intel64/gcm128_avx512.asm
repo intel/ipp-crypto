@@ -19,8 +19,7 @@
 
 %if (_IPP32E >= _IPP32E_K0)
 
-%define GCM256_MODE 1
-;; single buffer implementation
-%include "gcm_vaes_avx512.inc"
+%define GCM128_MODE 1
+%include "gcm_avx512.inc"
 
 %endif 

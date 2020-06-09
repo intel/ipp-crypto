@@ -22,27 +22,7 @@
 %include "asmdefs.inc"
 %include "ia_32e.inc"
 
-; Uses the f() function of the aeskeygenassist result
-%macro key_expansion_256_sse 0
-	;; Assumes the xmm3 includes all zeros at this point.
-        pshufd	xmm2, xmm2, 11111111b
-        shufps	xmm3, xmm1, 00010000b
-        pxor	xmm1, xmm3
-        shufps	xmm3, xmm1, 10001100b
-        pxor	xmm1, xmm3
-	pxor	xmm1, xmm2
-%endmacro
-
-; Uses the SubWord function of the aeskeygenassist result
-%macro key_expansion_256_sse_2 0
-	;; Assumes the xmm3 includes all zeros at this point.
-        pshufd	xmm2, xmm2, 10101010b
-        shufps	xmm3, xmm4, 00010000b
-        pxor	xmm4, xmm3
-        shufps	xmm3, xmm4, 10001100b
-        pxor	xmm4, xmm3
-	pxor	xmm4, xmm2
-%endmacro
+%if (_IPP32E >= _IPP32E_K0)
 
 ; Uses the f() function of the aeskeygenassist result
 %macro key_expansion_256_avx 0
@@ -78,14 +58,7 @@
 
 section .text
 
-IPPASM aes_keyexp_256_enc_avx2, PUBLIC
-
-%ifdef SAFE_PARAM
-        cmp     KEY, 0
-        jz      aes_keyexp_256_enc_avx_return
-        cmp     EXP_ENC_KEYS, 0
-        jz      aes_keyexp_256_enc_avx_return
-%endif
+IPPASM aes_keyexp_256_enc, PUBLIC
 
         vmovdqu	xmm1, [KEY]			; loading the AES key
 	vmovdqa	[EXP_ENC_KEYS + 16*0], xmm1
@@ -147,16 +120,11 @@ IPPASM aes_keyexp_256_enc_avx2, PUBLIC
         key_expansion_256_avx
 	vmovdqa	[EXP_ENC_KEYS + 16*14], xmm1
 
-%ifdef SAFE_DATA
         clear_scratch_gps_asm
         clear_scratch_xmms_avx_asm
-%endif
 
-.aes_keyexp_256_enc_avx_return:
         ret
 
-ENDFUNC aes_keyexp_256_enc_avx2
+ENDFUNC aes_keyexp_256_enc
 
-%ifdef LINUX
-section .note.GNU-stack noalloc noexec nowrite progbits
-%endif
+%endif 

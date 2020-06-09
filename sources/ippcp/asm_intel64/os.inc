@@ -29,30 +29,11 @@
 %endif
 %endif
 
-%ifdef LINUX
-;;; macro to declare global symbols
-;;;  - name : symbol name
-;;;  - type : funtion or data
-;;;  - scope : internal, private, default
-%macro MKGLOBAL 2-3
-   %xdefine %%name %1
-   %xdefine %%type %2
-   %xdefine %%scope %3
-
-   %if (%0 == 3)
-       global %%name:%%type %%scope
-   %else
-       global %%name:%%type
-   %endif
-%endmacro
-%endif                          ; LINUX
-
-%ifdef WIN_ABI
-;;; macro to declare global symbols
-;;;  - name : symbol name
-;;;  - type : funtion or data
-;;;  - scope : internal, private, default (ignored in win64 coff format)
-%define MKGLOBAL(name,type,scope) global name
-%endif                          ; WIN_ABI
+;; code is the same for linux and macos
+%ifndef LINUX
+%ifidn __OUTPUT_FORMAT__, macho64
+%define LINUX
+%endif
+%endif
 
 %endif                          ; OS_ASM_FILE

@@ -27,9 +27,14 @@
 
 #include "owndefs.h"
 #include "owncp.h"
-#include "pcpaesauthgcm.h"
 #include "pcpaesm.h"
 #include "pcptool.h"
+
+#if(_IPP32E>=_IPP32E_K0)
+#include "pcpaesauthgcm_avx512.h"
+#else
+#include "pcpaesauthgcm.h"
+#endif /* #if(_IPP32E>=_IPP32E_K0) */
 
 /*F*
 //    Name: ippsAES_GCMProcessIV
@@ -71,51 +76,47 @@ IPPFUN(IppStatus, ippsAES_GCMProcessIV,(const Ipp8u* pIV, int ivLen, IppsAES_GCM
 
    #if(_IPP32E>=_IPP32E_K0)
 
-   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
-      
-      /* test if buffer is not empty */
-      if(AESGCM_BUFLEN(pState)) {
-         int locLen = IPP_MIN(ivLen, BLOCK_SIZE-AESGCM_BUFLEN(pState));
-         CopyBlock((void*)pIV, (void*)(AESGCM_COUNTER(pState)+AESGCM_BUFLEN(pState)), locLen);
-         AESGCM_BUFLEN(pState) += locLen;
+   IvUpdate_ ivHashUpdate = AES_GCM_IV_UPDATE(pState);
 
-         /* if buffer full */
-         if(BLOCK_SIZE==AESGCM_BUFLEN(pState)) {
-            aes_gcm_iv_hash_update_vaes512(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState),
-                                             AESGCM_COUNTER(pState), BLOCK_SIZE);
-            AESGCM_BUFLEN(pState) = 0;
-         }
+   /* test if buffer is not empty */
+   if(AESGCM_BUFLEN(pState)) {
+      int locLen = IPP_MIN(ivLen, BLOCK_SIZE-AESGCM_BUFLEN(pState));
+      CopyBlock((void*)pIV, (void*)(AESGCM_COUNTER(pState)+AESGCM_BUFLEN(pState)), locLen);
+      AESGCM_BUFLEN(pState) += locLen;
 
-         AESGCM_IV_LEN(pState) += (Ipp64u)locLen;
-         pIV += locLen;
-         ivLen -= locLen;
+      /* if buffer full */
+      if(BLOCK_SIZE==AESGCM_BUFLEN(pState)) {
 
+         ivHashUpdate(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), AESGCM_COUNTER(pState), BLOCK_SIZE);
+         
+         AESGCM_BUFLEN(pState) = 0;
       }
 
-      /* process main part of IV */
-      int lenBlks = ivLen & (-BLOCK_SIZE);
-      if(lenBlks) {
+      AESGCM_IV_LEN(pState) += (Ipp64u)locLen;
+      pIV += locLen;
+      ivLen -= locLen;
 
-         aes_gcm_iv_hash_update_vaes512(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState),
-                                          pIV, (Ipp64u)lenBlks);
-
-         AESGCM_IV_LEN(pState) += (Ipp64u)lenBlks;
-         pIV += lenBlks;
-         ivLen -= lenBlks;
-      }
-
-      /* copy the rest of IV into the buffer */
-      if(ivLen) {
-         CopyBlock((void*)pIV, (void*)(AESGCM_COUNTER(pState)), ivLen);
-         AESGCM_IV_LEN(pState) += (Ipp64u)ivLen;
-         AESGCM_BUFLEN(pState) = ivLen;
-      }
-      
-      return ippStsNoErr;
    }
 
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+   /* process main part of IV */
+   int lenBlks = ivLen & (-BLOCK_SIZE);
+   if(lenBlks) {
 
+      ivHashUpdate(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), pIV, (Ipp64u)lenBlks);
+
+      AESGCM_IV_LEN(pState) += (Ipp64u)lenBlks;
+      pIV += lenBlks;
+      ivLen -= lenBlks;
+   }
+
+   /* copy the rest of IV into the buffer */
+   if(ivLen) {
+      CopyBlock((void*)pIV, (void*)(AESGCM_COUNTER(pState)), ivLen);
+      AESGCM_IV_LEN(pState) += (Ipp64u)ivLen;
+      AESGCM_BUFLEN(pState) = ivLen;
+   }
+
+   #else
 
    /* test if buffer is not empty */
    if(AESGCM_BUFLEN(pState)) {
@@ -155,6 +156,8 @@ IPPFUN(IppStatus, ippsAES_GCMProcessIV,(const Ipp8u* pIV, int ivLen, IppsAES_GCM
       AESGCM_IV_LEN(pState) += (Ipp64u)ivLen;
       AESGCM_BUFLEN(pState) += ivLen;
    }
+
+   #endif /* #if(_IPP32E>=_IPP32E_K0) */
 
    return ippStsNoErr;
 }

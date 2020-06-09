@@ -98,7 +98,8 @@ in_{FunName}:
    {endbr64}
    movsxd  rax, dword [rel ippcpJumpIndexForMergedLibs]
    lea     r10, [rel {FunName}_arraddr]
-   jmp     qword [r10+rax*8]
+   mov     r10, qword [r10+rax*8]
+   jmp     r10
 
 """.format(FunName=FunName, endbr64='db 0xf3, 0x0f, 0x1e, 0xfa'))
 

@@ -34,6 +34,8 @@
 #include "pcpaesauthgcm.h"
 #include "pcptool.h"
 
+#if(_IPP32E<_IPP32E_K0)
+
 /*
 // AES-GCM precomputations.
 */
@@ -86,3 +88,5 @@ void AesGcmPrecompute_table2K(Ipp8u* pPrecomputeData, const Ipp8u* pHKey)
          }
    }
 }
+
+#endif

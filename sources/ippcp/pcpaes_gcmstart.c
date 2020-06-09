@@ -27,9 +27,14 @@
 
 #include "owndefs.h"
 #include "owncp.h"
-#include "pcpaesauthgcm.h"
 #include "pcpaesm.h"
 #include "pcptool.h"
+
+#if(_IPP32E>=_IPP32E_K0)
+#include "pcpaesauthgcm_avx512.h"
+#else
+#include "pcpaesauthgcm.h"
+#endif /* #if(_IPP32E>=_IPP32E_K0) */
 
 /*F*
 //    Name: ippsAES_GCMStart

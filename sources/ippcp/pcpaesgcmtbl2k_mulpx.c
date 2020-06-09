@@ -39,6 +39,7 @@
 #  include "pcprijtables.h"
 #endif
 
+#if(_IPP32E<_IPP32E_K0)
 
 typedef struct{
       Ipp8u b[16];
@@ -343,4 +344,6 @@ void AesGcmMulGcm_table2K_ct(Ipp8u* pHash, const Ipp8u* pPrecomputedData, const 
       }
    }
 }
+#endif
+
 #endif

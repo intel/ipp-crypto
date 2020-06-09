@@ -24,6 +24,8 @@
 //
 */
 
+#if 0 // Not used
+
 #if !defined(_CP_AES_GCM_VAES512_H)
 #define _CP_AES_GCM_VAES512_H
 
@@ -139,3 +141,5 @@ __INLINE void AggregateKaratsubaPartialProducts(const __m512i * const pH,
 #endif /* #if (_IPP32E>=_IPP32E_K0) */
 
 #endif /* _CP_AES_GCM_VAES512_H*/
+
+#endif

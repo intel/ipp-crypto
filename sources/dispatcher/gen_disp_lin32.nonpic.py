@@ -154,7 +154,8 @@ __asm( "  .data");\n""".format(size=size))
 IPPAPI(IppStatus, {FunName},{FunArg})
 {{
     __asm( ".L0: mov ippcpJumpIndexForMergedLibs, %eax");
-    __asm( "jmp *(arraddr+4)(,%eax,4)" );
+    __asm( "mov (arraddr+4)(,%eax,4), %eax" );
+    __asm( "jmp *%eax" );
     __asm( ".global in_{FunName}" );
     __asm( "in_{FunName}:" );
     {endbr32}

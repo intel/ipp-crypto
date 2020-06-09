@@ -122,7 +122,7 @@ static void cpMontMul_sse2(Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const
    int extLen = mLen+1; /* len extension */
    int i;
 
-   __m128i v_k0 = _mm_shuffle_epi32(_mm_cvtsi32_si128(k0), 0x44);
+   __m128i v_k0 = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)k0), 0x44);
    __m128i v_digMask = _mm_srli_epi64(_mm_set1_epi32(-1), 64-EXP_DIGIT_SIZE_SSE2);
    __m128i lowQword  = _mm_srli_si128(_mm_set1_epi32(-1), sizeof(Ipp64u));
    __m128i v_b0, v_y0, v_ac;
@@ -163,13 +163,13 @@ static void cpMontMul_sse2(Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const
       v_ac = _mm_add_epi64(_mm_srli_si128(v_ac, sizeof(Ipp64u)),
                            _mm_srli_epi64(_mm_and_si128(v_ac, lowQword), EXP_DIGIT_SIZE_SSE2));
       /* v_ac += {0: pA[0]} * v_b1 */
-      v_ac = _mm_add_epi64(v_ac, _mm_mul_epu32(v_b1, _mm_cvtsi64_si128(pA[0])));
+      v_ac = _mm_add_epi64(v_ac, _mm_mul_epu32(v_b1, _mm_cvtsi64_si128((IPP_INT64)pA[0])));
 
       /* v_y1 = (v_ac * v_k0) & v_digMask */
       v_y1 = _mm_and_si128(_mm_mul_epu32(v_ac, v_k0), v_digMask);
 
       /* v_ac += pM[0] * v_y1 */
-      v_ac = _mm_add_epi64(v_ac, _mm_mul_epu32(_mm_cvtsi64_si128(pModulus[0]), v_y1));
+      v_ac = _mm_add_epi64(v_ac, _mm_mul_epu32(_mm_cvtsi64_si128((IPP_INT64)pModulus[0]), v_y1));
 
       v_y1 = _mm_shuffle_epi32(v_y1, 0x44);
 
@@ -192,8 +192,8 @@ static void cpMontMul_sse2(Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const
 
    /* last b[] if is */
    if(mLen) {
-      v_b0 = _mm_cvtsi64_si128(pB[0]);
-      v_ac = _mm_add_epi64(_mm_cvtsi64_si128(pBuffer[0]), _mm_mul_epu32(v_b0, ((__m128i*)(pA))[0]));
+      v_b0 = _mm_cvtsi64_si128((IPP_INT64)pB[0]);
+      v_ac = _mm_add_epi64(_mm_cvtsi64_si128((IPP_INT64)pBuffer[0]), _mm_mul_epu32(v_b0, ((__m128i*)(pA))[0]));
       v_y0 = _mm_and_si128(_mm_mul_epu32(v_ac, v_k0), v_digMask);
       v_ac = _mm_add_epi64(v_ac, _mm_mul_epu32(v_y0, ((__m128i*)(pModulus))[0]));
 
@@ -227,7 +227,7 @@ static void cpMontRed_sse2(Ipp64u* pR, Ipp64u* pProduct, const Ipp64u* pModulus,
    int extLen = mLen+1; /* len extension */
    int i;
 
-   __m128i v_k0 = _mm_shuffle_epi32(_mm_cvtsi32_si128(k0), 0x44);
+   __m128i v_k0 = _mm_shuffle_epi32(_mm_cvtsi32_si128((Ipp32s)k0), 0x44);
    __m128i v_digMask = _mm_srli_epi64(_mm_set1_epi32(-1), 64-EXP_DIGIT_SIZE_SSE2);
    __m128i lowQword  = _mm_srli_si128(_mm_set1_epi32(-1), sizeof(Ipp64u));
    __m128i v_y0, v_ac;
@@ -261,7 +261,7 @@ static void cpMontRed_sse2(Ipp64u* pR, Ipp64u* pProduct, const Ipp64u* pModulus,
       v_y1 = _mm_and_si128(_mm_mul_epu32(v_ac, v_k0), v_digMask);
 
       /* v_ac += pM[0] * v_y1 */
-      v_ac = _mm_add_epi64(v_ac, _mm_mul_epu32(_mm_cvtsi64_si128(pModulus[0]), v_y1));
+      v_ac = _mm_add_epi64(v_ac, _mm_mul_epu32(_mm_cvtsi64_si128((IPP_INT64)pModulus[0]), v_y1));
 
       v_y1 = _mm_shuffle_epi32(v_y1, 0x44);
 
@@ -281,7 +281,7 @@ static void cpMontRed_sse2(Ipp64u* pR, Ipp64u* pProduct, const Ipp64u* pModulus,
 
    /* last mod[] if is */
    if(mLen) {
-      v_y0 = _mm_cvtsi64_si128(pProduct[0]);
+      v_y0 = _mm_cvtsi64_si128((IPP_INT64)pProduct[0]);
       v_y0 = _mm_and_si128(_mm_mul_epu32(v_y0, v_k0), v_digMask);
       v_y0 = _mm_shuffle_epi32(v_y0, 0x44);
 
@@ -340,8 +340,8 @@ static void cpMontSqr_sse2(Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pModulus,
       int i, hcounter, j;
       for(i=0, hcounter=(mLen+1-k)/2; hcounter>1; i+=4,hcounter-=2, tmpa+=4,ps+=4) {
          __m128i t;
-         __m128i a0 = _mm_shuffle_epi32(_mm_cvtsi64_si128 (tmpa[0]), 0x44);   /* {a0:a0} */
-         __m128i a2 = _mm_shuffle_epi32(_mm_cvtsi64_si128 (tmpa[2]), 0x44);   /* {a2:a2} */
+         __m128i a0 = _mm_shuffle_epi32(_mm_cvtsi64_si128 ((IPP_INT64)tmpa[0]), 0x44);   /* {a0:a0} */
+         __m128i a2 = _mm_shuffle_epi32(_mm_cvtsi64_si128 ((IPP_INT64)tmpa[2]), 0x44);   /* {a2:a2} */
 
          __m128i s0 = _mm_load_si128((__m128i*)ps);
          __m128i s2 = _mm_load_si128((__m128i*)(ps+2));
@@ -371,7 +371,7 @@ static void cpMontSqr_sse2(Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pModulus,
       }
 
       if(hcounter) {
-         __m128i a0 = _mm_shuffle_epi32(_mm_cvtsi64_si128 (tmpa[0]), 0x44);   /* {a0:a0} */
+         __m128i a0 = _mm_shuffle_epi32(_mm_cvtsi64_si128 ((IPP_INT64)tmpa[0]), 0x44);   /* {a0:a0} */
          __m128i s0 = _mm_load_si128((__m128i*)ps);   /* {ps[1]:ps[0]} */
          /* px[2*i] += a0*s0; px[2*i+1] += a0*s1; */
          _mm_storeu_si128((__m128i*)(px+2*i), _mm_add_epi64(_mm_mul_epu32(a0,s0), _mm_loadu_si128((__m128i*)(px+2*i))));
@@ -422,7 +422,7 @@ cpSize gsMontExpBinBuffer_sse2(int modulusBits)
    cpSize redBufferNum = numofVariableBuff_sse2(redNum); /* "sizeof" variable  buffer */
    redBufferNum *= sizeof(Ipp64u)/sizeof(BNU_CHUNK_T);
    return redBufferNum *8           /* 7 vaiables (maybe 6 enough?) */
-        + (16/sizeof(BNU_CHUNK_T)); /* and 16-byte alignment */
+        + (cpSize)(16/sizeof(BNU_CHUNK_T)); /* and 16-byte alignment */
 }
 
 #if defined(_USE_WINDOW_EXP_)
@@ -436,8 +436,8 @@ cpSize gsMontExpWinBuffer_sse2(int modulusBits)
    redNum *= sizeof(Ipp64u)/sizeof(BNU_CHUNK_T);
    redBufferNum *= sizeof(Ipp64u)/sizeof(BNU_CHUNK_T);
 
-   bufferNum = CACHE_LINE_SIZE/sizeof(BNU_CHUNK_T)
-             + gsGetScrambleBufferSize(redNum, w)  /* pre-computed table */
+   bufferNum = (cpSize)(CACHE_LINE_SIZE/sizeof(BNU_CHUNK_T))
+             + (cpSize)gsGetScrambleBufferSize(redNum, w)  /* pre-computed table */
              + redBufferNum *7;                    /* addition 7 variables */
    return bufferNum;
 }
@@ -473,7 +473,7 @@ cpSize gsMontExpBin_BNU_sse2(BNU_CHUNK_T* dataY,
    int redBufferLen = numofVariableBuff_sse2(redLen);
 
    /* allocate (16-byte aligned) buffers */
-   Ipp64u* redM = (Ipp64u*)(IPP_ALIGNED_PTR(pBufferT, sizeof(Ipp64u)*2));
+   Ipp64u* redM = (Ipp64u*)(IPP_ALIGNED_PTR(pBufferT, (Ipp32s)sizeof(Ipp64u)*2));
    Ipp64u* redX = redM+redBufferLen;
    Ipp64u* redY = redX+redBufferLen;
    Ipp64u* redT = redY+redBufferLen;
@@ -498,7 +498,7 @@ cpSize gsMontExpBin_BNU_sse2(BNU_CHUNK_T* dataY,
 
    /* convert base to Montgomery domain */
    ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redT, redBufferLen/*nsX+1*/, dataX, nsX);
-   regular_dig27(redX, redBufferLen, (Ipp32u*)redT,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
+   regular_dig27(redX, redBufferLen, (Ipp32u*)redT,  nsX*(Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u)));
    cpMontMul_sse2(redX, redX, redY, redM, redLen, k0, redBuffer);
    #ifdef _EXP_SSE2_DEBUG_
    debugToConvMontDomain(dbgValue, redX, redM, redLen, dataM, dataRR, nsM, k0, redBuffer);
@@ -552,7 +552,7 @@ cpSize gsMontExpBin_BNU_sse2(BNU_CHUNK_T* dataY,
    ZEXPAND_BNU(redX, 0, redBufferLen);
    redX[0] = 1;
    cpMontMul_sse2(redY, redY, redX, redM, redLen, k0, redBuffer);
-   dig27_regular((Ipp32u*)dataY, nsM*sizeof(BNU_CHUNK_T)/sizeof(ipp32u), redY, redLen);
+   dig27_regular((Ipp32u*)dataY, nsM*(Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(ipp32u)), redY, redLen);
 
    return nsM;
 }
@@ -682,10 +682,10 @@ cpSize gsMontExpWin_BNU_sse2(BNU_CHUNK_T* dataY,
 
    cpSize window = gsMontExp_WinSize(bitsizeE);
    cpSize nPrecomute= 1<<window;
-   BNU_CHUNK_T wmask = nPrecomute -1;
+   BNU_CHUNK_T wmask = (BNU_CHUNK_T)(nPrecomute - 1);
    int n;
 
-   Ipp64u* redTable = (Ipp64u*)(IPP_ALIGNED_PTR(pBuffer, sizeof(Ipp64u)*2));
+   Ipp64u* redTable = (Ipp64u*)(IPP_ALIGNED_PTR(pBuffer, (Ipp32s)sizeof(Ipp64u)*2));
    Ipp64u* redM = redTable + gsGetScrambleBufferSize(redLen, window);
    Ipp64u* redY = redM + redBufferLen;
    Ipp64u* redT = redY + redBufferLen;
@@ -715,7 +715,7 @@ cpSize gsMontExpWin_BNU_sse2(BNU_CHUNK_T* dataY,
    COPY_BNU(redTable+0, redY, redLen);
 
    ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redE, redBufferLen/*nsX+1*/, dataX, nsX);
-   regular_dig27(redY, redBufferLen, (Ipp32u*)redE,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
+   regular_dig27(redY, redBufferLen, (Ipp32u*)redE,  nsX*(Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u)));
    cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
    COPY_BNU(redTable+redLen, redY, redLen);
 
@@ -739,7 +739,7 @@ cpSize gsMontExpWin_BNU_sse2(BNU_CHUNK_T* dataY,
       /* extract 1-st window value */
       Ipp32u eChunk = *((Ipp32u*)((Ipp16u*)redE+ eBit/BITSIZE(Ipp16u)));
       int shift = eBit & 0xF;
-      cpSize windowVal = (eChunk>>shift) &wmask;
+      cpSize windowVal = (cpSize)((eChunk>>shift) &wmask);
 
       /* initialize result */
       COPY_BNU(redY, redTable+windowVal*redLen, redLen);
@@ -753,7 +753,7 @@ cpSize gsMontExpWin_BNU_sse2(BNU_CHUNK_T* dataY,
          /* extract next window value */
          eChunk = *((Ipp32u*)((Ipp16u*)redE+ eBit/BITSIZE(Ipp16u)));
          shift = eBit & 0xF;
-         windowVal = (eChunk>>shift) &wmask;
+         windowVal = (cpSize)((eChunk>>shift) &wmask);
 
          /* precomputed value muptiplication */
          if(windowVal) {
@@ -767,7 +767,7 @@ cpSize gsMontExpWin_BNU_sse2(BNU_CHUNK_T* dataY,
    ZEXPAND_BNU(redT, 0, redBufferLen);
    redT[0] = 1;
    cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
-   dig27_regular((Ipp32u*)dataY, nsM*sizeof(BNU_CHUNK_T)/sizeof(ipp32u), redY, redLen);
+   dig27_regular((Ipp32u*)dataY, nsM*(Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(ipp32u)), redY, redLen);
 
    return nsM;
 }
@@ -804,7 +804,7 @@ cpSize gsMontExpWin_BNU_sscm_sse2(BNU_CHUNK_T* dataY,
 
    cpSize window = gsMontExp_WinSize(bitsizeE);
    cpSize nPrecomute= 1<<window;
-   BNU_CHUNK_T wmask = nPrecomute -1;
+   BNU_CHUNK_T wmask = (BNU_CHUNK_T)(nPrecomute -1);
    int n;
 
    /* CACHE_LINE_SIZE aligned redTable */
@@ -836,19 +836,19 @@ cpSize gsMontExpWin_BNU_sscm_sse2(BNU_CHUNK_T* dataY,
    ZEXPAND_BNU(redY, 0, redBufferLen);
    redY[0] = 1;
    cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
-   gsScramblePut((BNU_CHUNK_T*)redTable, 0, (BNU_CHUNK_T*)redY, redLen*sizeof(Ipp64u)/sizeof(BNU_CHUNK_T), window);
+   gsScramblePut((BNU_CHUNK_T*)redTable, 0, (BNU_CHUNK_T*)redY, redLen*(Ipp32s)(sizeof(Ipp64u)/sizeof(BNU_CHUNK_T)), window);
 
    ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redE, redBufferLen/*nsX+1*/, dataX, nsX);
-   regular_dig27(redY, redBufferLen, (Ipp32u*)redE,  nsX*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
+   regular_dig27(redY, redBufferLen, (Ipp32u*)redE,  nsX*(Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u)));
    cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
-   gsScramblePut((BNU_CHUNK_T*)redTable, 1, (BNU_CHUNK_T*)redY, redLen*sizeof(Ipp64u)/sizeof(BNU_CHUNK_T), window);
+   gsScramblePut((BNU_CHUNK_T*)redTable, 1, (BNU_CHUNK_T*)redY, redLen*(Ipp32s)(sizeof(Ipp64u)/sizeof(BNU_CHUNK_T)), window);
 
    cpMontSqr_sse2(redT, redY, redM, redLen, k0, redBuffer);
-   gsScramblePut((BNU_CHUNK_T*)redTable, 2, (BNU_CHUNK_T*)redT, redLen*sizeof(Ipp64u)/sizeof(BNU_CHUNK_T), window);
+   gsScramblePut((BNU_CHUNK_T*)redTable, 2, (BNU_CHUNK_T*)redT, redLen*(Ipp32s)(sizeof(Ipp64u)/sizeof(BNU_CHUNK_T)), window);
 
    for(n=3; n<nPrecomute; n++) {
       cpMontMul_sse2(redT, redT, redY, redM, redLen, k0, redBuffer);
-      gsScramblePut((BNU_CHUNK_T*)redTable, n, (BNU_CHUNK_T*)redT, redLen*sizeof(Ipp64u)/sizeof(BNU_CHUNK_T), window);
+      gsScramblePut((BNU_CHUNK_T*)redTable, n, (BNU_CHUNK_T*)redT, redLen*(Ipp32s)(sizeof(Ipp64u)/sizeof(BNU_CHUNK_T)), window);
    }
 
    /* expand exponent */
@@ -863,10 +863,10 @@ cpSize gsMontExpWin_BNU_sscm_sse2(BNU_CHUNK_T* dataY,
       /* extract 1-st window value */
       Ipp32u eChunk = *((Ipp32u*)((Ipp16u*)redE+ eBit/BITSIZE(Ipp16u)));
       int shift = eBit & 0xF;
-      cpSize windowVal = (eChunk>>shift) &wmask;
+      cpSize windowVal = (cpSize)((eChunk>>shift) &wmask);
 
       /* initialize result */
-      gsScrambleGet_sscm((BNU_CHUNK_T*)redY, redLen*sizeof(Ipp64u)/sizeof(BNU_CHUNK_T), (BNU_CHUNK_T*)redTable, windowVal, window);
+      gsScrambleGet_sscm((BNU_CHUNK_T*)redY, redLen*(Ipp32s)(sizeof(Ipp64u)/sizeof(BNU_CHUNK_T)), (BNU_CHUNK_T*)redTable, windowVal, window);
 
       for(eBit-=window; eBit>=0; eBit-=window) {
          /* do squaring window-times */
@@ -877,9 +877,9 @@ cpSize gsMontExpWin_BNU_sscm_sse2(BNU_CHUNK_T* dataY,
          /* extract next window value */
          eChunk = *((Ipp32u*)((Ipp16u*)redE+ eBit/BITSIZE(Ipp16u)));
          shift = eBit & 0xF;
-         windowVal = (eChunk>>shift) &wmask;
+         windowVal = (cpSize)((eChunk>>shift) &wmask);
          /* exptact precomputed value and muptiply */
-         gsScrambleGet_sscm((BNU_CHUNK_T*)redT, redLen*sizeof(Ipp64u)/sizeof(BNU_CHUNK_T), (BNU_CHUNK_T*)redTable, windowVal, window);
+         gsScrambleGet_sscm((BNU_CHUNK_T*)redT, redLen*(Ipp32s)(sizeof(Ipp64u)/sizeof(BNU_CHUNK_T)), (BNU_CHUNK_T*)redTable, windowVal, window);
          cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
       }
    }
@@ -888,7 +888,7 @@ cpSize gsMontExpWin_BNU_sscm_sse2(BNU_CHUNK_T* dataY,
    ZEXPAND_BNU(redT, 0, redBufferLen);
    redT[0] = 1;
    cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
-   dig27_regular((Ipp32u*)dataY, nsM*sizeof(BNU_CHUNK_T)/sizeof(ipp32u), redY, redLen);
+   dig27_regular((Ipp32u*)dataY, nsM*(Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(ipp32u)), redY, redLen);
 
    return nsM;
 }

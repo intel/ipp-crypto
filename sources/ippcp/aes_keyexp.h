@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,44 +18,32 @@
 // 
 //  Purpose:
 //     Cryptography Primitive.
-//     AES-GCM
+//     AES Key Expansion
+//     Internal Definitions
 // 
-//  Contents:
-//        ippsAES_GCMGetSize()
-//
 */
+
+#ifndef __AES_KEYEXP_H_
+#define __AES_KEYEXP_H_
 
 #include "owndefs.h"
 #include "owncp.h"
-#include "pcpaesm.h"
-#include "pcptool.h"
 
-#if(_IPP32E>=_IPP32E_K0)
 #include "pcpaesauthgcm_avx512.h"
-#else
-#include "pcpaesauthgcm.h"
-#endif /* #if(_IPP32E>=_IPP32E_K0) */
 
-/*F*
-//    Name: ippsAES_GCMGetSize
-//
-// Purpose: Returns size of AES_GCM state (in bytes).
-//
-// Returns:                Reason:
-//    ippStsNullPtrErr        pSize == NULL
-//    ippStsNoErr             no errors
-//
-// Parameters:
-//    pSize       pointer to size of context
-//
-*F*/
+// These functions for key expansion are used only with AVX512 and AVX512-VAES optimizations for AES GCM
+// TODO: replase AVX2 keyexp with AVX512 keyexp
+#if(_IPP32E>=_IPP32E_K0)
 
-IPPFUN(IppStatus, ippsAES_GCMGetSize,(int* pSize))
-{
-   /* test size's pointer */
-   IPP_BAD_PTR1_RET(pSize);
+#define aes_keyexp_128_enc OWNAPI(aes_keyexp_128_enc)
+void aes_keyexp_128_enc(const Ipp8u* key, struct gcm_key_data *key_data);
 
-   *pSize = cpSizeofCtx_AESGCM();
+#define aes_keyexp_192_enc OWNAPI(aes_keyexp_192_enc)
+void aes_keyexp_192_enc(const Ipp8u* key, struct gcm_key_data *key_data);
 
-   return ippStsNoErr;
-}
+#define aes_keyexp_256_enc OWNAPI(aes_keyexp_256_enc)
+void aes_keyexp_256_enc(const Ipp8u* key, struct gcm_key_data *key_data);
+
+#endif // (_IPP32E>=_IPP32E_K0)
+
+#endif // __AES_KEYEXP_H_

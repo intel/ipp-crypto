@@ -38,6 +38,8 @@
 #  include "pcprijtables.h"
 #endif
 
+#if(_IPP32E<_IPP32E_K0)
+
 /*
 // encrypts and authenticates n*BLOCK_SIZE bytes
 */
@@ -74,3 +76,5 @@ void wrpAesGcmEnc_table2K(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMSt
    //AesGcmAuth_table2K(AESGCM_GHASH(pState), pHashedData, hashedDataLen, AESGCM_HKEY(pState), AesGcmConst_table);
    AesGcmAuth_table2K_ct(AESGCM_GHASH(pState), pHashedData, hashedDataLen, AESGCM_HKEY(pState), AesGcmConst_table);
 }
+
+#endif

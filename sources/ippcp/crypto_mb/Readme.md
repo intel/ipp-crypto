@@ -95,9 +95,9 @@ You can build the library in two ways:
 3. Run CMake on the command line. Use `-B` to specify path to the resulting project and define the variable `-DBN_OPENSSL_DISABLE` to exclude all the OpenSSL dependencies:
 
    ``` bash
-   cmake . -B"../build" -DBN_OPENSSL_DISABLE
+   cmake . -B"../build" -DBN_OPENSSL_DISABLE=TRUE
    ```
-4. Go to the project folder that was specified with `-B` and run `make` to build the library (`libcrypto_mb` target) and, optionally, tests (`vfy_ifma_rsa_mb` and `vfy_ifma_cp_rsa_mb` targets).
+4. Go to the project folder that was specified with `-B` and run `make` to build the library  (`crypto_mb` target).
 
 ### Building with Intel® IPP Cryptography library
 
@@ -105,17 +105,19 @@ To get access to the optimized kernels through Intel® IPP Cryptography API, bui
 
 ### Building with OpenSSL\*
 
-The only difference from universal building is the availability of additional options: `OPENSSL_INCLUDE_DIR`, `OPENSSL_LIBRARIES` and `OPENSSL_ROOT_DIR`.  
-Use them to override path to OpenSSL\*:
+The differences from universal building are:
+1. The availability of additional options: `OPENSSL_INCLUDE_DIR`, `OPENSSL_LIBRARIES` and `OPENSSL_ROOT_DIR`.  
+   Use them to override path to OpenSSL\*:
+   ``` bash
+   cmake . -B"../build"  
+   -DOPENSSL_INCLUDE_DIR=/path/to/openssl/include  
+   -DOPENSSL_LIBRARIES=/path/to/openssl/lib  
+   -DOPENSSL_ROOT_DIR=/path/to/openssl
+   ```
 
-``` bash
-cmake . -B"../build"  
--DOPENSSL_INCLUDE_DIR=/path/to/openssl/include  
--DOPENSSL_LIBRARIES=/path/to/openssl/lib  
--DOPENSSL_ROOT_DIR=/path/to/openssl
-```
+2. The availability of tests - `vfy_ifma_rsa_mb` and `vfy_ifma_cp_rsa_mb` targets.
 
-Set `-DOPENSSL_USE_STATIC_LIBS=TRUE` if static OpenSSL libraries are preferred. 
+Set `-DOPENSSL_USE_STATIC_LIBS=TRUE` if static OpenSSL libraries are preferred.
 
 ## Usage Examples
 

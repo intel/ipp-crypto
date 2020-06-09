@@ -25,6 +25,9 @@
 ;; Just for unify GPRs usage
 ;;
 
+%ifndef _IA_32_REGS_INC_
+%define _IA_32_REGS_INC_
+
 %define r0  rax     ;; 64-bits GPRs
 %define r1  rbx
 %define r2  rcx
@@ -118,3 +121,4 @@
 ;; use GPR implementation everywhere possible
 %assign GPR_version 1
 
+%endif

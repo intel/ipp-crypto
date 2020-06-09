@@ -21,6 +21,9 @@
 ;
 ;
 
+%ifndef _EMULATOR_INC_
+%define _EMULATOR_INC_
+
 %macro my_pclmulqdq 3.nolist
   %xdefine %%xxDst %1
   %xdefine %%xxSrc %2
@@ -331,4 +334,6 @@
   extern emu_aesenclast
   extern emu_aesdec
   extern emu_aesdeclast
+%endif
+
 %endif

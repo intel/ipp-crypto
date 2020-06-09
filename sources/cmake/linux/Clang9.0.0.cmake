@@ -90,9 +90,9 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpack-struct=16")
 if(${ARCH} MATCHES "ia32")
   # Stack alignment = 16 bytes
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mpreferred-stack-boundary=4")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mstack-alignment=4")
   # 32bit linker command
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wa,--32")
+  #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Xassembler --32")
   # Tells the compiler to generate code for a specific architecture (32)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 endif(${ARCH} MATCHES "ia32")

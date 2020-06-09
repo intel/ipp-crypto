@@ -98,6 +98,9 @@
 ; throughout the code, one tab and two tab indentations are used. one tab is for GHASH part, two tabs is for AES part.
 ;
 
+%ifndef _GCM_VAES_AVX512_INC_
+%define _GCM_VAES_AVX512_INC_
+
 %include "os.inc"
 %include "reg_sizes.inc"
 %include "clear_regs.inc"
@@ -2560,7 +2563,7 @@ default rel
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; UPDATE_HASH: Calculates the hash of the data which will not be encrypted.
-; Input: The input data (A_IN), that data's length (A_LEN), hash that being updated (HASH),1 and the hash key (HASH_KEY).
+; Input: The input data (A_IN), that data's length (A_LEN), hash that being updated (HASH), and the hash key (HASH_KEY).
 ; Output: The hash of the data (HASH).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 %macro  UPDATE_HASH    18
@@ -3927,8 +3930,8 @@ default rel
 %macro  GCM_UPDATE_IV_HASH         19
 %define %%GDATA_KEY                %1      ; [in] GCM expanded keys pointer
 %define %%GDATA_CTX                %2      ; [in] GCM context pointer
-%define %%IV                       %3      ; [in] AAD pointer
-%define %%IV_LEN                   %4      ; [in] AAD processing length in bytes
+%define %%IV                       %3      ; [in] IV pointer
+%define %%IV_LEN                   %4      ; [in] IV processing length in bytes
 %define %%GPR1                     %5      ; [clobbered] GP register
 %define %%GPR2                     %6      ; [clobbered] GP register
 %define %%GPR3                     %7      ; [clobbered] GP register
@@ -4027,7 +4030,7 @@ default rel
 %define %%ZT7                      %17     ; [clobbered] ZMM register
 %define %%ZT8                      %18     ; [clobbered] ZMM register
 %define %%ZT9                      %19     ; [clobbered] ZMM register
-%define %%IV_GEN_LEN                %20     ; [in] IV general length in bytes
+%define %%IV_GEN_LEN               %20     ; [in] IV general length in bytes
 
 %if %0 == 19 ;; IV is 12 bytes 
 
@@ -4200,6 +4203,7 @@ IPPASM FN_NAME(precomp,_), PUBLIC
 .exit_precomp:
 
         ret
+
 ENDFUNC FN_NAME(precomp,_)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -4212,6 +4216,7 @@ ENDFUNC FN_NAME(precomp,_)
 ;        u64      plaintext_len);
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 IPPASM FN_NAME(enc,_update_), PUBLIC
+
         FUNC_SAVE
 
 %ifdef SAFE_PARAM
@@ -4242,6 +4247,7 @@ IPPASM FN_NAME(enc,_update_), PUBLIC
 .exit_update_enc:
         FUNC_RESTORE
         ret
+
 ENDFUNC FN_NAME(enc,_update_)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -4285,17 +4291,18 @@ IPPASM FN_NAME(dec,_update_), PUBLIC
 .exit_update_dec:
         FUNC_RESTORE
         ret
+
 ENDFUNC FN_NAME(dec,_update_)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;void   aes_gcm_enc_128_finalize_vaes_avx512 / aes_gcm_enc_192_finalize_vaes_avx512 /
-;       aes_gcm_enc_256_finalize_vaes_avx512
+;void   aes_gcm_gettag_128_vaes_avx512 / aes_gcm_gettag_192_vaes_avx512 /
+;       aes_gcm_gettag_256_vaes_avx512
 ;       (const struct gcm_key_data *key_data,
 ;        struct gcm_context_data *context_data,
 ;        u8       *auth_tag,
 ;        u64      auth_tag_len);
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IPPASM FN_NAME(enc,_finalize_), PUBLIC
+IPPASM FN_NAME(gettag,_), PUBLIC
 
 ;; All parameters are passed through registers
 %ifdef SAFE_PARAM
@@ -4326,49 +4333,8 @@ IPPASM FN_NAME(enc,_finalize_), PUBLIC
 
 .exit_enc_fin:
         ret
-ENDFUNC FN_NAME(enc,_finalize_)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;void   aes_gcm_dec_128_finalize_vaes_avx512 / aes_gcm_dec_192_finalize_vaes_avx512
-;       aes_gcm_dec_256_finalize_vaes_avx512
-;       (const struct gcm_key_data *key_data,
-;        struct gcm_context_data *context_data,
-;        u8       *auth_tag,
-;        u64      auth_tag_len);
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IPPASM FN_NAME(dec,_finalize_), PUBLIC
-
-;; All parameters are passed through registers
-%ifdef SAFE_PARAM
-        ;; Check key_data != NULL
-        cmp     arg1, 0
-        jz      exit_dec_fin
-
-        ;; Check context_data != NULL
-        cmp     arg2, 0
-        jz      exit_dec_fin
-
-        ;; Check auth_tag != NULL
-        cmp     arg3, 0
-        jz      exit_dec_fin
-
-        ;; Check auth_tag_len == 0 or > 16
-        cmp     arg4, 0
-        jz      exit_dec_fin
-
-        cmp     arg4, 16
-        ja      exit_dec_fin
-%endif
-
-        FUNC_SAVE
-        GCM_COMPLETE    arg1, arg2, arg3, arg4, DEC, multi_call
-
-        FUNC_RESTORE
-
-.exit_dec_fin:
-        ret
-ENDFUNC FN_NAME(dec,_finalize_)
-
+ENDFUNC FN_NAME(gettag,_)
 
 %ifdef GCM128_MODE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -4517,6 +4483,4 @@ ENDFUNC aes_gcm_iv_hash_finalize_vaes512
 
 %endif
 
-%ifdef LINUX
-section .note.GNU-stack noalloc noexec nowrite progbits
 %endif

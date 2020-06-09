@@ -58,6 +58,8 @@ void AesGcmAuth_table2K(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* p
 }
 #endif
 
+#if(_IPP32E<_IPP32E_K0)
+
 void AesGcmAuth_table2K_ct(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam)
 {
    IPP_UNREFERENCED_PARAMETER(pParam);
@@ -72,6 +74,8 @@ void AesGcmAuth_table2K_ct(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u
       len -= BLOCK_SIZE;
    }
 }
+
+#endif
 
 //#endif
 

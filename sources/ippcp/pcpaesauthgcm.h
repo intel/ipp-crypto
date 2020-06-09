@@ -29,7 +29,8 @@
 
 #include "owncp.h"
 #include "pcpaesm.h"
-#include "aes_gcm_vaes.h"
+
+#if(_IPP32E < _IPP32E_K0)
 
 #define BLOCK_SIZE (MBS_RIJ128)
 
@@ -53,6 +54,7 @@ typedef enum {
 } GcmState;
 
 struct _cpAES_GCM {
+   
    IppCtxId idCtx;                  /* AES-GCM id                    */
    GcmState state;                  /* GCM state: Init, IV|AAD|TXT proccessing */
    Ipp64u   ivLen;                  /* IV length (bytes)             */
@@ -87,15 +89,6 @@ struct _cpAES_GCM {
 										 ... <same 4 vectors for Karatsuba partial products> ...
 									*/
                                     /* - (safe) hKey*(t^i), i=0,...,127             */
-   #if(_IPP32E>=_IPP32E_K0)
-
-   __ALIGN16
-   struct gcm_key_data key_data;
-   __ALIGN16
-   struct gcm_context_data context_data;
-   Ipp64u   keyLen;  /* key length (bytes)             */
-
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
 };
 
 #define CTR_POS         12
@@ -110,40 +103,31 @@ struct _cpAES_GCM {
 /*
 // Useful macros
 */
-#define AESGCM_ID(stt)           ((stt)->idCtx)
-#define AESGCM_STATE(stt)        ((stt)->state)
+#define AESGCM_ID(context)           ((context)->idCtx)
+#define AESGCM_STATE(context)        ((context)->state)
 
-#define AESGCM_IV_LEN(stt)       ((stt)->ivLen)
-#define AESGCM_AAD_LEN(stt)      ((stt)->aadLen)
-#define AESGCM_TXT_LEN(stt)      ((stt)->txtLen)
+#define AESGCM_IV_LEN(context)       ((context)->ivLen)
+#define AESGCM_AAD_LEN(context)      ((context)->aadLen)
+#define AESGCM_TXT_LEN(context)      ((context)->txtLen)
 
-#define AESGCM_BUFLEN(stt)       ((stt)->bufLen)
-#define AESGCM_COUNTER(stt)      ((stt)->counter)
-#define AESGCM_ECOUNTER0(stt)    ((stt)->ecounter0)
-#define AESGCM_ECOUNTER(stt)     ((stt)->ecounter)
-#define AESGCM_GHASH(stt)        ((stt)->ghash)
+#define AESGCM_BUFLEN(context)       ((context)->bufLen)
+#define AESGCM_COUNTER(context)      ((context)->counter)
+#define AESGCM_ECOUNTER0(context)    ((context)->ecounter0)
+#define AESGCM_ECOUNTER(context)     ((context)->ecounter)
+#define AESGCM_GHASH(context)        ((context)->ghash)
 
-#define AESGCM_HASH(stt)         ((stt)->hashFun)
-#define AESGCM_AUTH(stt)         ((stt)->authFun)
-#define AESGCM_ENC(stt)          ((stt)->encFun)
-#define AESGCM_DEC(stt)          ((stt)->decFun)
+#define AESGCM_HASH(context)         ((context)->hashFun)
+#define AESGCM_AUTH(context)         ((context)->authFun)
+#define AESGCM_ENC(context)          ((context)->encFun)
+#define AESGCM_DEC(context)          ((context)->decFun)
 
-#define AESGCM_CIPHER(stt)       (IppsAESSpec*)(&((stt)->cipher))
+#define AESGCM_CIPHER(context)       (IppsAESSpec*)(&((context)->cipher))
 
-#define AESGCM_HKEY(stt)         ((stt)->multiplier)
-#define AESGCM_CPWR(stt)         ((stt)->multiplier)
-#define AES_GCM_MTBL(stt)        ((stt)->multiplier)
+#define AESGCM_HKEY(context)         ((context)->multiplier)
+#define AESGCM_CPWR(context)         ((context)->multiplier)
+#define AES_GCM_MTBL(context)        ((context)->multiplier)
 
-#define AESGCM_VALID_ID(stt)     (AESGCM_ID((stt))==idCtxAESGCM)
-
-#if(_IPP32E>=_IPP32E_K0)
-
-#define AES_GCM_KEY_DATA(stt)        ((stt)->key_data)
-#define AES_GCM_CONTEXT_DATA(stt)    ((stt)->context_data)
-#define AES_GCM_KEY_LEN(stt)         ((stt)->keyLen)
-
-#endif /* #if(_IPP32E>=_IPP32E_K0) */
-
+#define AESGCM_VALID_ID(context)     (AESGCM_ID((context))==idCtxAESGCM)
 
 #if 0
 __INLINE void IncrementCounter32(Ipp8u* pCtr)
@@ -221,11 +205,6 @@ static int cpSizeofCtx_AESGCM(void)
    int precomp_size;
 
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
-   #if(_IPP32E>=_IPP32E_K0)
-   if (IsFeatureEnabled(ippCPUID_AVX512VAES))
-      precomp_size = PRECOMP_DATA_SIZE_VAES_NI_AESGCM;
-   else
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
    if( IsFeatureEnabled(ippCPUID_AES|ippCPUID_CLMUL) )
       precomp_size = PRECOMP_DATA_SIZE_AES_NI_AESGCM;
    else
@@ -239,5 +218,7 @@ static int cpSizeofCtx_AESGCM(void)
          +precomp_size
          +AESGCM_ALIGNMENT-1;
 }
+
+#endif // (_IPP32E < _IPP32E_K0)
 
 #endif /* _CP_AESAUTH_GCM_H*/

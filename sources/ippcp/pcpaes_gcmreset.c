@@ -27,9 +27,14 @@
 
 #include "owndefs.h"
 #include "owncp.h"
-#include "pcpaesauthgcm.h"
 #include "pcpaesm.h"
 #include "pcptool.h"
+
+#if(_IPP32E>=_IPP32E_K0)
+#include "pcpaesauthgcm_avx512.h"
+#else
+#include "pcpaesauthgcm.h"
+#endif /* #if(_IPP32E>=_IPP32E_K0) */
 
 /*F*
 //    Name: ippsAES_GCMReset
@@ -69,8 +74,7 @@ IPPFUN(IppStatus, ippsAES_GCMReset,(IppsAES_GCMState* pState))
 
    #if(_IPP32E>=_IPP32E_K0)
 
-   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) 
-      PadBlock(0, (void*)&AES_GCM_CONTEXT_DATA(pState), sizeof(struct gcm_context_data));
+   PadBlock(0, (void*)&AES_GCM_CONTEXT_DATA(pState), sizeof(struct gcm_context_data));
 
    #endif /* #if(_IPP32E>=_IPP32E_K0) */
 

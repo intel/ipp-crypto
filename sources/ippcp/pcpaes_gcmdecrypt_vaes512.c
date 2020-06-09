@@ -24,6 +24,12 @@
 //
 */
 
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#pragma warning(disable: 4206) // empty translation unit in MSVC
+#endif
+
+#if 0 // Not used
+
 #include "owncp.h"
 #include "pcpaesm.h"
 #include "pcpaes_encrypt_vaes512.h"
@@ -337,5 +343,7 @@ void AesGcmDec_vaes(Ipp8u* pDst,
    ghash512 = _mm512_shuffle_epi8(ghash512, M512(swapBytes));
    _mm512_mask_storeu_epi64(pGHash, 0x03, ghash512);
 }
+
+#endif
 
 #endif /* #if (_IPP32E>=_IPP32E_K0) */

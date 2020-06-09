@@ -38,6 +38,8 @@
 #  include "pcprijtables.h"
 #endif
 
+#if(_IPP32E<_IPP32E_K0)
+
 /*
 // authenticates and decrypts n*BLOCK_SIZE bytes
 */
@@ -73,3 +75,5 @@ void wrpAesGcmDec_table2K(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMSt
       }
    }
 }
+
+#endif

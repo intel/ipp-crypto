@@ -22,6 +22,8 @@
 %include "asmdefs.inc"
 %include "ia_32e.inc"
 
+%if (_IPP32E >= _IPP32E_K0)
+
 %ifdef LINUX
 %define KEY		rdi
 %define EXP_ENC_KEYS	rsi
@@ -31,43 +33,6 @@
 %define EXP_ENC_KEYS	rdx
 %define EXP_DEC_KEYS	r8
 %endif
-
-
-
-
-%macro key_expansion_1_192_sse 1
-	;; Assumes the xmm3 includes all zeros at this point.
-        pshufd xmm2, xmm2, 11111111b
-        shufps xmm3, xmm1, 00010000b
-        pxor xmm1, xmm3
-        shufps xmm3, xmm1, 10001100b
-        pxor xmm1, xmm3
-	pxor xmm1, xmm2
-	movdqu [EXP_ENC_KEYS + %1], xmm1
-%endmacro
-
-; Calculate w10 and w11 using calculated w9 and known w4-w5
-%macro key_expansion_2_192_sse 1
-		movdqa xmm5, xmm4
-		pslldq xmm5, 4
-		shufps xmm6, xmm1, 11110000b
-		pxor xmm6, xmm5
-		pxor xmm4, xmm6
-		pshufd xmm7, xmm4, 00001110b
-		movdqu [EXP_ENC_KEYS + %1], xmm7
-%endmacro
-
-%macro key_dec_192_sse 1
-  	movdqa  xmm0, [EXP_ENC_KEYS + 16 * %1]
-	aesimc	xmm1, xmm0
-	movdqa [EXP_DEC_KEYS + 16 * (12 - %1)], xmm1
-%endmacro
-
-%macro key_dec_192_sse_no_aesni 1
-  	movdqa  xmm0, [EXP_ENC_KEYS + 16 * %1]
-	EMULATE_AESIMC	xmm1, xmm0
-	movdqa [EXP_DEC_KEYS + 16 * (12 - %1)], xmm1
-%endmacro
 
 %macro key_expansion_1_192_avx 1
 	;; Assumes the xmm3 includes all zeros at this point.
@@ -98,14 +63,7 @@
 %endmacro
 
 section .text
-IPPASM aes_keyexp_192_enc_avx2, PUBLIC
-
-%ifdef SAFE_PARAM
-        cmp     KEY, 0
-        jz      aes_keyexp_192_enc_avx_return
-        cmp     EXP_ENC_KEYS, 0
-        jz      aes_keyexp_192_enc_avx_return
-%endif
+IPPASM aes_keyexp_192_enc, PUBLIC
 
 %ifndef LINUX
 	sub	rsp, 16*2 + 8
@@ -153,10 +111,8 @@ IPPASM aes_keyexp_192_enc_avx2, PUBLIC
         vaeskeygenassist xmm2, xmm4, 0x80   ; Generate round key 12
         key_expansion_1_192_avx 192
 
-%ifdef SAFE_DATA
         clear_scratch_gps_asm
         clear_scratch_xmms_avx_asm
-%endif
 
 %ifndef LINUX
 	vmovdqa	xmm6, [rsp + 0*16]
@@ -164,11 +120,8 @@ IPPASM aes_keyexp_192_enc_avx2, PUBLIC
 	add	rsp, 16*2 + 8
 %endif
 
-.aes_keyexp_192_enc_avx_return:
 	ret
 
-ENDFUNC aes_keyexp_192_enc_avx2
+ENDFUNC aes_keyexp_192_enc
 
-%ifdef LINUX
-section .note.GNU-stack noalloc noexec nowrite progbits
-%endif
+%endif 

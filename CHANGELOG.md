@@ -2,25 +2,29 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## 2020-06-09
+- AES-GCM algorithm was optimized for Intel(R) Microarchitecture Code Named Cascade Lake with Intel(R) AES New Instructions (Intel(R) AES-NI).
+- Crypto Multi-buffer library installation instructions update.
+
 ## 2020-04-27
-- In the Readme file of the Crypto Multi-buffer Library was added the information about possible fails on the installation step, when the library is installed by default paths.
+- The Readme file of Crypto Multi-buffer Library was updated by information about possible installation fails in specific environment.
 
 ## 2020-04-21
 - Documentation of Crypto Multi-buffer Library was updated.
 - Position Independent Execution (PIE) option was added to Crypto Multi-buffer Library build scripts.
 
 ## 2020-04-19
-- AES-XTS optimization for Ice Lake with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI) was improved.
+- AES-XTS optimization for Intel(R) Microarchitecture Code Named Ice Lake with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI) was improved.
 - Fixed a build issue that affect build of the Intel(R) IPP Crypto library with MSVC\* compiler on Windows\* OS.
 - Duplicated APIs of HASH, HMAC, MGF, RSA, ECCP functionality were marked as deprecated. For more information see [Deprecation notes](./DEPRECATION_NOTES.md)
 - Added examples demonstrating usage of SMS4-CBC encryption and decryption.
 
 ## 2020-02-25
-- ECB,CBC,CTR modes of SMS4 algorithm were optimized for Ice Lake with average 6x performance improvement.
-- Clang9.0\* for Linux and Clang11.0\* for MacOS support added.
-- RSA multi-buffer Encrypt/Decrypt example added.
-- Added Control-flow Enforcement Technology enabling for NASM\* compiler on Linux and Windows.
-- API of ippsGFpECSignDSA, ippsGFpECSignNR and ippsGFpECSignSM2 functions changed.
+- SM4-ECB, SM4-CBC and SM4-CTR were enabled for Intel(R) Microarchitecture Code Named Ice Lake with Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) GFNI instructions.
+- Added support of Clang 9.0 for Linux and Clang 11.0 for MacOS compilers.
+- Added example of RSA Multi-Buffer Encryption/Decryption usage.
+- The library was enabled with Intel(R) Control-flow Enforcement Technology (CET) on Linux and Windows.
+- Changed API of ippsGFpECSignDSA, ippsGFpECSignNR and ippsGFpECSignSM2 functions: const-ness requirement of private ephemeral keys is removed and now the ephemeral keys are cleaned up after signing.
 
 ## 2019-12-13
 - Removed Android support. Use Linux libraries instead.

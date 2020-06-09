@@ -36,7 +36,7 @@
 #else
    __INLINE cpSize cpNLZ_BNU32(Ipp32u x)
    {
-      return _lzcnt_u32(x);
+      return (cpSize)_lzcnt_u32(x);
    }
 #endif
 

@@ -167,7 +167,8 @@ __declspec(naked) IPP_PROC {FunName}{FunArg}
     __asm( "movd ippcpJumpIndexForMergedLibs@GOT(%eax), %xmm0" );
     __asm( "movd %xmm0, %edx" );
     __asm( "mov (%edx), %edx" );
-    __asm( "jmp *(arraddr@GOTOFF+4)(%eax,%edx,4)" );
+    __asm( "mov (arraddr@GOTOFF+4)(%eax,%edx,4), %edx" );
+    __asm( "jmp *%edx" );
     __asm( ".global in_{FunName}" );
     __asm( "in_{FunName}:" );
     {endbr32}
