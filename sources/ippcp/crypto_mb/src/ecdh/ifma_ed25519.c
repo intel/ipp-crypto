@@ -52,9 +52,7 @@ __ALIGN64 static const int64u MOD_2_260_[8] = {19*32, 19*32, 19*32, 19*32,
 ////////////////////////////////////////////////////////////
 
 __INLINE void ed25519_mul(U64 out[], const U64 a[], const U64 b[]) {
-    int i, j;
     U64 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
-    U64 r9_tilda;
 
     U64 *va = (U64*) a;
     U64 *vb = (U64*) b;
@@ -104,16 +102,6 @@ __INLINE void ed25519_mul(U64 out[], const U64 a[], const U64 b[]) {
     REDUCE_ROUND(2, 3, 7);
     REDUCE_ROUND(3, 4, 8);
 
-    // Reduce r9 mod (2^(255) - 19) // always 0
-    /*r0 = fma52lo(r0, fma52hi( get_zero64(), r9, MOD_2_260), 
-        MOD_2_260);
-    r9_tilda = fma52hi(get_zero64(), r9, MOD_2_260);
-    r0 = fma52lo(r0, srli64(r9_tilda, 47), MOD_2_255);*/
-
-    // Reduce r4 upper bits
-
-    // Trim top r4 bits that were already reduced above
-    
     // Normalize result
     NORM(0,1)
     NORM(1,2)
@@ -143,9 +131,7 @@ c=8  (4,4)
 */
 
 __INLINE void ed25519_sqr(U64 out[], const U64 a[]) {
-    int i, j;
     U64 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
-    U64 r9_tilda;
 
     U64 *va = (U64*) a;
     U64 *vb = (U64*) a;
@@ -217,9 +203,8 @@ __INLINE void ed25519_sqr(U64 out[], const U64 a[]) {
 
 
 void MB_FUNC_NAME(ed25519_sqr_latency_)(U64 out[], const U64 a[], int count) {
-    int i, j;
     U64 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
-    U64 a0, a1, a2, a3, a4, a5;
+    U64 a0, a1, a2, a3, a4;
     U64 r4_1;
 
     U64 *vr = (U64*) out;
@@ -229,7 +214,7 @@ void MB_FUNC_NAME(ed25519_sqr_latency_)(U64 out[], const U64 a[], int count) {
     a2 = a[2];
     a3 = a[3];
     a4 = a[4];
-    for (i = 0; i < count; ++i)
+    for (int i = 0; i < count; ++i)
     {
         r0 = r1 = r2 = r3 = r4 = r5 = r6 = r7 = r8 = r9 = get_zero64();
         r4_1 = get_zero64();
@@ -319,11 +304,8 @@ const static int64u VMASK52[8] = {MASK52, MASK52, MASK52, MASK52,
 __INLINE void ed25519_mul_dual(U64 out0[], U64 out1[],
                 const U64 a0[], const U64 b0[],
                 const U64 a1[], const U64 b1[]) {
-
-    int i, j;
     U64 r00, r01, r02, r03, r04, r05, r06, r07, r08, r09;
     U64 r10, r11, r12, r13, r14, r15, r16, r17, r18, r19;
-    U64 r09_tilda, r19_tilda;
 
     U64 *vr0 = (U64*) out0;
     U64 *vr1 = (U64*) out1;
@@ -427,8 +409,6 @@ __INLINE void ed25519_mul_dual(U64 out0[], U64 out1[],
 
 __INLINE void ed25519_sqr_dual(U64 out0[], U64 out1[],
                 const U64 a0[], const U64 a1[]) {
-
-    int i, j;
     U64 r00, r01, r02, r03, r04, r05, r06, r07, r08, r09;
     U64 r10, r11, r12, r13, r14, r15, r16, r17, r18, r19;
 
@@ -786,7 +766,6 @@ __INLINE void fe52mb8_inv_mod25519(U64 out[], const U64 z[])
     __ALIGN64 U64 t1[5];
     __ALIGN64 U64 t2[5];
     __ALIGN64 U64 t3[5];
-    int i;
 
     /* t0 = z ** 2 */
     fe52_sqr(t0, z);
@@ -937,90 +916,6 @@ static void x25519_scalar_mul(U64 out[], U64 scalar[], U64 point[])
     fe52mb8_inv_mod25519(z2, z2);
     fe52_mul(out, x2, z2);
 }
-
-ifma_status MB_FUNC_NAME(x25519_legacy_)(int64u* const pa_shared_key[8],
-                 const int64u* const pa_private_key[8],
-                 const int64u* const pa_public_key[8])
-{
-    ifma_status stt = 0;
-    int buf_no;
-
-    /* test input pointers */
-    if(NULL==pa_shared_key || NULL==pa_private_key || NULL==pa_public_key) {
-        stt = IFMA_SET_STS_ALL(IFMA_STATUS_NULL_PARAM_ERR);
-        return stt;
-    }
-
-    /* check pointers and values */
-    for(buf_no=0; buf_no<8; buf_no++) {
-        int64u* shared = pa_shared_key[buf_no];
-        const int64u* own_private = pa_private_key[buf_no];
-        const int64u* party_public = pa_public_key[buf_no];
-
-        /* if any of pointer NULL set error status */
-        if(NULL==shared || NULL==own_private || NULL==party_public) {
-            stt = IFMA_SET_STS(stt, buf_no, IFMA_STATUS_NULL_PARAM_ERR);
-            continue;
-        }
-    }
-
-    /* continue processing if there are correct parameters */
-    if( IFMA_IS_ANY_OK_STS(stt) ) {
-        __ALIGN64 U64 private64_mb8[4];
-        __ALIGN64 U64 pub52_mb8[5];
-        __ALIGN64 U64 shared52_mb8[5];
-
-        /* get scalars and convert to MB8 */
-        ifma_BNU_transpose_copy((int64u (*)[8])private64_mb8, pa_private_key, 256);
-        /* decode keys into scalars according to RFC7748 */
-        private64_mb8[0] = and64_const(private64_mb8[0], 0xfffffffffffffff8);
-        private64_mb8[3] = and64_const(private64_mb8[3], 0x7fffffffffffffff);
-        private64_mb8[3] = or64(private64_mb8[3], set64(0x4000000000000000));
-
-        /* get peer's public keys and convert to MB8 */
-        ifma_BNU_to_mb8((int64u (*)[8])pub52_mb8, pa_public_key, 256);
-
-        /* RFC7748: (x25519) ... MUST mask the most significant bit in the final byte.
-           This is done to preserve compatibility with point formats .. (compact format??)
-        */
-         pub52_mb8[4] = and64(pub52_mb8[4], loadu64(VPRIME25519_HI));
-
-        /* point multiplication */
-        x25519_scalar_mul(shared52_mb8, private64_mb8, pub52_mb8);
-
-        /* test shared secret before return; all-zero output results when the input is a point of small order. */
-         ifma_status order_err = IFMA_SET_STS_ALL(IFMA_STATUS_LOW_ORDER_ERR);
-        __ALIGN64 U64 shared52_sum = shared52_mb8[0];
-        shared52_sum = or64(shared52_sum, shared52_mb8[1]);
-        shared52_sum = or64(shared52_sum, shared52_mb8[2]);
-        shared52_sum = or64(shared52_sum, shared52_mb8[3]);
-        shared52_sum = or64(shared52_sum, shared52_mb8[4]);
-        order_err &= get_mask_value(cmpeq16_mask(shared52_sum, get_zero64()));
-        stt |= order_err;
-
-        /* convert result back */
-        ifma_mb8_to_BNU(pa_shared_key, (const int64u (*)[8])shared52_mb8, 256);
-
-        /* clear copy of secret */
-        storeu64(&private64_mb8[0], get_zero64());
-        storeu64(&private64_mb8[1], get_zero64());
-        storeu64(&private64_mb8[2], get_zero64());
-        storeu64(&private64_mb8[3], get_zero64());
-    }
-    return stt;
-}
-
-ifma_status MB_FUNC_NAME(x25519_public_key_legacy_)(int64u* const pa_public_key[8],
-                            const int64u* const pa_private_key[8])
-{
-    int64u base_point[4] = {9,0,0,0};
-    const int64u* pa_base_point[8] = {
-            base_point, base_point, base_point, base_point,
-            base_point, base_point, base_point, base_point
-    };
-    return MB_FUNC_NAME(x25519_legacy_)(pa_public_key, pa_private_key, pa_base_point);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1028,11 +923,9 @@ ifma_status MB_FUNC_NAME(x25519_public_key_legacy_)(int64u* const pa_public_key[
 __INLINE void ed25519_mul_dual_wonorm(U64 out0[], U64 out1[],
                 const U64 a0[], const U64 b0[],
                 const U64 a1[], const U64 b1[]) {
-
     int i, j;
     U64 r00, r01, r02, r03, r04, r05, r06, r07, r08, r09;
     U64 r10, r11, r12, r13, r14, r15, r16, r17, r18, r19;
-    U64 r09_tilda, r19_tilda;
 
     U64 *vr0 = (U64*) out0;
     U64 *vr1 = (U64*) out1;
@@ -1110,19 +1003,6 @@ __INLINE void ed25519_mul_dual_wonorm(U64 out0[], U64 out1[],
     REDUCE_ROUND_(r1, 2, 3, 7);
     REDUCE_ROUND_(r1, 3, 4, 8);
 
-#if 0
-    // Normalize result
-    NORM_(r0, 0,1)
-    NORM_(r0, 1,2)
-    NORM_(r0, 2,3)
-    NORM_(r0, 3,4)
-
-    NORM_(r1, 0,1)
-    NORM_(r1, 1,2)
-    NORM_(r1, 2,3)
-    NORM_(r1, 3,4)
-#endif
-
     storeu64(&vr0[0], r00);
     storeu64(&vr0[1], r01);
     storeu64(&vr0[2], r02);
@@ -1184,14 +1064,6 @@ __INLINE void fe52mb8_mul_mod25519_wonorm(U64 vr[], const U64 va[], const U64 vb
     // Trim top r4 bits that were already reduced above
     r4 = and64(r4, MASK_47);
 
-#if 0
-    // Normalize result
-    NORM(0,1)
-    NORM(1,2)
-    NORM(2,3)
-    NORM(3,4)
-#endif
-
     storeu64(&vr[0], r0);
     storeu64(&vr[1], r1);
     storeu64(&vr[2], r2);
@@ -1225,14 +1097,6 @@ __INLINE void fe52mb8_mul121666_mod25519_wonorm(U64 vr[], const U64 va[])
 
     // trim top r4 bits that were already reduced above
     r4 = and64(r4, MASK_47);
-
-#if 0
-    // normalize
-    NORM(0,1)
-    NORM(1,2)
-    NORM(2,3)
-    NORM(3,4)
-#endif
 
     storeu64(&vr[0], r0);
     storeu64(&vr[1], r1);
@@ -1401,17 +1265,23 @@ ifma_status MB_FUNC_NAME(x25519_)(int8u* const pa_shared_key[8],
         x25519_scalar_mul_dual(shared52_mb8, private64_mb8, pub52_mb8);
 
         /* test shared secret before return; all-zero output results when the input is a point of small order. */
-        ifma_status order_err = IFMA_SET_STS_ALL(IFMA_STATUS_LOW_ORDER_ERR);
         __ALIGN64 U64 shared52_sum = shared52_mb8[0];
         shared52_sum = or64(shared52_sum, shared52_mb8[1]);
         shared52_sum = or64(shared52_sum, shared52_mb8[2]);
         shared52_sum = or64(shared52_sum, shared52_mb8[3]);
         shared52_sum = or64(shared52_sum, shared52_mb8[4]);
-        order_err &= get_mask_value(cmpeq16_mask(shared52_sum, get_zero64()));
-        stt |= order_err;
+        int8u stt_mask = cmpeq64_mask(shared52_sum, get_zero64());
+        stt |= IFMA_SET_STS_BY_MASK(stt, stt_mask, IFMA_STATUS_LOW_ORDER_ERR);
 
         /* convert result back */
         ifma_mb8_to_BNU((int64u* const *)pa_shared_key, (const int64u (*)[8])shared52_mb8, 256);
+        /* clear computed shared keys */
+        storeu64(&shared52_mb8[0], get_zero64());
+        storeu64(&shared52_mb8[1], get_zero64());
+        storeu64(&shared52_mb8[2], get_zero64());
+        storeu64(&shared52_mb8[3], get_zero64());
+        /* and shared52_sum */
+        storeu64(&shared52_sum, get_zero64());
 
         /* clear copy of secret */
         storeu64(&private64_mb8[0], get_zero64());
@@ -1799,15 +1669,8 @@ ifma_status MB_FUNC_NAME(x25519_public_key_)(int8u* const pa_public_key[8],
          fe52_mul(C, mu, B);           /* C = mu*B                  */
          fe52_sub(B, A, C);            /* B = (U1+Z1) - mu*(U1-Z1)  */
          fe52_add(A, A, C);            /* A = (Ur+Z1) + mu*(U1-Z1)  */
-         #if 0
-         fe52_sqr(A, A);               /* A = A^2                   */
-         fe52_sqr(B, B);               /* B = B^2                   */
-         fe52_mul(U1, Z2, A);          /* U1= Z2*A                  */
-         fe52_mul(Z1, U2, B);          /* Z1= U2*B                  */
-         #else
          ed25519_sqr_dual(A, B, A, B);
          ed25519_mul_dual(U1, Z1, Z2, A, U2, B);
-         #endif
 
          e = srli64(e, 1);
       }

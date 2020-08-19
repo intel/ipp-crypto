@@ -53,6 +53,7 @@ _ippsAESEncryptCTR
 _ippsAESDecryptCTR
 _ippsAESEncryptXTS_Direct
 _ippsAESDecryptXTS_Direct
+_ippsAES_EncryptCFB16_MB
 _ippsSMS4GetSize
 _ippsSMS4Init
 _ippsSMS4SetKey

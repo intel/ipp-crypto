@@ -22,7 +22,7 @@ cmake_minimum_required(VERSION 3.1)
 
 set(PROJECT_FULL_NAME "Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)")
 set(PROJECT_NAME "Intel(R) IPP Crypto")
-set(PROJECT_VERSION, "2020.0.0")
+set(PROJECT_VERSION "2020.0.2")
 
 set(LIB_NAME ippcp)
 
@@ -41,7 +41,9 @@ if("${CMAKE_GENERATOR}" STREQUAL "NMake Makefiles")
   endif()
 endif()
 
-project(${PROJECT_NAME} C CXX)
+project(${PROJECT_NAME}
+        VERSION ${PROJECT_VERSION}
+        LANGUAGES C CXX)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
   message(STATUS "CMAKE_BUILD_TYPE is unset, defaulting to Release")
@@ -78,6 +80,15 @@ endif()
 
 if("${MERGED_BLD}" STREQUAL "")
   set(MERGED_BLD ON)
+endif()
+
+# Set default installation directories
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  if (UNIX)
+    set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/intel/ippcp_${PROJECT_VERSION}" CACHE PATH "..." FORCE)
+  else()
+    set(CMAKE_INSTALL_PREFIX "c:/Program Files (x86)/IntelSWTools/ippcp_${PROJECT_VERSION}" CACHE PATH "..." FORCE)
+  endif()
 endif()
 
 set(IPP_CRYPTO_DIR                  "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -136,6 +147,7 @@ message (STATUS "IPP_CRYPTO_SOURCES_INCLUDE_DIR ........ " ${IPP_CRYPTO_SOURCES_
 message (STATUS "IPP_CRYPTO_SOURCES_DIR ................ " ${IPP_CRYPTO_SOURCES_DIR})
 message (STATUS "ARCH .................................. " ${ARCH})
 message (STATUS "DYNAMIC_LIB ........................... " ${DYNAMIC_LIB})
+message (STATUS "CMAKE_INSTALL_PREFIX .................. " ${CMAKE_INSTALL_PREFIX})
 
 if(Python_Interpreter_FOUND)
   message (STATUS "PYTHON_VERSION_STRING ................. " ${Python_VERSION})

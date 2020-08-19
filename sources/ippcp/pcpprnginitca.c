@@ -77,7 +77,7 @@ IPPFUN(IppStatus, ippsPRNGInit, (int seedBits, IppsPRNGState* pCtx))
       ((Ipp32u*)RAND_Q(pCtx))[4] = 0xFFFFFFFF;
 
       /* default T parameter */
-      CopyBlock(iv, RAND_T(pCtx), hashIvSize);
+      CopyBlock_safe(iv, hashIvSize, RAND_T(pCtx), BITS2WORD8_SIZE(160));
 
       return ippStsNoErr;
    }

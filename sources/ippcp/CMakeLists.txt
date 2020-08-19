@@ -15,7 +15,7 @@
 #===============================================================================
 
 #
-# IIntel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography) 
+# IIntel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 #
 
 include (GenerateExportHeader)
@@ -194,17 +194,20 @@ if(UNIX)
   endif()
 endif(UNIX)
 
-set(THREAD_SUFFIX  "st"  PARENT_SCOPE)
-
 if(NOT MERGED_BLD)
   set(IPPCP_LIB_STATIC "")
   set(IPPCP_LIB_DYNAMIC "")
 endif(NOT MERGED_BLD)
 
+file(GLOB IPPCP_PUBLIC_HEADERS
+    ${IPP_CRYPTO_INCLUDE_DIR}/*.h)
+
 file(GLOB HEADERS
     ${IPP_CRYPTO_SOURCES_DIR}/*.h
     ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}/*.h
     ${IPP_CRYPTO_INCLUDE_DIR}/ippcp*.h
+    ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/crypto_mb/*.h
+    ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/internal/*.h
    )
 
 file(GLOB SOURCES
@@ -242,7 +245,7 @@ set (C_INCLUDE_DIRECTORIES
     ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}
     ${IPP_CRYPTO_INCLUDE_DIR}
     ${INTERNAL_INCLUDE_DIR}
-	  ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/crypto_mb
+    ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/crypto_mb
     ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/internal
     $<$<C_COMPILER_ID:Intel>:$ENV{ROOT}/compiler/include $ENV{ROOT}/compiler/include/icc>
     $<$<NOT:$<C_COMPILER_ID:Intel>>:${CMAKE_SYSTEM_INCLUDE_PATH}>
@@ -256,7 +259,7 @@ set (ASM_INCLUDE_DIRECTORIES
 
 # Crypto multi-buffer library
 if ("${ARCH}" STREQUAL "intel64")
-    set(IFMA_LIBRARYS_DEFINES
+    set(IFMA_LIBRARIES_DEFINES
         "NO_USE_MALLOC"
         "_K0"
         "BN_OPENSSL_DISABLE"
@@ -264,18 +267,16 @@ if ("${ARCH}" STREQUAL "intel64")
     set(IFMA_COMPILE_OPTIONS "${k0_opt}")
     set(IFMA_INCLUDE_DIRS "${C_INCLUDE_DIRECTORIES}")
     set(BN_OPENSSL_DISABLE ON)
-    set(IFMA_LIB_OBJ_TARGET "crypto_mb-obj")
+    set(IFMA_LIB_OBJ_TARGET "crypto_mb")
     add_subdirectory(crypto_mb)
 endif()
 
 # Generate single-CPU headers
 if(MERGED_BLD)
-  foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
-    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
-    set(ONE_CPU_FOLDER ${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include/autogen)
-    set(ONE_CPU_GENERATOR   ${IPP_CRYPTO_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_1cpu_header.py)
-    execute_process(COMMAND ${Python_EXECUTABLE} ${ONE_CPU_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${ONE_CPU_FOLDER})
-  endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+  set(ONE_CPU_FOLDER ${INTERNAL_INCLUDE_DIR}/single_cpu)
+  set(ONE_CPU_GENERATOR   ${IPP_CRYPTO_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_1cpu_header.py)
+  execute_process(COMMAND ${Python_EXECUTABLE} ${ONE_CPU_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${ONE_CPU_FOLDER})
+  file(GLOB ONE_CPU_HEADERS "${ONE_CPU_FOLDER}/*.h")
 
   set(INTERNAL_GENERATOR  ${IPP_CRYPTO_DIR}/sources/gen_cpu_spc_header/gen_cpu_spc_header.py)
   execute_process(COMMAND ${Python_EXECUTABLE} ${INTERNAL_GENERATOR} ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h ${INTERNAL_INCLUDE_DIR})
@@ -340,7 +341,13 @@ foreach(opt ${PLATFORM_LIST})
     endif()
     set_target_properties(${IPPCP_DYN_ITER} PROPERTIES OUTPUT_NAME "${TARGET_NAME}${opt}"
                                                        COMPILE_FLAGS "${OPT_FLAGS_${opt}}"
-                                                       COMPILE_DEFINITIONS "_IPP_DYNAMIC;${${opt}_def}")
+                                                       COMPILE_DEFINITIONS "_IPP_DYNAMIC;${${opt}_def}"
+                                                       PUBLIC_HEADER "${IPPCP_PUBLIC_HEADERS}"
+                                                       )
+    install(TARGETS ${IPPCP_DYN_ITER}
+            LIBRARY DESTINATION "lib/${ARCH}/$<$<BOOL:${NONPIC_LIB}>:nonpic>"
+            RUNTIME DESTINATION "lib/${ARCH}/$<$<BOOL:${NONPIC_LIB}>:nonpic>"
+            PUBLIC_HEADER DESTINATION "include")
     list(APPEND IPPCP_LIB_DYNAMIC ${IPPCP_DYN_ITER})
   endif(DYNAMIC_LIB AND NOT MERGED_BLD)
 
@@ -361,6 +368,13 @@ foreach(opt ${PLATFORM_LIST})
 
   set_target_properties(${IPPCP_ST_ITER} PROPERTIES COMPILE_FLAGS "${OPT_FLAGS_${opt}}"
                                                     COMPILE_DEFINITIONS "$<$<BOOL:${MERGED_BLD}>:_MERGED_BLD>;${${opt}_def}")
+  # Merged build install is handled in another target
+  if (NOT MERGED_BLD)
+    set_target_properties(${IPPCP_ST_ITER} PROPERTIES PUBLIC_HEADER "${IPPCP_PUBLIC_HEADERS}")
+    install(TARGETS ${IPPCP_ST_ITER}
+            ARCHIVE DESTINATION "lib/${ARCH}/$<$<BOOL:${NONPIC_LIB}>:nonpic>"
+            PUBLIC_HEADER DESTINATION "include")
+  endif()
 
   set_source_files_properties(${ASM_SOURCES_${opt}} PROPERTIES COMPILE_DEFINITIONS "$<$<BOOL:${MERGED_BLD}>:_MERGED_BLD>;${${opt}_def}"
                                                                INCLUDE_DIRECTORIES "${ASM_INCLUDE_DIRECTORIES}")
@@ -440,6 +454,13 @@ if(MERGED_BLD)
     set_target_properties(${IPPCP_LIB_MERGED} PROPERTIES OUTPUT_NAME "${TARGET_NAME}")
   endif(WIN32)
 
+  set_target_properties(${IPPCP_LIB_MERGED} PROPERTIES PUBLIC_HEADER "${IPPCP_PUBLIC_HEADERS}"
+                                                       PRIVATE_HEADER "${ONE_CPU_HEADERS}")
+  install(TARGETS ${IPPCP_LIB_MERGED}
+          ARCHIVE DESTINATION "lib/${ARCH}/$<$<BOOL:${NONPIC_LIB}>:nonpic>"
+          PUBLIC_HEADER DESTINATION "include"
+          PRIVATE_HEADER DESTINATION "tools/${ARCH}/staticlib")
+
   set_source_files_properties(${SOURCES} pcpver.rc PROPERTIES INCLUDE_DIRECTORIES "${C_INCLUDE_DIRECTORIES}")
   # protection (_FORTIFY_SOURCE) and optimization flags for dispatcher
   if(UNIX)
@@ -467,9 +488,17 @@ if(MERGED_BLD)
     endif()
 
     set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINKER_LANGUAGE C
-                                                      COMPILE_DEFINITIONS  "_MERGED_BLD")
+                                                      COMPILE_DEFINITIONS  "_MERGED_BLD"
+                                                      PUBLIC_HEADER "${IPPCP_PUBLIC_HEADERS}"
+                                                      PRIVATE_HEADER "${ONE_CPU_HEADERS}")
     target_link_libraries(${IPPCP_LIB_PCS} ${IPPCP_LIB_MERGED}) # link to the static merged
     set_target_properties(${IPPCP_LIB_PCS} PROPERTIES OUTPUT_NAME "${TARGET_NAME}")
+
+    install(TARGETS ${IPPCP_LIB_PCS}
+            LIBRARY DESTINATION "lib/${ARCH}/$<$<BOOL:${NONPIC_LIB}>:nonpic>"
+            RUNTIME DESTINATION "lib/${ARCH}/$<$<BOOL:${NONPIC_LIB}>:nonpic>"
+            PUBLIC_HEADER DESTINATION "include"
+            PRIVATE_HEADER DESTINATION "tools/${ARCH}/staticlib")
 
     if(WIN32)
       set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINK_FLAGS ${LINK_FLAG_DYNAMIC_WINDOWS})
@@ -501,3 +530,12 @@ if(MERGED_BLD)
 
   endif(DYNAMIC_LIB)
 endif()
+
+# Install Custom Library tool
+install(DIRECTORY "${TOOLS_DIR}/ipp_custom_library_tool_python/"
+        DESTINATION "tools/custom_library_tool_python")
+
+# Install environment setup scripts
+# file(GLOB IPPCP_ENV_SCRIPTS "${IPP_CRYPTO_DIR}/release_stuff/cnl/env_scripts/${OS_STRING}/ippcpvars.*")
+# install(PROGRAMS ${IPPCP_ENV_SCRIPTS}
+#         DESTINATION bin/)

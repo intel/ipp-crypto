@@ -50,8 +50,8 @@
 
   %if _IPP32E >= _IPP32E_L9
    rorx  %%r,%%r,%%nbits
-  %elif _IPP32E >= _IPP32E_Y8
-   shrd  %%r,%%r,%%nbits
+  ;; %elif _IPP32E >= _IPP32E_Y8
+  ;;  shrd  %%r,%%r,%%nbits
   %else
    ror   %%r,%%nbits
   %endif
@@ -237,6 +237,7 @@ IPPASM UpdateSHA512,PUBLIC
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+align IPP_ALIGN_FACTOR
 .sha512_block_loop:
 
 ;;
@@ -272,6 +273,8 @@ IPPASM UpdateSHA512,PUBLIC
    movdqa   oword [rsp+7*16], xmm3
 %else
    xor      rcx,rcx
+
+align IPP_ALIGN_FACTOR
 .loop1:
    mov      r8,[rsi+rcx*8+0*8]
    ENDIANNESS r8,r8

@@ -144,7 +144,6 @@ static int64u* extract_multiplier_mb8(int64u out[LEN52][8], int64u tbl[][LEN52][
    int n;
    // Find out what we actually need or just keep original
    for(n=1; n<(1<<EXP_WIN_SIZE); n++) {
-      __m512i T;
       __m512i idx_curr = _mm512_set1_epi64(n);
       __mmask8 k = _mm512_cmpeq_epu64_mask(idx_curr, idx_target);
 

@@ -77,19 +77,15 @@
   %assign GPR_FRAME 0
   %define GPR_CUR
 
-  %push _INTERSECT_CTX_
-  %define %$intersectable_list %[NONVOLATILE_REGS_32_GPR]
-  INTERSECT %1
+  BEGIN_INTERSECT
+  INTERSECT {%1},{%[NONVOLATILE_REGS_32_GPR]}
   ; List of non-volatile GPR registers in the order they will be pushed on stack
   %xdefine GPR_CUR %$intersection
   %assign GPR_FRAME %$cardinality * 4
-  %pop _INTERSECT_CTX_
+  END_INTERSECT
 
   ; Push non-volatile GPRs on stack
-  %push _MAP_CTX_
-  %define %$mapfunc push
-  MAP GPR_CUR
-  %pop _MAP_CTX_
+  FOREACH GPR_CUR,{push}
 
   ; Set up offset of arguments from ESP
   %assign ARG_1 %[GPR_FRAME + 4]
@@ -101,12 +97,8 @@
   %ifndef GPR_CUR
     %fatal "REST_GPR: no GPR_CUR defined"
   %endif
-  %push _MAP_CTX_
-  %define %$mapfunc pop
-  ; Specify reverse order list processing
-  %define %$reverse_order
-  MAP GPR_CUR
-  %pop _MAP_CTX_
+  ; Pop saved GPRs from the stack
+  RFOREACH GPR_CUR,{pop}
 %endmacro
 
 %macro LD_ADDR 2.nolist

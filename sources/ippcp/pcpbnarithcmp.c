@@ -28,7 +28,6 @@
 #include "pcpbn.h"
 #include "pcptool.h"
 
-
 /*F*
 //    Name: ippsCmp_BN
 //
@@ -58,16 +57,30 @@ IPPFUN(IppStatus, ippsCmp_BN,(const IppsBigNumState* pA, const IppsBigNumState* 
    IPP_BADARG_RET(!BN_VALID_ID(pB), ippStsContextMatchErr);
 
    {
-      int res;
-      if(BN_SIGN(pA)==BN_SIGN(pB)) {
-         res = cpCmp_BNU(BN_NUMBER(pA), BN_SIZE(pA), BN_NUMBER(pB), BN_SIZE(pB));
-         if(ippBigNumNEG==BN_SIGN(pA))
-            res = -res;
-      }
-      else
-         res = (ippBigNumPOS==BN_SIGN(pA))? 1 :-1;
+      BNU_CHUNK_T positiveA = cpIsEqu_ct(ippBigNumPOS, BN_SIGN(pA));
+      BNU_CHUNK_T positiveB = cpIsEqu_ct(ippBigNumPOS, BN_SIGN(pB));
+      BNU_CHUNK_T signMask;
 
-      *pResult = (1==res)? IPP_IS_GT : (-1==res)? IPP_IS_LT : IPP_IS_EQ;
+      /* (ippBigNumPOS == BN_SIGN(pA)) && (ippBigNumPOS==BN_SIGN(pB))  => res = cpCmp_BNU() */
+      BNU_CHUNK_T res  = (BNU_CHUNK_T)( cpCmp_BNU(BN_NUMBER(pA), BN_SIZE(pA), BN_NUMBER(pB), BN_SIZE(pB)) );
+
+      /* (ippBigNumNEG == BN_SIGN(pA)) && (ippBigNumNEG==BN_SIGN(pB))  => invert res value */
+      signMask = ~positiveA & ~positiveB;
+      res = (res & ~signMask) | ((0-res) & signMask);
+
+      /* (ippBigNumPOS == BN_SIGN(pA)) && (ippBigNumNEG==BN_SIGN(pB))  => res = 1 */
+      signMask = positiveA & ~positiveB;
+      res = (res & ~signMask) | ((1) & signMask);
+
+      /* (ippBigNumNEG == BN_SIGN(pA)) && (ippBigNumPOS==BN_SIGN(pB))  => res = -1 */
+      signMask = ~positiveA & positiveB;
+      res = (res & ~signMask) | ((BNU_CHUNK_T)(-1) & signMask);
+
+      // map res into IPP_IS_LT/EQ/GT
+      Ipp32u cmpResult = (Ipp32u)( (cpIsEqu_ct(res, (BNU_CHUNK_T)(-1)) & IPP_IS_LT)
+                                 | (cpIsEqu_ct(res, (BNU_CHUNK_T)(0))  & IPP_IS_EQ)
+                                 | (cpIsEqu_ct(res, (BNU_CHUNK_T)(1))  & IPP_IS_GT) );
+      *pResult = cmpResult;
 
       return ippStsNoErr;
    }

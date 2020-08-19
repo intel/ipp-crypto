@@ -119,6 +119,7 @@ __INLINE int cpFix_BNU(const BNU_CHUNK_T* pA, int nsA)
 //    nsB      Size of pB
 //
 */
+#if 0
 __INLINE int cpCmp_BNU(const BNU_CHUNK_T* pA, cpSize nsA, const BNU_CHUNK_T* pB, cpSize nsB)
 {
    if(nsA!=nsB)
@@ -129,6 +130,40 @@ __INLINE int cpCmp_BNU(const BNU_CHUNK_T* pA, cpSize nsA, const BNU_CHUNK_T* pB,
         idx |= ~cpIsEqu_ct(pA[nsA-1], pB[nsA-1]) & cpIsZero_ct(idx) & (BNU_CHUNK_T)(nsA-1);
       return pA[idx] < pB[idx] ? -1 : (pA[idx] > pB[idx] ? 1 : 0);
    }
+}
+#endif
+
+__INLINE int cpCmp_BNU0(const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, int len)
+{
+   const Ipp32u* a32 = (const Ipp32u*)a;
+   const Ipp32u* b32 = (const Ipp32u*)b;
+   len *= (sizeof(BNU_CHUNK_T))/sizeof(Ipp32u);
+
+   // borrow, difference |=  (a[]-b[])
+   BNU_CHUNK_T borrow = 0;
+   BNU_CHUNK_T difference = 0;
+   for(int n=0; n<len; n++) {
+      Ipp64u d = (Ipp64u)(a32[n]) - (Ipp64u)(b32[n]) - (Ipp64u)borrow;
+      difference |= (BNU_CHUNK_T)(d & 0xFFFFFFFF);
+      borrow = (BNU_CHUNK_T)(d>>63);
+   }
+
+   int resb = (int)( cpIsEqu_ct(borrow, 1) );
+   int resd = (int)(~cpIsZero_ct(difference) ) &1;
+   return (int)(resb|resd);
+}
+
+__INLINE int cpCmp_BNU(const BNU_CHUNK_T* a, int aLen, const BNU_CHUNK_T* b, int bLen)
+{
+   BNU_CHUNK_T aLen_eq_bLen = cpIsZero_ct((BNU_CHUNK_T)(aLen-bLen));    // FFFF/0000 if (aLen=bLen) / (aLen!=bLen)
+   BNU_CHUNK_T aLen_gt_bLen = cpIsMsb_ct((BNU_CHUNK_T)(bLen-aLen)) & 1; // 1/0       if (aLen>bLen) / (aLen<bLen)
+   BNU_CHUNK_T aLen_lt_bLen = cpIsMsb_ct((BNU_CHUNK_T)(aLen-bLen));     // FFFF/0000 if (aLen<bLen) / (aLen>bLen)
+
+
+   int len = (int)(((Ipp32u)aLen & aLen_lt_bLen) | ((Ipp32u)bLen & ~aLen_lt_bLen));
+   int cmp_res = cpCmp_BNU0(a, b, len);
+
+   return (int)( aLen_gt_bLen | (aLen_eq_bLen & (Ipp32u)cmp_res) | aLen_lt_bLen );
 }
 
 /*   Name: cpEqu_BNU_CHUNK

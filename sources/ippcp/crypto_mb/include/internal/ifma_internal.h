@@ -30,6 +30,9 @@ typedef int64u (*pint64u_x8) [8];   // pointer to 8-term vector of int64u each
 #define IFMA_BYTES_TO_ALIGN(ptr, align) ((~(IFMA_UINT_PTR(ptr)&((align)-1))+1)&((align)-1))
 #define IFMA_ALIGNED_PTR(ptr, align) (void*)( (unsigned char*)(ptr) + (IFMA_BYTES_TO_ALIGN( ptr, align )) )
 
+// max internal data bitsize
+#define IFMA_MAX_BITSIZE   (4096)
+
 // basis definition
 #define DIGIT_SIZE (52)
 #define DIGIT_BASE ((int64u)1<<DIGIT_SIZE)

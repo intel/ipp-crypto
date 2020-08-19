@@ -90,7 +90,7 @@ IPPFUN(IppStatus, ippsAES_CCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
       qLen = (((Ipp8u*)CTR)[0] &0x7) +1; /* &0x7 just to fix KW issue */
 
       if(flag) {
-         int tmpLen = IPP_MIN(len, MBS_RIJ128-1);
+         Ipp32u tmpLen = (Ipp32u)IPP_MIN(len, MBS_RIJ128-1);
 
          /* copy as much input as possible into the internal buffer*/
          CopyBlock(pSrc, AESCCM_BLK(pState)+flag, (Ipp32s)tmpLen);

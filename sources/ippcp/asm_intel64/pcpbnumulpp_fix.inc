@@ -335,41 +335,41 @@
   %xdefine %%X7 %14
 
    mov      rdx, [%%pB]
-   MUL_FIX  %%N, %%pDst, %%pA, %%HIP,%%LOP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   MUL_FIX  {%%N},{%%pDst},{%%pA},{%%HIP},{%%LOP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
 
    %if %%N > 1
    mov      rdx, [%%pB+sizeof(qword)*1]
-   MLA_FIX  %%N, {%%pDst+sizeof(qword)*1}, %%pA, %%HIP,%%LOP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   MLA_FIX  {%%N},{%%pDst+sizeof(qword)*1},{%%pA},{%%HIP},{%%LOP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
    %endif
 
    %if %%N > 2
-   mov      rdx, [%%pB+sizeof(qword)*2]
-   MLA_FIX  %%N, {%%pDst+sizeof(qword)*2}, %%pA, %%HIP,%%LOP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   mov      rdx,[%%pB+sizeof(qword)*2]
+   MLA_FIX  {%%N},{%%pDst+sizeof(qword)*2},{%%pA},{%%HIP},{%%LOP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
    %endif
 
    %if %%N > 3
-   mov      rdx, [%%pB+sizeof(qword)*3]
-   MLA_FIX  %%N, {%%pDst+sizeof(qword)*3}, %%pA, %%HIP,%%LOP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   mov      rdx,[%%pB+sizeof(qword)*3]
+   MLA_FIX  {%%N},{%%pDst+sizeof(qword)*3},{%%pA},{%%HIP},{%%LOP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
    %endif
 
    %if %%N > 4
-   mov      rdx, [%%pB+sizeof(qword)*4]
-   MLA_FIX  %%N, {%%pDst+sizeof(qword)*4}, %%pA, %%HIP,%%LOP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   mov      rdx,[%%pB+sizeof(qword)*4]
+   MLA_FIX  {%%N},{%%pDst+sizeof(qword)*4},{%%pA},{%%HIP},{%%LOP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
    %endif
 
    %if %%N > 5
-   mov      rdx, [%%pB+sizeof(qword)*5]
-   MLA_FIX  %%N, {%%pDst+sizeof(qword)*5}, %%pA, %%HIP,%%LOP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   mov      rdx,[%%pB+sizeof(qword)*5]
+   MLA_FIX  {%%N},{%%pDst+sizeof(qword)*5},{%%pA},{%%HIP},{%%LOP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
    %endif
 
    %if %%N > 6
-   mov      rdx, [%%pB+sizeof(qword)*6]
-   MLA_FIX  %%N, {%%pDst+sizeof(qword)*6}, %%pA, %%HIP,%%LOP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   mov      rdx,[%%pB+sizeof(qword)*6]
+   MLA_FIX  {%%N},{%%pDst+sizeof(qword)*6},{%%pA},{%%HIP},{%%LOP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
    %endif
 
    %if %%N > 7
-   mov      rdx, [%%pB+sizeof(qword)*7]
-   MLA_FIX  %%N, {%%pDst+sizeof(qword)*7}, %%pA, %%HIP,%%LOP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   mov      rdx,[%%pB+sizeof(qword)*7]
+   MLA_FIX  {%%N},{%%pDst+sizeof(qword)*7},{%%pA},{%%HIP},{%%LOP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
    %endif
 
    %if %%N > 7

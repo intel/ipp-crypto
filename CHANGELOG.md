@@ -2,6 +2,13 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## YYYY-MM-DD
+
+## 2020-08-19
+- Added multi-buffer implementation of AES-CFB optimized with Intel(R) AES-NI and vector extensions of Intel(R) AES-NI instruction sets.
+- Fixed compatibility issue with x64 ABI (restored non-volatile registers after function call in AVX/AVX2 assembly code).
+- Updated Intel IPP Custom Library Tool.
+
 ## 2020-06-09
 - AES-GCM algorithm was optimized for Intel(R) Microarchitecture Code Named Cascade Lake with Intel(R) AES New Instructions (Intel(R) AES-NI).
 - Crypto Multi-buffer library installation instructions update.

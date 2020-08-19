@@ -157,7 +157,7 @@ IPPFUN(IppStatus, ippsSMS4_CCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, 
 
       if(len) {
          /* store partial data block */
-         CopyBlock(pSrc, SMS4CCM_BLK(pCtx), len);
+         CopyBlock_safe(pSrc, len, SMS4CCM_BLK(pCtx), MBS_SMS4);
 
          /* increment counter and format counter block */
          *counterVal+=1;

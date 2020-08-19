@@ -40,6 +40,22 @@ __INLINE void CopyBlock(const void* pSrc, void* pDst, cpSize numBytes)
    for(k=0; k<numBytes; k++ )
       d[k] = s[k];
 }
+
+__INLINE void CopyBlock_safe(const void* pSrc, cpSize srcNumBytes, void* pDst, cpSize dstNumBytes)
+{
+   cpSize numBytes = srcNumBytes;
+   if (dstNumBytes < srcNumBytes) {
+       numBytes = dstNumBytes;
+   }
+
+   const Ipp8u* s  = (Ipp8u*)pSrc;
+   Ipp8u* d  = (Ipp8u*)pDst;
+   cpSize k;
+   for(k=0; k<numBytes; k++ )
+      d[k] = s[k];
+}
+
+
 __INLINE void CopyBlock8(const void* pSrc, void* pDst)
 {
    int k;

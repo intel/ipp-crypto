@@ -1,43 +1,43 @@
 # How to Build Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography) <!-- omit in toc -->
 
 - [Software Requirements](#software-requirements)
-  - [Common](#common)
-  - [Linux* OS](#linux-os)
-  - [Windows* OS](#windows-os)
-  - [macOS*](#macos)
+    - [Common tools](#common-tools)
+    - [Linux* OS](#linux-os)
+    - [Windows* OS](#windows-os)
+    - [macOS*](#macos)
 - [Building Intel IPP Cryptography on Linux\* OS](#building-intel-ipp-cryptography-on-linux-os)
 - [Building Intel IPP Cryptography on Windows\* OS](#building-intel-ipp-cryptography-on-windows-os)
 - [Building Intel IPP Cryptography on macOS\*](#building-intel-ipp-cryptography-on-macos)
 - [CMake Build Options](#cmake-build-options)
-  - [Common for all operating systems](#common-for-all-operating-systems)
-  - [Windows\* OS](#windows-os-1)
-  - [Linux\* OS](#linux-os-1)
+    - [Common for all operating systems](#common-for-all-operating-systems)
+    - [Windows\* OS](#windows-os)
+    - [Linux\* OS](#linux-os)
 - [CMake Commands FAQ](#cmake-commands-faq)
-  - [How to build a 32-bit library?](#how-to-build-a-32-bit-library)
-  - [How to build a 64-bit generic library without any CPU-specific optimizations?](#how-to-build-a-64-bit-generic-library-without-any-cpu-specific-optimizations)
-  - [How to build two libraries with optimizations for Intel® Advanced Vector Extensions 2 and Intel® Advanced Vector Extensions 512 instruction sets?](#how-to-build-two-libraries-with-optimizations-for-intel%c2%ae-advanced-vector-extensions-2-and-intel%c2%ae-advanced-vector-extensions-512-instruction-sets)
-  - [How to build a library to work in a kernel space?](#how-to-build-a-library-to-work-in-a-kernel-space)
-- [Incorporating Intel IPP Cryptography sources into custom build system](#incorporating-intel%c2%ae-ipp-cryptography-sources-into-custom-build-system)
+    - [How to build a 32-bit library?](#how-to-build-a-32-bit-library)
+    - [How to build a 64-bit generic library without any CPU-specific optimizations?](#how-to-build-a-64-bit-generic-library-without-any-cpu-specific-optimizations)
+    - [How to build two libraries with optimizations for Intel® Advanced Vector Extensions 2 and Intel® Advanced Vector Extensions 512 instruction sets?](#how-to-build-two-libraries-with-optimizations-for-intel-advanced-vector-extensions-2-and-intel-advanced-vector-extensions-512-instruction-sets)
+    - [How to build a library to work in a kernel space?](#how-to-build-a-library-to-work-in-a-kernel-space)
+- [Incorporating Intel® IPP Cryptography sources into custom build system](#incorporating-intel-ipp-cryptography-sources-into-custom-build-system)
+
 
 ## Software Requirements
-### Common
+### Common tools
 - [CMake\*](https://cmake.org/download) 3.15 or higher
 - Python 2.7.15
-- The Netwide Assembler (NASM) 2.15\*
+- The Netwide Assembler (NASM) 2.15
 
-> **NOTE**: Until NASM 2.15 is officially released, please use [this](https://www.nasm.us/pub/nasm/snapshots/20191023/) NASM snapshot.
 ### Linux* OS
-- [Common tools](#common-software-requirements)
+- [Common tools](#common-tools)
 - Intel® C++ Compiler 19.0 Update 4 for Linux\* OS
 - GCC 8.3
 - GCC 9.1
 - GNU binutils 2.32
 ### Windows* OS
-- [Common tools](#common-software-requirements)
+- [Common tools](#common-tools)
 - Intel® C++ Compiler 19.0 Update 4 for Windows\* OS
 - Microsoft Visual C++ Compiler\* version 19.16 provided by Microsoft Visual Studio\* 2017 version 15.9
 ### macOS*
-- [Common tools](#common-software-requirements)
+- [Common tools](#common-tools)
 - Intel® C++ Compiler 19.0 Update 4 for macOS\* 
 ## Building Intel IPP Cryptography on Linux\* OS
 
@@ -188,7 +188,7 @@ To build the Intel IPP Cryptography library on macOS*, complete the following st
 - `-B<build-dir>` - defines the build directory. This is the directory where CMake puts the generated Microsoft Visual Studio\* solution or makefiles.
 
 - `-DARCH=<ia32|intel64>` - on Linux* OS and macOS*, defines the target architecture for the build of the Intel IPP Cryptography library.
-    > **NOTE:** On Windows* OS, use `-G`/`-A`  instead. See the description of these options [below](#windows-os-specific).
+    > **NOTE:** On Windows* OS, use `-G`/`-A`  instead. See the description of these options [below](#windows-os-1).
 
 - `-DMERGED_BLD:BOOL=<on|off>` - optional. Defines the configuration of the Intel IPP Cryptography library to build:
 

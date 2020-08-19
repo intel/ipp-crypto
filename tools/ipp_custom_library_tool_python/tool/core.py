@@ -1,5 +1,5 @@
 """
-Copyright 2019-2020 Intel Corporation.
+Copyright 2018-2020 Intel Corporation.
 
 This software and the related documents are Intel copyrighted  materials,  and
 your use of  them is  governed by the  express license  under which  they were
@@ -19,97 +19,59 @@ eement/
 import os
 from subprocess import call  # nosec
 
-import tool.utils
-from tool.generators import EXPORT_GENERATORS, GENERATORS
+from tool import utils
+from tool.generators import main_file_generator, EXPORT_GENERATORS, build_script_generator, custom_dispatcher_generator
 
 
-def generate_script(package,
-                    system_host,
-                    system_target,
-                    functions_list,
-                    library_path,
-                    library_name,
-                    architecture,
-                    multi_threaded,
-                    threading_layer_type,
-                    sub_command=''):
+def generate_script():
     """
-    Generates build script according to given parameters
-
-    :param package: Intel® Integrated Performance Primitives/Intel® Integrated Performance Primitives Cryptography package
-    :param system_host: name of host system
-    :param system_target: name of target system
-    :param functions_list: list of functions that are to be in dynamic library
-    :param library_path: path to directory where script has to appear
-    :param library_name: name of dynamic library
-    :param architecture: name of target architecture
-    :param multi_threaded: use multi-threaded libraries if set to True
-    :param sub_command: command that is going to be executed before building and linking
+    Generates build script
     """
-    if not os.path.exists(library_path):
-        os.makedirs(library_path)
+    host        = utils.HOST_SYSTEM
+    output_path = utils.CONFIGS[utils.OUTPUT_PATH]
 
-    with open(os.path.join(library_path, tool.utils.MAIN_FILE), 'w') as main_file:
-        main_file.write(tool.utils.MAIN_FILES[system_target].format(package=package.lower()))
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
 
-    with open(os.path.join(library_path, tool.utils.EXPORT_FILES[system_target]), 'w') as export_file:
-        EXPORT_GENERATORS[system_target](export_file, functions_list)
+    with open(os.path.join(output_path, utils.MAIN_FILE_NAME + '.c'), 'w') as main_file:
+        main_file.write(main_file_generator())
 
-    with open(os.path.join(library_path, tool.utils.BUILD_SCRIPT[architecture][system_host]), 'w') as build_script:
-        build_script.write(GENERATORS[system_host][system_target](package,
-                                                                  library_path,
-                                                                  library_name,
-                                                                  architecture,
-                                                                  multi_threaded=multi_threaded,
-                                                                  threading_layer_type=threading_layer_type,
-                                                                  sub_command=sub_command))
-    os.chmod(os.path.join(library_path, tool.utils.BUILD_SCRIPT[architecture][system_host]), 0o745)
+    if utils.CONFIGS[utils.CUSTOM_CPU_SET]:
+        with open(os.path.join(output_path, utils.CUSTOM_DISPATCHER_FILE_NAME) + '.c', 'w') as custom_dispatcher_file:
+            custom_dispatcher_file.write(custom_dispatcher_generator())
+
+    with open(os.path.join(output_path, utils.EXPORT_FILE[host]), 'w') as export_file:
+        EXPORT_GENERATORS[host](export_file, utils.CONFIGS[utils.FUNCTIONS_LIST])
+
+    script_path = os.path.join(output_path, utils.CONFIGS[utils.BUILD_SCRIPT_NAME])
+    with open(script_path, 'w') as build_script:
+        build_script.write(build_script_generator())
+    os.chmod(script_path, 0o745)
+
+    return os.path.exists(script_path)
 
 
-def build(package,
-          system_host,
-          system_target,
-          functions_list,
-          library_path,
-          library_name,
-          architecture,
-          multi_threaded,
-          package_path,
-          threading_layer_type):
+def build():
     """
-    Builds dynamic library according to given parameters
+    Builds dynamic library
 
-    :param omp: should be True if there is need in support of TL implemented with OpenMP
-    :param system_host: name of host system
-    :param system_target: name of target system
-    :param functions_list: list of functions that are to be in dynamic library
-    :param library_path: path to directory where script has to appear
-    :param library_name: name of dynamic library
-    :param architecture: name of target architecture
-    :param multi_threaded: use multi-threaded libraries if set to True
-    :param package_path: path to compilers_and_libraries directory
     :return: True if build was successful and False in the opposite case
     """
+    success = generate_script()
+    if not success:
+        return False
 
-    generate_script(package,
-                    system_host,
-                    system_target,
-                    functions_list,
-                    library_path,
-                    library_name,
-                    architecture,
-                    multi_threaded,
-                    threading_layer_type=threading_layer_type,
-                    sub_command=tool.utils.BUILD_COMMANDS[system_host][system_target](package_path, architecture)
-                    )
-    script_path = os.path.join(library_path, tool.utils.BUILD_SCRIPT[architecture][system_host])
-    call([script_path])  # nosec
-    os.remove(os.path.join(library_path, tool.utils.MAIN_FILE))
-    os.remove(os.path.join(library_path, tool.utils.BUILD_SCRIPT[architecture][system_host]))
-    os.remove(os.path.join(library_path, tool.utils.EXPORT_FILES[system_target]))
+    output_path = utils.CONFIGS[utils.OUTPUT_PATH]
+    error = call([os.path.join(output_path, utils.CONFIGS[utils.BUILD_SCRIPT_NAME])])
+    if error:
+        return False
 
-    return os.path.exists(os.path.join(library_path,
-                                       architecture,
-                                       tool.utils.LIBRARIES_PREFIX[system_target]
-                                       + library_name
-                                       + tool.utils.LIBRARIES_EXTENSIONS[system_target]))
+    os.remove(os.path.join(output_path, utils.MAIN_FILE_NAME + '.c'))
+    os.remove(os.path.join(output_path, utils.MAIN_FILE_NAME + '.obj'))
+    os.remove(os.path.join(output_path, utils.EXPORT_FILE[utils.HOST_SYSTEM]))
+    os.remove(os.path.join(output_path, utils.CONFIGS[utils.BUILD_SCRIPT_NAME]))
+
+    if utils.CONFIGS[utils.CUSTOM_CPU_SET]:
+        os.remove(os.path.join(output_path, utils.CUSTOM_DISPATCHER_FILE_NAME + '.obj'))
+
+    return True

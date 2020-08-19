@@ -159,7 +159,7 @@ IPPFUN(IppStatus, ippsAES_CMACUpdate,(const Ipp8u* pSrc, int len, IppsAES_CMACSt
       // remaind
       */
       if(len) {
-         CopyBlock(pSrc, (Ipp8u*)(&CMAC_BUFF(pState)), len);
+         CopyBlock_safe(pSrc, len, (Ipp8u*)(&CMAC_BUFF(pState)), MBS_RIJ128);
          /* update internal buffer filling */
          CMAC_INDX(pState) += len;
       }

@@ -240,48 +240,48 @@ mov   %%OP, [%%pA+8*0]
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ; {X0,X7,X6,X5,X4,X3,X2,X1},pDst[1] = pA[1]*pB[] + {X7,X6,X5,X4,X3,X2,X1,X0}
    mov      %%OP, [%%pA+sizeof(qword)*1]
-   MLA_FIX  %%N, [%%pDst+sizeof(qword)*1], %%pB, %%OP, %%TMP, %%X7, %%X6, %%X5, %%X4, %%X3, %%X2, %%X1, %%X0
+   MLA_FIX  {%%N},[%%pDst+sizeof(qword)*1],{%%pB},{%%OP},{%%TMP},{%%X7},{%%X6},{%%X5},{%%X4},{%%X3},{%%X2},{%%X1},{%%X0}
    %endif
 
    %if %%N > 2
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ; {X1,X0,X7,X6,X5,X4,X3,X2},pDst[2] = pA[2]*pB[] + {X0,X7,X6,X5,X4,X3,X2,X1}
    mov      %%OP, [%%pA+sizeof(qword)*2]
-   MLA_FIX  %%N, [%%pDst+sizeof(qword)*2], %%pB, %%OP, %%TMP, %%X0, %%X7, %%X6, %%X5, %%X4, %%X3, %%X2, %%X1
+   MLA_FIX  {%%N},[%%pDst+sizeof(qword)*2],{%%pB},{%%OP},{%%TMP},{%%X0},{%%X7},{%%X6},{%%X5},{%%X4},{%%X3},{%%X2},{%%X1}
    %endif
 
    %if %%N > 3
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ; {X2,X1,X0,X7,X6,X5,X4,X3},pDst[3] = pA[3]*pB[] + {X1,X0,X7,X6,X5,X4,X3,X2}
    mov      %%OP, [%%pA+sizeof(qword)*3]
-   MLA_FIX  %%N, [%%pDst+sizeof(qword)*3], %%pB, %%OP, %%TMP, %%X1, %%X0, %%X7, %%X6, %%X5, %%X4, %%X3, %%X2
+   MLA_FIX  {%%N},[%%pDst+sizeof(qword)*3],{%%pB},{%%OP},{%%TMP},{%%X1},{%%X0},{%%X7},{%%X6},{%%X5},{%%X4},{%%X3},{%%X2}
    %endif
 
    %if %%N > 4
    ; {X3,X2,X1,X0,X7,X6,X5,X4},pDst[4] = pA[4]*pB[] + {X2,X1,X0,X7,X6,X5,X4,X3}
    mov      %%OP, [%%pA+sizeof(qword)*4]
-   MLA_FIX  %%N, [%%pDst+sizeof(qword)*4], %%pB, %%OP, %%TMP, %%X2, %%X1, %%X0, %%X7, %%X6, %%X5, %%X4, %%X3
+   MLA_FIX  {%%N},[%%pDst+sizeof(qword)*4],{%%pB},{%%OP},{%%TMP},{%%X2},{%%X1},{%%X0},{%%X7},{%%X6},{%%X5},{%%X4},{%%X3}
    %endif
 
    %if %%N > 5
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ; {X4,X3,X2,X1,X0,X7,X6,X5},pDst[5] = pA[5]*pB[] + {X3,X2,X1,X0,X7,X6,X5,X4}
    mov      %%OP, [%%pA+sizeof(qword)*5]
-   MLA_FIX  %%N, [%%pDst+sizeof(qword)*5], %%pB, %%OP, %%TMP, %%X3, %%X2, %%X1, %%X0, %%X7, %%X6, %%X5, %%X4
+   MLA_FIX  {%%N},[%%pDst+sizeof(qword)*5],{%%pB},{%%OP},{%%TMP},{%%X3},{%%X2},{%%X1},{%%X0},{%%X7},{%%X6},{%%X5},{%%X4}
    %endif
 
    %if %%N > 6
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ; {X5,X4,X3,X2,X1,X0,X7,X6},pDst[6] = pA[6]*pB[] + {X4,X3,X2,X1,X0,X7,X6,X5}
    mov      %%OP, [%%pA+sizeof(qword)*6]
-   MLA_FIX  %%N, [%%pDst+sizeof(qword)*6], %%pB, %%OP, %%TMP, %%X4, %%X3, %%X2, %%X1, %%X0, %%X7, %%X6, %%X5
+   MLA_FIX  {%%N},[%%pDst+sizeof(qword)*6],{%%pB},{%%OP},{%%TMP},{%%X4},{%%X3},{%%X2},{%%X1},{%%X0},{%%X7},{%%X6},{%%X5}
    %endif
 
    %if %%N > 7
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ; {X6,X5,X4,X3,X2,X1,X0,X7},pDst[7] = pA[7]*pB[] + {X5,X4,X3,X2,X1,X0,X7,X6}
    mov      %%OP, [%%pA+sizeof(qword)*7]
-   MLA_FIX  %%N, [%%pDst+sizeof(qword)*7], %%pB, %%OP, %%TMP, %%X5, %%X4, %%X3, %%X2, %%X1, %%X0, %%X7, %%X6
+   MLA_FIX  {%%N},[%%pDst+sizeof(qword)*7],{%%pB},{%%OP},{%%TMP},{%%X5},{%%X4},{%%X3},{%%X2},{%%X1},{%%X0},{%%X7},{%%X6}
    %endif
 
    %if %%N > 7

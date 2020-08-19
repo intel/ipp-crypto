@@ -53,6 +53,7 @@ EXTERN (ippsAESEncryptCTR)
 EXTERN (ippsAESDecryptCTR)
 EXTERN (ippsAESEncryptXTS_Direct)
 EXTERN (ippsAESDecryptXTS_Direct)
+EXTERN (ippsAES_EncryptCFB16_MB)
 EXTERN (ippsSMS4GetSize)
 EXTERN (ippsSMS4Init)
 EXTERN (ippsSMS4SetKey)
@@ -580,6 +581,7 @@ VERSION {
    ippsAESDecryptCTR;
    ippsAESEncryptXTS_Direct;
    ippsAESDecryptXTS_Direct;
+   ippsAES_EncryptCFB16_MB;
    ippsSMS4GetSize;
    ippsSMS4Init;
    ippsSMS4SetKey;

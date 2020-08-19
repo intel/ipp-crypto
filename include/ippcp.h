@@ -14,10 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
+/*
 //
 //   Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
-// 
+//
 */
 
 #if !defined( IPPCP_H__ ) || defined( _OWN_BLDPCS )
@@ -209,6 +209,12 @@ IPPAPI(IppStatus, ippsAESDecryptXTS_Direct,(const Ipp8u* pSrc, Ipp8u* pDst, int 
                                      const Ipp8u* pKey, int keyBitsize,
                                      int dataUnitBitsize))
 
+/* AES multi-buffer functions */
+IPPAPI(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], int len[],
+                                            const IppsAESSpec* pCtx[],
+                                            const Ipp8u* pIV[],
+                                            IppStatus status[],
+                                            int numBuffers))
 
 /* SMS4 */
 IPPAPI(IppStatus, ippsSMS4GetSize,(int *pSize))
@@ -825,7 +831,7 @@ IPPAPI(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
 /* encryption scheme: RSAES-OAEP */
 IPP_DEPRECATED(OBSOLETE_API) \
 IPPAPI(IppStatus, ippsRSAEncrypt_OAEP,(const Ipp8u* pSrc, int srcLen,
-                                       const Ipp8u* pLabel, int labLen, 
+                                       const Ipp8u* pLabel, int labLen,
                                        const Ipp8u* pSeed,
                                              Ipp8u* pDst,
                                        const IppsRSAPublicKeyState* pKey,
@@ -841,7 +847,7 @@ IPPAPI(IppStatus, ippsRSADecrypt_OAEP,(const Ipp8u* pSrc,
                                              Ipp8u* pBuffer))
 
 IPPAPI(IppStatus, ippsRSAEncrypt_OAEP_rmf,(const Ipp8u* pSrc, int srcLen,
-                                       const Ipp8u* pLabel, int labLen, 
+                                       const Ipp8u* pLabel, int labLen,
                                        const Ipp8u* pSeed,
                                              Ipp8u* pDst,
                                        const IppsRSAPublicKeyState* pKey,

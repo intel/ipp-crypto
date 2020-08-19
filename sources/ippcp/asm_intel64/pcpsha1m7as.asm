@@ -82,7 +82,7 @@
   %xdefine %%regD %4
   %xdefine %%regT %5
 
-    MAGIC_F1 %%regF,%%regB,%%regC,%%regD,%%regT
+    MAGIC_F1 {%%regF},{%%regB},{%%regC},{%%regD},{%%regT}
 %endmacro
 
 ;;
@@ -152,7 +152,7 @@
 
   %assign %%immCNT  06ED9EBA1h
    mov      r13d,%%immCNT
-   MAGIC_F1 %%regF,%%regB,%%regC,%%regD   ;; FUN  = MAGIC_Fi(B,C,D)
+   MAGIC_F1 {%%regF},{%%regB},{%%regC},{%%regD}   ;; FUN  = MAGIC_Fi(B,C,D)
    ror      %%regB,(32-30)
    mov      %%regT,%%regA
    rol      %%regT,5
@@ -206,7 +206,7 @@
   %assign %%immCNT  -899497514
   %endif
    mov      r13d,%%immCNT
-   MAGIC_F3 %%regF,%%regB,%%regC,%%regD       ;; FUN  = MAGIC_Fi(B,C,D)
+   MAGIC_F3 {%%regF},{%%regB},{%%regC},{%%regD}       ;; FUN  = MAGIC_Fi(B,C,D)
    ror      %%regB,(32-30)
    mov      %%regT,%%regA
    rol      %%regT,5

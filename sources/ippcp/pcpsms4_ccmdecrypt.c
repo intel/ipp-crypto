@@ -166,7 +166,7 @@ IPPFUN(IppStatus, ippsSMS4_CCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, 
          XorBlock(pSrc, S, pDst, len);
 
          /* store partial data block */
-         CopyBlock(pDst, SMS4CCM_BLK(pCtx), len);
+         CopyBlock_safe(pDst, len, SMS4CCM_BLK(pCtx), MBS_SMS4);
 
          SMS4CCM_LENPRO(pCtx) += (Ipp64u)len;
       }

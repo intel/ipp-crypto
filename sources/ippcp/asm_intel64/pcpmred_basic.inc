@@ -49,41 +49,41 @@
 
    mov      rdx, %%M0
    imul     rdx, %%X0
-   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   MLA_FIX  {%%mSize},{},{%%rModulus},{%%TMPH},{%%TMP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
 %if %%mSize > 1
    mov      rdx, %%M0
    imul     rdx, %%X0
-   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   MLA_FIX  {%%mSize},{},{%%rModulus},{%%TMPH},{%%TMP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
 %endif
 %if %%mSize > 2
    mov      rdx, %%M0
    imul     rdx, %%X0
-   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   MLA_FIX  {%%mSize},{},{%%rModulus},{%%TMPH},{%%TMP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
 %endif
 %if %%mSize > 3
    mov      rdx, %%M0
    imul     rdx, %%X0
-   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   MLA_FIX  {%%mSize},{},{%%rModulus},{%%TMPH},{%%TMP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
 %endif
 %if %%mSize > 4
    mov      rdx, %%M0
    imul     rdx, %%X0
-   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   MLA_FIX  {%%mSize},{},{%%rModulus},{%%TMPH},{%%TMP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
 %endif
 %if %%mSize > 5
    mov      rdx, %%M0
    imul     rdx, %%X0
-   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   MLA_FIX  {%%mSize},{},{%%rModulus},{%%TMPH},{%%TMP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
 %endif
 %if %%mSize > 6
    mov      rdx, %%M0
    imul     rdx, %%X0
-   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   MLA_FIX  {%%mSize},{},{%%rModulus},{%%TMPH},{%%TMP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
 %endif
 %if %%mSize > 7
    mov      rdx, %%M0
    imul     rdx, %%X0
-   MLA_FIX  %%mSize, , %%rModulus, %%TMPH,%%TMP, %%X0,%%X1,%%X2,%%X3,%%X4,%%X5,%%X6,%%X7
+   MLA_FIX  {%%mSize},{},{%%rModulus},{%%TMPH},{%%TMP},{%%X0},{%%X1},{%%X2},{%%X3},{%%X4},{%%X5},{%%X6},{%%X7}
 %endif
 
    xor      %%TMP, %%TMP

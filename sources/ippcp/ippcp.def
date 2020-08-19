@@ -55,6 +55,7 @@ ippsAESEncryptCTR
 ippsAESDecryptCTR
 ippsAESEncryptXTS_Direct
 ippsAESDecryptXTS_Direct
+ippsAES_EncryptCFB16_MB
 ippsSMS4GetSize
 ippsSMS4Init
 ippsSMS4SetKey

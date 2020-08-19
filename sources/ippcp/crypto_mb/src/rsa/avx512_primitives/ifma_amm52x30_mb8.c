@@ -23,8 +23,6 @@ void ifma_amm52x30_mb8(int64u *out_mb, const int64u *inpA_mb,
   U64 res00, res01, res02, res03, res04, res05, res06, res07, res08, res09,
       res10, res11, res12, res13, res14, res15, res16, res17, res18, res19,
       res20, res21, res22, res23, res24, res25, res26, res27, res28, res29;
-  U64 *inpA_512 = (U64 *)inpA_mb;
-  U64 *inpM_512 = (U64 *)inpM_mb;
   U64 K = loadu64(k0_mb);
   int itr;
   res00 = res01 = res02 = res03 = res04 = res05 = res06 = res07 = res08 =

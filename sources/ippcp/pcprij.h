@@ -34,6 +34,8 @@
 #define WPOLY  0x011B
 #define BPOLY    0x1B
 
+#define CFB16_BLK_SIZE (16)
+
 /*
 // Make WORD using 4 arbitrary bytes
 */
@@ -138,6 +140,9 @@ struct _cpRijndael256 {
 #define NR256_128 (14)  /* number of rounds data: 256 bits key: 128 bits are used */
 #define NR256_192 (14)  /* number of rounds data: 256 bits key: 192 bits are used */
 #define NR256_256 (14)  /* number of rounds data: 256 bits key: 256 bits are used */
+
+#define AES_MB_MAX_KERNEL_SIZE (16) /* max number of buffers in multi buffer */
+#define CFB16_BLOCK_SIZE (16)       /* CFB mode block size for multi buffer  */
 
 /*
 // Useful macros

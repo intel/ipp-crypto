@@ -94,16 +94,16 @@ IPPASM cpMulAdx_BNU_school,PUBLIC
   ;         mul_1_1
 
 .mul_1_1:
-   MUL_NxN  1, rdi, rsi, rcx, rbx,rbp, r8
+   MUL_NxN  1, rdi, rsi, rcx, rbx, rbp, r8
    jmp      .quit
 .mul_2_2:
-   MUL_NxN  2, rdi, rsi, rcx, rbx,rbp, r8,r9
+   MUL_NxN  2, rdi, rsi, rcx, rbx, rbp, r8, r9
    jmp      .quit
 .mul_3_3:
-   MUL_NxN  3, rdi, rsi, rcx, rbx,rbp, r8,r9,r10
+   MUL_NxN  3, rdi, rsi, rcx, rbx, rbp, r8, r9, r10
    jmp      .quit
 .mul_4_4:
-   MUL_NxN  4, rdi, rsi, rcx, rbx,rbp, r8,r9,r10,r11
+   MUL_NxN  4, rdi, rsi, rcx, rbx, rbp, r8, r9, r10, r11
    jmp      .quit
 
 .more_then_4:

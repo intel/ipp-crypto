@@ -29,7 +29,7 @@ void AMS5x52x20_diagonal_mb8(int64u *out_mb, const int64u *inpA_mb,
       res12, res13, res14, res15, res16, res17, res18, res19, res20, res21,
       res22, res23, res24, res25, res26, res27, res28, res29, res30, res31,
       res32, res33, res34, res35, res36, res37, res38, res39;
-  U64 k, carry;
+  U64 k;
   U64 *a = (U64 *)inpA_mb;
   U64 *m = (U64 *)inpM_mb;
   U64 *r = (U64 *)out_mb;

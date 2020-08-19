@@ -118,23 +118,20 @@
   %assign GPR_FRAME 0
   %define GPR_CUR
 
-  %push _INTERSECT_CTX_
   %if (IPP_ABI < 2) ; Win64
-    %define %$intersectable_list %[NONVOLATILE_REGS_WIN64_GPR]
+    %define %%nonvolatile_regs_list %[NONVOLATILE_REGS_WIN64_GPR]
   %else ; Lin64
-    %define %$intersectable_list %[NONVOLATILE_REGS_LIN64_GPR]
+    %define %%nonvolatile_regs_list %[NONVOLATILE_REGS_LIN64_GPR]
   %endif
-  INTERSECT %1
+  BEGIN_INTERSECT
+  INTERSECT {%1},{%%nonvolatile_regs_list}
   ; List of non-volatile GPR registers in the order they will be pushed on stack
   %xdefine GPR_CUR %[%$intersection]
   %assign GPR_FRAME %$cardinality * 8
-  %pop _INTERSECT_CTX_
+  END_INTERSECT
 
   ; Push non-volatile GPRs on stack
-  %push _MAP_CTX_
-  %define %$mapfunc push
-  MAP GPR_CUR
-  %pop _MAP_CTX_
+  FOREACH GPR_CUR,{push}
 %endmacro
 
 ; Restore preliminary saved by USES_GPR non-volatile GPR registers from the stack.
@@ -143,28 +140,16 @@
   %ifndef GPR_CUR
     %fatal "REST_GPR: no GPR_CUR defined"
   %endif
-  %push _MAP_CTX_
-  %define %$mapfunc pop
-  ; Specify reverse order list processing
-  %define %$reverse_order
-  MAP GPR_CUR
-  %pop _MAP_CTX_
+
+  ; Pop saved registers from the stack
+  RFOREACH GPR_CUR,{pop}
 %endmacro
 
-; Saves input list of XMM registers on stack (SSE version).
-; An offset from RSP, where the registers will be saved, shall be provided
-; in the first parameter.
-%macro PUSH_XMM 1-*.nolist
-  %ifnnum %1
-    %fatal "PUSH_XMM: first parameter shall be a number (offset from RSP)."
-  %endif
-  %assign %%rsp_offset %1
-  %rotate 1
-  %rep %0-1
-    movdqa [rsp + %%rsp_offset], %1
-    %assign %%rsp_offset %%rsp_offset + 16
-  %rotate 1
-  %endrep
+; Saves XMM register on stack (SSE version).
+; An offset from RSP, where the register will be saved, shall be provided in the calling context.
+%macro PUSH_XMM_REG 1.nolist
+  movdqa [rsp + %$rsp_offset], %1
+  %assign %$rsp_offset %$rsp_offset + 16
 %endmacro
 
 ; Saves non-volatile XMM registers on stack and allocates stack size for
@@ -193,12 +178,11 @@
 
   %if (IPP_ABI < 2) ; Win64
     %assign %%T_FRAME 0
-    %push _INTERSECT_CTX_
-    %define %$intersectable_list %[NONVOLATILE_REGS_WIN64_XMM]
-    INTERSECT %%param_list
+    BEGIN_INTERSECT
+    INTERSECT {%%param_list},{%[NONVOLATILE_REGS_WIN64_XMM]}
     %define XMM_CUR %[%$intersection]
     %assign %%T_FRAME %$cardinality * 16
-    %pop _INTERSECT_CTX_
+    END_INTERSECT
 
     ; Adjust offset depending on function frame
     %if ((%%T_FRAME > 0) || (LOCAL_FRAME > 0))
@@ -211,7 +195,10 @@
     ; Allocate space on stack and push XMM registers
     %if (S_FRAME > 0)
       sub rsp, S_FRAME
-      PUSH_XMM LOCAL_FRAME,%[XMM_CUR] ; push with LOCAL_FRAME offset
+      %push %??
+      %assign %$rsp_offset LOCAL_FRAME
+      FOREACH %[XMM_CUR],{PUSH_XMM_REG}
+      %pop %??
     %endif
   %else
     ; Linux x86_64 ABI does not count <X,Y,Z>MM registers as non-volatile, so they do not need to be
@@ -237,19 +224,10 @@
 %endmacro
 
 ; Pop input list of XMM registers from the stack.
-; The input list is iterated in the reverse order.
-; The offset from RSP, where the registers will be taken from, shall be provided in the
-; first parameter.
-%macro POP_XMM 1-*.nolist
-  %ifnnum %1
-    %fatal "POP_XMM: first parameter shall be a number (offset from RSP)."
-  %endif
-  %assign %%rsp_offset %1
-  %rep %0-1
-  %rotate -1
-    movdqa %1, [rsp + %%rsp_offset]
-    %assign %%rsp_offset %%rsp_offset + 16
-  %endrep
+; The offset from RSP, where the registers will be taken from, shall be provided in the calling context.
+%macro POP_XMM_REG 1.nolist
+  movdqa %1, [rsp + %$rsp_offset]
+  %assign %$rsp_offset %$rsp_offset + 16
 %endmacro
 
 ; Restore preliminary saved by USES_XMM non-volatile XMM registers from the stack.
@@ -257,7 +235,10 @@
 %macro REST_XMM 0.nolist
   %if (IPP_ABI < 2)
     %if (S_FRAME > 0)
-      POP_XMM LOCAL_FRAME,%[XMM_CUR]
+      %push %??
+      %assign %$rsp_offset LOCAL_FRAME
+      FOREACH %[XMM_CUR],{POP_XMM_REG}
+      %pop %??
     %endif
   %endif
   %if (S_FRAME > 0)
@@ -270,30 +251,21 @@
   %endif
 %endmacro
 
-; Saves input list of XMM/YMM registers on stack (AVX version).
-; An offset from RSP, where the registers will be saved, shall be provided
-; in the first parameter.
-%macro PUSH_XMM_AVX 1-*.nolist
-  %ifnnum %1
-    %fatal "PUSH_XMM_AVX: first parameter shall be a number (offset from RSP)."
+; Saves XMM or YMM register on stack (AVX version).
+; An offset from RSP, where the registers will be saved, shall be provided in the calling context.
+%macro PUSH_XMM_AVX_REG 1.nolist
+  ; Process registers depending on type
+  %defstr %%reg_str %1 ; convert register token to the string
+  %substr %%reg_type %%reg_str 1, 3 ; take first 3 elems of the string
+  %ifidni %%reg_type, 'xmm'
+    vmovdqa oword [rsp + %$rsp_offset], %1
+    %assign %$rsp_offset %$rsp_offset + 16
+  %elifidni %%reg_type, 'ymm'
+    vmovdqu ymmword [rsp + %$rsp_offset], %1
+    %assign %$rsp_offset %$rsp_offset + 32
+  %else
+    %fatal PUSH_XMM_AVX_REG: inconsistent usage - only XMM/YMM registers supported, found: %%reg_type
   %endif
-  %assign %%rsp_offset %1
-  %rotate 1
-  %rep %0-1
-	; Process registers depending on type
-    %defstr %%reg_str %1 ; convert register token to the string
-    %substr %%reg_type %%reg_str 1, 3 ; take first 3 elems of the string
-    %ifidni %%reg_type, 'xmm'
-      vmovdqa oword [rsp + %%rsp_offset], %1
-      %assign %%rsp_offset %%rsp_offset + 16
-    %elifidni %%reg_type, 'ymm'
-      vmovdqu ymmword [rsp + %%rsp_offset], %1
-      %assign %%rsp_offset %%rsp_offset + 32
-    %else
-      %fatal PUSH_XMM_AVX: inconsistent usage - only XMM/YMM registers supported, found: %%reg_type
-    %endif
-  %rotate 1
-  %endrep
 %endmacro
 
 ; Saves non-volatile XMM/YMM registers on stack and allocates stack size for
@@ -323,19 +295,19 @@
 
   %if (IPP_ABI < 2) ; Win64
     %assign %%T_FRAME 0
-    %push _INTERSECT_CTX_
     ; Process XMM registers
-    %define %$intersectable_list %[NONVOLATILE_REGS_WIN64_XMM]
-    INTERSECT %%param_list
+    BEGIN_INTERSECT
+    INTERSECT {%%param_list},{%[NONVOLATILE_REGS_WIN64_XMM]}
     %define XMM_CUR %[%$intersection]
     %assign %%T_FRAME %$cardinality * 16
+    END_INTERSECT
 
     ; Process YMM registers
-    %define %$intersectable_list %[NONVOLATILE_REGS_WIN64_YMM]
-    INTERSECT %%param_list
+    BEGIN_INTERSECT
+    INTERSECT {%%param_list},{%[NONVOLATILE_REGS_WIN64_YMM]}
     %define YMM_CUR %[%$intersection]
     %assign %%T_FRAME %%T_FRAME + %$cardinality * 32
-    %pop _INTERSECT_CTX_
+    END_INTERSECT
 
     ; Adjust offset depending on function frame
     %if ((%%T_FRAME > 0) || (LOCAL_FRAME > 0))
@@ -348,8 +320,11 @@
     ; Allocate space on stack and push registers
     %if (S_FRAME > 0)
       sub rsp, S_FRAME
-	  CONCATENATE {%[XMM_CUR]},{%[YMM_CUR]},%%XMM_YMM_CUR
-      PUSH_XMM_AVX LOCAL_FRAME,%[%%XMM_YMM_CUR]
+      CONCATENATE {%[XMM_CUR]},{%[YMM_CUR]},%%XMM_YMM_CUR
+      %push %??
+      %assign %$rsp_offset LOCAL_FRAME
+      FOREACH %[%%XMM_YMM_CUR],{PUSH_XMM_AVX_REG}
+      %pop %??
     %endif
   %else
     ; Linux x86_64 ABI does not count <X,Y,Z>MM registers as non-volatile, so they do not need to be
@@ -374,30 +349,21 @@
   %endif
 %endmacro
 
-; Pop input list of XMM/YMM registers from the stack.
-; The input list is iterated in the reverse order.
-; The offset from RSP, where the registers will be taken from, shall be provided in the
-; first parameter.
-%macro POP_XMM_AVX 1-*.nolist
-  %ifnnum %1
-    %fatal "POP_XMM_AVX: first parameter shall be a number (offset from RSP)."
+; Pop XMM or YMM register from the stack.
+; The offset from RSP, where the registers will be taken from, shall be provided in the calling context.
+%macro POP_XMM_AVX_REG 1.nolist
+  ; Process registers depending on type
+  %defstr %%reg_str %1 ; convert register token to the string
+  %substr %%reg_type %%reg_str 1, 3 ; take first 3 elems of the string
+  %ifidni %%reg_type, 'xmm'
+    vmovdqa %1, oword [rsp + %$rsp_offset]
+    %assign %$rsp_offset %$rsp_offset + 16
+  %elifidni %%reg_type, 'ymm'
+    vmovdqu %1, ymmword [rsp + %$rsp_offset]
+    %assign %$rsp_offset %$rsp_offset + 32
+  %else
+    %fatal POP_XMM_AVX_REG: inconsistent usage - only XMM/YMM registers supported, found: %%reg_type
   %endif
-  %assign %%rsp_offset %1
-  %rep %0-1
-  %rotate -1
-	; Process registers depending on type
-    %defstr %%reg_str %1 ; convert register token to the string
-    %substr %%reg_type %%reg_str 1, 3 ; take first 3 elems of the string
-    %ifidni %%reg_type, 'xmm'
-      vmovdqa %1, oword [rsp + %%rsp_offset]
-      %assign %%rsp_offset %%rsp_offset + 16
-    %elifidni %%reg_type, 'ymm'
-      vmovdqu %1, ymmword [rsp + %%rsp_offset]
-      %assign %%rsp_offset %%rsp_offset + 32
-    %else
-      %fatal POP_XMM_AVX: inconsistent usage - only XMM/YMM registers supported, found: %%reg_type
-    %endif
-  %endrep
 %endmacro
 
 ; Restore preliminary saved by USES_XMM_AVX non-volatile XMM/YMM registers from the stack.
@@ -405,8 +371,11 @@
 %macro REST_XMM_AVX 0.nolist
   %if (IPP_ABI < 2)
     %if (S_FRAME > 0)
-	  CONCATENATE {%[XMM_CUR]},{%[YMM_CUR]},%%XMM_YMM_CUR
-      POP_XMM_AVX LOCAL_FRAME,%[%%XMM_YMM_CUR]
+      CONCATENATE {%[XMM_CUR]},{%[YMM_CUR]},%%XMM_YMM_CUR
+      %push %??
+      %assign %$rsp_offset LOCAL_FRAME
+      FOREACH %[%%XMM_YMM_CUR],{POP_XMM_AVX_REG}
+      %pop %??
     %endif
   %endif
   %if (S_FRAME > 0)

@@ -180,22 +180,28 @@ __INLINE void transform_8sb_to_mb8(U64 out_mb8[], int bitLen, int8u *inp[8], int
 //    Null or wrong length
 int8u ifma_BN_to_mb8(int64u out_mb8[][8], const BIGNUM* const bn[8], int bitLen)
 {
-   int64u *d[8];
-   int byteLens[8];
-   int i;
+   // check input length
+   assert((0<bitLen) && (bitLen<=IFMA_MAX_BITSIZE));
 
-   // Check input parameters
-   assert(bitLen > 0);
+   int byteLen = NUMBER_OF_DIGITS(bitLen, 8);
+   int byteLens[8];
+
+   int64u *d[8];
+   #ifndef BN_OPENSSL_PATCH
+   __ALIGN64 int8u buffer[8][NUMBER_OF_DIGITS(IFMA_MAX_BITSIZE,8)];
+   #endif
+
+   int i;
    for (i = 0; i < 8; ++i) {
       if(NULL != bn[i]) {
          byteLens[i] = BN_num_bytes(bn[i]);
-         assert(byteLens[i] * 8 <= bitLen);
-         #if BN_OPENSSL_PATCH
-         d[i] = (int64u*)bn_get_words(bn[i]);
+         assert(byteLens[i] <= byteLen);
+
+         #ifndef BN_OPENSSL_PATCH
+         d[i] = buffer[i];
+         BN_bn2lebinpad(bn[i], d[i], byteLen);
          #else
-         d[i] = (int64u*)malloc((bitLen+7)/8);  // Allocate buffer (TODO: make single buffer)
-         if( (NULL == d[i]) || ((bitLen + 7)/8 < BN_bn2lebinpad(bn[i], (int8u*)d[i], (bitLen + 7)/8)) )
-            byteLens[i] = 0;
+         d[i] = (int8u*)bn_get_words(bn[i]);
          #endif
       }
       else {
@@ -206,10 +212,6 @@ int8u ifma_BN_to_mb8(int64u out_mb8[][8], const BIGNUM* const bn[8], int bitLen)
    }
 
    transform_8sb_to_mb8((U64*)out_mb8, bitLen, (int8u**)d, byteLens, RADIX_CVT);
-
-   #ifndef BN_OPENSSL_PATCH
-   for (i = 0; i < 8; i++) if (d[i] != 0x0) free(d[i]);
-   #endif
 
    return _mm512_cmpneq_epi64_mask(_mm512_loadu_si512((__m512i*)&bn), _mm512_setzero_si512());
 }
@@ -455,18 +457,18 @@ int8u ifma_BNU_transpose_copy(int64u out_mb8[][8], const int64u* const bn[8], in
 #ifndef BN_OPENSSL_DISABLE
 int8u ifma_BN_transpose_copy(int64u out_mb8[][8], const BIGNUM* const bn[8], int bitLen)
 {
-   // Check input parameters
-   assert(bitLen > 0);
+   // check input length
+   assert((0<bitLen) && (bitLen<=IFMA_MAX_BITSIZE));
+
+   int byteLen = NUMBER_OF_DIGITS(bitLen, 8);
+
+   int64u *inp[8];
+   #ifndef BN_OPENSSL_PATCH
+   __ALIGN64 int64u buffer[8][NUMBER_OF_DIGITS(IFMA_MAX_BITSIZE,64)];
+   #endif
 
    __mmask8 kbn[8];
-   int64u* inp[8];
 
-   #ifndef BN_OPENSSL_PATCH
-   int byteLen = (bitLen+7)/8;
-   int64u *inp_buf = (int64u*)malloc(8*byteLen);
-   if (NULL == inp_buf)
-      return 0;
-   #endif
    int i;
    for (i = 0; i < 8; ++i)
    {
@@ -476,16 +478,17 @@ int8u ifma_BN_transpose_copy(int64u out_mb8[][8], const BIGNUM* const bn[8], int
       }
       else {
          kbn[i] = 0xFF;
-         #if BN_OPENSSL_PATCH
-         inp[i] = (int64u*)bn_get_words(bn[i]);
-         #else
-         inp[i] = (int64u*)((int8u*)inp_buf + byteLen * i);
+
+         #ifndef BN_OPENSSL_PATCH
+         inp[i] = buffer[i];
          BN_bn2lebinpad(bn[i], (unsigned char *)inp[i], byteLen);
+         #else
+         inp[i] = (int64u*)bn_get_words(bn[i]);
          #endif
       }
    }
 
-   int len = (bitLen+63)/64;
+   int len = NUMBER_OF_DIGITS(bitLen,64);
    int n;
    for (n = 0; len > 0; n += 8, out_mb8 += 8) {
       __mmask8 k = (len >= 8) ? 0xFF : (1 << len) - 1;
@@ -510,10 +513,6 @@ int8u ifma_BN_transpose_copy(int64u out_mb8[][8], const BIGNUM* const bn[8], int
       _mm512_mask_storeu_epi64(&out_mb8[6], MB_MASK(len--), X6);
       _mm512_mask_storeu_epi64(&out_mb8[7], MB_MASK(len--), X7);
    }
-
-   #ifndef BN_OPENSSL_PATCH
-   free(inp_buf);
-   #endif
 
    return _mm512_cmpneq_epi64_mask(_mm512_loadu_si512((__m512i*)&bn), _mm512_setzero_si512());
 }

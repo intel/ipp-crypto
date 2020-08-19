@@ -29,7 +29,8 @@ typedef int32u ifma_status;
 
 __INLINE ifma_status IFMA_SET_STS(ifma_status stt, int numb, ifma_status sttVal)
 {
-   stt &= (int32u)(~(0xF << (numb*4)));
+   numb &= 7; /* 0 <= numb < 8 */
+   stt &= (ifma_status)(~(0xF << (numb*4)));
    return stt |= (sttVal & 0xF) << (numb*4);
 }
 
@@ -40,6 +41,15 @@ __INLINE ifma_status IFMA_GET_STS(ifma_status stt, int numb)
 __INLINE ifma_status IFMA_SET_STS_ALL(ifma_status stsVal)
 {
    return (stsVal<<4*7) | (stsVal<<4*6) | (stsVal<<4*5) | (stsVal<<4*4)  | (stsVal<<4*3) | (stsVal<<4*2) | (stsVal<<4*1) | stsVal;
+}
+
+__INLINE ifma_status IFMA_SET_STS_BY_MASK(ifma_status stt, int8u mask, ifma_status sttVal)
+{
+   for(int numb=0; numb<8; numb++) {
+      ifma_status buf_stt = (0 - ((mask>>numb) &1)) & sttVal;
+      stt = IFMA_SET_STS(stt, numb, buf_stt);
+   }
+   return stt;
 }
 
 __INLINE int IFMA_IS_ANY_OK_STS(ifma_status stt)

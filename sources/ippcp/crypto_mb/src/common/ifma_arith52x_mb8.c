@@ -2252,8 +2252,8 @@ static __m512i estimateq_mb8(const __m512i* ptopX, const __m512i* ptopY)
    __m512i y0 = _mm512_load_si512(ptopY);    /* high divisor's digit (B=base52) */
    __m512i y1 = _mm512_load_si512(ptopY-1);
 
-   __m512i x0 = _mm512_load_si512(ptopX);   /* 3 high divident's digits (B=base52) */
-   __m512i x1 = _mm512_load_si512(ptopX-1);
+   //__m512i x0 = _mm512_load_si512(ptopX);   /* 3 high divident's digits (B=base52) */
+   //__m512i x1 = _mm512_load_si512(ptopX-1);
    __m512i x2 = _mm512_load_si512(ptopX-2);
    __m512i quo, rem;
 

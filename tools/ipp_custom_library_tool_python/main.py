@@ -1,5 +1,5 @@
 """
-Copyright 2019-2020 Intel Corporation.
+Copyright 2018-2020 Intel Corporation.
 
 This software and the related documents are Intel copyrighted  materials,  and
 your use of  them is  governed by the  express license  under which  they were
@@ -15,158 +15,129 @@ License:
 http://software.intel.com/en-us/articles/intel-sample-source-code-license-agr
 eement/
 """
-
 import sys
 import os
-from argparse import ArgumentParser
-from sys import platform
+from argparse import ArgumentParser, RawTextHelpFormatter
 
-import tool.utils
+import tool.package
+from tool import utils
 from tool.core import build, generate_script
 
-if __name__ == '__main__':
-    if platform == "linux" or platform == "linux2":
-        tool.utils.HOST_SYSTEM = tool.utils.LINUX
-    elif platform == "darwin":
-        tool.utils.HOST_SYSTEM = tool.utils.MACOSX
-    elif platform == "win32":
-        tool.utils.HOST_SYSTEM = tool.utils.WINDOWS
 
-    arguments_parser = ArgumentParser()
-    arguments_parser.add_argument('-c', '--console',
-                                  help='Turns on console version of tool',
-                                  action='store_true')
-    arguments_parser.add_argument('-cp', '--cryptography',
-                                  help='Build DLL with Intel® Integrated Performance Primitives Cryptography '
-                                       'functionalities',
-                                  action='store_true')
-    arguments_parser.add_argument('-f', '--function',
-                                  help='Name of function that has to be in final dynamic library (appendable)',
-                                  action='append')
-    arguments_parser.add_argument('-ff', '--functions-file',
-                                  help='Path to file with functions list of functions')
-    arguments_parser.add_argument('-n', '--name',
-                                  help='Name of final dynamic library')
-    arguments_parser.add_argument('-p', '--path',
-                                  help='Path to output directory')
-    arguments_parser.add_argument('-ia32',
-                                  help='All actions will be done for this architecture (may be used with flag -intel64)',
-                                  action='store_true')
-    arguments_parser.add_argument('-intel64',
-                                  help='All actions will be done for this architecture (may be used with flag -ia32)',
-                                  action='store_true')
-    arguments_parser.add_argument('-mt', '--multi-threaded',
-                                  help='Enables building of multi-threaded dynamic library',
-                                  action='store_true')
-    arguments_parser.add_argument('-g', '--generate',
-                                  help='Enables just script generating without building',
-                                  action='store_true')
-    arguments_parser.add_argument('-ts', '--target-system',
-                                  help='Specifies target system [' + tool.utils.HOST_SYSTEM + ']')
-    arguments_parser.add_argument('-cnl',
-                                  help='Path to compilers_and_libraries directory')
-    arguments_parser.add_argument('-tbb',
-                                  help='Set TBB as threading layer',
-                                  action='store_true')
-    arguments_parser.add_argument('-omp',
-                                  help='Set OpenMP as threading layer',
-                                  action='store_true'
-                                  )
-    args = arguments_parser.parse_args()
+if __name__ == '__main__':
+    utils.set_host_system()
+
+    args_parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+    args_parser.add_argument('-c', '--console',
+                             help='Turns on console version.\n'
+                                  'Custom Library Tool is running in GUI mode by default',
+                             action='store_true')
+
+    console_args = args_parser.add_argument_group('Console mode options')
+    console_args.add_argument('-g', '--generate',
+                              help='Generate build script without building custom dynamic library',
+                              action='store_true')
+    console_args.add_argument('-n', '--name',
+                              help='Name of custom dynamic library',
+                              default=utils.CONFIGS[utils.CUSTOM_LIBRARY_NAME])
+    console_args.add_argument('-p', '--output_path',
+                              help='Path to output directory',
+                              default=utils.CONFIGS[utils.OUTPUT_PATH])
+    console_args.add_argument('-root',
+                              help='Path to specified ' + utils.PACKAGE_NAME[utils.IPP] +
+                                   '\nor ' + utils.PACKAGE_NAME[utils.IPPCP] + ' package')
+    console_args.add_argument('-f', '--functions',
+                              help='Functions that has to be in dynamic library (appendable)',
+                              nargs='+',
+                              metavar='FUNCTION')
+    console_args.add_argument('-ff', '--functions_file',
+                              help='Load custom functions list from text file')
+    console_args.add_argument('-arch', '--architecture',
+                              help='Target architecture',
+                              choices=utils.ARCHITECTURES,
+                              default='intel64')
+    console_args.add_argument('-mt', '--multi-threaded',
+                              help='Build multi-threaded dynamic library',
+                              action='store_true')
+    console_args.add_argument('-tl', '--threading_layer_type',
+                              help='Build dynamic library with selected threading layer type',
+                              choices=utils.TL_TYPES)
+    console_args.add_argument('-d', '--custom_dispatcher',
+                              help='Build dynamic library with custom dispatcher.\n'
+                                   'Set of CPUs can be any combination of the following:\n'
+                                   'IA32 architecture - ' + ' '.join(utils.SUPPORTED_CPUS[utils.IA32]
+                                                                                         [utils.HOST_SYSTEM]) +
+                                   '\nIntel 64 architecture - ' + ' '.join(utils.SUPPORTED_CPUS[utils.INTEL64]
+                                                                                               [utils.HOST_SYSTEM]),
+                              nargs='+',
+                              metavar='CPU')
+
+    args = args_parser.parse_args()
 
     if args.console:
         print('Intel® Integrated Performance Primitives Custom Library Tool console version is on...')
-        mandatory_domains = ['ippi_tl', 'ippi', 'ipps', 'ippcore', 'ippvm']
-        domains = set()
-        functions = []
 
-        if not args.cryptography:
-            package = tool.utils.IPP
-            root = tool.utils.IPPROOT
-        else:
-            package = tool.utils.IPPCP
-            root = tool.utils.IPPCRYPTOROOT
-
-        thread_mode = (tool.utils.MULTI_THREADED if args.multi_threaded else tool.utils.SINGLE_THREADED)
-        threading_layer_type = tool.utils.ThreadingLayerType.NONE
-        target_system = args.target_system if args.target_system else tool.utils.HOST_SYSTEM
-        path = os.path.abspath(args.path)
-        build_status = False
-
-        if args.tbb:
-            threading_layer_type = tool.utils.ThreadingLayerType.TBB
-        if args.omp:
-            threading_layer_type = tool.utils.ThreadingLayerType.OPENMP
-
-        if not tool.utils.SUPPORTED_ARCHITECTURES[target_system][tool.utils.IA32] and args.ia32:
-            print("Architecture x86 isn't supported, for chosen OS")
-            exit(0)
-
-        if not tool.utils.SUPPORTED_ARCHITECTURES[target_system][tool.utils.INTEL64] and args.intel64:
-            print("Architecture x64 isn't supported, for chosen OS")
-            exit(0)
-
-        if not os.path.exists(path):
-            os.makedirs(path)
-
+        functions_list = []
         if args.functions_file:
-            with open(args.functions_file, 'r') as functions_list:
-                functions += map(lambda x: x.replace('\n', ''), functions_list.readlines())
-        if args.function:
-            functions += args.function
+            with open(args.functions_file, 'r') as functions_file:
+                functions_list += map(lambda x: x.replace('\n', ''), functions_file.readlines())
+        if args.functions:
+            functions_list += args.functions
+        if not functions_list:
+            sys.exit("Please, specify functions that has to be in dynamic library by using -f or -ff options")
 
-        if not os.getenv(root) or not os.path.exists(os.environ[root]):
-            print('Please, set ' + root)
-            exit()
+        if args.root:
+            root = args.root
+            if not os.path.exists(root):
+                sys.exit("Error: specified package path " + args.root + " doesn't exist")
+        else:
+            root = tool.package.get_package_path()
+            if not os.path.exists(root):
+                sys.exit("Error: cannot find " + utils.PACKAGE_NAME[utils.IPP] + ' or ' +
+                         utils.PACKAGE_NAME[utils.IPPCP] + " package. "
+                         "Please, specify IPPROOT or IPPCRYPTOROOT by using -root option")
 
-        tool.utils.COMPILERS_AND_LIBRARIES_PATH = args.cnl
+        package = tool.package.Package(root)
+        print('Current package: ' + package.name)
+
+        architecture = args.architecture
+        thread_mode = (utils.MULTI_THREADED if args.multi_threaded else utils.SINGLE_THREADED)
+        threading_layer_type = args.threading_layer_type
+
+        error = package.errors[architecture][thread_mode]
+        if error:
+            sys.exit('Error: ' + error)
+        if threading_layer_type:
+            error = package.errors[architecture][threading_layer_type]
+            if error:
+                sys.exit('Error: ' + error)
+
+        custom_cpu_set = []
+        if args.custom_dispatcher:
+            for cpu in args.custom_dispatcher:
+                if cpu not in utils.SUPPORTED_CPUS[architecture][utils.HOST_SYSTEM]:
+                    sys.exit("Error: " + cpu + " isn't supported for " + utils.HOST_SYSTEM + ' ' + architecture)
+            custom_cpu_set = args.custom_dispatcher
+
+        custom_library_name = args.name
+        output_path = os.path.abspath(args.output_path)
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+
+        utils.set_configs_dict(package=package,
+                               functions_list=functions_list,
+                               architecture=architecture,
+                               thread_mode=thread_mode,
+                               threading_layer_type=threading_layer_type,
+                               custom_library_name=custom_library_name,
+                               output_path=output_path,
+                               custom_cpu_set=custom_cpu_set)
 
         if args.generate:
-            if args.ia32:
-                generate_script(package,
-                                tool.utils.HOST_SYSTEM,
-                                target_system,
-                                functions,
-                                path,
-                                args.name,
-                                tool.utils.IA32,
-                                args.multi_threaded,
-                                threading_layer_type)
-            if args.intel64:
-                generate_script(package,
-                                tool.utils.HOST_SYSTEM,
-                                target_system,
-                                functions,
-                                path,
-                                args.name,
-                                tool.utils.INTEL64,
-                                args.multi_threaded,
-                                threading_layer_type)
-            print('Generation completed!')
-
+            success = generate_script()
+            print('Generation', 'completed!' if success else 'failed!')
         else:
-            if args.ia32:
-                build(package,
-                      tool.utils.HOST_SYSTEM,
-                      target_system,
-                      functions,
-                      path,
-                      args.name,
-                      tool.utils.IA32,
-                      args.multi_threaded,
-                      args.cnl,
-                      threading_layer_type)
-            if args.intel64:
-                build(package,
-                      tool.utils.HOST_SYSTEM,
-                      target_system,
-                      functions,
-                      path,
-                      args.name,
-                      tool.utils.INTEL64,
-                      args.multi_threaded,
-                      args.cnl,
-                      threading_layer_type)
+            build()
     else:
         from PyQt5.QtWidgets import QApplication
         from gui.app import MainAppWindow
