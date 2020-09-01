@@ -14,8 +14,7 @@
  * limitations under the License.
  *******************************************************************************/
 
-#include "ifma_internal.h"
-#include "ifma_math.h"
+#include <internal/common/ifma_math.h>
 
 void ifma_amm52x60_mb8(int64u *out_mb, const int64u *inpA_mb,
                        const int64u *inpB_mb, const int64u *inpM_mb,
@@ -26,8 +25,6 @@ void ifma_amm52x60_mb8(int64u *out_mb, const int64u *inpA_mb,
       res30, res31, res32, res33, res34, res35, res36, res37, res38, res39,
       res40, res41, res42, res43, res44, res45, res46, res47, res48, res49,
       res50, res51, res52, res53, res54, res55, res56, res57, res58, res59;
-  //U64 *inpA_512 = (U64 *)inpA_mb;
-  //U64 *inpM_512 = (U64 *)inpM_mb;
   U64 K = loadu64(k0_mb);
   int itr;
   res00 = res01 = res02 = res03 = res04 = res05 = res06 = res07 = res08 =

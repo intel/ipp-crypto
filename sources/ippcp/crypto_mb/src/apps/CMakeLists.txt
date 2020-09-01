@@ -16,25 +16,64 @@
 
 project("apps" CXX)
 
-# Algorithm tests
+# Algorithm tests. Verification is based on OpenSSL.
+if (NOT OPENSSL_FOUND)
+    find_package(OpenSSL 1.1.0 QUIET)
+endif()
 
-set(VFY_IFMA_RSA_MB_TARGET "vfy_ifma_rsa_mb")
-add_executable(${VFY_IFMA_RSA_MB_TARGET} "${CMAKE_CURRENT_SOURCE_DIR}/vfy_ifma_rsa_mb.c") 
-set_target_properties(${VFY_IFMA_RSA_MB_TARGET} PROPERTIES  COMPILE_FLAGS "${LINK_FLAGS} ${AVX512_CFLAGS}" 
-                                                            COMPILE_DEFINITIONS "${AVX512_LIBRARY_DEFINES}"
-                                                            LINKER_LANGUAGE CXX)
-target_link_libraries(${VFY_IFMA_RSA_MB_TARGET}             "${IFMA_LIB_TARGET}"
-                                                            OpenSSL::Crypto  
-                                                            "dl" 
-                                                            "pthread")
+if (NOT OPENSSL_DISABLE)
+    if (OPENSSL_FOUND)
+        message(STATUS "Found OpenSSL version for algorithm tests building is ${OPENSSL_VERSION}")
+
+        set(VFY_MBX_RSA_SSL_TARGET "vfy_mbx_rsa_ssl")
+        add_executable(${VFY_MBX_RSA_SSL_TARGET} "${CMAKE_CURRENT_SOURCE_DIR}/vfy_mbx_rsa_ssl.c") 
+        set_target_properties(${VFY_MBX_RSA_SSL_TARGET} PROPERTIES  COMPILE_FLAGS "${LINK_FLAGS}" 
+                                                                    COMPILE_DEFINITIONS "${AVX512_LIBRARY_DEFINES}")
+        target_link_libraries(${VFY_MBX_RSA_SSL_TARGET}             "${IFMA_DYN_LIB_TARGET}"
+                                                                    OpenSSL::Crypto  
+                                                                    "${LINK_LIBRARIES}")
+
+        set(VFY_MBX_RSA_TARGET "vfy_mbx_rsa")
+        add_executable(${VFY_MBX_RSA_TARGET} "${CMAKE_CURRENT_SOURCE_DIR}/vfy_mbx_rsa.c")
+        set_target_properties(${VFY_MBX_RSA_TARGET} PROPERTIES   COMPILE_FLAGS "${LINK_FLAGS}"
+                                                                 COMPILE_DEFINITIONS "${AVX512_LIBRARY_DEFINES}")
+        target_link_libraries(${VFY_MBX_RSA_TARGET}              "${IFMA_DYN_LIB_TARGET}" 
+                                                                 OpenSSL::Crypto 
+                                                                 "${LINK_LIBRARIES}")
+
+        set(VFY_MBX_X25519_TARGET "vfy_mbx_x25519")
+        add_executable(${VFY_MBX_X25519_TARGET} "${CMAKE_CURRENT_SOURCE_DIR}/vfy_mbx_x25519.c") 
+        set_target_properties(${VFY_MBX_X25519_TARGET} PROPERTIES  COMPILE_FLAGS "${LINK_FLAGS}" 
+                                                       COMPILE_DEFINITIONS "${AVX512_LIBRARY_DEFINES}")
+        target_link_libraries(${VFY_MBX_X25519_TARGET} "${IFMA_DYN_LIB_TARGET}"
+                                                       OpenSSL::Crypto  
+                                                       "${LINK_LIBRARIES}")
+    else()
+        message(STATUS "Could NOT find suitable OpenSSL version, algorithm test vfy_mbx{_rsa/rsa_ssl/x25519} will not be built. Try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR")
+    endif()
+endif()
+
+# CPU features tests
+set(VFY_MBX_CPU_FEATURES_TARGET "vfy_mbx_cpu_features")
+add_executable(${VFY_MBX_CPU_FEATURES_TARGET} "${CMAKE_CURRENT_SOURCE_DIR}/vfy_mbx_cpu_features.c") 
+set_target_properties(${VFY_MBX_CPU_FEATURES_TARGET} PROPERTIES  COMPILE_FLAGS "${LINK_FLAGS}" 
+                                                     COMPILE_DEFINITIONS "${AVX512_LIBRARY_DEFINES}")
+target_link_libraries(${VFY_MBX_CPU_FEATURES_TARGET} ${IFMA_DYN_LIB_TARGET}
+                                                     "${LINK_LIBRARIES}")
+
+# Bad arguments tests
+set(BA_MBX_RSA_TARGET "ba_mbx_rsa")
+add_executable(${BA_MBX_RSA_TARGET} "${CMAKE_CURRENT_SOURCE_DIR}/ba_mbx_rsa.c") 
+set_target_properties(${BA_MBX_RSA_TARGET} PROPERTIES  COMPILE_FLAGS "${LINK_FLAGS}" 
+                                                            COMPILE_DEFINITIONS "${AVX512_LIBRARY_DEFINES}")
+target_link_libraries(${BA_MBX_RSA_TARGET}                  ${IFMA_DYN_LIB_TARGET}
+                                                            "${LINK_LIBRARIES}")
 
 
-set(VFY_IFMA_CP_RSA_MB_TARGET "vfy_ifma_cp_rsa_mb")
-add_executable(${VFY_IFMA_CP_RSA_MB_TARGET} "${CMAKE_CURRENT_SOURCE_DIR}/vfy_ifma_cp_rsa_mb.c")
-set_target_properties(${VFY_IFMA_CP_RSA_MB_TARGET} PROPERTIES   COMPILE_FLAGS "${LINK_FLAGS}"
-                                                                COMPILE_DEFINITIONS "${AVX512_LIBRARY_DEFINES}")
-target_link_libraries(${VFY_IFMA_CP_RSA_MB_TARGET}              "${IFMA_LIB_TARGET}" 
-                                                                OpenSSL::Crypto 
-                                                                "dl" 
-                                                                "pthread")
-                                                    
+
+set(BA_MBX_X25519_TARGET "ba_mbx_x25519")
+add_executable(${BA_MBX_X25519_TARGET} "${CMAKE_CURRENT_SOURCE_DIR}/ba_mbx_x25519.c") 
+set_target_properties(${BA_MBX_X25519_TARGET} PROPERTIES  COMPILE_FLAGS "${LINK_FLAGS}" 
+                                                            COMPILE_DEFINITIONS "${AVX512_LIBRARY_DEFINES}")
+target_link_libraries(${BA_MBX_X25519_TARGET}               ${IFMA_DYN_LIB_TARGET}
+                                                            "${LINK_LIBRARIES}")

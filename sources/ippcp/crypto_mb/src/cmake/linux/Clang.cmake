@@ -14,21 +14,48 @@
 # limitations under the License.
 #===============================================================================
 
-# Linker flags
-# Position Independent Execution (PIE)
-set(LINK_FLAGS "${LINK_FLAGS} -Wl,-no-pie")
+# Security Linker flags
 
-# Compiler keys
-# Tells the compiler to emit debug information
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+set(LINK_FLAG_SECURITY "") 
+# Data relocation and protection (RELRO)
+set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,relro -Wl,-z,now")
+# Stack execution protection
+set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,noexecstack")
+
+# Security Compiler flags
+
+set(CMAKE_C_FLAGS_SECURITY "")
+# Format string vulnerabilities
+set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -Wformat -Wformat-security -Werror=format-security")
+# Security flag that adds compile-time and run-time checks
+set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -D_FORTIFY_SOURCE=2")
+# Stack-based Buffer Overrun Detection
+set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -fstack-protector")
+# Position Independent Execution (PIE)
+set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -fpic -fPIC")
+# Enables important warning and error messages relevant to security during compilation
+set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -Wall")
+# Warnings=errors
+set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -Werror")
+
+# Linker flags
+
+# Create shared library
+set(LINK_FLAGS_DYNAMIC "-Wl,-shared")
+# Add export files
+set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} ${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb.linux.lib-export")
+if(NOT OPENSSL_DISABLE)
+    set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} ${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb_ssl.linux.lib-export")
+endif()
+
+# Compiler flags
+
 # Tells the compiler to align functions and loops
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -falign-functions=32")
-# Optimization level = 3
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
-if(NOT BN_OPENSSL_DISABLE)
-    # Position Independent Execution (PIE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -fPIC")
+if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    # Optimization level = 3
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS}")

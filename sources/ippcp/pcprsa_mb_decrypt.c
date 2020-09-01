@@ -30,9 +30,7 @@
 #include "pcpngrsa_mb.h"
 
 #if(_IPP32E>=_IPP32E_K0)
-  #include "rsa_ifma_cp.h"
-  #include "rsa_ifma_status.h"
-  #include "ifma_method.h"
+   #include <crypto_mb/rsa.h>
 #endif
 
 /*!
@@ -90,7 +88,7 @@ IPPFUN(IppStatus, ippsRSA_MB_Decrypt,(const IppsBigNumState* const pCtxts[8],
    #if(_IPP32E>=_IPP32E_K0)
       const int rsa_bitsize = RSA_PRV_KEY_BITSIZE_N(pAlignedKeys[valid_key_id]);
       if (IsFeatureEnabled(ippCPUID_AVX512IFMA) && OPTIMIZED_RSA_SIZE(rsa_bitsize)) {
-         ifma_status ifma_sts;
+         mbx_status ifma_sts;
          if (RSA_PRV_KEY1_VALID_ID(pAlignedKeys[valid_key_id]))
             ifma_sts = ifma_RSAprv_cipher(pPtxts, pCtxts, pAlignedKeys, rsa_bitsize, pBuffer);
          else

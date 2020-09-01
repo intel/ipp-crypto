@@ -2,7 +2,8 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
-## YYYY-MM-DD
+## 2020-09-01
+- Refactoring of Crypto Multi-buffer library, added build and installation of crypto_mb dynamic library and CPU features detection.
 
 ## 2020-08-19
 - Added multi-buffer implementation of AES-CFB optimized with Intel(R) AES-NI and vector extensions of Intel(R) AES-NI instruction sets.

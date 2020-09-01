@@ -14,15 +14,12 @@
  * limitations under the License.
  *******************************************************************************/
 
-#include "ifma_internal.h"
-#include "ifma_math.h"
+#include <internal/common/ifma_math.h>
 
 void ifma_amm52x10_mb8(int64u *out_mb, const int64u *inpA_mb,
                        const int64u *inpB_mb, const int64u *inpM_mb,
                        const int64u *k0_mb) {
   U64 res00, res01, res02, res03, res04, res05, res06, res07, res08, res09;
-  //U64 *inpA_512 = (U64 *)inpA_mb;
-  //U64 *inpM_512 = (U64 *)inpM_mb;
   U64 K = loadu64(k0_mb);
   int itr;
   res00 = res01 = res02 = res03 = res04 = res05 = res06 = res07 = res08 =

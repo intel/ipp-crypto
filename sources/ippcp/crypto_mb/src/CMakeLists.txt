@@ -30,46 +30,74 @@ if(("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel") AND (CMAKE_C_COMPILER_VERSION VER
     message(FATAL_ERROR "Compiler version must be 19.0 or higher")
 endif()
 
+set(CRYPTO_MB_SOURCES_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common.cmake")
 include(${COMPILER_OPTIONS_FILE}) # Get ${CMAKE_C_FLAGS}, ${CMAKE_CXX_FLAGS} and ${AVX512_CFLAGS}
 
-set(AVX512_LIBRARY_DEFINES "${IFMA_LIBRARIES_DEFINES}" "USE_AMS_5x" "SIMD_LEN=512")
-set(AVX512_CFLAGS "${AVX512_CFLAGS} ${IFMA_COMPILE_OPTIONS}")
+set(AVX512_LIBRARY_DEFINES "${AVX512_LIBRARY_DEFINES}" "${IFMA_LIBRARIES_DEFINES}" "USE_AMS_5x" "SIMD_LEN=512")
 
 file(GLOB RSA_AVX512_SOURCES    "${CMAKE_CURRENT_SOURCE_DIR}/rsa/*.c"
                                 "${CMAKE_CURRENT_SOURCE_DIR}/rsa/avx512_primitives/*.c")
 file(GLOB COMMON_SOURCES        "${CMAKE_CURRENT_SOURCE_DIR}/common/*.c")
-file(GLOB ED25519_SOURCES       "${CMAKE_CURRENT_SOURCE_DIR}/ecdh/*.c")
-file(GLOB AES_SOURCES           "${CMAKE_CURRENT_SOURCE_DIR}/aes/*.c")
+file(GLOB X25519_SOURCES        "${CMAKE_CURRENT_SOURCE_DIR}/x25519/*.c")
 
 if(BN_OPENSSL_PATCH) # Off by default
     list(APPEND AVX512_LIBRARY_DEFINES "BN_OPENSSL_PATCH")
 endif()
-
-
-set_source_files_properties(${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${ED25519_SOURCES} ${AES_SOURCES}
-                            PROPERTIES COMPILE_DEFINITIONS  "${AVX512_LIBRARY_DEFINES}"
-                                       COMPILE_FLAGS        "${AVX512_CFLAGS}")
                                       
 # Build static library in standalone crypto_mb build only, otherwise generate just object files
 if(NOT IFMA_LIB_OBJ_TARGET)
-    add_library(${IFMA_LIB_TARGET} STATIC ${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${ED25519_SOURCES} ${AES_SOURCES}) 
+    set(AVX512_CFLAGS "${AVX512_CFLAGS} ${CMAKE_C_FLAGS_SECURITY}") # Add SDL necessary compilation options
 
-    if(NOT BN_OPENSSL_DISABLE)
-        target_link_libraries(${IFMA_LIB_TARGET} OpenSSL::Crypto) #to get includes
+    set_source_files_properties(${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${X25519_SOURCES}
+                                PROPERTIES COMPILE_DEFINITIONS  "${AVX512_LIBRARY_DEFINES}"
+                                           COMPILE_FLAGS        "${AVX512_CFLAGS}")
+    # Create shared library
+    add_library(${IFMA_DYN_LIB_TARGET} SHARED ${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${X25519_SOURCES})
+
+    set_target_properties(${IFMA_DYN_LIB_TARGET} PROPERTIES C_VISIBILITY_PRESET hidden)
+    set_target_properties(${IFMA_DYN_LIB_TARGET} PROPERTIES VISIBILITY_INLINES_HIDDEN ON)
+    set_target_properties(${IFMA_DYN_LIB_TARGET} PROPERTIES LINK_FLAGS "${LINK_FLAGS_DYNAMIC} ${LINK_FLAG_SECURITY}")
+
+    if(NOT OPENSSL_DISABLE)
+        target_link_libraries(${IFMA_DYN_LIB_TARGET} OpenSSL::Crypto) # to get includes
     else()
-        set_target_properties(${IFMA_LIB_TARGET} PROPERTIES COMPILE_DEFINITIONS "BN_OPENSSL_DISABLE")
+        set_target_properties(${IFMA_DYN_LIB_TARGET} PROPERTIES COMPILE_DEFINITIONS "BN_OPENSSL_DISABLE")
     endif()
 
-    install(TARGETS ${IFMA_LIB_TARGET} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+    # Installation of the shared library by default 
+    install(TARGETS ${IFMA_DYN_LIB_TARGET} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
+    # Optionally create and install static library
+    if(CMAKE_STATIC_ENABLE)
+        add_library(${IFMA_STATIC_LIB_TARGET} STATIC ${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${X25519_SOURCES}) 
+
+        set_target_properties(${IFMA_STATIC_LIB_TARGET} PROPERTIES C_VISIBILITY_PRESET hidden)
+        set_target_properties(${IFMA_STATIC_LIB_TARGET} PROPERTIES VISIBILITY_INLINES_HIDDEN ON)
+
+        if(NOT OPENSSL_DISABLE)
+            target_link_libraries(${IFMA_STATIC_LIB_TARGET} OpenSSL::Crypto) # to get includes
+        else()
+            set_target_properties(${IFMA_STATIC_LIB_TARGET} PROPERTIES COMPILE_DEFINITIONS "BN_OPENSSL_DISABLE")
+        endif()
+
+        install(TARGETS ${IFMA_STATIC_LIB_TARGET} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+    endif()
+
+    # Public headers installation
     install(DIRECTORY ${PUBLIC_HEADERS_DIR}
             DESTINATION ${CMAKE_INSTALL_PREFIX}/include/crypto_mb
             FILES_MATCHING PATTERN "*.h*")
 else()
-    add_library(${IFMA_LIB_OBJ_TARGET} OBJECT ${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${ED25519_SOURCES} ${AES_SOURCES})
+    set(AVX512_CFLAGS "${AVX512_CFLAGS} ${IFMA_COMPILE_OPTIONS}")
+
+    set_source_files_properties(${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${X25519_SOURCES}
+                                PROPERTIES COMPILE_DEFINITIONS  "${AVX512_LIBRARY_DEFINES}"
+                                           COMPILE_FLAGS        "${AVX512_CFLAGS}")
+
+    add_library(${IFMA_LIB_OBJ_TARGET} OBJECT ${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${X25519_SOURCES})
 endif()
 
-# Applications. Building only with OpenSSL 
-if(NOT BN_OPENSSL_DISABLE)
-    add_subdirectory(apps)
-endif()
+# Applications.
+add_subdirectory(apps)

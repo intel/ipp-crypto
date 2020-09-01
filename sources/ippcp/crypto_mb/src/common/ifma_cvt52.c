@@ -14,11 +14,17 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "ifma_internal.h"
-#include "immintrin.h"
-#include "ifma_math.h"
+#include <internal/common/ifma_defs.h>
+#include <internal/common/ifma_math.h>
 
 #include <assert.h>
+
+#if defined(_MSC_VER) && (_MSC_VER < 1920)
+  // Disable optimization for VS2017 due to AVX512 masking bug
+  #define DISABLE_OPTIMIZATION __pragma(optimize( "", off ))
+#else
+  #define DISABLE_OPTIMIZATION
+#endif
 
 #define PROC_LEN (52)
 
@@ -42,22 +48,9 @@ __INLINE __mmask64 SB_MASK1(int L, int REV)
    return (__mmask64)(0xFFFFFFFFFFFFFFFFULL >> ((int)sizeof(__m512i) - L));
 }
 
-void zero_mb8(int64u (*out)[8], int len)
-{
-   __m512i T = _mm512_setzero_si512();
-   int i;
-   for(i=0; i<len; i++)
-      _mm512_store_si512(out[i], T);
-}
-
-void copy_mb8(int64u out[][8], const int64u inp[][8], int len)
-{
-   int i;
-   for(i=0; i<len; i++)
-      _mm512_store_si512(out[i], _mm512_load_si512(inp[i]));
-}
 
    #ifndef BN_OPENSSL_DISABLE
+   #include <openssl/bn.h>
    #if BN_OPENSSL_PATCH
    extern BN_ULONG* bn_get_words(const BIGNUM* bn);
    #endif
@@ -71,6 +64,7 @@ void copy_mb8(int64u out[][8], const int64u inp[][8], int len)
 //    - 8 BNU        -> mb8
 //    - 8 hex strings -> mb8
 */
+DISABLE_OPTIMIZATION
 __INLINE void transform_8sb_to_mb8(U64 out_mb8[], int bitLen, int8u *inp[8], int inpLen[8], int flag) {
    // inverse bytes (reverse=1)
    const __m512i bswap_mask = _mm512_set_epi64(
@@ -180,13 +174,13 @@ __INLINE void transform_8sb_to_mb8(U64 out_mb8[], int bitLen, int8u *inp[8], int
 //    Null or wrong length
 int8u ifma_BN_to_mb8(int64u out_mb8[][8], const BIGNUM* const bn[8], int bitLen)
 {
-   // check input length
+   // check input input length
    assert((0<bitLen) && (bitLen<=IFMA_MAX_BITSIZE));
 
    int byteLen = NUMBER_OF_DIGITS(bitLen, 8);
    int byteLens[8];
 
-   int64u *d[8];
+   int8u *d[8];
    #ifndef BN_OPENSSL_PATCH
    __ALIGN64 int8u buffer[8][NUMBER_OF_DIGITS(IFMA_MAX_BITSIZE,8)];
    #endif
@@ -205,7 +199,7 @@ int8u ifma_BN_to_mb8(int64u out_mb8[][8], const BIGNUM* const bn[8], int bitLen)
          #endif
       }
       else {
-         // No input in that bucket
+         // no input in that bucket
          d[i] = NULL;
          byteLens[i] = 0;
       }
@@ -259,6 +253,7 @@ int8u ifma_HexStr8_to_mb8(int64u out_mb8[][8], const int8u* const pStr[8], int b
 //    - mb8 -> 8 BNU
 //    - mb8 -> 8 hex strings
 */
+DISABLE_OPTIMIZATION
 __INLINE void transform_mb8_to_8sb(int8u* out[8], int outLen[8], const U64 inp_mb8[], int bitLen, int flag)
 {
    // inverse bytes (reverse=1)
@@ -415,6 +410,7 @@ int8u ifma_mb8_to_HexStr8(int8u* const pStr[8], const int64u inp_mb8[][8], int b
 //    - mb8 -> 8 BNU
 //    - mb8 -> 8 hex strings
 */
+DISABLE_OPTIMIZATION
 int8u ifma_BNU_transpose_copy(int64u out_mb8[][8], const int64u* const bn[8], int bitLen)
 {
     // Check input parameters
@@ -455,6 +451,8 @@ int8u ifma_BNU_transpose_copy(int64u out_mb8[][8], const int64u* const bn[8], in
 }
 
 #ifndef BN_OPENSSL_DISABLE
+
+DISABLE_OPTIMIZATION
 int8u ifma_BN_transpose_copy(int64u out_mb8[][8], const BIGNUM* const bn[8], int bitLen)
 {
    // check input length
@@ -470,8 +468,7 @@ int8u ifma_BN_transpose_copy(int64u out_mb8[][8], const BIGNUM* const bn[8], int
    __mmask8 kbn[8];
 
    int i;
-   for (i = 0; i < 8; ++i)
-   {
+   for (i = 0; i < 8; ++i) {
       if (NULL == bn[i]) {
          kbn[i] = 0;
          inp[i] = NULL;

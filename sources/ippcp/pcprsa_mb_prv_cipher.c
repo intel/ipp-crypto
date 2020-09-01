@@ -32,18 +32,17 @@
 #include "pcpbn.h"
 #include "pcpngrsa.h"
 #include "pcpngrsa_mb.h"
-#include "rsa_ifma_status.h"
-#include "ifma_method.h"
-#include "rsa_ifma_cp.h"
 
-ifma_status  ifma_RSAprv_cipher(IppsBigNumState* const pPtxts[8],
+#include <crypto_mb/rsa.h>
+
+mbx_status  ifma_RSAprv_cipher(IppsBigNumState* const pPtxts[8],
                                 const IppsBigNumState* const pCtxts[8],
                                 const IppsRSAPrivateKeyState* const pKeys[8],
                                 const int rsa_bitsize,
                                 Ipp8u* pScratchBuffer)
 {
     const int rsa_bytesize = rsa_bitsize / 8;
-    const ifma_RSA_Method* m = ifma_cp_RSA_private_Method(rsa_bitsize);
+    const mbx_RSA_Method* m = mbx_RSA_private_Method(rsa_bitsize);
 
     int8u* from_pa[RSA_MB_MAX_BUF_QUANTITY];
     int64u* n_pa[RSA_MB_MAX_BUF_QUANTITY];
@@ -56,7 +55,7 @@ ifma_status  ifma_RSAprv_cipher(IppsBigNumState* const pPtxts[8],
         ippsGetOctString_BN(from_pa[i], rsa_bytesize, pCtxts[i]);
     }
 
-    ifma_status ifma_sts = ifma_cp_rsa52_private_mb8((const int8u* const*)from_pa, from_pa, (const int64u* const*)d_pa, (const int64u* const*)n_pa, rsa_bitsize, m, pScratchBuffer);
+    mbx_status ifma_sts = mbx_rsa_private_mb8((const int8u* const*)from_pa, from_pa, (const int64u* const*)d_pa, (const int64u* const*)n_pa, rsa_bitsize, m, pScratchBuffer);
 
     for (int i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
         ippsSetOctString_BN(from_pa[i], rsa_bytesize, pPtxts[i]);

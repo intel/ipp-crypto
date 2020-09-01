@@ -14,8 +14,7 @@
  * limitations under the License.
  *******************************************************************************/
 
-#include "ifma_internal.h"
-#include "ifma_math.h"
+#include <internal/common/ifma_math.h>
 
 #ifdef __GNUC__
 #define ASM(a) __asm__(a);
@@ -28,7 +27,7 @@ void AMS52x79_diagonal_mb8(int64u *out_mb, const int64u *inpA_mb,
 
   __ALIGN64 U64 res[160];
   __ALIGN64 U64 u[80];
-  U64 k, carry;
+  U64 k; //, carry;
   U64 *a = (U64 *)inpA_mb;
   U64 *m = (U64 *)inpM_mb;
   U64 *r = (U64 *)out_mb;
@@ -6518,7 +6517,7 @@ void AMS52x79_diagonal_mb8(int64u *out_mb, const int64u *inpA_mb,
   res[157] = fma52hi(res[157], a[78], a[78]); // Add sqr(156)
 
   // Montgomery Reduction
-  carry = get_zero64();
+  // carry = get_zero64();
   int it;
   for (it = 0; it < 80; it += 10) { // Reduction step
     int jt = 0;

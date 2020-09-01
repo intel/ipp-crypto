@@ -17,7 +17,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 project("crypto_mb" C)
-set(IFMA_LIB_TARGET "crypto_mb")
+set(IFMA_DYN_LIB_TARGET "crypto_mb")
+set(IFMA_STATIC_LIB_TARGET "crypto_mb_s")
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
@@ -30,12 +31,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 set(IFMA_INCLUDE_DIRS   "${IFMA_INCLUDE_DIRS}"
-                        "${CMAKE_CURRENT_SOURCE_DIR}/include/internal"
-                        "${CMAKE_CURRENT_SOURCE_DIR}/include/crypto_mb"
+                        "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 set(PUBLIC_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/crypto_mb/")
 
-if(NOT BN_OPENSSL_DISABLE)
+if(NOT OPENSSL_DISABLE)
+    if(BN_OPENSSL_PATCH)
+        # Link static OpenSSL only for patched version
+        set(OPENSSL_USE_STATIC_LIBS TRUE)
+    endif()
     find_package(OpenSSL 1.1.0 REQUIRED) # set -DOPENSSL_INCLUDE_DIR= -DOPENSSL_LIBRARIES= -DOPENSSL_ROOT_DIR= to use patched
     list(APPEND IFMA_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
 endif()

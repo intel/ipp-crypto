@@ -60,9 +60,7 @@
 #include "pcprsa_getdefmeth_pub.h"
 
 #if(_IPP32E>=_IPP32E_K0)
-    #include "rsa_ifma_cp.h"
-    #include "rsa_ifma_defs.h"
-    #include "ifma_method.h"
+   #include <crypto_mb/rsa.h>
 #endif
 
 IPPFUN(IppStatus, ippsRSA_MB_GetBufferSizePublicKey, (int* pBufferSize, const IppsRSAPublicKeyState* const pKeys[8]))
@@ -91,8 +89,8 @@ IPPFUN(IppStatus, ippsRSA_MB_GetBufferSizePublicKey, (int* pBufferSize, const Ip
         if (IsFeatureEnabled(ippCPUID_AVX512IFMA) && OPTIMIZED_RSA_SIZE(bitSizeN))
         {
             *pBufferSize = bufferNum * (Ipp32s)sizeof(BNU_CHUNK_T);
-            const ifma_RSA_Method* m = ifma_cp_RSA_pub65537_Method(bitSizeN);
-            *pBufferSize += ifma_RSA_Method_BufSize(m);
+            const mbx_RSA_Method* m = mbx_RSA_pub65537_Method(bitSizeN);
+            *pBufferSize += mbx_RSA_Method_BufSize(m);
         }
 
         else

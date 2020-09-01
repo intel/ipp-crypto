@@ -14,11 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <string.h>
 
-#include "ifma_internal.h"
-#include "ifma_math.h"
-#include "immintrin.h"
+#include <internal/common/ifma_math.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 #define USE_AMS
 #ifdef USE_AMS
@@ -87,27 +85,26 @@ static int64u* extract_multiplier_mb8(int64u out[LEN52][8], int64u tbl[][LEN52][
    for(n=1; n<(1<<EXP_WIN_SIZE); n++) {
       __m512i idx_curr = _mm512_set1_epi64(n);
       __mmask8 k = _mm512_cmpeq_epu64_mask(idx_curr, idx_target);
-
-      X0 = _mm512_mask_blend_epi64(k, X0 , _mm512_load_si512(tbl[n][0]));
-      X1 = _mm512_mask_blend_epi64(k, X1 , _mm512_load_si512(tbl[n][1]));
-      X2 = _mm512_mask_blend_epi64(k, X2 , _mm512_load_si512(tbl[n][2]));
-      X3 = _mm512_mask_blend_epi64(k, X3 , _mm512_load_si512(tbl[n][3]));
-      X4 = _mm512_mask_blend_epi64(k, X4 , _mm512_load_si512(tbl[n][4]));
-      X5 = _mm512_mask_blend_epi64(k, X5 , _mm512_load_si512(tbl[n][5]));
-      X6 = _mm512_mask_blend_epi64(k, X6 , _mm512_load_si512(tbl[n][6]));
-      X7 = _mm512_mask_blend_epi64(k, X7 , _mm512_load_si512(tbl[n][7]));
-      X8 = _mm512_mask_blend_epi64(k, X8 , _mm512_load_si512(tbl[n][8]));
-      X9 = _mm512_mask_blend_epi64(k, X9 , _mm512_load_si512(tbl[n][9]));
-      X10= _mm512_mask_blend_epi64(k, X10, _mm512_load_si512(tbl[n][10]));
-      X11= _mm512_mask_blend_epi64(k, X11, _mm512_load_si512(tbl[n][11]));
-      X12= _mm512_mask_blend_epi64(k, X12, _mm512_load_si512(tbl[n][12]));
-      X13= _mm512_mask_blend_epi64(k, X13, _mm512_load_si512(tbl[n][13]));
-      X14= _mm512_mask_blend_epi64(k, X14, _mm512_load_si512(tbl[n][14]));
-      X15= _mm512_mask_blend_epi64(k, X15, _mm512_load_si512(tbl[n][15]));
-      X16= _mm512_mask_blend_epi64(k, X16, _mm512_load_si512(tbl[n][16]));
-      X17= _mm512_mask_blend_epi64(k, X17, _mm512_load_si512(tbl[n][17]));
-      X18= _mm512_mask_blend_epi64(k, X18, _mm512_load_si512(tbl[n][18]));
-      X19= _mm512_mask_blend_epi64(k, X19, _mm512_load_si512(tbl[n][19]));
+      X0 = select64(k, X0 , (U64 *) tbl[n][0]);
+      X1 = select64(k, X1 , (U64 *) tbl[n][1]);
+      X2 = select64(k, X2 , (U64 *) tbl[n][2]);
+      X3 = select64(k, X3 , (U64 *) tbl[n][3]);
+      X4 = select64(k, X4 , (U64 *) tbl[n][4]);
+      X5 = select64(k, X5 , (U64 *) tbl[n][5]);
+      X6 = select64(k, X6 , (U64 *) tbl[n][6]);
+      X7 = select64(k, X7 , (U64 *) tbl[n][7]);
+      X8 = select64(k, X8 , (U64 *) tbl[n][8]);
+      X9 = select64(k, X9 , (U64 *) tbl[n][9]);
+      X10= select64(k, X10, (U64 *) tbl[n][10]);
+      X11= select64(k, X11, (U64 *) tbl[n][11]);
+      X12= select64(k, X12, (U64 *) tbl[n][12]);
+      X13= select64(k, X13, (U64 *) tbl[n][13]);
+      X14= select64(k, X14, (U64 *) tbl[n][14]);
+      X15= select64(k, X15, (U64 *) tbl[n][15]);
+      X16= select64(k, X16, (U64 *) tbl[n][16]);
+      X17= select64(k, X17, (U64 *) tbl[n][17]);
+      X18= select64(k, X18, (U64 *) tbl[n][18]);
+      X19= select64(k, X19, (U64 *) tbl[n][19]);
    }
    _mm512_store_si512(out+0,  X0);
    _mm512_store_si512(out+1,  X1);
@@ -213,11 +210,11 @@ void EXP52x20_mb8(int64u out[][8],
             red_table_idx = _mm512_and_si512( _mm512_xor_si512(red_table_idx, T), table_idx_mask);
 
             //extract_multiplier_mb8(red_X, red_table, (int64u*)(&red_table_idx));
-            ifma_extract_amm52x20_mb8 ((int64u*)red_Y, (int64u*)red_Y, red_table, (int64u*)(&red_table_idx), 
+            ifma_extract_amm52x20_mb8 ((int64u*)red_Y, (int64u*)red_Y, red_table, (int64u*)(&red_table_idx),
                (int64u*)modulus, (int64u*)k0);
          }
          /* and multiply */
-         //ifma_amm52x20_mb8((int64u*)red_Y, (int64u*)red_Y, (int64u*)red_X, (int64u*)red_modulus, (int64u*)k0);
+         // ifma_amm52x20_mb8((int64u*)red_Y, (int64u*)red_Y, (int64u*)red_X, (int64u*)red_modulus, (int64u*)k0);
       }
    }
 

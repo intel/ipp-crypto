@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "ifma_internal.h"
-#include "immintrin.h"
+#include <internal/common/ifma_math.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 
 #define USE_AMS
@@ -23,17 +23,12 @@
     #define SQUARE_52x60_mb8(out, Y, mod, k0) \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)Y, (int64u*)mod, (int64u*)k0);
 
-    #ifdef USE_AMS_5x
-    #define SQUARE_5x52x60_mb8(out, Y, mod, k0) \
-         AMS5x52x60_diagonal_mb8((int64u*)out, (int64u*)Y, (int64u*)mod, (int64u*)k0);
-    #else
     #define SQUARE_5x52x60_mb8(out, Y, mod, k0) \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)Y, (int64u*)mod, (int64u*)k0); \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)out, (int64u*)mod, (int64u*)k0); \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)out, (int64u*)mod, (int64u*)k0); \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)out, (int64u*)mod, (int64u*)k0); \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)out, (int64u*)mod, (int64u*)k0);
-   #endif
 #else
     #define SQUARE_52x60_mb8(out, Y, mod, k0) \
          ifma_amm52x60_mb8((int64u*)out, (int64u*)Y, (int64u*)Y, (int64u*)mod, (int64u*)k0);

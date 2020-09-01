@@ -245,8 +245,7 @@ set (C_INCLUDE_DIRECTORIES
     ${IPP_CRYPTO_SOURCES_INCLUDE_DIR}
     ${IPP_CRYPTO_INCLUDE_DIR}
     ${INTERNAL_INCLUDE_DIR}
-    ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/crypto_mb
-    ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/internal
+    ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include
     $<$<C_COMPILER_ID:Intel>:$ENV{ROOT}/compiler/include $ENV{ROOT}/compiler/include/icc>
     $<$<NOT:$<C_COMPILER_ID:Intel>>:${CMAKE_SYSTEM_INCLUDE_PATH}>
     $<$<OR:$<C_COMPILER_ID:Intel>,$<BOOL:${MSVC_IDE}>>:$ENV{INCLUDE}>
@@ -266,7 +265,7 @@ if ("${ARCH}" STREQUAL "intel64")
     )
     set(IFMA_COMPILE_OPTIONS "${k0_opt}")
     set(IFMA_INCLUDE_DIRS "${C_INCLUDE_DIRECTORIES}")
-    set(BN_OPENSSL_DISABLE ON)
+    set(OPENSSL_DISABLE ON)
     set(IFMA_LIB_OBJ_TARGET "crypto_mb")
     add_subdirectory(crypto_mb)
 endif()

@@ -80,27 +80,27 @@ __INLINE IppStatus CheckPublicKeysConsistency(const IppsRSAPublicKeyState* const
 }
 
 #if (_IPP32E>=_IPP32E_K0)
-    #include "rsa_ifma_status.h"
+    #include <crypto_mb/status.h>
 
     #define ifma_RSAprv_cipher OWNAPI(ifma_RSAprv_cipher)
-    ifma_status ifma_RSAprv_cipher(IppsBigNumState* const pPtxts[8],
+    mbx_status ifma_RSAprv_cipher(IppsBigNumState* const pPtxts[8],
                                     const IppsBigNumState* const pCtxts[8],
                                     const IppsRSAPrivateKeyState* const pKeys[8],
                                     const int rsa_bitsize,
                                     Ipp8u* pScratchBuffer);
 
     #define ifma_RSAprv_cipher_crt OWNAPI(ifma_RSAprv_cipher_crt)
-    ifma_status ifma_RSAprv_cipher_crt(IppsBigNumState* const pPtxts[8],
+    mbx_status ifma_RSAprv_cipher_crt(IppsBigNumState* const pPtxts[8],
                                         const IppsBigNumState* const pCtxts[8],
                                         const IppsRSAPrivateKeyState* const pKeys[8],
                                         const int rsa_bitsize,
                                         Ipp8u* pScratchBuffer);
 
-    static IppStatus convert_ifma_to_ipp_sts(ifma_status ifma_sts, IppStatus statuses[8])
+    static IppStatus convert_ifma_to_ipp_sts(mbx_status ifma_sts, IppStatus statuses[8])
     {
         int all_ok_sts = 1;
         for (int i = 0; i < 8; i++) {
-            switch (IFMA_GET_STS(ifma_sts, i)) {
+            switch (MBX_GET_STS(ifma_sts, i)) {
             case 0:
                 statuses[i] = ippStsNoErr;
                 break;

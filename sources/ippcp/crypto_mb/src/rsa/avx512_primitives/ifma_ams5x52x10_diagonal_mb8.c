@@ -14,8 +14,7 @@
  * limitations under the License.
  *******************************************************************************/
 
-#include "ifma_internal.h"
-#include "ifma_math.h"
+#include <internal/common/ifma_math.h>
 
 #ifdef __GNUC__
 #define ASM(a) __asm__(a);

@@ -14,8 +14,8 @@
  * limitations under the License.
  *******************************************************************************/
 
-#include "ifma_internal.h"
-#include "ifma_math.h"
+#include <internal/common/ifma_math.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 void ifma_extract_amm52x20_mb8(int64u *out_mb8, const int64u *inpA_mb8,
                                int64u MulTbl[][redLen][8], const int64u Idx[8],
@@ -25,8 +25,6 @@ void ifma_extract_amm52x20_mb8(int64u *out_mb8, const int64u *inpA_mb8,
   U64 mulB00, mulB01, mulB02, mulB03, mulB04, mulB05, mulB06, mulB07, mulB08,
       mulB09, mulB10, mulB11, mulB12, mulB13, mulB14, mulB15, mulB16, mulB17,
       mulB18, mulB19;
-  //U64 *inpA_512 = (U64 *)inpA_mb8;
-  //U64 *inpM_512 = (U64 *)inpM_mb8;
   U64 K = loadu64(k0_mb8); /* k0[] */
   __mmask8 k;
   __ALIGN64 U64 inpB_mb8[20];
@@ -60,26 +58,26 @@ void ifma_extract_amm52x20_mb8(int64u *out_mb8, const int64u *inpA_mb8,
   for (itr = 1; itr < (1 << 5); ++itr) {
     U64 idx_curr = set64(itr + 1);
     __mmask8 k_new = cmpeq64_mask(idx_curr, idx_target);
-    mulB00 = mask_blend64(k, mulB00, loadu64(MulTbl[itr][0]));
-    mulB01 = mask_blend64(k, mulB01, loadu64(MulTbl[itr][1]));
-    mulB02 = mask_blend64(k, mulB02, loadu64(MulTbl[itr][2]));
-    mulB03 = mask_blend64(k, mulB03, loadu64(MulTbl[itr][3]));
-    mulB04 = mask_blend64(k, mulB04, loadu64(MulTbl[itr][4]));
-    mulB05 = mask_blend64(k, mulB05, loadu64(MulTbl[itr][5]));
-    mulB06 = mask_blend64(k, mulB06, loadu64(MulTbl[itr][6]));
-    mulB07 = mask_blend64(k, mulB07, loadu64(MulTbl[itr][7]));
-    mulB08 = mask_blend64(k, mulB08, loadu64(MulTbl[itr][8]));
-    mulB09 = mask_blend64(k, mulB09, loadu64(MulTbl[itr][9]));
-    mulB10 = mask_blend64(k, mulB10, loadu64(MulTbl[itr][10]));
-    mulB11 = mask_blend64(k, mulB11, loadu64(MulTbl[itr][11]));
-    mulB12 = mask_blend64(k, mulB12, loadu64(MulTbl[itr][12]));
-    mulB13 = mask_blend64(k, mulB13, loadu64(MulTbl[itr][13]));
-    mulB14 = mask_blend64(k, mulB14, loadu64(MulTbl[itr][14]));
-    mulB15 = mask_blend64(k, mulB15, loadu64(MulTbl[itr][15]));
-    mulB16 = mask_blend64(k, mulB16, loadu64(MulTbl[itr][16]));
-    mulB17 = mask_blend64(k, mulB17, loadu64(MulTbl[itr][17]));
-    mulB18 = mask_blend64(k, mulB18, loadu64(MulTbl[itr][18]));
-    mulB19 = mask_blend64(k, mulB19, loadu64(MulTbl[itr][19]));
+    mulB00 = select64(k, mulB00, (U64 *) MulTbl[itr][0]);
+    mulB01 = select64(k, mulB01, (U64 *) MulTbl[itr][1]);
+    mulB02 = select64(k, mulB02, (U64 *) MulTbl[itr][2]);
+    mulB03 = select64(k, mulB03, (U64 *) MulTbl[itr][3]);
+    mulB04 = select64(k, mulB04, (U64 *) MulTbl[itr][4]);
+    mulB05 = select64(k, mulB05, (U64 *) MulTbl[itr][5]);
+    mulB06 = select64(k, mulB06, (U64 *) MulTbl[itr][6]);
+    mulB07 = select64(k, mulB07, (U64 *) MulTbl[itr][7]);
+    mulB08 = select64(k, mulB08, (U64 *) MulTbl[itr][8]);
+    mulB09 = select64(k, mulB09, (U64 *) MulTbl[itr][9]);
+    mulB10 = select64(k, mulB10, (U64 *) MulTbl[itr][10]);
+    mulB11 = select64(k, mulB11, (U64 *) MulTbl[itr][11]);
+    mulB12 = select64(k, mulB12, (U64 *) MulTbl[itr][12]);
+    mulB13 = select64(k, mulB13, (U64 *) MulTbl[itr][13]);
+    mulB14 = select64(k, mulB14, (U64 *) MulTbl[itr][14]);
+    mulB15 = select64(k, mulB15, (U64 *) MulTbl[itr][15]);
+    mulB16 = select64(k, mulB16, (U64 *) MulTbl[itr][16]);
+    mulB17 = select64(k, mulB17, (U64 *) MulTbl[itr][17]);
+    mulB18 = select64(k, mulB18, (U64 *) MulTbl[itr][18]);
+    mulB19 = select64(k, mulB19, (U64 *) MulTbl[itr][19]);
     k = k_new;
   }
   inpB_mb8[0] = mulB00;

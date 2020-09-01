@@ -14,28 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <string.h>
-
-#include "ifma_internal.h"
-#include "ifma_math.h"
-#include "immintrin.h"
+#include <internal/common/ifma_math.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 #define USE_AMS
 #ifdef USE_AMS
     #define SQUARE_52x60_mb8(out, Y, mod, k0) \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)Y, (int64u*)mod, (int64u*)k0);
 
-    #ifdef USE_AMS_5x
-    #define SQUARE_5x52x60_mb8(out, Y, mod, k0) \
-         AMS5x52x60_diagonal_mb8((int64u*)out, (int64u*)Y, (int64u*)mod, (int64u*)k0);
-    #else
     #define SQUARE_5x52x60_mb8(out, Y, mod, k0) \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)Y, (int64u*)mod, (int64u*)k0); \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)out, (int64u*)mod, (int64u*)k0); \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)out, (int64u*)mod, (int64u*)k0); \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)out, (int64u*)mod, (int64u*)k0); \
          AMS52x60_diagonal_mb8((int64u*)out, (int64u*)out, (int64u*)mod, (int64u*)k0);
-    #endif
 #else
     #define SQUARE_52x60_mb8(out, Y, mod, k0) \
          ifma_amm52x60_mb8((int64u*)out, (int64u*)Y, (int64u*)Y, (int64u*)mod, (int64u*)k0);
@@ -128,66 +120,66 @@ static int64u* extract_multiplier_mb8(int64u out[LEN52][8], int64u tbl[][LEN52][
       __m512i idx_curr = _mm512_set1_epi64(n);
       __mmask8 k = _mm512_cmpeq_epu64_mask(idx_curr, idx_target);
 
-      X0 = _mm512_mask_blend_epi64(k, X0 , _mm512_load_si512(tbl[n][0]));
-      X1 = _mm512_mask_blend_epi64(k, X1 , _mm512_load_si512(tbl[n][1]));
-      X2 = _mm512_mask_blend_epi64(k, X2 , _mm512_load_si512(tbl[n][2]));
-      X3 = _mm512_mask_blend_epi64(k, X3 , _mm512_load_si512(tbl[n][3]));
-      X4 = _mm512_mask_blend_epi64(k, X4 , _mm512_load_si512(tbl[n][4]));
-      X5 = _mm512_mask_blend_epi64(k, X5 , _mm512_load_si512(tbl[n][5]));
-      X6 = _mm512_mask_blend_epi64(k, X6 , _mm512_load_si512(tbl[n][6]));
-      X7 = _mm512_mask_blend_epi64(k, X7 , _mm512_load_si512(tbl[n][7]));
-      X8 = _mm512_mask_blend_epi64(k, X8 , _mm512_load_si512(tbl[n][8]));
-      X9 = _mm512_mask_blend_epi64(k, X9 , _mm512_load_si512(tbl[n][9]));
-      X10= _mm512_mask_blend_epi64(k, X10, _mm512_load_si512(tbl[n][10]));
-      X11= _mm512_mask_blend_epi64(k, X11, _mm512_load_si512(tbl[n][11]));
-      X12= _mm512_mask_blend_epi64(k, X12, _mm512_load_si512(tbl[n][12]));
-      X13= _mm512_mask_blend_epi64(k, X13, _mm512_load_si512(tbl[n][13]));
-      X14= _mm512_mask_blend_epi64(k, X14, _mm512_load_si512(tbl[n][14]));
-      X15= _mm512_mask_blend_epi64(k, X15, _mm512_load_si512(tbl[n][15]));
-      X16= _mm512_mask_blend_epi64(k, X16, _mm512_load_si512(tbl[n][16]));
-      X17= _mm512_mask_blend_epi64(k, X17, _mm512_load_si512(tbl[n][17]));
-      X18= _mm512_mask_blend_epi64(k, X18, _mm512_load_si512(tbl[n][18]));
-      X19= _mm512_mask_blend_epi64(k, X19, _mm512_load_si512(tbl[n][19]));
-      X20= _mm512_mask_blend_epi64(k, X20, _mm512_load_si512(tbl[n][20]));
-      X21= _mm512_mask_blend_epi64(k, X21, _mm512_load_si512(tbl[n][21]));
-      X22= _mm512_mask_blend_epi64(k, X22, _mm512_load_si512(tbl[n][22]));
-      X23= _mm512_mask_blend_epi64(k, X23, _mm512_load_si512(tbl[n][23]));
-      X24= _mm512_mask_blend_epi64(k, X24, _mm512_load_si512(tbl[n][24]));
-      X25= _mm512_mask_blend_epi64(k, X25, _mm512_load_si512(tbl[n][25]));
-      X26= _mm512_mask_blend_epi64(k, X26, _mm512_load_si512(tbl[n][26]));
-      X27= _mm512_mask_blend_epi64(k, X27, _mm512_load_si512(tbl[n][27]));
-      X28= _mm512_mask_blend_epi64(k, X28, _mm512_load_si512(tbl[n][28]));
-      X29= _mm512_mask_blend_epi64(k, X29, _mm512_load_si512(tbl[n][29]));
-      X30= _mm512_mask_blend_epi64(k, X30, _mm512_load_si512(tbl[n][30]));
-      X31= _mm512_mask_blend_epi64(k, X31, _mm512_load_si512(tbl[n][31]));
-      X32= _mm512_mask_blend_epi64(k, X32, _mm512_load_si512(tbl[n][32]));
-      X33= _mm512_mask_blend_epi64(k, X33, _mm512_load_si512(tbl[n][33]));
-      X34= _mm512_mask_blend_epi64(k, X34, _mm512_load_si512(tbl[n][34]));
-      X35= _mm512_mask_blend_epi64(k, X35, _mm512_load_si512(tbl[n][35]));
-      X36= _mm512_mask_blend_epi64(k, X36, _mm512_load_si512(tbl[n][36]));
-      X37= _mm512_mask_blend_epi64(k, X37, _mm512_load_si512(tbl[n][37]));
-      X38= _mm512_mask_blend_epi64(k, X38, _mm512_load_si512(tbl[n][38]));
-      X39= _mm512_mask_blend_epi64(k, X39, _mm512_load_si512(tbl[n][39]));
-      X40= _mm512_mask_blend_epi64(k, X40, _mm512_load_si512(tbl[n][40]));
-      X41= _mm512_mask_blend_epi64(k, X41, _mm512_load_si512(tbl[n][41]));
-      X42= _mm512_mask_blend_epi64(k, X42, _mm512_load_si512(tbl[n][42]));
-      X43= _mm512_mask_blend_epi64(k, X43, _mm512_load_si512(tbl[n][43]));
-      X44= _mm512_mask_blend_epi64(k, X44, _mm512_load_si512(tbl[n][44]));
-      X45= _mm512_mask_blend_epi64(k, X45, _mm512_load_si512(tbl[n][45]));
-      X46= _mm512_mask_blend_epi64(k, X46, _mm512_load_si512(tbl[n][46]));
-      X47= _mm512_mask_blend_epi64(k, X47, _mm512_load_si512(tbl[n][47]));
-      X48= _mm512_mask_blend_epi64(k, X48, _mm512_load_si512(tbl[n][48]));
-      X49= _mm512_mask_blend_epi64(k, X49, _mm512_load_si512(tbl[n][49]));
-      X50= _mm512_mask_blend_epi64(k, X50, _mm512_load_si512(tbl[n][50]));
-      X51= _mm512_mask_blend_epi64(k, X51, _mm512_load_si512(tbl[n][51]));
-      X52= _mm512_mask_blend_epi64(k, X52, _mm512_load_si512(tbl[n][52]));
-      X53= _mm512_mask_blend_epi64(k, X53, _mm512_load_si512(tbl[n][53]));
-      X54= _mm512_mask_blend_epi64(k, X54, _mm512_load_si512(tbl[n][54]));
-      X55= _mm512_mask_blend_epi64(k, X55, _mm512_load_si512(tbl[n][55]));
-      X56= _mm512_mask_blend_epi64(k, X56, _mm512_load_si512(tbl[n][56]));
-      X57= _mm512_mask_blend_epi64(k, X57, _mm512_load_si512(tbl[n][57]));
-      X58= _mm512_mask_blend_epi64(k, X58, _mm512_load_si512(tbl[n][58]));
-      X59= _mm512_mask_blend_epi64(k, X59, _mm512_load_si512(tbl[n][59]));
+      X0 = select64(k, X0, (U64 *) tbl[n][0]);
+      X1 = select64(k, X1, (U64 *) tbl[n][1]);
+      X2 = select64(k, X2, (U64 *) tbl[n][2]);
+      X3 = select64(k, X3, (U64 *) tbl[n][3]);
+      X4 = select64(k, X4, (U64 *) tbl[n][4]);
+      X5 = select64(k, X5, (U64 *) tbl[n][5]);
+      X6 = select64(k, X6, (U64 *) tbl[n][6]);
+      X7 = select64(k, X7, (U64 *) tbl[n][7]);
+      X8 = select64(k, X8, (U64 *) tbl[n][8]);
+      X9 = select64(k, X9, (U64 *) tbl[n][9]);
+      X10= select64(k, X10, (U64 *) tbl[n][10]);
+      X11= select64(k, X11, (U64 *) tbl[n][11]);
+      X12= select64(k, X12, (U64 *) tbl[n][12]);
+      X13= select64(k, X13, (U64 *) tbl[n][13]);
+      X14= select64(k, X14, (U64 *) tbl[n][14]);
+      X15= select64(k, X15, (U64 *) tbl[n][15]);
+      X16= select64(k, X16, (U64 *) tbl[n][16]);
+      X17= select64(k, X17, (U64 *) tbl[n][17]);
+      X18= select64(k, X18, (U64 *) tbl[n][18]);
+      X19= select64(k, X19, (U64 *) tbl[n][19]);
+      X20= select64(k, X20, (U64 *) tbl[n][20]);
+      X21= select64(k, X21, (U64 *) tbl[n][21]);
+      X22= select64(k, X22, (U64 *) tbl[n][22]);
+      X23= select64(k, X23, (U64 *) tbl[n][23]);
+      X24= select64(k, X24, (U64 *) tbl[n][24]);
+      X25= select64(k, X25, (U64 *) tbl[n][25]);
+      X26= select64(k, X26, (U64 *) tbl[n][26]);
+      X27= select64(k, X27, (U64 *) tbl[n][27]);
+      X28= select64(k, X28, (U64 *) tbl[n][28]);
+      X29= select64(k, X29, (U64 *) tbl[n][29]);
+      X30= select64(k, X30, (U64 *) tbl[n][30]);
+      X31= select64(k, X31, (U64 *) tbl[n][31]);
+      X32= select64(k, X32, (U64 *) tbl[n][32]);
+      X33= select64(k, X33, (U64 *) tbl[n][33]);
+      X34= select64(k, X34, (U64 *) tbl[n][34]);
+      X35= select64(k, X35, (U64 *) tbl[n][35]);
+      X36= select64(k, X36, (U64 *) tbl[n][36]);
+      X37= select64(k, X37, (U64 *) tbl[n][37]);
+      X38= select64(k, X38, (U64 *) tbl[n][38]);
+      X39= select64(k, X39, (U64 *) tbl[n][39]);
+      X40= select64(k, X40, (U64 *) tbl[n][40]);
+      X41= select64(k, X41, (U64 *) tbl[n][41]);
+      X42= select64(k, X42, (U64 *) tbl[n][42]);
+      X43= select64(k, X43, (U64 *) tbl[n][43]);
+      X44= select64(k, X44, (U64 *) tbl[n][44]);
+      X45= select64(k, X45, (U64 *) tbl[n][45]);
+      X46= select64(k, X46, (U64 *) tbl[n][46]);
+      X47= select64(k, X47, (U64 *) tbl[n][47]);
+      X48= select64(k, X48, (U64 *) tbl[n][48]);
+      X49= select64(k, X49, (U64 *) tbl[n][49]);
+      X50= select64(k, X50, (U64 *) tbl[n][50]);
+      X51= select64(k, X51, (U64 *) tbl[n][51]);
+      X52= select64(k, X52, (U64 *) tbl[n][52]);
+      X53= select64(k, X53, (U64 *) tbl[n][53]);
+      X54= select64(k, X54, (U64 *) tbl[n][54]);
+      X55= select64(k, X55, (U64 *) tbl[n][55]);
+      X56= select64(k, X56, (U64 *) tbl[n][56]);
+      X57= select64(k, X57, (U64 *) tbl[n][57]);
+      X58= select64(k, X58, (U64 *) tbl[n][58]);
+      X59= select64(k, X59, (U64 *) tbl[n][59]);
    }
    _mm512_store_si512(out+0,  X0);
    _mm512_store_si512(out+1,  X1);

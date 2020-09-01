@@ -30,9 +30,7 @@
 #include "pcpngrsa_mb.h"
 
 #if(_IPP32E>=_IPP32E_K0)
-  #include "rsa_ifma_cp.h"
-  #include "rsa_ifma_status.h"
-  #include "ifma_method.h"
+   #include <crypto_mb/rsa.h>
 #endif
 
 /*!
@@ -94,7 +92,7 @@ IPPFUN(IppStatus, ippsRSA_MB_Encrypt,(const IppsBigNumState* const pPtxts[8],
          const int rsa_bytesize = rsa_bitsize/8;
          int8u* from_pa[RSA_MB_MAX_BUF_QUANTITY];
          int64u* n_pa[RSA_MB_MAX_BUF_QUANTITY];
-         const ifma_RSA_Method* m = ifma_cp_RSA_pub65537_Method(rsa_bitsize);
+         const mbx_RSA_Method* m = mbx_RSA_pub65537_Method(rsa_bitsize);
 
          for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
             n_pa[i] = MOD_MODULUS(RSA_PUB_KEY_NMONT(pKeys[i]));
@@ -102,7 +100,7 @@ IPPFUN(IppStatus, ippsRSA_MB_Encrypt,(const IppsBigNumState* const pPtxts[8],
             ippsGetOctString_BN(from_pa[i], rsa_bytesize, pPtxts[i]);
          }
 
-         ifma_status ifma_sts = ifma_cp_rsa52_public_mb8((const int8u* const*)from_pa, from_pa, (const int64u* const*)n_pa, rsa_bitsize, m, pBuffer);
+         mbx_status ifma_sts = mbx_rsa_public_mb8((const int8u* const*)from_pa, from_pa, (const int64u* const*)n_pa, rsa_bitsize, m, pBuffer);
 
          for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
             ippsSetOctString_BN(from_pa[i], rsa_bytesize, pCtxts[i]);

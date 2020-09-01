@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "rsa_ifma_defs.h"
+#include <internal/common/ifma_defs.h>
 
 #define IFMA_LIB_VERSION() IFMA_VER_MAJOR,IFMA_VER_MINOR,IFMA_VER_REV
 #define IFMA_LIB_BUILD()   __DATE__
@@ -33,7 +33,8 @@ static const ifmaVersion ifmaLibVer = {
    IFMA_STR_VERSION()   /* version str             */
 };
 
-const ifmaVersion* ifma_getversion(void)
+DLL_PUBLIC
+const ifmaVersion* mbx_getversion(void)
 {
     return &ifmaLibVer;
 }

@@ -1,0 +1,3 @@
+EXTERN (mbx_rsa_public_ssl_mb8)
+EXTERN (mbx_rsa_private_ssl_mb8)
+EXTERN (mbx_rsa_private_crt_ssl_mb8)

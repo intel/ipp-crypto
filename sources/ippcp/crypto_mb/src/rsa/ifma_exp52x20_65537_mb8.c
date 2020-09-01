@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "ifma_internal.h"
-#include "immintrin.h"
+#include <internal/common/ifma_math.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 
 #define USE_AMS

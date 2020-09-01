@@ -14,8 +14,7 @@
  * limitations under the License.
  *******************************************************************************/
 
-#include "ifma_internal.h"
-#include "ifma_math.h"
+#include <internal/common/ifma_math.h>
 
 void ifma_amm52x30_mb8(int64u *out_mb, const int64u *inpA_mb,
                        const int64u *inpB_mb, const int64u *inpM_mb,
