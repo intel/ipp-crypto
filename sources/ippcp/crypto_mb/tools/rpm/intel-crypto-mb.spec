@@ -76,10 +76,10 @@ rm -rf "%{buildroot}"
 install -d %{buildroot}/%{_licensedir}/%{name}-%{fullversion}
 install -m 0644 LICENSE %{buildroot}/%{_licensedir}/%{name}-%{fullversion}
 # Install headers
-install -d %{buildroot}/%{_includedir}/crypto_mb/crypto_mb
+install -d %{buildroot}/%{_includedir}/crypto_mb
 install -d %{buildroot}/%{_includedir}/crypto_mb/internal/common
 install -d %{buildroot}/%{_includedir}/crypto_mb/internal/rsa
-install -m 0644 -t %{buildroot}/%{_includedir}/crypto_mb/crypto_mb sources/ippcp/crypto_mb/include/crypto_mb/*.h
+install -m 0644 -t %{buildroot}/%{_includedir}/crypto_mb sources/ippcp/crypto_mb/include/crypto_mb/*.h
 install -m 0644 -t %{buildroot}/%{_includedir}/crypto_mb/internal/common sources/ippcp/crypto_mb/include/internal/common/*.h
 install -m 0644 -t %{buildroot}/%{_includedir}/crypto_mb/internal/rsa sources/ippcp/crypto_mb/include/internal/rsa/*.h
 # Install the library
@@ -98,11 +98,11 @@ ln -s libcrypto_mb.so.%{fullversion} libcrypto_mb.so
 
 %files -n intel-crypto-mb-devel
 %dir %{_includedir}/crypto_mb
-%{_includedir}/crypto_mb/crypto_mb/defs.h
-%{_includedir}/crypto_mb/crypto_mb/x25519.h
-%{_includedir}/crypto_mb/crypto_mb/status.h
-%{_includedir}/crypto_mb/crypto_mb/cpu_features.h
-%{_includedir}/crypto_mb/crypto_mb/rsa.h
+%{_includedir}/crypto_mb/defs.h
+%{_includedir}/crypto_mb/x25519.h
+%{_includedir}/crypto_mb/status.h
+%{_includedir}/crypto_mb/cpu_features.h
+%{_includedir}/crypto_mb/rsa.h
 %{_includedir}/crypto_mb/internal/rsa/ifma_div_104_by_52.h
 %{_includedir}/crypto_mb/internal/rsa/ifma_rsa_arith.h
 %{_includedir}/crypto_mb/internal/rsa/ifma_rsa_layer_cp.h
