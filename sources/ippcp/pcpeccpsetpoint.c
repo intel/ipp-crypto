@@ -70,14 +70,10 @@ IPPFUN(IppStatus, ippsECCPSetPoint,(const IppsBigNumState* pX,
 {
    /* test pEC */
    IPP_BAD_PTR1_RET(pEC);
-   /* use aligned EC context */
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    /* test pX and pY */
    IPP_BAD_PTR2_RET(pX,pY);
-   pX = (IppsBigNumState*)( IPP_ALIGNED_PTR(pX, ALIGN_VAL) );
-   pY = (IppsBigNumState*)( IPP_ALIGNED_PTR(pY, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pX), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pY), ippStsContextMatchErr);
 

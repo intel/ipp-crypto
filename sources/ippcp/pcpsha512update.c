@@ -54,9 +54,7 @@ IPPFUN(IppStatus, ippsSHA512Update,(const Ipp8u* pSrc, int len, IppsSHA512State*
 {
    /* test state pointer and ID */
    IPP_BAD_PTR1_RET(pState);
-   /* use aligned context */
-   pState = (IppsSHA512State*)( IPP_ALIGNED_PTR(pState, SHA512_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxSHA512 !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxSHA512), ippStsContextMatchErr);
 
    /* test input length */
    IPP_BADARG_RET((len<0), ippStsLengthErr);

@@ -55,10 +55,8 @@ endif()
 # Tells the compiler to align functions and loops
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -falign-functions=32 -falign-loops=32")
 
-if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    # Optimization level = 3
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-endif()
+# Optimization level = 3, no-debug definition (turns off asserts)
+set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG" CACHE STRING "" FORCE)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS}")
 

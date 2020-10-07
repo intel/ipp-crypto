@@ -68,11 +68,9 @@ IPPFUN(IppStatus, ippsGFpxInitBinomial,(const IppsGFpState* pGroundGF, int extDe
 {
    IPP_BAD_PTR4_RET(pGFpx, pGroundGF, pGroundElm, pGFpMethod);
 
-   pGFpx = (IppsGFpState*)( IPP_ALIGNED_PTR(pGFpx, GFP_ALIGNMENT) );
-   pGroundGF = (IppsGFpState*)( IPP_ALIGNED_PTR(pGroundGF, GFP_ALIGNMENT) );
-   IPP_BADARG_RET( !GFP_TEST_ID(pGroundGF), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFP_VALID_ID(pGroundGF), ippStsContextMatchErr );
 
-   IPP_BADARG_RET( !GFPE_TEST_ID(pGroundElm), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFPE_VALID_ID(pGroundElm), ippStsContextMatchErr );
    IPP_BADARG_RET(GFPE_ROOM(pGroundElm)!=GFP_FELEN(GFP_PMA(pGroundGF)), ippStsOutOfRangeErr);
 
    IPP_BADARG_RET( extDeg<IPP_MIN_GF_EXTDEG || extDeg>IPP_MAX_GF_EXTDEG, ippStsBadArgErr);

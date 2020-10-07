@@ -55,14 +55,13 @@ IPPFUN(IppStatus, ippsHMACInit_rmf,(const Ipp8u* pKey, int keyLen,
 {
    /* test pointer */
    IPP_BAD_PTR2_RET(pCtx, pMethod);
-   pCtx = (IppsHMACState_rmf*)( IPP_ALIGNED_PTR(pCtx, HASH_ALIGNMENT) );
 
    /* test key pointer and key length */
    IPP_BAD_PTR1_RET(pKey);
    IPP_BADARG_RET(0>keyLen, ippStsLengthErr);
 
    /* set state ID */
-   HMAC_CTX_ID(pCtx) = idCtxHMAC;
+   HMAC_SET_CTX_ID(pCtx);
 
    /* init hash context */
    ippsHashInit_rmf(&HASH_CTX(pCtx), pMethod);

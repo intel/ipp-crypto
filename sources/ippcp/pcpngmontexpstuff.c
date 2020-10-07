@@ -27,14 +27,14 @@
 #include "pcpmask_ct.h"
 
 
-cpSize gsMontExpBinBuffer(int modulusBits)
+IPP_OWN_DEFN (cpSize, gsMontExpBinBuffer, (int modulusBits))
 {
    cpSize nsM = BITS_BNU_CHUNK(modulusBits);
    cpSize bufferNum = nsM;
    return bufferNum;
 }
 
-cpSize gsMontExpWinBuffer(int modulusBits)
+IPP_OWN_DEFN (cpSize, gsMontExpWinBuffer, (int modulusBits))
 {
    cpSize w = gsMontExp_WinSize(modulusBits);
    cpSize nsM = BITS_BNU_CHUNK(modulusBits);
@@ -47,11 +47,7 @@ cpSize gsMontExpWinBuffer(int modulusBits)
 }
 
 
-cpSize gsMontExpBin_BNU(BNU_CHUNK_T* dataY,
-                  const BNU_CHUNK_T* dataX, cpSize nsX,
-                  const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                        gsModEngine* pMont,
-                        BNU_CHUNK_T* pBuffer) 
+IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer) )
 {
     cpSize nsM = MOD_LEN(pMont);
     cpSize nsE = BITS_BNU_CHUNK(bitsizeE);
@@ -121,11 +117,7 @@ cpSize gsMontExpBin_BNU(BNU_CHUNK_T* dataY,
 // scratch buffer structure:
 //    dataT[nsM]     copy of base (in case of inplace operation)
 */
-cpSize gsModExpBin_BNU(BNU_CHUNK_T* dataY,
-                  const BNU_CHUNK_T* dataX, cpSize nsX,
-                  const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                        gsModEngine* pMont,
-                        BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsModExpBin_BNU, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    cpSize nsM = MOD_LEN(pMont);
    
@@ -143,11 +135,7 @@ cpSize gsModExpBin_BNU(BNU_CHUNK_T* dataY,
    return nsM;
 }
 
-cpSize gsMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
-                  const BNU_CHUNK_T* dataX, cpSize nsX,
-                  const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                  gsModEngine* pMont,
-                  BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
 
     cpSize nsM = MOD_LEN(pMont);
@@ -213,11 +201,7 @@ cpSize gsMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
 //    dataT[nsM]
 //     sscm[nsM]
 */
-cpSize gsModExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
-                       const BNU_CHUNK_T* dataX, cpSize nsX,
-                       const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                             gsModEngine* pMont,
-                             BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsModExpBin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    cpSize nsM = MOD_LEN(pMont);
 
@@ -250,11 +234,7 @@ cpSize gsModExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
 //    RR[nsM]     tmp result if inplace operation
 //    EE[nsM+1]   power expasin
 */
-cpSize gsMontExpWin_BNU(BNU_CHUNK_T* dataY,
-                       const BNU_CHUNK_T* dataX, cpSize nsX,
-                       const BNU_CHUNK_T* dataExp, cpSize bitsizeE,
-                             gsModEngine* pMont,
-                             BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataExp, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    cpSize nsM = MOD_LEN(pMont);
    cpSize nsE = BITS_BNU_CHUNK(bitsizeE);
@@ -342,11 +322,7 @@ cpSize gsMontExpWin_BNU(BNU_CHUNK_T* dataY,
 // - input/output are in Regular Domain
 // - possible inplace mode
 */
-cpSize gsModExpWin_BNU(BNU_CHUNK_T* dataY,
-                  const BNU_CHUNK_T* dataX, cpSize nsX,
-                  const BNU_CHUNK_T* dataExp, cpSize bitsizeE,
-                        gsModEngine* pMont,
-                        BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsModExpWin_BNU, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataExp, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    cpSize nsM = MOD_LEN(pMont);
 
@@ -378,11 +354,7 @@ cpSize gsModExpWin_BNU(BNU_CHUNK_T* dataY,
 //    TT[nsM]  unscrmbled table entry
 //    EE[nsM+1] power expasin
 */
-cpSize gsMontExpWin_BNU_sscm(BNU_CHUNK_T* dataY,
-                            const BNU_CHUNK_T* dataX, cpSize nsX,
-                            const BNU_CHUNK_T* dataExp, cpSize bitsizeE,
-                                  gsModEngine* pMont,
-                                  BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataExp, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    cpSize nsM = MOD_LEN(pMont);
    cpSize nsE = BITS_BNU_CHUNK(bitsizeE);
@@ -467,11 +439,7 @@ cpSize gsMontExpWin_BNU_sscm(BNU_CHUNK_T* dataY,
 // - input/output are in Regular Domain
 // - possible inplace mode
 */
-cpSize gsModExpWin_BNU_sscm(BNU_CHUNK_T* dataY,
-                       const BNU_CHUNK_T* dataX, cpSize nsX,
-                       const BNU_CHUNK_T* dataExp, cpSize bitsizeE,
-                             gsModEngine* pMont,
-                             BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsModExpWin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataExp, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    cpSize nsM = MOD_LEN(pMont);
 

@@ -52,8 +52,7 @@ IPPFUN(IppStatus, ippsHashFinal_rmf,(Ipp8u* pMD, IppsHashState_rmf* pState))
 {
    /* test state pointer and ID */
    IPP_BAD_PTR2_RET(pMD, pState);
-   pState= (IppsHashState_rmf*)( IPP_ALIGNED_PTR(pState, HASH_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxHash !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxHash), ippStsContextMatchErr);
 
    {
       const IppsHashMethod* method = HASH_METHOD(pState);

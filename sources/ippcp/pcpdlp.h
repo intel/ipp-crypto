@@ -41,7 +41,7 @@
 //#define DEF_DLP_BITSIZER    (160)
 
 struct _cpDLP {
-   IppCtxId          idCtx;      /* DL identifier  */
+   Ipp32u            idCtx;      /* DL identifier  */
    Ipp32u            flag;       /* complete flag  */
 
    int               bitSizeP;   /* DH bitsize (P) */
@@ -78,7 +78,8 @@ struct _cpDLP {
 /*
 // Contetx Access Macros
 */
-#define DLP_ID(ctx)        ((ctx)->idCtx)
+#define DLP_SET_ID(ctx)    ((ctx)->idCtx = (Ipp32u)idCtxDLP ^ (Ipp32u)IPP_UINT_PTR(ctx))
+#define DLP_RESET_ID(ctx)  ((ctx)->idCtx = (Ipp32u)idCtxDLP)
 #define DLP_FLAG(ctx)      ((ctx)->flag)
 #define DLP_BITSIZEP(ctx)  ((ctx)->bitSizeP)
 #define DLP_BITSIZER(ctx)  ((ctx)->bitSizeR)
@@ -103,7 +104,7 @@ struct _cpDLP {
 #define DLP_BNUCTX1(ctx)   ((ctx)->pBnuList1)
 #endif
 
-#define DLP_VALID_ID(ctx)  (DLP_ID((ctx))==idCtxDLP)
+#define DLP_VALID_ID(ctx)  ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxDLP)
 #define DLP_COMPLETE(ctx)  (DLP_FLAG((ctx))==(IppDLPkeyP|IppDLPkeyR|IppDLPkeyG))
 
 /* alignment */
@@ -113,8 +114,8 @@ struct _cpDLP {
 #define DLP_MONT_POOL_LENGTH (6)
 
 #define cpPackDLPCtx OWNAPI(cpPackDLPCtx)
-   void cpPackDLPCtx(const IppsDLPState* pDLP, Ipp8u* pBuffer);
+   IPP_OWN_DECL (void, cpPackDLPCtx, (const IppsDLPState* pDLP, Ipp8u* pBuffer))
 #define cpUnpackDLPCtx OWNAPI(cpUnpackDLPCtx)
-   void cpUnpackDLPCtx(const Ipp8u* pBuffer, IppsDLPState* pDLP);
+   IPP_OWN_DECL (void, cpUnpackDLPCtx, (const Ipp8u* pBuffer, IppsDLPState* pDLP))
 
 #endif /* _PCP_DLP_H */

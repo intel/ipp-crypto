@@ -35,14 +35,14 @@ typedef struct {
 
 /* size (byte) of BN resource */
 #define cpBigNumListGetSize OWNAPI(cpBigNumListGetSize)
-   int  cpBigNumListGetSize(int feBitSize, int nodes);
+   IPP_OWN_DECL (int, cpBigNumListGetSize, (int feBitSize, int nodes))
 
 /* init BN resource */
 #define cpBigNumListInit OWNAPI(cpBigNumListInit)
-   void cpBigNumListInit(int feBitSize, int nodes, BigNumNode* pList);
+   IPP_OWN_DECL (void, cpBigNumListInit, (int feBitSize, int nodes, BigNumNode* pList))
 
 /* get BN from resource */
-#define          cpBigNumListGet OWNAPI(cpBigNumListGet)
-IppsBigNumState* cpBigNumListGet(BigNumNode** pList);
+#define cpBigNumListGet OWNAPI(cpBigNumListGet)
+   IPP_OWN_DECL (IppsBigNumState*, cpBigNumListGet, (BigNumNode** pList))
 
 #endif /* _PCP_BNRESOURCE_H */

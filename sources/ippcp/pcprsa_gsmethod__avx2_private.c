@@ -35,7 +35,7 @@
 #if (_IPP32E>=_IPP32E_L9)
 #include "pcpngmontexpstuff_avx2.h"
 
-gsMethod_RSA* gsMethod_RSA_avx2_private(void)
+IPP_OWN_DEFN (gsMethod_RSA*, gsMethod_RSA_avx2_private, (void))
 {
    static gsMethod_RSA m = {
       RSA_AVX2_MIN_BITSIZE, RSA_AVX2_MAX_BITSIZE,  /* RSA range */
@@ -48,6 +48,7 @@ gsMethod_RSA* gsMethod_RSA_avx2_private(void)
       gsMontExpWinBuffer_avx2,
       gsMontExpWin_BNU_sscm_avx2
       #endif
+      , NULL
    };
    return &m;
 }

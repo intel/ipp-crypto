@@ -29,10 +29,12 @@ static Ipp64u cpFeatures = 0;
 static Ipp64u cpFeaturesMask = 0;
 
 static int cpGetFeatures( Ipp64u* pFeaturesMask );
-extern void IPP_CDECL cpGetReg( int* buf, int valEAX, int valECX );
-extern int IPP_CDECL cp_is_avx_extension();
-extern int IPP_CDECL cp_is_avx512_extension();
-extern int IPP_CDECL cp_issue_avx512_instruction();
+
+extern IPP_OWN_DECL (void, cpGetReg, ( int* buf, int valEAX, int valECX ))
+extern IPP_OWN_DECL (int,  cp_is_avx_extension, ( void ))
+extern IPP_OWN_DECL (int,  cp_is_avx512_extension, ( void ))
+extern IPP_OWN_DECL (int,  cp_issue_avx512_instruction, ( void ))
+
 IppStatus owncpSetCpuFeaturesAndIdx( Ipp64u cpuFeatures, int* index );
 
 IPPFUN( Ipp64u, ippcpGetEnabledCpuFeatures, ( void ))
@@ -435,7 +437,7 @@ IPPFUN( const char*, ippcpGetStatusString, ( IppStatus StsCode ) )
    return ippcpGetStatusString( ippStsUnknownStatusCodeErr );
 }
 
-extern Ipp64u IPP_CDECL cp_get_pentium_counter (void);
+extern IPP_OWN_DECL (Ipp64u, cp_get_pentium_counter, (void))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippcpGetCpuClocks

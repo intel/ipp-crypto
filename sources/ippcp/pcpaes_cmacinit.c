@@ -77,14 +77,11 @@ IPPFUN(IppStatus, ippsAES_CMACInit,(const Ipp8u* pKey, int keyLen, IppsAES_CMACS
    /* test available size of context buffer */
    IPP_BADARG_RET(ctxSize<cpSizeofCtx_AESCMAC(), ippStsMemAllocErr);
 
-   /* use aligned context */
-   pState = (IppsAES_CMACState*)( IPP_ALIGNED_PTR(pState, AESCMAC_ALIGNMENT) );
-
    {
       IppStatus sts;
 
       /* set context ID */
-      CMAC_ID(pState) = idCtxCMAC;
+      CMAC_SET_ID(pState);
       /* init internal buffer and DAC */
       init(pState);
 

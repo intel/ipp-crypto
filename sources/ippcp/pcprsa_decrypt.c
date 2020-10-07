@@ -66,19 +66,16 @@ IPPFUN(IppStatus, ippsRSA_Decrypt,(const IppsBigNumState* pCtxt,
                                          Ipp8u* pBuffer))
 {
    IPP_BAD_PTR2_RET(pKey, pBuffer);
-   pKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PRIVATE_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PRV_KEY_VALID_ID(pKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
 
    IPP_BAD_PTR1_RET(pCtxt);
-   pCtxt = (IppsBigNumState*)( IPP_ALIGNED_PTR(pCtxt, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pCtxt), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pCtxt), ippStsOutOfRangeErr);
    IPP_BADARG_RET(0 <= cpCmp_BNU(BN_NUMBER(pCtxt), BN_SIZE(pCtxt),
                                  MOD_MODULUS(RSA_PRV_KEY_NMONT(pKey)), MOD_LEN(RSA_PRV_KEY_NMONT(pKey))), ippStsOutOfRangeErr);
 
    IPP_BAD_PTR1_RET(pPtxt);
-   pPtxt = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPtxt, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPtxt), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_ROOM(pPtxt) < BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_N(pKey)), ippStsSizeErr);
 

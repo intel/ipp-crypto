@@ -58,7 +58,6 @@ IPPFUN(IppStatus, ippsAES_CCMStart,(const Ipp8u* pIV, int ivLen,
 {
    /* test pState pointer */
    IPP_BAD_PTR1_RET(pState);
-   pState = (IppsAES_CCMState*)( IPP_ALIGNED_PTR(pState, AESCCM_ALIGNMENT) );
    IPP_BADARG_RET(!VALID_AESCCM_ID(pState), ippStsContextMatchErr);
 
    /* test IV (or nonce) */
@@ -76,7 +75,7 @@ IPPFUN(IppStatus, ippsAES_CCMStart,(const Ipp8u* pIV, int ivLen,
 
    {
       /* setup encoder method */
-      IppsAESSpec* pAES = AESCCM_CIPHER_ALIGNED(pState);
+      IppsAESSpec* pAES = AESCCM_CIPHER(pState);
       RijnCipher encoder = RIJ_ENCODER(pAES);
 
       Ipp32u MAC[NB(128)];

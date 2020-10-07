@@ -53,11 +53,12 @@ IPPFUN(IppStatus, ippsHashPack_rmf,(const IppsHashState_rmf* pState, Ipp8u* pBuf
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pState, pBuffer);
-   pState= (IppsHashState_rmf*)( IPP_ALIGNED_PTR(pState, HASH_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxHash !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxHash), ippStsContextMatchErr);
    /* test buffer length */
-   IPP_BADARG_RET((int)(sizeof(IppsHashState_rmf)+HASH_ALIGNMENT-1)>bufSize, ippStsNoMemErr);
+   IPP_BADARG_RET((int)(sizeof(IppsHashState_rmf))>bufSize, ippStsNoMemErr);
 
    CopyBlock(pState, pBuffer, sizeof(IppsHashState_rmf));
+   IppsHashState_rmf* pCopy = (IppsHashState_rmf*)pBuffer;
+   HASH_RESET_ID(pCopy, idCtxHash);
    return ippStsNoErr;
 }

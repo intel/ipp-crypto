@@ -29,7 +29,7 @@
 
 //tbcd: temporary excluded: #include <assert.h>
 
-BNU_CHUNK_T* cpGFpSetOctString(BNU_CHUNK_T* pElm, const Ipp8u* pStr, int strSize, gsModEngine* pGFE)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpSetOctString, (BNU_CHUNK_T* pElm, const Ipp8u* pStr, int strSize, gsModEngine* pGFE))
 {
    int elemLen = GFP_FELEN(pGFE);
 

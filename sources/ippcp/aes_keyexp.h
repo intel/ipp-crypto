@@ -36,13 +36,11 @@
 #if(_IPP32E>=_IPP32E_K0)
 
 #define aes_keyexp_128_enc OWNAPI(aes_keyexp_128_enc)
-void aes_keyexp_128_enc(const Ipp8u* key, struct gcm_key_data *key_data);
-
+    IPP_OWN_DECL (void, aes_keyexp_128_enc, (const Ipp8u* key, struct gcm_key_data *key_data))
 #define aes_keyexp_192_enc OWNAPI(aes_keyexp_192_enc)
-void aes_keyexp_192_enc(const Ipp8u* key, struct gcm_key_data *key_data);
-
+    IPP_OWN_DECL (void, aes_keyexp_192_enc, (const Ipp8u* key, struct gcm_key_data *key_data))
 #define aes_keyexp_256_enc OWNAPI(aes_keyexp_256_enc)
-void aes_keyexp_256_enc(const Ipp8u* key, struct gcm_key_data *key_data);
+    IPP_OWN_DECL (void, aes_keyexp_256_enc, (const Ipp8u* key, struct gcm_key_data *key_data))
 
 #endif // (_IPP32E>=_IPP32E_K0)
 

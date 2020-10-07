@@ -31,8 +31,6 @@
 #define _PCP_SMS4_ENCRYPT_CBC_H
 
 #define cpEncryptSMS4_cbc OWNAPI(cpEncryptSMS4_cbc)
-void cpEncryptSMS4_cbc(const Ipp8u* pIV,
-                       const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
-                       const IppsSMS4Spec* pCtx);
+    IPP_OWN_DECL (void, cpEncryptSMS4_cbc, (const Ipp8u* pIV, const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const IppsSMS4Spec* pCtx))
 
 #endif /* #if !defined _PCP_SMS4_ENCRYPT_CBC_H */

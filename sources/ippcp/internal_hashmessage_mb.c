@@ -16,8 +16,7 @@
 
 #include "internal_hashmessage_mb.h"
 
-IppStatus cpHashMessage_MB8_rmf(const Ipp8u* const pSrc[8],
-   int const lens[8], Ipp8u* const pDst[8], const IppsHashMethod* pMethod)
+IPP_OWN_DEFN (IppStatus, cpHashMessage_MB8_rmf, (const Ipp8u* const pSrc[8], int const lens[8], Ipp8u* const pDst[8], const IppsHashMethod* pMethod))
 {
    int i;
    for (i = 0; i < 8; ++i) { // 8 buffers, for RSA
@@ -26,8 +25,7 @@ IppStatus cpHashMessage_MB8_rmf(const Ipp8u* const pSrc[8],
    return ippStsNoErr;
 }
 
-IppStatus cpMGF1_MB8_rmf(const Ipp8u* const pSeeds[8],
-   int const seedLens[8], Ipp8u* const pMasks[8], int const maskLens[8], const IppsHashMethod* pMethod)
+IPP_OWN_DEFN (IppStatus, cpMGF1_MB8_rmf, (const Ipp8u* const pSeeds[8], int const seedLens[8], Ipp8u* const pMasks[8], int const maskLens[8], const IppsHashMethod* pMethod))
 {
    int i;
    for (i = 0; i < 8; ++i) { // 8 buffers, for RSA

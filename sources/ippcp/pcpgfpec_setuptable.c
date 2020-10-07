@@ -32,9 +32,7 @@
 
 
 /* sscm version */
-void setupTable(BNU_CHUNK_T* pTbl,
-                 const BNU_CHUNK_T* pPdata,
-                       IppsGFpECState* pEC)
+IPP_OWN_DEFN (void, setupTable, (BNU_CHUNK_T* pTbl, const BNU_CHUNK_T* pPdata, IppsGFpECState* pEC))
 {
    int pointLen = ECP_POINTLEN(pEC);
    //int pointLen32 = pointLen*sizeof(BNU_CHUNK_T)/sizeof(ipp32u);

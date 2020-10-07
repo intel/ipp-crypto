@@ -54,10 +54,7 @@
 //        no less than (m->n->length) number of 32-bit words.
 *F*/
 
-cpSize cpMontExpBin_BNU(BNU_CHUNK_T* dataY,
-                  const BNU_CHUNK_T* dataX, cpSize nsX,
-                  const BNU_CHUNK_T* dataE, cpSize nsE,
-                        gsModEngine* pModEngine)
+IPP_OWN_DEFN (cpSize, cpMontExpBin_BNU, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pModEngine))
 {
    cpSize nsM = MOD_LEN( pModEngine );
 

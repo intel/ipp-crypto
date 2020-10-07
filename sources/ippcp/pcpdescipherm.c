@@ -128,7 +128,7 @@ static Ipp32u rndm(Ipp32u x0, Ipp32u x1, Ipp32u* key, const Ipp8u* sbox)
    return x0;
 }
 
-Ipp64u Cipher_DES(Ipp64u inpBlk, const RoundKeyDES* pRKey, const Ipp32u sbox[])
+IPP_OWN_DEFN (Ipp64u, Cipher_DES, (Ipp64u inpBlk, const RoundKeyDES* pRKey, const Ipp32u sbox[]))
 {
    const Ipp8u* sbox8 = (const Ipp8u*)sbox;
 

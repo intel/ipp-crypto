@@ -175,8 +175,7 @@ __INLINE Ipp32u InvMixColumn(Ipp32u x)
 /*
 // Expansion of key for Rijndael's Encryption
 */
-void ExpandRijndaelKey(const Ipp8u* pKey, int NK, int NB, int NR, int nKeys,
-                       Ipp8u* pEncKeys, Ipp8u* pDecKeys)
+IPP_OWN_DEFN (void, ExpandRijndaelKey, (const Ipp8u* pKey, int NK, int NB, int NR, int nKeys, Ipp8u* pEncKeys, Ipp8u* pDecKeys))
 {
    Ipp32u* enc_keys = (Ipp32u*)pEncKeys;
    Ipp32u* dec_keys = (Ipp32u*)pDecKeys;

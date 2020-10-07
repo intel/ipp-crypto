@@ -35,11 +35,11 @@
 #pragma warning(disable: 4310) // zmmintrin.h bug: truncation of constant value
 #endif
 
-void DecryptCFB128_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,       // pointer to the ciphertext
-                                      Ipp8u* pDst,             // pointer to the plaintext
-                                      int len,                 // message length
-                                      const IppsAESSpec* pCtx, // pointer to context
-                                      const Ipp8u* pIV)        // pointer to the Initialization Vector
+IPP_OWN_DEFN (void, DecryptCFB128_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,       // pointer to the ciphertext
+                                                        Ipp8u* pDst,             // pointer to the plaintext
+                                                        int len,                 // message length
+                                                        const IppsAESSpec* pCtx, // pointer to context
+                                                        const Ipp8u* pIV))        // pointer to the Initialization Vector
 {
    int cipherRounds = RIJ_NR(pCtx) - 1;
 

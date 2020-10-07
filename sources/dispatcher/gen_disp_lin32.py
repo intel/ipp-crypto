@@ -134,12 +134,12 @@ else:
 
                   DISP.write("typedef void (*IPP_PROC)(void);\n\n")
                   DISP.write("extern int ippcpJumpIndexForMergedLibs;\n")
-                  DISP.write("extern IPP_STDCALL ippcpInit();\n\n")
+                  DISP.write("extern IPP_CALL ippcpInit();\n\n")
 
-                  DISP.write("extern IppStatus IPP_STDCALL in_"+FunName+FunArg+";\n")
+                  DISP.write("extern IppStatus IPP_CALL in_"+FunName+FunArg+";\n")
 
                   for cpu in cpulist:
-                        DISP.write("extern IppStatus IPP_STDCALL "+cpu+"_"+FunName+FunArg+";\n")
+                        DISP.write("extern IppStatus IPP_CALL "+cpu+"_"+FunName+FunArg+";\n")
 
                   DISP.write("""
 __asm( "  .data");
@@ -158,7 +158,7 @@ __asm( "  .data");\n""".format(size=size))
 
                   DISP.write("""
 #undef  IPPAPI
-#define IPPAPI(type,name,arg) __declspec(naked) void IPP_STDCALL name arg
+#define IPPAPI(type,name,arg) __declspec(naked) void IPP_CALL name arg
 __declspec(naked) IPP_PROC {FunName}{FunArg}
 {{
     __asm( ".L0: call .L1");

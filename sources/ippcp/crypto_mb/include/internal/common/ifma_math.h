@@ -197,6 +197,231 @@
      X0123H = _mm512_shuffle_i64x2(X01H, X23H, 0b11101110 ); \
      X5_ = _mm512_mask_shuffle_i64x2(X45H, 0b11001111, X0123H, X67H, 0b10001000 ); \
      X7_ = _mm512_mask_shuffle_i64x2(X67H, 0b00111111, X0123H, X45H, 0b10111101 ); }
+
+#elif (SIMD_LEN == 256)
+  SIMD_TYPE(256)
+  typedef __m256i __mb_mask;
+
+  #define SIMD_LEN 256
+  #define SIMD_BYTES (SIMD_LEN/8)
+  #define MB_WIDTH (SIMD_LEN/64)
+
+  __INLINE U64 loadu64(const void *p) {
+    return _mm256_loadu_si256((U64*)p);
+  }
+
+  __INLINE void storeu64(const void *p, U64 v) {
+    _mm256_storeu_si256((U64*)p, v);
+  }
+
+  // #define mask_mov64 _mm256_mask_mov_epi64
+  __INLINE __m256i mask_mov64(__m256i a, __mb_mask m, __m256i b) {
+    return _mm256_blendv_epi8(a, b, m);
+  }
+
+  #define set64 _mm256_set1_epi64x
+
+  #ifdef __GNUC__
+      static U64 fma52lo(U64 a, U64 b, U64 c)
+      {
+        __asm__ ( "vpmadd52luq %2, %1, %0" : "+x" (a): "x" (b), "x" (c) );
+        return a;
+      }
+
+      static U64 fma52hi(U64 a, U64 b, U64 c)
+      {
+        __asm__ ( "vpmadd52huq %2, %1, %0" : "+x" (a): "x" (b), "x" (c) );
+        return a;
+      }
+
+      #define _mm_madd52lo_epu64_(r, a, b, c, o) \
+      { \
+          r=a; \
+          __asm__ ( "vpmadd52luq " #o "(%2), %1, %0" : "+x" (r): "x" (b), "r" (c) ); \
+      }
+
+      #define _mm_madd52hi_epu64_(r, a, b, c, o) \
+      { \
+          r=a; \
+          __asm__ ( "vpmadd52huq " #o "(%2), %1, %0" : "+x" (r): "x" (b), "r" (c) ); \
+      }
+  #else
+      // Use IFMA instrinsics for all other compilers
+      static U64 fma52lo(U64 a, U64 b, U64 c)
+      {
+        return _mm256_madd52lo_epu64(a, b, c);
+      }
+
+      static U64 fma52hi(U64 a, U64 b, U64 c)
+      {
+        return _mm256_madd52hi_epu64(a, b, c);
+      }
+
+      #define _mm_madd52lo_epu64_(r, a, b, c, o) \
+      { \
+          r=fma52lo(a, b, loadu64((U64*)(((char*)c)+o))); \
+      }
+
+      #define _mm_madd52hi_epu64_(r, a, b, c, o) \
+      { \
+          r=fma52hi(a, b, loadu64((U64*)(((char*)c)+o))); \
+      }
+  #endif
+
+  __INLINE U64 mul52lo(U64 b, U64 c)
+  {
+    return fma52lo(_mm256_setzero_si256(), b, c);
+  }
+
+  #define fma52lo_mem(r, a, b, c, o) _mm_madd52lo_epu64_(r, a, b, c, o)
+  #define fma52hi_mem(r, a, b, c, o) _mm_madd52hi_epu64_(r, a, b, c, o)
+
+  __INLINE U64 add64(U64 a, U64 b)
+  {
+    return _mm256_add_epi64(a, b);
+  }
+
+  __INLINE U64 sub64(U64 a, U64 b)
+  {
+    return _mm256_sub_epi64(a, b);
+  }
+
+  __INLINE U64 get_zero64()
+  {
+    return _mm256_setzero_si256();
+  }
+
+  __INLINE void set_zero64(U64 *a)
+  {
+    *a = _mm256_xor_si256(*a, *a);
+  }
+
+  __INLINE U64 set1(unsigned long long a)
+  {
+    return _mm256_set1_epi64x((long long)a);
+  }
+
+  __INLINE U64 srli64(U64 a, int s)
+  {
+    return _mm256_srli_epi64(a, s);
+  }
+
+   #if 0
+  // Arithmetic 64bit right shift doesn't exist in AVX2, so use emulation sequence for it
+  // #define srai64 _mm256_srli_epi64
+  __INLINE __m256i srai64(__m256i a, int s) {
+      __m256i sign = _mm256_cmpgt_epi64(_mm256_setzero_si256(), a);           // sign exp
+      a = _mm256_srli_epi64(a, 52);                                           // logical shift
+      //sign = _mm256_and_si256(sign, _mm256_set1_epi64x(0xFFFFFFFFFFFFF000LL));  // clear low 12 bits sign
+      sign = _mm256_and_si256(sign, _mm256_set1_epi64x(-4096));  // clear low 12 bits sign
+      a = _mm256_or_si256(a, sign);                                           // signed result
+      return a;
+  }
+  #endif
+
+  #define slli64 _mm256_slli_epi64
+
+  __INLINE U64 and64_const(U64 a, unsigned long long mask)
+  {
+    return _mm256_and_si256(a, _mm256_set1_epi64x((long long)mask));
+  }
+
+  __INLINE U64 and64(U64 a, U64 mask)
+  {
+    return _mm256_and_si256(a, mask);
+  }
+
+  #define or64 _mm256_or_si256
+  #define xor64 _mm256_xor_si256
+
+  // _mm256_cmp_epi64_mask backport to AVX2
+  // TODO: Implement add compare modes (or throw compilation error)
+  __INLINE __mb_mask cmp64_mask(U64 a, U64 b, int m) {
+    if (m == 4)       // _MM_CMPINT_NE
+      return _mm256_xor_si256(_mm256_cmpeq_epi64(a, b), _mm256_set1_epi8((char)0xFF));
+    else if (m == 1)  // _MM_CMPINT_LT
+      return _mm256_or_si256(_mm256_cmpeq_epi64(a, b), _mm256_cmpgt_epi64(b, a));
+    else /* not supported */
+      return _mm256_setzero_si256();
+  }
+
+  __INLINE __mb_mask cmpeq16_mask(U64 a, U64 b) {
+    return _mm256_cmpeq_epi16(a, b);
+  }
+
+  __INLINE __mb_mask cmpeq64_mask(U64 a, U64 b) {
+    return _mm256_cmpeq_epi64(a, b);
+  }
+
+  __INLINE U64 mask_blend64(__mb_mask k, U64 a, U64 b) {
+    return _mm256_blendv_epi8(a, b, k);
+  }
+
+  __INLINE U64 maskz_sub64(__mb_mask m, U64 a, U64 b) {
+    U64 s = _mm256_sub_epi64(a, b);
+    return mask_blend64(m, _mm256_setzero_si256(), s);
+  }
+
+
+  __INLINE __mb_mask mask_xor(__mb_mask a, __mb_mask b) {
+    return _mm256_xor_si256(a, b);
+  }
+
+  __INLINE __mb_mask get_mask(char a) {
+    return _mm256_set1_epi8(a);
+  }
+
+  static int64u get64(U64 v, int idx) {
+    long long int res;
+    switch (idx) {
+      case 1: res = _mm256_extract_epi64(v, 1); break;
+      case 2: res = _mm256_extract_epi64(v, 2); break;
+      case 3: res = _mm256_extract_epi64(v, 3); break;
+      default: res = _mm256_extract_epi64(v, 0);
+    }
+    return (int64u)res;
+  }
+
+  /* ---------------------------------------------------------------------------------- */
+  #define fma52x8lo_mem(r, a, b, c, o)             \
+      fma52lo_mem(r, a, b, c, o);                  \
+      fma52lo_mem(r ## h, a ## h, b, c, (o) + 32);
+
+  #define fma52x8hi_mem(r, a, b, c, o)             \
+      fma52hi_mem(r, a, b, c, o);                  \
+      fma52hi_mem(r ## h, a ## h, b, c, (o) + 32);
+
+  #define fma52x8lo_mem_len(r, a, b, c, o, l) \
+      fma52lo_mem(r, a, b, c, o);             \
+      if (l > 4) { fma52lo_mem(r ## h, a ## h, b, c, (o) + 32); }
+
+  #define fma52x8hi_mem_len(r, a, b, c, o, l) \
+      fma52hi_mem(r, a, b, c, o);             \
+      if (l > 4) { fma52hi_mem(r ## h, a ## h, b, c, (o) + 32); }
+
+  #define fma52x8lo_mask_mem(r, m, a, b, c, o)     \
+      fma52lo_mem(r, a, b, c, o);                  \
+      fma52lo_mem(r ## h, a ## h, b, c, (o) + 32);
+
+  #define fma52x8hi_mask_mem(r, m, a, b, c, o)     \
+      fma52hi_mem(r, a, b, c, o);                  \
+      fma52hi_mem(r ## h, a ## h, b, c, (o) + 32);
+  /* ---------------------------------------------------------------------------------- */
+
+  #define shift64(R0, R1) { \
+      R0 = R0 ## h;         \
+      R0 ## h = R1; }
+
+  #define shift64_imm(R0, R1, imm) \
+      R0 = _mm256_alignr_epi64(R1, R0, imm);
+
+  static U64 blend64(U64 a, U64 b, int m) {
+      // FIXME: Double every bit
+      if(m == 1)
+          return _mm256_blend_epi32(a, b, 0b00000011);
+      else // FIXME: Not implemented
+          return a;
+  }
 #else
   #error "Incorrect SIMD length"
 #endif  // SIMD_LEN

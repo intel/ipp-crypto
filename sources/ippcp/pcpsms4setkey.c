@@ -82,8 +82,6 @@ IPPFUN(IppStatus, ippsSMS4SetKey,(const Ipp8u* pKey, int keyLen, IppsSMS4Spec* p
    /* test pointers */
    IPP_BAD_PTR1_RET(pCtx);
 
-   /* use aligned SMS4 context */
-   pCtx = (IppsSMS4Spec*)( IPP_ALIGNED_PTR(pCtx, SMS4_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_SMS4_ID(pCtx), ippStsContextMatchErr);
 

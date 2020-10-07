@@ -73,18 +73,16 @@ IPPFUN(IppStatus, ippsGFpECMulPoint,(const IppsGFpECPoint* pP,
                                      Ipp8u* pScratchBuffer))
 {
    IPP_BAD_PTR4_RET(pP, pR, pEC, pScratchBuffer);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET( !ECP_TEST_ID(pEC), ippStsContextMatchErr );
+   IPP_BADARG_RET( !VALID_ECP_ID(pEC), ippStsContextMatchErr );
    IPP_BADARG_RET(!ECP_SUBGROUP(pEC), ippStsContextMatchErr);
 
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pP), ippStsContextMatchErr );
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pR), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pP), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pR), ippStsContextMatchErr );
 
    IPP_BADARG_RET( ECP_POINT_FELEN(pP)!=GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);
    IPP_BADARG_RET( ECP_POINT_FELEN(pR)!=GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);
 
    IPP_BAD_PTR1_RET(pN);
-   pN = (IppsBigNumState*)( IPP_ALIGNED_PTR(pN, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pN), ippStsContextMatchErr );
    IPP_BADARG_RET( BN_NEGATIVE(pN), ippStsBadArgErr );
 
@@ -105,18 +103,16 @@ IPPFUN(IppStatus, ippsGFpECMulPoint, (const IppsGFpECPoint* pP,
    Ipp8u* pScratchBuffer))
 {
    IPP_BAD_PTR4_RET(pP, pR, pEC, pScratchBuffer);
-   pEC = (IppsGFpECState*)(IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT));
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
    //IPP_BADARG_RET(!ECP_SUBGROUP(pEC), ippStsContextMatchErr);
 
-   IPP_BADARG_RET(!ECP_POINT_TEST_ID(pP), ippStsContextMatchErr);
-   IPP_BADARG_RET(!ECP_POINT_TEST_ID(pR), ippStsContextMatchErr);
+   IPP_BADARG_RET(!ECP_POINT_VALID_ID(pP), ippStsContextMatchErr);
+   IPP_BADARG_RET(!ECP_POINT_VALID_ID(pR), ippStsContextMatchErr);
 
    IPP_BADARG_RET(ECP_POINT_FELEN(pP) != GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);
    IPP_BADARG_RET(ECP_POINT_FELEN(pR) != GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);
 
    IPP_BAD_PTR1_RET(pN);
-   pN = (IppsBigNumState*)(IPP_ALIGNED_PTR(pN, BN_ALIGNMENT));
    IPP_BADARG_RET(!BN_VALID_ID(pN), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pN), ippStsBadArgErr);
 

@@ -37,6 +37,7 @@ static gsModMethod* gsModArith_C(void)
    };
    return &m;
 }
+
 #if (_IPP32E>=_IPP32E_L9)
 static gsModMethod* gsModArith_X(void)
 {
@@ -57,7 +58,7 @@ static gsModMethod* gsModArith_X(void)
 }
 #endif
 
-gsModMethod* gsModArith(void)
+IPP_OWN_DEFN (gsModMethod*, gsModArith, (void))
 {
    #if (_IPP32E>=_IPP32E_L9)
    if(IsFeatureEnabled(ippCPUID_ADCOX))

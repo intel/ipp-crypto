@@ -62,7 +62,7 @@
 //    hashAlg     identifier of the hash algorithm
 //
 *F*/
-IPPFUN(IppStatus, ippsMGF,(const Ipp8u* pSeed, int seedLen, Ipp8u* pMask, int maskLen, IppHashAlgId hashAlg))
+IPPFUN(IppStatus, ippsMGF, (const Ipp8u* pSeed, int seedLen, Ipp8u* pMask, int maskLen, IppHashAlgId hashAlg))
 {
    /* get algorithm id */
    hashAlg = cpValidHashAlg(hashAlg);

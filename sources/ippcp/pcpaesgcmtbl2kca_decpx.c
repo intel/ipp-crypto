@@ -43,7 +43,7 @@
 /*
 // authenticates and decrypts n*BLOCK_SIZE bytes
 */
-void wrpAesGcmDec_table2K(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pState)
+IPP_OWN_DEFN (void, wrpAesGcmDec_table2K, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pState))
 {
    //AesGcmAuth_table2K(AESGCM_GHASH(pState), pSrc, len, AESGCM_HKEY(pState), AesGcmConst_table);
    AesGcmAuth_table2K_ct(AESGCM_GHASH(pState), pSrc, len, AESGCM_HKEY(pState), AesGcmConst_table);

@@ -60,8 +60,7 @@ IPPFUN(IppStatus, ippsECCPPublicKey, (const IppsBigNumState* pPrivate,
                                       IppsECCPState* pEC))
 {
    IPP_BAD_PTR1_RET(pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    return ippsGFpECPublicKey(pPrivate, pPublic, pEC, (Ipp8u*)ECP_SBUFFER(pEC));
 }

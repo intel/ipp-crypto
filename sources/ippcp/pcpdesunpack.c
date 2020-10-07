@@ -49,9 +49,9 @@ IPPFUN(IppStatus, ippsDESUnpack,(const Ipp8u* pBuffer, IppsDESSpec* pCtx))
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
-   /* use aligned context */
-   pCtx = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx, DES_ALIGNMENT) );
 
    CopyBlock(pBuffer, pCtx, sizeof(IppsDESSpec));
+   DES_SET_ID(pCtx);
+
    return ippStsNoErr;
 }

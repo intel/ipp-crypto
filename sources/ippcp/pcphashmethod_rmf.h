@@ -25,10 +25,10 @@
 #define _PCP_HASH_METHOD_RMF_H
 
 /* hash alg methods */
-typedef void (*hashInitF)(void* pHash);
-typedef void (*hashUpdateF)(void* pHash, const Ipp8u* pMsg, int msgLen);
-typedef void (*hashOctStrF)(Ipp8u* pDst, void* pHash);
-typedef void (*msgLenRepF)(Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi);
+IPP_OWN_FUNPTR (void, hashInitF, (void* pHash))
+IPP_OWN_FUNPTR (void, hashUpdateF, (void* pHash, const Ipp8u* pMsg, int msgLen))
+IPP_OWN_FUNPTR (void, hashOctStrF, (Ipp8u* pDst, void* pHash))
+IPP_OWN_FUNPTR (void, msgLenRepF, (Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi))
 
 typedef struct _cpHashMethod_rmf {
    IppHashAlgId   hashAlgId;     /* algorithm ID */

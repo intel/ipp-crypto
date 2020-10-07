@@ -33,7 +33,7 @@
 
 #include "pcpsms4_l9cn.h"
 
-int cpSMS4_CBC_dec_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV)
+IPP_OWN_DEFN (int, cpSMS4_CBC_dec_aesni, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV))
 {
    __ALIGN16 __m256i TMP[17];
    /*

@@ -151,7 +151,7 @@ static BNU_CHUNK_T* gfpxGeneratorDiv(BNU_CHUNK_T* pQ, BNU_CHUNK_T* pR, const BNU
    }
 }
 
-BNU_CHUNK_T* cpGFpxInv(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFEx)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxInv, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFEx))
 {
    if( GFP_IS_BASIC(pGFEx) )
       return cpGFpInv(pR, pA, pGFEx);

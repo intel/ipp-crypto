@@ -59,7 +59,7 @@ static gsModMethod* gsArithGFp_X(void)
 }
 #endif
 
-gsModMethod* gsArithGFp(void)
+IPP_OWN_DEFN (gsModMethod*, gsArithGFp, (void))
 {
    #if (_IPP32E>=_IPP32E_L9)
    if(IsFeatureEnabled(ippCPUID_ADCOX))

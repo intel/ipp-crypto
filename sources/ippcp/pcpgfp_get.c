@@ -29,7 +29,7 @@
 
 //tbcd: temporary excluded: #include <assert.h>
 
-BNU_CHUNK_T* cpGFpGet(BNU_CHUNK_T* pDataA, int nsA, const BNU_CHUNK_T* pElm, gsModEngine* pGFE)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpGet, (BNU_CHUNK_T* pDataA, int nsA, const BNU_CHUNK_T* pElm, gsModEngine* pGFE))
 {
    int elemLen = GFP_FELEN(pGFE);
 

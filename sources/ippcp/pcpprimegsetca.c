@@ -51,8 +51,6 @@ IPPFUN(IppStatus, ippsPrimeSet, (const Ipp32u* pPrime, int nBits, IppsPrimeState
    IPP_BAD_PTR2_RET(pCtx, pPrime);
    IPP_BADARG_RET(nBits<1, ippStsLengthErr);
 
-   /* use aligned context */
-   pCtx = (IppsPrimeState*)( IPP_ALIGNED_PTR(pCtx, PRIME_ALIGNMENT) );
    IPP_BADARG_RET(!PRIME_VALID_ID(pCtx), ippStsContextMatchErr);
 
    IPP_BADARG_RET(nBits > PRIME_MAXBITSIZE(pCtx), ippStsOutOfRangeErr);

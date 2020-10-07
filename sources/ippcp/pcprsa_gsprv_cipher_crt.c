@@ -32,11 +32,8 @@
 
 #include "pcprsa_getdefmeth_priv.h"
 
-/* CTE versoin of CRT based RSA decrypt */
-void gsRSAprv_cipher_crt(IppsBigNumState* pY,
-                   const IppsBigNumState* pX,
-                   const IppsRSAPrivateKeyState* pKey,
-                         BNU_CHUNK_T* pBuffer)
+/* CTE version of CRT based RSA decrypt */
+IPP_OWN_DEFN (void, gsRSAprv_cipher_crt, (IppsBigNumState* pY, const IppsBigNumState* pX, const IppsRSAPrivateKeyState* pKey, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataX = BN_NUMBER(pX);
    cpSize nsX = BN_SIZE(pX);
@@ -56,35 +53,63 @@ void gsRSAprv_cipher_crt(IppsBigNumState* pY,
    cpSize bitSizeDP = bitSizeP; //BITSIZE_BNU(RSA_PRV_KEY_DP(pKey), nsP); /* bitsize of dP exp */
    cpSize bitSizeDQ = bitSizeQ; //BITSIZE_BNU(RSA_PRV_KEY_DQ(pKey), nsQ); /* bitsize of dQ exp */
 
-   gsMethod_RSA* m;
-
-   /* compute xq = x^dQ mod Q */
-   if (bitSizeP== bitSizeQ) { /* believe it's enough conditions for correct Mont application */
+   /* Prefer dual exponentiation method if available */
+   gsMethod_RSA* m = getDExpMethod_RSA_private(bitSizeDP, bitSizeDQ);
+   if (m) {
       ZEXPAND_COPY_BNU(pBuffer, nsQ+nsQ, dataX, nsX);
       MOD_METHOD(pMontQ)->red(dataXq, pBuffer, pMontQ);
       MOD_METHOD(pMontQ)->mul(dataXq, dataXq, MOD_MNT_R2(pMontQ), pMontQ);
-   }
-   else {
-      COPY_BNU(dataXq, dataX, nsX);
-      cpMod_BNU(dataXq, nsX, MOD_MODULUS(pMontQ), nsQ);
-   }
 
-   m = getDefaultMethod_RSA_private(bitSizeDQ);
-   m->expFun(dataXq, dataXq, nsQ, RSA_PRV_KEY_DQ(pKey), bitSizeDQ, pMontQ, pBuffer);
-
-   /* compute xp = x^dP mod P */
-   if (bitSizeP== bitSizeQ) { /* believe it's enough conditions for correct Mont application */
       ZEXPAND_COPY_BNU(pBuffer, nsP+nsP, dataX, nsX);
       MOD_METHOD(pMontP)->red(dataXp, pBuffer, pMontP);
       MOD_METHOD(pMontP)->mul(dataXp, dataXp, MOD_MNT_R2(pMontP), pMontP);
-   }
-   else {
-      COPY_BNU(dataXp, dataX, nsX);
-      cpMod_BNU(dataXp, nsX, MOD_MODULUS(pMontP), nsP);
-   }
 
-   m = getDefaultMethod_RSA_private(bitSizeDP);
-   m->expFun(dataXp, dataXp, nsP, RSA_PRV_KEY_DP(pKey), bitSizeDP, pMontP, pBuffer);
+      BNU_CHUNK_T* pDataX[2] = {0};
+      pDataX[0] = dataXq;
+      pDataX[1] = dataXp;
+
+      cpSize pSize[2] = {0};
+      pSize[0] = nsQ;
+      pSize[1] = nsP;
+
+      BNU_CHUNK_T* pPrvExp[2] = {0};
+      pPrvExp[0] = RSA_PRV_KEY_DQ(pKey);
+      pPrvExp[1] = RSA_PRV_KEY_DP(pKey);
+
+      gsModEngine* pMont[2] = {0};
+      pMont[0] = pMontQ;
+      pMont[1] = pMontP;
+
+      m->dualExpFun(pDataX, (const BNU_CHUNK_T**)pDataX, pSize, (const BNU_CHUNK_T**)pPrvExp, pMont, pBuffer);
+   } else {
+      /* compute xq = x^dQ mod Q */
+      if (bitSizeP== bitSizeQ) { /* believe it's enough conditions for correct Mont application */
+         ZEXPAND_COPY_BNU(pBuffer, nsQ+nsQ, dataX, nsX);
+         MOD_METHOD(pMontQ)->red(dataXq, pBuffer, pMontQ);
+         MOD_METHOD(pMontQ)->mul(dataXq, dataXq, MOD_MNT_R2(pMontQ), pMontQ);
+      }
+      else {
+         COPY_BNU(dataXq, dataX, nsX);
+         cpMod_BNU(dataXq, nsX, MOD_MODULUS(pMontQ), nsQ);
+      }
+
+      m = getDefaultMethod_RSA_private(bitSizeDQ);
+      m->expFun(dataXq, dataXq, nsQ, RSA_PRV_KEY_DQ(pKey), bitSizeDQ, pMontQ, pBuffer);
+
+      /* compute xp = x^dP mod P */
+      if (bitSizeP== bitSizeQ) { /* believe it's enough conditions for correct Mont application */
+         ZEXPAND_COPY_BNU(pBuffer, nsP+nsP, dataX, nsX);
+         MOD_METHOD(pMontP)->red(dataXp, pBuffer, pMontP);
+         MOD_METHOD(pMontP)->mul(dataXp, dataXp, MOD_MNT_R2(pMontP), pMontP);
+      }
+      else {
+         COPY_BNU(dataXp, dataX, nsX);
+         cpMod_BNU(dataXp, nsX, MOD_MODULUS(pMontP), nsP);
+      }
+
+      m = getDefaultMethod_RSA_private(bitSizeDP);
+      m->expFun(dataXp, dataXp, nsP, RSA_PRV_KEY_DP(pKey), bitSizeDP, pMontP, pBuffer);
+   }
 
    /*
    // recombination

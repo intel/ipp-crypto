@@ -60,7 +60,6 @@ IPPFUN(IppStatus, ippsRSA_InitPrivateKeyType1,(int rsaModulusBitSize, int privat
                                                IppsRSAPrivateKeyState* pKey, int keyCtxSize))
 {
    IPP_BAD_PTR1_RET(pKey);
-   pKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PRIVATE_KEY_ALIGNMENT) );
 
    IPP_BADARG_RET((MIN_RSA_SIZE>rsaModulusBitSize) || (rsaModulusBitSize>MAX_RSA_SIZE), ippStsNotSupportedModeErr);
    IPP_BADARG_RET(!((0<privateExpBitSize) && (privateExpBitSize<=rsaModulusBitSize)), ippStsBadArgErr);
@@ -69,7 +68,7 @@ IPPFUN(IppStatus, ippsRSA_InitPrivateKeyType1,(int rsaModulusBitSize, int privat
    //IPP_BADARG_RET(keyCtxSize<cpSizeof_RSA_privateKey1(rsaModulusBitSize,privateExpBitSize), ippStsMemAllocErr);
    IPP_BADARG_RET(keyCtxSize<cpSizeof_RSA_privateKey1(rsaModulusBitSize,rsaModulusBitSize), ippStsMemAllocErr);
 
-   RSA_PRV_KEY_ID(pKey) = idCtxRSA_PrvKey1;
+   RSA_PRV_KEY1_SET_ID(pKey);
    RSA_PRV_KEY_MAXSIZE_N(pKey) = rsaModulusBitSize;
    RSA_PRV_KEY_MAXSIZE_D(pKey) = privateExpBitSize;
    RSA_PRV_KEY_BITSIZE_N(pKey) = 0;
@@ -98,7 +97,7 @@ IPPFUN(IppStatus, ippsRSA_InitPrivateKeyType1,(int rsaModulusBitSize, int privat
       RSA_PRV_KEY_D(pKey) = (BNU_CHUNK_T*)( IPP_ALIGNED_PTR((ptr), (int)sizeof(BNU_CHUNK_T)) );
       ptr += prvExpLen*(Ipp32s)sizeof(BNU_CHUNK_T);
 
-      RSA_PRV_KEY_NMONT(pKey) = (gsModEngine*)( IPP_ALIGNED_PTR((ptr), (MONT_ALIGNMENT)) );
+      RSA_PRV_KEY_NMONT(pKey) = (gsModEngine*)(ptr);
       ptr += montNsize;
 
       ZEXPAND_BNU(RSA_PRV_KEY_D(pKey), 0, prvExpLen);

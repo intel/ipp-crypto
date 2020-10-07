@@ -81,7 +81,7 @@ IPPFUN(IppStatus, ippsAES_S2V_CMAC,(const Ipp8u* pKey, int keyLen,
    }
 
    {
-      Ipp8u ctxBlob[sizeof(IppsAES_CMACState) + AESCMAC_ALIGNMENT];
+      Ipp8u ctxBlob[sizeof(IppsAES_CMACState)];
       IppsAES_CMACState* pCtx = (IppsAES_CMACState*)ctxBlob;
       IppStatus sts = cpAES_S2V_init(V, pKey, keyLen, pCtx, sizeof(ctxBlob));
 

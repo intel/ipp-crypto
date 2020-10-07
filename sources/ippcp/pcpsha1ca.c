@@ -34,7 +34,7 @@
 #include "pcpsha1stuff.h"
 
 
-void cpFinalizeSHA1(DigestSHA1 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen)
+IPP_OWN_DEFN (void, cpFinalizeSHA1, (DigestSHA1 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen))
 {
    /* select processing  function */
    #if (_SHA_NI_ENABLING_==_FEATURE_ON_)

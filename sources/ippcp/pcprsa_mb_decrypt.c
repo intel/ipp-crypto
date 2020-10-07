@@ -72,27 +72,22 @@ IPPFUN(IppStatus, ippsRSA_MB_Decrypt,(const IppsBigNumState* const pCtxts[8],
    IPP_BAD_PTR4_RET(pPtxts, pCtxts, pBuffer, statuses);
 
    int i, valid_key_id;
-   const IppsRSAPrivateKeyState* pAlignedKeys[8];
-
-   for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
-      pAlignedKeys[i] = (IppsRSAPrivateKeyState*)(IPP_ALIGNED_PTR(pKeys[i], RSA_PRIVATE_KEY_ALIGNMENT));
-   }
 
    {
-      IppStatus consistencyCheckSts = CheckPrivateKeysConsistency(pAlignedKeys, &valid_key_id);
+      IppStatus consistencyCheckSts = CheckPrivateKeysConsistency(pKeys, &valid_key_id);
       if (valid_key_id == -1) {
         return consistencyCheckSts;
       }
    }
 
    #if(_IPP32E>=_IPP32E_K0)
-      const int rsa_bitsize = RSA_PRV_KEY_BITSIZE_N(pAlignedKeys[valid_key_id]);
+      const int rsa_bitsize = RSA_PRV_KEY_BITSIZE_N(pKeys[valid_key_id]);
       if (IsFeatureEnabled(ippCPUID_AVX512IFMA) && OPTIMIZED_RSA_SIZE(rsa_bitsize)) {
          mbx_status ifma_sts;
-         if (RSA_PRV_KEY1_VALID_ID(pAlignedKeys[valid_key_id]))
-            ifma_sts = ifma_RSAprv_cipher(pPtxts, pCtxts, pAlignedKeys, rsa_bitsize, pBuffer);
+         if (RSA_PRV_KEY1_VALID_ID(pKeys[valid_key_id]))
+            ifma_sts = ifma_RSAprv_cipher(pPtxts, pCtxts, pKeys, rsa_bitsize, pBuffer);
          else
-            ifma_sts = ifma_RSAprv_cipher_crt(pPtxts, pCtxts, pAlignedKeys, rsa_bitsize, pBuffer);
+            ifma_sts = ifma_RSAprv_cipher_crt(pPtxts, pCtxts, pKeys, rsa_bitsize, pBuffer);
 
          return convert_ifma_to_ipp_sts(ifma_sts, statuses);
       }
@@ -101,7 +96,7 @@ IPPFUN(IppStatus, ippsRSA_MB_Decrypt,(const IppsBigNumState* const pCtxts[8],
 
    {
       for(i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
-         statuses[i] = ippsRSA_Decrypt(pCtxts[i], pPtxts[i], pAlignedKeys[i], pBuffer);
+         statuses[i] = ippsRSA_Decrypt(pCtxts[i], pPtxts[i], pKeys[i], pBuffer);
       }
 
       for(i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {

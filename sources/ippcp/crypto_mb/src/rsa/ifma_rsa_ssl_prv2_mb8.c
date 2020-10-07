@@ -35,19 +35,19 @@ mbx_status mbx_rsa_private_ssl_mb8(const int8u* const from_pa[8],
                                   const BIGNUM* const n_pa[8],
                                   int expected_rsa_bitsize)
 {
-   mbx_status stt = 0;
+   mbx_status status = 0;
    int buf_no;
 
    /* test input pointers */
    if(NULL==from_pa || NULL==to_pa || NULL==d_pa || NULL==n_pa) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+      return status;
    }
    /* test rsa modulus size */
    if(RSA_1K != expected_rsa_bitsize && RSA_2K != expected_rsa_bitsize &&
       RSA_3K != expected_rsa_bitsize && RSA_4K != expected_rsa_bitsize) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
+      return status;
    }
 
    /* check pointers and values */
@@ -59,19 +59,19 @@ mbx_status mbx_rsa_private_ssl_mb8(const int8u* const from_pa[8],
 
       /* if any of pointer NULL set error status */
       if(NULL==inp || NULL==out || NULL==d || NULL==n) {
-         stt = MBX_SET_STS(stt, buf_no, MBX_STATUS_NULL_PARAM_ERR);
+         status = MBX_SET_STS(status, buf_no, MBX_STATUS_NULL_PARAM_ERR);
          continue;
       }
 
       /* check rsa size */
       if(expected_rsa_bitsize != BN_num_bits(n)) {
-         stt = MBX_SET_STS(stt, buf_no, MBX_STATUS_MISMATCH_PARAM_ERR);
+         status = MBX_SET_STS(status, buf_no, MBX_STATUS_MISMATCH_PARAM_ERR);
          continue;
       }
    }
 
    /* continue processing if there are correct parameters */
-   if( MBX_IS_ANY_OK_STS(stt) ) {
+   if( MBX_IS_ANY_OK_STS(status) ) {
       /* select exponentiation */
       switch (expected_rsa_bitsize) {
       case RSA_1K: ifma_ssl_rsa1K_prv2_layer_mb8(from_pa, to_pa, d_pa, n_pa); break;
@@ -81,7 +81,7 @@ mbx_status mbx_rsa_private_ssl_mb8(const int8u* const from_pa[8],
       }
    }
 
-   return stt;
+   return status;
 }
 
 #endif /* BN_OPENSSL_DISABLE */

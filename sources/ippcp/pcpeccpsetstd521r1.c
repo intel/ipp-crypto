@@ -49,8 +49,6 @@ IPPFUN(IppStatus, ippsECCPSetStd521r1, (IppsECCPState* pEC))
 {
    /* test pEC */
    IPP_BAD_PTR1_RET(pEC);
-   /* use aligned EC context */
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
    /* set domain parameters */
    return ECCPSetDP(ippsGFpMethod_p521r1(),
                         BITS_BNU_CHUNK(521), secp521r1_p,

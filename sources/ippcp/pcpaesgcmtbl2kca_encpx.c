@@ -43,7 +43,7 @@
 /*
 // encrypts and authenticates n*BLOCK_SIZE bytes
 */
-void wrpAesGcmEnc_table2K(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pState)
+IPP_OWN_DEFN (void, wrpAesGcmEnc_table2K, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pState))
 {
    Ipp8u* pHashedData = pDst;
    int hashedDataLen = len;

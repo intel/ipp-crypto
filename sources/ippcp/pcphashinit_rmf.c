@@ -50,11 +50,10 @@ IPPFUN(IppStatus, ippsHashInit_rmf,(IppsHashState_rmf* pState, const IppsHashMet
 {
    /* test ctx pointers */
    IPP_BAD_PTR2_RET(pState, pMethod);
-   pState= (IppsHashState_rmf*)( IPP_ALIGNED_PTR(pState, HASH_ALIGNMENT) );
 
    PadBlock(0, pState, sizeof(IppsHashState_rmf));
    HASH_METHOD(pState) = pMethod;
-   HASH_CTX_ID(pState) = idCtxHash;
+   HASH_SET_ID(pState, idCtxHash);
    pMethod->hashInit(HASH_VALUE(pState));
    return ippStsNoErr;
 }

@@ -54,9 +54,6 @@ IPPFUN(IppStatus, ippsSMS4_CCMGetTag,(Ipp8u* pTag, int tagLen, const IppsSMS4_CC
    /* test pCtx pointer */
    IPP_BAD_PTR1_RET(pCtx);
 
-   /* use aligned context */
-   //pCtx = (IppsSMS4_CCMState*)( IPP_ALIGNED_PTR(pCtx, SMS4CCM_ALIGNMENT) );
-
    /* test state ID */
    IPP_BADARG_RET(!VALID_SMS4CCM_ID(pCtx), ippStsContextMatchErr);
 
@@ -82,7 +79,7 @@ IPPFUN(IppStatus, ippsSMS4_CCMGetTag,(Ipp8u* pTag, int tagLen, const IppsSMS4_CC
 
       if(*flag) {
          /* SMS4 context */
-         IppsSMS4Spec* pSMS4 = SMS4CCM_CIPHER_ALIGNED(pCtx);
+         IppsSMS4Spec* pSMS4 = SMS4CCM_CIPHER(pCtx);
 
          FillBlock16(0, NULL,BLK, 0);
          CopyBlock(SMS4CCM_BLK(pCtx), (Ipp8u*)BLK, (cpSize)(*flag));

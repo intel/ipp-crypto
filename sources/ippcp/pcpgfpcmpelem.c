@@ -62,10 +62,9 @@ IPPFUN(IppStatus, ippsGFpCmpElement,(const IppsGFpElement* pA, const IppsGFpElem
                                      const IppsGFpState* pGFp))
 {
    IPP_BAD_PTR4_RET(pA, pB, pResult, pGFp);
-   pGFp = (IppsGFpState*)( IPP_ALIGNED_PTR(pGFp, GFP_ALIGNMENT) );
-   IPP_BADARG_RET( !GFP_TEST_ID(pGFp), ippStsContextMatchErr );
-   IPP_BADARG_RET( !GFPE_TEST_ID(pA), ippStsContextMatchErr );
-   IPP_BADARG_RET( !GFPE_TEST_ID(pB), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFP_VALID_ID(pGFp), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFPE_VALID_ID(pA), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFPE_VALID_ID(pB), ippStsContextMatchErr );
    {
       gsModEngine* pGFE = GFP_PMA(pGFp);
       IPP_BADARG_RET( (GFPE_ROOM(pA)!=GFP_FELEN(pGFE)) || (GFPE_ROOM(pB)!=GFP_FELEN(pGFE)), ippStsOutOfRangeErr);

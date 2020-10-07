@@ -31,10 +31,7 @@
 #include "gsscramble.h"
 
 
-IppsGFpECPoint* gfec_BasePointProduct(IppsGFpECPoint* pR,
-                        const BNU_CHUNK_T* pScalarG, int scalarGlen,
-                        const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalarP, int scalarPlen,
-                        IppsGFpECState* pEC, Ipp8u* pScratchBuffer)
+IPP_OWN_DEFN (IppsGFpECPoint*, gfec_BasePointProduct, (IppsGFpECPoint* pR, const BNU_CHUNK_T* pScalarG, int scalarGlen, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalarP, int scalarPlen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 {
    FIX_BNU(pScalarG, scalarGlen);
    FIX_BNU(pScalarP, scalarPlen);

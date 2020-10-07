@@ -34,7 +34,7 @@
 #include "pcptool.h"
 
 #include "pcprsa_pkcs1c15_data.h"
-#include "pcprsa_generatesing_pkcs1v15.h"
+#include "pcprsa_generatesign_pkcs1v15.h"
 #include "pcprsa_pkcs1v15_preproc.h"
 
 IPPFUN(IppStatus, ippsRSASign_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
@@ -60,7 +60,7 @@ IPPFUN(IppStatus, ippsRSASign_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
          const Ipp8u* pSalt = pksc15_salt[pMethod->hashAlgId].pSalt;
          int saltLen = pksc15_salt[pMethod->hashAlgId].saltLen;
 
-         int sts = GenerateSing(md, mdLen,
+         int sts = GenerateSign(md, mdLen,
                          pSalt, saltLen,
                          pSign,
                          pPrvKey, pPubKey,

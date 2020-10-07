@@ -56,7 +56,7 @@ __INLINE int cpGetBitSize(Ipp32u offset, Ipp32u val)
 //    pMont       pointer to the context
 *F*/
 
-IppStatus cpMontSet(const Ipp32u* pModulus, cpSize len32, IppsMontState* pMont)
+IPP_OWN_DEFN (IppStatus, cpMontSet, (const Ipp32u* pModulus, cpSize len32, IppsMontState* pMont))
 {
    IPP_BADARG_RET(len32<1, ippStsLengthErr);
 

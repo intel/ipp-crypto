@@ -64,10 +64,9 @@ IPPFUN(IppStatus, ippsGFpECTstPointInSubgroup,(const IppsGFpECPoint* pP,
                                                Ipp8u* pScratchBuffer))
 {
    IPP_BAD_PTR4_RET(pP, pResult, pEC, pScratchBuffer);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET( !ECP_TEST_ID(pEC), ippStsContextMatchErr );
+   IPP_BADARG_RET( !VALID_ECP_ID(pEC), ippStsContextMatchErr );
    IPP_BADARG_RET(!ECP_SUBGROUP(pEC), ippStsContextMatchErr);
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pP), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pP), ippStsContextMatchErr );
 
    IPP_BADARG_RET( ECP_POINT_FELEN(pP)!=GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);
 

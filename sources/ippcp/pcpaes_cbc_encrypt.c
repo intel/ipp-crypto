@@ -45,9 +45,7 @@
 //    nBlocks     number of ecnrypted data blocks
 //    pCtx        pointer to the AES context
 */
-void cpEncryptAES_cbc(const Ipp8u* pIV,
-                      const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks,
-                      const IppsAESSpec* pCtx)
+IPP_OWN_DEFN (void, cpEncryptAES_cbc, (const Ipp8u* pIV, const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks, const IppsAESSpec* pCtx))
 {
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    if(AES_NI_ENABLED==RIJ_AESNI(pCtx)) {

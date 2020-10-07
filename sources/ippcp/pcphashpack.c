@@ -54,10 +54,13 @@ IPPFUN(IppStatus, ippsHashPack,(const IppsHashState* pState, Ipp8u* pBuffer, int
    /* test pointers */
    IPP_BAD_PTR2_RET(pState, pBuffer);
    /* test the context */
-   IPP_BADARG_RET(!HASH_VALID_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxHash), ippStsContextMatchErr);
    /* test buffer length */
    IPP_BADARG_RET((int)(sizeof(IppsHashState))>bufSize, ippStsNoMemErr);
 
    CopyBlock(pState, pBuffer, sizeof(IppsHashState));
+   IppsHashState* pCopy = (IppsHashState*)pBuffer;
+   HASH_RESET_ID(pCopy, idCtxHash);
+
    return ippStsNoErr;
 }

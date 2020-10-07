@@ -86,11 +86,7 @@ static int cpMac_BNU(BNU_CHUNK_T* pR, cpSize nsR,
 //    bufM   buffer of M
 //
 *F*/
-
-int cpModInv_BNU(BNU_CHUNK_T* pInv,
-            const BNU_CHUNK_T* pA, cpSize nsA,
-            const BNU_CHUNK_T* pM, cpSize nsM,
-                  BNU_CHUNK_T* bufInv, BNU_CHUNK_T* bufA, BNU_CHUNK_T* bufM)
+IPP_OWN_DEFN (int, cpModInv_BNU, (BNU_CHUNK_T* pInv, const BNU_CHUNK_T* pA, cpSize nsA, const BNU_CHUNK_T* pM, cpSize nsM, BNU_CHUNK_T* bufInv, BNU_CHUNK_T* bufA, BNU_CHUNK_T* bufM))
 {
     FIX_BNU(pA, nsA);
     FIX_BNU(pM, nsM);

@@ -59,8 +59,6 @@ IPPFUN(IppStatus, ippsPRNGen,(Ipp32u* pRand, int nBits, void* pCtx))
 
    /* test PRNG context */
    IPP_BAD_PTR2_RET(pRand, pCtx);
-
-   pCtxCtx = (IppsPRNGState*)( IPP_ALIGNED_PTR(pCtxCtx, PRNG_ALIGNMENT) );
    IPP_BADARG_RET(!RAND_VALID_ID(pCtxCtx), ippStsContextMatchErr);
 
    /* test sizes */

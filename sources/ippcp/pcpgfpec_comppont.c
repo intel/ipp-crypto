@@ -32,7 +32,7 @@
 
 
 #if ( ECP_PROJECTIVE_COORD == JACOBIAN )
-int gfec_ComparePoint(const IppsGFpECPoint* pP, const IppsGFpECPoint* pQ, IppsGFpECState* pEC)
+IPP_OWN_DEFN (int, gfec_ComparePoint, (const IppsGFpECPoint* pP, const IppsGFpECPoint* pQ, IppsGFpECState* pEC))
 {
    IppsGFpState* pGF = ECP_GFP(pEC);
    gsModEngine* pGFE = GFP_PMA(pGF);

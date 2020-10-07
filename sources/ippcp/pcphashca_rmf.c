@@ -32,10 +32,7 @@
 #include "pcptool.h"
 
 
-void cpFinalize_rmf(DigestSHA512 pHash,
-              const Ipp8u* inpBuffer, int inpLen,
-                    Ipp64u lenLo, Ipp64u lenHi,
-              const IppsHashMethod* method)
+IPP_OWN_DEFN (void, cpFinalize_rmf, (DigestSHA512 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u lenLo, Ipp64u lenHi, const IppsHashMethod* method))
 {
    int mbs = method->msgBlkSize;    /* messge block size */
    int mrl = method->msgLenRepSize; /* processed length representation size */

@@ -83,18 +83,9 @@ __INLINE IppStatus CheckPublicKeysConsistency(const IppsRSAPublicKeyState* const
     #include <crypto_mb/status.h>
 
     #define ifma_RSAprv_cipher OWNAPI(ifma_RSAprv_cipher)
-    mbx_status ifma_RSAprv_cipher(IppsBigNumState* const pPtxts[8],
-                                    const IppsBigNumState* const pCtxts[8],
-                                    const IppsRSAPrivateKeyState* const pKeys[8],
-                                    const int rsa_bitsize,
-                                    Ipp8u* pScratchBuffer);
-
+        IPP_OWN_DECL (mbx_status, ifma_RSAprv_cipher, (IppsBigNumState* const pPtxts[8], const IppsBigNumState* const pCtxts[8], const IppsRSAPrivateKeyState* const pKeys[8], const int rsa_bitsize, Ipp8u* pScratchBuffer))
     #define ifma_RSAprv_cipher_crt OWNAPI(ifma_RSAprv_cipher_crt)
-    mbx_status ifma_RSAprv_cipher_crt(IppsBigNumState* const pPtxts[8],
-                                        const IppsBigNumState* const pCtxts[8],
-                                        const IppsRSAPrivateKeyState* const pKeys[8],
-                                        const int rsa_bitsize,
-                                        Ipp8u* pScratchBuffer);
+        IPP_OWN_DECL (mbx_status, ifma_RSAprv_cipher_crt, (IppsBigNumState* const pPtxts[8], const IppsBigNumState* const pCtxts[8], const IppsRSAPrivateKeyState* const pKeys[8], const int rsa_bitsize, Ipp8u* pScratchBuffer))
 
     static IppStatus convert_ifma_to_ipp_sts(mbx_status ifma_sts, IppStatus statuses[8])
     {

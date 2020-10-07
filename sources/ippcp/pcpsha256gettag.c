@@ -55,8 +55,7 @@ IPPFUN(IppStatus, ippsSHA256GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSHA256
 {
    /* test state pointer and ID */
    IPP_BAD_PTR1_RET(pState);
-   pState = (IppsSHA256State*)( IPP_ALIGNED_PTR(pState, SHA256_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxSHA256 !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxSHA256), ippStsContextMatchErr);
 
    /* test digest pointer */
    IPP_BAD_PTR1_RET(pTag);

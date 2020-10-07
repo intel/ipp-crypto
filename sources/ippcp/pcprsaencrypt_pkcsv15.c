@@ -120,7 +120,6 @@ IPPFUN(IppStatus, ippsRSAEncrypt_PKCSv15,(const Ipp8u* pSrc, int srcLen,
 {
    /* test public key context */
    IPP_BAD_PTR2_RET(pKey, pScratchBuffer);
-   pKey = (IppsRSAPublicKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PUBLIC_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(pKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
 

@@ -14,27 +14,27 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <internal/common/ifma_defs.h>
+#include <crypto_mb/version.h>
 
-#define IFMA_LIB_VERSION() IFMA_VER_MAJOR,IFMA_VER_MINOR,IFMA_VER_REV
-#define IFMA_LIB_BUILD()   __DATE__
+#define MBX_LIB_VERSION() MBX_VER_MAJOR,MBX_VER_MINOR,MBX_VER_REV
+#define MBX_LIB_BUILD()   __DATE__
 
 #define STR2(x)   #x
 #define STR(x)    STR2(x)
-#define IFMA_STR_VERSION()  IFMA_LIB_NAME() \
-                            " (ver: " STR(IFMA_VER_MAJOR) "." STR(IFMA_VER_MINOR) "." STR(IFMA_VER_REV) \
-                            " build: " IFMA_LIB_BUILD()")"
+#define MBX_STR_VERSION()  MBX_LIB_NAME() \
+                           " (ver: " STR(MBX_VER_MAJOR) "." STR(MBX_VER_MINOR) "." STR(MBX_VER_REV) \
+                           " build: " MBX_LIB_BUILD()")"
 
 /* version info */
-static const ifmaVersion ifmaLibVer = {
-   IFMA_LIB_VERSION(),  /* major, minor, revision  */
-   IFMA_LIB_NAME(),     /* lib name                */
-   IFMA_LIB_BUILD(),    /* build date              */
-   IFMA_STR_VERSION()   /* version str             */
+static const mbxVersion mbxLibVer = {
+   MBX_LIB_VERSION(),  /* major, minor, revision  */
+   MBX_LIB_NAME(),     /* lib name                */
+   MBX_LIB_BUILD(),    /* build date              */
+   MBX_STR_VERSION()   /* version str             */
 };
 
 DLL_PUBLIC
-const ifmaVersion* mbx_getversion(void)
+const mbxVersion* mbx_getversion(void)
 {
-    return &ifmaLibVer;
+    return &mbxLibVer;
 }

@@ -78,10 +78,8 @@ IPPFUN(IppStatus, ippsECCPVerifyNR,(const IppsBigNumState* pMsgDigest,
    BNU_CHUNK_T* pMsgData;
    int msgLen;
 
-   /* use aligned EC context */
    IPP_BAD_PTR1_RET(pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    pModEngine = ECP_MONT_R(pEC);
    pOrder = MOD_MODULUS(pModEngine);
@@ -89,7 +87,6 @@ IPPFUN(IppStatus, ippsECCPVerifyNR,(const IppsBigNumState* pMsgDigest,
 
    /* test message representative */
    IPP_BAD_PTR1_RET(pMsgDigest);
-   pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
 
@@ -102,8 +99,6 @@ IPPFUN(IppStatus, ippsECCPVerifyNR,(const IppsBigNumState* pMsgDigest,
 
    /* test signature */
    IPP_BAD_PTR2_RET(pSignX,pSignY);
-   pSignX = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignX, ALIGN_VAL) );
-   pSignY = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignY, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pSignX), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pSignY), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pSignX), ippStsRangeErr);

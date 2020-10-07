@@ -32,7 +32,7 @@
 #include "pcptool.h"
 
 
-void cpComputeDigest(Ipp8u* pHashTag, int hashTagLen, const IppsHashState* pCtx)
+IPP_OWN_DEFN (void, cpComputeDigest, (Ipp8u* pHashTag, int hashTagLen, const IppsHashState* pCtx))
 {
    /* hash alg and parameters */
    cpHashProc hashFunc = HASH_FUNC(pCtx);    /* processing function */

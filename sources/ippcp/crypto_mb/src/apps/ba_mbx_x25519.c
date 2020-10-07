@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <memory.h>
 
+#include <crypto_mb/version.h>
 #include <crypto_mb/x25519.h>
 
 ////////////////////
@@ -66,7 +67,8 @@ static int ba_mbx_x25519_public_key_mb8(void)
    };
 
    int result = 1;
-   for(int n=0; n<sizeof(parList)/sizeof(parList[0]) && result==1; n++) {
+   int n;
+   for(n=0; n<sizeof(parList)/sizeof(parList[0]) && result==1; n++) {
       Parameters prm = parList[n];
 
       mbx_status sts = mbx_x25519_public_key_mb8(prm.pub_key_pa,
@@ -113,7 +115,8 @@ static int ba_mbx_x25519_mb8(void)
    };
 
    int result = 1;
-   for(int n=0; n<sizeof(parList)/sizeof(parList[0]) && result==1; n++) {
+   int n;
+   for(n=0; n<sizeof(parList)/sizeof(parList[0]) && result==1; n++) {
       Parameters prm = parList[n];
 
       mbx_status sts = mbx_x25519_mb8(prm.shr_key_pa,

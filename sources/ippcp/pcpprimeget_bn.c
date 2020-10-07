@@ -49,10 +49,7 @@ IPPFUN(IppStatus, ippsPrimeGet_BN, (IppsBigNumState* pPrime, const IppsPrimeStat
 {
    IPP_BAD_PTR2_RET(pCtx, pPrime);
 
-   /* use aligned context */
-   pPrime  = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrime, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrime), ippStsContextMatchErr);
-   pCtx = (IppsPrimeState*)( IPP_ALIGNED_PTR(pCtx, PRIME_ALIGNMENT) );
    IPP_BADARG_RET(!PRIME_VALID_ID(pCtx), ippStsContextMatchErr);
 
    {

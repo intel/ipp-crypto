@@ -45,7 +45,7 @@
 //
 *F*/
 
-Ipp32u cpDec_BNU32(Ipp32u* pR, const Ipp32u* pA, cpSize ns, Ipp32u v)
+IPP_OWN_DEFN (Ipp32u, cpDec_BNU32, (Ipp32u* pR, const Ipp32u* pA, cpSize ns, Ipp32u v))
 {
    Ipp32u borrow = v;
    int n;

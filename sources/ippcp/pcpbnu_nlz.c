@@ -43,7 +43,7 @@
 
 #if !((_IPP >= _IPP_H9) || (_IPP32E >= _IPP32E_L9))
 #if 0
-   cpSize cpNLZ_BNU(BNU_CHUNK_T x)
+   IPP_OWN_DEFN (cpSize, cpNLZ_BNU, (BNU_CHUNK_T x))
    {
       cpSize nlz = BNU_CHUNK_BITS;
       if(x) {
@@ -67,7 +67,7 @@
    }
 #endif
 /* cte version */
-cpSize cpNLZ_BNU(BNU_CHUNK_T x)
+IPP_OWN_DEFN (cpSize, cpNLZ_BNU, (BNU_CHUNK_T x))
 {
    cpSize nlz = 0;
    BNU_CHUNK_T

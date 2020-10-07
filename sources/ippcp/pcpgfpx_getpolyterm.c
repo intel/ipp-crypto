@@ -28,7 +28,7 @@
 #include "pcpgfpxstuff.h"
 #include "gsscramble.h"
 
-BNU_CHUNK_T* cpGFpxGetPolyTerm(BNU_CHUNK_T* pDataA, int nsA, const BNU_CHUNK_T* pE, int deg, gsModEngine* pGFEx)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxGetPolyTerm, (BNU_CHUNK_T* pDataA, int nsA, const BNU_CHUNK_T* pE, int deg, gsModEngine* pGFEx))
 {
    pE += deg * GFP_FELEN(pGFEx);
    return cpGFpxGet(pDataA, nsA, pE, pGFEx);

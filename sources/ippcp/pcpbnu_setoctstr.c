@@ -42,7 +42,7 @@
 //
 *F*/
 
-cpSize cpFromOctStr_BNU(BNU_CHUNK_T* pA, const Ipp8u* pStr, cpSize strLen)
+IPP_OWN_DEFN (cpSize, cpFromOctStr_BNU, (BNU_CHUNK_T* pA, const Ipp8u* pStr, cpSize strLen))
 {
    int nsA =0;
 

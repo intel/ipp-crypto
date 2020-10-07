@@ -49,9 +49,9 @@ IPPFUN(IppStatus, ippsDLPUnpack,(const Ipp8u* pBuffer, IppsDLPState* pDL))
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pDL, pBuffer);
-   /* use aligned context */
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
 
    cpUnpackDLPCtx(pBuffer, pDL);
+   DLP_SET_ID(pDL);
+   
    return ippStsNoErr;
 }

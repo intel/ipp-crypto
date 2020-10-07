@@ -29,7 +29,7 @@
 #include "gsscramble.h"
 
 
-BNU_CHUNK_T* cpGFpxRand(BNU_CHUNK_T* pR, gsModEngine* pGFEx, IppBitSupplier rndFunc, void* pRndParam)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxRand, (BNU_CHUNK_T* pR, gsModEngine* pGFEx, IppBitSupplier rndFunc, void* pRndParam))
 {
    if( GFP_IS_BASIC(pGFEx) )
       return cpGFpRand(pR, pGFEx, rndFunc, pRndParam);

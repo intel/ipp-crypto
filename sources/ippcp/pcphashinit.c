@@ -58,7 +58,7 @@ IPPFUN(IppStatus, ippsHashInit,(IppsHashState* pState, IppHashAlgId hashAlg))
    /* test hash alg */
 
    /* set ctx ID */
-   HASH_CTX_ID(pState) = idCtxHash;
+   HASH_SET_ID(pState, idCtxHash);
    HASH_ALG_ID(pState) = hashAlg;
 
    /* init context */

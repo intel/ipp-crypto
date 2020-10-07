@@ -50,8 +50,8 @@ IPPFUN(IppStatus, ippsSM3Unpack,(const Ipp8u* pBuffer, IppsSM3State* pState))
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pState, pBuffer);
-   pState = (IppsSM3State*)( IPP_ALIGNED_PTR(pState, SM3_ALIGNMENT) );
 
    CopyBlock(pBuffer, pState, sizeof(IppsSM3State));
+   HASH_SET_ID(pState, idCtxSM3);
    return ippStsNoErr;
 }

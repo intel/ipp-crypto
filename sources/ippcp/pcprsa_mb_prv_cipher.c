@@ -35,11 +35,7 @@
 
 #include <crypto_mb/rsa.h>
 
-mbx_status  ifma_RSAprv_cipher(IppsBigNumState* const pPtxts[8],
-                                const IppsBigNumState* const pCtxts[8],
-                                const IppsRSAPrivateKeyState* const pKeys[8],
-                                const int rsa_bitsize,
-                                Ipp8u* pScratchBuffer)
+IPP_OWN_DEFN (mbx_status , ifma_RSAprv_cipher, (IppsBigNumState* const pPtxts[8], const IppsBigNumState* const pCtxts[8], const IppsRSAPrivateKeyState* const pKeys[8], const int rsa_bitsize, Ipp8u* pScratchBuffer))
 {
     const int rsa_bytesize = rsa_bitsize / 8;
     const mbx_RSA_Method* m = mbx_RSA_private_Method(rsa_bitsize);

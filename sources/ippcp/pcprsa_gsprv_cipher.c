@@ -32,10 +32,7 @@
 
 #include "pcprsa_getdefmeth_priv.h"
 
-void gsRSAprv_cipher(IppsBigNumState* pY,
-               const IppsBigNumState* pX,
-               const IppsRSAPrivateKeyState* pKey,
-                     BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (void, gsRSAprv_cipher, (IppsBigNumState* pY, const IppsBigNumState* pX, const IppsRSAPrivateKeyState* pKey, BNU_CHUNK_T* pBuffer))
 {
    gsMethod_RSA* m = getDefaultMethod_RSA_private(RSA_PRV_KEY_BITSIZE_N(pKey));
 

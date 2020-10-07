@@ -37,9 +37,7 @@
       1 random bit string generated
      -1 detected internal error (ippStsNoErr != rndFunc())
 */
-int cpPRNGenPattern(BNU_CHUNK_T* pRand, int bitSize,
-                    BNU_CHUNK_T botPattern, BNU_CHUNK_T topPattern,
-                    IppBitSupplier rndFunc, void* pRndParam)
+IPP_OWN_DEFN (int, cpPRNGenPattern, (BNU_CHUNK_T* pRand, int bitSize, BNU_CHUNK_T botPattern, BNU_CHUNK_T topPattern, IppBitSupplier rndFunc, void* pRndParam))
 {
    BNU_CHUNK_T topMask = MASK_BNU_CHUNK(bitSize);
    cpSize randLen = BITS_BNU_CHUNK(bitSize);

@@ -50,8 +50,9 @@ IPPFUN(IppStatus, ippsHMACUnpack_rmf,(const Ipp8u* pBuffer, IppsHMACState_rmf* p
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
-   pCtx = (IppsHMACState_rmf*)(IPP_ALIGNED_PTR(pCtx, HASH_ALIGNMENT));
 
    CopyBlock(pBuffer, pCtx, sizeof(IppsHMACState_rmf));
+   HMAC_SET_CTX_ID(pCtx);
+
    return ippStsNoErr;
 }

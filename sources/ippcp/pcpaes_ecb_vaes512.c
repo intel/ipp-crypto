@@ -34,10 +34,10 @@
 
 #if (_IPP32E>=_IPP32E_K0)
 
-void EncryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,        // pointer to the plaintext
-                                   Ipp8u* pDst,              // pointer to the ciphertext buffer
-                                   int len,                  // text length in bytes
-                                   const IppsAESSpec* pCtx)  // pointer to the context
+IPP_OWN_DEFN (void, EncryptECB_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,        // pointer to the plaintext
+                                                   Ipp8u* pDst,              // pointer to the ciphertext buffer
+                                                   int len,                  // text length in bytes
+                                                   const IppsAESSpec* pCtx))  // pointer to the context
 {
    int cipherRounds = RIJ_NR(pCtx) - 1;
 
@@ -116,10 +116,10 @@ void EncryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,        // pointer to the p
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void DecryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,         // pointer to the plaintext
-                                   Ipp8u* pDst,               // pointer to the ciphertext buffer
-                                   int len,                   // text length in bytes
-                                   const IppsAESSpec* pCtx)   // pointer to the context
+IPP_OWN_DEFN (void, DecryptECB_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,         // pointer to the plaintext
+                                                   Ipp8u* pDst,               // pointer to the ciphertext buffer
+                                                   int len,                   // text length in bytes
+                                                   const IppsAESSpec* pCtx))   // pointer to the context
 {
    int cipherRounds = RIJ_NR(pCtx) - 1;
 

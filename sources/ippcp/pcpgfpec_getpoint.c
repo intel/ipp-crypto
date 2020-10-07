@@ -33,7 +33,7 @@
 
 #if ( ECP_PROJECTIVE_COORD == JACOBIAN )
 /* returns 1/0 if point is finite/infinite */
-int gfec_GetPoint(BNU_CHUNK_T* pX, BNU_CHUNK_T* pY, const IppsGFpECPoint* pPoint, IppsGFpECState* pEC)
+IPP_OWN_DEFN (int, gfec_GetPoint, (BNU_CHUNK_T* pX, BNU_CHUNK_T* pY, const IppsGFpECPoint* pPoint, IppsGFpECState* pEC))
 {
    IppsGFpState* pGF = ECP_GFP(pEC);
    gsModEngine* pGFE = GFP_PMA(pGF);

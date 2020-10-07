@@ -43,7 +43,7 @@
 //    nBits       size of shift in bits 
 *F*/
 
-cpSize cpLSR_BNU(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, cpSize nsA, cpSize nBits)
+IPP_OWN_DEFN (cpSize, cpLSR_BNU, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, cpSize nsA, cpSize nBits))
 {
    cpSize nw = nBits/BNU_CHUNK_BITS;
    cpSize n;

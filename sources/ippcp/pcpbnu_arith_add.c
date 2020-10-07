@@ -55,7 +55,7 @@
       (_IPP32E>=_IPP32E_E9) || \
       (_IPP32E==_IPP32E_N8)) || \
       defined(_USE_C_cpAdd_BNU_)
-BNU_CHUNK_T cpAdd_BNU(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, cpSize ns)
+IPP_OWN_DEFN (BNU_CHUNK_T, cpAdd_BNU, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, cpSize ns))
 {
    BNU_CHUNK_T carry = 0;
    cpSize i;

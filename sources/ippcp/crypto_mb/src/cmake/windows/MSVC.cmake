@@ -51,13 +51,19 @@ endif()
 
 # Causes the application to use the multithread, static version of the run-time library
 set(CMAKE_C_FLAGS_RELEASE "/MT" CACHE STRING "" FORCE)
+# Optimization level = 2
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2" CACHE STRING "" FORCE)
+# No-debug macro
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /DNDEBUG" CACHE STRING "" FORCE)
+
 # Causes the application to use the multithread, static version of the run-time library (debug version).
 set(CMAKE_C_FLAGS_DEBUG "/MTd" CACHE STRING "" FORCE)
-
-if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    # Optimization level = 2
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
-endif()
+# The /Zi option produces a separate PDB file that contains all the symbolic debugging information for use with the debugger.
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi" CACHE STRING "" FORCE)
+# Turns off all optimizations.
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od" CACHE STRING "" FORCE)
+# Debug macro
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /D_DEBUG" CACHE STRING "" FORCE)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS}")
 

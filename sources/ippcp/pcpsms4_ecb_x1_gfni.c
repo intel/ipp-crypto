@@ -36,7 +36,7 @@
 
 #include "pcpsms4_gfni.h"
 
-void cpSMS4_ECB_gfni_x1(Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey)
+IPP_OWN_DEFN (void, cpSMS4_ECB_gfni_x1, (Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey))
 {
    __ALIGN16 __m128i TMP[6];
    /*

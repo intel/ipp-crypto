@@ -36,7 +36,7 @@
  *   Length of pb data buffer:   modLen
  *   Memory size from the pool:  modLen * sizeof(BNU_CHUNK_T)
  */
-static BNU_CHUNK_T* gs_mont_add(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BNU_CHUNK_T* pb, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_add, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BNU_CHUNK_T* pb, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    int mLen = MOD_LEN(pME);
@@ -61,7 +61,7 @@ static BNU_CHUNK_T* gs_mont_add(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BN
  *   Length of pb data buffer:   modLen
  *   Memory size from the pool:  modLen * sizeof(BNU_CHUNK_T)
  */
-static BNU_CHUNK_T* gs_mont_sub(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BNU_CHUNK_T* pb, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_sub, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BNU_CHUNK_T* pb, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    int mLen = MOD_LEN(pME);
@@ -85,7 +85,7 @@ static BNU_CHUNK_T* gs_mont_sub(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BN
  *   Length of pa data buffer:   modLen
  *   Memory size from the pool:  modLen * sizeof(BNU_CHUNK_T)
  */
-static BNU_CHUNK_T* gs_mont_neg(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_neg, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    int mLen = MOD_LEN(pME);
@@ -109,7 +109,7 @@ static BNU_CHUNK_T* gs_mont_neg(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEng
  *   Length of pa data buffer:   modLen
  *   Memory size from the pool:  modLen * sizeof(BNU_CHUNK_T)
  */
-static BNU_CHUNK_T* gs_mont_div2(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_div2, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    int mLen = MOD_LEN(pME);
@@ -138,7 +138,7 @@ static BNU_CHUNK_T* gs_mont_div2(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEn
  *   Length of pa data buffer:   modLen
  *   Memory size from the pool:  modLen * sizeof(BNU_CHUNK_T)
  */
-static BNU_CHUNK_T* gs_mont_mul2(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_mul2, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    return gs_mont_add(pr, pa, pa, pME);
 }
@@ -150,7 +150,7 @@ static BNU_CHUNK_T* gs_mont_mul2(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEn
  *   Length of pa data buffer:   modLen
  *   Memory size from the pool:  modLen * sizeof(BNU_CHUNK_T) * 2
  */
-static BNU_CHUNK_T* gs_mont_mul3(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_mul3, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    const int polLength  = 1;
    BNU_CHUNK_T* pBuffer = gsModPoolAlloc(pME, polLength);
@@ -171,7 +171,7 @@ static BNU_CHUNK_T* gs_mont_mul3(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEn
  *   Memory size from the pool:  n/a
  */
 #if ((_IPP <_IPP_W7) && (_IPP32E <_IPP32E_M7)) || defined(_USE_C_cpMontRedAdc_BNU_)
-static BNU_CHUNK_T* gs_mont_red(BNU_CHUNK_T* pr, BNU_CHUNK_T* prod, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_red, (BNU_CHUNK_T* pr, BNU_CHUNK_T* prod, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    BNU_CHUNK_T k0 = MOD_MNT_FACTOR(pME);
@@ -211,7 +211,7 @@ static BNU_CHUNK_T* gs_mont_red(BNU_CHUNK_T* pr, BNU_CHUNK_T* prod, gsModEngine*
 }
 
 #else
-static BNU_CHUNK_T* gs_mont_red(BNU_CHUNK_T* pr, BNU_CHUNK_T* prod, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_red, (BNU_CHUNK_T* pr, BNU_CHUNK_T* prod, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    BNU_CHUNK_T k0 = MOD_MNT_FACTOR(pME);
@@ -223,7 +223,7 @@ static BNU_CHUNK_T* gs_mont_red(BNU_CHUNK_T* pr, BNU_CHUNK_T* prod, gsModEngine*
 }
 
 #if (_IPP32E>=_IPP32E_L9)
-static BNU_CHUNK_T* gs_mont_redX(BNU_CHUNK_T* pr, BNU_CHUNK_T* prod, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_redX, (BNU_CHUNK_T* pr, BNU_CHUNK_T* prod, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    BNU_CHUNK_T k0 = MOD_MNT_FACTOR(pME);
@@ -247,7 +247,7 @@ static BNU_CHUNK_T* gs_mont_redX(BNU_CHUNK_T* pr, BNU_CHUNK_T* prod, gsModEngine
  *   Memory size from the pool:  modLen * sizeof(BNU_CHUNK_T) * 2
  */
 #if ((_IPP <_IPP_W7) && (_IPP32E <_IPP32E_M7))
-static BNU_CHUNK_T* gs_mont_mul(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BNU_CHUNK_T* pb, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_mul, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BNU_CHUNK_T* pb, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    BNU_CHUNK_T m0 = MOD_MNT_FACTOR(pME);
@@ -312,7 +312,7 @@ static BNU_CHUNK_T* gs_mont_mul(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BN
 
 #else
 
-static BNU_CHUNK_T* gs_mont_mul(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BNU_CHUNK_T* pb, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_mul, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BNU_CHUNK_T* pb, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    BNU_CHUNK_T m0 = MOD_MNT_FACTOR(pME);
@@ -330,7 +330,7 @@ static BNU_CHUNK_T* gs_mont_mul(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BN
 }
 
 #if (_IPP32E>=_IPP32E_L9)
-static BNU_CHUNK_T* gs_mont_mulX(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BNU_CHUNK_T* pb, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_mulX, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const BNU_CHUNK_T* pb, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    BNU_CHUNK_T m0 = MOD_MNT_FACTOR(pME);
@@ -356,7 +356,7 @@ static BNU_CHUNK_T* gs_mont_mulX(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, const B
  *   Length of pa data buffer:   modLen
  *   Memory size from the pool:  modLen * sizeof(BNU_CHUNK_T)
  */
-static BNU_CHUNK_T* gs_mont_sqr(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_sqr, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    //return gs_mont_mul(pr, pa, pa, pME);
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
@@ -375,7 +375,7 @@ static BNU_CHUNK_T* gs_mont_sqr(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEng
 }
 
 #if (_IPP32E>=_IPP32E_L9)
-static BNU_CHUNK_T* gs_mont_sqrX(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_sqrX, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    BNU_CHUNK_T m0 = MOD_MNT_FACTOR(pME);
@@ -400,7 +400,7 @@ static BNU_CHUNK_T* gs_mont_sqrX(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEn
  *   Length of pa data buffer:   modLen
  *   Memory size from the pool:  modLen * sizeof(BNU_CHUNK_T)
  */
-static BNU_CHUNK_T* gs_mont_encode(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_encode, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    //return gs_mont_mul(pr, pa, MOD_MNT_R2(pME), pME);
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
@@ -419,7 +419,7 @@ static BNU_CHUNK_T* gs_mont_encode(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsMod
 }
 
 #if (_IPP32E>=_IPP32E_L9)
-static BNU_CHUNK_T* gs_mont_encodeX(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_encodeX, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    //return gs_mont_mul(pr, pa, MOD_MNT_R2(pME), pME);
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
@@ -445,7 +445,7 @@ static BNU_CHUNK_T* gs_mont_encodeX(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsMo
  *   Length of pa data buffer:   modLen
  *   Memory size from the pool:  modLen * sizeof(BNU_CHUNK_T)
  */
-static BNU_CHUNK_T* gs_mont_decode(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_decode, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    int mLen = MOD_LEN(pME);
 
@@ -461,7 +461,7 @@ static BNU_CHUNK_T* gs_mont_decode(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsMod
 }
 
 #if (_IPP32E>=_IPP32E_L9)
-static BNU_CHUNK_T* gs_mont_decodeX(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_decodeX, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    int mLen = MOD_LEN(pME);
 

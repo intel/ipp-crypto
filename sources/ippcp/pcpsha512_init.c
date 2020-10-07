@@ -32,14 +32,13 @@
 #include "pcptool.h"
 #include "pcpsha512stuff.h"
 
-IppStatus InitSHA512(IppsSHA512State* pState, const DigestSHA512 IV)
+IPP_OWN_DEFN (IppStatus, InitSHA512, (IppsSHA512State* pState, const DigestSHA512 IV))
 {
    /* test state pointer */
    IPP_BAD_PTR1_RET(pState);
-   pState = (IppsSHA512State*)( IPP_ALIGNED_PTR(pState, SHA512_ALIGNMENT) );
 
    /* set state ID */
-   HASH_CTX_ID(pState) = idCtxSHA512;
+   HASH_SET_ID(pState, idCtxSHA512);
    /* zeros message length */
    HASH_LENLO(pState) = 0;
    HASH_LENHI(pState) = 0;

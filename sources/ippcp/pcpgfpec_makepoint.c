@@ -30,7 +30,7 @@
 #include "pcpgfpecstuff.h"
 #include "gsscramble.h"
 
-int gfec_MakePoint(IppsGFpECPoint* pPoint, const BNU_CHUNK_T* pElm, IppsGFpECState* pEC)
+IPP_OWN_DEFN (int, gfec_MakePoint, (IppsGFpECPoint* pPoint, const BNU_CHUNK_T* pElm, IppsGFpECState* pEC))
 {
    IppsGFpState* pGF = ECP_GFP(pEC);
    gsModEngine* pGFE = GFP_PMA(pGF);

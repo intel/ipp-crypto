@@ -51,9 +51,10 @@ IPPFUN(IppStatus, ippsSHA512Pack,(const IppsSHA512State* pState, Ipp8u* pBuffer)
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pState, pBuffer);
-   pState = (IppsSHA512State*)( IPP_ALIGNED_PTR(pState, SHA512_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxSHA512 !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxSHA512), ippStsContextMatchErr);
 
    CopyBlock(pState, pBuffer, sizeof(IppsSHA512State));
+   IppsSHA512State* pCopy = (IppsSHA512State*)pBuffer;
+   HASH_RESET_ID(pCopy, idCtxSHA512);
    return ippStsNoErr;
 }

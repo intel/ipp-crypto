@@ -51,7 +51,7 @@
 //
 *F*/
 
-IppStatus gsModEngineInit(gsModEngine* pME, const Ipp32u* pModulus, int modulusBitSize, int numpe, const gsModMethod* method)
+IPP_OWN_DEFN (IppStatus, gsModEngineInit, (gsModEngine* pME, const Ipp32u* pModulus, int modulusBitSize, int numpe, const gsModMethod* method))
 {
    IPP_BADARG_RET(modulusBitSize<1, ippStsLengthErr);
    IPP_BADARG_RET((pModulus) && (pModulus[0] & 1) == 0, ippStsBadModulusErr);

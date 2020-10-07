@@ -79,27 +79,15 @@ IPPFUN(IppStatus, ippsRSA_MB_Sign_PSS_rmf, (const Ipp8u* const pMsgs[8], const i
    IPP_BAD_PTR1_RET(pMethod);
    IPP_BAD_PTR1_RET(pBuffer);
 
-   const IppsRSAPrivateKeyState* alignedPrivateKeysPtr[RSA_MB_MAX_BUF_QUANTITY] = { NULL };
-   const IppsRSAPublicKeyState* alignedPublicKeysPtr[RSA_MB_MAX_BUF_QUANTITY] = { NULL };
-   {
-      int i;
-      for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; ++i) {
-         alignedPrivateKeysPtr[i] =
-            (IppsRSAPrivateKeyState*)(IPP_ALIGNED_PTR(pPrvKeys[i], RSA_PRIVATE_KEY_ALIGNMENT));
-         alignedPublicKeysPtr[i] =
-            (IppsRSAPublicKeyState*)(IPP_ALIGNED_PTR(pPubKeys[i], RSA_PUBLIC_KEY_ALIGNMENT));
-      }
-   }
-
    cpSize rsaBits = 0;
    { // Check that all the valid keys are consistent
       int validKeyId;
-      IppStatus consistencyCheckSts = CheckPrivateKeysConsistency(alignedPrivateKeysPtr, &validKeyId);
+      IppStatus consistencyCheckSts = CheckPrivateKeysConsistency(pPrvKeys, &validKeyId);
       if (-1 == validKeyId) {
          return consistencyCheckSts;
       }
-      rsaBits = RSA_PRV_KEY_BITSIZE_N(alignedPrivateKeysPtr[validKeyId]);
-      consistencyCheckSts = CheckPublicKeysConsistency(alignedPublicKeysPtr, &validKeyId);
+      rsaBits = RSA_PRV_KEY_BITSIZE_N(pPrvKeys[validKeyId]);
+      consistencyCheckSts = CheckPublicKeysConsistency(pPubKeys, &validKeyId);
       if (-1 == validKeyId) {
          return consistencyCheckSts;
       }
@@ -109,7 +97,7 @@ IPPFUN(IppStatus, ippsRSA_MB_Sign_PSS_rmf, (const Ipp8u* const pMsgs[8], const i
       int i;
       for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; ++i) {
          const IppStatus badargsStatus = SingleSignPssRmfPreproc(pMsgs[i], msgLens[i], pSalts[i], saltLens[i],
-            pSignts[i], &alignedPrivateKeysPtr[i], &alignedPublicKeysPtr[i], pMethod, pBuffer);
+            pSignts[i], (const IppsRSAPrivateKeyState**)&pPrvKeys[i], (const IppsRSAPublicKeyState**)&pPubKeys[i], pMethod, pBuffer);
          if (ippStsNoErr != badargsStatus) {
             statuses[i] = badargsStatus;
             errorEncountered = 1;
@@ -243,7 +231,7 @@ IPPFUN(IppStatus, ippsRSA_MB_Sign_PSS_rmf, (const Ipp8u* const pMsgs[8], const i
       }
 
       ippsRSA_MB_Decrypt((const IppsBigNumState* const *)signatureAsBnPtrs, encryptedSignaturesPtrs,
-         alignedPrivateKeysPtr, rsaStatuses, (Ipp8u*)pAlignedBuffer);
+         pPrvKeys, rsaStatuses, (Ipp8u*)pAlignedBuffer);
       for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; ++i) {
          if (ippStsNoErr != statuses[i]) {
             continue; // some checks were failed
@@ -258,7 +246,7 @@ IPPFUN(IppStatus, ippsRSA_MB_Sign_PSS_rmf, (const Ipp8u* const pMsgs[8], const i
       }
 
       ippsRSA_MB_Encrypt((const IppsBigNumState* const *)encryptedSignaturesPtrs, encryptedSignaturesPtrs,
-         alignedPublicKeysPtr, rsaStatuses, (Ipp8u*)pAlignedBuffer);
+         pPubKeys, rsaStatuses, (Ipp8u*)pAlignedBuffer);
       for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; ++i) {
          if (ippStsNoErr != statuses[i]) {
             continue; // some checks were failed

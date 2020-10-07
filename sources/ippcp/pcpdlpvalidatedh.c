@@ -129,7 +129,6 @@ IPPFUN(IppStatus, ippsDLPValidateDH,(int nTrials, IppDLResult* pResult, IppsDLPS
 {
    /* test DL context */
    IPP_BAD_PTR1_RET(pDL);
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
    IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
 
    /* test operation flag */

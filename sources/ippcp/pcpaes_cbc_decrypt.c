@@ -45,9 +45,7 @@
 //    nBlocks     number of decrypted data blocks
 //    pCtx        pointer to the AES context
 */
-void cpDecryptAES_cbc(const Ipp8u* pIV,
-                      const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks,
-                      const IppsAESSpec* pCtx)
+IPP_OWN_DEFN (void, cpDecryptAES_cbc, (const Ipp8u* pIV, const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks, const IppsAESSpec* pCtx))
 {
 #if(_IPP32E>=_IPP32E_K0)
    if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {

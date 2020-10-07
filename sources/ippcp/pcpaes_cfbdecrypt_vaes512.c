@@ -73,12 +73,12 @@ __INLINE __m512i getInputBlocks(__m128i * const currentState, const __m512i * co
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DecryptCFB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,       // pointer to the ciphertext
-                                   Ipp8u* pDst,             // pointer to the plaintext
-                                   int len,                 // message length
-                                   int cfbBlkSize,          // CFB block size in bytes (1 <= cfbBlkSize <= 16); s = 8*cfbBlkSize
-                                   const IppsAESSpec* pCtx, // pointer to context
-                                   const Ipp8u* pIV)        // pointer to the Initialization Vector
+IPP_OWN_DEFN (void, DecryptCFB_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,      // pointer to the ciphertext
+                                                   Ipp8u* pDst,             // pointer to the plaintext
+                                                   int len,                 // message length
+                                                   int cfbBlkSize,          // CFB block size in bytes (1 <= cfbBlkSize <= 16)); s = 8*cfbBlkSize
+                                                   const IppsAESSpec* pCtx, // pointer to context
+                                                   const Ipp8u* pIV))       // pointer to the Initialization Vector
 {
    const int cipherRounds = RIJ_NR(pCtx) - 1;
 

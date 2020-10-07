@@ -48,8 +48,7 @@ IPPFUN(IppStatus, ippsDESGetSize, (int* pSize))
    /* test size's pointer */
    IPP_BAD_PTR1_RET(pSize);
 
-   *pSize = sizeof(IppsDESSpec)
-           +(DES_ALIGNMENT-1);
+   *pSize = sizeof(IppsDESSpec);
 
    return ippStsNoErr;
 }

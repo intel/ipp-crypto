@@ -73,7 +73,7 @@ __INLINE __m256i inc256_2(__m256i x)
    return t;
 }
 
-int cpSMS4_CTR_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr)
+IPP_OWN_DEFN (int, cpSMS4_CTR_aesni, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr))
 {
    int processedLen = len & -(16*MBS_SMS4);
 

@@ -60,13 +60,9 @@ IPPFUN(IppStatus, ippsDiv_BN, (IppsBigNumState* pA, IppsBigNumState* pB, IppsBig
 {
    IPP_BAD_PTR4_RET(pA, pB, pQ, pR);
 
-   pA = (IppsBigNumState*)( IPP_ALIGNED_PTR(pA, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pA), ippStsContextMatchErr);
-   pB = (IppsBigNumState*)( IPP_ALIGNED_PTR(pB, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pB), ippStsContextMatchErr);
-   pQ = (IppsBigNumState*)( IPP_ALIGNED_PTR(pQ, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pQ), ippStsContextMatchErr);
-   pR = (IppsBigNumState*)( IPP_ALIGNED_PTR(pR, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pR), ippStsContextMatchErr);
 
    IPP_BADARG_RET(BN_SIZE(pB)== 1 && BN_NUMBER(pB)[0]==0, ippStsDivByZeroErr);

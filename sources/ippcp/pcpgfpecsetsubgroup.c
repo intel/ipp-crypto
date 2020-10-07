@@ -71,19 +71,16 @@ IPPFUN(IppStatus, ippsGFpECSetSubgroup,(const IppsGFpElement* pX, const IppsGFpE
                                         IppsGFpECState* pEC))
 {
    IPP_BAD_PTR1_RET(pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET( !ECP_TEST_ID(pEC), ippStsContextMatchErr );
+   IPP_BADARG_RET( !VALID_ECP_ID(pEC), ippStsContextMatchErr );
 
    IPP_BAD_PTR2_RET(pX, pY);
-   IPP_BADARG_RET( !GFPE_TEST_ID(pX), ippStsContextMatchErr );
-   IPP_BADARG_RET( !GFPE_TEST_ID(pY), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFPE_VALID_ID(pX), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFPE_VALID_ID(pY), ippStsContextMatchErr );
 
    IPP_BAD_PTR2_RET(pOrder, pCofactor);
-   pOrder = (IppsBigNumState*)( IPP_ALIGNED_PTR(pOrder, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pOrder), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_SIGN(pOrder)!= IppsBigNumPOS, ippStsBadArgErr);
 
-   pCofactor = (IppsBigNumState*)( IPP_ALIGNED_PTR(pCofactor, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pCofactor), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_SIGN(pCofactor)!= IppsBigNumPOS, ippStsBadArgErr);
 

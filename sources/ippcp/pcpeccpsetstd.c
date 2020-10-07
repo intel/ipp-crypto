@@ -52,8 +52,6 @@ IPPFUN(IppStatus, ippsECCPSetStd, (IppECCType flag, IppsECCPState* pEC))
 {
    /* test pEC */
    IPP_BAD_PTR1_RET(pEC);
-   /* use aligned EC context */
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
 
    switch(flag) {
       case IppECCPStd112r1:

@@ -68,12 +68,10 @@ IPPFUN(IppStatus, ippsPrimeGen_BN, (IppsBigNumState* pPrime, int nBits,
 {
    /* test generator context */
    IPP_BAD_PTR1_RET(pCtx);
-   pCtx = (IppsPrimeState*)( IPP_ALIGNED_PTR(pCtx, PRIME_ALIGNMENT) );
    IPP_BADARG_RET(!PRIME_VALID_ID(pCtx), ippStsContextMatchErr);
 
    /* test BN context */
    IPP_BAD_PTR1_RET(pPrime);
-   pPrime = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrime, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrime), ippStsContextMatchErr);
 
    IPP_BADARG_RET(nBits<1, ippStsLengthErr);

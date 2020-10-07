@@ -49,7 +49,7 @@ IPPFUN(IppStatus, ippsPRNGGetSize, (int* pSize))
 {
    IPP_BAD_PTR1_RET(pSize);
 
-   *pSize = sizeof(IppsPRNGState)
-           +PRNG_ALIGNMENT-1;
+   *pSize = sizeof(IppsPRNGState);
+
    return ippStsNoErr;
 }

@@ -21,7 +21,7 @@
 %global fullversion  %{major}.%{minor}.%{rev}
 
 %global github_repo_url              https://github.com/intel/ipp-crypto
-%global github_source_archive_name   develop
+%global github_source_archive_name   ippcp_2020u3
 
 %global rpm_name         intel-ipp-crypto-mb
 %global product_name     Intel(R) IPP Cryptography multi-buffer library

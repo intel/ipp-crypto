@@ -38,19 +38,19 @@ mbx_status mbx_rsa_public_mb8(const int8u* const from_pa[8],
 {
    const mbx_RSA_Method* meth = m;
 
-   mbx_status stt = 0;
+   mbx_status status = 0;
    int buf_no;
 
    /* test input pointers */
    if(NULL==from_pa || NULL==to_pa || NULL==n_pa) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+      return status;
    }
    /* test rsa modulus size */
    if(RSA_1K != expected_rsa_bitsize && RSA_2K != expected_rsa_bitsize &&
       RSA_3K != expected_rsa_bitsize && RSA_4K != expected_rsa_bitsize) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
+      return status;
    }
 
    /* check pointers and values */
@@ -61,7 +61,7 @@ mbx_status mbx_rsa_public_mb8(const int8u* const from_pa[8],
 
       /* if any of pointer NULL set error status */
       if(NULL==inp || NULL==out || NULL==n) {
-         stt = MBX_SET_STS(stt, buf_no, MBX_STATUS_NULL_PARAM_ERR);
+         status = MBX_SET_STS(status, buf_no, MBX_STATUS_NULL_PARAM_ERR);
          continue;
       }
    }
@@ -70,25 +70,25 @@ mbx_status mbx_rsa_public_mb8(const int8u* const from_pa[8],
    if(NULL==meth) {
       meth = mbx_RSA_pub65537_Method(expected_rsa_bitsize);
       if(NULL==meth) {
-         stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-         return stt;
+         status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+         return status;
       }
    }
    /* check if requested operation matched to method's */
    if(RSA_PUB_KEY != OP_RSA_ID(meth->id)) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
+      return status;
    }
    /* check if requested RSA matched to method's */
    if(expected_rsa_bitsize != BISIZE_RSA_ID(meth->id)) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
+      return status;
    }
 
    /*
    // processing
    */
-   if( MBX_IS_ANY_OK_STS(stt) ) {
+   if( MBX_IS_ANY_OK_STS(status) ) {
       int8u* buffer = pBuffer;
 
       #if !defined(NO_USE_MALLOC)
@@ -98,8 +98,8 @@ mbx_status mbx_rsa_public_mb8(const int8u* const from_pa[8],
       if(NULL==buffer) {
          buffer = (int8u*)( malloc(meth->buffSize) );
          if(NULL==buffer) {
-            stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-            return stt;
+            status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+            return status;
          }
          allocated_buf = 1;
       }
@@ -116,7 +116,7 @@ mbx_status mbx_rsa_public_mb8(const int8u* const from_pa[8],
       #endif
    }
 
-   return stt;
+   return status;
 }
 
 DLL_PUBLIC
@@ -130,19 +130,19 @@ mbx_status mbx_rsa_private_mb8(const int8u* const from_pa[8],
 {
    const mbx_RSA_Method* meth = m;
 
-   mbx_status stt = 0;
+   mbx_status status = 0;
    int buf_no;
 
    /* test input pointers */
    if(NULL==from_pa || NULL==to_pa || NULL==d_pa || NULL==n_pa) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+      return status;
    }
    /* test rsa modulus size */
    if(RSA_1K != expected_rsa_bitsize && RSA_2K != expected_rsa_bitsize &&
       RSA_3K != expected_rsa_bitsize && RSA_4K != expected_rsa_bitsize) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
+      return status;
    }
 
    /* check pointers and values */
@@ -154,7 +154,7 @@ mbx_status mbx_rsa_private_mb8(const int8u* const from_pa[8],
 
       /* if any of pointer NULL set error status */
       if(NULL==inp || NULL==out || NULL==d || NULL==n) {
-         stt = MBX_SET_STS(stt, buf_no, MBX_STATUS_NULL_PARAM_ERR);
+         status = MBX_SET_STS(status, buf_no, MBX_STATUS_NULL_PARAM_ERR);
          continue;
       }
    }
@@ -163,25 +163,25 @@ mbx_status mbx_rsa_private_mb8(const int8u* const from_pa[8],
    if(NULL==meth) {
       meth = mbx_RSA_private_Method(expected_rsa_bitsize);
       if(NULL==meth) {
-         stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-         return stt;
+         status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+         return status;
       }
    }
    /* check if requested operation matched to method's */
    if(RSA_PRV2_KEY != OP_RSA_ID(meth->id)) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
+      return status;
    }
    /* check if requested RSA matched to method's */
    if(expected_rsa_bitsize != BISIZE_RSA_ID(meth->id)) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
+      return status;
    }
 
    /*
    // processing
    */
-   if( MBX_IS_ANY_OK_STS(stt) ) {
+   if( MBX_IS_ANY_OK_STS(status) ) {
       int8u* buffer = pBuffer;
 
       #if !defined(NO_USE_MALLOC)
@@ -191,8 +191,8 @@ mbx_status mbx_rsa_private_mb8(const int8u* const from_pa[8],
       if(NULL==buffer) {
          buffer = (int8u*)( malloc(meth->buffSize) );
          if(NULL==buffer) {
-            stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-            return stt;
+            status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+            return status;
          }
          allocated_buf = 1;
       }
@@ -209,7 +209,7 @@ mbx_status mbx_rsa_private_mb8(const int8u* const from_pa[8],
       #endif
    }
 
-   return stt;
+   return status;
 }
 
 DLL_PUBLIC
@@ -226,20 +226,20 @@ mbx_status mbx_rsa_private_crt_mb8(const int8u* const from_pa[8],
 {
    const mbx_RSA_Method* meth = m;
 
-   mbx_status stt = 0;
+   mbx_status status = 0;
    int buf_no;
 
    /* test input pointers */
    if(NULL==from_pa || NULL==to_pa ||
       NULL==p_pa || NULL==q_pa || NULL==dp_pa || NULL==dq_pa || NULL==iq_pa) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+      return status;
    }
    /* test rsa modulus size */
    if(RSA_1K != expected_rsa_bitsize && RSA_2K != expected_rsa_bitsize &&
       RSA_3K != expected_rsa_bitsize && RSA_4K != expected_rsa_bitsize) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
+      return status;
    }
 
    /* check pointers and values */
@@ -254,7 +254,7 @@ mbx_status mbx_rsa_private_crt_mb8(const int8u* const from_pa[8],
 
       /* if any of pointer NULL set error status */
       if(NULL==inp || NULL==out || NULL==q || NULL==p || NULL==dq || NULL==dp || NULL==iq) {
-         stt = MBX_SET_STS(stt, buf_no, MBX_STATUS_NULL_PARAM_ERR);
+         status = MBX_SET_STS(status, buf_no, MBX_STATUS_NULL_PARAM_ERR);
          continue;
       }
    }
@@ -263,25 +263,25 @@ mbx_status mbx_rsa_private_crt_mb8(const int8u* const from_pa[8],
    if(NULL==meth) {
       meth = mbx_RSA_private_crt_Method(expected_rsa_bitsize);
       if(NULL==meth) {
-         stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-         return stt;
+         status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+         return status;
       }
    }
    /* check if requested operation matched to method's */
    if(RSA_PRV5_KEY != OP_RSA_ID(meth->id)) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
+      return status;
    }
    /* check if requested RSA matched to method's */
    if(expected_rsa_bitsize != BISIZE_RSA_ID(meth->id)) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
+      return status;
    }
 
    /*
    // processing
    */
-   if( MBX_IS_ANY_OK_STS(stt) ) {
+   if( MBX_IS_ANY_OK_STS(status) ) {
       int8u* buffer = pBuffer;
 
       #if !defined(NO_USE_MALLOC)
@@ -291,8 +291,8 @@ mbx_status mbx_rsa_private_crt_mb8(const int8u* const from_pa[8],
       if(NULL==buffer) {
          buffer = (int8u*)( malloc(meth->buffSize) );
          if(NULL==buffer) {
-            stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-            return stt;
+            status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+            return status;
          }
          allocated_buf = 1;
       }
@@ -309,5 +309,5 @@ mbx_status mbx_rsa_private_crt_mb8(const int8u* const from_pa[8],
       #endif
    }
 
-   return stt;
+   return status;
 }

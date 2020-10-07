@@ -28,7 +28,7 @@
 #include "pcpgfpxstuff.h"
 #include "gsscramble.h"
 
-BNU_CHUNK_T* cpGFpxGet(BNU_CHUNK_T* pDataA, int nsA, const BNU_CHUNK_T* pE, gsModEngine* pGFEx)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxGet, (BNU_CHUNK_T* pDataA, int nsA, const BNU_CHUNK_T* pE, gsModEngine* pGFEx))
 {
    cpGFpElementPad(pDataA, nsA, 0);
 

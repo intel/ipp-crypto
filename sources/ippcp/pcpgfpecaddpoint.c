@@ -65,11 +65,10 @@ IPPFUN(IppStatus, ippsGFpECAddPoint,(const IppsGFpECPoint* pP, const IppsGFpECPo
                   IppsGFpECState* pEC))
 {
    IPP_BAD_PTR4_RET(pP, pQ, pR, pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET( !ECP_TEST_ID(pEC), ippStsContextMatchErr );
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pP), ippStsContextMatchErr );
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pQ), ippStsContextMatchErr );
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pR), ippStsContextMatchErr );
+   IPP_BADARG_RET( !VALID_ECP_ID(pEC), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pP), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pQ), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pR), ippStsContextMatchErr );
 
    IPP_BADARG_RET( ECP_POINT_FELEN(pP)!=GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);
    IPP_BADARG_RET( ECP_POINT_FELEN(pQ)!=GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);

@@ -152,7 +152,7 @@ __INLINE void MaskedXorBlock16(const Ipp8u* pSrc1, const Ipp8u* pSrc2, Ipp8u* pD
 }
 #endif
 
-void AesGcmMulGcm_table2K_ct(Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const void* pParam)
+IPP_OWN_DEFN (void, AesGcmMulGcm_table2K_ct, (Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const void* pParam))
 {
    __ALIGN16 Ipp8u t5[BLOCK_SIZE];
    __ALIGN16 Ipp8u t4[BLOCK_SIZE];
@@ -273,7 +273,7 @@ __INLINE Ipp16u getAesGcmConst_table_ct(int idx)
    return (Ipp16u)i;
 }
 
-void AesGcmMulGcm_table2K_ct(Ipp8u* pHash, const Ipp8u* pPrecomputedData, const void* pParam)
+IPP_OWN_DEFN (void, AesGcmMulGcm_table2K_ct, (Ipp8u* pHash, const Ipp8u* pPrecomputedData, const void* pParam))
 {
    __m128i t5 = _mm_setzero_si128();
    __m128i t4 = _mm_setzero_si128();

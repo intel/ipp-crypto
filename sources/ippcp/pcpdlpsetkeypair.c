@@ -65,7 +65,6 @@ IPPFUN(IppStatus, ippsDLPSetKeyPair,(const IppsBigNumState* pPrvKey,
 {
    /* test DL context */
    IPP_BAD_PTR1_RET(pDL);
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
    IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
 
    /* test flag */
@@ -73,7 +72,6 @@ IPPFUN(IppStatus, ippsDLPSetKeyPair,(const IppsBigNumState* pPrvKey,
 
    /* set up private key */
    if(pPrvKey) {
-      pPrvKey  = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrvKey, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pPrvKey), ippStsContextMatchErr);
       IPP_BADARG_RET(BN_NEGATIVE(pPrvKey), ippStsIvalidPrivateKey);
       {
@@ -95,7 +93,6 @@ IPPFUN(IppStatus, ippsDLPSetKeyPair,(const IppsBigNumState* pPrvKey,
 
    /* set up public key */
    if(pPubKey) {
-      pPubKey  = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPubKey, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pPubKey), ippStsContextMatchErr);
       IPP_BADARG_RET(BN_NEGATIVE(pPubKey), ippStsRangeErr);
       {

@@ -49,7 +49,7 @@
 //    strLen      octet string length
 *F*/
 
-cpSize cpToOctStr_BNU(Ipp8u* pStr, cpSize strLen, const BNU_CHUNK_T* pA, cpSize nsA)
+IPP_OWN_DEFN (cpSize, cpToOctStr_BNU, (Ipp8u* pStr, cpSize strLen, const BNU_CHUNK_T* pA, cpSize nsA))
 {
    FIX_BNU(pA, nsA);
    {

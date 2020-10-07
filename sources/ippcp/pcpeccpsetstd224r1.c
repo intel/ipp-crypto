@@ -48,8 +48,6 @@ IPPFUN(IppStatus, ippsECCPSetStd224r1, (IppsECCPState* pEC))
 {
    /* test pEC */
    IPP_BAD_PTR1_RET(pEC);
-   /* use aligned EC context */
-   pEC = (IppsECCPState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
 
    /* set domain parameters */
    return ECCPSetDP(ippsGFpMethod_p224r1(),

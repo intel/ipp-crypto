@@ -36,7 +36,7 @@
 
 __INLINE int cpSizeofCtx_AESCMAC(void)
 {
-   return sizeof(IppsAES_CMACState) + AESCMAC_ALIGNMENT-1;
+   return sizeof(IppsAES_CMACState);
 }
 
 static void init(IppsAES_CMACState* pCtx)

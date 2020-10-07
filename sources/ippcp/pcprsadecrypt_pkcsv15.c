@@ -134,7 +134,6 @@ IPPFUN(IppStatus, ippsRSADecrypt_PKCSv15,(const Ipp8u* pSrc,
 {
    /* use aligned key context */
    IPP_BAD_PTR2_RET(pKey, pScratchBuffer);
-   pKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PRIVATE_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PRV_KEY_VALID_ID(pKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
 

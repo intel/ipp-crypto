@@ -57,8 +57,6 @@ IPPFUN(IppStatus, ippsAES_CMACGetTag,(Ipp8u* pMD, int mdLen, const IppsAES_CMACS
 {
    /* test context pointer and ID */
    IPP_BAD_PTR1_RET(pState);
-   /* use aligned context */
-   pState = (IppsAES_CMACState*)( IPP_ALIGNED_PTR(pState, AESCMAC_ALIGNMENT) );
 
    IPP_BADARG_RET(!VALID_AESCMAC_ID(pState), ippStsContextMatchErr);
    /* test DAC pointer */

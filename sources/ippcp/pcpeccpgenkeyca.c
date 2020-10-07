@@ -61,17 +61,14 @@ IPPFUN(IppStatus, ippsECCPGenKeyPair, (IppsBigNumState* pPrivate, IppsECCPPointS
 {
    IPP_BAD_PTR2_RET(pEC, rndFunc);
 
-   /* use aligned EC context */
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    /* test private/public keys */
    IPP_BAD_PTR2_RET(pPrivate,pPublic);
-   pPrivate = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrivate, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrivate), ippStsContextMatchErr);
    IPP_BADARG_RET((BN_ROOM(pPrivate)*BITSIZE(BNU_CHUNK_T)<ECP_ORDBITSIZE(pEC)), ippStsSizeErr);
 
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pPublic), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pPublic), ippStsContextMatchErr );
    IPP_BADARG_RET(ECP_POINT_FELEN(pPublic)<GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsRangeErr);
 
    {

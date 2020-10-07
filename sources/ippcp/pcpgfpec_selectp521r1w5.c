@@ -34,7 +34,7 @@
 // select affine point
 */
 #if (_IPP32E < _IPP32E_M7)
-void p521r1_select_ap_w5(BNU_CHUNK_T* pVal, const BNU_CHUNK_T* pTbl, int idx)
+IPP_OWN_DEFN (void, p521r1_select_ap_w5, (BNU_CHUNK_T* pVal, const BNU_CHUNK_T* pTbl, int idx))
 {
    #define OPERAND_BITSIZE (521)
    #define LEN_P521        (BITS_BNU_CHUNK(OPERAND_BITSIZE))

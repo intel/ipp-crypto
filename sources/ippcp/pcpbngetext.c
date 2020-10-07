@@ -53,7 +53,6 @@ IPPFUN(IppStatus, ippsExtGet_BN, (IppsBigNumSGN* pSgn, int* pBitSize, Ipp32u* pD
 {
    IPP_BAD_PTR1_RET(pBN);
 
-   pBN = (IppsBigNumState*)( IPP_ALIGNED_PTR(pBN, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pBN), ippStsContextMatchErr);
 
    {

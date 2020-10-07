@@ -316,7 +316,7 @@ static Ipp32u PrimeList[] = {
 //    len32       length of prime number
 *F*/
 
-int cpMimimalPrimeTest(const Ipp32u* pPrime, cpSize len32)
+IPP_OWN_DEFN (int, cpMimimalPrimeTest, (const Ipp32u* pPrime, cpSize len32))
 {
    cpSize i;
 

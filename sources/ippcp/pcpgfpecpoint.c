@@ -53,8 +53,7 @@
 IPPFUN(IppStatus, ippsGFpECPointGetSize,(const IppsGFpECState* pEC, int* pSize))
 {
    IPP_BAD_PTR2_RET(pEC, pSize);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET( !ECP_TEST_ID(pEC), ippStsContextMatchErr );
+   IPP_BADARG_RET( !VALID_ECP_ID(pEC), ippStsContextMatchErr );
 
    {
       int elemLen = GFP_FELEN(GFP_PMA(ECP_GFP(pEC)));
@@ -90,14 +89,13 @@ IPPFUN(IppStatus, ippsGFpECPointInit,(const IppsGFpElement* pX, const IppsGFpEle
                                       IppsGFpECPoint* pPoint, IppsGFpECState* pEC))
 {
    IPP_BAD_PTR2_RET(pPoint, pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET( !ECP_TEST_ID(pEC), ippStsContextMatchErr );
+   IPP_BADARG_RET( !VALID_ECP_ID(pEC), ippStsContextMatchErr );
 
    {
       Ipp8u* ptr = (Ipp8u*)pPoint;
       int elemLen = GFP_FELEN(GFP_PMA(ECP_GFP(pEC)));
 
-      ECP_POINT_ID(pPoint) = idCtxGFPPoint;
+      ECP_POINT_SET_ID(pPoint);
       ECP_POINT_FLAGS(pPoint) = 0;
       ECP_POINT_FELEN(pPoint) = elemLen;
       ptr += sizeof(IppsGFpECPoint);

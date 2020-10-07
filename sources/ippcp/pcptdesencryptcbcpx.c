@@ -30,7 +30,7 @@
 #include "owncp.h"
 #include "pcpdes.h"
 
-void EncryptCBC_TDES(const Ipp64u* pSrc, Ipp64u* pDst, int nBlocks, const RoundKeyDES* pRKey[3], Ipp64u iv, const Ipp32u spbox[])
+IPP_OWN_DEFN (void, EncryptCBC_TDES, (const Ipp64u* pSrc, Ipp64u* pDst, int nBlocks, const RoundKeyDES* pRKey[3], Ipp64u iv, const Ipp32u spbox[]))
 {
    while(nBlocks) {
       Ipp64u tmp = *pSrc ^ iv;

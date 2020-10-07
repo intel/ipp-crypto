@@ -60,11 +60,8 @@ IPPFUN(IppStatus, ippsAES_CCMInit,(const Ipp8u* pKey, int keyLen,
    /* test available size of context buffer */
    IPP_BADARG_RET(ctxSize<cpSizeofCtx_AESCCM(), ippStsMemAllocErr);
 
-   /* use aligned context */
-   pState = (IppsAES_CCMState*)( IPP_ALIGNED_PTR(pState, AESCCM_ALIGNMENT) );
-
    /* set state ID */
-   AESCCM_ID(pState) = idCtxAESCCM;
+   AESCCM_SET_ID(pState);
 
    /* set default message len*/
    AESCCM_MSGLEN(pState) = 0;

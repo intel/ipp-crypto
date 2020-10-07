@@ -50,7 +50,6 @@ IPPFUN(IppStatus, ippsHMAC_Pack,(const IppsHMACState* pCtx, Ipp8u* pBuffer, int 
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
-   pCtx = (IppsHMACState*)( IPP_ALIGNED_PTR(pCtx, HASH_ALIGNMENT) );
    /* test the context */
    IPP_BADARG_RET(!HMAC_VALID_ID(pCtx), ippStsContextMatchErr);
 
@@ -61,6 +60,8 @@ IPPFUN(IppStatus, ippsHMAC_Pack,(const IppsHMACState* pCtx, Ipp8u* pBuffer, int 
       IPP_BADARG_RET(ctxSize>bufSize, ippStsNoMemErr);
 
       CopyBlock(pCtx, pBuffer, ctxSize);
+      IppsHMACState* pCopy = (IppsHMACState*)pBuffer;
+      HMAC_RESET_CTX_ID(pCopy);
       return ippStsNoErr;
    }
 }

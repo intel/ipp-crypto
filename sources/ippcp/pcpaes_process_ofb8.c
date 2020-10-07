@@ -47,9 +47,7 @@
 //    pCtx        pointer to the AES context
 //    pIV         pointer to the initialization vector
 */
-void cpProcessAES_ofb8(const Ipp8u *pSrc, Ipp8u *pDst, int dataLen, int ofbBlkSize,
-                       const IppsAESSpec* pCtx,
-                       Ipp8u* pIV)
+IPP_OWN_DEFN (void, cpProcessAES_ofb8, (const Ipp8u *pSrc, Ipp8u *pDst, int dataLen, int ofbBlkSize, const IppsAESSpec* pCtx, Ipp8u* pIV))
 {
    /* setup encoder method */
    RijnCipher encoder = RIJ_ENCODER(pCtx);

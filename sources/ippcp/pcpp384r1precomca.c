@@ -1512,7 +1512,7 @@ const __ALIGN64 P384_POINT_AFFINE ec_p384r1_precomputed[77][16] = {
 #endif  /* _IPP_DATA */
 
 
-const cpPrecompAP* gfpec_precom_nistP384r1_fun(void)
+IPP_OWN_DEFN (const cpPrecompAP*, gfpec_precom_nistP384r1_fun, (void))
 {
    static cpPrecompAP t = {
       /* w */                  5,

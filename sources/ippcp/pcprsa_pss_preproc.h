@@ -40,13 +40,11 @@ __INLINE IppStatus SingleSignPssRmfPreproc(const Ipp8u* pMsg, int msgLen,
 
    /* test private key context */
    IPP_BAD_PTR2_RET(*pPrvKey, pScratchBuffer);
-   *pPrvKey = (IppsRSAPrivateKeyState*)(IPP_ALIGNED_PTR(*pPrvKey, RSA_PRIVATE_KEY_ALIGNMENT));
    IPP_BADARG_RET(!RSA_PRV_KEY_VALID_ID(*pPrvKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(*pPrvKey), ippStsIncompleteContextErr);
 
    /* use aligned public key context if defined */
    if (*pPubKey) {
-      *pPubKey = (IppsRSAPublicKeyState*)(IPP_ALIGNED_PTR(*pPubKey, RSA_PUBLIC_KEY_ALIGNMENT));
       IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(*pPubKey), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(*pPubKey), ippStsIncompleteContextErr);
    }
@@ -72,7 +70,6 @@ __INLINE IppStatus SingleVerifyPssRmfPreproc(const Ipp8u* pMsg, int msgLen,
 
    /* test public key context */
    IPP_BAD_PTR2_RET(*pKey, pScratchBuffer);
-   *pKey = (IppsRSAPublicKeyState*)(IPP_ALIGNED_PTR(*pKey, RSA_PUBLIC_KEY_ALIGNMENT));
    IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(*pKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(*pKey), ippStsIncompleteContextErr);
 

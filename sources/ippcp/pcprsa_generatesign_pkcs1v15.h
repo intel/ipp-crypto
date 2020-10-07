@@ -30,7 +30,7 @@
 
 #include "pcprsa_emsa_pkcs1v15.h"
 
-static int GenerateSing(const Ipp8u* pMsg, int msgLen,  /* message representation */
+static int GenerateSign(const Ipp8u* pMsg, int msgLen,  /* message representation */
     const Ipp8u* pSalt, int saltLen, /* fied string */
     Ipp8u* pSign,
     const IppsRSAPrivateKeyState* pPrvKey,

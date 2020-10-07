@@ -49,10 +49,9 @@ IPPFUN(IppStatus, ippsSM3Init,(IppsSM3State* pState))
 {
    /* test state pointer */
    IPP_BAD_PTR1_RET(pState);
-   pState = (IppsSM3State*)( IPP_ALIGNED_PTR(pState, SM3_ALIGNMENT) );
 
    PadBlock(0, pState, sizeof(IppsSM3State));
-   HASH_CTX_ID(pState) = idCtxSM3;
+   HASH_SET_ID(pState, idCtxSM3);
    sm3_hashInit(HASH_VALUE(pState));
    return ippStsNoErr;
 }

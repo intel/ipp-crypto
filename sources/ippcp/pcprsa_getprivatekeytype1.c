@@ -57,11 +57,9 @@ IPPFUN(IppStatus, ippsRSA_GetPrivateKeyType1,(IppsBigNumState* pModulus,
                                         const IppsRSAPrivateKeyState* pKey))
 {
    IPP_BAD_PTR1_RET(pKey);
-   pKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PUBLIC_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PRV_KEY1_VALID_ID(pKey), ippStsContextMatchErr);
 
    if(pModulus) {
-      pModulus = (IppsBigNumState*)( IPP_ALIGNED_PTR(pModulus, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pModulus), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
       IPP_BADARG_RET(BN_ROOM(pModulus)<BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_N(pKey)), ippStsSizeErr);
@@ -75,7 +73,6 @@ IPPFUN(IppStatus, ippsRSA_GetPrivateKeyType1,(IppsBigNumState* pModulus,
       cpSize expLen = BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_D(pKey));
       FIX_BNU(RSA_PRV_KEY_D(pKey), expLen);
 
-      pExp = (IppsBigNumState*)( IPP_ALIGNED_PTR(pExp, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pExp), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
       IPP_BADARG_RET(BN_ROOM(pExp) < expLen, ippStsSizeErr);

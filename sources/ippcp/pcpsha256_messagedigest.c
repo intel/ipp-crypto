@@ -32,7 +32,7 @@
 #include "pcptool.h"
 #include "pcpsha256stuff.h"
 
-IppStatus cpSHA256MessageDigest(DigestSHA256 hash, const Ipp8u* pMsg, int msgLen, const DigestSHA256 IV)
+IPP_OWN_DEFN (IppStatus, cpSHA256MessageDigest, (DigestSHA256 hash, const Ipp8u* pMsg, int msgLen, const DigestSHA256 IV))
 {
    /* test digest pointer */
    IPP_BAD_PTR1_RET(hash);

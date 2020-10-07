@@ -73,7 +73,7 @@ __INLINE __m512i nextTweaks_x32(__m512i tweak128x4)
    return tweak128x4;
 }
 
-void cpAESEncryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak)
+IPP_OWN_DEFN (void, cpAESEncryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak))
 {
    if (0 == nBlks) {
       return; // do not modify tweak value
@@ -288,7 +288,7 @@ void cpAESEncryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const I
 
 }
 
-void cpAESDecryptXTS_VAES(Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak)
+IPP_OWN_DEFN (void, cpAESDecryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, int nBlks, const Ipp8u* pRKey, int nr, Ipp8u* pTweak))
 {
    if (0 == nBlks) {
       return; // do not modify tweak value

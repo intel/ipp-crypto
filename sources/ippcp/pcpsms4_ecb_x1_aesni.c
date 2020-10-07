@@ -38,7 +38,7 @@
 // 1*MBS_SMS4 processing
 */
 
-void cpSMS4_ECB_aesni_x1(Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey)
+IPP_OWN_DEFN (void, cpSMS4_ECB_aesni_x1, (Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey))
 {
    __ALIGN16 __m128i TMP[6];
    /*

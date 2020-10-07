@@ -74,7 +74,7 @@ You can find the installed files in:
     │        ├── rsa_ifma_defs.h
     │        └── rsa_ifma_status.h
     └── lib
-        └── libcrypto_mb.a
+        └── libcrypto_mb.so
 ```
 
 ## How to Build
@@ -92,10 +92,10 @@ You can build the library in two ways:
    ```
    and navigate to the `sources/ippcp/crypto_mb` folder.
 2. Set the environment variables for one of the supported C/C++ compilers.
-3. Run CMake on the command line. Use `-B` to specify path to the resulting project and define the variable `-DBN_OPENSSL_DISABLE` to exclude all the OpenSSL dependencies:
+3. Run CMake on the command line. Use `-B` to specify path to the resulting project and define the variable `-DOPENSSL_DISABLE` to exclude all the OpenSSL dependencies:
 
    ``` bash
-   cmake . -B"../build" -DBN_OPENSSL_DISABLE=TRUE
+   cmake . -B"../build" -DOPENSSL_DISABLE=TRUE
    ```
 4. Go to the project folder that was specified with `-B` and run `make` to build the library  (`crypto_mb` target).
 

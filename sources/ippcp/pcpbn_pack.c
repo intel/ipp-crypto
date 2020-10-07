@@ -39,12 +39,16 @@
 //    pBN     BigNum
 //    pBuffer buffer
 *F*/
-void cpPackBigNumCtx(const IppsBigNumState* pBN, Ipp8u* pBuffer)
+IPP_OWN_DEFN (void, cpPackBigNumCtx, (const IppsBigNumState* pBN, Ipp8u* pBuffer))
 {
-   IppsBigNumState* pAlignedBuffer = (IppsBigNumState*)(IPP_ALIGNED_PTR((pBuffer), BN_ALIGNMENT));
-   CopyBlock(pBN, pAlignedBuffer, sizeof(IppsBigNumState));
-   BN_NUMBER(pAlignedBuffer) = (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(BN_NUMBER(pBN))-IPP_UINT_PTR(pBN));
-   BN_BUFFER(pAlignedBuffer) = (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(BN_BUFFER(pBN))-IPP_UINT_PTR(pBN));
-   CopyBlock(BN_NUMBER(pBN), (Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(BN_NUMBER(pAlignedBuffer)), BN_ROOM(pBN)*(Ipp32s)sizeof(BNU_CHUNK_T));
-   CopyBlock(BN_BUFFER(pBN), (Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(BN_BUFFER(pAlignedBuffer)), BN_ROOM(pBN)*(Ipp32s)sizeof(BNU_CHUNK_T));
+   IppsBigNumState* pB = (IppsBigNumState*)(pBuffer);
+   CopyBlock(pBN, pB, sizeof(IppsBigNumState));
+
+   cpSize dataAlignment = (cpSize)(IPP_INT_PTR(BN_NUMBER(pBN)) - IPP_INT_PTR(pBN) - (IPP_INT64)sizeof(IppsBigNumState));
+
+   BN_NUMBER(pB) = (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_INT_PTR(BN_NUMBER(pBN))-IPP_INT_PTR(pBN) - dataAlignment);
+   BN_BUFFER(pB) = (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_INT_PTR(BN_BUFFER(pBN))-IPP_INT_PTR(pBN) - dataAlignment);
+
+   CopyBlock(BN_NUMBER(pBN), (Ipp8u*)pB+IPP_UINT_PTR(BN_NUMBER(pB)), BN_ROOM(pBN)*(Ipp32s)sizeof(BNU_CHUNK_T));
+   CopyBlock(BN_BUFFER(pBN), (Ipp8u*)pB+IPP_UINT_PTR(BN_BUFFER(pB)), BN_ROOM(pBN)*(Ipp32s)sizeof(BNU_CHUNK_T));
 }

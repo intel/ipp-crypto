@@ -41,7 +41,7 @@
 //
 *F*/
 
-cpSize cpNTZ_BNU(BNU_CHUNK_T x)
+IPP_OWN_DEFN (cpSize, cpNTZ_BNU, (BNU_CHUNK_T x))
 {
    cpSize ntz = BNU_CHUNK_BITS;
    if(x) {

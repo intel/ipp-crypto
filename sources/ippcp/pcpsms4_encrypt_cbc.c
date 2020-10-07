@@ -44,9 +44,7 @@
 //    pCtx        pointer to the SMS4 context
 //
 *F*/
-void cpEncryptSMS4_cbc(const Ipp8u* pIV,
-                       const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
-                       const IppsSMS4Spec* pCtx)
+IPP_OWN_DEFN (void, cpEncryptSMS4_cbc, (const Ipp8u* pIV, const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const IppsSMS4Spec* pCtx))
 {
    const Ipp32u* pRoundKeys = SMS4_RK(pCtx);
 

@@ -45,7 +45,7 @@
 //    pR    result
 //
 *F*/
-Ipp32u cpAdd_BNU32(Ipp32u* pR, const Ipp32u* pA, const Ipp32u* pB, cpSize ns)
+IPP_OWN_DEFN (Ipp32u, cpAdd_BNU32, (Ipp32u* pR, const Ipp32u* pA, const Ipp32u* pB, cpSize ns))
 {
    Ipp32u carry = 0;
    cpSize i;

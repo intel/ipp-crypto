@@ -25,7 +25,7 @@
 #include "pcpgfpxmethod_com.h"
 
 
-BNU_CHUNK_T* cpGFpxAdd_com(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxAdd_com, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx))
 {
    gsEngine* pBasicGFE = cpGFpBasic(pGFEx);
    mod_add addF = GFP_METHOD(pBasicGFE)->add;

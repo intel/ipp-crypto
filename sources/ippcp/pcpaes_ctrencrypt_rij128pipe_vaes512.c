@@ -73,13 +73,13 @@ __INLINE __m512i applyNonce(__m512i a, __m512i ctrBitMask, __m512i templateCtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void EncryptCTR_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,
-                                  Ipp8u* pDst,
-                                  int nr,
-                                  const Ipp8u* pRKey,
-                                  int length,         /* message length in bytes   */
-                                  Ipp8u* pCtrValue,
-                                  const Ipp8u* pCtrBitMask)
+IPP_OWN_DEFN (void, EncryptCTR_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,
+                                                   Ipp8u* pDst,
+                                                   int nr,
+                                                   const Ipp8u* pRKey,
+                                                   int length,         /* message length in bytes   */
+                                                   Ipp8u* pCtrValue,
+                                                   const Ipp8u* pCtrBitMask))
 {
    int cipherRounds = nr - 1;
 

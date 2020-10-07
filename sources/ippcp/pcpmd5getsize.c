@@ -52,7 +52,7 @@ IPPFUN(IppStatus, ippsMD5GetSize,(int* pSize))
    /* test pointer */
    IPP_BAD_PTR1_RET(pSize);
 
-   *pSize = sizeof(IppsMD5State) +(MD5_ALIGNMENT-1);
+   *pSize = sizeof(IppsMD5State);
 
    return ippStsNoErr;
 }

@@ -50,7 +50,9 @@ static __m128i aes128_assist(__m128i temp1, __m128i temp2)
 }
 
 #define aes128_KeyExpansion_NI OWNAPI(aes128_KeyExpansion_NI)
-void aes128_KeyExpansion_NI(Ipp8u* keyExp, const Ipp8u* userkey)
+   IPP_OWN_DECL (void, aes128_KeyExpansion_NI, (Ipp8u* keyExp, const Ipp8u* userkey))
+
+IPP_OWN_DEFN (void, aes128_KeyExpansion_NI, (Ipp8u* keyExp, const Ipp8u* userkey))
 {
    __m128i *pKeySchedule = (__m128i*)keyExp;
 

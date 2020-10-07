@@ -32,7 +32,6 @@ static int cpSizeof_RSA_publicKey(int rsaModulusBitSize, int publicExpBitSize)
 
    return (Ipp32s)sizeof(IppsRSAPublicKeyState)
         + pubExpLen*(Ipp32s)sizeof(BNU_CHUNK_T)
-        + (Ipp32s)sizeof(BNU_CHUNK_T)-1
-        + montNsize
-        + (RSA_PUBLIC_KEY_ALIGNMENT-1);
+        + (Ipp32s)sizeof(BNU_CHUNK_T)-1 /* alignment */
+        + montNsize;
 }

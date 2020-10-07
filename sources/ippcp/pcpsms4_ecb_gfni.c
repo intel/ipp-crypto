@@ -64,7 +64,7 @@ int  cpSMS4_ECB_gfni128_tail(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp3
 // 64*MBS_SMS4 bytes processing
 */
 
-int cpSMS4_ECB_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey)
+IPP_OWN_DEFN (int, cpSMS4_ECB_gfni512, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey))
 {
    __ALIGN16 __m512i TMP[20];
 
@@ -260,7 +260,7 @@ int cpSMS4_ECB_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pR
 
    /* clear secret data */
    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-      TMP[i] = _mm512_xor_si512(TMP[i], TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i], TMP[i]);
    }
 
    len -= processedLen;
@@ -436,7 +436,7 @@ int cpSMS4_ECB_gfni512x48(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u*
 
    /* clear secret data */
    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-      TMP[i] = _mm512_xor_si512(TMP[i], TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i], TMP[i]);
    }
    
    len -= processedLen;
@@ -567,7 +567,7 @@ int cpSMS4_ECB_gfni512x32(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u*
 
    /* clear secret data */
    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-      TMP[i] = _mm512_xor_si512(TMP[i], TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i], TMP[i]);
    }
    
    len -= processedLen;
@@ -658,7 +658,7 @@ int cpSMS4_ECB_gfni512x16(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u*
 
    /* clear secret data */
    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-      TMP[i] = _mm512_xor_si512(TMP[i], TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i], TMP[i]);
    }
    
    len -= processedLen;
@@ -840,7 +840,7 @@ int cpSMS4_ECB_gfni128x12(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u*
 
    /* clear secret data */
    for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+      TMP[i] = _mm_setzero_si128(); //_mm_xor_si128(TMP[i],TMP[i]);
    }
 
    len -= processedLen;
@@ -972,7 +972,7 @@ int cpSMS4_ECB_gfni128x8(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* 
 
    /* clear secret data */
    for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+      TMP[i] = _mm_setzero_si128(); //_mm_xor_si128(TMP[i],TMP[i]);
    }
 
    len -= processedLen;
@@ -1058,7 +1058,7 @@ int cpSMS4_ECB_gfni128x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* 
 
    /* clear secret data */
    for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+      TMP[i] = _mm_setzero_si128(); //_mm_xor_si128(TMP[i],TMP[i]);
    }
 
    len -= processedLen;

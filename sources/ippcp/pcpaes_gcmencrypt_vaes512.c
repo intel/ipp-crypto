@@ -43,10 +43,7 @@ static __ALIGN64 Ipp32u inc1_lo32x4[] = { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1,
 static __ALIGN64 Ipp32u inc4_lo32x4[] = { 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0 };
 
 /* Encryption with authentication */
-void AesGcmEnc_vaes(Ipp8u* pDst,
-               const Ipp8u* pSrc,
-               int length,
-               IppsAES_GCMState* pCtx)
+IPP_OWN_DEFN (void, AesGcmEnc_vaes, (Ipp8u* pDst, const Ipp8u* pSrc, int length, IppsAES_GCMState* pCtx))
 {
    IppsAESSpec* pAES  = AESGCM_CIPHER(pCtx);
    int cipherRounds   = RIJ_NR(pAES) - 1;

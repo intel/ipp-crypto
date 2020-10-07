@@ -178,7 +178,7 @@ MAIN_FILE = {
 }
 
 CUSTOM_DISPATCHER_FILE = '{include_lines}\n'\
-                         '#define IPPFUN(type,name,arg) extern type IPP_STDCALL name arg\n\n'\
+                         '#define IPPFUN(type,name,arg) extern type IPP_CALL name arg\n\n'\
                          '#ifndef NULL\n'\
                          '#ifdef  __cplusplus\n'\
                          '#define NULL    0\n'\
@@ -227,7 +227,7 @@ BUILD_SCRIPT = {
              + '{env_command}\n'
              + 'set "OUTPUT_PATH={output_path}"\n\n'
              + 'if not exist %OUTPUT_PATH% mkdir %OUTPUT_PATH%\n'
-             + 'cd %OUTPUT_PATH%\n\n'
+             + 'cd /d %OUTPUT_PATH%\n\n'
              + 'if exist "{custom_library}.dll" del "{custom_library}.dll"\n\n'
              + '{compile_commands}\n'
              + '{linker} /DLL {link_flags} /VERBOSE:SAFESEH '

@@ -126,11 +126,7 @@ static void FwdMixColumn(Ipp8u inp_out[])
 #define SC           NB(128)
 #define STATE_SIZE   (sizeof(Ipp32u)*SC)
 
-void SafeEncrypt_RIJ128(const Ipp8u* pInpBlk,
-                              Ipp8u* pOutBlk,
-                              int nr,
-                        const Ipp8u* pKeys,
-                        const void* pTables)
+IPP_OWN_DEFN (void, SafeEncrypt_RIJ128, (const Ipp8u* pInpBlk, Ipp8u* pOutBlk, int nr, const Ipp8u* pKeys, const void* pTables))
 {
    int r;
 
@@ -344,11 +340,7 @@ static void FwdMixColumn(Ipp8u blk[16])
 #define STATE_SIZE   (sizeof(Ipp32u)*SC)
 
 
-void SafeEncrypt_RIJ128(const Ipp8u* pInpBlk,
-                              Ipp8u* pOutBlk,
-                              int nr,
-                        const Ipp8u* pKeys,
-                        const void* pTables)
+IPP_OWN_DEFN (void, SafeEncrypt_RIJ128, (const Ipp8u* pInpBlk, Ipp8u* pOutBlk, int nr, const Ipp8u* pKeys, const void* pTables))
 {
    int r;
 

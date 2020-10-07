@@ -52,12 +52,10 @@ IPPFUN(IppStatus, ippsPRNGSetSeed, (const IppsBigNumState* pSeed, IppsPRNGState*
 {
    /* test PRNG context */
    IPP_BAD_PTR1_RET(pCtx);
-   pCtx = (IppsPRNGState*)( IPP_ALIGNED_PTR(pCtx, PRNG_ALIGNMENT) );
    IPP_BADARG_RET(!RAND_VALID_ID(pCtx), ippStsContextMatchErr);
 
    /* test seed */
    IPP_BAD_PTR1_RET(pSeed);
-   pSeed = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSeed, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pSeed), ippStsContextMatchErr);
 
    {

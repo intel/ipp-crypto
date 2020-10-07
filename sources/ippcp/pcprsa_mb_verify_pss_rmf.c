@@ -75,30 +75,21 @@ IPPFUN(IppStatus, ippsRSA_MB_Verify_PSS_rmf, (const Ipp8u* const pMsgs[8], const
    IPP_BAD_PTR1_RET(pMethod);
    IPP_BAD_PTR1_RET(pBuffer);
 
-   const IppsRSAPublicKeyState* alignedPublicKeysPtr[RSA_MB_MAX_BUF_QUANTITY] = { NULL };
-   {
-      int i;
-      for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; ++i) {
-         alignedPublicKeysPtr[i] =
-            (IppsRSAPublicKeyState*)(IPP_ALIGNED_PTR(pPubKeys[i], RSA_PUBLIC_KEY_ALIGNMENT));
-      }
-   }
-
    cpSize rsaBits = 0;
    { // Check that all the valid keys are consistent
       int validKeyId;
-      IppStatus consistencyCheckSts = CheckPublicKeysConsistency(alignedPublicKeysPtr, &validKeyId);
+      IppStatus consistencyCheckSts = CheckPublicKeysConsistency(pPubKeys, &validKeyId);
       if (-1 == validKeyId) {
          return consistencyCheckSts;
       }
-      rsaBits = RSA_PUB_KEY_BITSIZE_N(alignedPublicKeysPtr[validKeyId]);
+      rsaBits = RSA_PUB_KEY_BITSIZE_N(pPubKeys[validKeyId]);
    }
 
    { // Check every ith set of parameters for badargs
       int i;
       for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; ++i) {
          const IppStatus badargsStatus = SingleVerifyPssRmfPreproc(pMsgs[i], msgLens[i], pSignts[i], &pIsValid[i],
-            &alignedPublicKeysPtr[i], pMethod, pBuffer);
+            (const IppsRSAPublicKeyState**)&pPubKeys[i], pMethod, pBuffer);
          if (ippStsNoErr != badargsStatus) {
             statuses[i] = badargsStatus;
             errorEncountered = 1;
@@ -152,7 +143,7 @@ IPPFUN(IppStatus, ippsRSA_MB_Verify_PSS_rmf, (const Ipp8u* const pMsgs[8], const
       // will not process NULLed signatureAsBnPtrs
       // the cast is needed because C std does not allow to automatically add `const` at many levels
       ippsRSA_MB_Encrypt((const IppsBigNumState* const *)signatureAsBnPtrs, decryptedSignaturesPtrs,
-         alignedPublicKeysPtr, rsaStatuses, (Ipp8u*)pAlignedBuffer);
+         pPubKeys, rsaStatuses, (Ipp8u*)pAlignedBuffer);
       for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; ++i) {
          if (ippStsNoErr != statuses[i]) {
             continue; // some checks were failed

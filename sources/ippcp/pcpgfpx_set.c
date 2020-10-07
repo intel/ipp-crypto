@@ -28,7 +28,7 @@
 #include "pcpgfpxstuff.h"
 #include "gsscramble.h"
 
-BNU_CHUNK_T* cpGFpxSet(BNU_CHUNK_T* pE, const BNU_CHUNK_T* pDataA, int nsA, gsModEngine* pGFEx)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxSet, (BNU_CHUNK_T* pE, const BNU_CHUNK_T* pDataA, int nsA, gsModEngine* pGFEx))
 {
    if( GFP_IS_BASIC(pGFEx) )
       return cpGFpSet(pE, pDataA, nsA, pGFEx);

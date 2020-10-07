@@ -31,7 +31,7 @@
 #include "pcpaesm.h"
 
 struct _cpAES_CCM {
-   IppCtxId idCtx;            /* CCM ID               */
+   Ipp32u   idCtx;            /* CCM ID               */
 
    Ipp64u   msgLen;           /* length of message to be processed */
    Ipp64u   lenProcessed;     /* message length has been processed */
@@ -43,7 +43,7 @@ struct _cpAES_CCM {
    Ipp8u    blk[MBS_RIJ128];  /* temporary data container */
    Ipp8u    mac[MBS_RIJ128];  /* current MAC value */
 
-   Ipp8u    cipher[sizeof(IppsAESSpec)+AES_ALIGNMENT-1];
+   Ipp8u    cipher[sizeof(IppsAESSpec)];
 };
 
 /* alignment */
@@ -52,7 +52,7 @@ struct _cpAES_CCM {
 /*
 // access macros
 */
-#define AESCCM_ID(stt)        ((stt)->idCtx)
+#define AESCCM_SET_ID(stt)    ((stt)->idCtx = (Ipp32u)idCtxAESCCM ^ (Ipp32u)IPP_UINT_PTR(stt))
 #define AESCCM_MSGLEN(stt)    ((stt)->msgLen)
 #define AESCCM_LENPRO(stt)    ((stt)->lenProcessed)
 #define AESCCM_TAGLEN(stt)    ((stt)->tagLen)
@@ -62,20 +62,19 @@ struct _cpAES_CCM {
 #define AESCCM_Si(stt)        ((stt)->si)
 #define AESCCM_BLK(stt)       ((stt)->blk)
 #define AESCCM_MAC(stt)       ((stt)->mac)
-#define AESCCM_CIPHER(stt)          (IppsAESSpec*)(&((stt)->cipher))
-#define AESCCM_CIPHER_ALIGNED(stt)  (IppsAESSpec*)( IPP_ALIGNED_PTR( ((stt)->cipher), AES_ALIGNMENT ) )
+#define AESCCM_CIPHER(stt)    (IppsAESSpec*)(&((stt)->cipher))
 
 /* valid context ID */
-#define VALID_AESCCM_ID(ctx)  (AESCCM_ID((ctx))==idCtxAESCCM)
+#define VALID_AESCCM_ID(ctx)  ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxAESCCM)
 
 /*
 // Internal functions
 */
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
 #define AuthEncrypt_RIJ128_AES_NI OWNAPI(AuthEncrypt_RIJ128_AES_NI)
-   void AuthEncrypt_RIJ128_AES_NI(const Ipp8u* inpBlk, Ipp8u* outBlk, int nr, const void* pRKey, Ipp32u len, void* pLocalCtx);
+   IPP_OWN_DECL (void, AuthEncrypt_RIJ128_AES_NI, (const Ipp8u* inpBlk, Ipp8u* outBlk, int nr, const void* pRKey, Ipp32u len, void* pLocalCtx))
 #define DecryptAuth_RIJ128_AES_NI OWNAPI(DecryptAuth_RIJ128_AES_NI)
-   void DecryptAuth_RIJ128_AES_NI(const Ipp8u* inpBlk, Ipp8u* outBlk, int nr, const void* pRKey, Ipp32u len, void* pLocalCtx);
+   IPP_OWN_DECL (void, DecryptAuth_RIJ128_AES_NI, (const Ipp8u* inpBlk, Ipp8u* outBlk, int nr, const void* pRKey, Ipp32u len, void* pLocalCtx))
 #endif
 
 /* Counter block formatter */
@@ -93,7 +92,7 @@ static Ipp8u* CounterEnc(Ipp32u* pBuffer, int fmt, Ipp64u counter)
 
 static int cpSizeofCtx_AESCCM(void)
 {
-   return sizeof(IppsAES_CCMState) + AESCCM_ALIGNMENT-1;
+   return sizeof(IppsAES_CCMState);
 }
 
 #endif /* _CP_AES_CCM_H*/

@@ -29,6 +29,7 @@
 #include <openssl/rand.h>
 #include <openssl/err.h>
 
+#include <crypto_mb/version.h>
 #include <crypto_mb/rsa.h>
 
 ////////////////////

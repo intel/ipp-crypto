@@ -74,6 +74,10 @@ enum MBX_ALGO {
     MBX_ALGO_RSA_3K,
     MBX_ALGO_RSA_4K,
     MBX_ALGO_X25519,
+    MBX_ALGO_ECDHE_NIST_P256,
+    MBX_ALGO_ECDSA_NIST_P256,
+    MBX_ALGO_ECDHE_NIST_P384,
+    MBX_ALGO_ECDSA_NIST_P384
 };
 
 /* multi-buffer width implemented by library */

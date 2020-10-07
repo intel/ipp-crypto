@@ -92,7 +92,7 @@
 *F*/
 #if defined(_ALG_SHA512_COMPACT_)
 
-void UpdateSHA512(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniPraram)
+IPP_OWN_DEFN (void, UpdateSHA512, (void* uniHash, const Ipp8u* mblk, int mlen, const void* uniPraram))
 {
    Ipp32u* data = (Ipp32u*)mblk;
 
@@ -151,7 +151,7 @@ void UpdateSHA512(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniPra
 }
 
 #else
-void UpdateSHA512(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniPraram)
+IPP_OWN_DEFN (void, UpdateSHA512, (void* uniHash, const Ipp8u* mblk, int mlen, const void* uniPraram))
 {
    Ipp32u* data = (Ipp32u*)mblk;
 

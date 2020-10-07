@@ -65,7 +65,6 @@ IPPFUN(IppStatus, ippsDLPSharedSecretDH,(const IppsBigNumState* pPrvKeyA,
 {
    /* test DL context */
    IPP_BAD_PTR1_RET(pDL);
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
    IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
 
    /* test flag */
@@ -73,17 +72,14 @@ IPPFUN(IppStatus, ippsDLPSharedSecretDH,(const IppsBigNumState* pPrvKeyA,
 
    /* test public key */
    IPP_BAD_PTR1_RET(pPrvKeyA);
-   pPrvKeyA = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrvKeyA, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrvKeyA), ippStsContextMatchErr);
 
    /* test public key */
    IPP_BAD_PTR1_RET(pPubKeyB);
-   pPubKeyB = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPubKeyB, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPubKeyB), ippStsContextMatchErr);
 
    /* test secret */
    IPP_BAD_PTR1_RET(pSecret);
-   pSecret = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSecret, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pSecret), ippStsContextMatchErr);
    IPP_BADARG_RET(BITS_BNU_CHUNK(DLP_BITSIZEP(pDL))>BN_ROOM(pSecret), ippStsRangeErr);
 

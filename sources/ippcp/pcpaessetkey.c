@@ -58,8 +58,6 @@ IPPFUN(IppStatus, ippsAESSetKey,(const Ipp8u* pKey, int keyLen, IppsAESSpec* pCt
    /* test pointers */
    IPP_BAD_PTR1_RET(pCtx);
 
-   /* use aligned AES context */
-   pCtx = (IppsAESSpec*)( IPP_ALIGNED_PTR(pCtx, AES_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_AES_ID(pCtx), ippStsContextMatchErr);
 

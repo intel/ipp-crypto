@@ -31,8 +31,7 @@
 #include "gsscramble.h"
 
 
-IppsGFpECPoint* gfec_NegPoint(IppsGFpECPoint* pR,
-                        const IppsGFpECPoint* pP, IppsGFpECState* pEC)
+IPP_OWN_DEFN (IppsGFpECPoint*, gfec_NegPoint, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, IppsGFpECState* pEC))
 {
    IppsGFpState* pGF = ECP_GFP(pEC);
    gsModEngine* pGFE = GFP_PMA(pGF);

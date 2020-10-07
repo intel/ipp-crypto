@@ -34,8 +34,7 @@ static int div_upper(int a, int d)
 { return (a+d-1)/d; }
 
 /* sscm version */
-BNU_CHUNK_T* cpGFpxExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pE, int nsE,
-                     gsModEngine* pGFEx, Ipp8u* pScratchBuffer)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxExp, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pE, int nsE, gsModEngine* pGFEx, Ipp8u* pScratchBuffer))
 {
    gsModEngine* pBasicGFE = cpGFpBasic(pGFEx);
 

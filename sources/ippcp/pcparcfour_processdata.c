@@ -33,7 +33,7 @@
 */
 #if !((_IPP>=_IPP_M5) || (_IPP32E>=_IPP32E_M7))
 
-void ARCFourProcessData(const Ipp8u *pSrc, Ipp8u *pDst, int length, IppsARCFourState *pCtx)
+IPP_OWN_DEFN (void, ARCFourProcessData, (const Ipp8u *pSrc, Ipp8u *pDst, int length, IppsARCFourState *pCtx))
 {
    if(length) {
       rc4word tx, ty;

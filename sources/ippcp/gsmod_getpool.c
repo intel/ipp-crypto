@@ -31,7 +31,7 @@
 #include "gsmodstuff.h"
 #include "pcptool.h"
 
-BNU_CHUNK_T*   gsModGetPool(gsModEngine* pME)
+IPP_OWN_DEFN (BNU_CHUNK_T*, gsModGetPool, (gsModEngine* pME))
 {
    BNU_CHUNK_T*
    pPool = (pME->poolLenUsed >= pME->poolLen)? NULL : MOD_BUFFER(pME, pME->poolLenUsed);

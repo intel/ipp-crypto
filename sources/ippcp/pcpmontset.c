@@ -52,7 +52,6 @@
 IPPFUN(IppStatus, ippsMontSet,(const Ipp32u* pModulus, int size, IppsMontState* pCtx))
 {
    IPP_BAD_PTR2_RET(pModulus, pCtx);
-   pCtx = (IppsMontState*)(IPP_ALIGNED_PTR((pCtx), MONT_ALIGNMENT));
    IPP_BADARG_RET(!MNT_VALID_ID(pCtx), ippStsContextMatchErr);
 
    IPP_BADARG_RET(size<1, ippStsLengthErr);

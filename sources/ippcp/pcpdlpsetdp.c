@@ -60,12 +60,10 @@ IPPFUN(IppStatus, ippsDLPSetDP,(const IppsBigNumState* pDP, IppDLPKeyTag tag, Ip
 {
    /* test DL context */
    IPP_BAD_PTR1_RET(pDL);
-   pDL =   (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
    IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
 
    /* test DL parameter to be set */
    IPP_BAD_PTR1_RET(pDP);
-   pDP  = (IppsBigNumState*)( IPP_ALIGNED_PTR(pDP, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pDP), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pDP), ippStsBadArgErr);
 

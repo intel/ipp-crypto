@@ -37,7 +37,7 @@
 #endif
 
 struct _cpSMS4 {
-   IppCtxId    idCtx;                              /* SMS4 spec identifier */
+   Ipp32u      idCtx;                              /* SMS4 spec identifier */
    Ipp32u      enc_rkeys[SMS4_ROUND_KEYS_NUM];     /* enc round keys       */
    Ipp32u      dec_rkeys[SMS4_ROUND_KEYS_NUM];     /* dec round keys       */
 };
@@ -45,7 +45,7 @@ struct _cpSMS4 {
 /*
 // access macros
 */
-#define SMS4_ID(ctx)       ((ctx)->idCtx)
+#define SMS4_SET_ID(ctx)   ((ctx)->idCtx = (Ipp32u)idCtxSMS4 ^ (Ipp32u)IPP_UINT_PTR(ctx))
 #define SMS4_RK(ctx)       ((ctx)->enc_rkeys)
 #define SMS4_ERK(ctx)      ((ctx)->enc_rkeys)
 #define SMS4_DRK(ctx)      ((ctx)->dec_rkeys)
@@ -58,7 +58,7 @@ struct _cpSMS4 {
 #endif
 
 /* valid SMS4 context ID */
-#define VALID_SMS4_ID(ctx)   (SMS4_ID((ctx))==idCtxSMS4)
+#define VALID_SMS4_ID(ctx)   ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxSMS4)
 
 /* alignment of AES context */
 #define SMS4_ALIGNMENT   (4)
@@ -66,7 +66,7 @@ struct _cpSMS4 {
 /* size of SMS4 context */
 __INLINE int cpSizeofCtx_SMS4(void)
 {
-   return sizeof(IppsSMS4Spec) +(SMS4_ALIGNMENT-1);
+   return sizeof(IppsSMS4Spec);
 }
 
 /* SMS4 constants */
@@ -155,42 +155,42 @@ __INLINE Ipp32u cpCipherMix_SMS4(Ipp32u x)
 
 
 #define cpSMS4_Cipher OWNAPI(cpSMS4_Cipher)
-void    cpSMS4_Cipher(Ipp8u* otxt, const Ipp8u* itxt, const Ipp32u* pRoundKeys);
+   IPP_OWN_DECL (void, cpSMS4_Cipher, (Ipp8u* otxt, const Ipp8u* itxt, const Ipp32u* pRoundKeys))
 
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
 #define cpSMS4_SetRoundKeys_aesni OWNAPI(cpSMS4_SetRoundKeys_aesni)
-void    cpSMS4_SetRoundKeys_aesni(Ipp32u* pRounKey, const Ipp8u* pSecretKey);
+   IPP_OWN_DECL (void, cpSMS4_SetRoundKeys_aesni, (Ipp32u* pRounKey, const Ipp8u* pSecretKey))
 
 #define cpSMS4_ECB_aesni_x1 OWNAPI(cpSMS4_ECB_aesni_x1)
-   void cpSMS4_ECB_aesni_x1(Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey);
+   IPP_OWN_DECL (void, cpSMS4_ECB_aesni_x1, (Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey))
 #define cpSMS4_ECB_aesni OWNAPI(cpSMS4_ECB_aesni)
-int     cpSMS4_ECB_aesni(Ipp8u* pDst, const Ipp8u* pSrc, int nLen, const Ipp32u* pRKey);
+   IPP_OWN_DECL (int, cpSMS4_ECB_aesni, (Ipp8u* pDst, const Ipp8u* pSrc, int nLen, const Ipp32u* pRKey))
 #define cpSMS4_CBC_dec_aesni OWNAPI(cpSMS4_CBC_dec_aesni)
-int     cpSMS4_CBC_dec_aesni(Ipp8u* pDst, const Ipp8u* pSrc, int nLen, const Ipp32u* pRKey, Ipp8u* pIV);
+   IPP_OWN_DECL (int, cpSMS4_CBC_dec_aesni, (Ipp8u* pDst, const Ipp8u* pSrc, int nLen, const Ipp32u* pRKey, Ipp8u* pIV))
 #define cpSMS4_CTR_aesni OWNAPI(cpSMS4_CTR_aesni)
-int     cpSMS4_CTR_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr);
+   IPP_OWN_DECL (int, cpSMS4_CTR_aesni, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr))
 
 #if (_IPP>=_IPP_H9) || (_IPP32E>=_IPP32E_L9)
 #define cpSMS4_ECB_aesni_x12 OWNAPI(cpSMS4_ECB_aesni_x12)
-    int cpSMS4_ECB_aesni_x12(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey);
+   IPP_OWN_DECL (int, cpSMS4_ECB_aesni_x12, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey))
 #define cpSMS4_CBC_dec_aesni_x12 OWNAPI(cpSMS4_CBC_dec_aesni_x12)
-    int cpSMS4_CBC_dec_aesni_x12(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV);
+   IPP_OWN_DECL (int, cpSMS4_CBC_dec_aesni_x12, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV))
 #define cpSMS4_CTR_aesni_x4 OWNAPI(cpSMS4_CTR_aesni_x4)
-    int cpSMS4_CTR_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr);
+   IPP_OWN_DECL (int, cpSMS4_CTR_aesni_x4, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr))
 
 #if (_IPP32E>=_IPP32E_K0)
 #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
 
 #define cpSMS4_ECB_gfni_x1 OWNAPI(cpSMS4_ECB_gfni_x1)
-   void cpSMS4_ECB_gfni_x1(Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey);
+   IPP_OWN_DECL (void, cpSMS4_ECB_gfni_x1, (Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey))
 #define cpSMS4_ECB_gfni512 OWNAPI(cpSMS4_ECB_gfni512)
-    int cpSMS4_ECB_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey);
+   IPP_OWN_DECL (int, cpSMS4_ECB_gfni512, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey))
 #define cpSMS4_CBC_dec_gfni512 OWNAPI(cpSMS4_CBC_dec_gfni512)
-    int cpSMS4_CBC_dec_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV);
+   IPP_OWN_DECL (int, cpSMS4_CBC_dec_gfni512, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV))
 #define cpSMS4_CTR_gfni512 OWNAPI(cpSMS4_CTR_gfni512)
-    int cpSMS4_CTR_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr);
+   IPP_OWN_DECL (int, cpSMS4_CTR_gfni512, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr))
 #define cpSMS4_CFB_dec_gfni512 OWNAPI(cpSMS4_CFB_dec_gfni512)
-   void cpSMS4_CFB_dec_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, int cfbBlkSize, const Ipp32u* pRKey, Ipp8u* pIV);
+   IPP_OWN_DECL (void, cpSMS4_CFB_dec_gfni512, (Ipp8u* pOut, const Ipp8u* pInp, int len, int cfbBlkSize, const Ipp32u* pRKey, Ipp8u* pIV))
 
 #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
 #endif /* (_IPP32E>=_IPP32E_K0) */
@@ -200,6 +200,6 @@ int     cpSMS4_CTR_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* 
 #endif
 
 #define cpProcessSMS4_ctr OWNAPI(cpProcessSMS4_ctr)
-IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const IppsSMS4Spec* pCtx, Ipp8u* pCtrValue, int ctrNumBitSize);
+   IPP_OWN_DECL (IppStatus, cpProcessSMS4_ctr, (const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const IppsSMS4Spec* pCtx, Ipp8u* pCtrValue, int ctrNumBitSize))
 
 #endif /* _PCP_SMS4_H */

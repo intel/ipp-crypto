@@ -34,7 +34,7 @@
 /*
 // montfomery factor k0 = -((modulus^-1 mod B) %B)
 */
-BNU_CHUNK_T gsMontFactor(BNU_CHUNK_T m0)
+IPP_OWN_DEFN (BNU_CHUNK_T, gsMontFactor, (BNU_CHUNK_T m0))
 {
    BNU_CHUNK_T y = 1;
    BNU_CHUNK_T x = 2;

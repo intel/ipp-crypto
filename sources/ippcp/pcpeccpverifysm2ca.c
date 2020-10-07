@@ -74,17 +74,14 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
    IppsGFpState* pGF;
    gsModEngine* pGFE;
 
-   /* use aligned EC context */
    IPP_BAD_PTR1_RET(pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    pGF = ECP_GFP(pEC);
    pGFE = GFP_PMA(pGF);
 
    /* test message representative: pMsgDigest>=0 */
    IPP_BAD_PTR1_RET(pMsgDigest);
-   pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
    /* make sure bisize(pMsgDigest) <= bitsize(order) */
@@ -92,7 +89,7 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
 
    /* test regular public key */
    IPP_BAD_PTR1_RET(pRegPublic);
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pRegPublic), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pRegPublic), ippStsContextMatchErr );
    IPP_BADARG_RET( ECP_POINT_FELEN(pRegPublic)!=GFP_FELEN(pGFE), ippStsOutOfRangeErr);
 
    /* test result */
@@ -100,8 +97,6 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
 
    /* test signature */
    IPP_BAD_PTR2_RET(pSignR, pSignS);
-   pSignR = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignR, ALIGN_VAL) );
-   pSignS = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignS, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pSignR), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pSignS), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pSignR), ippStsRangeErr);

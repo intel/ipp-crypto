@@ -50,9 +50,11 @@ IPPFUN(IppStatus, ippsSHA1Pack,(const IppsSHA1State* pState, Ipp8u* pBuffer))
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pState, pBuffer);
-   pState = (IppsSHA1State*)( IPP_ALIGNED_PTR(pState, SHA1_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxSHA1 !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxSHA1), ippStsContextMatchErr);
 
    CopyBlock(pState, pBuffer, sizeof(IppsSHA1State));
+   IppsSHA1State* pCopy = (IppsSHA1State*)pBuffer;
+   HASH_RESET_ID(pCopy, idCtxSHA1);
+   
    return ippStsNoErr;
 }

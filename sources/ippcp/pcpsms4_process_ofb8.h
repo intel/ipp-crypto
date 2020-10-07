@@ -31,8 +31,6 @@
 #define _PCP_SMS4_PROCESS_OFB8_H
 
 #define cpProcessSMS4_ofb8 OWNAPI(cpProcessSMS4_ofb8)
-void cpProcessSMS4_ofb8(const Ipp8u *pSrc, Ipp8u *pDst, int dataLen, int ofbBlkSize,
-                        const IppsSMS4Spec* pCtx,
-                        Ipp8u* pIV);
+    IPP_OWN_DECL (void, cpProcessSMS4_ofb8, (const Ipp8u *pSrc, Ipp8u *pDst, int dataLen, int ofbBlkSize, const IppsSMS4Spec* pCtx, Ipp8u* pIV))
 
 #endif /* #if !defined _PCP_SMS4_PROCESS_OFB8_H */

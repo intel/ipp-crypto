@@ -93,7 +93,7 @@
 //    uniParam pointer to the optional parameter
 //
 *F*/
-void UpdateMD5(void* uinHash, const Ipp8u* mblk, int mlen, const void* uniParam)
+IPP_OWN_DEFN (void, UpdateMD5, (void* uinHash, const Ipp8u* mblk, int mlen, const void* uniParam))
 {
    Ipp32u* digest = (Ipp32u*)uinHash;
    Ipp32u* MD5_cnt_loc = (Ipp32u*)uniParam;

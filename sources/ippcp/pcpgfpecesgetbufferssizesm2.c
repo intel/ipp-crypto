@@ -52,7 +52,7 @@ IPPFUN(IppStatus, ippsGFpECESGetBuffersSize_SM2, (int* pPublicKeySize,
       *pMaximumTagSize = IPP_SM3_DIGEST_BITSIZE / BYTESIZE;
    if (pPublicKeySize) {
       IPP_BAD_PTR1_RET(pState);
-      IPP_BADARG_RET(pState->idCtx != idxCtxECES_SM2, ippStsContextMatchErr);
+      IPP_BADARG_RET(!VALID_ECES_SM2_ID(pState), ippStsContextMatchErr);
       *pPublicKeySize = pState->sharedSecretLen;
    }
 

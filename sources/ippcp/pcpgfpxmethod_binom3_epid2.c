@@ -56,7 +56,7 @@
 //    - field polynomial: g(v) = v^3 - xi  => binominal with specific value of "xi"
 //    - xi = x+2
 */
-static BNU_CHUNK_T* cpGFpxMul_p3_binom_epid2(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_p3_binom_epid2, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx))
 {
    gsEngine* pGroundGFE = GFP_PARENT(pGFEx);
    int groundElemLen = GFP_FELEN(pGroundGFE);
@@ -141,7 +141,7 @@ static BNU_CHUNK_T* cpGFpxMul_p3_binom_epid2(BNU_CHUNK_T* pR, const BNU_CHUNK_T*
 //    - field polynomial: g(v) = v^3 - xi  => binominal with specific value of "xi"
 //    - xi = x+2
 */
-static BNU_CHUNK_T* cpGFpxSqr_p3_binom_epid2(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxSqr_p3_binom_epid2, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx))
 {
    gsEngine* pGroundGFE = GFP_PARENT(pGFEx);
    int groundElemLen = GFP_FELEN(pGroundGFE);
@@ -208,7 +208,7 @@ static BNU_CHUNK_T* cpGFpxSqr_p3_binom_epid2(BNU_CHUNK_T* pR, const BNU_CHUNK_T*
 // return specific polynomi alarith methods
 // polynomial - deg 3 binomial (Intel(R) EPID 2.0)
 */
-static gsModMethod* gsPolyArith_binom3_epid2(void)
+static gsModMethod* gsPolyArith_binom3_epid2 (void)
 {
    static gsModMethod m = {
       cpGFpxEncode_com,

@@ -48,7 +48,7 @@
 *F*/
 IPPFUN(IppStatus, ippsGFpECESDecrypt_SM2, (const Ipp8u* pInput, Ipp8u* pOutput, int dataLen, IppsECESState_SM2* pState)) {
    IPP_BAD_PTR3_RET(pInput, pOutput, pState);
-   IPP_BADARG_RET(pState->idCtx != idxCtxECES_SM2, ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECES_SM2_ID(pState), ippStsContextMatchErr);
    /* a shared secret should be computed and the process should not be finished by getTag */
    IPP_BADARG_RET(pState->state != ECESAlgoProcessing, ippStsIncompleteContextErr);
    IPP_BADARG_RET(dataLen < 0, ippStsSizeErr);

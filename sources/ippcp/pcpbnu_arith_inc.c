@@ -55,7 +55,7 @@
       (_IPP32E>=_IPP32E_E9) || \
       (_IPP32E==_IPP32E_N8)) || \
       defined(_USE_C_cpInc_BNU_)
-BNU_CHUNK_T cpInc_BNU(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, cpSize ns, BNU_CHUNK_T val)
+IPP_OWN_DEFN (BNU_CHUNK_T, cpInc_BNU, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, cpSize ns, BNU_CHUNK_T val))
 {
    cpSize i;
    for(i=0; i<ns && val; i++) {

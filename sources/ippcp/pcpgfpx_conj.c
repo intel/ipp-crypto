@@ -28,7 +28,7 @@
 #include "pcpgfpxstuff.h"
 #include "gsscramble.h"
 
-BNU_CHUNK_T* cpGFpxConj(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFEx)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxConj, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFEx))
 {
    gsModEngine* pGroundGFE = GFP_PARENT(pGFEx);
    int groundElemLen = GFP_FELEN(pGroundGFE);

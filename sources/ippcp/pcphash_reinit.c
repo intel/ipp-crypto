@@ -46,7 +46,7 @@
 //    algID    hash alg ID
 //
 *F*/
-int cpReInitHash(IppsHashState* pCtx, IppHashAlgId algID)
+IPP_OWN_DEFN (int, cpReInitHash, (IppsHashState* pCtx, IppHashAlgId algID))
 {
    int hashIvSize = cpHashIvSize(algID);
    const Ipp8u* iv = cpHashIV[algID];

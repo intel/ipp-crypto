@@ -52,10 +52,9 @@ IPPFUN(IppStatus, ippsMD5Init,(IppsMD5State* pState))
 {
    /* test state pointer */
    IPP_BAD_PTR1_RET(pState);
-   pState = (IppsMD5State*)( IPP_ALIGNED_PTR(pState, MD5_ALIGNMENT) );
 
    PadBlock(0, pState, sizeof(IppsMD5State));
-   HASH_CTX_ID(pState) = idCtxMD5;
+   HASH_SET_ID(pState, idCtxMD5);
    md5_hashInit(HASH_VALUE(pState));
    return ippStsNoErr;
 }

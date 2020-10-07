@@ -72,14 +72,9 @@ IPPFUN(IppStatus, ippsRSA_MB_Encrypt,(const IppsBigNumState* const pPtxts[8],
    IPP_BAD_PTR4_RET(pPtxts, pCtxts, pBuffer, statuses);
 
    int i, valid_key_id;
-   const IppsRSAPublicKeyState* pAlignedKeys[8];
-
-   for (i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
-      pAlignedKeys[i] = (IppsRSAPublicKeyState*)(IPP_ALIGNED_PTR(pKeys[i], RSA_PUBLIC_KEY_ALIGNMENT));
-   }
 
    {
-      IppStatus consistencyCheckSts = CheckPublicKeysConsistency(pAlignedKeys, &valid_key_id);
+      IppStatus consistencyCheckSts = CheckPublicKeysConsistency(pKeys, &valid_key_id);
       if (valid_key_id == -1) {
          return consistencyCheckSts;
       }
@@ -113,7 +108,7 @@ IPPFUN(IppStatus, ippsRSA_MB_Encrypt,(const IppsBigNumState* const pPtxts[8],
    #endif
    {
       for(i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {
-         statuses[i] = ippsRSA_Encrypt(pPtxts[i], pCtxts[i], pAlignedKeys[i], pBuffer);
+         statuses[i] = ippsRSA_Encrypt(pPtxts[i], pCtxts[i], pKeys[i], pBuffer);
       }
 
       for(i = 0; i < RSA_MB_MAX_BUF_QUANTITY; i++) {

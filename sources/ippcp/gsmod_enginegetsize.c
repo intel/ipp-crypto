@@ -48,7 +48,7 @@
 //
 *F*/
 
-IppStatus gsModEngineGetSize(int modulusBitSize, int numpe, int* pSize)
+IPP_OWN_DEFN (IppStatus, gsModEngineGetSize, (int modulusBitSize, int numpe, int* pSize))
 {
    int modLen  = BITS_BNU_CHUNK(modulusBitSize);
    int pelmLen = BITS_BNU_CHUNK(modulusBitSize);

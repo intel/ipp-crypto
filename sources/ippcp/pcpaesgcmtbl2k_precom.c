@@ -51,7 +51,7 @@ static void RightShiftBlock16(Ipp8u* pBlock)
    }
 }
 
-void AesGcmPrecompute_table2K(Ipp8u* pPrecomputeData, const Ipp8u* pHKey)
+IPP_OWN_DEFN (void, AesGcmPrecompute_table2K, (Ipp8u* pPrecomputeData, const Ipp8u* pHKey))
 {
    Ipp8u t[BLOCK_SIZE];
    int n;

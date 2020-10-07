@@ -52,7 +52,6 @@ IPPFUN(IppStatus, ippsHMACFinal_rmf,(Ipp8u* pMD, int mdLen, IppsHMACState_rmf* p
 {
    /* test state pointer and ID */
    IPP_BAD_PTR1_RET(pCtx);
-   pCtx = (IppsHMACState_rmf*)(IPP_ALIGNED_PTR(pCtx, HASH_ALIGNMENT));
    IPP_BADARG_RET(!HMAC_VALID_ID(pCtx), ippStsContextMatchErr);
 
    /* test MD pointer and length */

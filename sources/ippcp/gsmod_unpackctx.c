@@ -31,7 +31,7 @@
 #include "gsmodstuff.h"
 #include "pcptool.h"
 
-void gsUnpackModEngineCtx(const Ipp8u* pBuffer, gsModEngine* pCtx)
+IPP_OWN_DEFN (void, gsUnpackModEngineCtx, (const Ipp8u* pBuffer, gsModEngine* pCtx))
 {
    gsModEngine* pAlignedBuffer = (gsModEngine*)pBuffer;
 

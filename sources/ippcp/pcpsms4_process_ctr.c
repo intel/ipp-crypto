@@ -55,15 +55,10 @@
 //    counter will updated on return
 //
 */
-#define cpProcessSMS4_ctr OWNAPI(cpProcessSMS4_ctr)
-IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
-                            const IppsSMS4Spec* pCtx,
-                            Ipp8u* pCtrValue, int ctrNumBitSize)
+IPP_OWN_DEFN (IppStatus, cpProcessSMS4_ctr, (const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const IppsSMS4Spec* pCtx, Ipp8u* pCtrValue, int ctrNumBitSize))
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned SMS4 context */
-   pCtx = (IppsSMS4Spec*)( IPP_ALIGNED_PTR(pCtx, SMS4_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_SMS4_ID(pCtx), ippStsContextMatchErr);
 

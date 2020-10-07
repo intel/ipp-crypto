@@ -44,14 +44,14 @@
 //
 *F*/
 
-int cpBigNumListGetSize(int feBitSize, int nodes)
+IPP_OWN_DEFN (int, cpBigNumListGetSize, (int feBitSize, int nodes))
 {
    /* size of buffer per single big number */
    int bnSize;
    ippsBigNumGetSize(BITS2WORD32_SIZE(feBitSize), &bnSize);
 
    /* size of buffer for whole list */
-   return (ALIGN_VAL-1) + ((Ipp32s)sizeof(BigNumNode) + bnSize) * nodes;
+   return ((Ipp32s)sizeof(BigNumNode) + bnSize) * nodes;
 }
 
 /*F*
@@ -68,7 +68,7 @@ int cpBigNumListGetSize(int feBitSize, int nodes)
 // Note: buffer for BN list must have appropriate alignment
 //
 *F*/
-void cpBigNumListInit(int feBitSize, int nodes, BigNumNode* pList)
+IPP_OWN_DEFN (void, cpBigNumListInit, (int feBitSize, int nodes, BigNumNode* pList))
 {
    int itemSize;
    /* length of Big Num */
@@ -86,7 +86,7 @@ void cpBigNumListInit(int feBitSize, int nodes, BigNumNode* pList)
       for(n=0; n<nodes; n++) {
          Ipp8u* tbnPtr = (Ipp8u*)pNode + sizeof(BigNumNode);
          pNode->pNext = pNext;
-         pNode->pBN = (IppsBigNumState*)( IPP_ALIGNED_PTR(tbnPtr, ALIGN_VAL) );
+         pNode->pBN = (IppsBigNumState*)(tbnPtr);
          ippsBigNumInit(bnLen, pNode->pBN);
          pNext = pNode;
          pNode = (BigNumNode*)( (Ipp8u*)pNode - itemSize);
@@ -108,7 +108,7 @@ void cpBigNumListInit(int feBitSize, int nodes, BigNumNode* pList)
 //
 *F*/
 
-IppsBigNumState* cpBigNumListGet(BigNumNode** ppList)
+IPP_OWN_DEFN (IppsBigNumState*, cpBigNumListGet, (BigNumNode** ppList))
 {
    if(*ppList) {
       IppsBigNumState* ret = (*ppList)->pBN;

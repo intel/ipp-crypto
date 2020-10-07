@@ -58,7 +58,6 @@ IPPFUN(IppStatus, ippsSetOctString_BN,(const Ipp8u* pOctStr, int strLen,
 {
    IPP_BAD_PTR2_RET(pOctStr, pBN);
 
-   pBN = (IppsBigNumState*)( IPP_ALIGNED_PTR(pBN, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pBN), ippStsContextMatchErr);
 
    IPP_BADARG_RET((0>strLen), ippStsLengthErr);

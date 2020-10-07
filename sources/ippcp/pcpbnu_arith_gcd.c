@@ -42,7 +42,7 @@
 //
 *F*/
 
-BNU_CHUNK_T cpGcd_BNU(BNU_CHUNK_T a, BNU_CHUNK_T b)
+IPP_OWN_DEFN (BNU_CHUNK_T, cpGcd_BNU, (BNU_CHUNK_T a, BNU_CHUNK_T b))
 {
     BNU_CHUNK_T gcd, t, r;
 

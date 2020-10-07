@@ -35,7 +35,7 @@
 #if (_IPP32E>=_IPP32E_K0)
 #include "pcpngmontexpstuff_avx512.h"
 
-gsMethod_RSA* gsMethod_RSA_avx512_private(void)
+IPP_OWN_DEFN (gsMethod_RSA*, gsMethod_RSA_avx512_private, (void))
 {
    static gsMethod_RSA m = {
       RSA_AVX512_MIN_BITSIZE, RSA_AVX512_MAX_BITSIZE, /* RSA range */
@@ -48,7 +48,31 @@ gsMethod_RSA* gsMethod_RSA_avx512_private(void)
       gsMontExpWinBuffer_avx512,
       gsMontExpWin_BNU_sscm_avx512
       #endif
+      , NULL
    };
+   return &m;
+}
+
+#define RSA_DEXP_AVX512_MIN_BITSIZE 2048
+#define RSA_DEXP_AVX512_MAX_BITSIZE 2048
+
+IPP_OWN_DEFN (gsMethod_RSA*, gsMethod_RSA_avx512_dexp_private, (int privExpBitSize)) {
+   static gsMethod_RSA m = {
+      RSA_DEXP_AVX512_MIN_BITSIZE, RSA_DEXP_AVX512_MAX_BITSIZE, /* RSA range */
+      gsMontDExpWinBuffer_avx512,
+      NULL,
+      NULL
+   };
+
+   if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+      ngMontDualExp dexpFunc = NULL;
+      switch (privExpBitSize) {
+            case 1024: dexpFunc = gsMontDExp2x1024_Win_BNU_sscm_avx512; break; // RSA2k
+            default: dexpFunc = NULL;
+      }
+      m.dualExpFun = dexpFunc;
+   }
+
    return &m;
 }
 #endif /* _IPP32E_K0 */

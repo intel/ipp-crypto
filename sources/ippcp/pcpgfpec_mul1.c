@@ -31,10 +31,7 @@
 #include "gsscramble.h"
 
 #if 0
-IppsGFpECPoint* gfec_MulPoint(IppsGFpECPoint* pR,
-                        const IppsGFpECPoint* pP,
-                        const BNU_CHUNK_T* pScalar, int scalarLen,
-                        IppsGFpECState* pEC, Ipp8u* pScratchBuffer)
+IPP_OWN_DEFN (IppsGFpECPoint*, gfec_MulPoint, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 {
    FIX_BNU(pScalar, scalarLen);
    {
@@ -55,10 +52,7 @@ IppsGFpECPoint* gfec_MulPoint(IppsGFpECPoint* pR,
    }
 }
 #endif
-IppsGFpECPoint* gfec_MulPoint(IppsGFpECPoint* pR,
-   const IppsGFpECPoint* pP,
-   const BNU_CHUNK_T* pScalar, int scalarLen,
-   IppsGFpECState* pEC, Ipp8u* pScratchBuffer)
+IPP_OWN_DEFN (IppsGFpECPoint*, gfec_MulPoint, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 {
    FIX_BNU(pScalar, scalarLen);
    {

@@ -55,10 +55,6 @@ IPPFUN(IppStatus, ippsMontForm,(const IppsBigNumState* pA, IppsMontState* pCtx, 
 {
    IPP_BAD_PTR3_RET(pCtx, pA, pR);
 
-   pCtx = (IppsMontState*)(IPP_ALIGNED_PTR((pCtx), MONT_ALIGNMENT));
-   pA = (IppsBigNumState*)( IPP_ALIGNED_PTR(pA, BN_ALIGNMENT) );
-   pR = (IppsBigNumState*)( IPP_ALIGNED_PTR(pR, BN_ALIGNMENT) );
-
    IPP_BADARG_RET(!MNT_VALID_ID(pCtx), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pA), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pR), ippStsContextMatchErr);

@@ -853,128 +853,6 @@ IPPASM p521r1_mred,PUBLIC
    ret
 ENDFUNC p521r1_mred
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; projective point selector
-;
-; void p521r1_select_pp_w5(P521_POINT* val, const P521_POINT* tbl, int idx);
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-align IPP_ALIGN_FACTOR
-IPPASM p521r1_select_pp_w5,PUBLIC
-%assign LOCAL_FRAME sizeof(oword)*2
-        USES_GPR rsi,rdi,r12,r13
-        USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12,xmm13,xmm14,xmm15
-        COMP_ABI 3
-
-%xdefine val    rdi
-%xdefine tbl    rsi
-%xdefine idx    edx
-
-;
-; stack structure
-;
-%assign REQ_IDX_OFF   0                          ; being requested table entry
-%assign CUR_IDX_OFF   REQ_IDX_OFF+sizeof(oword)  ; current table index
-
-   movd     xmm15, idx
-   pshufd   xmm15, xmm15, 0
-   movdqa   oword [rsp+REQ_IDX_OFF], xmm15
-
-   movdqa   xmm14, oword [rel LOne]
-   movdqa   oword [rsp+CUR_IDX_OFF], xmm14
-
-   pxor     xmm0, xmm0
-   pxor     xmm1, xmm1
-   pxor     xmm2, xmm2
-   pxor     xmm3, xmm3
-   pxor     xmm4, xmm4
-   pxor     xmm5, xmm5
-   pxor     xmm6, xmm6
-   pxor     xmm7, xmm7
-   pxor     xmm8, xmm8
-   pxor     xmm9, xmm9
-   pxor     xmm10,xmm10
-   pxor     xmm11,xmm11
-   pxor     xmm12,xmm12
-   pxor     xmm13,xmm13
-
-   ; Skip index = 0, is implicictly infty -> load with offset -1
-   mov      rcx, dword 16
-.select_loop:
-      movdqa   xmm15, oword [rsp+CUR_IDX_OFF]  ; MASK = CUR_IDX==REQ_IDX? 0xFF : 0x00
-      movdqa   xmm14, xmm15
-      pcmpeqd  xmm15, oword [rsp+REQ_IDX_OFF]  ;
-      paddd    xmm14, oword [rel LOne]
-      movdqa   oword [rsp+CUR_IDX_OFF], xmm14
-
-      movdqu   xmm14, oword [tbl+sizeof(oword)*0]  ; read and mask X, Y and Z
-      pand     xmm14, xmm15
-      por      xmm0, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*1]
-      pand     xmm14, xmm15
-      por      xmm1, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*2]
-      pand     xmm14, xmm15
-      por      xmm2, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*3]
-      pand     xmm14, xmm15
-      por      xmm3, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*4]
-      pand     xmm14, xmm15
-      por      xmm4, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*5]
-      pand     xmm14, xmm15
-      por      xmm5, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*6]
-      pand     xmm14, xmm15
-      por      xmm6, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*7]
-      pand     xmm14, xmm15
-      por      xmm7, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*8]
-      pand     xmm14, xmm15
-      por      xmm8, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*9]
-      pand     xmm14, xmm15
-      por      xmm9, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*10]
-      pand     xmm14, xmm15
-      por      xmm10, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*11]
-      pand     xmm14, xmm15
-      por      xmm11, xmm14
-      movdqu   xmm14, oword [tbl+sizeof(oword)*12]
-      pand     xmm14, xmm15
-      por      xmm12, xmm14
-      movd     xmm14, dword [tbl+sizeof(oword)*13]
-      pand     xmm14, xmm15
-      por      xmm13, xmm14
-
-      add      tbl, sizeof(qword)*(9*3)
-      dec      rcx
-      jnz      .select_loop
-
-   movdqu   oword [val+sizeof(oword)*0], xmm0
-   movdqu   oword [val+sizeof(oword)*1], xmm1
-   movdqu   oword [val+sizeof(oword)*2], xmm2
-   movdqu   oword [val+sizeof(oword)*3], xmm3
-   movdqu   oword [val+sizeof(oword)*4], xmm4
-   movdqu   oword [val+sizeof(oword)*5], xmm5
-   movdqu   oword [val+sizeof(oword)*6], xmm6
-   movdqu   oword [val+sizeof(oword)*7], xmm7
-   movdqu   oword [val+sizeof(oword)*8], xmm8
-   movdqu   oword [val+sizeof(oword)*9], xmm9
-   movdqu   oword [val+sizeof(oword)*10],xmm10
-   movdqu   oword [val+sizeof(oword)*11],xmm11
-   movdqu   oword [val+sizeof(oword)*12],xmm12
-   movq     qword [val+sizeof(oword)*13],xmm13
-
-   REST_XMM
-   REST_GPR
-   ret
-ENDFUNC p521r1_select_pp_w5
-
 %ifndef _DISABLE_ECP_521R1_HARDCODED_BP_TBL_
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -1059,7 +937,7 @@ IPPASM p521r1_select_ap_w5,PUBLIC
       pand     TMP, MASKDATA
       por      xyz8, TMP
 
-      add      tbl, sizeof(qword)*(9*2)
+      add      in_t, sizeof(qword)*(9*2)
       dec      rcx
       jnz      .select_loop
 

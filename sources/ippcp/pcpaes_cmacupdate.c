@@ -90,9 +90,6 @@ IPPFUN(IppStatus, ippsAES_CMACUpdate,(const Ipp8u* pSrc, int len, IppsAES_CMACSt
 
    /* test context pointer */
    IPP_BAD_PTR1_RET(pState);
-   /* use aligned context */
-   pState = (IppsAES_CMACState*)( IPP_ALIGNED_PTR(pState, AESCMAC_ALIGNMENT) );
-
    /* test ID */
    IPP_BADARG_RET(!VALID_AESCMAC_ID(pState), ippStsContextMatchErr);
    /* test input message and it's length */

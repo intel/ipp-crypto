@@ -57,7 +57,7 @@ IPPFUN(IppStatus, ippsAES_CCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
    IPP_BAD_PTR1_RET(pState);
 
    /* test state ID */
-   IPP_BADARG_RET(idCtxAESCCM !=AESCCM_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_AESCCM_ID(pState), ippStsContextMatchErr);
 
    /* test source/destination data */
    IPP_BAD_PTR2_RET(pSrc, pDst);
@@ -70,7 +70,7 @@ IPPFUN(IppStatus, ippsAES_CCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
    */
    if(len) {
       /* setup encoder method */
-      IppsAESSpec* pAES = AESCCM_CIPHER_ALIGNED(pState);
+      IppsAESSpec* pAES = AESCCM_CIPHER(pState);
       RijnCipher encoder = RIJ_ENCODER(pAES);
 
       Ipp32u flag = (Ipp32u)( AESCCM_LENPRO(pState) &(MBS_RIJ128-1) );

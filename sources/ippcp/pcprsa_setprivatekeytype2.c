@@ -71,17 +71,14 @@ IPPFUN(IppStatus, ippsRSA_SetPrivateKeyType2,(const IppsBigNumState* pFactorP,
                                               IppsRSAPrivateKeyState* pKey))
 {
    IPP_BAD_PTR1_RET(pKey);
-   pKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PRIVATE_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PRV_KEY2_VALID_ID(pKey), ippStsContextMatchErr);
 
    IPP_BAD_PTR1_RET(pFactorP);
-   pFactorP = (IppsBigNumState*)( IPP_ALIGNED_PTR(pFactorP, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pFactorP), ippStsContextMatchErr);
    IPP_BADARG_RET(!(0 < cpBN_tst(pFactorP)), ippStsOutOfRangeErr);
    IPP_BADARG_RET(BITSIZE_BNU(BN_NUMBER(pFactorP), BN_SIZE(pFactorP)) > RSA_PRV_KEY_BITSIZE_P(pKey), ippStsSizeErr);
 
    IPP_BAD_PTR1_RET(pFactorQ);
-   pFactorQ = (IppsBigNumState*)( IPP_ALIGNED_PTR(pFactorQ, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pFactorQ), ippStsContextMatchErr);
    IPP_BADARG_RET(!(0 < cpBN_tst(pFactorQ)), ippStsOutOfRangeErr);
    IPP_BADARG_RET(BITSIZE_BNU(BN_NUMBER(pFactorQ), BN_SIZE(pFactorQ)) > RSA_PRV_KEY_BITSIZE_Q(pKey), ippStsSizeErr);
@@ -90,19 +87,16 @@ IPPFUN(IppStatus, ippsRSA_SetPrivateKeyType2,(const IppsBigNumState* pFactorP,
    //IPP_BADARG_RET(0>=cpBN_cmp(pFactorP,pFactorQ), ippStsBadArgErr);
 
    IPP_BAD_PTR1_RET(pCrtExpP);
-   pCrtExpP = (IppsBigNumState*)( IPP_ALIGNED_PTR(pCrtExpP, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pCrtExpP), ippStsContextMatchErr);
    IPP_BADARG_RET(!(0 < cpBN_tst(pCrtExpP)), ippStsOutOfRangeErr);
    IPP_BADARG_RET(BITSIZE_BNU(BN_NUMBER(pCrtExpP), BN_SIZE(pCrtExpP)) > RSA_PRV_KEY_BITSIZE_P(pKey), ippStsSizeErr);
 
    IPP_BAD_PTR1_RET(pCrtExpQ);
-   pCrtExpQ = (IppsBigNumState*)( IPP_ALIGNED_PTR(pCrtExpQ, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pCrtExpQ), ippStsContextMatchErr);
    IPP_BADARG_RET(!(0 < cpBN_tst(pCrtExpQ)), ippStsOutOfRangeErr);
    IPP_BADARG_RET(BITSIZE_BNU(BN_NUMBER(pCrtExpQ), BN_SIZE(pCrtExpQ)) > RSA_PRV_KEY_BITSIZE_Q(pKey), ippStsSizeErr);
 
    IPP_BAD_PTR1_RET(pInverseQ);
-   pInverseQ = (IppsBigNumState*)( IPP_ALIGNED_PTR(pInverseQ, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pInverseQ), ippStsContextMatchErr);
    IPP_BADARG_RET(!(0 < cpBN_tst(pInverseQ)), ippStsOutOfRangeErr);
    IPP_BADARG_RET(BITSIZE_BNU(BN_NUMBER(pInverseQ), BN_SIZE(pInverseQ)) > RSA_PRV_KEY_BITSIZE_P(pKey), ippStsSizeErr);

@@ -69,14 +69,10 @@ IPPFUN(IppStatus, ippsTDESDecryptCBC,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
 {
    /* test contexts */
    IPP_BAD_PTR3_RET(pCtx1, pCtx2, pCtx3);
-   /* use aligned DES contexts */
-   pCtx1 = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx1, DES_ALIGNMENT) );
-   pCtx2 = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx2, DES_ALIGNMENT) );
-   pCtx3 = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx3, DES_ALIGNMENT) );
 
-   IPP_BADARG_RET(!DES_ID_TEST(pCtx1), ippStsContextMatchErr);
-   IPP_BADARG_RET(!DES_ID_TEST(pCtx2), ippStsContextMatchErr);
-   IPP_BADARG_RET(!DES_ID_TEST(pCtx3), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_DES_ID(pCtx1), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_DES_ID(pCtx2), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_DES_ID(pCtx3), ippStsContextMatchErr);
    /* test source and destination pointers */
    IPP_BAD_PTR3_RET(pSrc, pDst, pIV);
    /* test stream length */

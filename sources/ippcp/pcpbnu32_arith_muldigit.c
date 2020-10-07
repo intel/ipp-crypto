@@ -45,7 +45,7 @@
 //    pR    result
 //
 *F*/
-Ipp32u cpMulDgt_BNU32(Ipp32u* pR, const Ipp32u* pA, cpSize nsA, Ipp32u val)
+IPP_OWN_DEFN (Ipp32u, cpMulDgt_BNU32, (Ipp32u* pR, const Ipp32u* pA, cpSize nsA, Ipp32u val))
 {
    Ipp32u carry = 0;
    cpSize i;

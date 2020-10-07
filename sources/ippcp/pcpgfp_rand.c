@@ -29,7 +29,7 @@
 
 //tbcd: temporary excluded: #include <assert.h>
 
-BNU_CHUNK_T* cpGFpRand(BNU_CHUNK_T* pR, gsModEngine* pGFE, IppBitSupplier rndFunc, void* pRndParam)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpRand, (BNU_CHUNK_T* pR, gsModEngine* pGFE, IppBitSupplier rndFunc, void* pRndParam))
 {
    int elemLen = GFP_FELEN(pGFE);
    int reqBitSize = GFP_FEBITLEN(pGFE)+GFP_RAND_ADD_BITS;

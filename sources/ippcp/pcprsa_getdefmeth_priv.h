@@ -48,3 +48,19 @@ static gsMethod_RSA* getDefaultMethod_RSA_private(int modulusBitSize)
         m = gsMethod_RSA_gpr_private();
     return m;
 }
+
+static gsMethod_RSA* getDExpMethod_RSA_private(int bitSizeDP, int bitSizeDQ)
+{
+    /* Dual exp kernels assume same bitsizes of private exponents */
+    if ((bitSizeDP != bitSizeDQ) || (bitSizeDP == 0))
+        return NULL;
+
+    gsMethod_RSA* m = NULL;
+#if(_IPP32E>=_IPP32E_K0)
+    m = gsMethod_RSA_avx512_dexp_private(bitSizeDP);
+#endif
+    if (m && m->dualExpFun)
+        return m;
+
+    return NULL;
+}

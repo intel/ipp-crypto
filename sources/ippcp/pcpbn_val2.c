@@ -38,16 +38,17 @@
 //      BigNum = 2
 *F*/
 
-IppsBigNumState* cpBN_TwoRef(void)
+IPP_OWN_DEFN (IppsBigNumState*, cpBN_TwoRef, (void))
 {
    static IppsBigNumStateChunk cpChunk_BN2 = {
       {
-         idCtxBigNum,
+         idCtxUnknown,
          ippBigNumPOS,
          1,1,
          &cpChunk_BN2.value,&cpChunk_BN2.temporary
       },
       2,0
    };
+   BN_SET_ID(&cpChunk_BN2.bn);
    return &cpChunk_BN2.bn;
 }

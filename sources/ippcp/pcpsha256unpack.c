@@ -50,8 +50,9 @@ IPPFUN(IppStatus, ippsSHA256Unpack,(const Ipp8u* pBuffer, IppsSHA256State* pStat
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pState, pBuffer);
-   pState = (IppsSHA256State*)( IPP_ALIGNED_PTR(pState, SHA256_ALIGNMENT) );
 
    CopyBlock(pBuffer, pState, sizeof(IppsSHA256State));
+   HASH_SET_ID(pState, idCtxSHA256);
+
    return ippStsNoErr;
 }

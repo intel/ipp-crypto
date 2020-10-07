@@ -77,7 +77,7 @@ static Ipp8u pc2[] = {
 /*
 // Generate key schedule for encryption and decryption
 */
-void SetKey_DES(const Ipp8u* pKey, IppsDESSpec* pCtx)
+IPP_OWN_DEFN (void, SetKey_DES, (const Ipp8u* pKey, IppsDESSpec* pCtx))
 {
    RoundKeyDES* pEncRoundKey = DES_EKEYS(pCtx);
    RoundKeyDES* pDecRoundKey = DES_DKEYS(pCtx);

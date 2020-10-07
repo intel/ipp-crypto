@@ -34,7 +34,7 @@
 #include "pcptool.h"
 
 #include "pcprsa_pkcs1c15_data.h"
-#include "pcprsa_verifysing_pkcs1v15.h"
+#include "pcprsa_verifysign_pkcs1v15.h"
 
 #if defined( _ABL_ )
 
@@ -46,7 +46,6 @@ IPPFUN(IppStatus, ippsRSAVerifyHash_PKCS1v15,(const Ipp8u* md, int mdLen,
 {
    /* test public key context */
    IPP_BAD_PTR2_RET(pKey, pBuffer);
-   pKey = (IppsRSAPublicKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PUBLIC_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(pKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
 
@@ -61,7 +60,7 @@ IPPFUN(IppStatus, ippsRSAVerifyHash_PKCS1v15,(const Ipp8u* md, int mdLen,
    IPP_BADARG_RET(mdLen!=cpHashSize(hashAlg), ippStsLengthErr);
 
    *pIsValid = 0;
-   return VerifySing(md, mdLen,
+   return VerifySign(md, mdLen,
                      pksc15_salt[hashAlg].pSalt, pksc15_salt[hashAlg].saltLen,
                      pSign, pIsValid,
                      pKey,

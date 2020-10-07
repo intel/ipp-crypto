@@ -79,8 +79,7 @@ IPPFUN(IppStatus, ippsHashGetInfo_rmf,(IppsHashInfo* pInfo, const IppsHashState_
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pInfo, pState);
-   pState= (IppsHashState_rmf*)( IPP_ALIGNED_PTR(pState, HASH_ALIGNMENT) );
-   IPP_BADARG_RET(!HASH_VALID_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxHash), ippStsContextMatchErr);
 
    pInfo->hashSize = HASH_METHOD(pState)->hashLen;
    pInfo->msgBlockSize = HASH_METHOD(pState)->msgBlkSize;

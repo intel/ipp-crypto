@@ -99,7 +99,7 @@ int cpSMS4_ECB_gfni128x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* 
 // 64*MBS_SMS4 bytes processing
 */
 
-int cpSMS4_CTR_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr)
+IPP_OWN_DEFN (int, cpSMS4_CTR_gfni512, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr))
 {
    int processedLen = len - (len % (64 * MBS_SMS4));
    int n;

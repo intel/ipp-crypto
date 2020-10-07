@@ -32,6 +32,5 @@ static int cpSizeof_RSA_privateKey1(int rsaModulusBitSize, int privateExpBitSize
     return (Ipp32s)sizeof(IppsRSAPrivateKeyState)
         + prvExpLen * (Ipp32s)sizeof(BNU_CHUNK_T)
         + (Ipp32s)sizeof(BNU_CHUNK_T) - 1
-        + montNsize
-        + (RSA_PRIVATE_KEY_ALIGNMENT - 1);
+        + montNsize;
 }

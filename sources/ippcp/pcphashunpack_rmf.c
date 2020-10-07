@@ -52,5 +52,6 @@ IPPFUN(IppStatus, ippsHashUnpack_rmf,(const Ipp8u* pBuffer, IppsHashState_rmf* p
    IPP_BAD_PTR2_RET(pState, pBuffer);
 
    CopyBlock(pBuffer, pState, sizeof(IppsHashState_rmf));
+   HASH_SET_ID(pState, idCtxHash);
    return ippStsNoErr;
 }

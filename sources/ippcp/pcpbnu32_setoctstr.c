@@ -44,7 +44,7 @@
 //
 *F*/
 
-cpSize cpFromOctStr_BNU32(Ipp32u* pBNU, const Ipp8u* pOctStr, cpSize strLen)
+IPP_OWN_DEFN (cpSize, cpFromOctStr_BNU32, (Ipp32u* pBNU, const Ipp8u* pOctStr, cpSize strLen))
 {
    cpSize bnuSize=0;
    *pBNU = 0;

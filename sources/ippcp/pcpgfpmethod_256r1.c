@@ -32,56 +32,52 @@
 
 #if(_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_M7)
 
-#define      p256r1_add      OWNAPI(p256r1_add)
-#define      p256r1_sub      OWNAPI(p256r1_sub)
-#define      p256r1_neg      OWNAPI(p256r1_neg)
-#define      p256r1_div_by_2 OWNAPI(p256r1_div_by_2)
-#define      p256r1_mul_by_2 OWNAPI(p256r1_mul_by_2)
-#define      p256r1_mul_by_3 OWNAPI(p256r1_mul_by_3)
-
 /* arithmetic over P-256r1 NIST modulus */
-BNU_CHUNK_T* p256r1_add(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_sub(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_neg(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_div_by_2 (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_mul_by_2 (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_mul_by_3 (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
+#define p256r1_add OWNAPI(p256r1_add)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_add, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE))
+#define p256r1_sub OWNAPI(p256r1_sub)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_sub, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE))
+#define p256r1_neg OWNAPI(p256r1_neg)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_neg, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+#define p256r1_div_by_2  OWNAPI(p256r1_div_by_2)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_div_by_2, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+#define p256r1_mul_by_2  OWNAPI(p256r1_mul_by_2)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_mul_by_2, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+#define p256r1_mul_by_3  OWNAPI(p256r1_mul_by_3)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_mul_by_3, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
 
 #if(_IPP_ARCH ==_IPP_ARCH_EM64T)
-
-#define      p256r1_mul_montl OWNAPI(p256r1_mul_montl)
-#define      p256r1_mul_montx OWNAPI(p256r1_mul_montx)
-#define      p256r1_sqr_montl OWNAPI(p256r1_sqr_montl)
-#define      p256r1_sqr_montx OWNAPI(p256r1_sqr_montx)
-#define      p256r1_to_mont   OWNAPI(p256r1_to_mont)
-#define      p256r1_mont_back OWNAPI(p256r1_mont_back)
-
-BNU_CHUNK_T* p256r1_mul_montl(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_mul_montx(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_sqr_montl(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_sqr_montx(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_to_mont  (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_mont_back(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
+#define p256r1_mul_montl OWNAPI(p256r1_mul_montl)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_mul_montl, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE))
+#define p256r1_mul_montx OWNAPI(p256r1_mul_montx)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_mul_montx, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE))
+#define p256r1_sqr_montl OWNAPI(p256r1_sqr_montl)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_sqr_montl, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+#define p256r1_sqr_montx OWNAPI(p256r1_sqr_montx)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_sqr_montx, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+#define p256r1_to_mont   OWNAPI(p256r1_to_mont)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_to_mont, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+#define p256r1_mont_back OWNAPI(p256r1_mont_back)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_mont_back, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
 #endif
-#if(_IPP_ARCH ==_IPP_ARCH_IA32)
-#define      p256r1_mul_mont_slm OWNAPI(p256r1_mul_mont_slm)
-#define      p256r1_sqr_mont_slm OWNAPI(p256r1_sqr_mont_slm)
-#define      p256r1_mred         OWNAPI(p256r1_mred)
 
-BNU_CHUNK_T* p256r1_mul_mont_slm(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_sqr_mont_slm(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* p256r1_mred(BNU_CHUNK_T* res, BNU_CHUNK_T* product);
+#if(_IPP_ARCH ==_IPP_ARCH_IA32)
+#define p256r1_mul_mont_slm OWNAPI(p256r1_mul_mont_slm)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_mul_mont_slm, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE))
+#define p256r1_sqr_mont_slm OWNAPI(p256r1_sqr_mont_slm)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_sqr_mont_slm, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+#define p256r1_mred OWNAPI(p256r1_mred)
+   IPP_OWN_DECL (BNU_CHUNK_T*, p256r1_mred, (BNU_CHUNK_T* res, BNU_CHUNK_T* product))
 #endif
 
 #define OPERAND_BITSIZE (256)
 #define LEN_P256        (BITS_BNU_CHUNK(OPERAND_BITSIZE))
 
-
 /*
 // ia32 multiplicative methods
 */
-#if (_IPP_ARCH ==_IPP_ARCH_IA32 )
-static BNU_CHUNK_T* p256r1_mul_montl(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFE)
+#if (_IPP_ARCH ==_IPP_ARCH_IA32)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, p256r1_mul_montl, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFE))
 {
    BNU_CHUNK_T* product = cpGFpGetPool(2, pGFE);
    //tbcd: temporary excluded: assert(NULL!=product);
@@ -93,7 +89,7 @@ static BNU_CHUNK_T* p256r1_mul_montl(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, con
    return pR;
 }
 
-static BNU_CHUNK_T* p256r1_sqr_montl(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, p256r1_sqr_montl, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE))
 {
    BNU_CHUNK_T* product = cpGFpGetPool(2, pGFE);
    //tbcd: temporary excluded: assert(NULL!=product);
@@ -116,22 +112,22 @@ static BNU_CHUNK_T RR[] = {
 static BNU_CHUNK_T one[] = {
    1,0,0,0,0,0,0,0};
 
-static BNU_CHUNK_T* p256r1_to_mont(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, p256r1_to_mont, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE))
 {
    return p256r1_mul_montl(pR, pA, (BNU_CHUNK_T*)RR, pGFE);
 }
 
-static BNU_CHUNK_T* p256r1_mont_back(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, p256r1_mont_back, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE))
 {
    return p256r1_mul_montl(pR, pA, (BNU_CHUNK_T*)one, pGFE);
 }
 
-static BNU_CHUNK_T* p256r1_to_mont_slm(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, p256r1_to_mont_slm, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE))
 {
    return p256r1_mul_mont_slm(pR, pA, (BNU_CHUNK_T*)RR, pGFE);
 }
 
-static BNU_CHUNK_T* p256r1_mont_back_slm(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, p256r1_mont_back_slm, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE))
 {
    return p256r1_mul_mont_slm(pR, pA, (BNU_CHUNK_T*)one, pGFE);
 }
@@ -141,7 +137,7 @@ static BNU_CHUNK_T* p256r1_mont_back_slm(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA,
 // return specific gf p256r1 arith methods,
 //    p256r1 = 2^256 -2^224 +2^192 +2^96 -1 (NIST P256r1)
 */
-static gsModMethod* gsArithGF_p256r1(void)
+static gsModMethod* gsArithGF_p256r1 (void)
 {
    static gsModMethod m = {
       p256r1_to_mont,

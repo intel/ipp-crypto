@@ -117,8 +117,7 @@ IPPFUN(IppStatus, ippsDLPGetSize,(int feBitSize, int ordBitSize, int *pSize))
               #if defined(_USE_WINDOW_EXP_)
               +bnu_resourceSize  /* BNU resource  */
               #endif
-
-              +(DLP_ALIGNMENT-1);
+              ;
 
       return ippStsNoErr;
    }

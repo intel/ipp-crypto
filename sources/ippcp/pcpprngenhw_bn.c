@@ -58,7 +58,6 @@ IPPFUN(IppStatus, ippsPRNGenRDRAND_BN,(IppsBigNumState* pRand, int nBits, void* 
 {
    /* test random BN */
    IPP_BAD_PTR1_RET(pRand);
-   pRand = (IppsBigNumState*)( IPP_ALIGNED_PTR(pRand, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pRand), ippStsContextMatchErr);
 
    /* test sizes */

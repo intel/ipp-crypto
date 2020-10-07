@@ -50,13 +50,11 @@
 IPPFUN(IppStatus, ippsGFpECGetSize,(const IppsGFpState* pGFp, int* pSize))
 {
    IPP_BAD_PTR2_RET(pGFp, pSize);
-   pGFp = (IppsGFpState*)( IPP_ALIGNED_PTR(pGFp, GFP_ALIGNMENT) );
-   IPP_BADARG_RET( !GFP_TEST_ID(pGFp), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFP_VALID_ID(pGFp), ippStsContextMatchErr );
 
    {
       gsModEngine* pGFE = GFP_PMA(pGFp);
-      *pSize = cpGFpECGetSize(cpGFpBasicDegreeExtension(pGFE), GFP_FEBITLEN(cpGFpBasic(pGFE)))
-                + ECGFP_ALIGNMENT;
+      *pSize = cpGFpECGetSize(cpGFpBasicDegreeExtension(pGFE), GFP_FEBITLEN(cpGFpBasic(pGFE)));
       return ippStsNoErr;
    }
 }

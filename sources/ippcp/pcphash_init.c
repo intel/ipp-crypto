@@ -32,7 +32,7 @@
 #include "pcphash_func.h"
 #include "pcptool.h"
 
-int cpInitHash(IppsHashState* pCtx, IppHashAlgId algID)
+IPP_OWN_DEFN (int, cpInitHash, (IppsHashState* pCtx, IppHashAlgId algID))
 {
    /* setup default processing function */
    HASH_FUNC(pCtx) = cpHashProcFunc[algID];

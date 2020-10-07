@@ -46,7 +46,7 @@
 *F*/
 IPPFUN(IppStatus, ippsGFpECESGetSize_SM2, (const IppsGFpECState* pEC, int* pSize)) {
    IPP_BAD_PTR2_RET(pEC, pSize);
-   IPP_BADARG_RET(pEC->idCtx != idCtxGFPEC, ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
    IPP_BADARG_RET(!pEC->subgroup, ippStsContextMatchErr);
    IPP_BADARG_RET(1 < pEC->pGF->pGFE->extdegree, ippStsNotSupportedModeErr);
 

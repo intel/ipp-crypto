@@ -51,8 +51,7 @@
 IPPFUN(IppStatus, ippsGFpECScratchBufferSize,(int nScalars, const IppsGFpECState* pEC, int* pBufferSize))
 {
    IPP_BAD_PTR2_RET(pEC, pBufferSize);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET( !ECP_TEST_ID(pEC), ippStsContextMatchErr );
+   IPP_BADARG_RET( !VALID_ECP_ID(pEC), ippStsContextMatchErr );
 
    IPP_BADARG_RET( (0>=nScalars)||(nScalars>IPP_MAX_EXPONENT_NUM), ippStsBadArgErr);
 

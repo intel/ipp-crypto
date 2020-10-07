@@ -54,8 +54,6 @@ IPPFUN(IppStatus, ippsARCFourEncrypt, (const Ipp8u *pSrc, Ipp8u *pDst, int lengt
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned context */
-   pCtx = (IppsARCFourState*)( IPP_ALIGNED_PTR(pCtx, RC4_ALIGNMENT) );
    IPP_BADARG_RET(!RC4_VALID_ID(pCtx), ippStsContextMatchErr);
 
    /* test source and destination pointers */

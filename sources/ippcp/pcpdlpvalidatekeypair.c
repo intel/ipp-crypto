@@ -63,7 +63,6 @@ IPPFUN(IppStatus, ippsDLPValidateKeyPair,(const IppsBigNumState* pPrvKey,
 {
    /* test DL context */
    IPP_BAD_PTR2_RET(pResult, pDL);
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
    IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
 
    /* test flag */
@@ -81,7 +80,6 @@ IPPFUN(IppStatus, ippsDLPValidateKeyPair,(const IppsBigNumState* pPrvKey,
       /* private key validation request */
       if(pPrvKey) {
          cpSize lenR = BITS_BNU_CHUNK(DLP_BITSIZER(pDL));
-         pPrvKey  = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrvKey, BN_ALIGNMENT) );
          IPP_BADARG_RET(!BN_VALID_ID(pPrvKey), ippStsContextMatchErr);
 
          /* test private key: 1 < pPrvKey < (R-1)  */
@@ -96,7 +94,6 @@ IPPFUN(IppStatus, ippsDLPValidateKeyPair,(const IppsBigNumState* pPrvKey,
       /* public key validation request */
       if(pPubKey) {
          cpSize lenP = BITS_BNU_CHUNK(DLP_BITSIZEP(pDL));
-         pPubKey = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPubKey, BN_ALIGNMENT) );
          IPP_BADARG_RET(!BN_VALID_ID(pPubKey), ippStsContextMatchErr);
 
          /* test public key: 1 < pPubKey < (P-1) */

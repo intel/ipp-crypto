@@ -52,8 +52,8 @@ IPPFUN(IppStatus, ippsMD5Unpack,(const Ipp8u* pBuffer, IppsMD5State* pState))
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pState, pBuffer);
-   pState = (IppsMD5State*)( IPP_ALIGNED_PTR(pState, MD5_ALIGNMENT) );
 
    CopyBlock(pBuffer, pState, sizeof(IppsMD5State));
+   HASH_SET_ID(pState, idCtxMD5);
    return ippStsNoErr;
 }

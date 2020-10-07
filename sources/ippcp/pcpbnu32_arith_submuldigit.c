@@ -50,7 +50,7 @@
       (_IPP32E==_IPP32E_Y8) || \
       (_IPP32E>=_IPP32E_E9) || \
       (_IPP32E==_IPP32E_N8))
-Ipp32u cpSubMulDgt_BNU32(Ipp32u* pR, const Ipp32u* pA, cpSize nsA, Ipp32u val)
+IPP_OWN_DEFN (Ipp32u, cpSubMulDgt_BNU32, (Ipp32u* pR, const Ipp32u* pA, cpSize nsA, Ipp32u val))
 {
    Ipp32u carry = 0;
    for(; nsA>0; nsA--) {

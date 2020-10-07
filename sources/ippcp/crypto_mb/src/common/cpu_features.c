@@ -58,21 +58,6 @@
 #define edx_   (3)
 
 
-#if 0
-#ifdef __GNUC__
-#include <cpuid.h>
-__INLINE void __cpuidex(int32u cpu_feature_buf[4], int32u leaf, int32u subleaf)
-{
-   int32u eax, ebx, ecx, edx;
-   __get_cpuid_count(leaf, subleaf, &eax, &ebx, &ecx, &edx);
-   cpu_feature_buf[eax_] = eax;
-   cpu_feature_buf[ebx_] = ebx;
-   cpu_feature_buf[ecx_] = ecx;
-   cpu_feature_buf[edx_] = edx;
-}
-#endif
-#endif
-
 __INLINE void _mbcp_cpuid(int32u buf[4], int32u leaf, int32u subleaf)
 {
    #ifdef __GNUC__
@@ -188,7 +173,8 @@ static const cpu_feature_map cpu_feature_detector_7_0[] = {
 static int64u _mbcp_cpu_feature_detector(const int32u cpuinfo[4], const cpu_feature_map* tbl, int32u tbl_len)
 {
    int64u features = 0;
-   for(int32u n=0; n<tbl_len; n++) {
+   int32u n;
+   for(n=0; n<tbl_len; n++) {
       int32u idx = tbl[n].info_idx;
       int32u bit = tbl[n].info_idx_bit;
       int64u f = tbl[n].cpu_feature;

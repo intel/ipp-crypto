@@ -56,9 +56,11 @@ IPPFUN(IppStatus, ippsHashDuplicate,(const IppsHashState* pSrcState, IppsHashSta
    /* test state pointers */
    IPP_BAD_PTR2_RET(pSrcState, pDstState);
    /* test states ID */
-   IPP_BADARG_RET(!HASH_VALID_ID(pSrcState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pSrcState, idCtxHash), ippStsContextMatchErr);
 
    /* copy state */
    CopyBlock(pSrcState, pDstState, sizeof(IppsHashState));
+   HASH_SET_ID(pDstState, idCtxHash);
+
    return ippStsNoErr;
 }

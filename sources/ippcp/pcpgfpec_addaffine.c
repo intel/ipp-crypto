@@ -35,7 +35,7 @@
 /*
 // complexity = 3s+8m
 */
-void gfec_affine_point_add(BNU_CHUNK_T* pRdata, const BNU_CHUNK_T* pPdata, const BNU_CHUNK_T* pAdata, IppsGFpECState* pEC)
+IPP_OWN_DEFN (void, gfec_affine_point_add, (BNU_CHUNK_T* pRdata, const BNU_CHUNK_T* pPdata, const BNU_CHUNK_T* pAdata, IppsGFpECState* pEC))
 {
    IppsGFpState* pGF = ECP_GFP(pEC);
    gsModEngine* pGFE = GFP_PMA(pGF);

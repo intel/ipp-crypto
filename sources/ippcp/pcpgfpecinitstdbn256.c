@@ -91,8 +91,7 @@ IPPFUN(IppStatus, ippsGFpECInitStdBN256,(const IppsGFpState* pGF, IppsGFpECState
 {
    IPP_BAD_PTR2_RET(pGF, pEC);
 
-   pGF = (IppsGFpState*)( IPP_ALIGNED_PTR(pGF, GFP_ALIGNMENT) );
-   IPP_BADARG_RET( !GFP_TEST_ID(pGF), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFP_VALID_ID(pGF), ippStsContextMatchErr );
 
    {
       gsModEngine* pGFE = GFP_PMA(pGF);
@@ -101,8 +100,6 @@ IPPFUN(IppStatus, ippsGFpECInitStdBN256,(const IppsGFpState* pGF, IppsGFpECState
       IPP_BADARG_RET(!GFP_IS_BASIC(pGFE), ippStsBadArgErr);
       /* test underlying prime value*/
       IPP_BADARG_RET(cpCmp_BNU(tpmBN_p256p_p, BITS_BNU_CHUNK(256), GFP_MODULUS(pGFE), BITS_BNU_CHUNK(256)), ippStsBadArgErr);
-
-      pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
 
       ippsGFpECInit(pGF, NULL, NULL, pEC);
       cpGFpECSetStd(BITS_BNU_CHUNK(BNU_CHUNK_BITS), tpmBN_p256p_a,

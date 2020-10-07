@@ -17,8 +17,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 project("crypto_mb" C)
-set(IFMA_DYN_LIB_TARGET "crypto_mb")
-set(IFMA_STATIC_LIB_TARGET "crypto_mb_s")
+set(MB_DYN_LIB_TARGET "crypto_mb") # Dynamic library
+set(MB_STATIC_LIB_TARGET "crypto_mb_s") # Static library
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
@@ -30,8 +30,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-set(IFMA_INCLUDE_DIRS   "${IFMA_INCLUDE_DIRS}"
-                        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+set(MB_INCLUDE_DIRS   "${MB_INCLUDE_DIRS}"
+                      "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 set(PUBLIC_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/crypto_mb/")
 
@@ -41,11 +41,11 @@ if(NOT OPENSSL_DISABLE)
         set(OPENSSL_USE_STATIC_LIBS TRUE)
     endif()
     find_package(OpenSSL 1.1.0 REQUIRED) # set -DOPENSSL_INCLUDE_DIR= -DOPENSSL_LIBRARIES= -DOPENSSL_ROOT_DIR= to use patched
-    list(APPEND IFMA_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
+    list(APPEND MB_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
 endif()
 
 include_directories(
-     ${IFMA_INCLUDE_DIRS}
+     ${MB_INCLUDE_DIRS}
 )
 
 add_subdirectory(src)

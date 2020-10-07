@@ -63,10 +63,7 @@
 /       dataY        the Montgomery exponentation result.
 //
 *F*/
-cpSize cpMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
-                       const BNU_CHUNK_T* dataX, cpSize nsX,
-                       const BNU_CHUNK_T* dataE, cpSize nsE,
-                             gsModEngine* pMont)
+IPP_OWN_DEFN (cpSize, cpMontExpBin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont))
 {
    cpSize nsM = MOD_LEN(pMont);
 

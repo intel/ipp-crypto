@@ -59,9 +59,6 @@ IPPFUN(IppStatus, ippsAES_CMACFinal,(Ipp8u* pMD, int mdLen, IppsAES_CMACState* p
 {
    /* test context pointer and ID */
    IPP_BAD_PTR1_RET(pState);
-   /* use aligned context */
-   pState = (IppsAES_CMACState*)( IPP_ALIGNED_PTR(pState, AESCMAC_ALIGNMENT) );
-
    /* test DAC pointer */
    IPP_BAD_PTR1_RET(pMD);
    IPP_BADARG_RET((mdLen<1)||(MBS_RIJ128<mdLen), ippStsLengthErr);

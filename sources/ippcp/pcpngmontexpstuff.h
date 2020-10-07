@@ -92,73 +92,38 @@ __INLINE void gsMontEnc_BN(IppsBigNumState* pRbn,
 
 /* exponentiation buffer size */
 #define gsMontExpBinBuffer OWNAPI(gsMontExpBinBuffer)
+   IPP_OWN_DECL (cpSize, gsMontExpBinBuffer, (int modulusBits))
 #define gsMontExpWinBuffer OWNAPI(gsMontExpWinBuffer)
-cpSize  gsMontExpBinBuffer(int modulusBits);
-cpSize  gsMontExpWinBuffer(int modulusBits);
+   IPP_OWN_DECL (cpSize, gsMontExpWinBuffer, (int modulusBits))
 
 /* exponentiation prototype */
-typedef cpSize (*ngMontExp)(BNU_CHUNK_T* dataY,
-                      const BNU_CHUNK_T* dataX, cpSize nsX,
-                      const BNU_CHUNK_T* dataE, cpSize nbitsE,
-                            gsModEngine* pMont,
-                            BNU_CHUNK_T* pBuffer);
+IPP_OWN_FUNPTR (cpSize, ngMontExp, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nbitsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
+IPP_OWN_FUNPTR (cpSize, ngMontDualExp, (BNU_CHUNK_T* dataY[2], const BNU_CHUNK_T* dataX[2], cpSize nsX[2], const BNU_CHUNK_T* dataE[2], gsModEngine* pMont[2], BNU_CHUNK_T* pBuffer))
 
 /*
 // "fast" and "safe" binary montgomery exponentiation ("fast" version)
 */
 #define gsMontExpBin_BNU OWNAPI(gsMontExpBin_BNU)
+   IPP_OWN_DECL (cpSize, gsMontExpBin_BNU, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nbitsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 #define gsModExpBin_BNU OWNAPI(gsModExpBin_BNU)
-cpSize  gsMontExpBin_BNU(BNU_CHUNK_T* dataY,
-                   const BNU_CHUNK_T* dataX, cpSize nsX,
-                   const BNU_CHUNK_T* dataE, cpSize nbitsE,
-                         gsModEngine* pMont,
-                         BNU_CHUNK_T* pBuffer);
-cpSize  gsModExpBin_BNU(BNU_CHUNK_T* dataY,
-                   const BNU_CHUNK_T* dataX, cpSize nsX,
-                   const BNU_CHUNK_T* dataE, cpSize nbitsE,
-                         gsModEngine* pMont,
-                         BNU_CHUNK_T* pBuffer);
+   IPP_OWN_DECL (cpSize, gsModExpBin_BNU, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nbitsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 
 #define gsMontExpBin_BNU_sscm OWNAPI(gsMontExpBin_BNU_sscm)
+   IPP_OWN_DECL (cpSize, gsMontExpBin_BNU_sscm, (BNU_CHUNK_T* pY, const BNU_CHUNK_T* pX, cpSize nsX, const BNU_CHUNK_T* pE, cpSize nbitsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 #define gsModExpBin_BNU_sscm OWNAPI(gsModExpBin_BNU_sscm)
-cpSize  gsMontExpBin_BNU_sscm(BNU_CHUNK_T* pY,
-                        const BNU_CHUNK_T* pX, cpSize nsX,
-                        const BNU_CHUNK_T* pE, cpSize nbitsE,
-                              gsModEngine* pMont,
-                              BNU_CHUNK_T* pBuffer);
-cpSize  gsModExpBin_BNU_sscm(BNU_CHUNK_T* pY,
-                        const BNU_CHUNK_T* pX, cpSize nsX,
-                        const BNU_CHUNK_T* pE, cpSize nbitsE,
-                              gsModEngine* pMont,
-                              BNU_CHUNK_T* pBuffer);
+   IPP_OWN_DECL (cpSize, gsModExpBin_BNU_sscm, (BNU_CHUNK_T* pY, const BNU_CHUNK_T* pX, cpSize nsX, const BNU_CHUNK_T* pE, cpSize nbitsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 
 /*
 // "fast" and "safe" fixed-size window montgomery exponentiation
 */
-#define gsMontExpWin_BNU OWNAPI(gsMontExpWin_BNU_mont)
+#define gsMontExpWin_BNU OWNAPI(gsMontExpWin_BNU)
+   IPP_OWN_DECL (cpSize, gsMontExpWin_BNU, (BNU_CHUNK_T* pY, const BNU_CHUNK_T* pX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nbitsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 #define gsModExpWin_BNU OWNAPI(gsModExpWin_BNU)
-cpSize  gsMontExpWin_BNU(BNU_CHUNK_T* pY,
-                        const BNU_CHUNK_T* pX, cpSize nsX,
-                        const BNU_CHUNK_T* dataE, cpSize nbitsE,
-                              gsModEngine* pMont,
-                              BNU_CHUNK_T* pBuffer);
-cpSize  gsModExpWin_BNU(BNU_CHUNK_T* pY,
-                  const BNU_CHUNK_T* pX, cpSize nsX,
-                  const BNU_CHUNK_T* dataE, cpSize nbitsE,
-                        gsModEngine* pMont,
-                        BNU_CHUNK_T* pBuffer);
+   IPP_OWN_DECL (cpSize, gsModExpWin_BNU, (BNU_CHUNK_T* pY, const BNU_CHUNK_T* pX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nbitsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 
-#define gsMontExpWin_BNU_sscm OWNAPI(gsMontExpWin_BNU_mont_sscm)
+#define gsMontExpWin_BNU_sscm OWNAPI(gsMontExpWin_BNU_sscm)
+   IPP_OWN_DECL (cpSize, gsMontExpWin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nbitsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 #define gsModExpWin_BNU_sscm OWNAPI(gsModExpWin_BNU_sscm)
-cpSize  gsMontExpWin_BNU_sscm(BNU_CHUNK_T* dataY,
-                             const BNU_CHUNK_T* dataX, cpSize nsX,
-                             const BNU_CHUNK_T* dataE, cpSize nbitsE,
-                                   gsModEngine* pMont,
-                                   BNU_CHUNK_T* pBuffer);
-cpSize  gsModExpWin_BNU_sscm(BNU_CHUNK_T* dataY,
-                        const BNU_CHUNK_T* dataX, cpSize nsX,
-                        const BNU_CHUNK_T* dataE, cpSize nbitsE,
-                              gsModEngine* pMont,
-                              BNU_CHUNK_T* pBuffer);
+   IPP_OWN_DECL (cpSize, gsModExpWin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nbitsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 
 #endif /* _CP_NG_MONT_EXP_STUFF_H */

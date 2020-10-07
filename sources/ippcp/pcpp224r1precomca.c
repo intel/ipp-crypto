@@ -4477,7 +4477,7 @@ const __ALIGN64 P224_POINT_AFFINE ec_p224r1_precomputed[33][64] = {
 #endif  /* _IPP_DATA */
 
 
-const cpPrecompAP* gfpec_precom_nistP224r1_fun(void)
+IPP_OWN_DEFN (const cpPrecompAP*, gfpec_precom_nistP224r1_fun, (void))
 {
    static cpPrecompAP t = {
       /* w */                  7,

@@ -55,8 +55,7 @@ IPPFUN(IppStatus, ippsSHA512GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSHA512
 {
    /* test state pointer and ID */
    IPP_BAD_PTR1_RET(pState);
-   pState = (IppsSHA512State*)( IPP_ALIGNED_PTR(pState, SHA512_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxSHA512 !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxSHA512), ippStsContextMatchErr);
 
    /* test digest pointer */
    IPP_BAD_PTR1_RET(pTag);

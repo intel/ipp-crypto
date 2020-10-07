@@ -39,8 +39,7 @@ typedef Ipp32u HalfRoundKeyDES;
 // DES context
 */
 struct _cpDES {
-   IppCtxId     idCtx;        /* DES spec identifier           */
-   Ipp32u       dummy;        /* alignment only (linux problem)*/
+   Ipp32u       idCtx;        /* DES spec identifier           */
    RoundKeyDES  enc_keys[16]; /* array of keys for encryprion  */
    RoundKeyDES  dec_keys[16]; /* array of keys for decryprion  */
 };
@@ -53,10 +52,12 @@ struct _cpDES {
 /*
 // Useful macros
 */
-#define DES_ID(ctx)        ((ctx)->idCtx)
-#define DES_EKEYS(ctx)     ((ctx)->enc_keys)
-#define DES_DKEYS(ctx)     ((ctx)->dec_keys)
-#define DES_ID_TEST(ctx)   (DES_ID((ctx))==idCtxDES)
+#define DES_SET_ID(ctx)       ((ctx)->idCtx = (Ipp32u)idCtxDES ^ (Ipp32u)IPP_UINT_PTR(ctx))
+#define DES_RESET_ID(ctx)     ((ctx)->idCtx = (Ipp32u)idCtxDES)
+#define DES_EKEYS(ctx)        ((ctx)->enc_keys)
+#define DES_DKEYS(ctx)        ((ctx)->dec_keys)
+
+#define VALID_DES_ID(ctx)  ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxDES)
 
 /*
 // Internal Tables
@@ -75,20 +76,20 @@ struct _cpDES {
 // internal functions
 */
 #define SetKey_DES OWNAPI(SetKey_DES)
-   void SetKey_DES(const Ipp8u* pKey, IppsDESSpec* pCtx);
+   IPP_OWN_DECL (void, SetKey_DES, (const Ipp8u* pKey, IppsDESSpec* pCtx))
 
 #define Cipher_DES OWNAPI(Cipher_DES)
- Ipp64u Cipher_DES(Ipp64u inpBlk, const RoundKeyDES* pRKey, const Ipp32u spbox[]);
+   IPP_OWN_DECL (Ipp64u, Cipher_DES, (Ipp64u inpBlk, const RoundKeyDES* pRKey, const Ipp32u spbox[]))
 
 #define ENCRYPT_DES(blk, pCtx)   Cipher_DES((blk), DES_EKEYS((pCtx)), DESspbox)
 #define DECRYPT_DES(blk, pCtx)   Cipher_DES((blk), DES_DKEYS((pCtx)), DESspbox)
 
 /* TDES prototypes */
 #define ECB_TDES OWNAPI(ECB_TDES)
-   void ECB_TDES(const Ipp64u* pSrc, Ipp64u* pDst, int nBlocks, const RoundKeyDES* pRKey[3], const Ipp32u spbox[]);
+   IPP_OWN_DECL (void, ECB_TDES, (const Ipp64u* pSrc, Ipp64u* pDst, int nBlocks, const RoundKeyDES* pRKey[3], const Ipp32u spbox[]))
 #define EncryptCBC_TDES OWNAPI(EncryptCBC_TDES)
-   void EncryptCBC_TDES(const Ipp64u* pSrc, Ipp64u* pDst, int nBlocks, const RoundKeyDES* pRKey[3], Ipp64u iv, const Ipp32u spbox[]);
+   IPP_OWN_DECL (void, EncryptCBC_TDES, (const Ipp64u* pSrc, Ipp64u* pDst, int nBlocks, const RoundKeyDES* pRKey[3], Ipp64u iv, const Ipp32u spbox[]))
 #define DecryptCBC_TDES OWNAPI(DecryptCBC_TDES)
-   void DecryptCBC_TDES(const Ipp64u* pSrc, Ipp64u* pDst, int nBlocks, const RoundKeyDES* pRKey[3], Ipp64u iv, const Ipp32u spbox[]);
+   IPP_OWN_DECL (void, DecryptCBC_TDES, (const Ipp64u* pSrc, Ipp64u* pDst, int nBlocks, const RoundKeyDES* pRKey[3], Ipp64u iv, const Ipp32u spbox[]))
 
 #endif /* _PCP_DES_H */

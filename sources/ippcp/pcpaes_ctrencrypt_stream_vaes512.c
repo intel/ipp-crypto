@@ -43,12 +43,12 @@ static __ALIGN32 Ipp8u swapBytes[] = {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void EncryptStreamCTR32_VAES_NI(const Ipp8u* pSrc,
-                                Ipp8u* pDst,
-                                int nr,
-                                const Ipp8u* pRKey,
-                                int length,         /* message length in bytes   */
-                                Ipp8u* pIV)         /* BE counter representation */
+IPP_OWN_DEFN (void, EncryptStreamCTR32_VAES_NI, (const Ipp8u* pSrc,
+                                                Ipp8u* pDst,
+                                                int nr,
+                                                const Ipp8u* pRKey,
+                                                int length,         /* message length in bytes   */
+                                                Ipp8u* pIV))         /* BE counter representation */
 {
    int cipherRounds = nr - 1;
 

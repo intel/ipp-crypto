@@ -33,7 +33,7 @@
 #include "pcptool.h"
 #include "pcpsm3stuff.h"
 
-void cpFinalizeSM3(DigestSHA1 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen)
+IPP_OWN_DEFN (void, cpFinalizeSM3, (DigestSHA1 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen))
 {
    /* local buffer and it length */
    Ipp8u buffer[MBS_SM3*2];

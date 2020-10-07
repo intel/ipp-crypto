@@ -53,7 +53,7 @@ IPPFUN(IppStatus, ippsHashFinal,(Ipp8u* pMD, IppsHashState* pState))
    /* test state pointer and ID */
    IPP_BAD_PTR2_RET(pMD, pState);
    /* test the context */
-   IPP_BADARG_RET(!HASH_VALID_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxHash), ippStsContextMatchErr);
 
    {
       IppHashAlgId algID = HASH_ALG_ID(pState);

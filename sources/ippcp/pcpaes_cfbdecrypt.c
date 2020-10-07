@@ -155,8 +155,6 @@ IPPFUN(IppStatus, ippsAESDecryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, in
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned AES context */
-   pCtx = (IppsAESSpec*)( IPP_ALIGNED_PTR(pCtx, AES_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_AES_ID(pCtx), ippStsContextMatchErr);
 

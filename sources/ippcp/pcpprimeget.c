@@ -49,8 +49,6 @@ IPPFUN(IppStatus, ippsPrimeGet, (Ipp32u* pPrime, int* pSize, const IppsPrimeStat
 {
    IPP_BAD_PTR3_RET(pCtx, pPrime, pSize);
 
-   /* use aligned context */
-   pCtx = (IppsPrimeState*)( IPP_ALIGNED_PTR(pCtx, PRIME_ALIGNMENT) );
    IPP_BADARG_RET(!PRIME_VALID_ID(pCtx), ippStsContextMatchErr);
 
    {

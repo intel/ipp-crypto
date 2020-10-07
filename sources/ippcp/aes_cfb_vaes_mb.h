@@ -23,28 +23,11 @@
 #if (_IPP32E>=_IPP32E_K0)
 
 #define aes_cfb16_enc_vaes_mb4 OWNAPI(aes_cfb16_enc_vaes_mb4)
-void aes_cfb16_enc_vaes_mb4(const Ipp8u* const source_pa[4],
-                                  Ipp8u* const dst_pa[4],
-                                  const int len[4],
-                                  const int num_of_rounds,
-                                  const Ipp32u* enc_keys[4],
-                                  const Ipp8u* pIV[4]);
-
+    IPP_OWN_DECL (void, aes_cfb16_enc_vaes_mb4, (const Ipp8u* const source_pa[4], Ipp8u* const dst_pa[4], const int len[4], const int num_of_rounds, const Ipp32u* enc_keys[4], const Ipp8u* pIV[4]))
 #define aes_cfb16_enc_vaes_mb8 OWNAPI(aes_cfb16_enc_vaes_mb8)
-void aes_cfb16_enc_vaes_mb8(const Ipp8u* const source_pa[8], 
-                                  Ipp8u* const dst_pa[8],
-                                  const int len[8], 
-                                  const int num_of_rounds,
-                                  const Ipp32u* enc_keys[8], 
-                                  const Ipp8u* pIV[8]);
-
+    IPP_OWN_DECL (void, aes_cfb16_enc_vaes_mb8, (const Ipp8u* const source_pa[8], Ipp8u* const dst_pa[8], const int len[8], const int num_of_rounds, const Ipp32u* enc_keys[8], const Ipp8u* pIV[8]))
 #define aes_cfb16_enc_vaes_mb16 OWNAPI(aes_cfb16_enc_vaes_mb16)
-void aes_cfb16_enc_vaes_mb16(const Ipp8u* const source_pa[16],
-                                   Ipp8u* const dst_pa[16],
-                                   const int len[16],
-                                   const int num_of_rounds,
-                                   const Ipp32u* enc_keys[16],
-                                   const Ipp8u* pIV[16]);
+    IPP_OWN_DECL (void, aes_cfb16_enc_vaes_mb16, (const Ipp8u* const source_pa[16], Ipp8u* const dst_pa[16], const int len[16], const int num_of_rounds, const Ipp32u* enc_keys[16], const Ipp8u* pIV[16]))
 
 #endif
 

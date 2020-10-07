@@ -152,7 +152,7 @@ void debugToConvMontDomain(BNU_CHUNK_T* pR,
 /* ===================================================================*/
 
 #if !defined(_USE_WINDOW_EXP_)
-cpSize gsMontExpBinBuffer_avx2(int modulusBits)
+IPP_OWN_DEFN (cpSize, gsMontExpBinBuffer_avx2, (int modulusBits))
 {
    cpSize redNum = numofVariable_avx2(modulusBits);      /* "sizeof" variable */
    cpSize redBufferNum = numofVariableBuff_avx2(redNum); /* "sizeof" variable  buffer */
@@ -161,7 +161,7 @@ cpSize gsMontExpBinBuffer_avx2(int modulusBits)
 #endif /* !_USE_WINDOW_EXP_ */
 
 #if defined(_USE_WINDOW_EXP_)
-cpSize gsMontExpWinBuffer_avx2(int modulusBits)
+IPP_OWN_DEFN (cpSize, gsMontExpWinBuffer_avx2, (int modulusBits))
 {
    cpSize w = gsMontExp_WinSize(modulusBits);
 
@@ -187,11 +187,7 @@ cpSize gsMontExpWinBuffer_avx2(int modulusBits)
 //    redM[redBufferLen]
 //    redBuffer[redBufferLen*3]
 */
-cpSize gsMontExpBin_BNU_avx2(BNU_CHUNK_T* dataY,
-                       const BNU_CHUNK_T* dataX, cpSize nsX,
-                       const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                             gsModEngine* pMont,
-                             BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_avx2, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);
@@ -297,11 +293,7 @@ cpSize gsMontExpBin_BNU_avx2(BNU_CHUNK_T* dataY,
 //    redM[redBufferLen]
 //    redBuffer[redBufferLen*3]
 */
-cpSize gsMontExpBin_BNU_sscm_avx2(BNU_CHUNK_T* dataY,
-                            const BNU_CHUNK_T* dataX, cpSize nsX,
-                            const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                                  gsModEngine* pMont,
-                                  BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_sscm_avx2, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);
@@ -399,11 +391,7 @@ cpSize gsMontExpBin_BNU_sscm_avx2(BNU_CHUNK_T* dataY,
 //    redBuffer[redBufferLen*3]
 //    redE[redBufferLen]
 */
-cpSize gsMontExpWin_BNU_avx2(BNU_CHUNK_T* dataY,
-                       const BNU_CHUNK_T* dataX, cpSize nsX,
-                       const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                             gsModEngine* pMont,
-                             BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_avx2, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);
@@ -557,11 +545,7 @@ cpSize gsMontExpWin_BNU_avx2(BNU_CHUNK_T* dataY,
 //    redBuffer[redBufferLen*3]
 //    redE[redBufferLen]
 */
-cpSize gsMontExpWin_BNU_sscm_avx2(BNU_CHUNK_T* dataY,
-                            const BNU_CHUNK_T* dataX, cpSize nsX,
-                            const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                                  gsModEngine* pMont,
-                                  BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sscm_avx2, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);

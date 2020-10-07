@@ -46,9 +46,9 @@ IPPFUN(IppStatus, ippsARCFourUnpack,(const Ipp8u* pBuffer, IppsARCFourState* pCt
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
-   /* use aligned context */
-   pCtx = (IppsARCFourState*)( IPP_ALIGNED_PTR(pCtx, RC4_ALIGNMENT) );
 
    CopyBlock(pBuffer, pCtx, sizeof(IppsARCFourState));
+   RC4_SET_ID(pCtx);
+   
    return ippStsNoErr;
 }

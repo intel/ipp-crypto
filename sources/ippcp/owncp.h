@@ -156,7 +156,7 @@ typedef int cpSize;
 
 /* define 64-bit constant or pair of 32-bit dependding on architecture */
 #if ((_IPP_ARCH == _IPP_ARCH_EM64T) || (_IPP_ARCH == _IPP_ARCH_LP64) || (_IPP_ARCH == _IPP_ARCH_LRB) || (_IPP_ARCH == _IPP_ARCH_LRB2))
-#define LL(lo,hi) ((Ipp64u)(((Ipp32u)(lo)) | ((Ipp64u)((Ipp32u)(hi))) << 32))
+#define LL(lo,hi) (((Ipp64u)(lo)) | ((Ipp64u)(hi) << 32))
 #define L_(lo)    ((Ipp64u)(lo))
 #else
 #define LL(lo,hi) (lo),(hi)

@@ -2528,7 +2528,7 @@ const __ALIGN64 SM2_POINT_AFFINE precomputed_ec_sm2[37][64] = {
 #endif  /* _IPP_DATA */
 
 
-const cpPrecompAP* gfpec_precom_sm2_fun(void)
+IPP_OWN_DEFN (const cpPrecompAP*, gfpec_precom_sm2_fun, (void))
 {
    static cpPrecompAP t = {
       /* w */                  7,

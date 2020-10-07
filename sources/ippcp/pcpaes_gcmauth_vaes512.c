@@ -42,11 +42,7 @@
 #endif
 
 /* AES-GCM authentication function. It calculates GHASH of the source input */
-void AesGcmAuth_vaes(Ipp8u* pGHash,
-                     const Ipp8u* pSrc,
-                     int len,
-                     const Ipp8u* pHKey,
-                     const void* pParam)
+IPP_OWN_DEFN (void, AesGcmAuth_vaes, (Ipp8u* pGHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam))
 {
    IPP_UNREFERENCED_PARAMETER(pParam);
 

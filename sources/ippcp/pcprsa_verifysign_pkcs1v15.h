@@ -31,7 +31,7 @@
 
 #include "pcprsa_emsa_pkcs1v15.h"
 
-static int VerifySing(const Ipp8u* pMsg, int msgLen,  /* message representation */
+static int VerifySign(const Ipp8u* pMsg, int msgLen,  /* message representation */
     const Ipp8u* pSalt, int saltLen, /* fied string */
     const Ipp8u* pSign,
     int* pIsValid,

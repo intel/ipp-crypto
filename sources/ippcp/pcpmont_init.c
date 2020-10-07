@@ -45,16 +45,15 @@
 //
 *F*/
 
-IppStatus cpMontInit(int maxLen32, int poolLength, IppsMontState* pMont)
+IPP_OWN_DEFN (IppStatus, cpMontInit, (int maxLen32, int poolLength, IppsMontState* pMont))
 {
-   pMont = (IppsMontState*)( IPP_ALIGNED_PTR(pMont, MONT_ALIGNMENT) );
    {
       int maxBitSize = ((maxLen32) << 5);
 
       MNT_ROOM( pMont )     = INTERNAL_BNU_LENGTH(maxLen32);
       MNT_ENGINE  ( pMont ) = (gsModEngine*)((Ipp8u*)pMont + sizeof(IppsMontState));
 
-      MNT_ID(pMont) = idCtxMontgomery;
+      MNT_SET_ID(pMont);
 
       gsModEngineInit(MNT_ENGINE(pMont), NULL, maxBitSize, poolLength, gsModArithMont());
 

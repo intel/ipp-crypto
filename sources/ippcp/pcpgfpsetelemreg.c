@@ -55,7 +55,6 @@
 IPPFUN(IppStatus, ippsGFpSetElementRegular,(const IppsBigNumState* pBN, IppsGFpElement* pR, IppsGFpState* pGFp))
 {
    IPP_BAD_PTR1_RET(pBN);
-   pBN = (IppsBigNumState*)( IPP_ALIGNED_PTR(pBN, BN_ALIGNMENT) );
    IPP_BADARG_RET( !BN_VALID_ID(pBN), ippStsContextMatchErr );
    IPP_BADARG_RET( !BN_POSITIVE(pBN), ippStsOutOfRangeErr);
 

@@ -60,8 +60,6 @@ IPPFUN(IppStatus, ippsSMS4EncryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, i
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned AES context */
-   pCtx = (IppsSMS4Spec*)( IPP_ALIGNED_PTR(pCtx, SMS4_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_SMS4_ID(pCtx), ippStsContextMatchErr);
 

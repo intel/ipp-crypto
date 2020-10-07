@@ -14,23 +14,26 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
-//  Purpose: MB RSA.
-// 
-//  Contents: codegenerator stuff
-//
-*/
+#ifndef VERSION_H
+#define VERSION_H
 
-#include "ifma_math.h"
-#include "ifma_internal.h"
+#include <internal/common/ifma_defs.h>
 
-{typedef}
-{functions}
+/* ifma name & version */
+#define MBX_LIB_NAME()    "crypto_mb"
+#define MBX_VER_MAJOR  1
+#define MBX_VER_MINOR  0
+#define MBX_VER_REV    1
 
-void {function_name} ({parameters})
-{
-  // Main code goes here
+typedef struct {
+   int    major;          /* e.g. 1               */
+   int    minor;          /* e.g. 2               */
+   int    revision;       /* e.g. 3               */
+   const char* name;      /* e,g. "crypto_mb"     */
+   const char* buildDate; /* e.g. "Oct 28 2019"   */
+   const char* strVersion;/* e.g. "crypto_mb (ver 1.2.3 Oct 28 2019)" */
+} mbxVersion;
 
-{code}
-}
+EXTERN_C const mbxVersion* mbx_getversion(void);
+
+#endif /* VERSION_H */

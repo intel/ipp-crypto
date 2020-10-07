@@ -43,7 +43,7 @@
 *F*/
 IPPFUN(IppStatus, ippsGFpECESStart_SM2, (IppsECESState_SM2* pState)) {
    IPP_BAD_PTR1_RET(pState);
-   IPP_BADARG_RET(pState->idCtx != idxCtxECES_SM2, ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECES_SM2_ID(pState), ippStsContextMatchErr);
    IPP_BADARG_RET(pState->state != ECESAlgoKeySet, ippStsContextMatchErr);
 
    ippsHashInit_rmf(pState->pTagHasher, ippsHashMethod_SM3());

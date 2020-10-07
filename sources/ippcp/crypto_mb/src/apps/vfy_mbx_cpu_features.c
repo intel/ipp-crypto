@@ -94,7 +94,9 @@ int main(void)
       mbcpCPUID_SHA
    };
    printf("flip cpu feature:\n");
-   for(int n=0; n<sizeof(flip_feature)/sizeof(int64u); n++) {
+   int n;
+
+   for(n=0; n<sizeof(flip_feature)/sizeof(int64u); n++) {
       int64u features = cpu_features^flip_feature[n];
       printf(" mb modified cpu features: 0x%016llx crypto_mb is ", features);
       if(mbx_is_crypto_mb_applicable(features))

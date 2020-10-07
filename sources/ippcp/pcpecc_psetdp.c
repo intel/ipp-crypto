@@ -71,17 +71,9 @@
 //    pECC     pointer to the ECC context
 //
 *F*/
-IppStatus ECCPSetDP(const IppsGFpMethod* method,
-                        int pLen, const BNU_CHUNK_T* pP,
-                        int aLen, const BNU_CHUNK_T* pA,
-                        int bLen, const BNU_CHUNK_T* pB,
-                        int xLen, const BNU_CHUNK_T* pX,
-                        int yLen, const BNU_CHUNK_T* pY,
-                        int rLen, const BNU_CHUNK_T* pR,
-                        BNU_CHUNK_T h,
-                        IppsGFpECState* pEC)
+IPP_OWN_DEFN (IppStatus, ECCPSetDP, (const IppsGFpMethod* method, int pLen, const BNU_CHUNK_T* pP, int aLen, const BNU_CHUNK_T* pA, int bLen, const BNU_CHUNK_T* pB, int xLen, const BNU_CHUNK_T* pX, int yLen, const BNU_CHUNK_T* pY, int rLen, const BNU_CHUNK_T* pR, BNU_CHUNK_T h, IppsGFpECState* pEC))
 {
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    {
       IppsGFpState *   pGF = ECP_GFP(pEC);

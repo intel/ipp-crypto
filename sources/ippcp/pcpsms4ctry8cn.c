@@ -48,9 +48,9 @@ __INLINE __m128i inc128(__m128i x)
 }
 
 #if (_IPP>=_IPP_H9) || (_IPP32E>=_IPP32E_L9)
-int cpSMS4_CTR_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr)
+IPP_OWN_DEFN (int, cpSMS4_CTR_aesni_x4, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr))
 #else
-int cpSMS4_CTR_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr)
+IPP_OWN_DEFN (int, cpSMS4_CTR_aesni, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr))
 #endif
 {
    __ALIGN16 __m128i TMP[8];

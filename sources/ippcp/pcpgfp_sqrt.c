@@ -66,7 +66,7 @@ static BNU_CHUNK_T* cpGFpExp2(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, int e, gsM
    0, if a - qnr
    1, if sqrt is found
 */
-int cpGFpSqrt(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFE)
+IPP_OWN_DEFN (int, cpGFpSqrt, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFE))
 {
    int elemLen = GFP_FELEN(pGFE);
    int poolelementLen = GFP_PELEN(pGFE);

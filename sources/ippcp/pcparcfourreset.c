@@ -47,8 +47,6 @@ IPPFUN(IppStatus, ippsARCFourReset, (IppsARCFourState* pCtx))
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned context */
-   pCtx = (IppsARCFourState*)( IPP_ALIGNED_PTR(pCtx, RC4_ALIGNMENT) );
    IPP_BADARG_RET(!RC4_VALID_ID(pCtx), ippStsContextMatchErr);
 
    {

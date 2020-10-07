@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <memory.h>
 
+#include <crypto_mb/version.h>
 #include <crypto_mb/rsa.h>
 
 ////////////////////
@@ -113,7 +114,8 @@ static int ba_mbx_rsa_public_mb8(int rsaBitsize)
    };
 
    int result = 1;
-   for(int n=0; n<sizeof(parList)/sizeof(parList[0]) && result==1; n++) {
+   int n;
+   for(n=0; n<sizeof(parList)/sizeof(parList[0]) && result==1; n++) {
       Parameters prm = parList[n];
 
       mbx_status sts = mbx_rsa_public_mb8((const int8u**)prm.from_pa,
@@ -213,7 +215,9 @@ static int ba_mbx_rsa_private_mb8(int rsaBitsize)
    };
 
    int result = 1;
-   for(int n=0; n<sizeof(parList)/sizeof(parList[0]) && result==1; n++) {
+   int n;
+
+   for(n=0; n<sizeof(parList)/sizeof(parList[0]) && result==1; n++) {
       Parameters prm = parList[n];
 
       mbx_status sts = mbx_rsa_private_mb8((const int8u**)prm.from_pa,
@@ -335,7 +339,9 @@ static int ba_mbx_rsa_private_crt_mb8(int rsaBitsize)
    };
 
    int result = 1;
-   for(int n=0; n<sizeof(parList)/sizeof(parList[0]) && result==1; n++) {
+   int n;
+   
+   for(n=0; n<sizeof(parList)/sizeof(parList[0]) && result==1; n++) {
       Parameters prm = parList[n];
 
       mbx_status sts = mbx_rsa_private_crt_mb8((const int8u**)prm.from_pa,

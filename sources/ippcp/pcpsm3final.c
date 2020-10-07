@@ -52,8 +52,7 @@ IPPFUN(IppStatus, ippsSM3Final,(Ipp8u* pMD, IppsSM3State* pState))
 {
    /* test state pointer and ID */
    IPP_BAD_PTR1_RET(pState);
-   pState = (IppsSM3State*)( IPP_ALIGNED_PTR(pState, SM3_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxSM3 !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxSM3), ippStsContextMatchErr);
 
    /* test digest pointer */
    IPP_BAD_PTR1_RET(pMD);

@@ -37,7 +37,7 @@
 //    a in desidue domain
 //    r in desidue domain
 */
-BNU_CHUNK_T* gs_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME, alm_inv alm_inversion)
+IPP_OWN_DEFN (BNU_CHUNK_T*, gs_inv, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME, alm_inv alm_inversion))
 {
    int k = alm_inversion(pr, pa, pME);
 

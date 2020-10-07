@@ -31,9 +31,7 @@
 
 #if (_AES_NI_ENABLING_==_FEATURE_ON_) || (_AES_NI_ENABLING_==_FEATURE_TICKTOCK_)
 
-//////////////////////////////////////////////////////////////////////
-#define cpExpandAesKey_NI OWNAPI(cpExpandAesKey_NI)
-void cpExpandAesKey_NI(const Ipp8u* pSecret, IppsAESSpec* pCtx)
+IPP_OWN_DEFN (void, cpExpandAesKey_NI, (const Ipp8u* pSecret, IppsAESSpec* pCtx))
 {
    int nRounds = RIJ_NR(pCtx);
    Ipp8u* pEncKeys = RIJ_EKEYS(pCtx);

@@ -61,7 +61,7 @@ static void cpGFESet(gsModEngine* pGFE, const BNU_CHUNK_T* pPrime, int primeBitS
    cpGFEqnr(pGFE);
 }
 
-IppStatus cpGFpSetGFp(const BNU_CHUNK_T* pPrime, int primeBitSize, const IppsGFpMethod* method, IppsGFpState* pGF)
+IPP_OWN_DEFN (IppStatus, cpGFpSetGFp, (const BNU_CHUNK_T* pPrime, int primeBitSize, const IppsGFpMethod* method, IppsGFpState* pGF))
 {
    cpGFESet(GFP_PMA(pGF), pPrime, primeBitSize, method->arith);
    return ippStsNoErr;

@@ -58,8 +58,7 @@ IPPFUN(IppStatus, ippsGFpECGet,(IppsGFpState** const ppGFp,
                                 const IppsGFpECState* pEC))
 {
    IPP_BAD_PTR1_RET(pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET( !ECP_TEST_ID(pEC), ippStsContextMatchErr );
+   IPP_BADARG_RET( !VALID_ECP_ID(pEC), ippStsContextMatchErr );
 
    {
       const IppsGFpState* pGF = ECP_GFP(pEC);
@@ -71,12 +70,12 @@ IPPFUN(IppStatus, ippsGFpECGet,(IppsGFpState** const ppGFp,
       }
 
       if(pA) {
-         IPP_BADARG_RET( !GFPE_TEST_ID(pA), ippStsContextMatchErr );
+         IPP_BADARG_RET( !GFPE_VALID_ID(pA), ippStsContextMatchErr );
          IPP_BADARG_RET( GFPE_ROOM(pA)!=GFP_FELEN(pGFE), ippStsOutOfRangeErr);
          cpGFpElementCopy(GFPE_DATA(pA), ECP_A(pEC), (cpSize)elementSize);
       }
       if(pB) {
-         IPP_BADARG_RET( !GFPE_TEST_ID(pB), ippStsContextMatchErr );
+         IPP_BADARG_RET( !GFPE_VALID_ID(pB), ippStsContextMatchErr );
          IPP_BADARG_RET( GFPE_ROOM(pB)!=GFP_FELEN(pGFE), ippStsOutOfRangeErr);
          cpGFpElementCopy(GFPE_DATA(pB), ECP_B(pEC), (cpSize)elementSize);
       }

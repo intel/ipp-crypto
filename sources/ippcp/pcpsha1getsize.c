@@ -49,7 +49,7 @@ IPPFUN(IppStatus, ippsSHA1GetSize,(int* pSize))
    /* test pointer */
    IPP_BAD_PTR1_RET(pSize);
 
-   *pSize = sizeof(IppsSHA1State) +(SHA1_ALIGNMENT-1);
+   *pSize = sizeof(IppsSHA1State);
 
    return ippStsNoErr;
 }

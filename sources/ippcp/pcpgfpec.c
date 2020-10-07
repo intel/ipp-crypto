@@ -29,7 +29,7 @@
 #include "pcpeccp.h"
 
 
-int cpGFpECGetSize(int basicDeg, int basicElmBitSize)
+IPP_OWN_DEFN (int, cpGFpECGetSize, (int basicDeg, int basicElmBitSize))
 {
    int ctxSize = 0;
    int elemLen = basicDeg*BITS_BNU_CHUNK(basicElmBitSize);

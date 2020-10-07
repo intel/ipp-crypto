@@ -126,7 +126,7 @@ else:
 
                   DISP.write("typedef void (*IPP_PROC)(void);\n\n")
                   DISP.write("extern int ippcpJumpIndexForMergedLibs;\n")
-                  DISP.write("extern IPP_STDCALL ippcpInit();\n\n")
+                  DISP.write("extern IPP_CALL ippcpInit();\n\n")
 
                   DISP.write("extern IppStatus in_"+FunName+FunArg+";\n")
 

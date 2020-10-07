@@ -28,8 +28,8 @@
 
 #define IPP_VERSION_MAJOR  2020
 #define IPP_VERSION_MINOR  0
-#define IPP_VERSION_UPDATE 2
+#define IPP_VERSION_UPDATE 3
 
-#define IPP_VERSION_STR "2020.0.2"
+#define IPP_VERSION_STR "2020.0.3"
 
 #endif /* IPPVERSION_H__ */

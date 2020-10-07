@@ -32,7 +32,7 @@
 
 //tbcd: temporary excluded: #include <assert.h>
 
-void cpGFEqnr(gsModEngine* pGFE)
+IPP_OWN_DEFN (void, cpGFEqnr, (gsModEngine* pGFE))
 {
    BNU_CHUNK_T* pQnr = GFP_QNR(pGFE);
 

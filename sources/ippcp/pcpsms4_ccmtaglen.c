@@ -50,7 +50,6 @@ IPPFUN(IppStatus, ippsSMS4_CCMTagLen,(int tagLen, IppsSMS4_CCMState* pCtx))
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   pCtx = (IppsSMS4_CCMState*)( IPP_ALIGNED_PTR(pCtx, SMS4CCM_ALIGNMENT) );
    IPP_BADARG_RET(!VALID_SMS4CCM_ID(pCtx), ippStsContextMatchErr);
 
    /* test tag length */

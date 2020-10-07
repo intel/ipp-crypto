@@ -49,7 +49,7 @@ IPPFUN(IppStatus, ippsSM3GetSize,(int* pSize))
    /* test pointer */
    IPP_BAD_PTR1_RET(pSize);
 
-   *pSize = sizeof(IppsSM3State) +(SM3_ALIGNMENT-1);
+   *pSize = sizeof(IppsSM3State);
 
    return ippStsNoErr;
 }

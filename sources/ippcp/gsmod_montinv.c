@@ -51,7 +51,7 @@ __INLINE BNU_CHUNK_T* cpPow2_ct(int bit, BNU_CHUNK_T* dst, int len)
 //    a in desidue domain
 //    r in Montgomery domain
 */
-BNU_CHUNK_T* gs_mont_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME, alm_inv alm_inversion)
+IPP_OWN_DEFN (BNU_CHUNK_T*, gs_mont_inv, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME, alm_inv alm_inversion))
 {
    int k = alm_inversion(pr, pa, pME);
 

@@ -55,9 +55,6 @@ IPPFUN(IppStatus, ippsGcd_BN, (IppsBigNumState* pA, IppsBigNumState* pB, IppsBig
 {
    IPP_BAD_PTR3_RET(pA, pB, pGCD);
 
-   pA = (IppsBigNumState*)(IPP_ALIGNED_PTR(pA, BN_ALIGNMENT));
-   pB = (IppsBigNumState*)(IPP_ALIGNED_PTR(pB, BN_ALIGNMENT));
-   pGCD = (IppsBigNumState*)(IPP_ALIGNED_PTR(pGCD, BN_ALIGNMENT));
    IPP_BADARG_RET(!BN_VALID_ID(pA), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pB), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pGCD), ippStsContextMatchErr);

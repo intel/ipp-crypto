@@ -48,7 +48,7 @@
 *F*/
 IPPFUN(IppStatus, ippsGFpECESInit_SM2, (IppsGFpECState* pEC, IppsECESState_SM2* pState, int avaliableCtxSize)) {
    IPP_BAD_PTR2_RET(pEC, pState);
-   IPP_BADARG_RET(pEC->idCtx != idCtxGFPEC, ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
    IPP_BADARG_RET(!pEC->subgroup, ippStsContextMatchErr);
    IPP_BADARG_RET(1 < pEC->pGF->pGFE->extdegree, ippStsNotSupportedModeErr);
 
@@ -61,7 +61,7 @@ IPPFUN(IppStatus, ippsGFpECESInit_SM2, (IppsGFpECState* pEC, IppsECESState_SM2* 
          int sm3size;
          ippsHashGetSize_rmf(&sm3size);
 
-         pState->idCtx = idxCtxECES_SM2;
+         ECES_SM2_SET_ID(pState);
          pState->sharedSecretLen = BITS2WORD8_SIZE(pEC->pGF->pGFE->modBitLen) * 2;
          pState->pSharedSecret = ((Ipp8u*)pState) + sizeof(IppsECESState_SM2);
          pState->pKdfHasher = (IppsHashState_rmf*)(((Ipp8u*)pState) + sizeof(IppsECESState_SM2) + pState->sharedSecretLen);

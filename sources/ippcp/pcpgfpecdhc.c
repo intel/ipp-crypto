@@ -67,8 +67,7 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDHC,(const IppsBigNumState* pPrivateA, co
 
    /* EC context and buffer */
    IPP_BAD_PTR2_RET(pEC, pScratchBuffer);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
    IPP_BADARG_RET(!ECP_SUBGROUP(pEC), ippStsContextMatchErr);
 
    pGF = ECP_GFP(pEC);
@@ -76,16 +75,14 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDHC,(const IppsBigNumState* pPrivateA, co
 
    /* test private (own) key */
    IPP_BAD_PTR1_RET(pPrivateA);
-   pPrivateA = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrivateA, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrivateA), ippStsContextMatchErr);
 
    /* test public (other party) key */
    IPP_BAD_PTR1_RET(pPublicB);
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pPublicB), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pPublicB), ippStsContextMatchErr );
 
    /* test share key */
    IPP_BAD_PTR1_RET(pShare);
-   pShare = (IppsBigNumState*)( IPP_ALIGNED_PTR(pShare, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pShare), ippStsContextMatchErr);
    IPP_BADARG_RET((BN_ROOM(pShare)<GFP_FELEN(pGFE)), ippStsRangeErr);
 

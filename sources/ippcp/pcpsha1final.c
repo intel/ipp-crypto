@@ -52,8 +52,7 @@ IPPFUN(IppStatus, ippsSHA1Final,(Ipp8u* pMD, IppsSHA1State* pState))
 {
    /* test state pointer and ID */
    IPP_BAD_PTR1_RET(pState);
-   pState = (IppsSHA1State*)( IPP_ALIGNED_PTR(pState, SHA1_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxSHA1 !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxSHA1), ippStsContextMatchErr);
 
    /* test digest pointer */
    IPP_BAD_PTR1_RET(pMD);

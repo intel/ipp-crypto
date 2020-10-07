@@ -29,30 +29,19 @@
 
 #if defined(_USE_WINDOW_EXP_)
 
-__INLINE void gsMul_school(BNU_CHUNK_T* pR,
-                    const BNU_CHUNK_T* pX, const BNU_CHUNK_T* pY, cpSize len,
-                          BNU_CHUNK_T* pKbuffer)
+IPP_OWN_DEFN (static void, gsMul_school, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pX, const BNU_CHUNK_T* pY, cpSize len, BNU_CHUNK_T* pKbuffer))
 {
    IPP_UNREFERENCED_PARAMETER(pKbuffer);
    cpMul_BNU_school(pR, pX, len, pY, len);
 }
-__INLINE void gsSqr_school(BNU_CHUNK_T* pR,
-                     const BNU_CHUNK_T* pX, cpSize len,
-                           BNU_CHUNK_T* pKbuffer)
+IPP_OWN_DEFN (static void, gsSqr_school, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pX, cpSize len, BNU_CHUNK_T* pKbuffer))
 {
    IPP_UNREFERENCED_PARAMETER(pKbuffer);
    cpSqr_BNU_school(pR, pX, len);
 }
 
-
-
-typedef void (*gsMul)(BNU_CHUNK_T* pR,
-                const BNU_CHUNK_T* pX, const BNU_CHUNK_T* pY, cpSize len,
-                      BNU_CHUNK_T* pKbuffer);
-typedef void (*gsSqr)(BNU_CHUNK_T* pR,
-                const BNU_CHUNK_T* pX, cpSize len,
-                      BNU_CHUNK_T* pKbuffer);
-
+IPP_OWN_FUNPTR (void, gsMul, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pX, const BNU_CHUNK_T* pY, cpSize len, BNU_CHUNK_T* pKbuffer))
+IPP_OWN_FUNPTR (void, gsSqr, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pX, cpSize len, BNU_CHUNK_T* pKbuffer))
 
 /*F*
 // Name: cpMontExpWin_BN_sscm
@@ -69,11 +58,7 @@ typedef void (*gsSqr)(BNU_CHUNK_T* pR,
 //
 *F*/
 
-void cpMontExpWin_BN_sscm(IppsBigNumState* pY,
-                    const IppsBigNumState* pX,
-                    const IppsBigNumState* pE,
-                          gsModEngine* pMont,
-                          BNU_CHUNK_T* pResource)
+IPP_OWN_DEFN (void, cpMontExpWin_BN_sscm, (IppsBigNumState* pY, const IppsBigNumState* pX, const IppsBigNumState* pE, gsModEngine* pMont, BNU_CHUNK_T* pResource))
 {
    BNU_CHUNK_T* dataX = BN_NUMBER(pX);
    cpSize nsX = BN_SIZE(pX);

@@ -62,8 +62,7 @@
 IPPFUN(IppStatus, ippsGFpElementInit,(const Ipp32u* pA, int lenA, IppsGFpElement* pR, IppsGFpState* pGFp))
 {
    IPP_BAD_PTR2_RET(pR, pGFp);
-   pGFp = (IppsGFpState*)( IPP_ALIGNED_PTR(pGFp, GFP_ALIGNMENT) );
-   IPP_BADARG_RET( !GFP_TEST_ID(pGFp), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFP_VALID_ID(pGFp), ippStsContextMatchErr );
 
    IPP_BADARG_RET(0>lenA, ippStsSizeErr);
 

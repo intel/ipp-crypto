@@ -56,11 +56,8 @@ IPPFUN(IppStatus, ippsSMS4_CCMInit,(const Ipp8u* pKey, int keyLen,
    /* test available size of context buffer */
    IPP_BADARG_RET(ctxSize<cpSizeofCtx_SMS4CCM(), ippStsMemAllocErr);
 
-   /* use aligned context */
-   pCtx = (IppsSMS4_CCMState*)( IPP_ALIGNED_PTR(pCtx, SMS4CCM_ALIGNMENT) );
-
    /* set state ID */
-   SMS4CCM_ID(pCtx) = idCtxAESCCM;
+   SMS4CCM_SET_ID(pCtx);
 
    /* set default message len */
    SMS4CCM_MSGLEN(pCtx) = 0;

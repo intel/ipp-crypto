@@ -49,7 +49,7 @@ IPPFUN(IppStatus, ippsHMACGetSize_rmf,(int* pSize))
    /* test size's pointer */
    IPP_BAD_PTR1_RET(pSize);
 
-   *pSize = sizeof(IppsHMACState_rmf)
-          + HASH_ALIGNMENT;
+   *pSize = sizeof(IppsHMACState_rmf);
+
    return ippStsNoErr;
 }

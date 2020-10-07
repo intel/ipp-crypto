@@ -54,9 +54,7 @@
       (_IPP32E>=_IPP32E_E9) || \
       (_IPP32E==_IPP32E_N8)) || \
       defined(_USE_C_cpMulAdc_BNU_school_)
-BNU_CHUNK_T cpMulAdc_BNU_school(BNU_CHUNK_T* pR,
-                          const BNU_CHUNK_T* pA, cpSize nsA,
-                          const BNU_CHUNK_T* pB, cpSize nsB)
+IPP_OWN_DEFN (BNU_CHUNK_T, cpMulAdc_BNU_school, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, cpSize nsA, const BNU_CHUNK_T* pB, cpSize nsB))
 {
    const BNU_CHUNK_T* pa = (BNU_CHUNK_T*)pA;
    const BNU_CHUNK_T* pb = (BNU_CHUNK_T*)pB;

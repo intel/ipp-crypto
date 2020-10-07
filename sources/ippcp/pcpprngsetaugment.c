@@ -53,12 +53,10 @@ IPPFUN(IppStatus, ippsPRNGSetAugment, (const IppsBigNumState* pAug, IppsPRNGStat
 {
    /* test PRNG context */
    IPP_BAD_PTR1_RET(pCtx);
-   pCtx = (IppsPRNGState*)( IPP_ALIGNED_PTR(pCtx, PRNG_ALIGNMENT) );
    IPP_BADARG_RET(!RAND_VALID_ID(pCtx), ippStsContextMatchErr);
 
    /* test augmentation */
    IPP_BAD_PTR1_RET(pAug);
-   pAug = (IppsBigNumState*)( IPP_ALIGNED_PTR(pAug, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pAug), ippStsContextMatchErr);
 
    {

@@ -2,12 +2,18 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## YYYY-MM-DD
+
+## 2020-10-21
+- RSA-2048 decryption (CRT) was enabled for Intel(R) Microarchitecture Code Named Ice Lake
+- Crypto Multi-buffer library was extended with ECDSA (Sign) and ECDHE for the NIST curves p256r1 and p384r1
+
 ## 2020-09-01
 - Refactoring of Crypto Multi-buffer library, added build and installation of crypto_mb dynamic library and CPU features detection.
 
 ## 2020-08-19
-- Added multi-buffer implementation of AES-CFB optimized with Intel(R) AES-NI and vector extensions of Intel(R) AES-NI instruction sets.
-- Fixed compatibility issue with x64 ABI (restored non-volatile registers after function call in AVX/AVX2 assembly code).
+- Added multi-buffer implementation of AES-CFB optimized with Intel(R) AES New Instructions (Intel(R) AES-NI) and vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI) instruction sets.
+- Fixed compatibility issue with x64 ABI (restored non-volatile registers after function call in Intel® Advanced Vector Extensions (Intel® AVX)/Intel® Advanced Vector Extensions 2 (Intel® AVX2) assembly code).
 - Updated Intel IPP Custom Library Tool.
 
 ## 2020-06-09
@@ -23,7 +29,7 @@ This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chron
 
 ## 2020-04-19
 - AES-XTS optimization for Intel(R) Microarchitecture Code Named Ice Lake with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI) was improved.
-- Fixed a build issue that affect build of the Intel(R) IPP Crypto library with MSVC\* compiler on Windows\* OS.
+- Fixed a build issue that affect build of the Intel(R) IPP Cryptography library with MSVC\* compiler on Windows\* OS.
 - Duplicated APIs of HASH, HMAC, MGF, RSA, ECCP functionality were marked as deprecated. For more information see [Deprecation notes](./DEPRECATION_NOTES.md)
 - Added examples demonstrating usage of SMS4-CBC encryption and decryption.
 

@@ -43,7 +43,7 @@
 //    if BNU==0, -1 will return
 *F*/
 
-int cpMSBit_BNU(const BNU_CHUNK_T* pA, cpSize nsA)
+IPP_OWN_DEFN (int, cpMSBit_BNU, (const BNU_CHUNK_T* pA, cpSize nsA))
 {
    int msb;
    FIX_BNU(pA, nsA);

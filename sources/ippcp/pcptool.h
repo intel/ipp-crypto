@@ -117,7 +117,7 @@ __INLINE void PurgeBlock(void* pDst, int len)
 }
 #else
 #define PurgeBlock OWNAPI(PurgeBlock)
-void PurgeBlock(void* pDst, int len);
+    IPP_OWN_DECL (void, PurgeBlock, (void* pDst, int len))
 #endif
 
 /* fill block */

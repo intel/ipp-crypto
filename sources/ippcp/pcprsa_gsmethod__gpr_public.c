@@ -32,14 +32,15 @@
 #include "pcpngrsamethod.h"
 #include "pcpngrsa.h"
 
-gsMethod_RSA* gsMethod_RSA_gpr_public(void)
+IPP_OWN_DEFN (gsMethod_RSA*, gsMethod_RSA_gpr_public, (void))
 {
    static gsMethod_RSA m = {
       MIN_RSA_SIZE, MAX_RSA_SIZE,   /* RSA range */
 
       /* public key exponentiation: public, binary, gpr */
       gsMontExpBinBuffer,
-      gsModExpBin_BNU
+      gsModExpBin_BNU,
+      NULL
    };
    return &m;
 }

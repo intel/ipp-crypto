@@ -74,7 +74,6 @@ IPPFUN(IppStatus, ippsDLPVerifyDSA,(const IppsBigNumState* pMsgDigest,
 {
    /* test context*/
    IPP_BAD_PTR2_RET(pDL,pResult);
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
    IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
 
    /* test operation flag */
@@ -82,7 +81,6 @@ IPPFUN(IppStatus, ippsDLPVerifyDSA,(const IppsBigNumState* pMsgDigest,
 
    /* test message representative */
    IPP_BAD_PTR1_RET(pMsgDigest);
-   pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
    /* make sure msg <order */
@@ -91,8 +89,6 @@ IPPFUN(IppStatus, ippsDLPVerifyDSA,(const IppsBigNumState* pMsgDigest,
 
    /* test signature */
    IPP_BAD_PTR2_RET(pSignR,pSignS);
-   pSignR = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignR, BN_ALIGNMENT) );
-   pSignS = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignS, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pSignR), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pSignS), ippStsContextMatchErr);
 

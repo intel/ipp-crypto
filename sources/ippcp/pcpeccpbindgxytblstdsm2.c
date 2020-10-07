@@ -51,9 +51,7 @@ IPPFUN(IppStatus, ippsECCPBindGxyTblStdSM2,(IppsECCPState* pEC))
 {
    /* test pEC */
    IPP_BAD_PTR1_RET(pEC);
-   /* use aligned EC context */
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    ECP_PREMULBP(pEC) = gfpec_precom_sm2_fun();
 

@@ -34,7 +34,7 @@
 #include "pcptool.h"
 
 #include "pcprsa_pkcs1c15_data.h"
-#include "pcprsa_verifysing_pkcs1v15.h"
+#include "pcprsa_verifysign_pkcs1v15.h"
 #include "pcprsa_pkcs1v15_preproc.h"
 
 IPPFUN(IppStatus, ippsRSAVerify_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
@@ -54,7 +54,7 @@ IPPFUN(IppStatus, ippsRSAVerify_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
       Ipp8u md[IPP_SHA512_DIGEST_BITSIZE/BYTESIZE];
       ippsHashMessage_rmf(pMsg, msgLen, md, pMethod);
 
-      return VerifySing(md, pMethod->hashLen,
+      return VerifySign(md, pMethod->hashLen,
                         pksc15_salt[pMethod->hashAlgId].pSalt, pksc15_salt[pMethod->hashAlgId].saltLen,
                         pSign, pIsValid,
                         pKey,

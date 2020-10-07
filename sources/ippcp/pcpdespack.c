@@ -50,11 +50,12 @@ IPPFUN(IppStatus, ippsDESPack,(const IppsDESSpec* pCtx, Ipp8u* pBuffer))
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
-   /* use aligned context */
-   pCtx = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx, DES_ALIGNMENT) );
    /* test the context */
-   IPP_BADARG_RET(!DES_ID_TEST(pCtx), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_DES_ID(pCtx), ippStsContextMatchErr);
 
    CopyBlock(pCtx, pBuffer, sizeof(IppsDESSpec));
+   IppsDESSpec* pCopy = (IppsDESSpec*)pBuffer;
+   DES_RESET_ID(pCopy);
+   
    return ippStsNoErr;
 }

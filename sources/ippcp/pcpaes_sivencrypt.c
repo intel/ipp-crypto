@@ -102,11 +102,11 @@ IPPFUN(IppStatus, ippsAES_SIVEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
       Ipp8u vmask[MBS_RIJ128] = {0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
                                  0x7f,0xff,0xff,0xff,0x7f,0xff,0xff,0xff};
       /* AES context */
-      Ipp8u aesBlob[sizeof(IppsAESSpec)+AES_ALIGNMENT];
+      Ipp8u aesBlob[sizeof(IppsAESSpec)];
       IppsAESSpec* paesCtx = (IppsAESSpec*)aesBlob;
 
       {
-         Ipp8u ctxBlob[sizeof(IppsAES_CMACState) + AESCMAC_ALIGNMENT];
+         Ipp8u ctxBlob[sizeof(IppsAES_CMACState)];
          IppsAES_CMACState* pCtx = (IppsAES_CMACState*)ctxBlob;
          cpAES_S2V_init(pSIV, pAuthKey, keyLen, pCtx, sizeof(ctxBlob));
 

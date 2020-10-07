@@ -205,8 +205,8 @@ __INLINE int cpTst_BNU(const BNU_CHUNK_T* pA, int nsA)
 
 /* number of leading/trailing zeros */
 #if !((_IPP >= _IPP_H9) || (_IPP32E >= _IPP32E_L9))
-   #define cpNLZ_BNU OWNAPI(cpNLZ_BNU)
-   cpSize cpNLZ_BNU(BNU_CHUNK_T x);
+#define cpNLZ_BNU OWNAPI(cpNLZ_BNU)
+   IPP_OWN_DECL (cpSize, cpNLZ_BNU, (BNU_CHUNK_T x))
 #else
    __INLINE cpSize cpNLZ_BNU(BNU_CHUNK_T x)
    {
@@ -219,20 +219,20 @@ __INLINE int cpTst_BNU(const BNU_CHUNK_T* pA, int nsA)
 #endif
 
 #define cpNTZ_BNU OWNAPI(cpNTZ_BNU)
- cpSize cpNTZ_BNU(BNU_CHUNK_T x);
+   IPP_OWN_DECL (cpSize, cpNTZ_BNU, (BNU_CHUNK_T x))
 
 /* logical shift left/right */
 #define cpLSR_BNU OWNAPI(cpLSR_BNU)
-    int cpLSR_BNU(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, cpSize nsA, cpSize nBits);
+   IPP_OWN_DECL (int, cpLSR_BNU, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, cpSize nsA, cpSize nBits))
 
 /* most significant BNU bit */
 #define cpMSBit_BNU OWNAPI(cpMSBit_BNU)
-    int cpMSBit_BNU(const BNU_CHUNK_T* pA, cpSize nsA);
+   IPP_OWN_DECL (int, cpMSBit_BNU, (const BNU_CHUNK_T* pA, cpSize nsA))
 
 /* BNU <-> hex-string conversion */
 #define cpToOctStr_BNU OWNAPI(cpToOctStr_BNU)
-    int cpToOctStr_BNU(Ipp8u* pStr, cpSize strLen, const BNU_CHUNK_T* pA, cpSize nsA);
+   IPP_OWN_DECL (int, cpToOctStr_BNU, (Ipp8u* pStr, cpSize strLen, const BNU_CHUNK_T* pA, cpSize nsA))
 #define cpFromOctStr_BNU OWNAPI(cpFromOctStr_BNU)
-    int cpFromOctStr_BNU(BNU_CHUNK_T* pA, const Ipp8u* pStr, cpSize strLen);
+   IPP_OWN_DECL (int, cpFromOctStr_BNU, (BNU_CHUNK_T* pA, const Ipp8u* pStr, cpSize strLen))
 
 #endif /* _PCP_BNUMISC_H */

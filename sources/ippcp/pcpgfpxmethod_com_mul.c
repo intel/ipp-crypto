@@ -26,7 +26,7 @@
 
 //tbcd: temporary excluded: #include <assert.h>
 
-BNU_CHUNK_T* cpGFpxMul_com(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxMul_com, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx))
 {
    int extDegree = GFP_EXTDEGREE(pGFEx);
 

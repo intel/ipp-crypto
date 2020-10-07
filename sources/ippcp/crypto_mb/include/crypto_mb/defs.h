@@ -56,21 +56,4 @@ typedef unsigned long long int64u;
    #define EXTERN_C
 #endif
 
-/* ifma name & version */
-#define IFMA_LIB_NAME()    "crypto_mb"
-#define IFMA_VER_MAJOR  0
-#define IFMA_VER_MINOR  5
-#define IFMA_VER_REV    3
-
-typedef struct {
-   int    major;          /* e.g. 1               */
-   int    minor;          /* e.g. 2               */
-   int    revision;       /* e.g. 3               */
-   const char* name;      /* e,g. "crypto_mb"     */
-   const char* buildDate; /* e.g. "Oct 28 2019"   */
-   const char* strVersion;/* e.g. "crypto_mb (ver 1.2.3 Oct 28 2019)" */
-} ifmaVersion;
-
-EXTERN_C const ifmaVersion* mbx_getversion(void);
-
 #endif /* DEFS_H */

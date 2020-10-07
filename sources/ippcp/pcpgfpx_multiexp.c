@@ -123,8 +123,7 @@ static int cpGetMaxBitsizeExponent(const BNU_CHUNK_T* ppE[], int nsE[], int nIte
 }
 
 /* sscm version */
-BNU_CHUNK_T* cpGFpxMultiExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* ppA[], const BNU_CHUNK_T* ppE[], int nsE[], int nItems,
-                          gsModEngine* pGFEx, Ipp8u* pScratchBuffer)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxMultiExp, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* ppA[], const BNU_CHUNK_T* ppE[], int nsE[], int nItems, gsModEngine* pGFEx, Ipp8u* pScratchBuffer))
 {
    /* align scratch buffer */
    BNU_CHUNK_T* pTable = (BNU_CHUNK_T*)( IPP_ALIGNED_PTR(pScratchBuffer, CACHE_LINE_SIZE) );

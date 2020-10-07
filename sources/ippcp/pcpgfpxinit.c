@@ -70,9 +70,7 @@ IPPFUN(IppStatus, ippsGFpxInit,(const IppsGFpState* pGroundGF, int extDeg,
 {
    IPP_BAD_PTR4_RET(pGFpx, pGroundGF, ppGroundElm, pGFpMethod);
 
-   pGFpx = (IppsGFpState*)( IPP_ALIGNED_PTR(pGFpx, GFP_ALIGNMENT) );
-   pGroundGF = (IppsGFpState*)( IPP_ALIGNED_PTR(pGroundGF, GFP_ALIGNMENT) );
-   IPP_BADARG_RET( !GFP_TEST_ID(pGroundGF), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFP_VALID_ID(pGroundGF), ippStsContextMatchErr );
 
    /* test extension degree */
    IPP_BADARG_RET( extDeg<IPP_MIN_GF_EXTDEG || extDeg>IPP_MAX_GF_EXTDEG, ippStsBadArgErr);
@@ -97,7 +95,7 @@ IPPFUN(IppStatus, ippsGFpxInit,(const IppsGFpState* pGroundGF, int extDeg,
 
          /* test element */
          IPP_BAD_PTR1_RET(pGroundElm);
-         IPP_BADARG_RET(!GFPE_TEST_ID(pGroundElm), ippStsContextMatchErr);
+         IPP_BADARG_RET(!GFPE_VALID_ID(pGroundElm), ippStsContextMatchErr);
          IPP_BADARG_RET(GFPE_ROOM(pGroundElm)!=polyTermlen, ippStsOutOfRangeErr);
 
          /* copy element */

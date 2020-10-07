@@ -36,7 +36,7 @@
 // old version
 */
 
-Ipp8u TransformByte(Ipp8u x, const Ipp8u Transformation[])
+IPP_OWN_DEFN (Ipp8u, TransformByte, (Ipp8u x, const Ipp8u Transformation[]))
 {
    Ipp32u y = 0;
 
@@ -53,7 +53,7 @@ Ipp8u TransformByte(Ipp8u x, const Ipp8u Transformation[])
 
 static Ipp8u Native2CompositeTransformation[] = {0x01,0x2E,0x49,0x43,0x35,0xD0,0x3D,0xE9};
 
-void TransformNative2Composite(Ipp8u out[], const Ipp8u inp[])
+IPP_OWN_DEFN (void, TransformNative2Composite, (Ipp8u out[], const Ipp8u inp[]))
 {
    int n;
    for(n=0; n<16; n++)
@@ -62,14 +62,14 @@ void TransformNative2Composite(Ipp8u out[], const Ipp8u inp[])
 
 static Ipp8u Composite2NativeTransformation[] = {0x01,0x5C,0xE0,0x50,0x1F,0xEE,0x55,0x6A};
 
-void TransformComposite2Native(Ipp8u out[], const Ipp8u inp[])
+IPP_OWN_DEFN (void, TransformComposite2Native, (Ipp8u out[], const Ipp8u inp[]))
 {
    int n;
    for(n=0; n<16; n++)
       out[n] = TransformByte(inp[n], Composite2NativeTransformation);
 }
 
-void AddRoundKey(Ipp8u out[], const Ipp8u inp[], const Ipp8u pKey[])
+IPP_OWN_DEFN (void, AddRoundKey, (Ipp8u out[], const Ipp8u inp[], const Ipp8u pKey[]))
 {
    int n;
    for(n=0; n<16; n++)
@@ -100,7 +100,7 @@ static Ipp8u GF16_sqr1[]= {0x00,0x09,0x02,0x0B,0x08,0x01,0x0A,0x03,
                            0x06,0x0F,0x04,0x0D,0x0E,0x07,0x0C,0x05};
 static Ipp8u GF16_inv[] = {0x00,0x01,0x09,0x0E,0x0D,0x0B,0x07,0x06,
                            0x0F,0x02,0x0C,0x05,0x0A,0x04,0x03,0x08};
-Ipp8u InverseComposite(Ipp8u x)
+IPP_OWN_DEFN (Ipp8u, InverseComposite, (Ipp8u x))
 {
    /* split x = {bc} => b*t + c */
    int b = (x>>4) & 0x0F;
@@ -164,7 +164,7 @@ static Ipp8u Native2CompositeTransformationHI[] = { /* defived from Native2Compo
    /* e */      0xE9^0x3D^0xD0,
    /* f */      0xE9^0x3D^0xD0^0x35
 };
-void TransformNative2Composite(Ipp8u out[16], const Ipp8u inp[16])
+IPP_OWN_DEFN (void, TransformNative2Composite, (Ipp8u out[16], const Ipp8u inp[16]))
 {
    Ipp8u blk_lo[16], blk_hi[16];
    ((Ipp64u*)blk_lo)[0] = ((Ipp64u*)inp)[0] & 0x0F0F0F0F0F0F0F0F;
@@ -219,7 +219,7 @@ static Ipp8u Composite2NativeTransformationHI[] = {/* defived from Composite2Nat
    /* e */      0x6A^0x55^0xEE,
    /* f */      0x6A^0x55^0xEE^0x1F
 };
-void TransformComposite2Native(Ipp8u out[16], const Ipp8u inp[16])
+IPP_OWN_DEFN (void, TransformComposite2Native, (Ipp8u out[16], const Ipp8u inp[16]))
 {
    Ipp8u blk_lo[16], blk_hi[16];
    ((Ipp64u*)blk_lo)[0] = ((Ipp64u*)inp)[0] & 0x0F0F0F0F0F0F0F0F;

@@ -36,7 +36,7 @@
 // definition of RSA exponentiation (PX/GPR based)
 */
 
-gsMethod_RSA* gsMethod_RSA_gpr_private(void)
+IPP_OWN_DEFN (gsMethod_RSA*, gsMethod_RSA_gpr_private, (void))
 {
    static gsMethod_RSA m = {
       MIN_RSA_SIZE, MAX_RSA_SIZE,   /* RSA range */
@@ -48,6 +48,7 @@ gsMethod_RSA* gsMethod_RSA_gpr_private(void)
       #else
       gsModExpWin_BNU_sscm
       #endif
+      , NULL
    };
    return &m;
 }

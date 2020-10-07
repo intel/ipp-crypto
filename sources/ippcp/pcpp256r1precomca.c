@@ -2528,7 +2528,7 @@ const __ALIGN64 P256_POINT_AFFINE ec_p256r1_precomputed[37][64] = {
 #endif  /* _IPP_DATA */
 
 
-const cpPrecompAP* gfpec_precom_nistP256r1_fun(void)
+IPP_OWN_DEFN (const cpPrecompAP*, gfpec_precom_nistP256r1_fun, (void))
 {
    static cpPrecompAP t = {
       /* w */                  7,

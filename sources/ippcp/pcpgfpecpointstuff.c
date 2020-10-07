@@ -32,7 +32,7 @@
 
 
 #if ( ECP_PROJECTIVE_COORD == JACOBIAN )
-int gfec_IsPointOnCurve(const IppsGFpECPoint* pPoint, IppsGFpECState* pEC)
+IPP_OWN_DEFN (int, gfec_IsPointOnCurve, (const IppsGFpECPoint* pPoint, IppsGFpECState* pEC))
 {
    /* point at infinity does not belong curve */
    if( !IS_ECP_FINITE_POINT(pPoint) )

@@ -54,7 +54,6 @@ IPPFUN(IppStatus, ippsPRNGInit, (int seedBits, IppsPRNGState* pCtx))
 {
    /* test PRNG context */
    IPP_BAD_PTR1_RET(pCtx);
-   pCtx = (IppsPRNGState*)( IPP_ALIGNED_PTR(pCtx, PRNG_ALIGNMENT) );
 
    /* test sizes */
    IPP_BADARG_RET((1>seedBits) || (seedBits>MAX_XKEY_SIZE) ||(seedBits&7), ippStsLengthErr);
@@ -66,7 +65,7 @@ IPPFUN(IppStatus, ippsPRNGInit, (int seedBits, IppsPRNGState* pCtx))
       /* cleanup context */
       ZEXPAND_BNU((Ipp8u*)pCtx, 0, (cpSize)(sizeof(IppsPRNGState)));
 
-      RAND_ID(pCtx) = idCtxPRNG;
+      RAND_SET_ID(pCtx);
       RAND_SEEDBITS(pCtx) = seedBits;
 
       /* default Q parameter */

@@ -58,10 +58,8 @@ IPPFUN(IppStatus, ippsECCPSetKeyPair, (const IppsBigNumState* pPrivate, const Ip
                                        IppBool regular,
                                        IppsECCPState* pEC))
 {
-   /* use aligned EC context */
    IPP_BAD_PTR1_RET(pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    {
       BNU_CHUNK_T* targetPrivate;
@@ -78,7 +76,6 @@ IPPFUN(IppStatus, ippsECCPSetKeyPair, (const IppsBigNumState* pPrivate, const Ip
 
       /* set up private key request */
       if( pPrivate ) {
-         pPrivate = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrivate, ALIGN_VAL) );
          IPP_BADARG_RET(!BN_VALID_ID(pPrivate), ippStsContextMatchErr);
          {
             int privateLen = BITS_BNU_CHUNK(ECP_ORDBITSIZE(pEC));
@@ -88,7 +85,7 @@ IPPFUN(IppStatus, ippsECCPSetKeyPair, (const IppsBigNumState* pPrivate, const Ip
 
       /* set up public  key request */
       if( pPublic ) {
-         IPP_BADARG_RET( !ECP_POINT_TEST_ID(pPublic), ippStsContextMatchErr );
+         IPP_BADARG_RET( !ECP_POINT_VALID_ID(pPublic), ippStsContextMatchErr );
          {
             BNU_CHUNK_T* targetPublicX = targetPublic;
             BNU_CHUNK_T* targetPublicY = targetPublic+ECP_POINT_FELEN(pPublic);

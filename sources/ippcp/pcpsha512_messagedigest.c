@@ -32,7 +32,7 @@
 #include "pcptool.h"
 #include "pcpsha512stuff.h"
 
-IppStatus cpSHA512MessageDigest(DigestSHA512 hash, const Ipp8u* pMsg, int msgLen, const DigestSHA512 IV)
+IPP_OWN_DEFN (IppStatus, cpSHA512MessageDigest, (DigestSHA512 hash, const Ipp8u* pMsg, int msgLen, const DigestSHA512 IV))
 {
    /* test digest pointer */
    IPP_BAD_PTR1_RET(hash);

@@ -84,8 +84,6 @@ IppStatus cpProcessAES_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned AES context */
-   pCtx = (IppsAESSpec*)( IPP_ALIGNED_PTR(pCtx, AES_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_AES_ID(pCtx), ippStsContextMatchErr);
 
@@ -211,8 +209,6 @@ IppStatus cpProcessAES_ctr128(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned AES context */
-   pCtx = (IppsAESSpec*)( IPP_ALIGNED_PTR(pCtx, AES_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_AES_ID(pCtx), ippStsContextMatchErr);
 

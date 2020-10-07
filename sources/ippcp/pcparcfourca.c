@@ -48,8 +48,6 @@ IPPFUN(IppStatus, ippsARCFourInit, (const Ipp8u *pKey, int keyLen, IppsARCFourSt
 {
    /* test context pointer */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned context */
-   pCtx = (IppsARCFourState*)( IPP_ALIGNED_PTR(pCtx, RC4_ALIGNMENT) );
 
    /* test key */
    IPP_BAD_PTR1_RET(pKey);
@@ -60,7 +58,7 @@ IPPFUN(IppStatus, ippsARCFourInit, (const Ipp8u *pKey, int keyLen, IppsARCFourSt
       Ipp8u kblk[256], j, tmp;
 
       /* init RC4 context */
-      RC4_ID(pCtx) = idCtxARCFOUR;
+      RC4_SET_ID(pCtx);
 
       for(i=0; i<256; i++) {
          pCtx->Sbox0[i] = (Ipp8u)i;

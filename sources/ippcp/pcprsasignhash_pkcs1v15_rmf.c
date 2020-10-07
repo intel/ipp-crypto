@@ -34,7 +34,7 @@
 #include "pcptool.h"
 
 #include "pcprsa_pkcs1c15_data.h"
-#include "pcprsa_generatesing_pkcs1v15.h"
+#include "pcprsa_generatesign_pkcs1v15.h"
 
 #if defined( _ABL_ )
 
@@ -49,7 +49,6 @@ IPPFUN(IppStatus, ippsRSASignHash_PKCS1v15_rmf,(const Ipp8u* md,
 
    /* test private key context */
    IPP_BAD_PTR3_RET(pPrvKey, pScratchBuffer, pMethod);
-   pPrvKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pPrvKey, RSA_PRIVATE_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PRV_KEY_VALID_ID(pPrvKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pPrvKey), ippStsIncompleteContextErr);
 
@@ -59,7 +58,6 @@ IPPFUN(IppStatus, ippsRSASignHash_PKCS1v15_rmf,(const Ipp8u* md,
 
    /* use aligned public key context if defined */
    if(pPubKey) {
-      pPubKey = (IppsRSAPublicKeyState*)( IPP_ALIGNED_PTR(pPubKey, RSA_PUBLIC_KEY_ALIGNMENT) );
       IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(pPubKey), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(pPubKey), ippStsIncompleteContextErr);
    }
@@ -71,7 +69,7 @@ IPPFUN(IppStatus, ippsRSASignHash_PKCS1v15_rmf,(const Ipp8u* md,
       const Ipp8u* pSalt = pksc15_salt[hashAlg].pSalt;
       int saltLen = pksc15_salt[hashAlg].saltLen;
 
-      int sts = GenerateSing(md, pMethod->hashLen,
+      int sts = GenerateSign(md, pMethod->hashLen,
                          pSalt, saltLen,
                          pSign,
                          pPrvKey, pPubKey,

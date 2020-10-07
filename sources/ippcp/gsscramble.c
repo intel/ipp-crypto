@@ -30,7 +30,7 @@
 #include "gsscramble.h"
 #include "pcpmask_ct.h"
 
-int gsGetScrambleBufferSize(int modulusLen, int w)
+IPP_OWN_DEFN (int, gsGetScrambleBufferSize, (int modulusLen, int w))
 {
    /* size of resource to store 2^w values of modulusLen*sizeof(BNU_CHUNK_T) each */
    int size = (1<<w) * modulusLen * (Ipp32s)sizeof(BNU_CHUNK_T);
@@ -39,7 +39,7 @@ int gsGetScrambleBufferSize(int modulusLen, int w)
    return size/(Ipp32s)sizeof(BNU_CHUNK_T);
 }
 
-void gsScramblePut(BNU_CHUNK_T* tbl, int idx, const BNU_CHUNK_T* val, int vLen, int w)
+IPP_OWN_DEFN (void, gsScramblePut, (BNU_CHUNK_T* tbl, int idx, const BNU_CHUNK_T* val, int vLen, int w))
 {
    int width = 1 << w;
    int i, j;
@@ -48,7 +48,7 @@ void gsScramblePut(BNU_CHUNK_T* tbl, int idx, const BNU_CHUNK_T* val, int vLen, 
    }
 }
 
-void gsScrambleGet(BNU_CHUNK_T* val, int vLen, const BNU_CHUNK_T* tbl, int idx, int w)
+IPP_OWN_DEFN (void, gsScrambleGet, (BNU_CHUNK_T* val, int vLen, const BNU_CHUNK_T* tbl, int idx, int w))
 {
    int width = 1 << w;
    int i, j;
@@ -57,7 +57,7 @@ void gsScrambleGet(BNU_CHUNK_T* val, int vLen, const BNU_CHUNK_T* tbl, int idx, 
    }
 }
 
-void gsScrambleGet_sscm(BNU_CHUNK_T* val, int vLen, const BNU_CHUNK_T* tbl, int idx, int w)
+IPP_OWN_DEFN (void, gsScrambleGet_sscm, (BNU_CHUNK_T* val, int vLen, const BNU_CHUNK_T* tbl, int idx, int w))
 {
    BNU_CHUNK_T mask[1<<MAX_W];
 

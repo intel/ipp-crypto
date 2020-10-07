@@ -78,7 +78,6 @@ IPPFUN(IppStatus, ippsGFpInit,(const IppsBigNumState* pPrimeBN, int primeBitSize
       IppStatus sts;
 
       /* test input prime */
-      pPrimeBN = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrimeBN, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pPrimeBN), ippStsContextMatchErr);
       IPP_BADARG_RET(BN_SIGN(pPrimeBN)!= IppsBigNumPOS, ippStsBadArgErr);                                   /* prime is negative */
       IPP_BADARG_RET(BITSIZE_BNU(BN_NUMBER(pPrimeBN),BN_SIZE(pPrimeBN)) != primeBitSize, ippStsBadArgErr);  /* primeBitSize == bitsize(prime) */

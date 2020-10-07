@@ -156,7 +156,7 @@ __INLINE Ipp32u MagicGG(int s, Ipp32u e, Ipp32u f, Ipp32u g)
    }
 }
 
-void UpdateSM3(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam)
+IPP_OWN_DEFN (void, UpdateSM3, (void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam))
 {
    Ipp32u* data = (Ipp32u*)mblk;
 
@@ -213,7 +213,7 @@ void UpdateSM3(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam)
 }
 
 #else
-void UpdateSM3(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam)
+IPP_OWN_DEFN (void, UpdateSM3, (void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam))
 {
    Ipp32u* data = (Ipp32u*)mblk;
 

@@ -28,7 +28,7 @@
 #include "pcpngmontexpstuff_avx512.h"
 #include "gsscramble.h"
 #include "pcpmask_ct.h"
-
+#include "rsa_ifma256.h"
 
 /*
    converts regular (base = 2^64) representation
@@ -118,7 +118,7 @@ static void dig52_regular(Ipp64u* out, const Ipp64u* in, int outBitSize)
 }
 
 /* ams functions */
-typedef void (*cpAMM52)(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res);
+IPP_OWN_FUNPTR (void, cpAMM52, (Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res))
 
 static void AMM52(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
@@ -669,7 +669,7 @@ void debugToConvMontDomain(BNU_CHUNK_T* pR,
 #endif
 /* ===================================================================*/
 
-cpSize gsMontExpBinBuffer_avx512(int modulusBits)
+IPP_OWN_DEFN (cpSize, gsMontExpBinBuffer_avx512, (int modulusBits))
 {
    cpSize redNum = numofVariable_avx512(modulusBits);       /* "sizeof" variable */
    cpSize redBufferNum = numofVariableBuff_avx512(redNum);  /* "sizeof" variable  buffer */
@@ -677,7 +677,7 @@ cpSize gsMontExpBinBuffer_avx512(int modulusBits)
 }
 
 #if defined(_USE_WINDOW_EXP_)
-cpSize gsMontExpWinBuffer_avx512(int modulusBits)
+IPP_OWN_DEFN (cpSize, gsMontExpWinBuffer_avx512, (int modulusBits))
 {
    cpSize w = gsMontExp_WinSize(modulusBits);
 
@@ -691,6 +691,82 @@ cpSize gsMontExpWinBuffer_avx512(int modulusBits)
 }
 #endif /* _USE_WINDOW_EXP_ */
 
+IPP_OWN_DEFN (cpSize, gsMontDExpWinBuffer_avx512, (int modulusBits))
+{
+   cpSize redNum = numofVariable_avx512(modulusBits);       /* "sizeof" variable */
+   cpSize redBufferNum = numofVariableBuff_avx512(redNum);  /* "sizeof" variable  buffer */
+   return redBufferNum *2*8;
+}
+
+/* ===================================================================*/
+IPP_OWN_FUNPTR (void, cpDEXP52, (Ipp64u* out, const Ipp64u* base, const Ipp64u* exp[2], const Ipp64u* modulus, const Ipp64u* pMont, const Ipp64u k0[2]))
+
+static cpSize gsMontDExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY[2], const BNU_CHUNK_T* dataX[2], cpSize nsX[2], const BNU_CHUNK_T* dataE[2], gsModEngine* pMont[2], BNU_CHUNK_T* pBuffer, cpDEXP52 dexpFunc)
+{
+   const BNU_CHUNK_T* pMod[2]   = { MOD_MODULUS(pMont[0]), MOD_MODULUS(pMont[1]) };
+   const BNU_CHUNK_T* pModRR[2] = { MOD_MNT_R2(pMont[0]),  MOD_MNT_R2(pMont[1])  };
+   cpSize modSize[2] = { MOD_LEN(pMont[0]),        MOD_LEN(pMont[1])        };
+   BNU_CHUNK_T k0[2] = { MOD_MNT_FACTOR(pMont[0]), MOD_MNT_FACTOR(pMont[1]) };
+
+   /* Dual expo implemenentation assumes that modulus bit sizes of P and Q are the same */
+   int modulusBitSize = BITSIZE_BNU(pMod[0], modSize[0]);
+   int cnvMM_bitsize = cpDigitNum_avx512(modulusBitSize, BITSIZE(BNU_CHUNK_T)) * BITSIZE(BNU_CHUNK_T);
+   int almMM_bitsize = cnvMM_bitsize+2;
+   int redLen = cpDigitNum_avx512(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
+   int redBufferLen = numofVariableBuff_avx512(redLen);
+
+   /* Allocate buffers */
+   BNU_CHUNK_T* redX = pBuffer;
+   BNU_CHUNK_T* redT = redX + 2*redBufferLen;
+   BNU_CHUNK_T* redY = redT + 2*redBufferLen;
+   BNU_CHUNK_T* redM = redY + 2*redBufferLen;
+   BNU_CHUNK_T* redBuffer = redM + 2*redBufferLen;
+
+   cpAMM52 ammFunc;
+   switch (modulusBitSize) {
+      case 1024: ammFunc = AMM52x20; break;
+      case 2048: ammFunc = AMM52x40; break;
+      case 3072: ammFunc = AMM52x60; break;
+      case 4096: ammFunc = AMM52x79; break;
+      default: ammFunc = AMM52; break;
+   }
+
+   for (int i = 0; i < 2; i++) {
+      /* convert modulus into reduced domain */
+      ZEXPAND_COPY_BNU(redBuffer, redBufferLen, pMod[i], modSize[i]);
+      regular_dig52(redM + i*redLen, redBuffer, almMM_bitsize);
+
+      /* compute taget domain Montgomery converter RR' */
+      ZEXPAND_BNU(redBuffer, 0, redBufferLen);
+      SET_BIT(redBuffer, (4*redLen*EXP_DIGIT_SIZE_AVX512- 4*cnvMM_bitsize));
+      regular_dig52(redY + i*redLen, redBuffer, almMM_bitsize);
+
+      ZEXPAND_COPY_BNU(redBuffer, redBufferLen, pModRR[i], modSize[i]);
+      regular_dig52(redT + i*redLen, redBuffer, almMM_bitsize);
+      ammFunc(redT + i*redLen, redT + i*redLen, redT + i*redLen, redM + i*redLen, k0[i], redLen, redBuffer);
+      ammFunc(redT + i*redLen, redT + i*redLen, redY + i*redLen, redM + i*redLen, k0[i], redLen, redBuffer);
+
+      /* convert base to redundant domain */
+      ZEXPAND_COPY_BNU(redY + i*redLen, redBufferLen/*nsX+1*/, dataX[i], nsX[i]);
+      regular_dig52(redX + i*redLen, redY + i*redLen,  almMM_bitsize);
+   }
+
+   dexpFunc(redY, redX, dataE, redM, redT, k0);
+
+   /* convert result back to regular domain */
+   for (int i = 0; i < 2; i++)
+      dig52_regular(dataY[i], redY + i*redLen, cnvMM_bitsize);
+
+   return (modSize[0] + modSize[1]);
+}
+
+/* 2x1K Dual Exponentiation */
+IPP_OWN_DEFN (cpSize, gsMontDExp2x1024_Win_BNU_sscm_avx512, (BNU_CHUNK_T* dataY[2], const BNU_CHUNK_T* dataX[2], cpSize nsX[2], const BNU_CHUNK_T* dataE[2], gsModEngine* pMont[2], BNU_CHUNK_T* pBuffer))
+{
+   return gsMontDExpWin_BNU_sscm_avx512(dataY, dataX, nsX, dataE, pMont, pBuffer, (cpDEXP52)DEXP52x20);
+}
+
+/* ===================================================================*/
 
 /*
 // "fast" binary montgomery exponentiation
@@ -702,11 +778,7 @@ cpSize gsMontExpWinBuffer_avx512(int modulusBits)
 //    redM[redBufferLen]
 //    redBuffer[redBufferLen*3]
 */
-cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
-                         const BNU_CHUNK_T* dataX, cpSize nsX,
-                         const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                               gsModEngine* pMont,
-                               BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);
@@ -810,11 +882,7 @@ cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
 //    redM[redBufferLen]
 //    redBuffer[redBufferLen*3]
 */
-cpSize gsMontExpBin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
-                              const BNU_CHUNK_T* dataX, cpSize nsX,
-                              const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                                    gsModEngine* pMont,
-                                    BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_sscm_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);
@@ -912,11 +980,7 @@ cpSize gsMontExpBin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
 //    redE[redBufferLen]
 //    redBuffer[redBufferLen*3]
 */
-cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
-                         const BNU_CHUNK_T* dataX, cpSize nsX,
-                         const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                               gsModEngine* pMont,
-                               BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);
@@ -1049,11 +1113,7 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
 //    redBuffer[redBufferLen*3]
 //    redE[redBufferLen]
 */
-cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
-                              const BNU_CHUNK_T* dataX, cpSize nsX,
-                              const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                                    gsModEngine* pMont,
-                                    BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sscm_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);

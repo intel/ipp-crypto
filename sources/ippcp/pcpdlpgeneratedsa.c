@@ -83,7 +83,6 @@ IPPFUN(IppStatus, ippsDLPGenerateDSA,(const IppsBigNumState* pSeedIn,
 {
    /* test DL context */
    IPP_BAD_PTR1_RET(pDL);
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
    IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
 
    /* test DL sizes */
@@ -121,7 +120,6 @@ IPPFUN(IppStatus, ippsDLPGenerateDSA,(const IppsBigNumState* pSeedIn,
       */
       if(pSeedIn) {
          /* test SeedIn */
-         pSeedIn = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSeedIn, BN_ALIGNMENT) );
          IPP_BADARG_RET(!BN_VALID_ID(pSeedIn), ippStsContextMatchErr);
          seedBitSize = BITSIZE_BNU(BN_NUMBER(pSeedIn), BN_SIZE(pSeedIn));
 
@@ -147,7 +145,6 @@ IPPFUN(IppStatus, ippsDLPGenerateDSA,(const IppsBigNumState* pSeedIn,
 
       /* test SeedOut if requested */
       if(pSeedOut) {
-         pSeedOut = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSeedOut, BN_ALIGNMENT) );
          IPP_BADARG_RET(!BN_VALID_ID(pSeedOut), ippStsContextMatchErr);
          IPP_BADARG_RET(BITSIZE(BNU_CHUNK_T)*BN_ROOM(pSeedOut)<seedBitSize, ippStsRangeErr);
       }

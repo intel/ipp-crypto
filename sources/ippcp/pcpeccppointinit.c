@@ -56,7 +56,7 @@ IPPFUN(IppStatus, ippsECCPPointInit, (int feBitSize, IppsECCPPointState* pPoint)
       int elemLen = BITS_BNU_CHUNK(feBitSize);
       Ipp8u* ptr = (Ipp8u*)pPoint;
 
-      ECP_POINT_ID(pPoint) = idCtxGFPPoint;
+      ECP_POINT_SET_ID(pPoint);
       ECP_POINT_FLAGS(pPoint) = 0;
       ECP_POINT_FELEN(pPoint) = elemLen;
       ptr += sizeof(IppsGFpECPoint);

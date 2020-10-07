@@ -51,9 +51,10 @@ IPPFUN(IppStatus, ippsSM3Pack,(const IppsSM3State* pState, Ipp8u* pBuffer))
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pState, pBuffer);
-   pState = (IppsSM3State*)( IPP_ALIGNED_PTR(pState, SM3_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxSM3 !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxSM3), ippStsContextMatchErr);
 
    CopyBlock(pState, pBuffer, sizeof(IppsSM3State));
+   IppsSM3State* pCopy = (IppsSM3State*)pBuffer;
+   HASH_RESET_ID(pCopy, idCtxSM3);
    return ippStsNoErr;
 }

@@ -25,7 +25,7 @@
 #include "pcpgfpxmethod_com.h"
 
 
-BNU_CHUNK_T* cpGFpxMul2_com(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxMul2_com, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx))
 {
    gsEngine* pBasicGFE = cpGFpBasic(pGFEx);
    mod_mul2 mul2F = GFP_METHOD(pBasicGFE)->mul2;
