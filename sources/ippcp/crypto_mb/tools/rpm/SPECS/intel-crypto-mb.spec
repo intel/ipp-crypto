@@ -15,9 +15,9 @@
 ############################################################################
 
 # Versions numbers
-%global major        0
-%global minor        5
-%global rev          3
+%global major        1
+%global minor        0
+%global rev          1
 %global fullversion  %{major}.%{minor}.%{rev}
 
 %global github_source_archive_name   ippcp_2020u3
@@ -36,17 +36,21 @@ License:            ASL 2.0
 ExclusiveArch:      x86_64
 URL:                https://github.com/intel/ipp-crypto
 Source0:            %{url}/archive/%{github_source_archive_name}.tar.gz#/%{rpm_name}-%{github_source_archive_name}.tar.gz
+# This patch is temporary until soversion is fixed in upstream
+Patch0:             0001-fix-for-soversion-in-ippcp2020u3.patch
 BuildRequires:      coreutils
 BuildRequires:      make
 BuildRequires:      tar
 BuildRequires:      cmake >= 3.10
-BuildRequires:      openssl >= 1.1.0
-BuildRequires:      gcc >= 8.2
+BuildRequires:      openssl-devel >= 1.1.0
+BuildRequires:      gcc-c++ >= 8.2
 
 %description
-A software crypto library optimized for Intel architecture for packet processing applications.
+A software crypto library optimized for Intel architecture for packet
+processing applications.
 
-It contains universal and OpenSSL compatible APIs for cryptography operations, such as:
+It contains universal and OpenSSL compatible APIs for cryptography operations,
+such as:
 - RSA encryption and decryption;
 - ECDHE, ECDSA with different curves.
 
@@ -61,16 +65,17 @@ Requires:           %{name}%{?_isa} = %{version}-%{release}
 ExclusiveArch:      x86_64
 
 %description devel
-A software crypto library optimized for Intel architecture for packet processing applications.
+A software crypto library optimized for Intel architecture for packet
+processing applications.
 
-It contains development libraries and header files for libcrypto_mb.
+It contains development libraries and header files.
 
 For additional information please refer to:
-%{url}/blob/ippcp_2020u3/sources/ippcp/crypto_mb/Readme.md
+%{url}/tree/ippcp_2020u3/sources/ippcp/crypto_mb
 
 
 %prep
-%setup -n ipp-crypto-%{github_source_archive_name}
+%autosetup -n ipp-crypto-%{github_source_archive_name} -p1
 
 %build
 cmake sources/ippcp/crypto_mb/CMakeLists.txt -B_build-crypto-mb
@@ -81,7 +86,7 @@ cd _build-crypto-mb
 install -d %{buildroot}/%{_includedir}/crypto_mb
 install -m 0644 -t %{buildroot}/%{_includedir}/crypto_mb sources/ippcp/crypto_mb/include/crypto_mb/*.h
 install -d %{buildroot}/%{_libdir}
-install -s -m 0755 -T _build-crypto-mb/bin/libcrypto_mb.so %{buildroot}/%{_libdir}/libcrypto_mb.so.%{fullversion}
+install -s -m 0755 _build-crypto-mb/bin/libcrypto_mb.so.%{fullversion} %{buildroot}/%{_libdir}
 cd %{buildroot}/%{_libdir}
 ln -s libcrypto_mb.so.%{fullversion} libcrypto_mb.so.%{major}
 ln -s libcrypto_mb.so.%{fullversion} libcrypto_mb.so
@@ -110,7 +115,7 @@ ln -s libcrypto_mb.so.%{fullversion} libcrypto_mb.so
 
 %changelog
 
-* Wed Oct 21 2020 Andrey Matyukov <andrey.matyukov@intel.com> - 0.5.3
+* Wed Oct 21 2020 Intel - 1.0.1-1
 - Refactoring of crypto_mb library (API naming, directory structure changes, etc);
 - Added ECDSA/ECDHE for the NIST P-256 curve;
 - Added ECDSA/ECDHE for the NIST P-384 curve.
