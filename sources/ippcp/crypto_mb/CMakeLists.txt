@@ -40,7 +40,13 @@ if(NOT OPENSSL_DISABLE)
         # Link static OpenSSL only for patched version
         set(OPENSSL_USE_STATIC_LIBS TRUE)
     endif()
-    find_package(OpenSSL 1.1.0 REQUIRED) # set -DOPENSSL_INCLUDE_DIR= -DOPENSSL_LIBRARIES= -DOPENSSL_ROOT_DIR= to use patched
+    if(BORINGSSL) # off by default
+        # BoringSSL doesn't appear to have version information found
+        # by find_package(OpenSSL)
+        find_package(OpenSSL REQUIRED)
+    else()
+        find_package(OpenSSL 1.1.0 REQUIRED) # set -DOPENSSL_INCLUDE_DIR= -DOPENSSL_LIBRARIES= -DOPENSSL_ROOT_DIR= to use patched
+    endif()
     list(APPEND MB_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
 endif()
 
