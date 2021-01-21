@@ -104,4 +104,6 @@ else()
 endif()
 
 # Applications.
-add_subdirectory(apps)
+if(NOT DEFINED NO_APPS)
+    add_subdirectory(apps)
+endif()
