@@ -1,5 +1,5 @@
 ############################################################################
-# Copyright 2019-2020 Intel Corporation
+# Copyright 2019-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,10 @@
 # limitations under the License.
 ############################################################################
 
+%undefine __cmake_in_source_build
+%global _lto_cflags %{nil}
+%global debug_package %{nil}
+
 # Versions numbers
 %global major        1
 %global minor        0
@@ -25,19 +29,19 @@
 %global rpm_name         intel-ipp-crypto-mb
 %global product_name     Intel(R) IPP Cryptography multi-buffer library
 
-# disable producing debuginfo for this package
-%global debug_package %{nil}
-
 Summary:            %{product_name}
 Name:               %{rpm_name}
 Release:            1%{?dist}
 Version:            %{fullversion}
 License:            ASL 2.0
+# Upstream exclusively uses x86_64-specific intrinsics
 ExclusiveArch:      x86_64
 URL:                https://github.com/intel/ipp-crypto
 Source0:            %{url}/archive/%{github_source_archive_name}.tar.gz#/%{rpm_name}-%{github_source_archive_name}.tar.gz
 # This patch is temporary until soversion is fixed in upstream
 Patch0:             0001-fix-for-soversion-in-ippcp2020u3.patch
+# Reduction of compiler optimization level to -O2 and CPU optimizations flags for generic functions
+Patch1:             0002-reduce-compiler-optimization-in-ippcp2020u3.patch
 BuildRequires:      coreutils
 BuildRequires:      make
 BuildRequires:      tar
@@ -78,15 +82,17 @@ For additional information please refer to:
 %autosetup -n ipp-crypto-%{github_source_archive_name} -p1
 
 %build
-cmake sources/ippcp/crypto_mb/CMakeLists.txt -B_build-crypto-mb
-cd _build-crypto-mb
-%make_build
+cd sources/ippcp/crypto_mb
+%cmake
+%cmake_build
+cd -
 
 %install
+cd sources/ippcp/crypto_mb
 install -d %{buildroot}/%{_includedir}/crypto_mb
-install -m 0644 -t %{buildroot}/%{_includedir}/crypto_mb sources/ippcp/crypto_mb/include/crypto_mb/*.h
+install -p -m 0644 -t %{buildroot}/%{_includedir}/crypto_mb include/crypto_mb/*.h
 install -d %{buildroot}/%{_libdir}
-install -s -m 0755 _build-crypto-mb/bin/libcrypto_mb.so.%{fullversion} %{buildroot}/%{_libdir}
+install -p -s -m 0755 %{_vpath_builddir}/bin/libcrypto_mb.so.%{fullversion} %{buildroot}/%{_libdir}
 cd %{buildroot}/%{_libdir}
 ln -s libcrypto_mb.so.%{fullversion} libcrypto_mb.so.%{major}
 ln -s libcrypto_mb.so.%{fullversion} libcrypto_mb.so

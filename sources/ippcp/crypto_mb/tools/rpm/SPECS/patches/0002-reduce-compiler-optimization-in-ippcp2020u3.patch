@@ -1,0 +1,75 @@
+diff --git a/sources/ippcp/crypto_mb/src/cmake/linux/Clang.cmake b/sources/ippcp/crypto_mb/src/cmake/linux/Clang.cmake
+index e854cfc..cb2b6ca 100644
+--- a/sources/ippcp/crypto_mb/src/cmake/linux/Clang.cmake
++++ b/sources/ippcp/crypto_mb/src/cmake/linux/Clang.cmake
+@@ -58,7 +58,7 @@ endif()
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -falign-functions=32")
+ 
+ # Optimization level = 3, no-debug definition (turns off asserts)
+-set (CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
++set (CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG" CACHE STRING "" FORCE)
+ 
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS}")
+ 
+diff --git a/sources/ippcp/crypto_mb/src/cmake/linux/GNU.cmake b/sources/ippcp/crypto_mb/src/cmake/linux/GNU.cmake
+index e16d141..27ef85d 100644
+--- a/sources/ippcp/crypto_mb/src/cmake/linux/GNU.cmake
++++ b/sources/ippcp/crypto_mb/src/cmake/linux/GNU.cmake
+@@ -62,7 +62,7 @@ endif()
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -falign-functions=32 -falign-loops=32")
+ 
+ # Optimization level = 3, no-debug definition (turns off asserts)
+-set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG" CACHE STRING "" FORCE)
++set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG" CACHE STRING "" FORCE)
+ 
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS}")
+ 
+diff --git a/sources/ippcp/crypto_mb/src/cmake/linux/Intel.cmake b/sources/ippcp/crypto_mb/src/cmake/linux/Intel.cmake
+index e5a5670..c1b7bd2 100644
+--- a/sources/ippcp/crypto_mb/src/cmake/linux/Intel.cmake
++++ b/sources/ippcp/crypto_mb/src/cmake/linux/Intel.cmake
+@@ -56,7 +56,7 @@ endif()
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -falign-functions=32 -falign-loops=32")
+ 
+ # Optimization level = 3, no-debug definition (turns off asserts)
+-set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG" CACHE STRING "" FORCE)
++set (CMAKE_C_FLAGS_RELEASE " -O2 -DNDEBUG" CACHE STRING "" FORCE)
+ 
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS}")
+ 
+diff --git a/sources/ippcp/crypto_mb/src/common/cpu_features.c b/sources/ippcp/crypto_mb/src/common/cpu_features.c
+index 9524eab..c81cdb7 100644
+--- a/sources/ippcp/crypto_mb/src/common/cpu_features.c
++++ b/sources/ippcp/crypto_mb/src/common/cpu_features.c
+@@ -84,6 +84,7 @@ static int32u _mbcp_max_cpuid_extd_leaf_number(void)
+ #endif
+ 
+ #define XSAVE_OSXSAVE   (BIT26|BIT27)
++#pragma GCC optimize ("O0")
+ static int32u _mbcp_xsave_support(int32u bits)
+ {
+    int32u buf[4];
+@@ -170,6 +171,7 @@ static const cpu_feature_map cpu_feature_detector_7_0[] = {
+ #undef edx_
+ 
+ 
++#pragma GCC optimize ("O0")
+ static int64u _mbcp_cpu_feature_detector(const int32u cpuinfo[4], const cpu_feature_map* tbl, int32u tbl_len)
+ {
+    int64u features = 0;
+@@ -188,6 +190,7 @@ static int64u _mbcp_cpu_feature_detector(const int32u cpuinfo[4], const cpu_feat
+ #define  XSAVE_AVX_SUPPORT    (BIT02)
+ #define  XSAVE_AVX512_SUPPORT (BIT05|BIT06|BIT07)
+ 
++#pragma GCC optimize ("O0")
+ DLL_PUBLIC
+ int64u mbx_get_cpu_features(void)
+ {
+@@ -233,6 +236,7 @@ int64u mbx_get_cpu_features(void)
+                          | mbcpCPUID_AVX512VBMI2 \
+                          | mbcpAVX512_ENABLEDBYOS)
+ 
++#pragma GCC optimize ("O0")
+ DLL_PUBLIC
+ int mbx_is_crypto_mb_applicable(int64u cpu_features)
+ {
