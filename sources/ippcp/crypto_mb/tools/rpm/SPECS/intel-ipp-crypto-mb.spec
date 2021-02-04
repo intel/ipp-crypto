@@ -38,10 +38,14 @@ License:            ASL 2.0
 ExclusiveArch:      x86_64
 URL:                https://github.com/intel/ipp-crypto
 Source0:            %{url}/archive/%{github_source_archive_name}.tar.gz#/%{rpm_name}-%{github_source_archive_name}.tar.gz
-# This patch is temporary until soversion is fixed in upstream
-Patch0:             0001-fix-for-soversion-in-ippcp2020u3.patch
-# Reduction of compiler optimization level to -O2 and CPU optimizations flags for generic functions
-Patch1:             0002-reduce-compiler-optimization-in-ippcp2020u3.patch
+# soversion fix (until it is fixed in upstream)
+Patch0: 0001-fix-for-soversion.patch
+# Remove explicit -O3 compiler optimization flag
+Patch1: 0002-remove-explicit-O3-flag.patch
+# Disable CPU optimizations flags for generic-CPU library functions (until it is fixed in upstream)
+Patch2: 0003-reduce-compiler-optimizations-for-service-functions.patch
+# Fix copyright header (until it is fixed in upstream)
+Patch3: 0004-fixed-copyright-headers.patch
 BuildRequires:      coreutils
 BuildRequires:      make
 BuildRequires:      tar
@@ -59,7 +63,7 @@ such as:
 - ECDHE, ECDSA with different curves.
 
 For additional information please refer to:
-%{url}/blob/ippcp_2020u3/sources/ippcp/crypto_mb/Readme.md
+%{url}/tree/ippcp_2020u3/sources/ippcp/crypto_mb
 
 
 %package devel

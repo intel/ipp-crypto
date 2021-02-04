@@ -1,0 +1,36 @@
+diff --git a/sources/ippcp/crypto_mb/src/common/cpu_features.c b/sources/ippcp/crypto_mb/src/common/cpu_features.c
+index 9524eab..c81cdb7 100644
+--- a/sources/ippcp/crypto_mb/src/common/cpu_features.c
++++ b/sources/ippcp/crypto_mb/src/common/cpu_features.c
+@@ -84,6 +84,7 @@ static int32u _mbcp_max_cpuid_extd_leaf_number(void)
+ #endif
+ 
+ #define XSAVE_OSXSAVE   (BIT26|BIT27)
++#pragma GCC optimize ("O0")
+ static int32u _mbcp_xsave_support(int32u bits)
+ {
+    int32u buf[4];
+@@ -170,6 +171,7 @@ static const cpu_feature_map cpu_feature_detector_7_0[] = {
+ #undef edx_
+ 
+ 
++#pragma GCC optimize ("O0")
+ static int64u _mbcp_cpu_feature_detector(const int32u cpuinfo[4], const cpu_feature_map* tbl, int32u tbl_len)
+ {
+    int64u features = 0;
+@@ -188,6 +190,7 @@ static int64u _mbcp_cpu_feature_detector(const int32u cpuinfo[4], const cpu_feat
+ #define  XSAVE_AVX_SUPPORT    (BIT02)
+ #define  XSAVE_AVX512_SUPPORT (BIT05|BIT06|BIT07)
+ 
++#pragma GCC optimize ("O0")
+ DLL_PUBLIC
+ int64u mbx_get_cpu_features(void)
+ {
+@@ -233,6 +236,7 @@ int64u mbx_get_cpu_features(void)
+                          | mbcpCPUID_AVX512VBMI2 \
+                          | mbcpAVX512_ENABLEDBYOS)
+ 
++#pragma GCC optimize ("O0")
+ DLL_PUBLIC
+ int mbx_is_crypto_mb_applicable(int64u cpu_features)
+ {
