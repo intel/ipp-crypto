@@ -30,7 +30,9 @@ set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -Wformat -Wformat-security
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     # Security flag that adds compile-time and run-time checks. 
-    set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -D_FORTIFY_SOURCE=2")
+    if(NOT DEFINED NO_FORTIFY_SOURCE)
+        set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -D_FORTIFY_SOURCE=2")
+    endif()
 endif()
 
 # Stack-based Buffer Overrun Detection
