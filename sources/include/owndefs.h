@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 1999-2020 Intel Corporation
+* Copyright 1999-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -93,6 +93,7 @@
 #define _IPP32E_L9 512     /* Intel® Advanced Vector Extensions 2 (Intel® AVX2)                                                                */
 #define _IPP32E_N0 1024    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon Phi(TM) Processor (formerly Knights Landing) */
 #define _IPP32E_K0 2048    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Skylake)      */
+#define _IPP32E_K1 4096    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Icelake)      */
 
 
 #if defined(__INTEL_COMPILER) || (_MSC_VER >= 1300)
@@ -195,6 +196,11 @@
   #define _IPP32E _IPP32E_K0
   #define OWNAPI(name) k0_##name
 
+#elif defined( _K1 ) /* Intel® AVX512 - formerly codenamed Icelake */
+#define _IPP    _IPP_PX
+#define _IPP32E _IPP32E_K1
+#define OWNAPI(name) k1_##name
+
 #else
   #define _IPP    _IPP_PX
   #define _IPP32E _IPP32E_PX
@@ -214,19 +220,24 @@
   #define OWNAPI(name) name
 #endif
 
-  #if defined( IPP_W32DLL )
-    #if defined( _MSC_VER ) || defined( __INTEL_COMPILER )
-      #define IPPFUN(type,name,arg) __declspec(dllexport) type IPP_STDCALL name arg
-    #else
-      #define IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
-    #endif
+/* Force __cdecl calling convention for internal functions declarations */
+#define IPP_OWN_DECL(type,name,param) type IPP_CDECL name param ;
+#define IPP_OWN_DEFN(type,name,param) type IPP_CDECL name param
+#define IPP_OWN_FUNPTR(type,name,param) typedef type (IPP_CDECL *name) param ;
+
+#if defined( IPP_W32DLL )
+  #if defined( _MSC_VER ) || defined( __INTEL_COMPILER )
+    #define IPPFUN(type,name,arg) __declspec(dllexport) type IPP_CALL name arg
   #else
-    #if defined(LINUX32E) && !defined(IPP_PIC)
-      #define IPPFUN(type,name,arg) __attribute__((force_align_arg_pointer)) extern type IPP_STDCALL name arg
-    #else
-      #define   IPPFUN(type,name,arg)                extern type IPP_STDCALL name arg
-    #endif
+    #define IPPFUN(type,name,arg)                extern type IPP_CALL name arg
   #endif
+#else
+  #if defined(LINUX32E) && !defined(IPP_PIC)
+    #define IPPFUN(type,name,arg) __attribute__((force_align_arg_pointer)) extern type IPP_CALL name arg
+  #else
+    #define   IPPFUN(type,name,arg)                extern type IPP_CALL name arg
+  #endif
+#endif
 
 #define _IPP_ARCH_IA32    1
 #define _IPP_ARCH_EM64T   4
@@ -251,8 +262,8 @@
 #endif
 
 #if ((_IPP_ARCH == _IPP_ARCH_IA32))
-__INLINE
-Ipp32s IPP_INT_PTR( const void* ptr )  {
+__INLINE Ipp32s IPP_INT_PTR ( const void* ptr )
+{
     union {
         void*   Ptr;
         Ipp32s  Int;
@@ -261,8 +272,8 @@ Ipp32s IPP_INT_PTR( const void* ptr )  {
     return dd.Int;
 }
 
-__INLINE
-Ipp32u IPP_UINT_PTR( const void* ptr )  {
+__INLINE Ipp32u IPP_UINT_PTR( const void* ptr )
+{
     union {
         void*   Ptr;
         Ipp32u  Int;
@@ -271,8 +282,8 @@ Ipp32u IPP_UINT_PTR( const void* ptr )  {
     return dd.Int;
 }
 #elif ((_IPP_ARCH == _IPP_ARCH_EM64T) || (_IPP_ARCH == _IPP_ARCH_LRB2))
-__INLINE
-Ipp64s IPP_INT_PTR( const void* ptr )  {
+__INLINE Ipp64s IPP_INT_PTR( const void* ptr )
+{
     union {
         void*   Ptr;
         Ipp64s  Int;
@@ -281,8 +292,8 @@ Ipp64s IPP_INT_PTR( const void* ptr )  {
     return dd.Int;
 }
 
-__INLINE
-Ipp64u IPP_UINT_PTR( const void* ptr )  {
+__INLINE Ipp64u IPP_UINT_PTR( const void* ptr )
+{
     union {
         void*    Ptr;
         Ipp64u   Int;

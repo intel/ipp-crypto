@@ -25,6 +25,7 @@
 - [CMake\*](https://cmake.org/download) 3.15 or higher
 - Python 2.7.15
 - The Netwide Assembler (NASM) 2.15
+- OpenSSL\* 1.1.0 or higher
 
 ### Linux* OS
 - [Common tools](#common-tools)
@@ -244,6 +245,9 @@ To build the Intel IPP Cryptography library on macOS*, complete the following st
 ### How to build a library to work in a kernel space?
 
 `cmake CMakeLists.txt -B_build -DARCH=intel64 -DNONPIC_LIB:BOOL=on`
+
+### How to specify path to OpenSSL\*
+`cmake CMakeLists.txt -B_build -DARCH=intel64 -DOPENSSL_INCLUDE_DIR=/path/to/openssl/include -DOPENSSL_LIBRARIES=/path/to/openssl/lib -DOPENSSL_ROOT_DIR=/path/to/openssl`
 
 ## Incorporating Intel® IPP Cryptography sources into custom build system
 

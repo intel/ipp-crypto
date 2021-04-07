@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #include "pcpgfpxstuff.h"
 #include "gsscramble.h"
 
-BNU_CHUNK_T* cpGFpxSetPolyTerm(BNU_CHUNK_T* pE, int deg, const BNU_CHUNK_T* pDataA, int nsA, gsModEngine* pGFEx)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxSetPolyTerm, (BNU_CHUNK_T* pE, int deg, const BNU_CHUNK_T* pDataA, int nsA, gsModEngine* pGFEx))
 {
    pE += deg * GFP_FELEN(pGFEx);
    return cpGFpxSet(pE, pDataA, nsA, pGFEx);

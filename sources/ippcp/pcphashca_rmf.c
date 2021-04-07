@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,10 +32,7 @@
 #include "pcptool.h"
 
 
-void cpFinalize_rmf(DigestSHA512 pHash,
-              const Ipp8u* inpBuffer, int inpLen,
-                    Ipp64u lenLo, Ipp64u lenHi,
-              const IppsHashMethod* method)
+IPP_OWN_DEFN (void, cpFinalize_rmf, (DigestSHA512 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u lenLo, Ipp64u lenHi, const IppsHashMethod* method))
 {
    int mbs = method->msgBlkSize;    /* messge block size */
    int mrl = method->msgLenRepSize; /* processed length representation size */

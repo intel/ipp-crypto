@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 // HMAC context
 */
 struct _cpHMAC_rmf {
-   IppCtxId idCtx;               /* HMAC identifier   */
+   Ipp32u   idCtx;               /* HMAC identifier   */
    Ipp8u ipadKey[MBS_HASH_MAX];  /* inner padding key */
    Ipp8u opadKey[MBS_HASH_MAX];  /* outer padding key */
    IppsHashState_rmf hashCtx;    /* hash context      */

@@ -2,12 +2,14 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## YYYY-MM-DD
+
 ## 2020-09-01
 - Refactoring of Crypto Multi-buffer library, added build and installation of crypto_mb dynamic library and CPU features detection.
 
 ## 2020-08-19
-- Added multi-buffer implementation of AES-CFB optimized with Intel(R) AES-NI and vector extensions of Intel(R) AES-NI instruction sets.
-- Fixed compatibility issue with x64 ABI (restored non-volatile registers after function call in AVX/AVX2 assembly code).
+- Added multi-buffer implementation of AES-CFB optimized with Intel(R) AES New Instructions (Intel(R) AES-NI) and vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI) instruction sets.
+- Fixed compatibility issue with x64 ABI (restored non-volatile registers after function call in Intel® Advanced Vector Extensions (Intel® AVX)/Intel® Advanced Vector Extensions 2 (Intel® AVX2) assembly code).
 - Updated Intel IPP Custom Library Tool.
 
 ## 2020-06-09
@@ -23,7 +25,7 @@ This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chron
 
 ## 2020-04-19
 - AES-XTS optimization for Intel(R) Microarchitecture Code Named Ice Lake with vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI) was improved.
-- Fixed a build issue that affect build of the Intel(R) IPP Crypto library with MSVC\* compiler on Windows\* OS.
+- Fixed a build issue that affect build of the Intel(R) IPP Cryptography library with MSVC\* compiler on Windows\* OS.
 - Duplicated APIs of HASH, HMAC, MGF, RSA, ECCP functionality were marked as deprecated. For more information see [Deprecation notes](./DEPRECATION_NOTES.md)
 - Added examples demonstrating usage of SMS4-CBC encryption and decryption.
 
@@ -31,7 +33,7 @@ This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chron
 - SM4-ECB, SM4-CBC and SM4-CTR were enabled for Intel(R) Microarchitecture Code Named Ice Lake with Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) GFNI instructions.
 - Added support of Clang 9.0 for Linux and Clang 11.0 for MacOS compilers.
 - Added example of RSA Multi-Buffer Encryption/Decryption usage.
-- The library was enabled with Intel(R) Control-flow Enforcement Technology (CET) on Linux and Windows.
+- The library was enabled with  Intel® Control-Flow Enforcement Technology (Intel® CET) on Linux and Windows.
 - Changed API of ippsGFpECSignDSA, ippsGFpECSignNR and ippsGFpECSignSM2 functions: const-ness requirement of private ephemeral keys is removed and now the ephemeral keys are cleaned up after signing.
 
 ## 2019-12-13

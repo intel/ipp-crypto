@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,8 +18,19 @@
 #include <internal/common/ifma_math.h>
 #include <internal/rsa/ifma_rsa_arith.h>
 
+#ifdef __GNUC__
+#define ASM(a) __asm__(a);
+#else
+#define ASM(a)
+#endif
+
+__NOINLINE
 void zero_mb8(int64u (*out)[8], int len)
 {
+#if defined(__GNUC__)
+   // Avoid dead code elimination for GNU compilers
+   ASM("");
+#endif
    __m512i T = _mm512_setzero_si512();
    int i;
    for(i=0; i<len; i++)

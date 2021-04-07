@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@
    need to check after switchng on icl 2018
    */
 /*static*/ 
-void InitGFpxCtx(const IppsGFpState* pGroundGF, int extDeg, const IppsGFpMethod* method, IppsGFpState* pGFpx)
+IPP_OWN_DEFN (void, InitGFpxCtx, (const IppsGFpState* pGroundGF, int extDeg, const IppsGFpMethod* method, IppsGFpState* pGFpx))
 {
    gsModEngine* pGFEp = GFP_PMA(pGroundGF);
    int elemLen = extDeg * GFP_FELEN(pGFEp);
@@ -44,7 +44,7 @@ void InitGFpxCtx(const IppsGFpState* pGroundGF, int extDeg, const IppsGFpMethod*
    Ipp8u* ptr = (Ipp8u*)pGFpx + sizeof(IppsGFpState);
 
    /* context identifier */
-   GFP_ID(pGFpx) = idCtxGFP;
+   GFP_SET_ID(pGFpx);
    GFP_PMA(pGFpx) = (gsModEngine*)ptr;
    {
       gsModEngine* pGFEx = GFP_PMA(pGFpx);

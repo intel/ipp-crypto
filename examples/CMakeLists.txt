@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2019-2020 Intel Corporation
+# Copyright 2019-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,8 +29,6 @@ set(IPPCP_EXAMPLES
   # RSA OAEP examples
   rsa/rsa-1k-oaep-sha1-encryption.cpp
   rsa/rsa-1k-oaep-sha1-type2-decryption.cpp
-  # RSA MB examples
-  rsa_mb/rsa_mb-1k-type1-encryption-decryption.cpp
   # SMS4 examples
   sms4/sms4-128-cbc-encryption.cpp
   sms4/sms4-128-cbc-decryption.cpp
@@ -55,11 +53,13 @@ function(ippcp_define_example out_target source_file category)
   add_executable(${local_target} "${source_file}"
                                  $<$<BOOL:${${additional_sources}}>:${${additional_sources}}>)
   # Static linking with merged lib is only supported
-  ippcp_example_set_build_options(${local_target} ${IPPCP_LIB_MERGED})
+  set(LIBRARY_NAMES_LIST ${IPPCP_LIB_MERGED})
+  ippcp_example_set_build_options(${local_target} "${LIBRARY_NAMES_LIST}")
   set_target_properties(${local_target} PROPERTIES
                         PROJECT_LABEL "(example) ${name}"    # Set name of the target in IDE
                         FOLDER "examples/${category}"        # Group projects in solution folder
-                        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_OUTPUT_DIR}/$<UPPER_CASE:$<CONFIG>>/examples") # Set output directory for examples in the build folder
+                        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_OUTPUT_DIR}/$<UPPER_CASE:$<CONFIG>>/examples"  # Set output directory for examples in the build folder
+                        RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${CMAKE_OUTPUT_DIR}/$<UPPER_CASE:$<CONFIG>>/examples")
 
   # Add a single target to build all examples of the same category (e.g. 'make ippcp_examples_aes')
   set(parent_target ippcp_examples_${category})

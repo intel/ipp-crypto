@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@
 #define DEFAULT_XKEY_SIZE   512 /* must be >=160 || <=512 */
 
 struct _cpPRNG {
-   IppCtxId    idCtx;                                 /* PRNG identifier            */
+   Ipp32u      idCtx;                                 /* PRNG identifier            */
    cpSize      seedBits;                              /* secret seed-key bitsize    */
    BNU_CHUNK_T Q[BITS_BNU_CHUNK(160)];                /* modulus                    */
    BNU_CHUNK_T T[BITS_BNU_CHUNK(160)];                /* parameter of SHA_G() funct */
@@ -45,27 +45,20 @@ struct _cpPRNG {
 /* alignment */
 #define PRNG_ALIGNMENT ((int)(sizeof(void*)))
 
-#define RAND_ID(ctx)       ((ctx)->idCtx)
+#define RAND_SET_ID(ctx)   ((ctx)->idCtx = (Ipp32u)idCtxPRNG ^ (Ipp32u)IPP_UINT_PTR(ctx))
 #define RAND_SEEDBITS(ctx) ((ctx)->seedBits)
 #define RAND_Q(ctx)        ((ctx)->Q)
 #define RAND_T(ctx)        ((ctx)->T)
 #define RAND_XAUGMENT(ctx) ((ctx)->xAug)
 #define RAND_XKEY(ctx)     ((ctx)->xKey)
 
-#define RAND_VALID_ID(ctx)  (RAND_ID((ctx))==idCtxPRNG)
+#define RAND_VALID_ID(ctx)  ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxPRNG)
 
 #define cpPRNGen OWNAPI(cpPRNGen)
-int cpPRNGen(Ipp32u* pBuffer, cpSize bitLen, IppsPRNGState* pCtx);
-
+   IPP_OWN_DECL (int, cpPRNGen, (Ipp32u* pBuffer, cpSize bitLen, IppsPRNGState* pCtx))
 #define cpPRNGenPattern OWNAPI(cpPRNGenPattern)
-int cpPRNGenPattern(BNU_CHUNK_T* pRand, int bitSize,
-                    BNU_CHUNK_T botPattern, BNU_CHUNK_T topPattern,
-                    IppBitSupplier rndFunc, void* pRndParam);
-
+   IPP_OWN_DECL (int, cpPRNGenPattern, (BNU_CHUNK_T* pRand, int bitSize, BNU_CHUNK_T botPattern, BNU_CHUNK_T topPattern, IppBitSupplier rndFunc, void* pRndParam))
 #define cpPRNGenRange OWNAPI(cpPRNGenRange)
-int cpPRNGenRange(BNU_CHUNK_T* pRand,
-            const BNU_CHUNK_T* pLo, cpSize loLen,
-            const BNU_CHUNK_T* pHi, cpSize hiLen,
-                  IppBitSupplier rndFunc, void* pRndParam);
+   IPP_OWN_DECL (int, cpPRNGenRange, (BNU_CHUNK_T* pRand, const BNU_CHUNK_T* pLo, cpSize loLen, const BNU_CHUNK_T* pHi, cpSize hiLen, IppBitSupplier rndFunc, void* pRndParam))
 
 #endif /* _CP_PRNG_H */

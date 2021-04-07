@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,23 +32,22 @@
 
 #if(_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_M7)
 
-#define     sm2_add      OWNAPI(sm2_add)
-#define     sm2_sub      OWNAPI(sm2_sub)
-#define     sm2_neg      OWNAPI(sm2_neg)
-#define     sm2_div_by_2 OWNAPI(sm2_div_by_2)
-#define     sm2_mul_by_2 OWNAPI(sm2_mul_by_2)
-#define     sm2_mul_by_3 OWNAPI(sm2_mul_by_3)
-
 /* arithmetic over 256-bit SM2 modulus */
-BNU_CHUNK_T* sm2_add(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_sub(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_neg(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_div_by_2 (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_mul_by_2 (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_mul_by_3 (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
+#define sm2_add      OWNAPI(sm2_add)
+#define sm2_sub      OWNAPI(sm2_sub)
+#define sm2_neg      OWNAPI(sm2_neg)
+#define sm2_div_by_2 OWNAPI(sm2_div_by_2)
+#define sm2_mul_by_2 OWNAPI(sm2_mul_by_2)
+#define sm2_mul_by_3 OWNAPI(sm2_mul_by_3)
+
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_add, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_sub, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_neg, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_div_by_2, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_mul_by_2, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_mul_by_3, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
 
 #if(_IPP_ARCH ==_IPP_ARCH_EM64T)
-
 #define sm2_mul_montl OWNAPI(sm2_mul_montl)
 #define sm2_mul_montx OWNAPI(sm2_mul_montx)
 #define sm2_sqr_montl OWNAPI(sm2_sqr_montl)
@@ -56,12 +55,12 @@ BNU_CHUNK_T* sm2_mul_by_3 (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGF
 #define sm2_to_mont   OWNAPI(sm2_to_mont)
 #define sm2_mont_back OWNAPI(sm2_mont_back)
 
-BNU_CHUNK_T* sm2_mul_montl(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_mul_montx(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_sqr_montl(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_sqr_montx(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_to_mont  (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_mont_back(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_mul_montl, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_mul_montx, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_sqr_montl, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_sqr_montx, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_to_mont,   (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_mont_back, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
 #endif
 
 #if(_IPP_ARCH ==_IPP_ARCH_IA32)
@@ -69,37 +68,36 @@ BNU_CHUNK_T* sm2_mont_back(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGF
 #define sm2_sqr_mont_slm OWNAPI(sm2_sqr_mont_slm)
 #define sm2_mred         OWNAPI(sm2_mred)
 
-BNU_CHUNK_T* sm2_mul_mont_slm(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE);
-BNU_CHUNK_T* sm2_sqr_mont_slm(BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE);
-void sm2_mred(BNU_CHUNK_T* res, BNU_CHUNK_T* product);
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_mul_mont_slm, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, const BNU_CHUNK_T* b, gsEngine* pGFE))
+IPP_OWN_DECL (BNU_CHUNK_T*, sm2_sqr_mont_slm, (BNU_CHUNK_T* res, const BNU_CHUNK_T* a, gsEngine* pGFE))
+IPP_OWN_DECL (void,         sm2_mred,         (BNU_CHUNK_T* res, BNU_CHUNK_T* product))
 #endif
 
 #define OPERAND_BITSIZE (256)
 #define LEN_SM2         (BITS_BNU_CHUNK(OPERAND_BITSIZE))
 
-
 /*
 // ia32 multiplicative methods
 */
 #if (_IPP_ARCH ==_IPP_ARCH_IA32 )
-static BNU_CHUNK_T* sm2_mul_montl(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, sm2_mul_montl, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFE))
 {
    BNU_CHUNK_T* product = cpGFpGetPool(2, pGFE);
    //tbcd: temporary excluded: assert(NULL!=product);
 
-   cpMulAdc_BNU_school(product, pA,LEN_SM2, pB,LEN_SM2);
+   cpMulAdc_BNU_school(product, pA, LEN_SM2, pB, LEN_SM2);
    sm2_mred(pR, product);
 
    cpGFpReleasePool(2, pGFE);
    return pR;
 }
 
-static BNU_CHUNK_T* sm2_sqr_montl(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, sm2_sqr_montl, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE))
 {
    BNU_CHUNK_T* product = cpGFpGetPool(2, pGFE);
    //tbcd: temporary excluded: assert(NULL!=product);
 
-   cpSqrAdc_BNU_school(product, pA,LEN_SM2);
+   cpSqrAdc_BNU_school(product, pA, LEN_SM2);
    sm2_mred(pR, product);
 
    cpGFpReleasePool(2, pGFE);
@@ -117,22 +115,22 @@ static BNU_CHUNK_T RR[] = {
 static BNU_CHUNK_T one[] = {
    1,0,0,0,0,0,0,0};
 
-static BNU_CHUNK_T* sm2_to_mont(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, sm2_to_mont, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE))
 {
    return sm2_mul_montl(pR, pA, (BNU_CHUNK_T*)RR, pGFE);
 }
 
-static BNU_CHUNK_T* sm2_mont_back(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, sm2_mont_back, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE))
 {
    return sm2_mul_montl(pR, pA, (BNU_CHUNK_T*)one, pGFE);
 }
 
-static BNU_CHUNK_T* sm2_to_mont_slm(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, sm2_to_mont_slm, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE))
 {
    return sm2_mul_mont_slm(pR, pA, (BNU_CHUNK_T*)RR, pGFE);
 }
 
-static BNU_CHUNK_T* sm2_mont_back_slm(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, sm2_mont_back_slm, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE))
 {
    return sm2_mul_mont_slm(pR, pA, (BNU_CHUNK_T*)one, pGFE);
 }
@@ -142,7 +140,7 @@ static BNU_CHUNK_T* sm2_mont_back_slm(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gs
 // return specific gf p256sm2 arith methods,
 //    p256sm2 = 2^256 -2^224 -2^96 +2^64 -1 (SM2 curve)
 */
-static gsModMethod* gsArithGF_p256sm2(void)
+static gsModMethod* gsArithGF_p256sm2 (void)
 {
    static gsModMethod m = {
       sm2_to_mont,

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,8 +50,9 @@ IPPFUN(IppStatus, ippsSHA1Unpack,(const Ipp8u* pBuffer, IppsSHA1State* pCtx))
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
-   pCtx = (IppsSHA1State*)( IPP_ALIGNED_PTR(pCtx, SHA1_ALIGNMENT) );
 
    CopyBlock(pBuffer, pCtx, sizeof(IppsSHA1State));
+   HASH_SET_ID(pCtx, idCtxSHA1);
+
    return ippStsNoErr;
 }

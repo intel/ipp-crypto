@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -4045,7 +4045,7 @@ const __ALIGN64 P521_POINT_AFFINE ec_p521r1_precomputed[105][16] = {
 #endif  /* _IPP_DATA */
 
 
-const cpPrecompAP* gfpec_precom_nistP521r1_fun(void)
+IPP_OWN_DEFN (const cpPrecompAP*, gfpec_precom_nistP521r1_fun, (void))
 {
    static cpPrecompAP t = {
       /* w */                  5,

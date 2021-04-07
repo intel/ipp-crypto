@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2015-2020 Intel Corporation
+* Copyright 2015-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,21 +30,21 @@
 #include "owncp.h"
 #include "pcpaesm.h"
 
-#if(_IPP32E < _IPP32E_K0)
+#if(_IPP32E < _IPP32E_K1)
 
 #define BLOCK_SIZE (MBS_RIJ128)
 
 /* GCM Hash prototype: GHash = GHash*HKey mod G() */
-typedef void (*MulGcm_)(Ipp8u* pGHash, const Ipp8u* pHKey, const void* pParam);
+IPP_OWN_FUNPTR (void, MulGcm_, (Ipp8u* pGHash, const Ipp8u* pHKey, const void* pParam))
 
 /* GCM Authentication prototype: GHash = (GHash^src[])*HKey mod G() */
-typedef void (*Auth_)(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam);
+IPP_OWN_FUNPTR (void, Auth_, (Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam))
 
 /* GCM Encrypt_Authentication prototype */
-typedef void (*Encrypt_)(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
+IPP_OWN_FUNPTR (void, Encrypt_, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
 
 /* GCM Authentication_Decrypt prototype */
-typedef void (*Decrypt_)(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
+IPP_OWN_FUNPTR (void, Decrypt_, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
 
 typedef enum {
    GcmInit,
@@ -55,7 +55,7 @@ typedef enum {
 
 struct _cpAES_GCM {
    
-   IppCtxId idCtx;                  /* AES-GCM id                    */
+   Ipp32u   idCtx;                  /* AES-GCM id                    */
    GcmState state;                  /* GCM state: Init, IV|AAD|TXT proccessing */
    Ipp64u   ivLen;                  /* IV length (bytes)             */
    Ipp64u   aadLen;                 /* header length (bytes)         */
@@ -80,15 +80,15 @@ struct _cpAES_GCM {
    Ipp8u multiplier[BLOCK_SIZE];    /* - (default) hKey                             */
                                     /* - (aes_ni)  hKey*t, (hKey*t)^2, (hKey*t)^4   */
                                     /* - (vaes_ni) 8 reverted ordered vectors by 4 128-bit values.
-										 hKeys derivations in the multiplier[] array in order of appearance
-										 (zero-index starts from the left):
-											hKey^4<<1, hKey^3<<1,   hKey^2<<1,  hKey<<1,
-											hKey^8<<1, hKey^7<<1,   hKey^6<<1,  hKey^5<<1,
-											hKey^12<<1, hKey^11<<1, hKey^10<<1, hKey^9<<1,
-											hKey^16<<1, hKey^15<<1, hKey^14<<1, hKey^13<<1,
-										 ... <same 4 vectors for Karatsuba partial products> ...
-									*/
-                                    /* - (safe) hKey*(t^i), i=0,...,127             */
+                                      hKeys derivations in the multiplier[] array in order of appearance
+                                      (zero-index starts from the left):
+                                      hKey^4<<1, hKey^3<<1,   hKey^2<<1,  hKey<<1,
+                                      hKey^8<<1, hKey^7<<1,   hKey^6<<1,  hKey^5<<1,
+                                      hKey^12<<1, hKey^11<<1, hKey^10<<1, hKey^9<<1,
+                                      hKey^16<<1, hKey^15<<1, hKey^14<<1, hKey^13<<1,
+                                      ... <same 4 vectors for Karatsuba partial products> ...
+                                     */
+                                     /* - (safe) hKey*(t^i), i=0,...,127             */
 };
 
 #define CTR_POS         12
@@ -103,7 +103,7 @@ struct _cpAES_GCM {
 /*
 // Useful macros
 */
-#define AESGCM_ID(context)           ((context)->idCtx)
+#define AESGCM_SET_ID(context)       ((context)->idCtx = (Ipp32u)idCtxAESGCM ^ (Ipp32u)IPP_UINT_PTR(context))
 #define AESGCM_STATE(context)        ((context)->state)
 
 #define AESGCM_IV_LEN(context)       ((context)->ivLen)
@@ -127,7 +127,7 @@ struct _cpAES_GCM {
 #define AESGCM_CPWR(context)         ((context)->multiplier)
 #define AES_GCM_MTBL(context)        ((context)->multiplier)
 
-#define AESGCM_VALID_ID(context)     (AESGCM_ID((context))==idCtxAESGCM)
+#define AESGCM_VALID_ID(context)     ((((context)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((context))) == (Ipp32u)idCtxAESGCM)
 
 #if 0
 __INLINE void IncrementCounter32(Ipp8u* pCtr)
@@ -148,55 +148,51 @@ __INLINE void IncrementCounter32(Ipp8u* pCtr)
 
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
 #define AesGcmPrecompute_avx OWNAPI(AesGcmPrecompute_avx)
-   void AesGcmPrecompute_avx(Ipp8u* pPrecomputeData, const Ipp8u* pHKey);
+   IPP_OWN_DECL (void, AesGcmPrecompute_avx, (Ipp8u* pPrecomputeData, const Ipp8u* pHKey))
 #define AesGcmMulGcm_avx OWNAPI(AesGcmMulGcm_avx)
-   void AesGcmMulGcm_avx(Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam);
+   IPP_OWN_DECL (void, AesGcmMulGcm_avx, (Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam))
 #define AesGcmAuth_avx OWNAPI(AesGcmAuth_avx)
-   void AesGcmAuth_avx(Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam);
+   IPP_OWN_DECL (void, AesGcmAuth_avx, (Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam))
 #define wrpAesGcmEnc_avx OWNAPI(wrpAesGcmEnc_avx)
-   void wrpAesGcmEnc_avx(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
+   IPP_OWN_DECL (void, wrpAesGcmEnc_avx, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
 #define wrpAesGcmDec_avx OWNAPI(wrpAesGcmDec_avx)
-   void wrpAesGcmDec_avx(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
+   IPP_OWN_DECL (void, wrpAesGcmDec_avx, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
 #define AesGcmEnc_avx OWNAPI(AesGcmEnc_avx)
-   void AesGcmEnc_avx(Ipp8u* pDst, const Ipp8u* pSrc, int len,
-                      RijnCipher cipher, int nr, const Ipp8u* pKeys,
-                     Ipp8u* pGhash, Ipp8u* pCnt, Ipp8u* pECnt, const Ipp8u* pMuls);
+   IPP_OWN_DECL (void, AesGcmEnc_avx, (Ipp8u* pDst, const Ipp8u* pSrc, int len, RijnCipher cipher, int nr, const Ipp8u* pKeys, Ipp8u* pGhash, Ipp8u* pCnt, Ipp8u* pECnt, const Ipp8u* pMuls))
 #define AesGcmDec_avx OWNAPI(AesGcmDec_avx)
-   void AesGcmDec_avx(Ipp8u* pDst, const Ipp8u* pSrc, int len,
-                     RijnCipher cipher, int nr, const Ipp8u* pKeys,
-                     Ipp8u* pGhash, Ipp8u* pCnt, Ipp8u* pECnt, const Ipp8u* pMuls);
+   IPP_OWN_DECL (void, AesGcmDec_avx, (Ipp8u* pDst, const Ipp8u* pSrc, int len, RijnCipher cipher, int nr, const Ipp8u* pKeys, Ipp8u* pGhash, Ipp8u* pCnt, Ipp8u* pECnt, const Ipp8u* pMuls))
 #endif
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 #define AesGcmPrecompute_vaes OWNAPI(AesGcmPrecompute_vaes)
-   void AesGcmPrecompute_vaes(Ipp8u* const pPrecomputeData, const Ipp8u* const pHKey);
+   IPP_OWN_DECL (void, AesGcmPrecompute_vaes, (Ipp8u* const pPrecomputeData, const Ipp8u* const pHKey))
 #define AesGcmMulGcm_vaes OWNAPI(AesGcmMulGcm_vaes)
-   void AesGcmMulGcm_vaes(Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam);
+   IPP_OWN_DECL (void, AesGcmMulGcm_vaes, (Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam))
 #define AesGcmAuth_vaes OWNAPI(AesGcmAuth_vaes)
-   void AesGcmAuth_vaes(Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam);
+   IPP_OWN_DECL (void, AesGcmAuth_vaes, (Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam))
 #define AesGcmEnc_vaes OWNAPI(AesGcmEnc_vaes)
-   void AesGcmEnc_vaes(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
+   IPP_OWN_DECL (void, AesGcmEnc_vaes, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
 #define AesGcmDec_vaes OWNAPI(AesGcmDec_vaes)
-   void AesGcmDec_vaes(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
-#endif /* _IPP32E>=_IPP32E_K0 */
+   IPP_OWN_DECL (void, AesGcmDec_vaes, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
+#endif /* _IPP32E>=_IPP32E_K1 */
 
 #define AesGcmPrecompute_table2K OWNAPI(AesGcmPrecompute_table2K)
-   void AesGcmPrecompute_table2K(Ipp8u* pPrecomputeData, const Ipp8u* pHKey);
+   IPP_OWN_DECL (void, AesGcmPrecompute_table2K, (Ipp8u* pPrecomputeData, const Ipp8u* pHKey))
 
-//#define AesGcmMulGcm_table2K OWNAPI(AesGcmMulGcm_table2K)
-//   void AesGcmMulGcm_table2K(Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam);
+/* #define AesGcmMulGcm_table2K OWNAPI(AesGcmMulGcm_table2K) */
+/*    IPP_OWN_DECL (void, AesGcmMulGcm_table2K, (Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam)) */
 #define AesGcmMulGcm_table2K_ct OWNAPI(AesGcmMulGcm_table2K_ct)
-   void AesGcmMulGcm_table2K_ct(Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam);
+   IPP_OWN_DECL (void, AesGcmMulGcm_table2K_ct, (Ipp8u* pGhash, const Ipp8u* pHkey, const void* pParam))
 
-//#define AesGcmAuth_table2K OWNAPI(AesGcmAuth_table2K)
-//   void AesGcmAuth_table2K(Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam);
+/* #define AesGcmAuth_table2K OWNAPI(AesGcmAuth_table2K) */
+/*    IPP_OWN_DECL (void, AesGcmAuth_table2K, (Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam)) */
 #define AesGcmAuth_table2K_ct OWNAPI(AesGcmAuth_table2K_ct)
-   void AesGcmAuth_table2K_ct(Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam);
+   IPP_OWN_DECL (void, AesGcmAuth_table2K_ct, (Ipp8u* pGhash, const Ipp8u* pSrc, int len, const Ipp8u* pHkey, const void* pParam))
 
 #define wrpAesGcmEnc_table2K OWNAPI(wrpAesGcmEnc_table2K)
-   void wrpAesGcmEnc_table2K(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
+   IPP_OWN_DECL (void, wrpAesGcmEnc_table2K, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
 #define wrpAesGcmDec_table2K OWNAPI(wrpAesGcmDec_table2K)
-   void wrpAesGcmDec_table2K(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx);
+   IPP_OWN_DECL (void, wrpAesGcmDec_table2K, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
 
 extern const Ipp16u AesGcmConst_table[256];            /* precomputed reduction table */
 
@@ -219,6 +215,6 @@ static int cpSizeofCtx_AESGCM(void)
          +AESGCM_ALIGNMENT-1;
 }
 
-#endif // (_IPP32E < _IPP32E_K0)
+#endif // (_IPP32E < _IPP32E_K1)
 
 #endif /* _CP_AESAUTH_GCM_H*/

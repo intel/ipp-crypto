@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2020 Intel Corporation
+; Copyright 2020-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 %include "asmdefs.inc"
 %include "ia_32e.inc"
 
-%if (_IPP32E >= _IPP32E_K0)
+%if (_IPP32E >= _IPP32E_K1)
 
 %define GCM128_MODE 1
 %include "gcm_avx512.inc"

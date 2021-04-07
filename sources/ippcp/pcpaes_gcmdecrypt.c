@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,11 +34,11 @@
 #  include "pcprijtables.h"
 #endif
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 #include "pcpaesauthgcm_avx512.h"
 #else
 #include "pcpaesauthgcm.h"
-#endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K1) */
 
 /*F*
 //    Name: ippsAES_GCMDecrypt
@@ -76,7 +76,7 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
    IPP_BAD_PTR2_RET(pSrc, pDst);
    IPP_BADARG_RET(len<0, ippStsLengthErr);
 
-   #if(_IPP32E<_IPP32E_K0)
+   #if(_IPP32E<_IPP32E_K1)
 
    /* get method */
    IppsAESSpec* pAES = AESGCM_CIPHER(pState);
@@ -87,7 +87,7 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
 
    if( GcmAADprocessing==AESGCM_STATE(pState) ) {
 
-      #if(_IPP32E>=_IPP32E_K0)
+      #if(_IPP32E>=_IPP32E_K1)
 
       AadFinalize_ aadHashFinalize = AES_GCM_AAD_FINALIZE(pState);
 
@@ -112,7 +112,7 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
       encoder(AESGCM_COUNTER(pState), AESGCM_ECOUNTER(pState), RIJ_NR(pAES), RIJ_EKEYS(pAES), NULL);
       #endif
 
-      #endif /* #if(_IPP32E>=_IPP32E_K0) */
+      #endif /* #if(_IPP32E>=_IPP32E_K1) */
 
       /* switch mode and init counters */
       AESGCM_BUFLEN(pState) = 0; 
@@ -124,7 +124,7 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
    // process text (authenticate and decrypt)
    */
 
-   #if(_IPP32E>=_IPP32E_K0)
+   #if(_IPP32E>=_IPP32E_K1)
 
    DecryptUpdate_ dec = AES_GCM_DECRYPT_UPDATE(pState);
    dec(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), pDst, pSrc, (Ipp64u)len);
@@ -187,7 +187,7 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
       AESGCM_TXT_LEN(pState) += (Ipp64u)len;
    }
 
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+   #endif /* #if(_IPP32E>=_IPP32E_K1) */
 
    return ippStsNoErr;
 }

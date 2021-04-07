@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2015-2020 Intel Corporation
+* Copyright 2015-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -167,7 +167,6 @@ IPPFUN(IppStatus, ippsTRNGenRDSEED_BN,(IppsBigNumState* pRand, int nBits, void* 
 {
    /* test random BN */
    IPP_BAD_PTR1_RET(pRand);
-   pRand = (IppsBigNumState*)( IPP_ALIGNED_PTR(pRand, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pRand), ippStsContextMatchErr);
 
    /* test sizes */

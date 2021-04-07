@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,9 +40,8 @@ static int cpSizeof_RSA_privateKey2(int factorPbitSize, int factorQbitSize)
         + factorPlen * (Ipp32s)sizeof(BNU_CHUNK_T)  /* dp slot */
         + factorQlen * (Ipp32s)sizeof(BNU_CHUNK_T)  /* dq slot */
         + factorPlen * (Ipp32s)sizeof(BNU_CHUNK_T)  /* qinv slot */
-        + (Ipp32s)sizeof(BNU_CHUNK_T) - 1
+        + (Ipp32s)sizeof(BNU_CHUNK_T) - 1           /* alignment */ 
         + montPsize
         + montQsize
-        + montNsize
-        + (RSA_PRIVATE_KEY_ALIGNMENT - 1);
+        + montNsize;
 }

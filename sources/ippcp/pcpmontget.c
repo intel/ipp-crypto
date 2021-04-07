@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,9 +48,8 @@
 *F*/
 IPPFUN(IppStatus, ippsMontGet,(Ipp32u* pModulus, int* pSize, const IppsMontState* pMont))
 {
-    IPP_BAD_PTR3_RET(pMont, pModulus, pSize);
+   IPP_BAD_PTR3_RET(pMont, pModulus, pSize);
 
-   pMont = (IppsMontState*)(IPP_ALIGNED_PTR((pMont), MONT_ALIGNMENT));
    IPP_BADARG_RET(!MNT_VALID_ID(pMont), ippStsContextMatchErr);
 
    {

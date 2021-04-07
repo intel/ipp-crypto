@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,16 +33,17 @@
 // HMAC context
 */
 struct _cpHMAC {
-   IppCtxId idCtx;               /* HMAC identifier   */
+   Ipp32u   idCtx;               /* HMAC identifier   */
    Ipp8u ipadKey[MBS_HASH_MAX];  /* inner padding key */
    Ipp8u opadKey[MBS_HASH_MAX];  /* outer padding key */
    IppsHashState hashCtx;        /* hash context      */
 };
 
 /* accessors */
-#define HMAC_CTX_ID(stt)   ((stt)->idCtx)
-#define HASH_CTX(stt)      ((stt)->hashCtx)
-#define HMAC_VALID_ID(stt) (HMAC_CTX_ID((stt))==idCtxHMAC)
+#define HMAC_SET_CTX_ID(stt)   ((stt)->idCtx = (Ipp32u)idCtxHMAC ^ (Ipp32u)IPP_UINT_PTR(stt))
+#define HMAC_RESET_CTX_ID(stt) ((stt)->idCtx = idCtxHMAC)
+#define HASH_CTX(stt)          ((stt)->hashCtx)
+#define HMAC_VALID_ID(stt)     ((((stt)->idCtx) ^ (Ipp32u)IPP_INT_PTR((stt))) == (Ipp32u)idCtxHMAC)
 
 #define IPAD            (0x36)   /* inner padding value */
 #define OPAD            (0x5C)   /* outer padding value */

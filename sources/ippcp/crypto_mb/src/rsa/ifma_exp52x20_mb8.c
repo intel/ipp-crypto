@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -168,7 +168,7 @@ void EXP52x20_mb8(int64u out[][8],
    copy_mb8(expz, exp, LEN64);
    _mm512_store_si512(expz[LEN64], _mm512_setzero_si512());
 
-   /* exponentition */
+   /* exponentiation */
    {
       int rem = BITSIZE_MODULUS % EXP_WIN_SIZE;
       int delta = rem? rem : EXP_WIN_SIZE;

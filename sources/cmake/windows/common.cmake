@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2020 Intel Corporation
+# Copyright 2017-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,4 +26,4 @@ else()
   set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DWIN32E -D_ARCH_EM64T") # _WIN32 and _WIN64 are defined by a compiler
 endif(${ARCH} MATCHES "ia32")
 
-set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DBN_OPENSSL_DISABLE")
+#set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DBN_OPENSSL_DISABLE")

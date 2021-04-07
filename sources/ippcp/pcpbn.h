@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 */
 struct _cpBigNum
 {
-   IppCtxId      idCtx;    /* BigNum ctx id                 */
+   Ipp32u        idCtx;    /* BigNum ctx id                 */
    IppsBigNumSGN sgn;      /* sign                          */
    cpSize        size;     /* BigNum size (BNU_CHUNK_T)     */
    cpSize        room;     /* BigNum max size (BNU_CHUNK_T) */
@@ -45,7 +45,7 @@ struct _cpBigNum
 };
 
 /* BN accessory macros */
-#define BN_ID(pBN)         ((pBN)->idCtx)
+#define BN_SET_ID(pBN)     ((pBN)->idCtx = (Ipp32u)idCtxBigNum ^ (Ipp32u)IPP_UINT_PTR(pBN))
 #define BN_SIGN(pBN)       ((pBN)->sgn)
 #define BN_POSITIVE(pBN)   (BN_SIGN(pBN)==ippBigNumPOS)
 #define BN_NEGATIVE(pBN)   (BN_SIGN(pBN)==ippBigNumNEG)
@@ -56,7 +56,7 @@ struct _cpBigNum
 #define BN_SIZE32(pBN)     ((pBN)->size*((Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u))))
 //#define BN_SIZE32(pBN)     (BITS2WORD32_SIZE( BITSIZE_BNU(BN_NUMBER((pBN)),BN_SIZE((pBN)))))
 
-#define BN_VALID_ID(pBN)   (BN_ID((pBN))==idCtxBigNum)
+#define BN_VALID_ID(pBN)   ((((pBN)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((pBN))) == (Ipp32u)idCtxBigNum)
 
 #define INVERSE_SIGN(s)    (((s)==ippBigNumPOS)? ippBigNumNEG : ippBigNumPOS)
 
@@ -65,9 +65,9 @@ struct _cpBigNum
 
 /* pack-unpack context */
 #define cpPackBigNumCtx OWNAPI(cpPackBigNumCtx)
-   void cpPackBigNumCtx(const IppsBigNumState* pBN, Ipp8u* pBuffer);
+   IPP_OWN_DECL (void, cpPackBigNumCtx, (const IppsBigNumState* pBN, Ipp8u* pBuffer))
 #define cpUnpackBigNumCtx OWNAPI(cpUnpackBigNumCtx)
-   void cpUnpackBigNumCtx(const Ipp8u* pBuffer, IppsBigNumState* pBN);
+   IPP_OWN_DECL (void, cpUnpackBigNumCtx, (const Ipp8u* pBuffer, IppsBigNumState* pBN))
 
 /* copy BN */
 __INLINE IppsBigNumState* cpBN_copy(IppsBigNumState* pDst, const IppsBigNumState* pSrc)
@@ -173,7 +173,7 @@ __INLINE IppsBigNumState* BN_Set(const BNU_CHUNK_T* pData, cpSize len, IppsBigNu
 }
 __INLINE IppsBigNumState* BN_Make(BNU_CHUNK_T* pData, BNU_CHUNK_T* pBuffer, cpSize len, IppsBigNumState* pBN)
 {
-   BN_ID(pBN)   = idCtxBigNum;
+   BN_SET_ID(pBN);
    BN_SIGN(pBN) = ippBigNumPOS;
    BN_SIZE(pBN) = 1;
    BN_ROOM(pBN) = len;
@@ -181,8 +181,6 @@ __INLINE IppsBigNumState* BN_Make(BNU_CHUNK_T* pData, BNU_CHUNK_T* pBuffer, cpSi
    BN_BUFFER(pBN) = pBuffer;
    return pBN;
 }
-
-
 
 /*
 // fixed single chunk BN
@@ -194,12 +192,12 @@ typedef struct _ippcpBigNumChunk {
 } IppsBigNumStateChunk;
 
 /* reference to BN(1) and BN(2) */
-#define          cpBN_OneRef OWNAPI(cpBN_OneRef)
-IppsBigNumState* cpBN_OneRef(void);
-#define          cpBN_TwoRef OWNAPI(cpBN_TwoRef)
-IppsBigNumState* cpBN_TwoRef(void);
-#define          cpBN_ThreeRef OWNAPI(cpBN_ThreeRef)
-IppsBigNumState* cpBN_ThreeRef(void);
+#define cpBN_OneRef OWNAPI(cpBN_OneRef)
+   IPP_OWN_DECL (IppsBigNumState*, cpBN_OneRef, (void))
+#define cpBN_TwoRef OWNAPI(cpBN_TwoRef)
+   IPP_OWN_DECL (IppsBigNumState*, cpBN_TwoRef, (void))
+#define cpBN_ThreeRef OWNAPI(cpBN_ThreeRef)
+   IPP_OWN_DECL (IppsBigNumState*, cpBN_ThreeRef, (void))
 
 #define BN_ONE_REF()   cpBN_OneRef()
 #define BN_TWO_REF()   cpBN_TwoRef()

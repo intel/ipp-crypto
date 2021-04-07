@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,9 +49,9 @@ IPPFUN(IppStatus, ippsDESUnpack,(const Ipp8u* pBuffer, IppsDESSpec* pCtx))
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
-   /* use aligned context */
-   pCtx = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx, DES_ALIGNMENT) );
 
    CopyBlock(pBuffer, pCtx, sizeof(IppsDESSpec));
+   DES_SET_ID(pCtx);
+
    return ippStsNoErr;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@
 #include "pcpaesm.h"
 #include "pcptool.h"
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 #include "pcpaesauthgcm_avx512.h"
 #else
 #include "pcpaesauthgcm.h"
-#endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K1) */
 
 /*F*
 //    Name: ippsAES_GCMGetTag
@@ -67,7 +67,7 @@ IPPFUN(IppStatus, ippsAES_GCMGetTag,(Ipp8u* pDstTag, int tagLen, const IppsAES_G
    IPP_BAD_PTR1_RET(pDstTag);
    IPP_BADARG_RET(tagLen<=0 || tagLen>BLOCK_SIZE, ippStsLengthErr);
 
-   #if(_IPP32E>=_IPP32E_K0)
+   #if(_IPP32E>=_IPP32E_K1)
 
    __ALIGN16 struct gcm_context_data context_data;
 
@@ -113,7 +113,7 @@ IPPFUN(IppStatus, ippsAES_GCMGetTag,(Ipp8u* pDstTag, int tagLen, const IppsAES_G
    /* return tag of required lenth */
    CopyBlock(tmpHash, pDstTag, tagLen);
 
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+   #endif /* #if(_IPP32E>=_IPP32E_K1) */
 
    return ippStsNoErr;
 }

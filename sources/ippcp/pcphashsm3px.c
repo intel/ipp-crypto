@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ __INLINE Ipp32u MagicGG(int s, Ipp32u e, Ipp32u f, Ipp32u g)
    }
 }
 
-void UpdateSM3(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam)
+IPP_OWN_DEFN (void, UpdateSM3, (void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam))
 {
    Ipp32u* data = (Ipp32u*)mblk;
 
@@ -213,7 +213,7 @@ void UpdateSM3(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam)
 }
 
 #else
-void UpdateSM3(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam)
+IPP_OWN_DEFN (void, UpdateSM3, (void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam))
 {
    Ipp32u* data = (Ipp32u*)mblk;
 

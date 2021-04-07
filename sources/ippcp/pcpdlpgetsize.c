@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2005-2020 Intel Corporation
+* Copyright 2005-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -117,8 +117,7 @@ IPPFUN(IppStatus, ippsDLPGetSize,(int feBitSize, int ordBitSize, int *pSize))
               #if defined(_USE_WINDOW_EXP_)
               +bnu_resourceSize  /* BNU resource  */
               #endif
-
-              +(DLP_ALIGNMENT-1);
+              ;
 
       return ippStsNoErr;
    }

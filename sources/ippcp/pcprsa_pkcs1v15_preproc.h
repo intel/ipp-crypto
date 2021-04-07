@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,16 +27,15 @@ __INLINE IppStatus SingleSignPkcs1v15RmfPreproc(const Ipp8u* pMsg, int msgLen,
 {
    /* test private key context */
    IPP_BAD_PTR3_RET(*pPrvKey, pScratchBuffer, pMethod);
-   *pPrvKey = (IppsRSAPrivateKeyState*)(IPP_ALIGNED_PTR(*pPrvKey, RSA_PRIVATE_KEY_ALIGNMENT));
    IPP_BADARG_RET(!RSA_PRV_KEY_VALID_ID(*pPrvKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(*pPrvKey), ippStsIncompleteContextErr);
 
    /* test hash algorithm ID */
+   IPP_BADARG_RET(ippHashAlg_Unknown == pMethod->hashAlgId, ippStsNotSupportedModeErr);
    IPP_BADARG_RET(ippHashAlg_SM3 == pMethod->hashAlgId, ippStsNotSupportedModeErr);
 
    /* use aligned public key context if defined */
    if (*pPubKey) {
-      *pPubKey = (IppsRSAPublicKeyState*)(IPP_ALIGNED_PTR(*pPubKey, RSA_PUBLIC_KEY_ALIGNMENT));
       IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(*pPubKey), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(*pPubKey), ippStsIncompleteContextErr);
    }
@@ -58,11 +57,11 @@ __INLINE IppStatus SingleVerifyPkcs1v15RmfPreproc(const Ipp8u* pMsg, int msgLen,
 {
    /* test public key context */
    IPP_BAD_PTR3_RET(*pKey, pScratchBuffer, pMethod);
-   *pKey = (IppsRSAPublicKeyState*)(IPP_ALIGNED_PTR(*pKey, RSA_PUBLIC_KEY_ALIGNMENT));
    IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(*pKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(*pKey), ippStsIncompleteContextErr);
 
    /* test hash algorithm ID */
+   IPP_BADARG_RET(ippHashAlg_Unknown == pMethod->hashAlgId, ippStsNotSupportedModeErr);
    IPP_BADARG_RET(ippHashAlg_SM3 == pMethod->hashAlgId, ippStsNotSupportedModeErr);
 
    /* test data pointer */

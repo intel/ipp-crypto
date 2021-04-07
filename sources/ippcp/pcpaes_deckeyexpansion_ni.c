@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@
 /*
 // AES decryption key schelule
 */
-void aes_DecKeyExpansion_NI(Ipp8u* decKeys, const Ipp8u* encKeys, int nr)
+IPP_OWN_DEFN (void, aes_DecKeyExpansion_NI, (Ipp8u* decKeys, const Ipp8u* encKeys, int nr))
 {
    __m128i* encKeys16 = (__m128i*)encKeys;
    __m128i* decKeys16 = (__m128i*)decKeys;

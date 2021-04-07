@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -82,28 +82,28 @@ __INLINE void hashInit(Ipp32u* pHash, const Ipp32u* iv)
    pHash[6] = iv[6];
    pHash[7] = iv[7];
 }
-static void sha256_hashInit(void* pHash)
+IPP_OWN_DEFN (static void, sha256_hashInit, (void* pHash))
 {
    hashInit((Ipp32u*)pHash, sha256_iv);
 }
-static void sha224_hashInit(void* pHash)
+IPP_OWN_DEFN (static void, sha224_hashInit, (void* pHash))
 {
    hashInit((Ipp32u*)pHash, sha224_iv);
 }
 
-static void sha256_hashUpdate(void* pHash, const Ipp8u* pMsg, int msgLen)
+IPP_OWN_DEFN (static void, sha256_hashUpdate, (void* pHash, const Ipp8u* pMsg, int msgLen))
 {
    UpdateSHA256(pHash, pMsg, msgLen, sha256_cnt);
 }
 #if (_SHA_NI_ENABLING_==_FEATURE_TICKTOCK_ || _SHA_NI_ENABLING_==_FEATURE_ON_)
-static void sha256_ni_hashUpdate(void* pHash, const Ipp8u* pMsg, int msgLen)
+IPP_OWN_DEFN (static void, sha256_ni_hashUpdate, (void* pHash, const Ipp8u* pMsg, int msgLen))
 {
    UpdateSHA256ni(pHash, pMsg, msgLen, sha256_cnt);
 }
 #endif
 
 /* convert hash into big endian */
-static void sha256_hashOctString(Ipp8u* pMD, void* pHashVal)
+IPP_OWN_DEFN (static void, sha256_hashOctString, (Ipp8u* pMD, void* pHashVal))
 {
    /* convert hash into big endian */
    ((Ipp32u*)pMD)[0] = ENDIANNESS32(((Ipp32u*)pHashVal)[0]);
@@ -115,7 +115,7 @@ static void sha256_hashOctString(Ipp8u* pMD, void* pHashVal)
    ((Ipp32u*)pMD)[6] = ENDIANNESS32(((Ipp32u*)pHashVal)[6]);
    ((Ipp32u*)pMD)[7] = ENDIANNESS32(((Ipp32u*)pHashVal)[7]);
 }
-static void sha224_hashOctString(Ipp8u* pMD, void* pHashVal)
+IPP_OWN_DEFN (static void, sha224_hashOctString, (Ipp8u* pMD, void* pHashVal))
 {
    /* convert hash into big endian */
    ((Ipp32u*)pMD)[0] = ENDIANNESS32(((Ipp32u*)pHashVal)[0]);
@@ -127,7 +127,7 @@ static void sha224_hashOctString(Ipp8u* pMD, void* pHashVal)
    ((Ipp32u*)pMD)[6] = ENDIANNESS32(((Ipp32u*)pHashVal)[6]);
 }
 
-static void sha256_msgRep(Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi)
+IPP_OWN_DEFN (static void, sha256_msgRep, (Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi))
 {
    IPP_UNREFERENCED_PARAMETER(lenHi);
    lenLo = ENDIANNESS64(lenLo<<3);
@@ -137,20 +137,19 @@ static void sha256_msgRep(Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi)
 /*
 // SHA256 init context
 */
-static IppStatus GetSizeSHA256(int* pSize)
+IPP_OWN_DEFN (static IppStatus, GetSizeSHA256, (int* pSize))
 {
    IPP_BAD_PTR1_RET(pSize);
-   *pSize = sizeof(IppsSHA256State) +(SHA256_ALIGNMENT-1);
+   *pSize = sizeof(IppsSHA256State);
    return ippStsNoErr;
 }
 
-static IppStatus InitSHA256(IppsSHA256State* pState, const DigestSHA256 IV)
+IPP_OWN_DEFN (static IppStatus, InitSHA256, (IppsSHA256State* pState, const DigestSHA256 IV))
 {
    /* test state pointer */
    IPP_BAD_PTR1_RET(pState);
-   pState = (IppsSHA256State*)( IPP_ALIGNED_PTR(pState, SHA256_ALIGNMENT) );
 
-   HASH_CTX_ID(pState) = idCtxSHA256;
+   HASH_SET_ID(pState, idCtxSHA256);
    HASH_LENLO(pState) = 0;
    HAHS_BUFFIDX(pState) = 0;
 
@@ -168,9 +167,8 @@ static IppStatus InitSHA256(IppsSHA256State* pState, const DigestSHA256 IV)
 }
 
 #define cpSHA256MessageDigest OWNAPI(cpSHA256MessageDigest)
-IppStatus cpSHA256MessageDigest(DigestSHA256 hash, const Ipp8u* pMsg, int msgLen, const DigestSHA256 IV);
-
-#define cpFinalizeSHA256      OWNAPI(cpFinalizeSHA256)
-void cpFinalizeSHA256(DigestSHA256 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen);
+   IPP_OWN_DECL (IppStatus, cpSHA256MessageDigest, (DigestSHA256 hash, const Ipp8u* pMsg, int msgLen, const DigestSHA256 IV))
+#define cpFinalizeSHA256 OWNAPI(cpFinalizeSHA256)
+   IPP_OWN_DECL (void, cpFinalizeSHA256, (DigestSHA256 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen))
 
 #endif /* #if !defined(_PCP_SHA256_STUFF_H) */

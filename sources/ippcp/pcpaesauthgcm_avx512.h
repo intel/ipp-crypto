@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #include "owndefs.h"
 #include "owncp.h"
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 
 #include "aes_gcm_vaes.h"
 #include "aes_gcm_avx512.h"
@@ -39,41 +39,21 @@
 // Prototypes for internal functions from IPsec
 
 // IV processing
-typedef void (*IvUpdate_)(const struct gcm_key_data *key_data,
-                          struct gcm_context_data *context_data,
-                          const Ipp8u *iv, const Ipp64u iv_len);
+IPP_OWN_FUNPTR (void, IvUpdate_, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, const Ipp8u *iv, const Ipp64u iv_len))
+IPP_OWN_FUNPTR (void, IvFinalaze_, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, const Ipp8u *iv, const Ipp64u iv_len, const Ipp64u iv_general_len))
 
-typedef void (*IvFinalaze_)(const struct gcm_key_data *key_data,
-                            struct gcm_context_data *context_data,
-                            const Ipp8u *iv, const Ipp64u iv_len,
-                            const Ipp64u iv_general_len);
+//  AAD processing
+IPP_OWN_FUNPTR (void, AadUpdate_, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, const Ipp8u *aad, const Ipp64u aad_len))
+IPP_OWN_FUNPTR (void, AadFinalize_, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, const Ipp8u *aad, const Ipp64u aad_len, const Ipp64u aad_general_len))
 
-// AAD processing
-typedef void (*AadUpdate_)(const struct gcm_key_data *key_data,
-                           struct gcm_context_data *context_data,
-                           const Ipp8u *aad, const Ipp64u aad_len);
-
-typedef void (*AadFinalize_)(const struct gcm_key_data *key_data,
-                             struct gcm_context_data *context_data,
-                             const Ipp8u *aad, const Ipp64u aad_len,
-                             const Ipp64u aad_general_len);
-
-// Encryption-autentefication
-typedef void (*EncryptUpdate_)(const struct gcm_key_data *key_data,
-                               struct gcm_context_data *context_data,
-                               Ipp8u *out, const Ipp8u *in,
-                               Ipp64u len);
+//  Encryption-autentefication
+IPP_OWN_FUNPTR (void, EncryptUpdate_, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *out, const Ipp8u *in, Ipp64u len))
 
 // Decryption-verification
-typedef void (*DecryptUpdate_)(const struct gcm_key_data *key_data,
-                               struct gcm_context_data *context_data,
-                               Ipp8u *out, const Ipp8u *in,
-                               Ipp64u len);
+IPP_OWN_FUNPTR (void, DecryptUpdate_, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *out, const Ipp8u *in, Ipp64u len))
 
 // Get tag
-typedef void (*GetTag_)(const struct gcm_key_data *key_data,
-                        struct gcm_context_data *context_data,
-                        Ipp8u *auth_tag, Ipp64u auth_tag_len);
+IPP_OWN_FUNPTR (void, GetTag_, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *auth_tag, Ipp64u auth_tag_len))
 
 typedef enum {
    GcmInit,
@@ -88,7 +68,7 @@ typedef enum {
 
 struct _cpAES_GCM {
    
-   IppCtxId idCtx;                  /* AES-GCM id                    */
+   Ipp32u   idCtx;                  /* AES-GCM id                    */
    GcmState state;                  /* GCM state: Init, IV|AAD|TXT proccessing */
    Ipp64u   ivLen;                  /* IV length (bytes)             */
    Ipp64u   aadLen;                 /* header length (bytes)         */
@@ -122,7 +102,7 @@ struct _cpAES_GCM {
 
 // Useful macros
 
-#define AESGCM_ID(context)           ((context)->idCtx)
+#define AESGCM_SET_ID(context)       ((context)->idCtx = (Ipp32u)idCtxAESGCM ^ (Ipp32u)IPP_UINT_PTR(context))
 #define AESGCM_STATE(context)        ((context)->state)
 
 #define AESGCM_IV_LEN(context)       ((context)->ivLen)
@@ -147,13 +127,13 @@ struct _cpAES_GCM {
 #define AES_GCM_DECRYPT_UPDATE(context)    ((context)->decryptUpdateFunc)
 #define AES_GCM_GET_TAG(context)           ((context)->getTagFunc)
 
-#define AESGCM_VALID_ID(context)     (AESGCM_ID((context))==idCtxAESGCM)
+#define AESGCM_VALID_ID(context)     ((((context)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((context))) == (Ipp32u)idCtxAESGCM)
 
 static int cpSizeofCtx_AESGCM(void)
 {
    return (Ipp32s)sizeof(IppsAES_GCMState) + AESGCM_ALIGNMENT-1;
 }
 
-#endif // (_IPP32E>=_IPP32E_K0)
+#endif // (_IPP32E>=_IPP32E_K1)
 
 #endif // _CP_AESAUTH_GCM_AVX512_H

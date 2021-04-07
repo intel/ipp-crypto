@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ static __ALIGN16 const Ipp32u sm3_cnt[] = {
    0x8A7A879D,0x14F50F3B,0x29EA1E76,0x53D43CEC,0xA7A879D8,0x4F50F3B1,0x9EA1E762,0x3D43CEC5
 };
 
-static void sm3_hashInit(void* pHash)
+IPP_OWN_DEFN (static void, sm3_hashInit, (void* pHash))
 {
    /* setup initial digest */
    ((Ipp32u*)pHash)[0] = sm3_iv[0];
@@ -64,12 +64,12 @@ static void sm3_hashInit(void* pHash)
    ((Ipp32u*)pHash)[7] = sm3_iv[7];
 }
 
-static void sm3_hashUpdate(void* pHash, const Ipp8u* pMsg, int msgLen)
+IPP_OWN_DEFN (static void, sm3_hashUpdate, (void* pHash, const Ipp8u* pMsg, int msgLen))
 {
    UpdateSM3(pHash, pMsg, msgLen, sm3_cnt);
 }
 
-static void sm3_hashOctString(Ipp8u* pMD, void* pHashVal)
+IPP_OWN_DEFN (static void, sm3_hashOctString, (Ipp8u* pMD, void* pHashVal))
 {
    /* convert hash into big endian */
    ((Ipp32u*)pMD)[0] = ENDIANNESS32(((Ipp32u*)pHashVal)[0]);
@@ -82,7 +82,7 @@ static void sm3_hashOctString(Ipp8u* pMD, void* pHashVal)
    ((Ipp32u*)pMD)[7] = ENDIANNESS32(((Ipp32u*)pHashVal)[7]);
 }
 
-static void sm3_msgRep(Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi)
+IPP_OWN_DEFN (static void, sm3_msgRep, (Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi))
 {
    IPP_UNREFERENCED_PARAMETER(lenHi);
    lenLo = ENDIANNESS64(lenLo<<3);
@@ -90,6 +90,6 @@ static void sm3_msgRep(Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi)
 }
 
 #define cpFinalizeSM3 OWNAPI(cpFinalizeSM3)
-void cpFinalizeSM3(DigestSHA1 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen);
+   IPP_OWN_DECL (void, cpFinalizeSM3, (DigestSHA1 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen))
 
 #endif /* #if !defined _PCP_SM3_STUFF_H */

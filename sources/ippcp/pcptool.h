@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ __INLINE void PurgeBlock(void* pDst, int len)
 }
 #else
 #define PurgeBlock OWNAPI(PurgeBlock)
-void PurgeBlock(void* pDst, int len);
+    IPP_OWN_DECL (void, PurgeBlock, (void* pDst, int len))
 #endif
 
 /* fill block */

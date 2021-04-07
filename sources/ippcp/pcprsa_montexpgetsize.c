@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,12 +35,12 @@
 /*
 // Montgomery engine preparation (GetSize/init/Set)
 */
-void rsaMontExpGetSize(int maxLen32, int* pSize)
+IPP_OWN_DEFN (void, rsaMontExpGetSize, (int maxLen32, int* pSize))
 {
     int size = 0;
     int maxBitSize = maxLen32 << 5;
     gsModEngineGetSize(maxBitSize, MOD_ENGINE_RSA_POOL_SIZE, &size);
 
-    *pSize = size + MONT_ALIGNMENT;
+    *pSize = size;
 }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ typedef int cpSize;
 
 /* define 64-bit constant or pair of 32-bit dependding on architecture */
 #if ((_IPP_ARCH == _IPP_ARCH_EM64T) || (_IPP_ARCH == _IPP_ARCH_LP64) || (_IPP_ARCH == _IPP_ARCH_LRB) || (_IPP_ARCH == _IPP_ARCH_LRB2))
-#define LL(lo,hi) ((Ipp64u)(((Ipp32u)(lo)) | ((Ipp64u)((Ipp32u)(hi))) << 32))
+#define LL(lo,hi) (((Ipp64u)(lo)) | ((Ipp64u)(hi) << 32))
 #define L_(lo)    ((Ipp64u)(lo))
 #else
 #define LL(lo,hi) (lo),(hi)

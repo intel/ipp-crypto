@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 #include "pcpaesm.h"
 #include "pcpaes_encrypt_vaes512.h"
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4310) // zmmintrin.h bug: truncation of constant value
 #endif
@@ -73,12 +73,12 @@ __INLINE __m512i getInputBlocks(__m128i * const currentState, const __m512i * co
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void DecryptCFB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,       // pointer to the ciphertext
-                                   Ipp8u* pDst,             // pointer to the plaintext
-                                   int len,                 // message length
-                                   int cfbBlkSize,          // CFB block size in bytes (1 <= cfbBlkSize <= 16); s = 8*cfbBlkSize
-                                   const IppsAESSpec* pCtx, // pointer to context
-                                   const Ipp8u* pIV)        // pointer to the Initialization Vector
+IPP_OWN_DEFN (void, DecryptCFB_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,      // pointer to the ciphertext
+                                                   Ipp8u* pDst,             // pointer to the plaintext
+                                                   int len,                 // message length
+                                                   int cfbBlkSize,          // CFB block size in bytes (1 <= cfbBlkSize <= 16)); s = 8*cfbBlkSize
+                                                   const IppsAESSpec* pCtx, // pointer to context
+                                                   const Ipp8u* pIV))       // pointer to the Initialization Vector
 {
    const int cipherRounds = RIJ_NR(pCtx) - 1;
 
@@ -239,7 +239,7 @@ void DecryptCFB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,       // pointer to the ci
    }
 }
 
-#endif /* _IPP32E>=_IPP32E_K0                                   */
+#endif /* _IPP32E>=_IPP32E_K1                                   */
 #else
 typedef int to_avoid_translation_unit_is_empty_warning;
 #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */

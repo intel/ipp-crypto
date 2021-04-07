@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 /*
 // Multiplication in GF(p^2), if field polynomial: g(x) = x^2 + beta  => binominal
 */
-static BNU_CHUNK_T* cpGFpxMul_p2_binom(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_p2_binom, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx))
 {
    gsEngine* pGroundGFE = GFP_PARENT(pGFEx);
    int groundElemLen = GFP_FELEN(pGroundGFE);
@@ -96,7 +96,7 @@ static BNU_CHUNK_T* cpGFpxMul_p2_binom(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, c
 /*
 // Squaring in GF(p^2), if field polynomial: g(x) = x^2 + beta  => binominal
 */
-static BNU_CHUNK_T* cpGFpxSqr_p2_binom(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxSqr_p2_binom, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx))
 {
    gsEngine* pGroundGFE = GFP_PARENT(pGFEx);
    int groundElemLen = GFP_FELEN(pGroundGFE);
@@ -145,7 +145,7 @@ static BNU_CHUNK_T* cpGFpxSqr_p2_binom(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, g
 // return specific polynomi alarith methods
 // polynomial - deg 2 binomial
 */
-static gsModMethod* gsPolyArith_binom2(void)
+static gsModMethod* gsPolyArith_binom2 (void)
 {
    static gsModMethod m = {
       cpGFpxEncode_com,

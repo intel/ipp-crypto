@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2020 Intel Corporation
+* Copyright 2017-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 */
 #include "owncp.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 
 #include "pcpbnuimpl.h"
 #include "pcpngmontexpstuff.h"
@@ -62,37 +62,24 @@ __INLINE int numofVariableBuff_avx512(int len)
 
 /* exponentiation buffer size */
 #define gsMontExpBinBuffer_avx512 OWNAPI(gsMontExpBinBuffer_avx512)
+   IPP_OWN_DECL (cpSize, gsMontExpBinBuffer_avx512, (int modulusBits))
 #define gsMontExpWinBuffer_avx512 OWNAPI(gsMontExpWinBuffer_avx512)
-cpSize  gsMontExpBinBuffer_avx512(int modulusBits);
-cpSize  gsMontExpWinBuffer_avx512(int modulusBits);
+   IPP_OWN_DECL (cpSize, gsMontExpWinBuffer_avx512, (int modulusBits))
+#define gsMontDExpWinBuffer_avx512 OWNAPI(gsMontDExpWinBuffer_avx512)
+   IPP_OWN_DECL (cpSize, gsMontDExpWinBuffer_avx512, (int modulusBits))
 
 /* exponentiations */
 #define gsMontExpBin_BNU_avx512 OWNAPI(gsMontExpBin_BNU_avx512)
-cpSize  gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
-                          const BNU_CHUNK_T* dataX, cpSize nsX,
-                          const BNU_CHUNK_T* dataE, cpSize nsE,
-                                gsModEngine* pMont,
-                                BNU_CHUNK_T* pBuffer);
-
+   IPP_OWN_DECL (cpSize, gsMontExpBin_BNU_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 #define gsMontExpWin_BNU_avx512 OWNAPI(gsMontExpWin_BNU_avx512)
-cpSize  gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
-                          const BNU_CHUNK_T* dataX, cpSize nsX,
-                          const BNU_CHUNK_T* dataE, cpSize nsE,
-                                gsModEngine* pMont,
-                                BNU_CHUNK_T* pBuffer);
-
+   IPP_OWN_DECL (cpSize, gsMontExpWin_BNU_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 #define gsMontExpBin_BNU_sscm_avx512 OWNAPI(gsMontExpBin_BNU_sscm_avx512)
-cpSize  gsMontExpBin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
-                               const BNU_CHUNK_T* dataX, cpSize nsX,
-                               const BNU_CHUNK_T* dataE, cpSize nsE,
-                                     gsModEngine* pMont,
-                                     BNU_CHUNK_T* pBuffer);
-
+   IPP_OWN_DECL (cpSize, gsMontExpBin_BNU_sscm_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 #define gsMontExpWin_BNU_sscm_avx512 OWNAPI(gsMontExpWin_BNU_sscm_avx512)
-cpSize  gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
-                               const BNU_CHUNK_T* dataX, cpSize nsX,
-                               const BNU_CHUNK_T* dataE, cpSize nsE,
-                                     gsModEngine* pMont,
-                                     BNU_CHUNK_T* pBuffer);
+   IPP_OWN_DECL (cpSize, gsMontExpWin_BNU_sscm_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 
-#endif /* _IPP32E_K0 */
+/* dual exponentiation */
+#define gsMontDExp2x1024_Win_BNU_sscm_avx512 OWNAPI(gsMontDExp2x1024_Win_BNU_sscm_avx512)
+   IPP_OWN_DECL (cpSize, gsMontDExp2x1024_Win_BNU_sscm_avx512, (BNU_CHUNK_T* dataY[2], const BNU_CHUNK_T* dataX[2], cpSize nsX[2], const BNU_CHUNK_T* dataE[2], gsModEngine* pMont[2], BNU_CHUNK_T* pBuffer))
+
+#endif /* _IPP32E_K1 */

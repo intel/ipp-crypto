@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ __INLINE Ipp32u MagicFun(int s, Ipp32u b, Ipp32u c, Ipp32u d)
 //    uniParam pointer to the optional parameter
 //
 *F*/
-void UpdateSHA1(void* uinHash, const Ipp8u* mblk, int mlen, const void *uniParam)
+IPP_OWN_DEFN (void, UpdateSHA1, (void* uinHash, const Ipp8u* mblk, int mlen, const void *uniParam))
 {
    Ipp32u* data = (Ipp32u*)mblk;
 

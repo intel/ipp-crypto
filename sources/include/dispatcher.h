@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2009-2020 Intel Corporation
+* Copyright 2009-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ extern "C" {
 #define AVX2_MSK  ( AVX_MSK   | ippCPUID_AVX2    )
 #define AVX3X_MSK ( AVX2_MSK  | ippCPUID_AVX512F | ippCPUID_AVX512CD | ippCPUID_AVX512VL | ippCPUID_AVX512BW | ippCPUID_AVX512DQ )
 #define AVX3M_MSK ( AVX2_MSK  | ippCPUID_AVX512F | ippCPUID_AVX512CD | ippCPUID_AVX512PF | ippCPUID_AVX512ER )
+#define AVX3I_MSK ( AVX3X_MSK | ippCPUID_SHA | ippCPUID_AVX512VBMI | ippCPUID_AVX512VBMI2 | ippCPUID_AVX512IFMA | ippCPUID_AVX512GFNI | ippCPUID_AVX512VAES | ippCPUID_AVX512VCLMUL )
 
 #if defined( _ARCH_IA32 ) && !defined( OSX32 )
   enum lib_enum {
@@ -90,18 +91,18 @@ extern "C" {
   #define LIB_W7 LIB_S8
 #elif defined( _ARCH_EM64T ) && !defined( OSXEM64T ) && !defined( WIN32E ) /* Linux* OS Intel64 supports N0 */
   enum lib_enum {
-     LIB_M7=0, LIB_N8=1, LIB_Y8=2, LIB_E9=3, LIB_L9=4, LIB_N0=5, LIB_K0=6, LIB_NOMORE
+     LIB_M7=0, LIB_N8=1, LIB_Y8=2, LIB_E9=3, LIB_L9=4, LIB_N0=5, LIB_K0=6, LIB_K1=7,LIB_NOMORE
   };
   #define LIB_PX LIB_M7
 #elif defined( _ARCH_EM64T ) && !defined( OSXEM64T ) /* Windows* OS Intel64 doesn't support N0 */
   enum lib_enum {
-     LIB_M7=0, LIB_N8=1, LIB_Y8=2, LIB_E9=3, LIB_L9=4, LIB_K0=5, LIB_NOMORE
+     LIB_M7=0, LIB_N8=1, LIB_Y8=2, LIB_E9=3, LIB_L9=4, LIB_K0=5, LIB_K1=6, LIB_NOMORE
   };
   #define LIB_PX LIB_M7
   #define LIB_N0 LIB_L9
 #elif defined( OSXEM64T )
   enum lib_enum {
-     LIB_Y8=0, LIB_E9=1, LIB_L9=2, LIB_K0=3, LIB_NOMORE
+     LIB_Y8=0, LIB_E9=1, LIB_L9=2, LIB_K0=3, LIB_K1=4, LIB_NOMORE
   };
   #define LIB_PX LIB_Y8
   #define LIB_M7 LIB_Y8
@@ -130,7 +131,8 @@ extern "C" {
     #define LIB_AVX2  LIB_H9
     #define LIB_AVX3M LIB_H9 /* no ia32 library for Intel® Xeon Phi(TM) processor (formerly Knight Landing) */
     #define LIB_AVX3X LIB_H9 /* no ia32 library for Intel® Xeon® processor (formerly Skylake) */
-  #else
+    #define LIB_AVX3I LIB_H9 /* no ia32 library for Intel® Xeon® processor (formerly Icelake) */
+#else
     #define LIB_MMX   LIB_W7
     #define LIB_SSE   LIB_W7
     #define LIB_SSE2  LIB_W7
@@ -143,7 +145,8 @@ extern "C" {
     #define LIB_AVX2  LIB_H9
     #define LIB_AVX3M LIB_H9 /* no ia32 library for Intel® Xeon Phi(TM) processor (formerly Knight Landing) */
     #define LIB_AVX3X LIB_H9 /* no ia32 library for Intel® Xeon® processor (formerly Skylake) */
-  #endif
+    #define LIB_AVX3I LIB_H9 /* no ia32 library for Intel® Xeon® processor (formerly Icelake) */
+#endif
 #elif defined (_ARCH_EM64T)
   #if defined( OSXEM64T )    /* OSX supports starting PNR only */
     #define LIB_MMX   LIB_N8
@@ -158,7 +161,8 @@ extern "C" {
     #define LIB_AVX2  LIB_L9
     #define LIB_AVX3M LIB_L9
     #define LIB_AVX3X LIB_K0
-  #else
+    #define LIB_AVX3I LIB_K1
+#else
     #define LIB_MMX   LIB_M7
     #define LIB_SSE   LIB_M7
     #define LIB_SSE2  LIB_M7
@@ -171,7 +175,8 @@ extern "C" {
     #define LIB_AVX2  LIB_L9
     #define LIB_AVX3M LIB_N0
     #define LIB_AVX3X LIB_K0
-  #endif
+    #define LIB_AVX3I LIB_K1
+#endif
 #elif defined (_ARCH_LRB2)
     #define LIB_MIC   LIB_B2
 #endif
@@ -196,19 +201,20 @@ static const dll_enum dllUsage[][DLL_NOMORE+1] = {
 
 #elif defined (_ARCH_EM64T)
 /* Describe Intel CPUs and libraries */
-typedef enum{CPU_M7=0, CPU_N8, CPU_Y8, CPU_E9, CPU_L9, CPU_N0, CPU_K0, CPU_NOMORE} cpu_enum;
-typedef enum{DLL_M7=0, DLL_N8, DLL_Y8, DLL_E9, DLL_L9, DLL_N0, DLL_K0, DLL_NOMORE} dll_enum;
+typedef enum{CPU_M7=0, CPU_N8, CPU_Y8, CPU_E9, CPU_L9, CPU_N0, CPU_K0, CPU_K1, CPU_NOMORE} cpu_enum;
+typedef enum{DLL_M7=0, DLL_N8, DLL_Y8, DLL_E9, DLL_L9, DLL_N0, DLL_K0, DLL_K1, DLL_NOMORE} dll_enum;
 
 /* New cpu can use some libraries for old cpu */
 static const dll_enum dllUsage[][DLL_NOMORE+1] = {
-         /*  DLL_K0, DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE */
-/*CPU_M7*/ {                                                 DLL_M7, DLL_NOMORE },
-/*CPU_N8*/ {                                         DLL_N8, DLL_M7, DLL_NOMORE },
-/*CPU_Y8*/ {                                 DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
-/*CPU_E9*/ {                         DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
-/*CPU_L9*/ {                 DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
-/*CPU_N0*/ {         DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
-/*CPU_K0*/ { DLL_K0, DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE }
+         /*  DLL_K1, DLL_K0, DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE */
+/*CPU_M7*/ {                                                         DLL_M7, DLL_NOMORE },
+/*CPU_N8*/ {                                                 DLL_N8, DLL_M7, DLL_NOMORE },
+/*CPU_Y8*/ {                                         DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
+/*CPU_E9*/ {                                 DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
+/*CPU_L9*/ {                         DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
+/*CPU_N0*/ {                 DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
+/*CPU_K0*/ {         DLL_K0, DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE }
+/*CPU_K1*/ { DLL_K1, DLL_K0, DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE }
 };
 
 #endif
@@ -246,7 +252,8 @@ static const _TCHAR* dllNames[DLL_NOMORE] = {
     _T(IPP_LIB_PREFIX()) _T("y8") _T(".dll"),
     _T(IPP_LIB_PREFIX()) _T("e9") _T(".dll"),
     _T(IPP_LIB_PREFIX()) _T("l9") _T(".dll"), /* no support for N0 on win */
-    _T(IPP_LIB_PREFIX()) _T("k0") _T(".dll")
+    _T(IPP_LIB_PREFIX()) _T("k0") _T(".dll"),
+    _T(IPP_LIB_PREFIX()) _T("k1") _T(".dll")
 };
 #elif defined( OSXEM64T )
 static const _TCHAR* dllNames[DLL_NOMORE] = {
@@ -254,7 +261,8 @@ static const _TCHAR* dllNames[DLL_NOMORE] = {
     _T("lib") _T(IPP_LIB_PREFIX()) _T("y8") _T(".dylib"),
     _T("lib") _T(IPP_LIB_PREFIX()) _T("e9") _T(".dylib"),
     _T("lib") _T(IPP_LIB_PREFIX()) _T("l9") _T(".dylib"),
-    _T("lib") _T(IPP_LIB_PREFIX()) _T("k0") _T(".dylib")
+    _T("lib") _T(IPP_LIB_PREFIX()) _T("k0") _T(".dylib"),
+    _T("lib") _T(IPP_LIB_PREFIX()) _T("k1") _T(".dylib")
 };
 #elif defined( LINUX32E )
 static const _TCHAR* dllNames[DLL_NOMORE] = {
@@ -264,7 +272,8 @@ static const _TCHAR* dllNames[DLL_NOMORE] = {
     _T("lib") _T(IPP_LIB_PREFIX()) _T("e9.so"),
     _T("lib") _T(IPP_LIB_PREFIX()) _T("l9.so"),
     _T("lib") _T(IPP_LIB_PREFIX()) _T("n0.so"),
-    _T("lib") _T(IPP_LIB_PREFIX()) _T("k0.so")
+    _T("lib") _T(IPP_LIB_PREFIX()) _T("k0.so"),
+    _T("lib") _T(IPP_LIB_PREFIX()) _T("k1.so")
 };
 #endif
 

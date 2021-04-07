@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,17 +30,17 @@
 #include "pcpaesm.h"
 #include "pcpaes_decrypt_vaes512.h"
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4310) // zmmintrin.h bug: truncation of constant value
 #endif
 ////////////////////////////////////////////////////////////////////////////////
 
-void DecryptCBC_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,       // pointer to the ciphertext
-                                   Ipp8u* pDst,             // pointer to the plaintext
-                                   int len,                 // message length
-                                   const IppsAESSpec* pCtx, // pointer to context
-                                   const Ipp8u* pIV)        // pointer to the Initialization Vector
+IPP_OWN_DEFN (void, DecryptCBC_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,       // pointer to the ciphertext
+                                                   Ipp8u* pDst,             // pointer to the plaintext
+                                                   int len,                 // message length
+                                                   const IppsAESSpec* pCtx, // pointer to context
+                                                   const Ipp8u* pIV))        // pointer to the Initialization Vector
 {
    int cipherRounds = RIJ_NR(pCtx) - 1;
 
@@ -166,4 +166,4 @@ void DecryptCBC_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,       // pointer to the ci
    }
 }
 
-#endif /* _IPP32E>=_IPP32E_K0 */
+#endif /* _IPP32E>=_IPP32E_K1 */

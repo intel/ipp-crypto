@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2005-2020 Intel Corporation
+* Copyright 2005-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -69,7 +69,6 @@ IPPFUN(IppStatus, ippsDLPGet,(IppsBigNumState* pP,
 {
    /* test DL context */
    IPP_BAD_PTR1_RET(pDL);
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
    IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
 
    /* test flag */
@@ -77,9 +76,6 @@ IPPFUN(IppStatus, ippsDLPGet,(IppsBigNumState* pP,
 
    /* test DL parameters */
    IPP_BAD_PTR3_RET(pP, pR, pG);
-   pP = (IppsBigNumState*)( IPP_ALIGNED_PTR(pP, BN_ALIGNMENT) );
-   pR = (IppsBigNumState*)( IPP_ALIGNED_PTR(pR, BN_ALIGNMENT) );
-   pG = (IppsBigNumState*)( IPP_ALIGNED_PTR(pG, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pP), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pR), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pG), ippStsContextMatchErr);

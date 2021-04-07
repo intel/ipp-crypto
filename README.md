@@ -22,7 +22,7 @@ The library provides a comprehensive set of routines commonly used for cryptogra
    - RSA, RSA-OAEP, RSA-PKCS_v15, RSA-PSS 
    - DLP, DLP-DSA, DLP-DH
    - ECC (NIST curves), ECDSA, ECDH, EC-SM2
-- Multi-buffer RSA
+- Multi-buffer RSA, ECDSA, SM3, x25519
 - Finite Field Arithmetic Functions
 - Big Number Integer Arithmetic Functions
 - PRNG/TRNG and Prime Numbers Generation
@@ -38,7 +38,6 @@ The library provides a comprehensive set of routines commonly used for cryptogra
     - Intel® Advanced Vector Extensions 2 (Intel® AVX2)
     - Intel® Advanced Vector Extensions 512 (Intel® AVX-512)
 - Configurable CPU dispatching for the best performance
-- No runtime and 3rd-party dependencies
 - Kernel mode compatibility
 - Thread-safe design
 

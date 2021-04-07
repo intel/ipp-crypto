@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,15 +55,10 @@
 //    counter will updated on return
 //
 */
-#define cpProcessSMS4_ctr OWNAPI(cpProcessSMS4_ctr)
-IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
-                            const IppsSMS4Spec* pCtx,
-                            Ipp8u* pCtrValue, int ctrNumBitSize)
+IPP_OWN_DEFN (IppStatus, cpProcessSMS4_ctr, (const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const IppsSMS4Spec* pCtx, Ipp8u* pCtrValue, int ctrNumBitSize))
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned SMS4 context */
-   pCtx = (IppsSMS4Spec*)( IPP_ALIGNED_PTR(pCtx, SMS4_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_SMS4_ID(pCtx), ippStsContextMatchErr);
 
@@ -133,14 +128,14 @@ IppStatus cpProcessSMS4_ctr(const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
 
          int processedLen = 0;
 
-         #if (_IPP32E>=_IPP32E_K0)
+         #if (_IPP32E>=_IPP32E_K1)
          #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
          if (IsFeatureEnabled(ippCPUID_AVX512GFNI)) {
             processedLen = cpSMS4_CTR_gfni512(pDst, pSrc, dataLen, SMS4_RK(pCtx), maskIV, counter);
          }
          else
          #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
-         #endif /* (_IPP32E>=_IPP32E_K0) */
+         #endif /* (_IPP32E>=_IPP32E_K1) */
          if(IsFeatureEnabled(ippCPUID_AES)) {
             processedLen = cpSMS4_CTR_aesni(pDst, pSrc, dataLen, SMS4_RK(pCtx), maskIV, counter);
          }

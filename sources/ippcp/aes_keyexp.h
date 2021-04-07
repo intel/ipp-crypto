@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,17 +33,15 @@
 
 // These functions for key expansion are used only with AVX512 and AVX512-VAES optimizations for AES GCM
 // TODO: replase AVX2 keyexp with AVX512 keyexp
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 
 #define aes_keyexp_128_enc OWNAPI(aes_keyexp_128_enc)
-void aes_keyexp_128_enc(const Ipp8u* key, struct gcm_key_data *key_data);
-
+    IPP_OWN_DECL (void, aes_keyexp_128_enc, (const Ipp8u* key, struct gcm_key_data *key_data))
 #define aes_keyexp_192_enc OWNAPI(aes_keyexp_192_enc)
-void aes_keyexp_192_enc(const Ipp8u* key, struct gcm_key_data *key_data);
-
+    IPP_OWN_DECL (void, aes_keyexp_192_enc, (const Ipp8u* key, struct gcm_key_data *key_data))
 #define aes_keyexp_256_enc OWNAPI(aes_keyexp_256_enc)
-void aes_keyexp_256_enc(const Ipp8u* key, struct gcm_key_data *key_data);
+    IPP_OWN_DECL (void, aes_keyexp_256_enc, (const Ipp8u* key, struct gcm_key_data *key_data))
 
-#endif // (_IPP32E>=_IPP32E_K0)
+#endif // (_IPP32E>=_IPP32E_K1)
 
 #endif // __AES_KEYEXP_H_

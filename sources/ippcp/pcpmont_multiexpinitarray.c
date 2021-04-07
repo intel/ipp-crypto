@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,10 +45,7 @@
 //    - array of pointers to the BNU bases x[0], x[1],...,x[numItems-1]
 //    - pointer to the Montgomery engine
 */
-void cpMontMultiExpInitArray(BNU_CHUNK_T* pPrecomTbl,
-              const BNU_CHUNK_T** ppX, cpSize xItemBitSize,
-              cpSize numItems,
-              gsModEngine* pModEngine)
+IPP_OWN_DEFN (void, cpMontMultiExpInitArray, (BNU_CHUNK_T* pPrecomTbl, const BNU_CHUNK_T** ppX, cpSize xItemBitSize, cpSize numItems, gsModEngine* pModEngine))
 {
    cpSize sizeM = MOD_LEN(pModEngine);
 

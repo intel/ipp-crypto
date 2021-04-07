@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,8 +50,9 @@ IPPFUN(IppStatus, ippsHMACUnpack_rmf,(const Ipp8u* pBuffer, IppsHMACState_rmf* p
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
-   pCtx = (IppsHMACState_rmf*)(IPP_ALIGNED_PTR(pCtx, HASH_ALIGNMENT));
 
    CopyBlock(pBuffer, pCtx, sizeof(IppsHMACState_rmf));
+   HMAC_SET_CTX_ID(pCtx);
+
    return ippStsNoErr;
 }

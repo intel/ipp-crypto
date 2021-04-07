@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,8 +58,6 @@ IPPFUN(IppStatus, ippsSMS4DecryptCBC_CS1,(const Ipp8u* pSrc, Ipp8u* pDst, int le
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned SMS4 context */
-   pCtx = (IppsSMS4Spec*)( IPP_ALIGNED_PTR(pCtx, SMS4_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_SMS4_ID(pCtx), ippStsContextMatchErr);
 

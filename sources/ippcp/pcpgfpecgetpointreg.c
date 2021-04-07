@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -67,20 +67,17 @@ IPPFUN(IppStatus, ippsGFpECGetPointRegular,(const IppsGFpECPoint* pPoint,
    gsModEngine* pGFE;
 
    IPP_BAD_PTR2_RET(pPoint, pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET( !ECP_TEST_ID(pEC), ippStsContextMatchErr );
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pPoint), ippStsContextMatchErr );
+   IPP_BADARG_RET( !VALID_ECP_ID(pEC), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pPoint), ippStsContextMatchErr );
 
    pGF = ECP_GFP(pEC);
    pGFE = GFP_PMA(pGF);
 
    if(pX) {
-      pX = (IppsBigNumState*)( IPP_ALIGNED_PTR(pX, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pX), ippStsContextMatchErr );
       IPP_BADARG_RET(BN_ROOM(pX)*BNU_CHUNK_BITS<GFP_FEBITLEN(pGFE), ippStsOutOfRangeErr);
    }
    if(pY) {
-      pY = (IppsBigNumState*)( IPP_ALIGNED_PTR(pY, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pY), ippStsContextMatchErr );
       IPP_BADARG_RET(BN_ROOM(pY)*BNU_CHUNK_BITS<GFP_FEBITLEN(pGFE), ippStsOutOfRangeErr);
    }

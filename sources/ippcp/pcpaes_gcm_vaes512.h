@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #if !defined(_CP_AES_GCM_VAES512_H)
 #define _CP_AES_GCM_VAES512_H
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4310) // cast truncates constant value in MSVC
 #endif
@@ -138,7 +138,7 @@ __INLINE void AggregateKaratsubaPartialProducts(const __m512i * const pH,
    ReducePoly2x128(&H128, &L128, result);
 }
 
-#endif /* #if (_IPP32E>=_IPP32E_K0) */
+#endif /* #if (_IPP32E>=_IPP32E_K1) */
 
 #endif /* _CP_AES_GCM_VAES512_H*/
 

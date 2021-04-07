@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,12 +23,7 @@
 #if (_IPP32E>=_IPP32E_Y8)
 
 #define aes_cfb16_enc_aesni_mb4 OWNAPI(aes_cfb16_enc_aesni_mb4)
-void aes_cfb16_enc_aesni_mb4(const Ipp8u* const source_pa[4],
-                                   Ipp8u* const dst_pa[4],
-                                   const int len[4],
-                                   const int num_of_rounds,
-                                   const Ipp32u* enc_keys[4],
-                                   const Ipp8u* pIV[4]);
+    IPP_OWN_DECL (void, aes_cfb16_enc_aesni_mb4, (const Ipp8u* const source_pa[4], Ipp8u* const dst_pa[4], const int len[4], const int num_of_rounds, const Ipp32u* enc_keys[4], const Ipp8u* pIV[4]))
 
 #endif
 

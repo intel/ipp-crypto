@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2005-2020 Intel Corporation
+* Copyright 2005-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -86,7 +86,6 @@ IPPFUN(IppStatus, ippsDLPSignDSA,(const IppsBigNumState* pMsgDigest,
 {
    /* test DL context */
    IPP_BAD_PTR1_RET(pDL);
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
    IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
 
    /* test flag */
@@ -94,20 +93,16 @@ IPPFUN(IppStatus, ippsDLPSignDSA,(const IppsBigNumState* pMsgDigest,
 
    /* test message representative */
    IPP_BAD_PTR1_RET(pMsgDigest);
-   pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
 
    /* test regular private key */
    IPP_BAD_PTR1_RET(pPrvKey);
-   pPrvKey = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrvKey, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrvKey), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pPrvKey), ippStsIvalidPrivateKey);
 
    /* test signature */
    IPP_BAD_PTR2_RET(pSignR,pSignS);
-   pSignR = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignR, BN_ALIGNMENT) );
-   pSignS = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignS, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pSignR), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pSignS), ippStsContextMatchErr);
    IPP_BADARG_RET(BITSIZE(BNU_CHUNK_T)*BN_ROOM(pSignR)<DLP_BITSIZER(pDL), ippStsRangeErr);

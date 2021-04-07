@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,7 +49,9 @@ __INLINE __m128i Ltag(__m128i x)
 */
 
 #define cpSMS4_SetRoundKeys_aesni OWNAPI(cpSMS4_SetRoundKeys_aesni)
-void cpSMS4_SetRoundKeys_aesni(Ipp32u* pRoundKey, const Ipp8u* pSecretKey)
+   IPP_OWN_DECL (void, cpSMS4_SetRoundKeys_aesni, (Ipp32u* pRoundKey, const Ipp8u* pSecretKey))
+
+IPP_OWN_DEFN (void, cpSMS4_SetRoundKeys_aesni, (Ipp32u* pRoundKey, const Ipp8u* pSecretKey))
 {
    __ALIGN16 __m128i TMP[5];
    /*

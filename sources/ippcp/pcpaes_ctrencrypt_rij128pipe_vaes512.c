@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include "pcpaesm.h"
 #include "pcpaes_encrypt_vaes512.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4310) // cast truncates constant value in MSVC
 #endif
@@ -73,13 +73,13 @@ __INLINE __m512i applyNonce(__m512i a, __m512i ctrBitMask, __m512i templateCtr)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void EncryptCTR_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,
-                                  Ipp8u* pDst,
-                                  int nr,
-                                  const Ipp8u* pRKey,
-                                  int length,         /* message length in bytes   */
-                                  Ipp8u* pCtrValue,
-                                  const Ipp8u* pCtrBitMask)
+IPP_OWN_DEFN (void, EncryptCTR_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,
+                                                   Ipp8u* pDst,
+                                                   int nr,
+                                                   const Ipp8u* pRKey,
+                                                   int length,         /* message length in bytes   */
+                                                   Ipp8u* pCtrValue,
+                                                   const Ipp8u* pCtrBitMask))
 {
    int cipherRounds = nr - 1;
 
@@ -256,4 +256,4 @@ void EncryptCTR_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,
    _mm512_mask_compressstoreu_epi64(pCtrValue, lastCtrK8, ctr512);
 }
 
-#endif /* #if (_IPP32E>=_IPP32E_K0) */
+#endif /* #if (_IPP32E>=_IPP32E_K1) */

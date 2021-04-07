@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -42,19 +42,20 @@
 
 struct _cpAES_XTS
 {
-   IppCtxId  idCtx;
-   int       duBitsize;                   /* size of data unit (in bits) */
-   __ALIGN16 IppsAESSpec datumAES;        /* datum AES context */
-   __ALIGN16 IppsAESSpec tweakAES;        /* tweak AES context */
+   Ipp32u    idCtx;
+   int       duBitsize;         /* size of data unit (in bits) */
+   IppsAESSpec datumAES;        /* datum AES context */
+   IppsAESSpec tweakAES;        /* tweak AES context */
 };
 
+#define AES_XTS_SET_ID(ctx)     ((ctx)->idCtx = (Ipp32u)idCtxAESXTS ^ (Ipp32u)IPP_UINT_PTR(ctx))
 /* valid AES_XTS context ID */
-#define VALID_AES_XTS_ID(ctx)   ((ctx)->idCtx==idCtxAESXTS)
+#define VALID_AES_XTS_ID(ctx)   ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxAESXTS)
 
 /* size of AES-XTS context */
 __INLINE int cpSizeof_AES_XTS_Ctx(void)
 {
-   return sizeof(IppsAES_XTSSpec) +(AES_ALIGNMENT-1);
+   return sizeof(IppsAES_XTSSpec);
 }
 
 static int IsLegalGeometry(int startCipherBlkNo, int bitLen, int duBitsize)

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@
 #include "pcpaesm.h"
 #include "pcptool.h"
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 #include "pcpaesauthgcm_avx512.h"
 #else
 #include "pcpaesauthgcm.h"
-#endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K1) */
 
 /*F*
 //    Name: ippsAES_GCMReset
@@ -72,11 +72,11 @@ IPPFUN(IppStatus, ippsAES_GCMReset,(IppsAES_GCMState* pState))
    PadBlock(0, AESGCM_ECOUNTER0(pState), BLOCK_SIZE);
    PadBlock(0, AESGCM_GHASH(pState), BLOCK_SIZE);
 
-   #if(_IPP32E>=_IPP32E_K0)
+   #if(_IPP32E>=_IPP32E_K1)
 
    PadBlock(0, (void*)&AES_GCM_CONTEXT_DATA(pState), sizeof(struct gcm_context_data));
 
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+   #endif /* #if(_IPP32E>=_IPP32E_K1) */
 
    return ippStsNoErr;
 }

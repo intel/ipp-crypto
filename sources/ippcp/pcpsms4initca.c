@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -65,11 +65,8 @@ IPPFUN(IppStatus, ippsSMS4Init,(const Ipp8u* pKey, int keyLen,
    /* make sure in legal keyLen */
    IPP_BADARG_RET(keyLen<16, ippStsLengthErr);
 
-   /* use aligned SMS4 context */
-   pCtx = (IppsSMS4Spec*)( IPP_ALIGNED_PTR(pCtx, SMS4_ALIGNMENT) );
-
    /* setup context ID */
-   SMS4_ID(pCtx) = (IppCtxId)idCtxSMS4;
+   SMS4_SET_ID(pCtx);
    /* compute round keys */
    return ippsSMS4SetKey(pKey, keyLen, pCtx);
 }

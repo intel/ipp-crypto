@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,10 +49,16 @@ IPPFUN( const IppsHashMethod*, ippsHashMethod_SHA512_256, (void) )
       IPP_SHA256_DIGEST_BITSIZE/8,
       MBS_SHA512,
       MLR_SHA512,
-      sha512_256_hashInit,
-      sha512_hashUpdate,
-      sha512_256_hashOctString,
-      sha512_msgRep
+      0,
+      0,
+      0,
+      0
    };
+
+   method.hashInit   = sha512_256_hashInit;
+   method.hashUpdate = sha512_hashUpdate;
+   method.hashOctStr = sha512_256_hashOctString;
+   method.msgLenRep  = sha512_msgRep;
+
    return &method;
 }

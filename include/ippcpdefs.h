@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2012-2020 Intel Corporation
+* Copyright 2012-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -37,15 +37,16 @@ extern "C" {
 
 #if !defined( IPPAPI )
 
+  /* Specify explicit calling convention for public functions */
   #if defined( IPP_W32DLL ) && (defined( _WIN32 ) || defined( _WIN64 ))
     #if defined( _MSC_VER ) || defined( __ICL )
       #define IPPAPI( type,name,arg ) \
-                     __declspec(dllimport)   type IPP_STDCALL name arg;
+                     __declspec(dllimport)   type IPP_CALL name arg;
     #else
-      #define IPPAPI( type,name,arg )        type IPP_STDCALL name arg;
+      #define IPPAPI( type,name,arg )        type IPP_CALL name arg;
     #endif
   #else
-    #define   IPPAPI( type,name,arg )        type IPP_STDCALL name arg;
+    #define   IPPAPI( type,name,arg )        type IPP_CALL name arg;
   #endif
 
 #endif
@@ -102,16 +103,25 @@ extern "C" {
   #endif
 #endif
 
-#if defined( _WIN32 ) || defined ( _WIN64 )
-  #define IPP_STDCALL  __stdcall
+
+#if defined (_MSC_VER)
   #define IPP_CDECL    __cdecl
+#elif (defined (__INTEL_COMPILER) || defined (__GNUC__ ) || defined (__clang__)) && defined (_ARCH_IA32)
+  #define IPP_CDECL    __attribute((cdecl))
+#else
+  #define IPP_CDECL
+#endif
+
+#if defined( _WIN32 ) || defined( _WIN64 )
+  #define IPP_STDCALL  __stdcall
+  #define IPP_CALL     IPP_STDCALL
   #define IPP_INT64    __int64
   #define IPP_UINT64    unsigned __int64
 #else
   #define IPP_STDCALL
-  #define IPP_CDECL
+  #define IPP_CALL     IPP_CDECL
   #define IPP_INT64    long long
-  #define IPP_UINT64    unsigned long long
+  #define IPP_UINT64   unsigned long long
 #endif
 
 #define IPP_COUNT_OF( obj )  (sizeof(obj)/sizeof(obj[0]))
@@ -250,9 +260,9 @@ typedef enum {
    ipp64fc  = 20
 } IppDataType;
 
-typedef enum { 
-    ippFalse = 0, 
-    ippTrue = 1 
+typedef enum {
+    ippFalse = 0,
+    ippTrue = 1
 } IppBool;
 
 #ifdef __cplusplus
@@ -486,12 +496,6 @@ typedef struct _cpHashCtx  IppsHashState;
 typedef struct _cpHashMethod_rmf IppsHashMethod;
 typedef struct _cpHashCtx_rmf    IppsHashState_rmf;
 
-
-/* MGF */
-typedef IppStatus (IPP_STDCALL *IppMGF)(const Ipp8u* pSeed, int seedLen, Ipp8u* pMask, int maskLen);
-/* HASH function */
-typedef IppStatus (IPP_STDCALL *IppHASH)(const Ipp8u* pMsg, int len, Ipp8u* pMD);
-
 #define   IPP_SHA1_DIGEST_BITSIZE  160   /* digest size (bits) */
 #define IPP_SHA256_DIGEST_BITSIZE  256
 #define IPP_SHA224_DIGEST_BITSIZE  224
@@ -547,7 +551,7 @@ typedef struct _cpPRNG        IppsPRNGState;
 typedef struct _cpPrime       IppsPrimeState;
 
 /*  External Bit Supplier */
-typedef IppStatus (IPP_STDCALL *IppBitSupplier)(Ipp32u* pRand, int nBits, void* pEbsParams);
+typedef IppStatus (IPP_CALL *IppBitSupplier)(Ipp32u* pRand, int nBits, void* pEbsParams);
 
 #define IPP_IS_EQ (0)
 #define IPP_IS_GT (1)

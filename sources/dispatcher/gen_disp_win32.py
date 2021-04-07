@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2020 Intel Corporation
+# Copyright 2017-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,12 +76,12 @@ while (isFunctionFound == True):
 
       DISP.write("\n\ntypedef " + FunType + "(*IPP_PROC)(void);\n\n")
       DISP.write("extern int ippcpJumpIndexForMergedLibs;\n")
-      DISP.write("extern IppStatus IPP_STDCALL ippcpInit();\n\n")
+      DISP.write("extern IppStatus IPP_CALL ippcpInit();\n\n")
 
-      DISP.write("extern " + FunType + " IPP_STDCALL in_"+FunName+FunArg+";\n")
+      DISP.write("extern " + FunType + " IPP_CALL in_"+FunName+FunArg+";\n")
 
       for cpu in cpulist:
-         DISP.write("extern " + FunType + " IPP_STDCALL "+cpu+"_"+FunName+FunArg+";\n")
+         DISP.write("extern " + FunType + " IPP_CALL "+cpu+"_"+FunName+FunArg+";\n")
  
       DISP.write("static IPP_PROC arraddr[] =\n{{\n	(IPP_PROC)in_{}".format(FunName))
 

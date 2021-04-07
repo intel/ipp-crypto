@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,12 +34,12 @@
 #  include "pcprijtables.h"
 #endif
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 #include "pcpaesauthgcm_avx512.h"
 #include "aes_keyexp.h"
 #else
 #include "pcpaesauthgcm.h"
-#endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K1) */
 
 /*F*
 //    Name: ippsAES_GCMInit
@@ -73,10 +73,10 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    pState = (IppsAES_GCMState*)( IPP_ALIGNED_PTR(pState, AESGCM_ALIGNMENT) );
 
    /* set and clear GCM context */
-   AESGCM_ID(pState) = idCtxAESGCM;
+   AESGCM_SET_ID(pState);
    ippsAES_GCMReset(pState);
 
-   #if(_IPP32E>=_IPP32E_K0)
+   #if(_IPP32E>=_IPP32E_K1)
    
    /* make sure in legal keyLen */
    IPP_BADARG_RET(keyLen!=16 && keyLen!=24 && keyLen!=32, ippStsLengthErr);
@@ -173,7 +173,7 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    AESGCM_DEC(pState)  = wrpAesGcmDec_table2K;
 
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
-   #if(_IPP32E>=_IPP32E_K0)
+   #if(_IPP32E>=_IPP32E_K1)
    if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
       AESGCM_HASH(pState) = AesGcmMulGcm_vaes;
       AESGCM_AUTH(pState) = AesGcmAuth_vaes;
@@ -181,7 +181,7 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
       AESGCM_DEC(pState) = AesGcmDec_vaes;
    }
    else
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+   #endif /* #if(_IPP32E>=_IPP32E_K1) */
    if( IsFeatureEnabled(ippCPUID_AES|ippCPUID_CLMUL) ) {
       AESGCM_HASH(pState) = AesGcmMulGcm_avx;
       AESGCM_AUTH(pState) = AesGcmAuth_avx;
@@ -206,14 +206,14 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    }
 
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
-   #if(_IPP32E>=_IPP32E_K0)
+   #if(_IPP32E>=_IPP32E_K1)
    if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
       /* pre-compute hKey<<1, (hKey<<1)^2, (hKey<<1)^3, ... , (hKey<<1)^15 and corresponding
          Karatsuba constant multipliers for aggregated reduction */
       AesGcmPrecompute_vaes(AESGCM_CPWR(pState), AESGCM_HKEY(pState));   
    }
    else
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+   #endif /* #if(_IPP32E>=_IPP32E_K1) */
    if( IsFeatureEnabled(ippCPUID_AES|ippCPUID_CLMUL) ) {
       /* pre-compute reflect(hkey) and hKey<<1, (hKey<<1)^2 and (hKey<<1)^4 powers of hKey */
       AesGcmPrecompute_avx(AESGCM_CPWR(pState), AESGCM_HKEY(pState));
@@ -222,7 +222,7 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    #endif
       AesGcmPrecompute_table2K(AES_GCM_MTBL(pState), AESGCM_HKEY(pState));
 
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+   #endif /* #if(_IPP32E>=_IPP32E_K1) */
 
    return ippStsNoErr;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ __INLINE BNU_CHUNK_T* cpFq6Mul_vi(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngi
 //    - field polynomial: g(w) = w^2 - vi   => binominal with specific value of "vi"
 //    - vi = 0*v^2 + 1*v + 0 - i.e vi={0,1,0} belongs to GF((p^2)^3)
 */
-static BNU_CHUNK_T* cpGFpxMul_p2_binom_epid2(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_p2_binom_epid2, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx))
 {
    gsEngine* pGroundGFE = GFP_PARENT(pGFEx);
    mod_mul mulF = GFP_METHOD(pGroundGFE)->mul;
@@ -163,7 +163,7 @@ static BNU_CHUNK_T* cpGFpxMul_p2_binom_epid2(BNU_CHUNK_T* pR, const BNU_CHUNK_T*
 //    - field polynomial: g(w) = w^2 - vi   => binominal with specific value of "vi"
 //    - vi = 0*v^2 + 1*v + 0 - i.e vi={0,1,0} belongs to GF((p^2)^3)
 */
-static BNU_CHUNK_T* cpGFpxSqr_p2_binom_epid2(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxSqr_p2_binom_epid2, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx))
 {
    gsEngine* pGroundGFE = GFP_PARENT(pGFEx);
    mod_mul mulF = GFP_METHOD(pGroundGFE)->mul;
@@ -226,7 +226,7 @@ static BNU_CHUNK_T* cpGFpxSqr_p2_binom_epid2(BNU_CHUNK_T* pR, const BNU_CHUNK_T*
 // return specific polynomi alarith methods
 // polynomial - deg 2 binomial (Intel(R) EPID 2.0)
 */
-static gsModMethod* gsPolyArith_binom2_epid2(void)
+static gsModMethod* gsPolyArith_binom2_epid2 (void)
 {
    static gsModMethod m = {
       cpGFpxEncode_com,

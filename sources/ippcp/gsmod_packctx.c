@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2020 Intel Corporation
+* Copyright 2017-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@
 /*
 // Pack/Unpack methods
 */
-void gsPackModEngineCtx(const gsModEngine* pCtx, Ipp8u* pBuffer)
+IPP_OWN_DEFN (void, gsPackModEngineCtx, (const gsModEngine* pCtx, Ipp8u* pBuffer))
 {
-   gsModEngine* pAlignedBuffer = (gsModEngine*)pBuffer;
+   gsModEngine* pB = (gsModEngine*)pBuffer;
 
    /* max modulus length */
    int modSize = MOD_LEN(pCtx);
@@ -44,8 +44,8 @@ void gsPackModEngineCtx(const gsModEngine* pCtx, Ipp8u* pBuffer)
    int ctxSize = (Ipp32s)sizeof(gsModEngine)
                 +(Ipp32s)sizeof(BNU_CHUNK_T)*(modSize*3);
 
-   CopyBlock(pCtx, pAlignedBuffer, ctxSize);
-   MOD_MODULUS(pAlignedBuffer) = (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(MOD_MODULUS(pCtx))-IPP_UINT_PTR(pCtx));
-   MOD_MNT_R(pAlignedBuffer)   = (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(MOD_MNT_R(pCtx))-IPP_UINT_PTR(pCtx));
-   MOD_MNT_R2(pAlignedBuffer)  = (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(MOD_MNT_R2(pCtx))-IPP_UINT_PTR(pCtx));
+   CopyBlock(pCtx, pB, ctxSize);
+   MOD_MODULUS(pB) = (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(MOD_MODULUS(pCtx))-IPP_UINT_PTR(pCtx));
+   MOD_MNT_R(pB)   = (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(MOD_MNT_R(pCtx))-IPP_UINT_PTR(pCtx));
+   MOD_MNT_R2(pB)  = (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(MOD_MNT_R2(pCtx))-IPP_UINT_PTR(pCtx));
 }

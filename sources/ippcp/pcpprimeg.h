@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@
 // Prime context
 */
 struct _cpPrime {
-   IppCtxId          idCtx;      /* Prime context identifier */
+   Ipp32u            idCtx;      /* Prime context identifier */
    cpSize            maxBitSize; /* max bit length             */
    BNU_CHUNK_T*      pPrime;     /* prime value   */
    BNU_CHUNK_T*      pT1;        /* temporary BNU */
@@ -47,7 +47,7 @@ struct _cpPrime {
 #define PRIME_ALIGNMENT ((int)sizeof(void*))
 
 /* Prime accessory macros */
-#define PRIME_ID(ctx)         ((ctx)->idCtx)
+#define PRIME_SET_ID(ctx)     ((ctx)->idCtx = (Ipp32u)idCtxPrimeNumber ^ (Ipp32u)IPP_UINT_PTR(ctx))
 #define PRIME_MAXBITSIZE(ctx) ((ctx)->maxBitSize)
 #define PRIME_NUMBER(ctx)     ((ctx)->pPrime)
 #define PRIME_TEMP1(ctx)      ((ctx)->pT1)
@@ -55,7 +55,7 @@ struct _cpPrime {
 #define PRIME_TEMP3(ctx)      ((ctx)->pT3)
 #define PRIME_MONT(ctx)       ((ctx)->pMont)
 
-#define PRIME_VALID_ID(ctx)   (PRIME_ID((ctx))==idCtxPrimeNumber)
+#define PRIME_VALID_ID(ctx)   ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxPrimeNumber)
 
 /*
 // Number of Miller-Rabin rounds for an error rate of less than 1/2^80 for random 'b'-bit input, b >= 100.
@@ -76,18 +76,15 @@ struct _cpPrime {
 
 /* easy prime test */
 #define cpMimimalPrimeTest OWNAPI(cpMimimalPrimeTest)
-int cpMimimalPrimeTest(const Ipp32u* pPrime, cpSize ns);
+   IPP_OWN_DECL (int, cpMimimalPrimeTest, (const Ipp32u* pPrime, cpSize ns))
 
 /* prime test */
 #define cpPrimeTest OWNAPI(cpPrimeTest)
-int cpPrimeTest(const BNU_CHUNK_T* pPrime, cpSize primeLen,
-                cpSize nTrials,
-                IppsPrimeState* pCtx,
-                IppBitSupplier rndFunc, void* pRndParam);
+   IPP_OWN_DECL (int, cpPrimeTest, (const BNU_CHUNK_T* pPrime, cpSize primeLen, cpSize nTrials, IppsPrimeState* pCtx, IppBitSupplier rndFunc, void* pRndParam))
 
 #define cpPackPrimeCtx OWNAPI(cpPackPrimeCtx)
-void cpPackPrimeCtx(const IppsPrimeState* pCtx, Ipp8u* pBuffer);
+   IPP_OWN_DECL (void, cpPackPrimeCtx, (const IppsPrimeState* pCtx, Ipp8u* pBuffer))
 #define cpUnpackPrimeCtx OWNAPI(cpUnpackPrimeCtx)
-void cpUnpackPrimeCtx(const Ipp8u* pBuffer, IppsPrimeState* pCtx);
+   IPP_OWN_DECL (void, cpUnpackPrimeCtx, (const Ipp8u* pBuffer, IppsPrimeState* pCtx))
 
 #endif /* _CP_PRIME_H */

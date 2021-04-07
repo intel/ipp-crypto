@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,5 +52,6 @@ IPPFUN(IppStatus, ippsHashUnpack,(const Ipp8u* pBuffer, IppsHashState* pState))
    IPP_BAD_PTR2_RET(pState, pBuffer);
 
    CopyBlock(pBuffer, pState, sizeof(IppsHashState));
+   HASH_SET_ID(pState, idCtxHash);
    return ippStsNoErr;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
 #include "pcptool.h"
 #include "pcpsha256stuff.h"
 
-void cpFinalizeSHA256(DigestSHA256 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen)
+IPP_OWN_DEFN (void, cpFinalizeSHA256, (DigestSHA256 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen))
 {
    /* select processing  function */
    #if (_SHA_NI_ENABLING_==_FEATURE_ON_)

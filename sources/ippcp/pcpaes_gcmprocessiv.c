@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@
 #include "pcpaesm.h"
 #include "pcptool.h"
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 #include "pcpaesauthgcm_avx512.h"
 #else
 #include "pcpaesauthgcm.h"
-#endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K1) */
 
 /*F*
 //    Name: ippsAES_GCMProcessIV
@@ -74,7 +74,7 @@ IPPFUN(IppStatus, ippsAES_GCMProcessIV,(const Ipp8u* pIV, int ivLen, IppsAES_GCM
    /* switch IVprocessing on */
    AESGCM_STATE(pState) = GcmIVprocessing;
 
-   #if(_IPP32E>=_IPP32E_K0)
+   #if(_IPP32E>=_IPP32E_K1)
 
    IvUpdate_ ivHashUpdate = AES_GCM_IV_UPDATE(pState);
 
@@ -157,7 +157,7 @@ IPPFUN(IppStatus, ippsAES_GCMProcessIV,(const Ipp8u* pIV, int ivLen, IppsAES_GCM
       AESGCM_BUFLEN(pState) += ivLen;
    }
 
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+   #endif /* #if(_IPP32E>=_IPP32E_K1) */
 
    return ippStsNoErr;
 }

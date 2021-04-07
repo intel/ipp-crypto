@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ IPPFUN(IppStatus, ippsHashInit,(IppsHashState* pState, IppHashAlgId hashAlg))
    /* test hash alg */
 
    /* set ctx ID */
-   HASH_CTX_ID(pState) = idCtxHash;
+   HASH_SET_ID(pState, idCtxHash);
    HASH_ALG_ID(pState) = hashAlg;
 
    /* init context */

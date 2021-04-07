@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,8 +55,7 @@ IPPFUN(IppStatus, ippsMD5Final,(Ipp8u* pMD, IppsMD5State* pState))
 {
    /* test state pointer and ID */
    IPP_BAD_PTR1_RET(pState);
-   pState = (IppsMD5State*)( IPP_ALIGNED_PTR(pState, MD5_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxMD5 !=HASH_CTX_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxMD5), ippStsContextMatchErr);
 
    /* test digest pointer */
    IPP_BAD_PTR1_RET(pMD);

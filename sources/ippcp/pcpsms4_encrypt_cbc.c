@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,9 +44,7 @@
 //    pCtx        pointer to the SMS4 context
 //
 *F*/
-void cpEncryptSMS4_cbc(const Ipp8u* pIV,
-                       const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
-                       const IppsSMS4Spec* pCtx)
+IPP_OWN_DEFN (void, cpEncryptSMS4_cbc, (const Ipp8u* pIV, const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const IppsSMS4Spec* pCtx))
 {
    const Ipp32u* pRoundKeys = SMS4_RK(pCtx);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,10 +50,7 @@ IPPFUN(IppStatus, ippsPrimeSet_BN, (const IppsBigNumState* pPrime, IppsPrimeStat
 {
    IPP_BAD_PTR2_RET(pCtx, pPrime);
 
-   /* use aligned context */
-   pPrime  = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrime, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrime), ippStsContextMatchErr);
-   pCtx = (IppsPrimeState*)( IPP_ALIGNED_PTR(pCtx, PRIME_ALIGNMENT) );
    IPP_BADARG_RET(!PRIME_VALID_ID(pCtx), ippStsContextMatchErr);
 
    IPP_BADARG_RET(BITSIZE_BNU(BN_NUMBER(pPrime), BN_SIZE(pPrime)) > PRIME_MAXBITSIZE(pCtx), ippStsOutOfRangeErr);

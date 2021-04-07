@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,9 @@
 #include "gsscramble.h"
 
 static int div_upper(int a, int d)
-{ return (a+d-1)/d; }
+{
+   return (a+d-1)/d;
+}
 
 static int getNumOperations(int bitsize, int w)
 {
@@ -38,7 +40,7 @@ static int getNumOperations(int bitsize, int w)
    return n_ops;
 }
 
-int cpGFpGetOptimalWinSize(int bitsize)
+IPP_OWN_DEFN (int, cpGFpGetOptimalWinSize, (int bitsize))
 {
    int w_opt = 1;
    int n_opt = getNumOperations(bitsize, w_opt);

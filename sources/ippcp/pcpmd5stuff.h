@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ static __ALIGN16 const Ipp32u md5_cnt[] = {
    0xF7537E82, 0xBD3AF235, 0x2AD7D2BB, 0xEB86D391
 };
 
-static void md5_hashInit(void* pHash)
+IPP_OWN_DEFN (static void, md5_hashInit, (void* pHash))
 {
    /* setup initial digest */
    ((Ipp32u*)pHash)[0] = md5_iv[0];
@@ -72,12 +72,12 @@ static void md5_hashInit(void* pHash)
    ((Ipp32u*)pHash)[3] = md5_iv[3];
 }
 
-static void md5_hashUpdate(void* pHash, const Ipp8u* pMsg, int msgLen)
+IPP_OWN_DEFN (static void, md5_hashUpdate, (void* pHash, const Ipp8u* pMsg, int msgLen))
 {
    UpdateMD5(pHash, pMsg, msgLen, md5_cnt);
 }
 
-static void md5_hashOctString(Ipp8u* pMD, void* pHashVal)
+IPP_OWN_DEFN (static void, md5_hashOctString, (Ipp8u* pMD, void* pHashVal))
 {
    /* md5 does not need conversion into big endian */
    ((Ipp32u*)pMD)[0] = ((Ipp32u*)pHashVal)[0];
@@ -86,7 +86,7 @@ static void md5_hashOctString(Ipp8u* pMD, void* pHashVal)
    ((Ipp32u*)pMD)[3] = ((Ipp32u*)pHashVal)[3];
 }
 
-static void md5_msgRep(Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi)
+IPP_OWN_DEFN (static void, md5_msgRep, (Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi))
 {
    IPP_UNREFERENCED_PARAMETER(lenHi);
    lenLo <<= 3;
@@ -94,7 +94,6 @@ static void md5_msgRep(Ipp8u* pDst, Ipp64u lenLo, Ipp64u lenHi)
 }
 
 #define cpFinalizeMD5 OWNAPI(cpFinalizeMD5)
-
-void cpFinalizeMD5(DigestMD5 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen);
+   IPP_OWN_DECL (void, cpFinalizeMD5, (DigestMD5 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen))
 
 #endif /* #if !defined(_PCP_MD5_STUFF_H) */

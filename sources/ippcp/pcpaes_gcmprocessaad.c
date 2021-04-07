@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,11 +34,11 @@
 #  include "pcprijtables.h"
 #endif
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
 #include "pcpaesauthgcm_avx512.h"
 #else
 #include "pcpaesauthgcm.h"
-#endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K1) */
 
 /*F*
 //    Name: ippsAES_GCMProcessAAD
@@ -74,7 +74,7 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
 
    IPP_BADARG_RET(!(GcmIVprocessing==AESGCM_STATE(pState) || GcmAADprocessing==AESGCM_STATE(pState)), ippStsBadArgErr);
 
-   #if(_IPP32E<_IPP32E_K0)
+   #if(_IPP32E<_IPP32E_K1)
 
    /* get method */
    MulGcm_ hashFunc = AESGCM_HASH(pState);
@@ -84,7 +84,7 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
    if( GcmIVprocessing==AESGCM_STATE(pState) ) {
       IPP_BADARG_RET(0==AESGCM_IV_LEN(pState), ippStsBadArgErr);
 
-      #if(_IPP32E>=_IPP32E_K0)
+      #if(_IPP32E>=_IPP32E_K1)
 
       IvFinalaze_ ivHashFinalize = AES_GCM_IV_FINALIZE(pState);
 
@@ -131,7 +131,7 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
          #endif
       }
 
-      #endif /* #if(_IPP32E>=_IPP32E_K0) */
+      #endif /* #if(_IPP32E>=_IPP32E_K1) */
 
       /* switch mode and init counters */
       AESGCM_STATE(pState) = GcmAADprocessing;
@@ -143,7 +143,7 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
    // AAD processing
    */
 
-   #if(_IPP32E>=_IPP32E_K0)
+   #if(_IPP32E>=_IPP32E_K1)
    
    AadUpdate_ aadHashUpdate = AES_GCM_AAD_UPDATE(pState);
 
@@ -222,7 +222,7 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
       AESGCM_BUFLEN(pState) = aadLen;
    }
 
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+   #endif /* #if(_IPP32E>=_IPP32E_K1) */
 
    return ippStsNoErr;
 }

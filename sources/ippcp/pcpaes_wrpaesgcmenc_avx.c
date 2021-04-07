@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@
 
 
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8) 
-#if(_IPP32E<_IPP32E_K0)
+#if(_IPP32E<_IPP32E_K1)
 
 /* encrypts and authenticates n*BLOCK_SIZE bytes */
-void wrpAesGcmEnc_avx(Ipp8u* pDst, const Ipp8u* pSrc, int lenBlks, IppsAES_GCMState* pState)
+IPP_OWN_DEFN (void, wrpAesGcmEnc_avx, (Ipp8u* pDst, const Ipp8u* pSrc, int lenBlks, IppsAES_GCMState* pState))
 {
    IppsAESSpec* pAES = AESGCM_CIPHER(pState);
    RijnCipher encoder = RIJ_ENCODER(pAES);
@@ -53,6 +53,6 @@ void wrpAesGcmEnc_avx(Ipp8u* pDst, const Ipp8u* pSrc, int lenBlks, IppsAES_GCMSt
                  AESGCM_HKEY(pState));
 }
 
-#endif /* (_IPP32E<_IPP32E_K0) */
+#endif /* (_IPP32E<_IPP32E_K1) */
 #endif /* #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8) */
 

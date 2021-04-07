@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2020 Intel Corporation
+; Copyright 2020-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 %include "asmdefs.inc"
 %include "ia_32e.inc"
 
-%if (_IPP32E >= _IPP32E_K0)
+%if (_IPP32E >= _IPP32E_K1)
 
 %macro key_expansion_128_avx 0
 	;; Assumes the xmm3 includes all zeros at this point.

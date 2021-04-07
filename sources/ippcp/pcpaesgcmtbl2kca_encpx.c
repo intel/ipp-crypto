@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,12 +38,12 @@
 #  include "pcprijtables.h"
 #endif
 
-#if(_IPP32E<_IPP32E_K0)
+#if(_IPP32E<_IPP32E_K1)
 
 /*
 // encrypts and authenticates n*BLOCK_SIZE bytes
 */
-void wrpAesGcmEnc_table2K(Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pState)
+IPP_OWN_DEFN (void, wrpAesGcmEnc_table2K, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pState))
 {
    Ipp8u* pHashedData = pDst;
    int hashedDataLen = len;

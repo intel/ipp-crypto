@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
+/*
 //
 //   Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
-// 
+//
 */
 
 #if !defined( IPPCP_H__ ) || defined( _OWN_BLDPCS )
@@ -212,7 +212,7 @@ IPPAPI(IppStatus, ippsAESDecryptXTS_Direct,(const Ipp8u* pSrc, Ipp8u* pDst, int 
 /* AES multi-buffer functions */
 IPPAPI(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], int len[],
                                             const IppsAESSpec* pCtx[],
-                                            const Ipp8u* pIV[], 
+                                            const Ipp8u* pIV[],
                                             IppStatus status[],
                                             int numBuffers))
 
@@ -598,6 +598,28 @@ IPPAPI( const IppsHashMethod*, ippsHashMethod_SHA384, (void) )
 IPPAPI( const IppsHashMethod*, ippsHashMethod_SHA512_256, (void) )
 IPPAPI( const IppsHashMethod*, ippsHashMethod_SHA512_224, (void) )
 
+IPPAPI( IppStatus, ippsHashMethodGetSize, (int* pSize) )
+IPP_DEPRECATED(MD5_DEPRECATED) \
+IPPAPI( IppStatus, ippsHashMethodSet_MD5, (IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashMethodSet_SM3, (IppsHashMethod* pMethod) )
+
+IPPAPI( IppStatus, ippsHashMethodSet_SHA1, (IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashMethodSet_SHA1_NI, (IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashMethodSet_SHA1_TT, (IppsHashMethod* pMethod) )
+
+IPPAPI( IppStatus, ippsHashMethodSet_SHA256, (IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashMethodSet_SHA256_NI, (IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashMethodSet_SHA256_TT, (IppsHashMethod* pMethod) )
+
+IPPAPI( IppStatus, ippsHashMethodSet_SHA224, (IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashMethodSet_SHA224_NI, (IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashMethodSet_SHA224_TT, (IppsHashMethod* pMethod) )
+
+IPPAPI( IppStatus, ippsHashMethodSet_SHA512, (IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashMethodSet_SHA384, (IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashMethodSet_SHA512_256, (IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashMethodSet_SHA512_224, (IppsHashMethod* pMethod) )
+
 IPPAPI(IppStatus, ippsHashGetSize_rmf,(int* pSize))
 IPPAPI(IppStatus, ippsHashInit_rmf,(IppsHashState_rmf* pState, const IppsHashMethod* pMethod))
 
@@ -831,7 +853,7 @@ IPPAPI(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
 /* encryption scheme: RSAES-OAEP */
 IPP_DEPRECATED(OBSOLETE_API) \
 IPPAPI(IppStatus, ippsRSAEncrypt_OAEP,(const Ipp8u* pSrc, int srcLen,
-                                       const Ipp8u* pLabel, int labLen, 
+                                       const Ipp8u* pLabel, int labLen,
                                        const Ipp8u* pSeed,
                                              Ipp8u* pDst,
                                        const IppsRSAPublicKeyState* pKey,
@@ -847,7 +869,7 @@ IPPAPI(IppStatus, ippsRSADecrypt_OAEP,(const Ipp8u* pSrc,
                                              Ipp8u* pBuffer))
 
 IPPAPI(IppStatus, ippsRSAEncrypt_OAEP_rmf,(const Ipp8u* pSrc, int srcLen,
-                                       const Ipp8u* pLabel, int labLen, 
+                                       const Ipp8u* pLabel, int labLen,
                                        const Ipp8u* pSeed,
                                              Ipp8u* pDst,
                                        const IppsRSAPublicKeyState* pKey,
@@ -941,50 +963,6 @@ IPPAPI(IppStatus, ippsRSAVerify_PKCS1v15_rmf,(const Ipp8u* pMsg, int msgLen,
                                               const IppsRSAPublicKeyState* pKey,
                                               const IppsHashMethod* pMethod,
                                                     Ipp8u* pBuffer))
-/* RSA multi-buffer functions */
-
-IPPAPI(IppStatus, ippsRSA_MB_GetBufferSizePublicKey,(int* pBufferSize, const IppsRSAPublicKeyState* const pKeys[8]))
-
-IPPAPI(IppStatus, ippsRSA_MB_GetBufferSizePrivateKey,(int* pBufferSize, const IppsRSAPrivateKeyState* const pKeys[8]))
-
-IPPAPI(IppStatus, ippsRSA_MB_Encrypt,(const IppsBigNumState* const pPtxts[8],
-                                      IppsBigNumState* const pCtxts[8],
-                                      const IppsRSAPublicKeyState* const pKeys[8],
-                                      IppStatus statuses[8], Ipp8u* pBuffer))
-
-IPPAPI(IppStatus, ippsRSA_MB_Decrypt,(const IppsBigNumState* const pPtxts[8],
-                                      IppsBigNumState* const pCtxts[8],
-                                      const IppsRSAPrivateKeyState* const pKeys[8],
-                                      IppStatus statuses[8], Ipp8u* pBuffer))
-
-IPPAPI(IppStatus, ippsRSA_MB_Sign_PSS_rmf, (const Ipp8u* const pMsgs[8], const int msgLens[8],
-                                             const Ipp8u* const pSalts[8], const int saltLens[8],
-                                                   Ipp8u* const pSignts[8],
-                                             const IppsRSAPrivateKeyState* const pPrvKeys[8],
-                                             const IppsRSAPublicKeyState* const pPubKeys[8],
-                                             const IppsHashMethod* pMethod,
-                                                   IppStatus statuses[8], Ipp8u* pBuffer))
-
-IPPAPI(IppStatus, ippsRSA_MB_Verify_PSS_rmf, (const Ipp8u* const pMsgs[8], const int msgLens[8],
-                                             const Ipp8u* const pSignts[8],
-                                                   int pIsValid[8],
-                                             const IppsRSAPublicKeyState* const pPubKeys[8],
-                                             const IppsHashMethod* pMethod,
-                                             IppStatus statuses[8], Ipp8u* pBuffer))
-
-IPPAPI(IppStatus, ippsRSA_MB_Sign_PKCS1v15_rmf, (const Ipp8u* const pMsgs[8], const int msgLens[8],
-                                                      Ipp8u* const pSignts[8],
-                                                const IppsRSAPrivateKeyState* const pPrvKeys[8],
-                                                const IppsRSAPublicKeyState* const pPubKeys[8],
-                                                const IppsHashMethod* pMethod,
-                                                      IppStatus statuses[8], Ipp8u* pBuffer))
-
-IPPAPI(IppStatus, ippsRSA_MB_Verify_PKCS1v15_rmf, (const Ipp8u* const pMsgs[8], const int msgLens[8],
-                                                   const Ipp8u* const pSignts[8],
-                                                         int pIsValid[8],
-                                                   const IppsRSAPublicKeyState* const pPubKeys[8],
-                                                   const IppsHashMethod* pMethod,
-                                                   IppStatus statuses[8], Ipp8u* pBuffer))
 
 /*
 // =========================================================

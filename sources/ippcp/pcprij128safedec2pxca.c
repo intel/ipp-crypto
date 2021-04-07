@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2015-2020 Intel Corporation
+* Copyright 2015-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -121,11 +121,7 @@ __INLINE void invMixColumns(Ipp32u* state)
 }
 
 
-void Safe2Decrypt_RIJ128(const Ipp8u* in,
-                               Ipp8u* out,
-                               int Nr,
-                               const Ipp8u* RoundKey,
-                               const void* sbox)
+IPP_OWN_DEFN (void, Safe2Decrypt_RIJ128, (const Ipp8u* in, Ipp8u* out, int Nr, const Ipp8u* RoundKey, const void* sbox))
 {
    Ipp32u state[4];
 

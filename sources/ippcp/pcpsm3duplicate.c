@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,12 +55,11 @@ IPPFUN(IppStatus, ippsSM3Duplicate,(const IppsSM3State* pSrcState, IppsSM3State*
 {
    /* test state pointers */
    IPP_BAD_PTR2_RET(pSrcState, pDstState);
-   pSrcState = (IppsSM3State*)( IPP_ALIGNED_PTR(pSrcState, SM3_ALIGNMENT) );
-   pDstState = (IppsSM3State*)( IPP_ALIGNED_PTR(pDstState, SM3_ALIGNMENT) );
-   IPP_BADARG_RET(idCtxSM3 !=HASH_CTX_ID(pSrcState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pSrcState, idCtxSM3), ippStsContextMatchErr);
 
    /* copy state */
    CopyBlock(pSrcState, pDstState, sizeof(IppsSM3State));
+   HASH_SET_ID(pDstState, idCtxSM3);
 
    return ippStsNoErr;
 }

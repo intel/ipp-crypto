@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 #include <crypto_mb/defs.h>
 
-// define DLL_EXPORT
+/* define DLL_EXPORT */
 #if defined(__GNUC__) || defined(__CLANG__)
    #define DLL_PUBLIC __attribute__ ((visibility ("default")))
    #define DLL_LOCAL  __attribute__ ((visibility ("hidden")))
@@ -28,7 +28,7 @@
    #define DLL_LOCAL
 #endif
 
-// define SIMD_LEN if not set (Default is 512 bit AVX)
+/* define SIMD_LEN if not set (Default is 512 bit AVX) */
 #ifndef SIMD_LEN
   #define SIMD_LEN 512
 #endif
@@ -37,7 +37,7 @@
   #error "Incorrect SIMD length"
 #endif
 
-// internal function names
+/* internal function names */
 #if (SIMD_LEN == 512)
     #define FUNC_SUFFIX mb8
     #define MB_FUNC_NAME(name) name ## mb8
@@ -48,25 +48,25 @@
 
 #define SIMD_TYPE(LEN) typedef __m ## LEN ## i U64;
 
-// max internal data bitsize
+/* max internal data bitsize */
 #define IFMA_MAX_BITSIZE   (4096)
 
-// internal radix definition
+/* internal radix definition */
 #define DIGIT_SIZE (52)
 #define DIGIT_BASE ((int64u)1<<DIGIT_SIZE)
 #define DIGIT_MASK ((int64u)0xFFFFFFFFFFFFF)
 
-// num of digit in "digsize" retresentation of "bitsize" value
+/* num of digit in "digsize" retresentation of "bitsize" value */
 #define NUMBER_OF_DIGITS(bitsize, digsize)   (((bitsize) + (digsize)-1)/(digsize))
-// mask of most significant digit wrt "digsize" retresentation
+/* mask of most significant digit wrt "digsize" retresentation */
 #define MS_DIGIT_MASK(bitsize, digsize)      (((int64u)1 <<((bitsize) %digsize)) -1)
 
-// pointer alignment
+/* pointer alignment */
 #define IFMA_UINT_PTR( ptr ) ( (int64u)(ptr) )
 #define IFMA_BYTES_TO_ALIGN(ptr, align) ((~(IFMA_UINT_PTR(ptr)&((align)-1))+1)&((align)-1))
 #define IFMA_ALIGNED_PTR(ptr, align) (void*)( (unsigned char*)(ptr) + (IFMA_BYTES_TO_ALIGN( ptr, align )) )
 
-//
+/* repetitions */
 #define  REP2_DECL(a)   a, a
 #define  REP4_DECL(a)   REP2_DECL(a), REP2_DECL(a)
 #define  REP8_DECL(a)   REP4_DECL(a), REP4_DECL(a)

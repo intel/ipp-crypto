@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -64,9 +64,7 @@ IPPFUN(IppStatus, ippsAES_XTSInit,(const Ipp8u* pKey, int keyLen,
    /* test context pointer */
    IPP_BAD_PTR1_RET(pCtx);
    /* test context pointer */
-   IPP_BADARG_RET(IPP_BYTES_TO_ALIGN(pCtx, AES_ALIGNMENT)+(int)sizeof(IppsAES_XTSSpec) > ctxSize, ippStsMemAllocErr);
-   /* use aligned context */
-   pCtx = (IppsAES_XTSSpec*)(IPP_ALIGNED_PTR(pCtx, AES_ALIGNMENT));
+   IPP_BADARG_RET((int)sizeof(IppsAES_XTSSpec) > ctxSize, ippStsMemAllocErr);
 
    {
       IppsAESSpec* pdatAES = &pCtx->datumAES;
@@ -83,7 +81,7 @@ IPPFUN(IppStatus, ippsAES_XTSInit,(const Ipp8u* pKey, int keyLen,
       sts = ippsAESInit(ptwkKey, keySize, ptwkAES, sizeof(IppsAESSpec));
       if(ippStsNoErr!=sts) return sts;
 
-      pCtx->idCtx = idCtxAESXTS;
+      AES_XTS_SET_ID(pCtx);
       pCtx->duBitsize = duBitsize;
       return sts;
    }

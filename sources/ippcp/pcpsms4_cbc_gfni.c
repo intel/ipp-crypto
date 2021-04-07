@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 #include "pcpsms4.h"
 #include "pcptool.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 
 #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
 
@@ -59,7 +59,7 @@ int cpSMS4_CBC_dec_gfni128x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp3
 // 64*MBS_SMS4 bytes processing
 */
 
-int cpSMS4_CBC_dec_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV)
+IPP_OWN_DEFN (int, cpSMS4_CBC_dec_gfni512, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV))
 {
    __ALIGN16 __m512i TMP[21];
 
@@ -291,7 +291,7 @@ int cpSMS4_CBC_dec_gfni512(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u
    
    /* clear secret data */
    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-      TMP[i] = _mm512_xor_si512(TMP[i], TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i], TMP[i]);
    }
 
    len -= processedLen;
@@ -497,7 +497,7 @@ int cpSMS4_CBC_dec_gfni512x48(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp
    
    /* clear secret data */
    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-      TMP[i] = _mm512_xor_si512(TMP[i], TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i], TMP[i]);
    }
 
    len -= processedLen;
@@ -652,7 +652,7 @@ int cpSMS4_CBC_dec_gfni512x32(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp
    
    /* clear secret data */
    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-      TMP[i] = _mm512_xor_si512(TMP[i], TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i], TMP[i]);
    }
 
    len -= processedLen;
@@ -759,7 +759,7 @@ int cpSMS4_CBC_dec_gfni512x16(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp
 
    /* clear secret data */
    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-      TMP[i] = _mm512_xor_si512(TMP[i], TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i], TMP[i]);
    }
    
    len -= processedLen;
@@ -1263,4 +1263,4 @@ int cpSMS4_CBC_dec_gfni128x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp3
 
 #endif /* if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
 
-#endif /* _IPP32E>=_IPP32E_K0 */
+#endif /* _IPP32E>=_IPP32E_K1 */

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,10 +39,7 @@
       1 random bit string generated
      -1 detected internal error (ippStsNoErr != rndFunc())
 */
-int cpPRNGenRange(BNU_CHUNK_T* pRand,
-            const BNU_CHUNK_T* pLo, cpSize loLen,
-            const BNU_CHUNK_T* pHi, cpSize hiLen,
-                  IppBitSupplier rndFunc, void* pRndParam)
+IPP_OWN_DEFN (int, cpPRNGenRange, (BNU_CHUNK_T* pRand, const BNU_CHUNK_T* pLo, cpSize loLen, const BNU_CHUNK_T* pHi, cpSize hiLen, IppBitSupplier rndFunc, void* pRndParam))
 {
    int bitSize = BITSIZE_BNU(pHi,hiLen);
    BNU_CHUNK_T topMask = MASK_BNU_CHUNK(bitSize);
