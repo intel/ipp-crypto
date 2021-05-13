@@ -23,22 +23,24 @@
 ## Software Requirements
 ### Common tools
 - [CMake\*](https://cmake.org/download) 3.15 or higher
-- Python 2.7.15
+- Python 3.8.1
 - The Netwide Assembler (NASM) 2.15
+- OpenSSL\* 1.1.0 or higher
 
 ### Linux* OS
 - [Common tools](#common-tools)
-- Intel® C++ Compiler 19.0 Update 4 for Linux\* OS
+- Intel® C++ Compiler 19.1 for Linux\* OS
 - GCC 8.3
 - GCC 9.1
 - GNU binutils 2.32
 ### Windows* OS
 - [Common tools](#common-tools)
-- Intel® C++ Compiler 19.0 Update 4 for Windows\* OS
+- Intel® C++ Compiler 19.1 for Windows\* OS
 - Microsoft Visual C++ Compiler\* version 19.16 provided by Microsoft Visual Studio\* 2017 version 15.9
+- Microsoft Visual C++ Compiler\* version 19.24 provided by Microsoft Visual Studio\* 2019 version 16.4
 ### macOS*
 - [Common tools](#common-tools)
-- Intel® C++ Compiler 19.0 Update 4 for macOS\* 
+- Intel® C++ Compiler 19.1 for macOS\* 
 ## Building Intel IPP Cryptography on Linux\* OS
 
 The software was validated on:
@@ -114,7 +116,7 @@ To build the Intel IPP Cryptography library on Windows* OS, complete the followi
     For Intel® C++ Compiler and Visual Studio\* 2019:
 
     ``` bash
-    cmake CMakeLists.txt -B_build -G"Visual Studio 16 2019" -T"Intel C++ Compiler 19.0" -Ax64
+    cmake CMakeLists.txt -B_build -G"Visual Studio 16 2019" -T"Intel C++ Compiler 19.1" -Ax64
     ```
 
     For MSVC\* Compiler and Visual Studio\* 2019:
@@ -215,7 +217,7 @@ To build the Intel IPP Cryptography library on macOS*, complete the following st
 - `-A<x64|Win32>` - for Visual Studio\* 2019+, defines the target architecture for the build of the Intel IPP Cryptography library.
 
 - `-T<Compiler>` - defines the compiler for building.
-  For example, to use Intel® Compiler, specify `-T"Intel C++ Compiler 19.0"`.
+  For example, to use Intel® Compiler, specify `-T"Intel C++ Compiler 19.1"`.
 
 > **NOTE:** Refer to CMake [documentation](https://cmake.org/cmake/help/latest/manual/ccmake.1.html) for more information on these options.
 
@@ -244,6 +246,9 @@ To build the Intel IPP Cryptography library on macOS*, complete the following st
 ### How to build a library to work in a kernel space?
 
 `cmake CMakeLists.txt -B_build -DARCH=intel64 -DNONPIC_LIB:BOOL=on`
+
+### How to specify path to OpenSSL\*
+`cmake CMakeLists.txt -B_build -DARCH=intel64 -DOPENSSL_INCLUDE_DIR=/path/to/openssl/include -DOPENSSL_LIBRARIES=/path/to/openssl/lib -DOPENSSL_ROOT_DIR=/path/to/openssl`
 
 ## Incorporating Intel® IPP Cryptography sources into custom build system
 
