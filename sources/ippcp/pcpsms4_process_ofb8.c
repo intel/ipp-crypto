@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,9 +41,7 @@
 //    pCtx        pointer to the AES context
 //    pIV         pointer to the initialization vector
 */
-void cpProcessSMS4_ofb8(const Ipp8u *pSrc, Ipp8u *pDst, int dataLen, int ofbBlkSize,
-                        const IppsSMS4Spec* pCtx,
-                        Ipp8u* pIV)
+IPP_OWN_DEFN (void, cpProcessSMS4_ofb8, (const Ipp8u *pSrc, Ipp8u *pDst, int dataLen, int ofbBlkSize, const IppsSMS4Spec* pCtx, Ipp8u* pIV))
 {
    __ALIGN16 Ipp32u tmpInpOut[2*MBS_SMS4/sizeof(Ipp32u)];
 

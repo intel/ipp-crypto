@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -82,9 +82,7 @@ IPPFUN(IppStatus, ippsRSADecrypt_OAEP,(const Ipp8u* pSrc,
 
    IPP_BADARG_RET(!pLab && labLen, ippStsNullPtrErr);
 
-   /* use aligned key context */
    IPP_BAD_PTR2_RET(pKey, pScratchBuffer);
-   pKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PRIVATE_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PRV_KEY_VALID_ID(pKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
 

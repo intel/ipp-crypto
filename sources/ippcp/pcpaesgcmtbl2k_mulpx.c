@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ __INLINE Ipp16u getAesGcmConst_table_ct(int idx)
    BNU_CHUNK_T idx_sel = (BNU_CHUNK_T)(idx / TBL_SLOTS_REP_READ);  /* selection index */
    BNU_CHUNK_T i;
    BNU_CHUNK_T selection = 0;
-   for (i = 0; i<sizeof(AesGcmConst_table) / sizeof(BNU_CHUNK_T); i++) {
+   for (i = 0; i<sizeof(AesGcmConst_table) / (sizeof(BNU_CHUNK_T)); i++) {
       BNU_CHUNK_T mask = cpIsEqu_ct(i, idx_sel);
       selection |= TblEntry[i] & mask;
    }
@@ -152,7 +152,7 @@ __INLINE void MaskedXorBlock16(const Ipp8u* pSrc1, const Ipp8u* pSrc2, Ipp8u* pD
 }
 #endif
 
-void AesGcmMulGcm_table2K_ct(Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const void* pParam)
+IPP_OWN_DEFN (void, AesGcmMulGcm_table2K_ct, (Ipp8u* pGhash, const Ipp8u* pPrecomputeData, const void* pParam))
 {
    __ALIGN16 Ipp8u t5[BLOCK_SIZE];
    __ALIGN16 Ipp8u t4[BLOCK_SIZE];
@@ -273,7 +273,7 @@ __INLINE Ipp16u getAesGcmConst_table_ct(int idx)
    return (Ipp16u)i;
 }
 
-void AesGcmMulGcm_table2K_ct(Ipp8u* pHash, const Ipp8u* pPrecomputedData, const void* pParam)
+IPP_OWN_DEFN (void, AesGcmMulGcm_table2K_ct, (Ipp8u* pHash, const Ipp8u* pPrecomputedData, const void* pParam))
 {
    __m128i t5 = _mm_setzero_si128();
    __m128i t4 = _mm_setzero_si128();

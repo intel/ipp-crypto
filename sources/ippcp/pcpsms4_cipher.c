@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -53,9 +53,9 @@ static void cpSMS4_ECB_gpr_x1(Ipp8u* otxt, const Ipp8u* itxt, const Ipp32u* pRou
    PurgeBlock(buff, sizeof(buff));
 }
 
-void cpSMS4_Cipher(Ipp8u* otxt, const Ipp8u* itxt, const Ipp32u* pRoundKeys)
+IPP_OWN_DEFN (void, cpSMS4_Cipher, (Ipp8u* otxt, const Ipp8u* itxt, const Ipp32u* pRoundKeys))
 {
-   #if (_IPP32E>=_IPP32E_K0)
+   #if (_IPP32E>=_IPP32E_K1)
    #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
    if (IsFeatureEnabled(ippCPUID_AVX512GFNI)){
       cpSMS4_ECB_gfni_x1(otxt, itxt, pRoundKeys);

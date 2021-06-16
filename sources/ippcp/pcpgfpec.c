@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include "pcpeccp.h"
 
 
-int cpGFpECGetSize(int basicDeg, int basicElmBitSize)
+IPP_OWN_DEFN (int, cpGFpECGetSize, (int basicDeg, int basicElmBitSize))
 {
    int ctxSize = 0;
    int elemLen = basicDeg*BITS_BNU_CHUNK(basicElmBitSize);

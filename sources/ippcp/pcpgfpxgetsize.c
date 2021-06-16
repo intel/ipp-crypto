@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ static int cpGFExGetSize(int elemLen, int pelmLen, int numpe)
 //
 // Returns:                   Reason:
 //     ippStsNullPtrErr        pSize == NULL.
-//     ippStsContextMatchErr   !GFP_TEST_ID(pGroundGF)
+//     ippStsContextMatchErr   !GFP_VALID_ID(pGroundGF)
 //     ippStsBadArgErr         degree is greater than or equal to 9 or is less than 2.
 //     ippStsNoErr             no error
 //
@@ -67,19 +67,17 @@ IPPFUN(IppStatus, ippsGFpxGetSize, (const IppsGFpState* pGroundGF, int degree, i
 {
    IPP_BAD_PTR2_RET(pGroundGF, pSize);
    IPP_BADARG_RET( degree<IPP_MIN_GF_EXTDEG || degree >IPP_MAX_GF_EXTDEG, ippStsBadArgErr);
-   pGroundGF = (IppsGFpState*)( IPP_ALIGNED_PTR(pGroundGF, GFP_ALIGNMENT) );
-   IPP_BADARG_RET( !GFP_TEST_ID(pGroundGF), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFP_VALID_ID(pGroundGF), ippStsContextMatchErr );
 
    #define MAX_GFx_SIZE     (1<<15)  /* max size (bytes) of GF element (32KB) */
    {
       int groundElmLen = GFP_FELEN(GFP_PMA(pGroundGF));
-      Ipp64u elmLen64 = (Ipp64u)((groundElmLen) *(Ipp32s)sizeof(BNU_CHUNK_T) *degree);
+      Ipp64u elmLen64 = (Ipp64u)groundElmLen * (Ipp64u)sizeof(BNU_CHUNK_T) * (Ipp64u)degree;
       int elemLen = (int)IPP_LODWORD(elmLen64);
       *pSize = 0;
       IPP_BADARG_RET(elmLen64> MAX_GFx_SIZE, ippStsBadArgErr);
 
-      *pSize = cpGFExGetSize(elemLen, elemLen, GFPX_POOL_SIZE)
-             + GFP_ALIGNMENT;
+      *pSize = cpGFExGetSize(elemLen, elemLen, GFPX_POOL_SIZE);
       return ippStsNoErr;
    }
    #undef MAX_GFx_SIZE

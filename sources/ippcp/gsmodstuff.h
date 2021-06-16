@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2020 Intel Corporation
+* Copyright 2017-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -73,14 +73,12 @@ typedef struct _gsModEngine
 /*
 // size of context and it initialization
 */
-#define   gsModEngineGetSize OWNAPI(gsModEngineGetSize)
-IppStatus gsModEngineGetSize(int modulusBitSIze, int numpe, int* pSize);
-
-#define   gsModEngineInit OWNAPI(gsModEngineInit)
-IppStatus gsModEngineInit(gsModEngine* pME, const Ipp32u* pModulus, int modulusBitSize, int numpe, const gsModMethod* method);
-
-#define     gsMontFactor OWNAPI(gsMontFactor)
-BNU_CHUNK_T gsMontFactor(BNU_CHUNK_T m0);
+#define gsModEngineInit OWNAPI(gsModEngineInit)
+   IPP_OWN_DECL (IppStatus, gsModEngineInit, (gsModEngine* pME, const Ipp32u* pModulus, int modulusBitSize, int numpe, const gsModMethod* method))
+#define gsModEngineGetSize OWNAPI(gsModEngineGetSize)
+   IPP_OWN_DECL (IppStatus, gsModEngineGetSize, (int modulusBitSIze, int numpe, int* pSize))
+#define gsMontFactor OWNAPI(gsMontFactor)
+   IPP_OWN_DECL (BNU_CHUNK_T, gsMontFactor, (BNU_CHUNK_T m0))
 
 
 /*
@@ -134,33 +132,28 @@ __INLINE void gsModPoolFree(gsModEngine* pME, int poolReq)
 }
 
 /* return pointer to the top pool buffer */
-#define      gsModGetPool OWNAPI(gsModGetPool)
-BNU_CHUNK_T* gsModGetPool(gsModEngine* pME);
-
+#define gsModGetPool OWNAPI(gsModGetPool)
+   IPP_OWN_DECL (BNU_CHUNK_T*, gsModGetPool, (gsModEngine* pME))
 /*
 // advanced operations
 */
-typedef int (*alm_inv)(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA);
+IPP_OWN_FUNPTR (int, alm_inv, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA))
 
 #define alm_mont_inv OWNAPI(alm_mont_inv)
-int     alm_mont_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA);
-
+   IPP_OWN_DECL (int, alm_mont_inv, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA))
 #define alm_mont_inv_ct OWNAPI(alm_mont_inv_ct)
-int     alm_mont_inv_ct(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA);
-
-#define      gs_mont_inv OWNAPI(gs_mont_inv)
-BNU_CHUNK_T* gs_mont_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA, alm_inv invf);
-
-#define      gs_inv OWNAPI(gs_inv)
-BNU_CHUNK_T* gs_inv(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA, alm_inv invf);
+   IPP_OWN_DECL (int, alm_mont_inv_ct, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA))
+#define gs_mont_inv OWNAPI(gs_mont_inv)
+   IPP_OWN_DECL (BNU_CHUNK_T*, gs_mont_inv, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA, alm_inv invf))
+#define gs_inv OWNAPI(gs_inv)
+   IPP_OWN_DECL (BNU_CHUNK_T*, gs_inv, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pMA, alm_inv invf))
 
 /*
 // Pack/Unpack methods
 */
 #define gsPackModEngineCtx OWNAPI(gsPackModEngineCtx)
-void    gsPackModEngineCtx(const gsModEngine* pCtx, Ipp8u* pBuffer);
-
+   IPP_OWN_DECL (void, gsPackModEngineCtx, (const gsModEngine* pCtx, Ipp8u* pBuffer))
 #define gsUnpackModEngineCtx OWNAPI(gsUnpackModEngineCtx)
-void    gsUnpackModEngineCtx(const Ipp8u* pBuffer, gsModEngine* pCtx);
+   IPP_OWN_DECL (void, gsUnpackModEngineCtx, (const Ipp8u* pBuffer, gsModEngine* pCtx))
 
 #endif /* _GS_MOD_STUFF_H */

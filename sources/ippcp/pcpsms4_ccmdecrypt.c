@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2020 Intel Corporation
+* Copyright 2017-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ IPPFUN(IppStatus, ippsSMS4_CCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, 
    IPP_BAD_PTR1_RET(pCtx);
 
    /* test state ID */
-   IPP_BADARG_RET(idCtxAESCCM !=SMS4CCM_ID(pCtx), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_SMS4CCM_ID(pCtx), ippStsContextMatchErr);
 
    /* test source/destination data */
    IPP_BAD_PTR2_RET(pSrc, pDst);
@@ -80,7 +80,7 @@ IPPFUN(IppStatus, ippsSMS4_CCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, 
    */
    if(len) {
       /* SMS4 context */
-      IppsSMS4Spec* pSMS4 = SMS4CCM_CIPHER_ALIGNED(pCtx);
+      IppsSMS4Spec* pSMS4 = SMS4CCM_CIPHER(pCtx);
 
       /* buffer for secret data */
       __ALIGN16 Ipp32u TMP[3*(MBS_SMS4/sizeof(Ipp32u))+6];

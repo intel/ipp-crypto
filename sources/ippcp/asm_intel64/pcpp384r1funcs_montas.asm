@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2014-2020 Intel Corporation
+; Copyright 2014-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -712,110 +712,6 @@ IPPASM p384r1_mred,PUBLIC
    ret
 ENDFUNC p384r1_mred
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; projective point selector
-;
-; void p384r1_select_pp_w5(P384_POINT* val, const P384_POINT* tbl, int idx);
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-align IPP_ALIGN_FACTOR
-IPPASM p384r1_select_pp_w5,PUBLIC
-%assign LOCAL_FRAME 0
-        USES_GPR rsi,rdi,r12,r13
-        USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12
-        COMP_ABI 3
-
-%xdefine val    rdi
-%xdefine tbl    rsi
-%xdefine idx    edx
-
-%xdefine Xa    xmm0
-%xdefine Xb    xmm1
-%xdefine Xc    xmm2
-%xdefine Ya    xmm3
-%xdefine Yb    xmm4
-%xdefine Yc    xmm5
-%xdefine Za    xmm6
-%xdefine Zb    xmm7
-%xdefine Zc    xmm8
-
-%xdefine REQ_IDX  xmm9
-%xdefine CUR_IDX  xmm10
-%xdefine MASKDATA xmm11
-%xdefine TMP      xmm12
-
-   movdqa   CUR_IDX, oword [rel LOne]
-
-   movd     REQ_IDX, idx
-   pshufd   REQ_IDX, REQ_IDX, 0
-
-   pxor     Xa, Xa
-   pxor     Xb, Xb
-   pxor     Xc, Xc
-   pxor     Ya, Ya
-   pxor     Yb, Yb
-   pxor     Yc, Yc
-   pxor     Za, Za
-   pxor     Zb, Zb
-   pxor     Zc, Zc
-
-   ; Skip index = 0, is implicictly infty -> load with offset -1
-   mov      rcx, dword 16
-.select_loop:
-      movdqa   MASKDATA, CUR_IDX  ; MASK = CUR_IDX==REQ_IDX? 0xFF : 0x00
-      pcmpeqd  MASKDATA, REQ_IDX  ;
-      paddd    CUR_IDX, oword [rel LOne]
-
-      movdqa   TMP, MASKDATA
-      pand     TMP, oword [tbl+sizeof(oword)*0]
-      por      Xa, TMP
-      movdqa   TMP, MASKDATA
-      pand     TMP, oword [tbl+sizeof(oword)*1]
-      por      Xb, TMP
-      movdqa   TMP, MASKDATA
-      pand     TMP, oword [tbl+sizeof(oword)*2]
-      por      Xc, TMP
-
-      movdqa   TMP, MASKDATA
-      pand     TMP, oword [tbl+sizeof(oword)*3]
-      por      Ya, TMP
-      movdqa   TMP, MASKDATA
-      pand     TMP, oword [tbl+sizeof(oword)*4]
-      por      Yb, TMP
-      movdqa   TMP, MASKDATA
-      pand     TMP, oword [tbl+sizeof(oword)*5]
-      por      Yc, TMP
-
-      movdqa   TMP, MASKDATA
-      pand     TMP, oword [tbl+sizeof(oword)*6]
-      por      Za, TMP
-      movdqa   TMP, MASKDATA
-      pand     TMP, oword [tbl+sizeof(oword)*7]
-      por      Zb, TMP
-      movdqa   TMP, MASKDATA
-      pand     TMP, oword [tbl+sizeof(oword)*8]
-      por      Zc, TMP
-
-      add      tbl, sizeof(oword)*9
-      dec      rcx
-      jnz      .select_loop
-
-   movdqu   oword [val+sizeof(oword)*0], Xa
-   movdqu   oword [val+sizeof(oword)*1], Xb
-   movdqu   oword [val+sizeof(oword)*2], Xc
-   movdqu   oword [val+sizeof(oword)*3], Ya
-   movdqu   oword [val+sizeof(oword)*4], Yb
-   movdqu   oword [val+sizeof(oword)*5], Yc
-   movdqu   oword [val+sizeof(oword)*6], Za
-   movdqu   oword [val+sizeof(oword)*7], Zb
-   movdqu   oword [val+sizeof(oword)*8], Zc
-
-   REST_XMM
-   REST_GPR
-   ret
-ENDFUNC p384r1_select_pp_w5
-
 %ifndef _DISABLE_ECP_384R1_HARDCODED_BP_TBL_
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -878,7 +774,7 @@ IPPASM p384r1_select_ap_w5,PUBLIC
       movdqa   TYa, oword [in_t+sizeof(oword)*3]
       movdqa   TYb, oword [in_t+sizeof(oword)*4]
       movdqa   TYc, oword [in_t+sizeof(oword)*5]
-      add      tbl, sizeof(oword)*6
+      add      in_t, sizeof(oword)*6
 
       pand     TXa, MASKDATA
       pand     TXb, MASKDATA

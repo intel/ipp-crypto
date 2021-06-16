@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2020 Intel Corporation
+* Copyright 2017-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,11 +56,8 @@ IPPFUN(IppStatus, ippsSMS4_CCMInit,(const Ipp8u* pKey, int keyLen,
    /* test available size of context buffer */
    IPP_BADARG_RET(ctxSize<cpSizeofCtx_SMS4CCM(), ippStsMemAllocErr);
 
-   /* use aligned context */
-   pCtx = (IppsSMS4_CCMState*)( IPP_ALIGNED_PTR(pCtx, SMS4CCM_ALIGNMENT) );
-
    /* set state ID */
-   SMS4CCM_ID(pCtx) = idCtxAESCCM;
+   SMS4CCM_SET_ID(pCtx);
 
    /* set default message len */
    SMS4CCM_MSGLEN(pCtx) = 0;

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -203,6 +203,7 @@ void MB_FUNC_NAME(ed25519_sqr_latency_)(U64 out[], const U64 a[], int count) {
     U64 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
     U64 a0, a1, a2, a3, a4;
     U64 r4_1;
+    int i;
 
     U64 *vr = (U64*) out;
 
@@ -211,7 +212,7 @@ void MB_FUNC_NAME(ed25519_sqr_latency_)(U64 out[], const U64 a[], int count) {
     a2 = a[2];
     a3 = a[3];
     a4 = a[4];
-    for (int i = 0; i < count; ++i)
+    for (i = 0; i < count; ++i)
     {
         r0 = r1 = r2 = r3 = r4 = r5 = r6 = r7 = r8 = r9 = get_zero64();
         r4_1 = get_zero64();
@@ -530,6 +531,8 @@ __INLINE void fe52mb8_copy(U64 out[], const U64 in[])
     storeu64(&out[4], loadu64(&in[4]));
 }
 
+// Clang warning -Wunused-function
+#if(0)
 __INLINE void fe52mb8_mul_mod25519(U64 vr[], const U64 va[], const U64 vb[])
 {
     U64 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
@@ -595,6 +598,7 @@ __INLINE void fe52mb8_sqr_mod25519(U64 out[], const U64 a[])
 {
    fe52mb8_mul_mod25519(out, a, a);
 }
+#endif
 
 __INLINE void fe52mb8_mul121666_mod25519(U64 vr[], const U64 va[])
 {
@@ -1138,7 +1142,7 @@ __INLINE void x25519_scalar_mul_dual(U64 out[], U64 scalar[], U64 point[])
         fe52mb8_cswap(x2, x3, swap);
         fe52mb8_cswap(z2, z3, swap);
 
-#if (defined(linux) && (SIMD_LEN == 512))
+#if (defined(linux) && ((SIMD_LEN)==512))
         // Avoid reordering optimization by compiler
         U64 Z = get_zero64();
         __asm__ ("vpsllq $1, %0, %0 \n"
@@ -1209,24 +1213,18 @@ __INLINE void x25519_scalar_mul_dual(U64 out[], U64 scalar[], U64 point[])
     fe52_mul(out, x2, z2);
 }
 
-#if (SIMD_LEN == 256)
-    void x25519_scalar_mul_dual_mb4(U64 out[], U64 scalar[], U64 point[]) {
-        x25519_scalar_mul_dual(out, scalar, point);
-    }
-#endif
-
 DLL_PUBLIC
 mbx_status MB_FUNC_NAME(mbx_x25519_)(int8u* const pa_shared_key[8],
                        const int8u* const pa_private_key[8],
                        const int8u* const pa_public_key[8])
 {
-    mbx_status stt = 0;
+    mbx_status status = 0;
     int buf_no;
 
     /* test input pointers */
     if(NULL==pa_shared_key || NULL==pa_private_key || NULL==pa_public_key) {
-        stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-        return stt;
+        status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+        return status;
     }
 
     /* check pointers and values */
@@ -1237,13 +1235,13 @@ mbx_status MB_FUNC_NAME(mbx_x25519_)(int8u* const pa_shared_key[8],
 
         /* if any of pointer NULL set error status */
         if(NULL==shared || NULL==own_private || NULL==party_public) {
-            stt = MBX_SET_STS(stt, buf_no, MBX_STATUS_NULL_PARAM_ERR);
+            status = MBX_SET_STS(status, buf_no, MBX_STATUS_NULL_PARAM_ERR);
             continue;
         }
     }
 
     /* continue processing if there are correct parameters */
-    if( MBX_IS_ANY_OK_STS(stt) ) {
+    if( MBX_IS_ANY_OK_STS(status) ) {
         __ALIGN64 U64 private64_mb8[4];
         __ALIGN64 U64 pub52_mb8[5];
         __ALIGN64 U64 shared52_mb8[5];
@@ -1273,18 +1271,19 @@ mbx_status MB_FUNC_NAME(mbx_x25519_)(int8u* const pa_shared_key[8],
         shared52_sum = or64(shared52_sum, shared52_mb8[3]);
         shared52_sum = or64(shared52_sum, shared52_mb8[4]);
         int8u stt_mask = cmpeq64_mask(shared52_sum, get_zero64());
-        stt |= MBX_SET_STS_BY_MASK(stt, stt_mask, MBX_STATUS_LOW_ORDER_ERR);
+        status |= MBX_SET_STS_BY_MASK(status, stt_mask, MBX_STATUS_LOW_ORDER_ERR);
 
         /* convert result back */
         ifma_mb8_to_BNU((int64u* const *)pa_shared_key, (const int64u (*)[8])shared52_mb8, 256);
-        /* clear computed shared keys */
-        MB_FUNC_NAME(zero_)((int64u (*)[])shared52_mb8, sizeof(shared52_mb8)/sizeof(U64));
+
+        /* clear computed shared keys and it sum */
+        MB_FUNC_NAME(zero_)((int64u (*)[8])shared52_mb8, sizeof(shared52_mb8)/sizeof(U64));
+        MB_FUNC_NAME(zero_)((int64u (*)[8])&shared52_sum, 1);
 
         /* clear copy of the secret keys */
-        MB_FUNC_NAME(zero_)((int64u (*)[])&shared52_sum, 1);
-        MB_FUNC_NAME(zero_)((int64u (*)[])private64_mb8, sizeof(private64_mb8)/sizeof(U64));
+        MB_FUNC_NAME(zero_)((int64u (*)[8])private64_mb8, sizeof(private64_mb8)/sizeof(U64));
     }
-    return stt;
+    return status;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1570,12 +1569,12 @@ DLL_PUBLIC
 mbx_status MB_FUNC_NAME(mbx_x25519_public_key_)(int8u* const pa_public_key[8],
                                     const int8u* const pa_private_key[8])
 {
-   mbx_status stt = 0;
+   mbx_status status = 0;
 
     /* test input pointers */
     if(NULL==pa_private_key || NULL==pa_public_key) {
-      stt = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
-      return stt;
+      status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+      return status;
    }
 
    /* check pointers and values */
@@ -1586,13 +1585,13 @@ mbx_status MB_FUNC_NAME(mbx_x25519_public_key_)(int8u* const pa_public_key[8],
 
       /* if any of pointer NULL set error status */
       if(NULL==own_private || NULL==party_public) {
-         stt = MBX_SET_STS(stt, buf_no, MBX_STATUS_NULL_PARAM_ERR);
+         status = MBX_SET_STS(status, buf_no, MBX_STATUS_NULL_PARAM_ERR);
          continue;
       }
    }
 
    /* continue processing if there are correct parameters */
-   if( MBX_IS_ANY_OK_STS(stt) ) {
+   if( MBX_IS_ANY_OK_STS(status) ) {
 
       /* convert private to to MB8 and decode */
       __ALIGN64 U64 scalar_mb8[4];
@@ -1679,8 +1678,8 @@ mbx_status MB_FUNC_NAME(mbx_x25519_public_key_)(int8u* const pa_public_key[8],
       ifma_mb8_to_BNU((int64u * const*)pa_public_key, (const int64u (*)[8])U1, 256);
 
       /* clear secret */
-      MB_FUNC_NAME(zero_)((int64u (*)[])scalar_mb8, sizeof(scalar_mb8)/sizeof(U64));
+      MB_FUNC_NAME(zero_)((int64u (*)[8])scalar_mb8, sizeof(scalar_mb8)/sizeof(U64));
    }
 
-   return stt;
+   return status;
 }

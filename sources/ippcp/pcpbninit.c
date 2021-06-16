@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,7 +49,6 @@ IPPFUN(IppStatus, ippsBigNumInit, (int length, IppsBigNumState* pBN))
 {
     IPP_BADARG_RET(length<1 || length>BITS2WORD32_SIZE(BN_MAXBITSIZE), ippStsLengthErr);
     IPP_BAD_PTR1_RET(pBN);
-    pBN = (IppsBigNumState*)(IPP_ALIGNED_PTR(pBN, BN_ALIGNMENT));
 
     {
         Ipp8u* ptr = (Ipp8u*)pBN;
@@ -57,7 +56,6 @@ IPPFUN(IppStatus, ippsBigNumInit, (int length, IppsBigNumState* pBN))
         /* convert length to the number of BNU_CHUNK_T */
         cpSize len = INTERNAL_BNU_LENGTH(length);
 
-        BN_ID(pBN) = idCtxUnknown;
         BN_SIGN(pBN) = ippBigNumPOS;
         BN_SIZE(pBN) = 1;     /* initial valie is zero */
         BN_ROOM(pBN) = len;   /* close to what has been passed by user */
@@ -66,15 +64,19 @@ IPPFUN(IppStatus, ippsBigNumInit, (int length, IppsBigNumState* pBN))
                               mul, mont exp operations */
         len++;
 
+        ptr += sizeof(IppsBigNumState);
+
         /* allocate buffers */
-        BN_NUMBER(pBN) = (BNU_CHUNK_T*)(ptr += sizeof(IppsBigNumState));
-        BN_BUFFER(pBN) = (BNU_CHUNK_T*)(ptr += len * (Ipp32s)sizeof(BNU_CHUNK_T)); /* use expanded length here */
+        ptr = (Ipp8u*)(IPP_ALIGNED_PTR(ptr, BN_ALIGNMENT));
+        BN_NUMBER(pBN) = (BNU_CHUNK_T*)ptr;
+        ptr += len * (Ipp32s)sizeof(BNU_CHUNK_T);
+        BN_BUFFER(pBN) = (BNU_CHUNK_T*)(ptr); /* use expanded length here */
 
                                                                            /* set BN value and buffer to zero */
         ZEXPAND_BNU(BN_NUMBER(pBN), 0, len);
         ZEXPAND_BNU(BN_BUFFER(pBN), 0, len);
 
-        BN_ID(pBN) = idCtxBigNum;
+        BN_SET_ID(pBN);
         return ippStsNoErr;
     }
 }

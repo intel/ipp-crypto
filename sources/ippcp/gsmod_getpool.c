@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2020 Intel Corporation
+* Copyright 2017-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
 #include "gsmodstuff.h"
 #include "pcptool.h"
 
-BNU_CHUNK_T*   gsModGetPool(gsModEngine* pME)
+IPP_OWN_DEFN (BNU_CHUNK_T*, gsModGetPool, (gsModEngine* pME))
 {
    BNU_CHUNK_T*
    pPool = (pME->poolLenUsed >= pME->poolLen)? NULL : MOD_BUFFER(pME, pME->poolLenUsed);

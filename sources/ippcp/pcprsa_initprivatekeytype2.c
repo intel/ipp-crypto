@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -68,9 +68,8 @@ IPPFUN(IppStatus, ippsRSA_InitPrivateKeyType2,(int factorPbitSize, int factorQbi
    /* test available size of context buffer */
    IPP_BADARG_RET(keyCtxSize<cpSizeof_RSA_privateKey2(factorPbitSize,factorQbitSize), ippStsMemAllocErr);
 
-   pKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PRIVATE_KEY_ALIGNMENT) );
 
-   RSA_PRV_KEY_ID(pKey) = idCtxRSA_PrvKey2;
+   RSA_PRV_KEY2_SET_ID(pKey);
    RSA_PRV_KEY_MAXSIZE_N(pKey) = 0;
    RSA_PRV_KEY_MAXSIZE_D(pKey) = 0;
    RSA_PRV_KEY_BITSIZE_N(pKey) = 0;
@@ -107,13 +106,13 @@ IPPFUN(IppStatus, ippsRSA_InitPrivateKeyType2,(int factorPbitSize, int factorQbi
       RSA_PRV_KEY_INVQ(pKey) = (BNU_CHUNK_T*)(ptr);
       ptr += factorPlen*(Ipp32s)sizeof(BNU_CHUNK_T);
 
-      RSA_PRV_KEY_PMONT(pKey) = (gsModEngine*)( IPP_ALIGNED_PTR((ptr), (MONT_ALIGNMENT)) );
+      RSA_PRV_KEY_PMONT(pKey) = (gsModEngine*)(ptr);
       ptr += montPsize;
 
-      RSA_PRV_KEY_QMONT(pKey) = (gsModEngine*)( IPP_ALIGNED_PTR((ptr), (MONT_ALIGNMENT)) );
+      RSA_PRV_KEY_QMONT(pKey) = (gsModEngine*)(ptr);
       ptr += montQsize;
 
-      RSA_PRV_KEY_NMONT(pKey) = (gsModEngine*)( IPP_ALIGNED_PTR((ptr), (MONT_ALIGNMENT)) );
+      RSA_PRV_KEY_NMONT(pKey) = (gsModEngine*)(ptr);
       ptr += montNsize;
 
       ZEXPAND_BNU(RSA_PRV_KEY_DP(pKey), 0, factorPlen);

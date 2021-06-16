@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,12 +30,7 @@
 #include "pcptool.h"
 
 /* Rabin-Miller test */
-static
-int RabinMiller(int a,
-                BNU_CHUNK_T* pZ,
-                BNU_CHUNK_T* pR, cpSize nsR,
-                BNU_CHUNK_T* pM, cpSize nsM,
-                gsModEngine* pModEngine)
+static int RabinMiller(int a, BNU_CHUNK_T* pZ, BNU_CHUNK_T* pR, cpSize nsR, BNU_CHUNK_T* pM, cpSize nsM, gsModEngine* pModEngine)
 {
    /* modulus and it length and other parameters */
    const BNU_CHUNK_T* pModulus = MOD_MODULUS(pModEngine);
@@ -115,10 +110,7 @@ int RabinMiller(int a,
 //    pRndParam   pointer to the external PRNG parameters
 *F*/
 
-int cpPrimeTest(const BNU_CHUNK_T* pPrime, cpSize primeLen,
-                cpSize nTrials,
-                IppsPrimeState* pCtx,
-                IppBitSupplier rndFunc, void* pRndParam)
+IPP_OWN_DEFN (int, cpPrimeTest, (const BNU_CHUNK_T* pPrime, cpSize primeLen, cpSize nTrials, IppsPrimeState* pCtx, IppBitSupplier rndFunc, void* pRndParam))
 {
    FIX_BNU(pPrime, primeLen);
 

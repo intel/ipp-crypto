@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include "pcpaesm.h"
 #include "pcpaes_encrypt_vaes512.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 
 /* Mask to convert low 32-bit parts of four 128-bit Big-Endian numbers
  * stored in 512-bit register. The low 32-bit of each number converted
@@ -43,12 +43,12 @@ static __ALIGN32 Ipp8u swapBytes[] = {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void EncryptStreamCTR32_VAES_NI(const Ipp8u* pSrc,
-                                Ipp8u* pDst,
-                                int nr,
-                                const Ipp8u* pRKey,
-                                int length,         /* message length in bytes   */
-                                Ipp8u* pIV)         /* BE counter representation */
+IPP_OWN_DEFN (void, EncryptStreamCTR32_VAES_NI, (const Ipp8u* pSrc,
+                                                Ipp8u* pDst,
+                                                int nr,
+                                                const Ipp8u* pRKey,
+                                                int length,         /* message length in bytes   */
+                                                Ipp8u* pIV))         /* BE counter representation */
 {
    int cipherRounds = nr - 1;
 
@@ -234,4 +234,4 @@ void EncryptStreamCTR32_VAES_NI(const Ipp8u* pSrc,
    }
 }
 
-#endif /* #if (_IPP32E>=_IPP32E_K0) */
+#endif /* #if (_IPP32E>=_IPP32E_K1) */

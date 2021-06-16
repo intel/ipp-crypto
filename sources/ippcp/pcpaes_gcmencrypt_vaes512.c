@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,17 +36,14 @@
 #include "pcpaes_gcm_vaes512.h"
 #include "pcpaesauthgcm.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 
 static __ALIGN64 Ipp32u inc_lo32x4[]  = { 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0 };
 static __ALIGN64 Ipp32u inc1_lo32x4[] = { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 };
 static __ALIGN64 Ipp32u inc4_lo32x4[] = { 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0 };
 
 /* Encryption with authentication */
-void AesGcmEnc_vaes(Ipp8u* pDst,
-               const Ipp8u* pSrc,
-               int length,
-               IppsAES_GCMState* pCtx)
+IPP_OWN_DEFN (void, AesGcmEnc_vaes, (Ipp8u* pDst, const Ipp8u* pSrc, int length, IppsAES_GCMState* pCtx))
 {
    IppsAESSpec* pAES  = AESGCM_CIPHER(pCtx);
    int cipherRounds   = RIJ_NR(pAES) - 1;
@@ -361,4 +358,4 @@ void AesGcmEnc_vaes(Ipp8u* pDst,
 
 #endif
 
-#endif /* #if (_IPP32E>=_IPP32E_K0) */
+#endif /* #if (_IPP32E>=_IPP32E_K1) */

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -63,11 +63,10 @@ IPPFUN(IppStatus, ippsGFpSub_PE,(const IppsGFpElement* pA, const IppsGFpElement*
                                  IppsGFpElement* pR, IppsGFpState* pGFp))
 {
    IPP_BAD_PTR4_RET(pA, pParentB, pR, pGFp);
-   pGFp = (IppsGFpState*)( IPP_ALIGNED_PTR(pGFp, GFP_ALIGNMENT) );
-   IPP_BADARG_RET( !GFP_TEST_ID(pGFp), ippStsContextMatchErr );
-   IPP_BADARG_RET( !GFPE_TEST_ID(pA), ippStsContextMatchErr );
-   IPP_BADARG_RET( !GFPE_TEST_ID(pParentB), ippStsContextMatchErr );
-   IPP_BADARG_RET( !GFPE_TEST_ID(pR), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFP_VALID_ID(pGFp), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFPE_VALID_ID(pA), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFPE_VALID_ID(pParentB), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFPE_VALID_ID(pR), ippStsContextMatchErr );
    {
       gsModEngine* pGFE = GFP_PMA(pGFp);
       IPP_BADARG_RET( GFP_IS_BASIC(pGFE), ippStsBadArgErr )

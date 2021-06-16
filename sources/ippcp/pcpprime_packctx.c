@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,20 +38,18 @@
 //    pBuffer buffer
 *F*/
 
-void cpPackPrimeCtx(const IppsPrimeState* pCtx, Ipp8u* pBuffer)
+IPP_OWN_DEFN (void, cpPackPrimeCtx, (const IppsPrimeState* pCtx, Ipp8u* pBuffer))
 {
-   IppsPrimeState* pAlignedBuffer = (IppsPrimeState*)( IPP_ALIGNED_PTR(pBuffer, PRIME_ALIGNMENT) );
+   IppsPrimeState* pB = (IppsPrimeState*)(pBuffer);
 
    /* max length of prime */
    cpSize nsPrime = BITS_BNU_CHUNK(PRIME_MAXBITSIZE(pCtx));
 
-   CopyBlock(pCtx, pAlignedBuffer, sizeof(IppsPrimeState));
-   PRIME_NUMBER(pAlignedBuffer)=  (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(PRIME_NUMBER(pCtx))-IPP_UINT_PTR(pCtx));
-   PRIME_TEMP1(pAlignedBuffer) =  (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(PRIME_TEMP1(pCtx))-IPP_UINT_PTR(pCtx));
-   PRIME_TEMP2(pAlignedBuffer) =  (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(PRIME_TEMP2(pCtx))-IPP_UINT_PTR(pCtx));
-   PRIME_TEMP3(pAlignedBuffer) =  (BNU_CHUNK_T*)((Ipp8u*)NULL + IPP_UINT_PTR(PRIME_TEMP3(pCtx))-IPP_UINT_PTR(pCtx));
-   PRIME_MONT(pAlignedBuffer)  =  (gsModEngine*)((Ipp8u*)NULL + IPP_UINT_PTR(PRIME_MONT(pCtx))-IPP_UINT_PTR(pCtx));
+   CopyBlock(pCtx, pB, sizeof(IppsPrimeState));
 
-   CopyBlock(PRIME_NUMBER(pCtx), (Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(PRIME_NUMBER(pAlignedBuffer)), nsPrime*(Ipp32s)sizeof(BNU_CHUNK_T));
-   gsPackModEngineCtx(PRIME_MONT(pCtx), (Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(PRIME_MONT(pAlignedBuffer)));
+   cpSize dataAlignment = (cpSize)(IPP_INT_PTR(PRIME_NUMBER(pCtx)) - IPP_INT_PTR(pCtx) - (IPP_INT64)sizeof(IppsPrimeState));
+   cpSize gsMontOffset = (cpSize)(IPP_INT_PTR(PRIME_MONT(pCtx)) - IPP_INT_PTR(pCtx) - dataAlignment);
+
+   CopyBlock(PRIME_NUMBER(pCtx), (Ipp8u*)pB + sizeof(IppsPrimeState), nsPrime*(Ipp32s)sizeof(BNU_CHUNK_T));
+   gsPackModEngineCtx(PRIME_MONT(pCtx), (Ipp8u*)pB + gsMontOffset);
 }

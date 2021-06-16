@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@
 // select affine point
 */
 #if (_IPP32E < _IPP32E_M7)
-void p256r1_select_ap_w7(BNU_CHUNK_T* pVal, const BNU_CHUNK_T* pTbl, int idx)
+IPP_OWN_DEFN (void, p256r1_select_ap_w7, (BNU_CHUNK_T* pVal, const BNU_CHUNK_T* pTbl, int idx))
 {
    #define OPERAND_BITSIZE (256)
    #define LEN_P256        (BITS_BNU_CHUNK(OPERAND_BITSIZE))

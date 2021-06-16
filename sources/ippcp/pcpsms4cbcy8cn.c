@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -332,9 +332,9 @@ static int cpSMS4_CBC_dec_aesni_x8(Ipp8u* pOut, const Ipp8u* pInp, int len, cons
 // 12*MBS_SMS4 processing
 */
 #if (_IPP>=_IPP_H9) || (_IPP32E>=_IPP32E_L9)
-int cpSMS4_CBC_dec_aesni_x12(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV)
+IPP_OWN_DEFN (int, cpSMS4_CBC_dec_aesni_x12, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV))
 #else
-int cpSMS4_CBC_dec_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV)
+IPP_OWN_DEFN (int, cpSMS4_CBC_dec_aesni, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, Ipp8u* pIV))
 #endif
 {
    __ALIGN16 __m128i TMP[19];

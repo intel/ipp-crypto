@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,13 +30,13 @@
 #include "pcpsms4.h"
 #include "pcptool.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 
 #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
 
 #include "pcpsms4_gfni.h"
 
-void cpSMS4_ECB_gfni_x1(Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey)
+IPP_OWN_DEFN (void, cpSMS4_ECB_gfni_x1, (Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey))
 {
    __ALIGN16 __m128i TMP[6];
    /*
@@ -115,4 +115,4 @@ void cpSMS4_ECB_gfni_x1(Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey)
 
 #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
 
-#endif /* (_IPP32E>=_IPP32E_K0) */
+#endif /* (_IPP32E>=_IPP32E_K1) */

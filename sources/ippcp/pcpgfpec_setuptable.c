@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,9 +32,7 @@
 
 
 /* sscm version */
-void setupTable(BNU_CHUNK_T* pTbl,
-                 const BNU_CHUNK_T* pPdata,
-                       IppsGFpECState* pEC)
+IPP_OWN_DEFN (void, setupTable, (BNU_CHUNK_T* pTbl, const BNU_CHUNK_T* pPdata, IppsGFpECState* pEC))
 {
    int pointLen = ECP_POINTLEN(pEC);
    //int pointLen32 = pointLen*sizeof(BNU_CHUNK_T)/sizeof(ipp32u);

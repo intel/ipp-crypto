@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,
@@ -60,7 +60,7 @@
 #include "pcpsms4.h"
 #include "pcptool.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
 
 #include "pcpsms4_gfni.h"
@@ -117,7 +117,7 @@ __FORCEINLINE __m512i getInputBlocks(__m128i * const currentState, const __m512i
 // 64*cfbBlkSize bytes processing
 */
 
-void cpSMS4_CFB_dec_gfni512(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBlkSize, const Ipp32u* pRKey, Ipp8u* pIV)
+IPP_OWN_DEFN (void, cpSMS4_CFB_dec_gfni512, (Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBlkSize, const Ipp32u* pRKey, Ipp8u* pIV))
 {
    __ALIGN16 __m512i TMP[24];
 
@@ -413,7 +413,7 @@ void cpSMS4_CFB_dec_gfni512(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBlkS
 
    /* clear secret data */
    for(Ipp32u i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm512_xor_si512(TMP[i],TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i],TMP[i]);
    }
 
    len -= processedLen;
@@ -665,7 +665,7 @@ void cpSMS4_CFB_dec_gfni512x48(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
 
    /* clear secret data */
    for(Ipp32u i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm512_xor_si512(TMP[i],TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i],TMP[i]);
    }
 
    len -= processedLen;
@@ -859,7 +859,7 @@ void cpSMS4_CFB_dec_gfni512x32(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
 
    /* clear secret data */
    for(Ipp32u i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm512_xor_si512(TMP[i],TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i],TMP[i]);
    }
 
    len -= processedLen;
@@ -992,7 +992,7 @@ void cpSMS4_CFB_dec_gfni512x16(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
 
    /* clear secret data */
    for(Ipp32u i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm512_xor_si512(TMP[i],TMP[i]);
+      TMP[i] = _mm512_setzero_si512(); //_mm512_xor_si512(TMP[i],TMP[i]);
    }
 
    len -= processedLen;
@@ -1270,7 +1270,7 @@ void cpSMS4_CFB_dec_gfni128x12(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbB
 
    /* clear secret data */
    for(Ipp32u i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+      TMP[i] = _mm_setzero_si128(); //_mm_xor_si128(TMP[i],TMP[i]);
    }
 
    len -= processedLen;
@@ -1476,7 +1476,7 @@ void cpSMS4_CFB_dec_gfni128x8(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
 
    /* clear secret data */
    for(Ipp32u i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+      TMP[i] = _mm_setzero_si128(); //_mm_xor_si128(TMP[i],TMP[i]);
    }
 
    len -= processedLen;
@@ -1612,7 +1612,7 @@ void cpSMS4_CFB_dec_gfni128x4(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
 
    /* clear secret data */
    for(Ipp32u i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+      TMP[i] = _mm_setzero_si128(); //_mm_xor_si128(TMP[i],TMP[i]);
    }
 
    len -= processedLen;
@@ -1623,4 +1623,4 @@ void cpSMS4_CFB_dec_gfni128x4(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
 }
 
 #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
-#endif /* _IPP32E>=_IPP32E_K0 */
+#endif /* _IPP32E>=_IPP32E_K1 */

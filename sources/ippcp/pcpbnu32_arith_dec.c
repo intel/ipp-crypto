@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@
 //
 *F*/
 
-Ipp32u cpDec_BNU32(Ipp32u* pR, const Ipp32u* pA, cpSize ns, Ipp32u v)
+IPP_OWN_DEFN (Ipp32u, cpDec_BNU32, (Ipp32u* pR, const Ipp32u* pA, cpSize ns, Ipp32u v))
 {
    Ipp32u borrow = v;
    int n;

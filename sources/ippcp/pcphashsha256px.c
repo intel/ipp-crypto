@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@
 *F*/
 #if defined(_ALG_SHA256_COMPACT_)
 
-void UpdateSHA256(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam)
+IPP_OWN_DEFN (void, UpdateSHA256, (void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam))
 {
    Ipp32u* data = (Ipp32u*)mblk;
 
@@ -147,7 +147,7 @@ void UpdateSHA256(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniPar
 }
 
 #else
-void UpdateSHA256(void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam)
+IPP_OWN_DEFN (void, UpdateSHA256, (void* uniHash, const Ipp8u* mblk, int mlen, const void* uniParam))
 {
    Ipp32u* data = (Ipp32u*)mblk;
 

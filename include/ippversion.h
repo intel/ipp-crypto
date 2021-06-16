@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2001-2020 Intel Corporation
+* Copyright 2001-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,10 +26,15 @@
 #if !defined( IPPVERSION_H__ )
 #define IPPVERSION_H__
 
-#define IPP_VERSION_MAJOR  2020
-#define IPP_VERSION_MINOR  0
-#define IPP_VERSION_UPDATE 2
+#define IPP_VERSION_MAJOR  2021
+#define IPP_VERSION_MINOR  3
+#define IPP_VERSION_UPDATE 0
 
-#define IPP_VERSION_STR "2020.0.2"
+// Major interface version
+#define IPP_INTERFACE_VERSION_MAJOR 11
+// Minor interface version
+#define IPP_INTERFACE_VERSION_MINOR 1
+
+#define IPP_VERSION_STR  STR(IPP_VERSION_MAJOR) "." STR(IPP_VERSION_MINOR) "." STR(IPP_VERSION_UPDATE) " (" STR(IPP_INTERFACE_VERSION_MAJOR) "." STR(IPP_INTERFACE_VERSION_MINOR) " )"
 
 #endif /* IPPVERSION_H__ */

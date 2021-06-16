@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2001-2020 Intel Corporation
+* Copyright 2001-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,10 +29,12 @@ static Ipp64u cpFeatures = 0;
 static Ipp64u cpFeaturesMask = 0;
 
 static int cpGetFeatures( Ipp64u* pFeaturesMask );
-extern void IPP_CDECL cpGetReg( int* buf, int valEAX, int valECX );
-extern int IPP_CDECL cp_is_avx_extension();
-extern int IPP_CDECL cp_is_avx512_extension();
-extern int IPP_CDECL cp_issue_avx512_instruction();
+
+extern IPP_OWN_DECL (void, cpGetReg, ( int* buf, int valEAX, int valECX ))
+extern IPP_OWN_DECL (int,  cp_is_avx_extension, ( void ))
+extern IPP_OWN_DECL (int,  cp_is_avx512_extension, ( void ))
+extern IPP_OWN_DECL (int,  cp_issue_avx512_instruction, ( void ))
+
 IppStatus owncpSetCpuFeaturesAndIdx( Ipp64u cpuFeatures, int* index );
 
 IPPFUN( Ipp64u, ippcpGetEnabledCpuFeatures, ( void ))
@@ -222,6 +224,10 @@ IPPFUN( int, ippcpGetEnabledNumThreads,( void ))
 #define AVX3M_FEATURES ( ippCPUID_AVX512F|ippCPUID_AVX512CD|ippCPUID_AVX512PF|ippCPUID_AVX512ER )
 // AVX3X_FEATURES means Intel® Xeon® processor
 // AVX3M_FEATURES means Intel® Many Integrated Core Architecture
+#define AVX3I_FEATURES ( AVX3X_FEATURES| \
+                         ippCPUID_SHA|ippCPUID_AVX512VBMI|ippCPUID_AVX512VBMI2| \
+                         ippCPUID_AVX512IFMA| \
+                         ippCPUID_AVX512GFNI|ippCPUID_AVX512VAES|ippCPUID_AVX512VCLMUL)
 
 
 IppStatus owncpFeaturesToIdx(  Ipp64u* cpuFeatures, int* index )
@@ -231,6 +237,11 @@ IppStatus owncpFeaturesToIdx(  Ipp64u* cpuFeatures, int* index )
 
    *index = 0;
 
+   if(( AVX3I_FEATURES  == ( *cpuFeatures & AVX3I_FEATURES  ))&&
+      ( ippAVX512_ENABLEDBYOS & cpFeatures )){                         /* Intel® architecture formerly codenamed Icelake ia32=S0, x64=K0 */
+         mask = AVX3I_MSK;
+         *index = LIB_AVX3I;
+   } else
    if(( AVX3X_FEATURES  == ( *cpuFeatures & AVX3X_FEATURES  ))&&
       ( ippAVX512_ENABLEDBYOS & cpFeatures )){                         /* Intel® architecture formerly codenamed Skylake ia32=S0, x64=K0 */
          mask = AVX3X_MSK;
@@ -251,7 +262,7 @@ IppStatus owncpFeaturesToIdx(  Ipp64u* cpuFeatures, int* index )
        mask = AVX_MSK;
        *index = LIB_AVX;
    } else 
-   if( ippCPUID_SSE42 == ( *cpuFeatures & ippCPUID_SSE42 )){           /* Intel® architecture formerly codenamed Nehalem or Intel® architecture formerly codenamed Westmer = Intel® architecture formerly codenamed Penryn + Intel® SSE4.2 + ?Intel® instruction PCLMULQDQ + ?(Intel® AES New Instructions) + ?(Intel® Secure Hash Algorithm Extensions) */ 
+   if( ippCPUID_SSE42 == ( *cpuFeatures & ippCPUID_SSE42 )){           /* Intel® microarchitecture code name Nehalem or Intel® architecture formerly codenamed Westmer = Intel® architecture formerly codenamed Penryn + Intel® SSE4.2 + ?Intel® instruction PCLMULQDQ + ?(Intel® AES New Instructions) + ?(Intel® Secure Hash Algorithm Extensions) */ 
        mask = SSE42_MSK;                                               /* or new Intel Atom® processor formerly codenamed Silvermont */
        *index = LIB_SSE42;
    } else 
@@ -435,7 +446,7 @@ IPPFUN( const char*, ippcpGetStatusString, ( IppStatus StsCode ) )
    return ippcpGetStatusString( ippStsUnknownStatusCodeErr );
 }
 
-extern Ipp64u IPP_CDECL cp_get_pentium_counter (void);
+extern IPP_OWN_DECL (Ipp64u, cp_get_pentium_counter, (void))
 
 /* /////////////////////////////////////////////////////////////////////////////
 //  Name:       ippcpGetCpuClocks

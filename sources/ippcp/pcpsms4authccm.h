@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2020 Intel Corporation
+* Copyright 2017-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #include "pcpsms4.h"
 
 struct _cpSMS4_CCM {
-   IppCtxId idCtx;            /* CCM ID               */
+   Ipp32u   idCtx;            /* CCM ID               */
 
    Ipp64u   msgLen;           /* length of message to be processed */
    Ipp64u   lenProcessed;     /* message length has been processed */
@@ -42,7 +42,7 @@ struct _cpSMS4_CCM {
    Ipp8u    blk[MBS_SMS4];    /* temporary data container */
    Ipp8u    mac[MBS_SMS4];    /* current MAC value */
 
-   Ipp8u    cipher[sizeof(IppsSMS4Spec)+SMS4_ALIGNMENT-1];
+   Ipp8u    cipher[sizeof(IppsSMS4Spec)];
 };
 
 /* alignment */
@@ -51,7 +51,7 @@ struct _cpSMS4_CCM {
 /*
 // access macros
 */
-#define SMS4CCM_ID(stt)        ((stt)->idCtx)
+#define SMS4CCM_SET_ID(stt)    ((stt)->idCtx = (Ipp32u)idCtxAESCCM ^ (Ipp32u)IPP_UINT_PTR(stt))
 #define SMS4CCM_MSGLEN(stt)    ((stt)->msgLen)
 #define SMS4CCM_LENPRO(stt)    ((stt)->lenProcessed)
 #define SMS4CCM_TAGLEN(stt)    ((stt)->tagLen)
@@ -61,15 +61,14 @@ struct _cpSMS4_CCM {
 #define SMS4CCM_Si(stt)        ((stt)->si)
 #define SMS4CCM_BLK(stt)       ((stt)->blk)
 #define SMS4CCM_MAC(stt)       ((stt)->mac)
-#define SMS4CCM_CIPHER(stt)          (IppsSMS4Spec*)(&((stt)->cipher))
-#define SMS4CCM_CIPHER_ALIGNED(stt)  (IppsSMS4Spec*)( IPP_ALIGNED_PTR( ((stt)->cipher), SMS4_ALIGNMENT ) )
+#define SMS4CCM_CIPHER(stt)    (IppsSMS4Spec*)(&((stt)->cipher))
 
 /* valid context ID */
-#define VALID_SMS4CCM_ID(ctx)  (SMS4CCM_ID((ctx))==idCtxAESCCM)
+#define VALID_SMS4CCM_ID(ctx)  ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxAESCCM)
 
 static int cpSizeofCtx_SMS4CCM(void)
 {
-   return sizeof(IppsSMS4_CCMState) + SMS4CCM_ALIGNMENT-1;
+   return sizeof(IppsSMS4_CCMState);
 }
 
 /* Counter block formatter */

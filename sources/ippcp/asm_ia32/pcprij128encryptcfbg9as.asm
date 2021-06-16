@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2014-2020 Intel Corporation
+; Copyright 2014-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -179,7 +179,7 @@ IPPASM EncryptCFB_RIJ128_AES_NI,PUBLIC
    movdqu      oword [esp+1*16+esi],xmm0  ;and store into the stack
 
    add         esi, cfbSize                  ; advance index
-   sub         edi, cfbSize                  ; decrease lenth
+   sub         edi, cfbSize                  ; decrease length
    jg          .single_blk
 
    mov         edi,pOutBlk                   ; output data address
@@ -277,7 +277,7 @@ IPPASM EncryptCFB32_RIJ128_AES_NI,PUBLIC
    movdqu      oword [esp+1*16+esi],xmm0  ;and store into the stack
 
    add         esi, cfbSize                  ; advance index
-   sub         edi, cfbSize                  ; decrease lenth
+   sub         edi, cfbSize                  ; decrease length
    jg          .single_blk
 
    mov         edi,pOutBlk                   ; output data address

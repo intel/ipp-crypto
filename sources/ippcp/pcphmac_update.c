@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,7 +52,6 @@ IPPFUN(IppStatus, ippsHMAC_Update,(const Ipp8u* pSrc, int len, IppsHMACState* pC
 {
    /* test state pointers */
    IPP_BAD_PTR1_RET(pCtx);
-   pCtx = (IppsHMACState*)( IPP_ALIGNED_PTR(pCtx, HASH_ALIGNMENT) );
 
    /* test state ID */
    IPP_BADARG_RET(!HMAC_VALID_ID(pCtx), ippStsContextMatchErr);

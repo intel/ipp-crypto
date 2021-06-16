@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,10 +32,7 @@
 #include "pcpmask_ct.h"
 
 
-void gfec_point_mul(BNU_CHUNK_T* pRdata,
-              const BNU_CHUNK_T* pPdata,
-              const Ipp8u* pScalar8, int scalarBitSize,
-                    IppsGFpECState* pEC, Ipp8u* pScratchBuffer)
+IPP_OWN_DEFN (void, gfec_point_mul, (BNU_CHUNK_T* pRdata, const BNU_CHUNK_T* pPdata, const Ipp8u* pScalar8, int scalarBitSize, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 {
    int pointLen = ECP_POINTLEN(pEC);
 

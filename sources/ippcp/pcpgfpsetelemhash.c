@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -72,9 +72,8 @@ IPPFUN(IppStatus, ippsGFpSetElementHash,(const Ipp8u* pMsg, int msgLen, IppsGFpE
    IPP_BADARG_RET((msgLen && !pMsg), ippStsNullPtrErr);
 
    IPP_BAD_PTR2_RET(pElm, pGFp);
-   pGFp = (IppsGFpState*)( IPP_ALIGNED_PTR(pGFp, GFP_ALIGNMENT) );
-   IPP_BADARG_RET( !GFP_TEST_ID(pGFp), ippStsContextMatchErr);
-   IPP_BADARG_RET( !GFPE_TEST_ID(pElm), ippStsContextMatchErr);
+   IPP_BADARG_RET( !GFP_VALID_ID(pGFp), ippStsContextMatchErr);
+   IPP_BADARG_RET( !GFPE_VALID_ID(pElm), ippStsContextMatchErr);
    {
       gsModEngine* pGFE = GFP_PMA(pGFp);
       IPP_BADARG_RET( !GFP_IS_BASIC(pGFE), ippStsBadArgErr);

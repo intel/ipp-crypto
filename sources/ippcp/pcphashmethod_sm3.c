@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,10 +48,16 @@ IPPFUN( const IppsHashMethod*, ippsHashMethod_SM3, (void) )
       IPP_SM3_DIGEST_BITSIZE/8,
       MBS_SM3,
       MLR_SM3,
-      sm3_hashInit,
-      sm3_hashUpdate,
-      sm3_hashOctString,
-      sm3_msgRep
+      0,
+      0,
+      0,
+      0
    };
+
+   method.hashInit   = sm3_hashInit;
+   method.hashUpdate = sm3_hashUpdate;
+   method.hashOctStr = sm3_hashOctString;
+   method.msgLenRep  = sm3_msgRep;
+
    return &method;
 }

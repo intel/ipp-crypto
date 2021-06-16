@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2018-2020 Intel Corporation
+# Copyright 2018-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,24 +69,24 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zp16")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Gy")
 
 # Causes the application to use the multithread, static version of the run-time library (debug version).
-set(CMAKE_C_FLAGS_DEBUG "/MTd" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG "/MTd")
 # The /Zi option produces a separate PDB file that contains all the symbolic debugging information for use with the debugger.
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi")
 # Turns off all optimizations in the program and speeds compilation.
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od")
 # Debug macro
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /DDEBUG" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /DDEBUG")
 
 # Causes the application to use the multithread, static version of the run-time library.
-set(CMAKE_C_FLAGS_RELEASE "/MT" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "/MT")
 # Omits the default C runtime library name from the .obj file.
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zl" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zl")
 # "Maximize Speed". Selects a predefined set of options that affect the size and speed of generated code.
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2" CACHE STRING "" FORCE) # /Ob2 is included in /O2
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2") # /Ob2 is included in /O2
 # No-debug macro
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /DNDEBUG" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /DNDEBUG")
 # Warnings = errors
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /WX" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /WX")
 
 set(w7_opt "${w7_opt} /arch:SSE2")
 set(s8_opt "${s8_opt} /arch:SSE2")
@@ -101,3 +101,4 @@ set(e9_opt "${e9_opt} /arch:AVX")
 set(l9_opt "${l9_opt} /arch:AVX2")
 set(n0_opt "${n0_opt} /arch:AVX2")
 set(k0_opt "${k0_opt} /arch:AVX2")
+set(k1_opt "${k1_opt} /arch:AVX2")

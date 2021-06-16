@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,19 +33,18 @@
 #if(_IPP32E >= _IPP32E_M7)
 
 /* arithmetic over arbitrary 256r-bit modulus */
-#define      gf256_add  OWNAPI(gf256_add)
-#define      gf256_sub  OWNAPI(gf256_sub)
-#define      gf256_neg  OWNAPI(gf256_neg)
-#define      gf256_mulm OWNAPI(gf256_mulm)
-#define      gf256_sqrm OWNAPI(gf256_sqrm)
-#define      gf256_div2 OWNAPI(gf256_div2)
-
-BNU_CHUNK_T* gf256_add(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, const BNU_CHUNK_T* pModulus);
-BNU_CHUNK_T* gf256_sub(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, const BNU_CHUNK_T* pModulus);
-BNU_CHUNK_T* gf256_neg(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pModulus);
-BNU_CHUNK_T* gf256_mulm(BNU_CHUNK_T* pR,const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, const BNU_CHUNK_T* pModulus, BNU_CHUNK_T  m0);
-BNU_CHUNK_T* gf256_sqrm(BNU_CHUNK_T* pR,const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pModulus, BNU_CHUNK_T  m0);
-BNU_CHUNK_T* gf256_div2(BNU_CHUNK_T* pR,const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pModulus);
+#define gf256_add OWNAPI(gf256_add)
+   IPP_OWN_DECL (BNU_CHUNK_T*, gf256_add, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, const BNU_CHUNK_T* pModulus))
+#define gf256_sub OWNAPI(gf256_sub)
+   IPP_OWN_DECL (BNU_CHUNK_T*, gf256_sub, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, const BNU_CHUNK_T* pModulus))
+#define gf256_neg OWNAPI(gf256_neg)
+   IPP_OWN_DECL (BNU_CHUNK_T*, gf256_neg, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pModulus))
+#define gf256_mulm OWNAPI(gf256_mulm)
+   IPP_OWN_DECL (BNU_CHUNK_T*, gf256_mulm, (BNU_CHUNK_T* pR,const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, const BNU_CHUNK_T* pModulus, BNU_CHUNK_T  m0))
+#define gf256_sqrm OWNAPI(gf256_sqrm)
+   IPP_OWN_DECL (BNU_CHUNK_T*, gf256_sqrm, (BNU_CHUNK_T* pR,const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pModulus, BNU_CHUNK_T  m0))
+#define gf256_div2 OWNAPI(gf256_div2)
+   IPP_OWN_DECL (BNU_CHUNK_T*, gf256_div2, (BNU_CHUNK_T* pR,const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pModulus))
 
 #define OPERAND_BITSIZE (256)
 #define LEN_P256        (BITS_BNU_CHUNK(OPERAND_BITSIZE))
@@ -91,7 +90,6 @@ static BNU_CHUNK_T* p256_sqr_montl(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEng
 {
    return gf256_sqrm(pR, pA, GFP_MODULUS(pGFE), GFP_MNT_FACTOR(pGFE));
 }
-
 
 static BNU_CHUNK_T* p256_to_mont(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFE)
 {

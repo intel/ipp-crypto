@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -145,7 +145,7 @@ IPPFUN(IppStatus, ippsAESDecryptXTS_Direct,(const Ipp8u* pSrc, Ipp8u* pDst, int 
          #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
          /* use Intel(R) AES New Instructions version if possible */
          if(AES_NI_ENABLED==RIJ_AESNI(&aesCtx)) {
-            #if(_IPP32E>=_IPP32E_K0)
+            #if(_IPP32E>=_IPP32E_K1)
             if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
                cpAESDecryptXTS_VAES(pDst, pSrc, encBlocks, RIJ_DKEYS(&aesCtx), RIJ_NR(&aesCtx), tweakCT);
             }

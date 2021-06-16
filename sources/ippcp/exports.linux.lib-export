@@ -190,6 +190,22 @@ EXTERN (ippsHashUpdate)
 EXTERN (ippsHashGetTag)
 EXTERN (ippsHashFinal)
 EXTERN (ippsHashMessage)
+EXTERN (ippsHashMethodGetSize)
+EXTERN (ippsHashMethodSet_MD5)
+EXTERN (ippsHashMethodSet_SM3)
+EXTERN (ippsHashMethodSet_SHA1)
+EXTERN (ippsHashMethodSet_SHA1_NI)
+EXTERN (ippsHashMethodSet_SHA1_TT)
+EXTERN (ippsHashMethodSet_SHA256)
+EXTERN (ippsHashMethodSet_SHA256_NI)
+EXTERN (ippsHashMethodSet_SHA256_TT)
+EXTERN (ippsHashMethodSet_SHA224)
+EXTERN (ippsHashMethodSet_SHA224_NI)
+EXTERN (ippsHashMethodSet_SHA224_TT)
+EXTERN (ippsHashMethodSet_SHA512)
+EXTERN (ippsHashMethodSet_SHA384)
+EXTERN (ippsHashMethodSet_SHA512_256)
+EXTERN (ippsHashMethodSet_SHA512_224)
 EXTERN (ippsHashMethod_MD5)
 EXTERN (ippsHashMethod_SM3)
 EXTERN (ippsHashMethod_SHA1)
@@ -318,14 +334,6 @@ EXTERN (ippsRSASign_PKCS1v15)
 EXTERN (ippsRSAVerify_PKCS1v15)
 EXTERN (ippsRSASign_PKCS1v15_rmf)
 EXTERN (ippsRSAVerify_PKCS1v15_rmf)
-EXTERN (ippsRSA_MB_GetBufferSizePublicKey)
-EXTERN (ippsRSA_MB_GetBufferSizePrivateKey)
-EXTERN (ippsRSA_MB_Sign_PSS_rmf)
-EXTERN (ippsRSA_MB_Verify_PSS_rmf)
-EXTERN (ippsRSA_MB_Encrypt)
-EXTERN (ippsRSA_MB_Decrypt)
-EXTERN (ippsRSA_MB_Sign_PKCS1v15_rmf)
-EXTERN (ippsRSA_MB_Verify_PKCS1v15_rmf)
 EXTERN (ippsDLGetResultString)
 EXTERN (ippsDLPGetSize)
 EXTERN (ippsDLPInit)
@@ -718,6 +726,22 @@ VERSION {
    ippsHashGetTag;
    ippsHashFinal;
    ippsHashMessage;
+   ippsHashMethodGetSize;
+   ippsHashMethodSet_MD5;
+   ippsHashMethodSet_SM3;
+   ippsHashMethodSet_SHA1;
+   ippsHashMethodSet_SHA1_NI;
+   ippsHashMethodSet_SHA1_TT;
+   ippsHashMethodSet_SHA256;
+   ippsHashMethodSet_SHA256_NI;
+   ippsHashMethodSet_SHA256_TT;
+   ippsHashMethodSet_SHA224;
+   ippsHashMethodSet_SHA224_NI;
+   ippsHashMethodSet_SHA224_TT;
+   ippsHashMethodSet_SHA512;
+   ippsHashMethodSet_SHA384;
+   ippsHashMethodSet_SHA512_256;
+   ippsHashMethodSet_SHA512_224;
    ippsHashMethod_MD5;
    ippsHashMethod_SM3;
    ippsHashMethod_SHA1;
@@ -847,14 +871,6 @@ VERSION {
    ippsRSASign_PKCS1v15_rmf;
    ippsRSAVerify_PKCS1v15_rmf;
    ippsDLGetResultString;
-   ippsRSA_MB_GetBufferSizePublicKey;
-   ippsRSA_MB_GetBufferSizePrivateKey;
-   ippsRSA_MB_Sign_PSS_rmf;
-   ippsRSA_MB_Verify_PSS_rmf;
-   ippsRSA_MB_Encrypt;
-   ippsRSA_MB_Decrypt;
-   ippsRSA_MB_Sign_PKCS1v15_rmf;
-   ippsRSA_MB_Verify_PKCS1v15_rmf;
    ippsDLPGetSize;
    ippsDLPInit;
    ippsDLPPack;

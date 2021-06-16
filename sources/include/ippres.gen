@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 1999-2020 Intel Corporation
+* Copyright 1999-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ BEGIN
             VALUE "FileVersion", STR( VERSION() ) "\0"
             VALUE "ProductName", IPP_LIB_SHORTNAME() ". Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() ".\0"
             VALUE "ProductVersion", STR_VERSION() "\0"
-            VALUE "LegalCopyright", "Copyright (C) 1999-2020, Intel Corporation. All rights reserved.\0"
+            VALUE "LegalCopyright", "Copyright (C) 1999-2021, Intel Corporation. All rights reserved.\0"
          
             #if defined(_MERGED_BLD)
                 #if defined (WIN32) && !defined (_WIN64) && !defined (WIN32E)
@@ -147,13 +147,6 @@ BEGIN
                     VALUE "InternalName", IPP_LIB_PREFIX() "n8" _IPP_VERSION  ".dll\0"
                     VALUE "OriginalFilename", IPP_LIB_PREFIX() "n8" _IPP_VERSION  ".dll\0"
                 #endif
-            #endif
-         
-            #if defined(_IPP_PS)
-                VALUE "Comments", "Intel(R) Integrated Performance Primitives. " IPP_LIB_LONGNAME() " performance test application\0"
-                VALUE "FileDescription", "ps_" IPP_LIB_PREFIX() ".exe is the performance test application for " IPP_LIB_LONGNAME() "\0"
-                VALUE "InternalName", "ps_" IPP_LIB_PREFIX() ".exe\0"
-                VALUE "OriginalFilename", "ps_" IPP_LIB_PREFIX() ".exe\0"
             #endif
 
         END

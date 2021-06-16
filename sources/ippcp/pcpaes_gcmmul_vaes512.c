@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 #include "pcpaes_gcm_vaes512.h"
 #include "pcpaesauthgcm.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4310) // cast truncates constant value in MSVC
 #endif
@@ -157,9 +157,7 @@ __INLINE void AesGcmGhash4(const __m512i* const src1,
 }
 
 /* The function performs single A*(Hash<<1 mod poly) multiplication */
-void AesGcmMulGcm_vaes(Ipp8u* pGHash,
-                       const Ipp8u* pHKey,
-                       const void * pParam)
+IPP_OWN_DEFN (void, AesGcmMulGcm_vaes, (Ipp8u* pGHash, const Ipp8u* pHKey, const void * pParam))
 {
    IPP_UNREFERENCED_PARAMETER(pParam);
 
@@ -177,8 +175,7 @@ void AesGcmMulGcm_vaes(Ipp8u* pGHash,
  * to use in batch GHASH calculation.
  * It also pre-computes parts of Karatsuba multipliers that are fixed and derived from the hKey.
  */
-void AesGcmPrecompute_vaes(Ipp8u* const pHtbl,
-                           const Ipp8u* const hKey)
+IPP_OWN_DEFN (void, AesGcmPrecompute_vaes, (Ipp8u* const pHtbl, const Ipp8u* const hKey))
 {
    /* Initial hKey = E_ctr(key, 0^16) */
    __m128i* pDst = (__m128i*)pHtbl;
@@ -239,6 +236,6 @@ void AesGcmPrecompute_vaes(Ipp8u* const pHtbl,
    }
 }
 
-#endif /* #if (_IPP32E>=_IPP32E_K0) */
+#endif /* #if (_IPP32E>=_IPP32E_K1) */
 
 #endif

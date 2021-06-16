@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -61,9 +61,7 @@ static int gfec_IsAffinePointAtInfinity(int ecInfinity,
 }
 
 /* returns: 1/0 if set up finite/infinite point */
-int gfec_SetPoint(BNU_CHUNK_T* pPointData,
-            const BNU_CHUNK_T* pX, const BNU_CHUNK_T* pY,
-                  IppsGFpECState* pEC)
+IPP_OWN_DEFN (int, gfec_SetPoint, (BNU_CHUNK_T* pPointData, const BNU_CHUNK_T* pX, const BNU_CHUNK_T* pY, IppsGFpECState* pEC))
 {
    IppsGFpState* pGF = ECP_GFP(pEC);
    gsModEngine* pGFE = GFP_PMA(pGF);

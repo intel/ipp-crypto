@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 #include "owncp.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4310) // cast truncates constant value in MSVC
 #endif
+
+#include "pcptool.h"
 
 #include "pcpbnuimpl.h"
 #include "pcpbnumisc.h"
@@ -29,96 +31,8 @@
 #include "gsscramble.h"
 #include "pcpmask_ct.h"
 
-
-/*
-   converts regular (base = 2^64) representation
-   into "redundant" (base = 2^DIGIT_SIZE) represenrartion
-*/
-
-/* pair of 52-bit digits occupys 13 bytes (the fact is using in implementation beloow) */
-__INLINE Ipp64u getDig52(const Ipp8u* pStr, int strLen)
-{
-   Ipp64u digit = 0;
-   for(; strLen>0; strLen--) {
-      digit <<= 8;
-      digit += (Ipp64u)(pStr[strLen-1]);
-   }
-   return digit;
-}
-
-/* regular => redundant conversion */
-static void regular_dig52(Ipp64u* out, const Ipp64u* in, int inBitSize)
-{
-   Ipp8u* inStr = (Ipp8u*)in;
-   /* expected out length */
-   int outLen = numofVariableBuff_avx512(cpDigitNum_avx512(inBitSize, EXP_DIGIT_SIZE_AVX512));
-
-   for(; inBitSize>=(2*EXP_DIGIT_SIZE_AVX512); inBitSize-=(2*EXP_DIGIT_SIZE_AVX512), out+=2) {
-      out[0] = (*(Ipp64u*)inStr) & EXP_DIGIT_MASK_AVX512;
-      inStr += 6;
-      out[1] = ((*(Ipp64u*)inStr) >> 4) & EXP_DIGIT_MASK_AVX512;
-      inStr += 7;
-      outLen -= 2;
-   }
-   if(inBitSize>EXP_DIGIT_SIZE_AVX512) {
-      Ipp64u digit = getDig52(inStr, 7);
-      out[0] = digit & EXP_DIGIT_MASK_AVX512;
-      inStr += 6;
-      // #yuriynat: inBitSize -= EXP_DIGIT_MASK_AVX512;
-      inBitSize -= EXP_DIGIT_SIZE_AVX512;
-      digit = getDig52(inStr, BITS2WORD8_SIZE(inBitSize));
-      out[1] = digit>>4;
-      out += 2;
-      outLen -= 2;
-   }
-   else if(inBitSize>0) {
-      out[0] = getDig52(inStr, BITS2WORD8_SIZE(inBitSize));
-      out++;
-      outLen--;
-   }
-   for(; outLen>0; outLen--,out++) out[0] = 0;
-}
-
-/*
-   converts "redundant" (base = 2^DIGIT_SIZE) representation
-   into regular (base = 2^64)
-*/
-__INLINE void putDig52(Ipp8u* pStr, int strLen, Ipp64u digit)
-{
-   for(; strLen>0; strLen--) {
-      *pStr++ = (Ipp8u)(digit&0xFF);
-      digit >>= 8;
-   }
-}
-
-static void dig52_regular(Ipp64u* out, const Ipp64u* in, int outBitSize)
-{
-   int i;
-   int outLen = BITS2WORD64_SIZE(outBitSize);
-   for(i=0; i<outLen; i++) out[i] = 0;
-
-   {
-      Ipp8u* outStr = (Ipp8u*)out;
-      for(; outBitSize>=(2*EXP_DIGIT_SIZE_AVX512); outBitSize-=(2*EXP_DIGIT_SIZE_AVX512), in+=2) {
-         (*(Ipp64u*)outStr) = in[0];
-         outStr+=6;
-         (*(Ipp64u*)outStr) ^= in[1] << 4;
-         outStr+=7;
-      }
-      if(outBitSize>EXP_DIGIT_SIZE_AVX512) {
-         putDig52(outStr, 7, in[0]);
-         outStr+=6;
-         outBitSize -= EXP_DIGIT_SIZE_AVX512;
-         putDig52(outStr, BITS2WORD8_SIZE(outBitSize), (in[1]<<4 | in[0]>>48));
-      }
-      else if(outBitSize) {
-         putDig52(outStr, BITS2WORD8_SIZE(outBitSize), in[0]);
-      }
-   }
-}
-
 /* ams functions */
-typedef void (*cpAMM52)(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res);
+IPP_OWN_FUNPTR (void, cpAMM52, (Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res))
 
 static void AMM52(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
@@ -654,7 +568,7 @@ void debugToConvMontDomain(BNU_CHUNK_T* pR,
       1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0
    };
    Ipp64u redT[32];
-   int redLen = cpDigitNum_avx512(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
+   int redLen = NUMBER_OF_DIGITS(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
    AMM52(redT, redInp, one, redM, k0, redLen, pBuffer);
    dig52_regular(pR, redT, almMM_bitsize);
 
@@ -669,20 +583,20 @@ void debugToConvMontDomain(BNU_CHUNK_T* pR,
 #endif
 /* ===================================================================*/
 
-cpSize gsMontExpBinBuffer_avx512(int modulusBits)
+IPP_OWN_DEFN (cpSize, gsMontExpBinBuffer_avx512, (int modulusBits))
 {
    cpSize redNum = numofVariable_avx512(modulusBits);       /* "sizeof" variable */
-   cpSize redBufferNum = numofVariableBuff_avx512(redNum);  /* "sizeof" variable  buffer */
+   cpSize redBufferNum = numofVariableBuff_avx512(redNum,8);  /* "sizeof" variable  buffer */
    return redBufferNum *8;
 }
 
 #if defined(_USE_WINDOW_EXP_)
-cpSize gsMontExpWinBuffer_avx512(int modulusBits)
+IPP_OWN_DEFN (cpSize, gsMontExpWinBuffer_avx512, (int modulusBits))
 {
    cpSize w = gsMontExp_WinSize(modulusBits);
 
    cpSize redNum = numofVariable_avx512(modulusBits);       /* "sizeof" variable */
-   cpSize redBufferNum = numofVariableBuff_avx512(redNum);  /* "sizeof" variable  buffer */
+   cpSize redBufferNum = numofVariableBuff_avx512(redNum,8);  /* "sizeof" variable  buffer */
 
    cpSize bufferNum = CACHE_LINE_SIZE/(Ipp32s)sizeof(BNU_CHUNK_T)
                     + gsGetScrambleBufferSize(redNum, w) /* pre-computed table */
@@ -690,7 +604,6 @@ cpSize gsMontExpWinBuffer_avx512(int modulusBits)
    return bufferNum;
 }
 #endif /* _USE_WINDOW_EXP_ */
-
 
 /*
 // "fast" binary montgomery exponentiation
@@ -702,11 +615,7 @@ cpSize gsMontExpWinBuffer_avx512(int modulusBits)
 //    redM[redBufferLen]
 //    redBuffer[redBufferLen*3]
 */
-cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
-                         const BNU_CHUNK_T* dataX, cpSize nsX,
-                         const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                               gsModEngine* pMont,
-                               BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);
@@ -716,10 +625,10 @@ cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
    cpSize nsE = BITS_BNU_CHUNK(bitsizeE);
 
    int modulusBitSize = BITSIZE_BNU(dataM, nsM);
-   int cnvMM_bitsize = cpDigitNum_avx512(modulusBitSize, BITSIZE(BNU_CHUNK_T)) * BITSIZE(BNU_CHUNK_T);
+   int cnvMM_bitsize = NUMBER_OF_DIGITS(modulusBitSize, BITSIZE(BNU_CHUNK_T)) * BITSIZE(BNU_CHUNK_T);
    int almMM_bitsize = cnvMM_bitsize+2;
-   int redLen = cpDigitNum_avx512(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
-   int redBufferLen = numofVariableBuff_avx512(redLen);
+   int redLen = NUMBER_OF_DIGITS(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
+   int redBufferLen = numofVariableBuff_avx512(redLen,8);
 
    /* allocate buffers */
    BNU_CHUNK_T* redX = pBuffer;
@@ -739,21 +648,21 @@ cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
 
    /* convert modulus into reduced domain */
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
-   regular_dig52(redM, redBuffer, almMM_bitsize);
+   regular_dig52(redM, redBufferLen, redBuffer, almMM_bitsize);
 
    /* compute taget domain Montgomery converter RR' */
    ZEXPAND_BNU(redBuffer, 0, redBufferLen);
    SET_BIT(redBuffer, (4*redLen*EXP_DIGIT_SIZE_AVX512- 4*cnvMM_bitsize));
-   regular_dig52(redY, redBuffer, almMM_bitsize);
+   regular_dig52(redY, redBufferLen, redBuffer, almMM_bitsize);
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataRR, nsM);
-   regular_dig52(redT, redBuffer, almMM_bitsize);
+   regular_dig52(redT, redBufferLen, redBuffer, almMM_bitsize);
    ammFunc(redT, redT, redT, redM, k0, redLen, redBuffer);
    ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
 
    /* convert base to Montgomery domain */
    ZEXPAND_COPY_BNU(redY, redBufferLen/*nsX+1*/, dataX, nsX);
-   regular_dig52(redX, redY,  almMM_bitsize);
+   regular_dig52(redX, redBufferLen, redY,  almMM_bitsize);
    ammFunc(redX, redX, redT, redM, k0, redLen, redBuffer);
 
    /* init result */
@@ -810,11 +719,7 @@ cpSize gsMontExpBin_BNU_avx512(BNU_CHUNK_T* dataY,
 //    redM[redBufferLen]
 //    redBuffer[redBufferLen*3]
 */
-cpSize gsMontExpBin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
-                              const BNU_CHUNK_T* dataX, cpSize nsX,
-                              const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                                    gsModEngine* pMont,
-                                    BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_sscm_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);
@@ -823,10 +728,10 @@ cpSize gsMontExpBin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
    BNU_CHUNK_T k0 = MOD_MNT_FACTOR(pMont);
 
    int modulusBitSize = BITSIZE_BNU(dataM, nsM);
-   int cnvMM_bitsize = cpDigitNum_avx512(modulusBitSize, BITSIZE(BNU_CHUNK_T)) * BITSIZE(BNU_CHUNK_T);
+   int cnvMM_bitsize = NUMBER_OF_DIGITS(modulusBitSize, BITSIZE(BNU_CHUNK_T)) * BITSIZE(BNU_CHUNK_T);
    int almMM_bitsize = cnvMM_bitsize+2;
-   int redLen = cpDigitNum_avx512(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
-   int redBufferLen = numofVariableBuff_avx512(redLen);
+   int redLen = NUMBER_OF_DIGITS(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
+   int redBufferLen = numofVariableBuff_avx512(redLen,8);
 
    /* allocate buffers */
    BNU_CHUNK_T* redX = pBuffer;
@@ -847,21 +752,21 @@ cpSize gsMontExpBin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
 
    /* convert modulus into reduced domain */
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
-   regular_dig52(redM, redBuffer, almMM_bitsize);
+   regular_dig52(redM, redBufferLen, redBuffer, almMM_bitsize);
 
    /* compute taget domain Montgomery converter RR' */
    ZEXPAND_BNU(redBuffer, 0, redBufferLen);
    SET_BIT(redBuffer, (4*redLen*EXP_DIGIT_SIZE_AVX512- 4*cnvMM_bitsize));
-   regular_dig52(redY, redBuffer, almMM_bitsize);
+   regular_dig52(redY, redBufferLen, redBuffer, almMM_bitsize);
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataRR, nsM);
-   regular_dig52(redT, redBuffer, almMM_bitsize);
+   regular_dig52(redT, redBufferLen, redBuffer, almMM_bitsize);
    ammFunc(redT, redT, redT, redM, k0, redLen, redBuffer);
    ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
 
    /* convert base to Montgomery domain */
    ZEXPAND_COPY_BNU(redY, redBufferLen/*nsX+1*/, dataX, nsX);
-   regular_dig52(redX, redY,  almMM_bitsize);
+   regular_dig52(redX, redBufferLen, redY,  almMM_bitsize);
    ammFunc(redX, redX, redT, redM, k0, redLen, redBuffer);
 
    /* init result */
@@ -912,11 +817,7 @@ cpSize gsMontExpBin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
 //    redE[redBufferLen]
 //    redBuffer[redBufferLen*3]
 */
-cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
-                         const BNU_CHUNK_T* dataX, cpSize nsX,
-                         const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                               gsModEngine* pMont,
-                               BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);
@@ -926,10 +827,10 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
    cpSize nsE = BITS_BNU_CHUNK(bitsizeE);
 
    int modulusBitSize = BITSIZE_BNU(dataM, nsM);
-   int cnvMM_bitsize = cpDigitNum_avx512(modulusBitSize, BITSIZE(BNU_CHUNK_T)) * BITSIZE(BNU_CHUNK_T);
+   int cnvMM_bitsize = NUMBER_OF_DIGITS(modulusBitSize, BITSIZE(BNU_CHUNK_T)) * BITSIZE(BNU_CHUNK_T);
    int almMM_bitsize = cnvMM_bitsize+2;
-   int redLen = cpDigitNum_avx512(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
-   int redBufferLen = numofVariableBuff_avx512(redLen);
+   int redLen = NUMBER_OF_DIGITS(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
+   int redBufferLen = numofVariableBuff_avx512(redLen,8);
 
    cpSize window = gsMontExp_WinSize(bitsizeE);
    BNU_CHUNK_T wmask = (1<<window) -1;
@@ -954,15 +855,15 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
 
    /* convert modulus into reduced domain */
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
-   regular_dig52(redM, redBuffer, almMM_bitsize);
+   regular_dig52(redM, redBufferLen, redBuffer, almMM_bitsize);
 
    /* compute taget domain Montgomery converter RR' */
    ZEXPAND_BNU(redBuffer, 0, redBufferLen);
    SET_BIT(redBuffer, (4*redLen*EXP_DIGIT_SIZE_AVX512- 4*cnvMM_bitsize));
-   regular_dig52(redY, redBuffer, almMM_bitsize);
+   regular_dig52(redY, redBufferLen, redBuffer, almMM_bitsize);
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataRR, nsM);
-   regular_dig52(redT, redBuffer, almMM_bitsize);
+   regular_dig52(redT, redBufferLen, redBuffer, almMM_bitsize);
    ammFunc(redT, redT, redT, redM, k0, redLen, redBuffer);
    ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
 
@@ -975,7 +876,7 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
    COPY_BNU(redTable+0, redY, redLen);
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataX, nsX);
-   regular_dig52(redY, redBuffer, almMM_bitsize);
+   regular_dig52(redY, redBufferLen, redBuffer, almMM_bitsize);
    ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
    COPY_BNU(redTable+redLen, redY, redLen);
 
@@ -1049,11 +950,7 @@ cpSize gsMontExpWin_BNU_avx512(BNU_CHUNK_T* dataY,
 //    redBuffer[redBufferLen*3]
 //    redE[redBufferLen]
 */
-cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
-                              const BNU_CHUNK_T* dataX, cpSize nsX,
-                              const BNU_CHUNK_T* dataE, cpSize bitsizeE,
-                                    gsModEngine* pMont,
-                                    BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sscm_avx512, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize bitsizeE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 {
    const BNU_CHUNK_T* dataM = MOD_MODULUS(pMont);
    const BNU_CHUNK_T* dataRR= MOD_MNT_R2(pMont);
@@ -1063,10 +960,10 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
    cpSize nsE = BITS_BNU_CHUNK(bitsizeE);
 
    int modulusBitSize = MOD_BITSIZE(pMont);
-   int cnvMM_bitsize = cpDigitNum_avx512(modulusBitSize, BITSIZE(BNU_CHUNK_T)) * BITSIZE(BNU_CHUNK_T);
+   int cnvMM_bitsize = NUMBER_OF_DIGITS(modulusBitSize, BITSIZE(BNU_CHUNK_T)) * BITSIZE(BNU_CHUNK_T);
    int almMM_bitsize = cnvMM_bitsize+2;
-   int redLen = cpDigitNum_avx512(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
-   int redBufferLen = numofVariableBuff_avx512(redLen);
+   int redLen = NUMBER_OF_DIGITS(almMM_bitsize, EXP_DIGIT_SIZE_AVX512);
+   int redBufferLen = numofVariableBuff_avx512(redLen,8);
 
    cpSize window = gsMontExp_WinSize(bitsizeE);
    cpSize nPrecomute= 1<<window;
@@ -1095,15 +992,15 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
 
    /* convert modulus into reduced domain */
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
-   regular_dig52(redM, redBuffer, almMM_bitsize);
+   regular_dig52(redM, redBufferLen, redBuffer, almMM_bitsize);
 
    /* compute taget domain Montgomery converter RR' */
    ZEXPAND_BNU(redBuffer, 0, redBufferLen);
    SET_BIT(redBuffer, (4*redLen*EXP_DIGIT_SIZE_AVX512- 4*cnvMM_bitsize));
-   regular_dig52(redY, redBuffer, almMM_bitsize);
+   regular_dig52(redY, redBufferLen, redBuffer, almMM_bitsize);
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataRR, nsM);
-   regular_dig52(redT, redBuffer, almMM_bitsize);
+   regular_dig52(redT, redBufferLen, redBuffer, almMM_bitsize);
    ammFunc(redT, redT, redT, redM, k0, redLen, redBuffer);
    ammFunc(redT, redT, redY, redM, k0, redLen, redBuffer);
 
@@ -1119,7 +1016,7 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
    #endif
 
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataX, nsX);
-   regular_dig52(redY, redBuffer, almMM_bitsize);
+   regular_dig52(redY, redBufferLen, redBuffer, almMM_bitsize);
    ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
    gsScramblePut(redTable, 1, redY, redLen, window);
    #ifdef _EXP_AVX512_DEBUG_
@@ -1188,4 +1085,4 @@ cpSize gsMontExpWin_BNU_sscm_avx512(BNU_CHUNK_T* dataY,
 }
 #endif /* _USE_WINDOW_EXP_ */
 
-#endif /* _IPP32E_K0 */
+#endif /* _IPP32E_K1 */

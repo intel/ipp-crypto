@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2020 Intel Corporation
+# Copyright 2017-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Gy")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qstd=c99")
 # Security flag that adds compile-time and run-time checks
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_FORTIFY_SOURCE=2")
-# Enable Control-flow Enforcement Technology (CET) protection
+# Enable Intel® Control-Flow Enforcement Technology (Intel® CET) protection
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qcf-protection:full")
 
 if(CODE_COVERAGE)
@@ -103,22 +103,22 @@ if(CODE_COVERAGE)
 endif()
 
 # Causes the application to use the multithread, static version of the run-time library (debug version).
-set(CMAKE_C_FLAGS_DEBUG "/MTd" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG "/MTd")
 # The /Zi option produces a separate PDB file that contains all the symbolic debugging information for use with the debugger.
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi")
 # Turns off all optimizations in the program and speeds compilation.
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od")
 # Debug macro
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /DDEBUG" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /DDEBUG")
 
 # Causes the application to use the multithread, static version of the run-time library.
-set(CMAKE_C_FLAGS_RELEASE "/MT" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "/MT")
 # Omits the default C runtime library name from the .obj file.
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zl" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zl")
 # "Maximize Speed". Selects a predefined set of options that affect the size and speed of generated code.
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O3" CACHE STRING "" FORCE) # /Ob2 is included in /O3
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O3") # /Ob2 is included in /O3
 # No-debug macro
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /DNDEBUG" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /DNDEBUG")
 
 # supress warning #10120: overriding '/O2' with '/O3' 
 # CMake bug: cmake cannot change the property "Optimization" to /O3 in MSVC project
@@ -137,3 +137,5 @@ set(l9_opt "${l9_opt} -QxCORE-AVX2")
 set(n0_opt "${n0_opt} -QxMIC-AVX512")
 set(k0_opt "${k0_opt} -QxCORE-AVX512")
 set(k0_opt "${k0_opt} -Qopt-zmm-usage:high")
+set(k1_opt "${k1_opt} -QxCORE-AVX512")
+set(k1_opt "${k1_opt} -Qopt-zmm-usage:high")

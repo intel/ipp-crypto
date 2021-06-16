@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,11 +45,9 @@
 //    nBlocks     number of decrypted data blocks
 //    pCtx        pointer to the AES context
 */
-void cpDecryptAES_cbc(const Ipp8u* pIV,
-                      const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks,
-                      const IppsAESSpec* pCtx)
+IPP_OWN_DEFN (void, cpDecryptAES_cbc, (const Ipp8u* pIV, const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks, const IppsAESSpec* pCtx))
 {
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
    if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
       DecryptCBC_RIJ128pipe_VAES_NI(pSrc, pDst, nBlocks*MBS_RIJ128, pCtx, pIV);
    }

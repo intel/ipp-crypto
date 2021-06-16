@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2020 Intel Corporation
+# Copyright 2017-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2")
 # Format string vulnerabilities
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wformat -Wformat-security")
 
-# Enable Control-flow Enforcement Technology (CET) protection
+# Enable Intel® Control-Flow Enforcement Technology (Intel® CET) protection
 # NOTE: Intel Compiler does not support CET code generation on macOS
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcf-protection=full")
 
@@ -86,7 +86,7 @@ if(CODE_COVERAGE)
 endif()
 
 # Optimization level = 3, no-debug definition (turns off asserts), warning level = 3, treat warnings as errors
-set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -w3 -Werror" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -w3 -Werror")
 
 # Compile for x64
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch_only x86_64")

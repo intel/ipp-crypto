@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -60,59 +60,40 @@ __INLINE cpSize numofVariableBuff_avx2(int numV)
 
 /* basic operations */
 #define cpMontMul1024_avx2 OWNAPI(cpMontMul1024_avx2)
-void    cpMontMul1024_avx2(Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const Ipp64u* pModulus, int mLen, Ipp64u m0);
-#define cpMontMul4n_avx2 OWNAPI(cpMontMul4n_avx2)
-void    cpMontMul4n_avx2  (Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const Ipp64u* pModulus, int mLen, Ipp64u m0, Ipp64u* pScratchBuffer);
-#define cpMontMul4n1_avx2 OWNAPI(cpMontMul4n1_avx2)
-void    cpMontMul4n1_avx2 (Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const Ipp64u* pModulus, int mLen, Ipp64u m0, Ipp64u* pScratchBuffer);
-#define cpMontMul4n2_avx2 OWNAPI(cpMontMul4n2_avx2)
-void    cpMontMul4n2_avx2 (Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const Ipp64u* pModulus, int mLen, Ipp64u m0, Ipp64u* pScratchBuffer);
-#define cpMontMul4n3_avx2 OWNAPI(cpMontMul4n3_avx2)
-void    cpMontMul4n3_avx2 (Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const Ipp64u* pModulus, int mLen, Ipp64u m0, Ipp64u* pScratchBuffer);
+   IPP_OWN_DECL (void, cpMontMul1024_avx2, (Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const Ipp64u* pModulus, int mLen, Ipp64u m0))
+#define cpMontMul4n_avx2   OWNAPI(cpMontMul4n_avx2)
+   IPP_OWN_DECL (void, cpMontMul4n_avx2, (Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const Ipp64u* pModulus, int mLen, Ipp64u m0, Ipp64u* pScratchBuffer))
+#define cpMontMul4n1_avx2  OWNAPI(cpMontMul4n1_avx2)
+   IPP_OWN_DECL (void, cpMontMul4n1_avx2, (Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const Ipp64u* pModulus, int mLen, Ipp64u m0, Ipp64u* pScratchBuffer))
+#define cpMontMul4n2_avx2  OWNAPI(cpMontMul4n2_avx2)
+   IPP_OWN_DECL (void, cpMontMul4n2_avx2, (Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const Ipp64u* pModulus, int mLen, Ipp64u m0, Ipp64u* pScratchBuffer))
+#define cpMontMul4n3_avx2  OWNAPI(cpMontMul4n3_avx2)
+   IPP_OWN_DECL (void, cpMontMul4n3_avx2, (Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pB, const Ipp64u* pModulus, int mLen, Ipp64u m0, Ipp64u* pScratchBuffer))
 
 #define cpMontSqr1024_avx2 OWNAPI(cpMontSqr1024_avx2)
-void    cpMontSqr1024_avx2(Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pModulus, int mLen, Ipp64u k0, Ipp64u* pBuffer);
-#define cpSqr1024_avx2 OWNAPI(cpSqr1024_avx2)
-void    cpSqr1024_avx2 (Ipp64u* pR, const Ipp64u* pA, int aLen, Ipp64u* pBuffer);
-#define cpSqr_avx2 OWNAPI(cpSqr_avx2)
-void    cpSqr_avx2 (Ipp64u* pR, const Ipp64u* pA, int aLen, Ipp64u* pBuffer);
+   IPP_OWN_DECL (void, cpMontSqr1024_avx2, (Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pModulus, int mLen, Ipp64u k0, Ipp64u* pBuffer))
+#define cpSqr1024_avx2  OWNAPI(cpSqr1024_avx2)
+   IPP_OWN_DECL (void, cpSqr1024_avx2, (Ipp64u* pR, const Ipp64u* pA, int aLen, Ipp64u* pBuffer))
+#define cpSqr_avx2  OWNAPI(cpSqr_avx2)
+   IPP_OWN_DECL (void, cpSqr_avx2, (Ipp64u* pR, const Ipp64u* pA, int aLen, Ipp64u* pBuffer))
 
 #define cpMontRed_avx2 OWNAPI(cpMontRed_avx2)
-void    cpMontRed_avx2(Ipp64u* pR, Ipp64u* pProduct, const Ipp64u* pModulus, int mLen, Ipp64u k0);
+   IPP_OWN_DECL (void, cpMontRed_avx2, (Ipp64u* pR, Ipp64u* pProduct, const Ipp64u* pModulus, int mLen, Ipp64u k0))
 
 /* exponentiation buffer size */
 #define gsMontExpBinBuffer_avx2 OWNAPI(gsMontExpBinBuffer_avx2)
+   IPP_OWN_DECL (cpSize, gsMontExpBinBuffer_avx2, (int modulusBits))
 #define gsMontExpWinBuffer_avx2 OWNAPI(gsMontExpWinBuffer_avx2)
-cpSize  gsMontExpBinBuffer_avx2(int modulusBits);
-cpSize  gsMontExpWinBuffer_avx2(int modulusBits);
+   IPP_OWN_DECL (cpSize, gsMontExpWinBuffer_avx2, (int modulusBits))
 
 /* AVX2 exponentiations */
 #define gsMontExpBin_BNU_avx2 OWNAPI(gsMontExpBin_BNU_avx2)
-cpSize  gsMontExpBin_BNU_avx2(BNU_CHUNK_T* dataY,
-                        const BNU_CHUNK_T* dataX, cpSize nsX,
-                        const BNU_CHUNK_T* dataE, cpSize nsE,
-                              gsModEngine* pMont,
-                              BNU_CHUNK_T* pBuffer);
-
+   IPP_OWN_DECL (cpSize, gsMontExpBin_BNU_avx2, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 #define gsMontExpBin_BNU_sscm_avx2 OWNAPI(gsMontExpBin_BNU_sscm_avx2)
-cpSize  gsMontExpBin_BNU_sscm_avx2(BNU_CHUNK_T* dataY,
-                             const BNU_CHUNK_T* dataX, cpSize nsX,
-                             const BNU_CHUNK_T* dataE, cpSize nsE,
-                                   gsModEngine* pMont,
-                                   BNU_CHUNK_T* pBuffer);
-
+   IPP_OWN_DECL (cpSize, gsMontExpBin_BNU_sscm_avx2, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 #define gsMontExpWin_BNU_avx2 OWNAPI(gsMontExpWin_BNU_avx2)
-cpSize  gsMontExpWin_BNU_avx2(BNU_CHUNK_T* dataY,
-                        const BNU_CHUNK_T* dataX, cpSize nsX,
-                        const BNU_CHUNK_T* dataE, cpSize nsE,
-                              gsModEngine* pMont,
-                              BNU_CHUNK_T* pBuffer);
-
+   IPP_OWN_DECL (cpSize, gsMontExpWin_BNU_avx2, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 #define gsMontExpWin_BNU_sscm_avx2 OWNAPI(gsMontExpWin_BNU_sscm_avx2)
-cpSize  gsMontExpWin_BNU_sscm_avx2(BNU_CHUNK_T* dataY,
-                             const BNU_CHUNK_T* dataX, cpSize nsX,
-                             const BNU_CHUNK_T* dataE, cpSize nsE,
-                                   gsModEngine* pMont,
-                                   BNU_CHUNK_T* pBuffer);
+   IPP_OWN_DECL (cpSize, gsMontExpWin_BNU_sscm_avx2, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont, BNU_CHUNK_T* pBuffer))
 
 #endif /* _IPP32E_L9 */

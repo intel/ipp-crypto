@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ typedef unsigned long long int64u;
    #define NULL ((void *)0)
 #endif
 
-
 /* alignment & inline */
 #if defined(__GNUC__)
    #if !defined(__ALIGN64)
@@ -36,13 +35,21 @@ typedef unsigned long long int64u;
    #if !defined(__INLINE)
       #define __INLINE static __inline__
    #endif
+
+   #if !defined(__NOINLINE)
+      #define __NOINLINE __attribute__((noinline))
+   #endif
 #else
    #if !defined(__ALIGN64)
-      #define __ALIGN64 __declspec (align(64))
+      #define __ALIGN64 __declspec(align(64))
    #endif
 
    #if !defined(__INLINE)
       #define __INLINE static __forceinline
+   #endif
+
+   #if !defined(__NOINLINE)
+      #define __NOINLINE __declspec(noinline)
    #endif
 #endif
 
@@ -55,22 +62,5 @@ typedef unsigned long long int64u;
 #else
    #define EXTERN_C
 #endif
-
-/* ifma name & version */
-#define IFMA_LIB_NAME()    "crypto_mb"
-#define IFMA_VER_MAJOR  0
-#define IFMA_VER_MINOR  5
-#define IFMA_VER_REV    3
-
-typedef struct {
-   int    major;          /* e.g. 1               */
-   int    minor;          /* e.g. 2               */
-   int    revision;       /* e.g. 3               */
-   const char* name;      /* e,g. "crypto_mb"     */
-   const char* buildDate; /* e.g. "Oct 28 2019"   */
-   const char* strVersion;/* e.g. "crypto_mb (ver 1.2.3 Oct 28 2019)" */
-} ifmaVersion;
-
-EXTERN_C const ifmaVersion* mbx_getversion(void);
 
 #endif /* DEFS_H */

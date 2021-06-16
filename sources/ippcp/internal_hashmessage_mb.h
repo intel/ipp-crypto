@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,9 +17,6 @@
 #include "owncp.h"
 
 #define cpHashMessage_MB8_rmf OWNAPI(cpHashMessage_MB8_rmf)
-IppStatus cpHashMessage_MB8_rmf(const Ipp8u* const pSrc[8],
-   int const lens[8], Ipp8u* const pDst[8], const IppsHashMethod* pMethod);
-
+    IPP_OWN_DECL (IppStatus, cpHashMessage_MB8_rmf, (const Ipp8u* const pSrc[8], int const lens[8], Ipp8u* const pDst[8], const IppsHashMethod* pMethod))
 #define cpMGF1_MB8_rmf OWNAPI(cpMGF1_MB8_rmf)
-IppStatus cpMGF1_MB8_rmf(const Ipp8u* const pSeeds[8],
-   int const seedLens[8], Ipp8u* const pMasks[8], int const maskLens[8], const IppsHashMethod* pMethod);
+    IPP_OWN_DECL (IppStatus, cpMGF1_MB8_rmf, (const Ipp8u* const pSeeds[8], int const seedLens[8], Ipp8u* const pMasks[8], int const maskLens[8], const IppsHashMethod* pMethod))

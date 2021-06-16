@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,7 +52,6 @@
 IPPFUN(IppStatus, ippsGFpInitFixed,(int primeBitSize, const IppsGFpMethod* pGFpMethod, IppsGFpState* pGFp))
 {
    IPP_BAD_PTR2_RET(pGFpMethod, pGFp);
-   pGFp = (IppsGFpState*)( IPP_ALIGNED_PTR(pGFp, GFP_ALIGNMENT) );
 
    /* test method is prime based */
    IPP_BADARG_RET(cpID_Prime!=(pGFpMethod->modulusID & cpID_Prime), ippStsBadArgErr);

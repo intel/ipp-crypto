@@ -1,6 +1,6 @@
 # Crypto Multi-buffer Library
 
-Currently, the library provides optimized version of RSA multi-buffer encryption and decryption algorithms based on Intel® Advanced Vector Extensions 512 (Intel® AVX-512) integer fused multiply-add (IFMA) operations. This CPU feature is introduced with Intel® Microarchitecture Code Named Ice Lake.
+Currently, the library provides optimized version of RSA, ECDSA, SM3, x25519 multi-buffer algorithms based on Intel® Advanced Vector Extensions 512 (Intel® AVX-512) integer fused multiply-add (IFMA) operations. This CPU feature is introduced with Intel® Microarchitecture Code Named Ice Lake.
 
 ## Multiple Buffers Processing Overview
 
@@ -20,7 +20,7 @@ This library consists of highly-optimized kernels taking advantage of Intel’s 
 
 - CMake\* 3.10 or higher
 - The Netwide Assembler (NASM) 2.14\*
-- OpenSSL\* 1.1.0
+- OpenSSL\* 1.1.0 or higher
 
 ### Linux* OS
 
@@ -67,23 +67,21 @@ You can find the installed files in:
 ├── ${CMAKE_INSTALL_PREFIX}
     ├── include
     |    └── crypto_mb
-    │        ├── ed25519_ifma.h
-    │        ├── ifma_method.h
-    │        ├── rsa_ifma.h
-    │        ├── rsa_ifma_cp.h
-    │        ├── rsa_ifma_defs.h
-    │        └── rsa_ifma_status.h
+    |        ├── cpu_features.h
+    │        ├── defs.h
+    │        ├── ec_nistp256.h
+    │        ├── ec_nistp384.h
+    │        ├── ec_nistp521.h
+    │        ├── rsa.h
+    │        ├── sm3.h
+    │        ├── status.h
+    |        ├── version.h
+    │        └── x25519.h
     └── lib
-        └── libcrypto_mb.a
+        └── libcrypto_mb.so
 ```
 
 ## How to Build
-
-You can build the library in two ways:
-- Using universal building, which can be used with any target API (in particular, with Intel® Integrated Performance Primitives (Intel® IPP) Cryptography\* API)
-- Using the OpenSSL\* library
-
-### Universal building
 
 1. Clone the repository from GitHub\* as follows:
 
@@ -92,33 +90,31 @@ You can build the library in two ways:
    ```
    and navigate to the `sources/ippcp/crypto_mb` folder.
 2. Set the environment variables for one of the supported C/C++ compilers.
-3. Run CMake on the command line. Use `-B` to specify path to the resulting project and define the variable `-DBN_OPENSSL_DISABLE` to exclude all the OpenSSL dependencies:
 
-   ``` bash
-   cmake . -B"../build" -DBN_OPENSSL_DISABLE=TRUE
+   *Example for Intel® Compiler:*
+
+   ```bash
+   source /opt/intel/bin/compilervars.sh intel64
    ```
+
+   For details, refer to the [Intel® C++ Compiler Developer Guide and Reference](https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference-specifying-the-location-of-compiler-components-with-compilervars)
+
+3. Run CMake on the command line. Use `-B` to specify path to the resulting project.
 4. Go to the project folder that was specified with `-B` and run `make` to build the library  (`crypto_mb` target).
 
-### Building with Intel® IPP Cryptography library
+### Building with Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 
-To get access to the optimized kernels through Intel® IPP Cryptography API, build the Intel® IPP Cryptography library as it is described in [Intel IPP Cryptography Build Instructions](../../../BUILD.md). The Crypto IFMA Multi-buffer library will be built automatically if optimization for Intel® Microarchitecture Code Named Ice Lake is available.
+The Crypto Multi-buffer library will be built automatically with Intel® IPP Cryptography if optimization for Intel® Microarchitecture Code Named Ice Lake is available. For more information see [Intel IPP Cryptography Build Instructions](../../../BUILD.md)
 
-### Building with OpenSSL\*
+### CMake Build Options
 
-The differences from universal building are:
-1. The availability of additional options: `OPENSSL_INCLUDE_DIR`, `OPENSSL_LIBRARIES` and `OPENSSL_ROOT_DIR`.  
-   Use them to override path to OpenSSL\*:
+- Use `OPENSSL_INCLUDE_DIR`,     `OPENSSL_LIBRARIES` and `OPENSSL_ROOT_DIR` to   override path to OpenSSL\*:
+
    ``` bash
    cmake . -B"../build"  
    -DOPENSSL_INCLUDE_DIR=/path/to/openssl/include  
    -DOPENSSL_LIBRARIES=/path/to/openssl/lib  
-   -DOPENSSL_ROOT_DIR=/path/to/openssl
+   -DOPENSSL_ROOT_DIR=/path/to/openssl/installation/dir
    ```
-
-2. The availability of tests - `vfy_ifma_rsa_mb` and `vfy_ifma_cp_rsa_mb` targets.
-
-Set `-DOPENSSL_USE_STATIC_LIBS=TRUE` if static OpenSSL libraries are preferred.
-
-## Usage Examples
-
-You can find the examples of usage of the optimized kernels with Intel IPP Cryptography\* API in the `<ipp-crypto-dir>/examples/rsa_mb` folder.
+   
+- Set `-DOPENSSL_USE_STATIC_LIBS=TRUE` if static OpenSSL libraries are preferred.

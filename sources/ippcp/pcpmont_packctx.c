@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,15 +39,13 @@
 //    pBuffer buffer
 *F*/
 
-void cpPackMontCtx(const IppsMontState* pCtx, Ipp8u* pBuffer)
+IPP_OWN_DEFN (void, cpPackMontCtx, (const IppsMontState* pCtx, Ipp8u* pBuffer))
 {
-   IppsMontState* pAlignedBuffer = (IppsMontState*)(IPP_ALIGNED_PTR((pBuffer), MONT_ALIGNMENT));
-
    /* size of context (bytes) */
    int ctxSize = sizeof(IppsMontState);
-   CopyBlock(pCtx, pAlignedBuffer, ctxSize);
+   CopyBlock(pCtx, pBuffer, ctxSize);
 
-   pBuffer = (Ipp8u*)pAlignedBuffer + sizeof(IppsMontState);
+   pBuffer = (Ipp8u*)pBuffer + sizeof(IppsMontState);
 
    gsPackModEngineCtx(MNT_ENGINE(pCtx), pBuffer);
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2015-2020 Intel Corporation
+* Copyright 2015-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ IPPFUN(IppStatus, ippsAES_S2V_CMAC,(const Ipp8u* pKey, int keyLen,
    }
 
    {
-      Ipp8u ctxBlob[sizeof(IppsAES_CMACState) + AESCMAC_ALIGNMENT];
+      Ipp8u ctxBlob[sizeof(IppsAES_CMACState)];
       IppsAES_CMACState* pCtx = (IppsAES_CMACState*)ctxBlob;
       IppStatus sts = cpAES_S2V_init(V, pKey, keyLen, pCtx, sizeof(ctxBlob));
 

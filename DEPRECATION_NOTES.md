@@ -1,4 +1,4 @@
-# Deprecated API in Intel® Integrated Performance Primitives for Cryptography (Intel® IPP Cryptography)
+# Deprecated API in Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 
 This document describes deprecated API in different Intel IPP Cryptography versions and recommendations for transition.
 

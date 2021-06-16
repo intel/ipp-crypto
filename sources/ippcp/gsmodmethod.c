@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2020 Intel Corporation
+* Copyright 2017-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ static gsModMethod* gsModArith_C(void)
    };
    return &m;
 }
+
 #if (_IPP32E>=_IPP32E_L9)
 static gsModMethod* gsModArith_X(void)
 {
@@ -57,7 +58,7 @@ static gsModMethod* gsModArith_X(void)
 }
 #endif
 
-gsModMethod* gsModArith(void)
+IPP_OWN_DEFN (gsModMethod*, gsModArith, (void))
 {
    #if (_IPP32E>=_IPP32E_L9)
    if(IsFeatureEnabled(ippCPUID_ADCOX))

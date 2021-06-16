@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ static gsMethod_RSA* getDefaultMethod_RSA_public(int modulusBitSize)
 {
     gsMethod_RSA* m;
 
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
     m = IsFeatureEnabled(ippCPUID_AVX512IFMA) ? gsMethod_RSA_avx512_public() : gsMethod_RSA_avx2_public();
 #elif(_IPP32E>=_IPP32E_L9)
     m = gsMethod_RSA_avx2_public();

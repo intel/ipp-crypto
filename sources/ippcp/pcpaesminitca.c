@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,36 +31,6 @@
 #include "pcprij128safe.h"
 #include "pcptool.h"
 
-/* number of rounds (use [NK] for access) */
-static int rij128nRounds[3] = {NR128_128, NR128_192, NR128_256};
-
-/*
-// number of keys (estimation only!)  (use [NK] for access)
-//
-// accurate number of keys necassary for encrypt/decrypt are:
-//    nKeys = NB * (NR+1)
-//       where NB - data block size (32-bit words)
-//             NR - number of rounds (depend on NB and keyLen)
-//
-// but the estimation
-//    estnKeys = (NK*n) >= nKeys
-// or
-//    estnKeys = ( (NB*(NR+1) + (NK-1)) / NK) * NK
-//       where NK - key length (words)
-//             NB - data block size (word)
-//             NR - number of rounds (depend on NB and keyLen)
-//             nKeys - accurate numner of keys
-// is more convinient when calculates key extension
-*/
-static int rij128nKeys[3] = {44,  54,  64 };
-
-/*
-// helper for nRounds[] and estnKeys[] access
-// note: x is length in 32-bits words
-*/
-__INLINE int rij_index(int x)
-{ return (x-NB(128))>>1; }
-
 /*F*
 //    Name: ippsAESInit
 //
@@ -86,18 +56,15 @@ __INLINE int rij_index(int x)
 //
 *F*/
 IPPFUN(IppStatus, ippsAESInit,(const Ipp8u* pKey, int keyLen,
-                               IppsAESSpec* pCtxRaw, int ctxSize))
+                               IppsAESSpec* pCtx, int ctxSize))
 {
-   /* use aligned Rijndael context */
-   IppsAESSpec* pCtx = (IppsAESSpec*)( IPP_ALIGNED_PTR(pCtxRaw, AES_ALIGNMENT) );
-
    /* test context pointer */
-   IPP_BAD_PTR1_RET(pCtxRaw);
+   IPP_BAD_PTR1_RET(pCtx);
 
    /* make sure in legal keyLen */
    IPP_BADARG_RET(keyLen!=16 && keyLen!=24 && keyLen!=32, ippStsLengthErr);
 
-   IPP_BADARG_RET(((Ipp8u*)pCtx+sizeof(IppsAESSpec)) > ((Ipp8u*)pCtxRaw+ctxSize), ippStsMemAllocErr);
+   IPP_BADARG_RET(((Ipp8u*)pCtx+sizeof(IppsAESSpec)) > ((Ipp8u*)pCtx+ctxSize), ippStsMemAllocErr);
 
    {
       int keyWords = NK(keyLen*BITSIZE(Ipp8u));
@@ -111,11 +78,17 @@ IPPFUN(IppStatus, ippsAESInit,(const Ipp8u* pKey, int keyLen,
       PadBlock(0, pCtx, sizeof(IppsAESSpec));
 
       /* init spec */
-      RIJ_ID(pCtx) = idCtxRijndael;
+      /* light trick to prevent context copy: add low 32-bit part of its current address to the context Id and
+       * check if is changed later in processing functions */
+      RIJ_SET_ID(pCtx);
       RIJ_NB(pCtx) = NB(128);
       RIJ_NK(pCtx) = keyWords;
       RIJ_NR(pCtx) = nRounds;
       RIJ_SAFE_INIT(pCtx) = 1;
+
+      /* align addresses of keys buffer */
+      RIJ_EKEYS(pCtx) = (Ipp8u*)(IPP_ALIGNED_PTR(RIJ_KEYS_BUFFER(pCtx), AES_ALIGNMENT));
+      RIJ_DKEYS(pCtx) = (Ipp8u*)((Ipp32u*)RIJ_EKEYS(pCtx) + nExpKeys);
 
       #if (_AES_NI_ENABLING_==_FEATURE_ON_)
          RIJ_AESNI(pCtx) = AES_NI_ENABLED;

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,8 +31,6 @@
 #define _PCP_SMS4_DECRYPT_CBC_H
 
 #define cpDecryptSMS4_cbc OWNAPI(cpDecryptSMS4_cbc)
-void cpDecryptSMS4_cbc(const Ipp8u* pIV,
-                       const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
-                       const IppsSMS4Spec* pCtx);
+    IPP_OWN_DECL (void, cpDecryptSMS4_cbc, (const Ipp8u* pIV, const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const IppsSMS4Spec* pCtx))
 
 #endif /* #if !defined _PCP_SMS4_DECRYPT_CBC_H */

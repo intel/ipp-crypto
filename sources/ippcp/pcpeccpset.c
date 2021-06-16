@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2003-2020 Intel Corporation
+* Copyright 2003-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -80,20 +80,15 @@ IPPFUN(IppStatus, ippsECCPSet, (const IppsBigNumState* pPrime,
 {
    /* test pEC */
    IPP_BAD_PTR1_RET(pEC);
-   /* use aligned EC context */
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    /* test pPrime */
    IPP_BAD_PTR1_RET(pPrime);
-   pPrime = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrime, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrime), ippStsContextMatchErr);
    IPP_BADARG_RET((cpBN_bitsize(pPrime)>GFP_FEBITLEN(GFP_PMA(ECP_GFP(pEC)))), ippStsRangeErr);
 
    /* test pA and pB */
    IPP_BAD_PTR2_RET(pA,pB);
-   pA = (IppsBigNumState*)( IPP_ALIGNED_PTR(pA, ALIGN_VAL) );
-   pB = (IppsBigNumState*)( IPP_ALIGNED_PTR(pB, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pA), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pB), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pA) || 0<=cpBN_cmp(pA,pPrime), ippStsRangeErr);
@@ -101,9 +96,6 @@ IPPFUN(IppStatus, ippsECCPSet, (const IppsBigNumState* pPrime,
 
    /* test pG and pGorder pointers */
    IPP_BAD_PTR3_RET(pGX,pGY, pOrder);
-   pGX    = (IppsBigNumState*)( IPP_ALIGNED_PTR(pGX,    ALIGN_VAL) );
-   pGY    = (IppsBigNumState*)( IPP_ALIGNED_PTR(pGY,    ALIGN_VAL) );
-   pOrder = (IppsBigNumState*)( IPP_ALIGNED_PTR(pOrder, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pGX),    ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pGY),    ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pOrder), ippStsContextMatchErr);

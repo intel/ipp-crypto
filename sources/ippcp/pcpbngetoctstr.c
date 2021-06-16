@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,7 +57,6 @@ IPPFUN(IppStatus, ippsGetOctString_BN,(Ipp8u* pOctStr, int strLen,
 {
    IPP_BAD_PTR2_RET(pOctStr, pBN);
 
-   pBN = (IppsBigNumState*)( IPP_ALIGNED_PTR(pBN, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pBN), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pBN), ippStsRangeErr);
    IPP_BADARG_RET((0>strLen), ippStsLengthErr);

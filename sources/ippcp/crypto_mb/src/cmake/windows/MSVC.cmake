@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2019-2020 Intel Corporation
+# Copyright 2019-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} /DYNAMICBASE")
 set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} /HIGHENTROPYVA")
 # The /LARGEADDRESSAWARE option tells the linker that the application can handle addresses larger than 2 gigabytes.
 set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} /LARGEADDRESSAWARE")
-# Enforce a signature check at load time on the binary file
-set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} /INTEGRITYCHECK")
 # Indicates that an executable is compatible with the Windows Data Execution Prevention (DEP) feature
 set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} /NXCOMPAT")
 
@@ -36,30 +34,32 @@ set(CMAKE_C_FLAGS_SECURITY "")
 set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} /GS")
 # Warning level = 3
 set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} /W3")
-# Changes all warnings to errors.
-set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} /WX")
+
 
 # Linker flags
 
 # Add export files
 set(LINK_FLAGS_DYNAMIC "/DEF:${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb.defs")
-if(NOT OPENSSL_DISABLE)
-    set(LINK_FLAGS_DYNAMIC "/DEF:${LINK_FLAGS_DYNAMIC} ${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb_ssl.defs")
-endif()
 
 # Compiler flags
 
 # Causes the application to use the multithread, static version of the run-time library
-set(CMAKE_C_FLAGS_RELEASE "/MT" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "/MT")
+# Optimization level = 2
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O2")
+# No-debug macro
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+
 # Causes the application to use the multithread, static version of the run-time library (debug version).
-set(CMAKE_C_FLAGS_DEBUG "/MTd" CACHE STRING "" FORCE)
-
-if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    # Optimization level = 2
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
-endif()
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS}")
+set(CMAKE_C_FLAGS_DEBUG "/MTd")
+# The /Zi option produces a separate PDB file that contains all the symbolic debugging information for use with the debugger.
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi")
+# Turns off all optimizations.
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Od")
+# Debug macro
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /D_DEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
 
 # Optimisation dependent flags
-set(AVX512_CFLAGS "${AVX512_CFLAGS} /arch:AVX512")
+set(AVX512_CFLAGS "/arch:AVX512")

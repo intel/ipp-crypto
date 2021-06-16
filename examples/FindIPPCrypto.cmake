@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2019-2020 Intel Corporation
+# Copyright 2019-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,13 +41,16 @@ if (NOT IPPCRYPTO_ROOT_DIR OR NOT EXISTS "${IPPCRYPTO_ROOT_DIR}/include/ippcp.h"
 
   if(WIN32)
     list(APPEND ippcp_search_paths
-      $ENV{ProgramFiles\(x86\)}/IntelSWTools/compilers_and_libraries/windows/ippcp)
+      $ENV{ProgramFiles\(x86\)}/IntelSWTools/compilers_and_libraries/windows/ippcp
+      $ENV{ProgramFiles\(x86\)}/Intel/oneAPI/ippcp/latest)
   endif()
 
   if(UNIX)
     list(APPEND ippcp_search_paths
       /opt/intel/ippcp
-      $ENV{HOME}/intel/ippcp)
+      $ENV{HOME}/intel/ippcp
+      /opt/intel/oneapi/ippcp/latest
+      $ENV{HOME}/intel/oneapi/ippcp/latest)
   endif()
 
   find_path(IPPCRYPTO_ROOT_DIR include/ippcp.h PATHS ${ippcp_search_paths})

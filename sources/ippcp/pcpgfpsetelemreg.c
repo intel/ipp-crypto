@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@
 IPPFUN(IppStatus, ippsGFpSetElementRegular,(const IppsBigNumState* pBN, IppsGFpElement* pR, IppsGFpState* pGFp))
 {
    IPP_BAD_PTR1_RET(pBN);
-   pBN = (IppsBigNumState*)( IPP_ALIGNED_PTR(pBN, BN_ALIGNMENT) );
    IPP_BADARG_RET( !BN_VALID_ID(pBN), ippStsContextMatchErr );
    IPP_BADARG_RET( !BN_POSITIVE(pBN), ippStsOutOfRangeErr);
 

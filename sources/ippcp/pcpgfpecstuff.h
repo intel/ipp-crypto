@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 // EC over GF(p) Point context
 */
 typedef struct _cpGFpECPoint {
-   IppCtxId     idCtx;  /* EC Point identifier     */
+   Ipp32u       idCtx;  /* EC Point identifier     */
    int          flags;  /* flags: affine           */
    int    elementSize;  /* size of each coordinate */
    BNU_CHUNK_T* pData;  /* coordinate X, Y, Z      */
@@ -45,14 +45,14 @@ typedef struct _cpGFpECPoint {
 /*
 // Contet Access Macros
 */
-#define ECP_POINT_ID(ctx)       ((ctx)->idCtx)
+#define ECP_POINT_SET_ID(ctx)   ((ctx)->idCtx = (Ipp32u)idCtxGFPPoint ^ (Ipp32u)IPP_UINT_PTR(ctx))
 #define ECP_POINT_FLAGS(ctx)    ((ctx)->flags)
 #define ECP_POINT_FELEN(ctx)    ((ctx)->elementSize)
 #define ECP_POINT_DATA(ctx)     ((ctx)->pData)
 #define ECP_POINT_X(ctx)        ((ctx)->pData)
 #define ECP_POINT_Y(ctx)        ((ctx)->pData+(ctx)->elementSize)
 #define ECP_POINT_Z(ctx)        ((ctx)->pData+(ctx)->elementSize*2)
-#define ECP_POINT_TEST_ID(ctx)  (ECP_POINT_ID((ctx))==idCtxGFPPoint)
+#define ECP_POINT_VALID_ID(ctx)  ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR(ctx)) == (Ipp32u)idCtxGFPPoint)
 
 /* point flags */
 #define ECP_AFFINE_POINT   (1)
@@ -82,7 +82,7 @@ typedef struct _cpGFpECPoint {
 /*
 // pre-computed Base Point descriptor
 */
-typedef void (*selectAP) (BNU_CHUNK_T* pAP, const BNU_CHUNK_T* pAPtbl, int index);
+IPP_OWN_FUNPTR (void, selectAP,  (BNU_CHUNK_T* pAP, const BNU_CHUNK_T* pAPtbl, int index))
 
 typedef struct _cpPrecompAP {
    int      w;                   /* scalar's window bitsize */
@@ -93,7 +93,7 @@ typedef struct _cpPrecompAP {
 
 /* EC over GF(p) context */
 typedef struct _cpGFpEC {
-   IppCtxId     idCtx;  /* EC identifier */
+   Ipp32u       idCtx;  /* EC identifier */
 
    IppsGFpState*  pGF;  /* arbitrary GF(p^d)*/
 
@@ -115,7 +115,7 @@ typedef struct _cpGFpEC {
    BNU_CHUNK_T*  pPublicE; /* ephemeral public key */
    BNU_CHUNK_T*  pPrivat;  /* regular   private key */
    BNU_CHUNK_T*  pPrivatE; /* ephemeral private key */
-   BNU_CHUNK_T*  pBuffer;  /* pointer to scaratch buffer (for lagacy ECCP only) */
+   BNU_CHUNK_T*  pBuffer;  /* pointer to scaratch buffer (for legacy ECCP only) */
    #endif
 } cpGFPEC;
 
@@ -126,7 +126,7 @@ typedef struct _cpGFpEC {
 
 #define EC_MONT_POOL_SIZE   (4)  /* num of temp values for modular arithmetic */
 
-#define ECP_ID(pCtx)          ((pCtx)->idCtx)
+#define ECP_SET_ID(pCtx)      ((pCtx)->idCtx = (Ipp32u)idCtxGFPEC ^ (Ipp32u)IPP_UINT_PTR(pCtx))
 #define ECP_GFP(pCtx)         ((pCtx)->pGF)
 #define ECP_SUBGROUP(pCtx)    ((pCtx)->subgroup)
 #define ECP_POINTLEN(pCtx)    ((pCtx)->elementSize)
@@ -148,7 +148,7 @@ typedef struct _cpGFpEC {
    #define ECP_SBUFFER(pCtx)  ((pCtx)->pBuffer)
 #endif
 
-#define ECP_TEST_ID(pCtx)     (ECP_ID((pCtx))==idCtxGFPEC)
+#define VALID_ECP_ID(pCtx)     ((((pCtx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((pCtx))) == (Ipp32u)idCtxGFPEC)
 
 /* EC curve specific (a-parameter) */
 #define ECP_Acom    (0) /* commont case */
@@ -167,12 +167,12 @@ typedef struct _cpGFpEC {
 #define gfpec_precom_nistP521r1_fun OWNAPI(gfpec_precom_nistP521r1_fun)
 #define gfpec_precom_sm2_fun        OWNAPI(gfpec_precom_sm2_fun)
 
-const cpPrecompAP* gfpec_precom_nistP192r1_fun(void);
-const cpPrecompAP* gfpec_precom_nistP224r1_fun(void);
-const cpPrecompAP* gfpec_precom_nistP256r1_fun(void);
-const cpPrecompAP* gfpec_precom_nistP384r1_fun(void);
-const cpPrecompAP* gfpec_precom_nistP521r1_fun(void);
-const cpPrecompAP* gfpec_precom_sm2_fun(void);
+IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP192r1_fun, (void))
+IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP224r1_fun, (void))
+IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP256r1_fun, (void))
+IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP384r1_fun, (void))
+IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP521r1_fun, (void))
+IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_sm2_fun, (void))
 
 /*
 // get/release n points from/to the pool
@@ -190,7 +190,7 @@ __INLINE void cpEcGFpReleasePool(int n, IppsGFpECState* pEC)
 
 __INLINE IppsGFpECPoint* cpEcGFpInitPoint(IppsGFpECPoint* pPoint, BNU_CHUNK_T* pData, int flags, const IppsGFpECState* pEC)
 {
-   ECP_POINT_ID(pPoint) = idCtxGFPPoint;
+   ECP_POINT_SET_ID(pPoint);
    ECP_POINT_FLAGS(pPoint) = flags;
    ECP_POINT_FELEN(pPoint) = GFP_FELEN(GFP_PMA(ECP_GFP(pEC)));
    ECP_POINT_DATA(pPoint) = pData;
@@ -239,46 +239,39 @@ __INLINE void booth_recode(Ipp8u* sign, Ipp8u* digit, Ipp8u in, int w)
 }
 
 
-#define gfec_point_add        OWNAPI(gfec_point_add)
-void    gfec_point_add       (BNU_CHUNK_T* pRdata,
-                        const BNU_CHUNK_T* pPdata,
-                        const BNU_CHUNK_T* pQdata, IppsGFpECState* pEC);
+#define gfec_point_add OWNAPI(gfec_point_add)
 #define gfec_affine_point_add OWNAPI(gfec_affine_point_add)
-void    gfec_affine_point_add(BNU_CHUNK_T* pRdata,
-                        const BNU_CHUNK_T* pPdata,
-                        const BNU_CHUNK_T* pAdata, IppsGFpECState* pEC);
-#define gfec_point_double     OWNAPI(gfec_point_double)
-void    gfec_point_double    (BNU_CHUNK_T* pRdata,
-                        const BNU_CHUNK_T* pPdata, IppsGFpECState* pEC);
-#define gfec_point_mul        OWNAPI(gfec_point_mul)
-void    gfec_point_mul       (BNU_CHUNK_T* pRdata,
-                        const BNU_CHUNK_T* pPdata, const Ipp8u* pScalar8, int scalarBitSize, IppsGFpECState* pEC, Ipp8u* pScratchBuffer);
-#define gfec_point_prod       OWNAPI(gfec_point_prod)
-void    gfec_point_prod      (BNU_CHUNK_T* pointR, 
-                        const BNU_CHUNK_T* pointA, const Ipp8u* pScalarA,
-                        const BNU_CHUNK_T* pointB, const Ipp8u* pScalarB, int scalarBitSize, IppsGFpECState* pEC, Ipp8u* pScratchBuffer);
-#define gfec_base_point_mul   OWNAPI(gfec_base_point_mul)
-void    gfec_base_point_mul  (BNU_CHUNK_T* pRdata, const Ipp8u* pScalarB, int scalarBitSize, IppsGFpECState* pEC);
-#define setupTable            OWNAPI(setupTable)
-void    setupTable           (BNU_CHUNK_T* pTbl,
-                        const BNU_CHUNK_T* pPdata, IppsGFpECState* pEC);
+#define gfec_point_double OWNAPI(gfec_point_double)
+#define gfec_point_mul OWNAPI(gfec_point_mul)
+#define gfec_point_prod OWNAPI(gfec_point_prod)
+#define gfec_base_point_mul OWNAPI(gfec_base_point_mul)
+#define setupTable OWNAPI(setupTable)
+
+IPP_OWN_DECL (void, gfec_point_add, (BNU_CHUNK_T* pRdata, const BNU_CHUNK_T* pPdata, const BNU_CHUNK_T* pQdata, IppsGFpECState* pEC))
+IPP_OWN_DECL (void, gfec_affine_point_add, (BNU_CHUNK_T* pRdata, const BNU_CHUNK_T* pPdata, const BNU_CHUNK_T* pAdata, IppsGFpECState* pEC))
+IPP_OWN_DECL (void, gfec_point_double, (BNU_CHUNK_T* pRdata, const BNU_CHUNK_T* pPdata, IppsGFpECState* pEC))
+IPP_OWN_DECL (void, gfec_point_mul, (BNU_CHUNK_T* pRdata, const BNU_CHUNK_T* pPdata, const Ipp8u* pScalar8, int scalarBitSize, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPP_OWN_DECL (void, gfec_point_prod, (BNU_CHUNK_T* pointR, const BNU_CHUNK_T* pointA, const Ipp8u* pScalarA, const BNU_CHUNK_T* pointB, const Ipp8u* pScalarB, int scalarBitSize, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPP_OWN_DECL (void, gfec_base_point_mul, (BNU_CHUNK_T* pRdata, const Ipp8u* pScalarB, int scalarBitSize, IppsGFpECState* pEC))
+IPP_OWN_DECL (void, setupTable, (BNU_CHUNK_T* pTbl, const BNU_CHUNK_T* pPdata, IppsGFpECState* pEC))
 
 
 /* size of context */
 #define cpGFpECGetSize OWNAPI(cpGFpECGetSize)
-    int cpGFpECGetSize(int deg, int basicElmBitSize);
+IPP_OWN_DECL (int, cpGFpECGetSize, (int deg, int basicElmBitSize))
 
 /* point operations */
 #define gfec_GetPoint OWNAPI(gfec_GetPoint)
-    int gfec_GetPoint(BNU_CHUNK_T* pX, BNU_CHUNK_T* pY, const IppsGFpECPoint* pPoint, IppsGFpECState* pEC);
 #define gfec_SetPoint OWNAPI(gfec_SetPoint)
-    int gfec_SetPoint(BNU_CHUNK_T* pP, const BNU_CHUNK_T* pX, const BNU_CHUNK_T* pY, IppsGFpECState* pEC);
 #define gfec_MakePoint OWNAPI(gfec_MakePoint)
-    int gfec_MakePoint(IppsGFpECPoint* pPoint, const BNU_CHUNK_T* pElm, IppsGFpECState* pEC);
 #define gfec_ComparePoint OWNAPI(gfec_ComparePoint)
-    int gfec_ComparePoint(const IppsGFpECPoint* pP, const IppsGFpECPoint* pQ, IppsGFpECState* pEC);
 #define gfec_IsPointOnCurve OWNAPI(gfec_IsPointOnCurve)
-    int gfec_IsPointOnCurve(const IppsGFpECPoint* pP, IppsGFpECState* pEC);
+
+IPP_OWN_DECL (int, gfec_GetPoint, (BNU_CHUNK_T* pX, BNU_CHUNK_T* pY, const IppsGFpECPoint* pPoint, IppsGFpECState* pEC))
+IPP_OWN_DECL (int, gfec_SetPoint, (BNU_CHUNK_T* pP, const BNU_CHUNK_T* pX, const BNU_CHUNK_T* pY, IppsGFpECState* pEC))
+IPP_OWN_DECL (int, gfec_MakePoint, (IppsGFpECPoint* pPoint, const BNU_CHUNK_T* pElm, IppsGFpECState* pEC))
+IPP_OWN_DECL (int, gfec_ComparePoint, (const IppsGFpECPoint* pP, const IppsGFpECPoint* pQ, IppsGFpECState* pEC))
+IPP_OWN_DECL (int, gfec_IsPointOnCurve, (const IppsGFpECPoint* pP, IppsGFpECState* pEC))
 
 __INLINE IppsGFpECPoint* gfec_DblPoint(IppsGFpECPoint* pR,
                         const IppsGFpECPoint* pP, IppsGFpECState* pEC)
@@ -298,37 +291,27 @@ __INLINE IppsGFpECPoint* gfec_AddPoint(IppsGFpECPoint* pR,
 }
 
 
-#define         gfec_NegPoint OWNAPI(gfec_NegPoint)
-IppsGFpECPoint* gfec_NegPoint(IppsGFpECPoint* pR,
-                        const IppsGFpECPoint* pP, IppsGFpECState* pEC);
-#define         gfec_MulPoint OWNAPI(gfec_MulPoint)
-IppsGFpECPoint* gfec_MulPoint(IppsGFpECPoint* pR,
-                        const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen,
-                              IppsGFpECState* pEC, Ipp8u* pScratchBuffer);
-#define         gfec_MulBasePoint OWNAPI(gfec_MulBasePoint)
-IppsGFpECPoint* gfec_MulBasePoint(IppsGFpECPoint* pR,
-                        const BNU_CHUNK_T* pScalar, int scalarLen,
-                              IppsGFpECState* pEC, Ipp8u* pScratchBuffer);
-//#define         gfec_PointProduct OWNAPI(gfec_PointProduct)
-//IppsGFpECPoint* gfec_PointProduct(IppsGFpECPoint* pR,
-//                        const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalarP, int scalarPlen,
-//                        const IppsGFpECPoint* pQ, const BNU_CHUNK_T* pScalarQ, int scalarQlen,
-//                        IppsGFpECState* pEC, Ipp8u* pScratchBuffer);
-#define         gfec_BasePointProduct OWNAPI(gfec_BasePointProduct)
-IppsGFpECPoint* gfec_BasePointProduct(IppsGFpECPoint* pR,
-                        const BNU_CHUNK_T* pScalarG, int scalarGlen,
-                        const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalarP, int scalarPlen,
-                        IppsGFpECState* pEC, Ipp8u* pScratchBuffer);
-
+#define gfec_NegPoint OWNAPI(gfec_NegPoint)
+#define gfec_MulPoint OWNAPI(gfec_MulPoint)
+#define gfec_MulBasePoint OWNAPI(gfec_MulBasePoint)
+/* #define gfec_PointProduct OWNAPI(gfec_PointProduct) */
+#define gfec_BasePointProduct OWNAPI(gfec_BasePointProduct)
 #define p192r1_select_ap_w7 OWNAPI(p192r1_select_ap_w7)
-   void p192r1_select_ap_w7(BNU_CHUNK_T* pAffinePoint, const BNU_CHUNK_T* pTable, int index);
 #define p224r1_select_ap_w7 OWNAPI(p224r1_select_ap_w7)
-   void p224r1_select_ap_w7(BNU_CHUNK_T* pAffinePoint, const BNU_CHUNK_T* pTable, int index);
 #define p256r1_select_ap_w7 OWNAPI(p256r1_select_ap_w7)
-   void p256r1_select_ap_w7(BNU_CHUNK_T* pAffinePoint, const BNU_CHUNK_T* pTable, int index);
 #define p384r1_select_ap_w5 OWNAPI(p384r1_select_ap_w5)
-   void p384r1_select_ap_w5(BNU_CHUNK_T* pAffinePoint, const BNU_CHUNK_T* pTable, int index);
 #define p521r1_select_ap_w5 OWNAPI(p521r1_select_ap_w5)
-   void p521r1_select_ap_w5(BNU_CHUNK_T* pAffinePoint, const BNU_CHUNK_T* pTable, int index);
+
+IPP_OWN_DECL (IppsGFpECPoint*, gfec_NegPoint, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, IppsGFpECState* pEC))
+IPP_OWN_DECL (IppsGFpECPoint*, gfec_MulPoint, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPP_OWN_DECL (IppsGFpECPoint*, gfec_MulBasePoint, (IppsGFpECPoint* pR, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+/* IPP_OWN_DECL (IppsGFpECPoint*, gfec_PointProduct, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalarP, int scalarPlen, const IppsGFpECPoint* pQ, const BNU_CHUNK_T* pScalarQ, int scalarQlen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer)) */
+IPP_OWN_DECL (IppsGFpECPoint*, gfec_BasePointProduct, (IppsGFpECPoint* pR, const BNU_CHUNK_T* pScalarG, int scalarGlen, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalarP, int scalarPlen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+
+IPP_OWN_DECL (void, p192r1_select_ap_w7, (BNU_CHUNK_T* pAffinePoint, const BNU_CHUNK_T* pTable, int index))
+IPP_OWN_DECL (void, p224r1_select_ap_w7, (BNU_CHUNK_T* pAffinePoint, const BNU_CHUNK_T* pTable, int index))
+IPP_OWN_DECL (void, p256r1_select_ap_w7, (BNU_CHUNK_T* pAffinePoint, const BNU_CHUNK_T* pTable, int index))
+IPP_OWN_DECL (void, p384r1_select_ap_w5, (BNU_CHUNK_T* pAffinePoint, const BNU_CHUNK_T* pTable, int index))
+IPP_OWN_DECL (void, p521r1_select_ap_w5, (BNU_CHUNK_T* pAffinePoint, const BNU_CHUNK_T* pTable, int index))
 
 #endif /* _CP_ECGFP_H_ */

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2007-2020 Intel Corporation
+* Copyright 2007-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,29 +33,24 @@
 #if defined _PCP_RIJ_SAFE_OLD
 /* old version */
 #define TransformByte OWNAPI(TransformByte)
-Ipp8u   TransformByte(Ipp8u x, const Ipp8u Transformation[]);
-
+    IPP_OWN_DECL (Ipp8u, TransformByte, (Ipp8u x, const Ipp8u Transformation[]))
 #define TransformNative2Composite OWNAPI(TransformNative2Composite)
+    IPP_OWN_DECL (void, TransformNative2Composite, (Ipp8u out[16], const Ipp8u inp[16]))
 #define TransformComposite2Native OWNAPI(TransformComposite2Native)
-
-void TransformNative2Composite(Ipp8u out[16], const Ipp8u inp[16]);
-void TransformComposite2Native(Ipp8u out[16], const Ipp8u inp[16]);
-
+    IPP_OWN_DECL (void, TransformComposite2Native, (Ipp8u out[16], const Ipp8u inp[16]))
 #define InverseComposite OWNAPI(InverseComposite)
-Ipp8u   InverseComposite(Ipp8u x);
-
+    IPP_OWN_DECL (Ipp8u, InverseComposite, (Ipp8u x))
 #define AddRoundKey OWNAPI(AddRoundKey)
-void    AddRoundKey(Ipp8u out[], const Ipp8u inp[], const Ipp8u pKey[]);
+    IPP_OWN_DECL (void, AddRoundKey, (Ipp8u out[], const Ipp8u inp[], const Ipp8u pKey[]))
 #endif
 
 
 #if !defined _PCP_RIJ_SAFE_OLD
 /* new version */
 #define TransformNative2Composite OWNAPI(TransformNative2Composite)
+    IPP_OWN_DECL (void, TransformNative2Composite, (Ipp8u out[16], const Ipp8u inp[16]))
 #define TransformComposite2Native OWNAPI(TransformComposite2Native)
-
-void TransformNative2Composite(Ipp8u out[16], const Ipp8u inp[16]);
-void TransformComposite2Native(Ipp8u out[16], const Ipp8u inp[16]);
+    IPP_OWN_DECL (void, TransformComposite2Native, (Ipp8u out[16], const Ipp8u inp[16]))
 
 /* add round key operation */
 __INLINE void AddRoundKey(Ipp8u out[16], const Ipp8u inp[16], const Ipp8u rkey[16])
@@ -106,7 +101,7 @@ __INLINE Ipp8u getSboxValue(Ipp8u x)
 
   Ipp32u _x = x / sizeof(BNU_CHUNK_T);
   Ipp32u i;
-  for (i = 0; i<sizeof(RijEncSbox) / sizeof(BNU_CHUNK_T); i++) {
+  for (i = 0; i<sizeof(RijEncSbox) / (sizeof(BNU_CHUNK_T)); i++) {
     BNS_CHUNK_T mask = (BNS_CHUNK_T)cpIsEqu_ct(_x, i);
     selection |= SboxEntry[i] & (BNU_CHUNK_T)mask;
   }

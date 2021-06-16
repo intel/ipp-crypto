@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020 Intel Corporation
+# Copyright 2020-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ if(${ARCH} MATCHES "ia32")
 endif(${ARCH} MATCHES "ia32")
 
 # Optimization level = 3, no-debug definition (turns off asserts), warnings=errors
-set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -Werror" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -Werror")
 
 set(w7_opt "${w7_opt} -march=pentium4 -msse2")
 set(s8_opt "${s8_opt} -march=core2 -mssse3")
@@ -112,5 +112,9 @@ set(y8_opt "${y8_opt} -march=nehalem -msse4.2 -maes -mpclmul -msha")
 set(e9_opt "${e9_opt} -march=sandybridge -mavx -maes -mpclmul -msha -mrdrnd -mrdseed")
 set(l9_opt "${l9_opt} -march=haswell -mavx2 -maes -mpclmul -msha -mrdrnd -mrdseed")
 set(n0_opt "${n0_opt} -march=knl -mavx2 -maes -mavx512f -mavx512cd -mavx512pf -mavx512er -mpclmul -msha -mrdrnd -mrdseed")
+#set(k0_opt "${k0_opt} -march=skylake-avx512")
+#set(k0_opt "${k0_opt} -maes -mavx512f -mavx512cd -mavx512vl -mavx512bw -mavx512dq -mavx512ifma -mpclmul -msha -mrdrnd -mrdseed -madx -mgfni -mvaes -mvpclmulqdq -mavx512vbmi -mavx512vbmi2")
 set(k0_opt "${k0_opt} -march=skylake-avx512")
-set(k0_opt "${k0_opt} -maes -mavx512f -mavx512cd -mavx512vl -mavx512bw -mavx512dq -mavx512ifma -mpclmul -msha -mrdrnd -mrdseed -madx -mgfni -mvaes -mvpclmulqdq -mavx512vbmi -mavx512vbmi2")
+set(k0_opt "${k0_opt} -maes -mavx512f -mavx512cd -mavx512vl -mavx512bw -mavx512dq -mpclmul -mrdrnd -mrdseed -madx")
+set(k1_opt "${k1_opt} -march=icelake-server")
+set(k1_opt "${k1_opt} -maes -mavx512f -mavx512cd -mavx512vl -mavx512bw -mavx512dq -mavx512ifma -mpclmul -msha -mrdrnd -mrdseed -madx -mgfni -mvaes -mvpclmulqdq -mavx512vbmi -mavx512vbmi2")

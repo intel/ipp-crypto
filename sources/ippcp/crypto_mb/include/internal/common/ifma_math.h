@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER) // for MSVC
     #pragma warning(disable:4101)
+    #pragma warning(disable:4127) // warning: conditional expression is constant (see fma52x8lo_mem_len())
 #elif defined (__INTEL_COMPILER)
     #pragma warning(disable:177)
 #endif
@@ -162,6 +163,15 @@
   #define mask_sub64   _mm512_mask_sub_epi64
   #define maskz_sub64  _mm512_maskz_sub_epi64
 
+  __INLINE __mb_mask is_zero(U64* p, int len) 
+  {
+      U64 Z = p[0];
+      for(int i = 1; i < len; i++) {
+        Z = or64(Z, p[i]);
+      }
+      return cmpeq64_mask(Z, get_zero64());
+  }
+
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER) // for MSVC
   #define mask_xor(m1,m2) (__mb_mask)(_mm512_kxor((m1),(m2)))
 #else
@@ -197,6 +207,7 @@
      X0123H = _mm512_shuffle_i64x2(X01H, X23H, 0b11101110 ); \
      X5_ = _mm512_mask_shuffle_i64x2(X45H, 0b11001111, X0123H, X67H, 0b10001000 ); \
      X7_ = _mm512_mask_shuffle_i64x2(X67H, 0b00111111, X0123H, X45H, 0b10111101 ); }
+
 #else
   #error "Incorrect SIMD length"
 #endif  // SIMD_LEN

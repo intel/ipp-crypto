@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,10 +56,23 @@ IPPFUN(IppStatus, ippsAESUnpack,(const Ipp8u* pBuffer, IppsAESSpec* pCtx, int ct
    /* test available size of destination buffer */
    IPP_BADARG_RET(ctxSize<cpSizeofCtx_AES(), ippStsLengthErr);
 
-   /* use aligned Rijndael context */
-   pCtx = (IppsAESSpec*)( IPP_ALIGNED_PTR(pCtx, AES_ALIGNMENT) );
+   IppsAESSpec* pB = (IppsAESSpec*)pBuffer;
 
-   CopyBlock(pBuffer, pCtx, sizeof(IppsAESSpec));
+   cpSize keysOffset  = (cpSize)(IPP_INT_PTR(RIJ_KEYS_BUFFER(pCtx)) - IPP_INT_PTR(pCtx));
+   cpSize keysBufSize = sizeof(RIJ_KEYS_BUFFER(pCtx));
+   int nExpKeys = rij128nKeys[rij_index(RIJ_NK(pB))];
+
+   /* restore all except expanded keys */
+   CopyBlock(pBuffer, pCtx, keysOffset);
+
+   /* align addresses of keys buffer */
+   RIJ_EKEYS(pCtx) = (Ipp8u*)(IPP_ALIGNED_PTR(RIJ_KEYS_BUFFER(pCtx), AES_ALIGNMENT));
+   RIJ_DKEYS(pCtx) = (Ipp8u*)((Ipp32u*)RIJ_EKEYS(pCtx) + nExpKeys);
+
+   /* restore expanded keys (encryption and decryption) placed with correct alignment */
+   CopyBlock(pBuffer+keysOffset, RIJ_EKEYS(pCtx), (keysBufSize - RIJ_ALIGNMENT));
+
+   RIJ_SET_ID(pCtx);
 
    RIJ_ENC_SBOX(pCtx) = NULL;
    RIJ_DEC_SBOX(pCtx) = NULL;

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #include "pcpgfpstuff.h"
 
 
-BNU_CHUNK_T* cpGFpExp(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pE, int nsE, gsModEngine* pGFE)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpExp, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pE, int nsE, gsModEngine* pGFE))
 {
    int elemLen = GFP_FELEN(pGFE);
    cpMontExpBin_BNU(pR, pA,cpFix_BNU(pA, elemLen), pE,cpFix_BNU(pE, nsE), pGFE);

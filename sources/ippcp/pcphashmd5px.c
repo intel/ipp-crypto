@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@
 //    uniParam pointer to the optional parameter
 //
 *F*/
-void UpdateMD5(void* uinHash, const Ipp8u* mblk, int mlen, const void* uniParam)
+IPP_OWN_DEFN (void, UpdateMD5, (void* uinHash, const Ipp8u* mblk, int mlen, const void* uniParam))
 {
    Ipp32u* digest = (Ipp32u*)uinHash;
    Ipp32u* MD5_cnt_loc = (Ipp32u*)uniParam;

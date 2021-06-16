@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 /*
 // Multiplication in GF(p^d), if field polynomial: g(x) = x^d + beta  => binominal
 */
-static BNU_CHUNK_T* cpGFpxMul_pd_binom(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_pd_binom, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx))
 {
    BNU_CHUNK_T* pGFpolynomial = GFP_MODULUS(pGFEx);
    int deg = GFP_EXTDEGREE(pGFEx);
@@ -65,7 +65,7 @@ static BNU_CHUNK_T* cpGFpxMul_pd_binom(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, c
 /*
 // Squaring in GF(p^d), if field polynomial: g(x) = x^d + beta  => binominal
 */
-static BNU_CHUNK_T* cpGFpxSqr_pd_binom(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx)
+IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxSqr_pd_binom, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx))
 {
    #if defined(__INTEL_COMPILER)
    #pragma noinline
@@ -77,7 +77,7 @@ static BNU_CHUNK_T* cpGFpxSqr_pd_binom(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, g
 // return specific polynomial arith methods
 // polynomial - general binomial
 */
-static gsModMethod* gsPolyArith_binom(void)
+static gsModMethod* gsPolyArith_binom (void)
 {
    static gsModMethod m = {
       cpGFpxEncode_com,

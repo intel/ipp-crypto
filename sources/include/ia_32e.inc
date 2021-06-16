@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2015-2020 Intel Corporation
+; Copyright 2015-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -92,6 +92,10 @@
     %endif
     %if (_IPP32E == _IPP32E_K0)
       %xdefine %%func_name k0_%1
+      %assign %%decoration_length 3
+    %endif
+    %if (_IPP32E == _IPP32E_K1)
+      %xdefine %%func_name k1_%1
       %assign %%decoration_length 3
     %endif
   %else

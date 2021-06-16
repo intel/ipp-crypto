@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,9 +56,6 @@ IPPFUN(IppStatus, ippsAES_CCMGetTag,(Ipp8u* pTag, int tagLen, const IppsAES_CCMS
    /* test pState pointer */
    IPP_BAD_PTR1_RET(pState);
 
-   /* use aligned context */
-   //pState = (IppsAES_CCMState*)( IPP_ALIGNED_PTR(pState, AESCCM_ALIGNMENT) );
-
    /* test state ID */
    IPP_BADARG_RET(!VALID_AESCCM_ID(pState), ippStsContextMatchErr);
 
@@ -73,7 +70,7 @@ IPPFUN(IppStatus, ippsAES_CCMGetTag,(Ipp8u* pTag, int tagLen, const IppsAES_CCMS
       CopyBlock16(AESCCM_MAC(pState), MAC);
 
       if(flag) {
-         IppsAESSpec* pAES = AESCCM_CIPHER_ALIGNED(pState);
+         IppsAESSpec* pAES = AESCCM_CIPHER(pState);
          RijnCipher encoder = RIJ_ENCODER(pAES);
 
          Ipp8u  BLK[MBS_RIJ128];

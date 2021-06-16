@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,11 +55,7 @@ static cpSize GetIndex(const Ipp8u** ppE, cpSize numItems, cpSize nBit)
 //    - array of pointers to the BNU exponents e[0], e[1],...,e[numItems-1]
 //    - pointer to the Montgomery engine
 */
-void cpFastMontMultiExp(BNU_CHUNK_T* pY,
-                  const BNU_CHUNK_T* pPrecomTbl,
-                  const Ipp8u** ppE, cpSize eItemBitSize,
-                  cpSize numItems,
-                  gsModEngine* pModEngine)
+IPP_OWN_DEFN (void, cpFastMontMultiExp, (BNU_CHUNK_T* pY, const BNU_CHUNK_T* pPrecomTbl, const Ipp8u** ppE, cpSize eItemBitSize, cpSize numItems, gsModEngine* pModEngine))
 {
    cpSize sizeM = MOD_LEN(pModEngine);
 

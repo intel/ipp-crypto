@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2020 Intel Corporation
+# Copyright 2017-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2")
 # Format string vulnerabilities
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wformat -Wformat-security")
 
-# Enable Control-flow Enforcement Technology (CET) protection
+# Enable Intel® Control-Flow Enforcement Technology (Intel® CET) protection
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcf-protection=full")
 
 if(NOT NONPIC_LIB)
@@ -99,7 +99,7 @@ if(CODE_COVERAGE)
 endif()
 
 # Optimization level = 3, no-debug definition (turns off asserts), warning level = 3, treat warnings as errors
-set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -w3 -Werror" CACHE STRING "" FORCE)
+set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -w3 -Werror")
 
 # Do not include compilation options and version number in the resulting file
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-sox")
@@ -133,3 +133,5 @@ set(l9_opt "${l9_opt} -xCORE-AVX2")
 set(n0_opt "${n0_opt} -xMIC-AVX512")
 set(k0_opt "${k0_opt} -xCORE-AVX512")
 set(k0_opt "${k0_opt} -qopt-zmm-usage:high")
+set(k1_opt "${k1_opt} -xCORE-AVX512")
+set(k1_opt "${k1_opt} -qopt-zmm-usage:high")

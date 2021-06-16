@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@
 //    if BNU==0, -1 will return
 *F*/
 
-int cpMSBit_BNU(const BNU_CHUNK_T* pA, cpSize nsA)
+IPP_OWN_DEFN (int, cpMSBit_BNU, (const BNU_CHUNK_T* pA, cpSize nsA))
 {
    int msb;
    FIX_BNU(pA, nsA);

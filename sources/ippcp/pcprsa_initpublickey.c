@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,7 +58,6 @@ IPPFUN(IppStatus, ippsRSA_InitPublicKey,(int rsaModulusBitSize, int publicExpBit
                                          IppsRSAPublicKeyState* pKey, int keyCtxSize))
 {
    IPP_BAD_PTR1_RET(pKey);
-   pKey = (IppsRSAPublicKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PUBLIC_KEY_ALIGNMENT) );
 
    IPP_BADARG_RET((MIN_RSA_SIZE>rsaModulusBitSize) || (rsaModulusBitSize>MAX_RSA_SIZE), ippStsNotSupportedModeErr);
    IPP_BADARG_RET(!((0<publicExpBitSize) && (publicExpBitSize<=rsaModulusBitSize)), ippStsBadArgErr);
@@ -66,7 +65,7 @@ IPPFUN(IppStatus, ippsRSA_InitPublicKey,(int rsaModulusBitSize, int publicExpBit
    /* test available size of context buffer */
    IPP_BADARG_RET(keyCtxSize<cpSizeof_RSA_publicKey(rsaModulusBitSize, publicExpBitSize), ippStsMemAllocErr);
 
-   RSA_PUB_KEY_ID(pKey) = idCtxRSA_PubKey;
+   RSA_PUB_KEY_SET_ID(pKey);
    RSA_PUB_KEY_MAXSIZE_N(pKey) = rsaModulusBitSize;
    RSA_PUB_KEY_MAXSIZE_E(pKey) = publicExpBitSize;
    RSA_PUB_KEY_BITSIZE_N(pKey) = 0;
@@ -86,7 +85,7 @@ IPPFUN(IppStatus, ippsRSA_InitPublicKey,(int rsaModulusBitSize, int publicExpBit
       RSA_PUB_KEY_E(pKey) = (BNU_CHUNK_T*)( IPP_ALIGNED_PTR((ptr), (int)sizeof(BNU_CHUNK_T)) );
       ptr += pubExpLen*(Ipp32s)sizeof(BNU_CHUNK_T);
 
-      RSA_PUB_KEY_NMONT(pKey) = (gsModEngine*)( IPP_ALIGNED_PTR((ptr), (MONT_ALIGNMENT)) );
+      RSA_PUB_KEY_NMONT(pKey) = (gsModEngine*)(ptr);
       ptr += montNsize;
 
       ZEXPAND_BNU(RSA_PUB_KEY_E(pKey), 0, pubExpLen);

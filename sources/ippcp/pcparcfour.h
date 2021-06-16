@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2005-2020 Intel Corporation
+* Copyright 2005-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@
 // ARCFOUR context
 */
 struct _cpARCfour {
-   IppCtxId    idCtx;      /* RC4 identifier  */
+   Ipp32u      idCtx;      /* RC4 identifier  */
 
    Ipp32u      cntX;       /* algorithm's counter x  */
    Ipp32u      cntY;       /* algorithm's counter y  */
@@ -55,18 +55,19 @@ struct _cpARCfour {
 /*
 // Useful macros
 */
-#define RC4_ID(ctx)        ((ctx)->idCtx)
+#define RC4_SET_ID(ctx)    ((ctx)->idCtx = (Ipp32u)idCtxARCFOUR ^ (Ipp32u)IPP_UINT_PTR(ctx))
+#define RC4_RESET_ID(ctx)  ((ctx)->idCtx = (Ipp32u)idCtxARCFOUR)
 #define RC4_CNTX(ctx)      ((ctx)->cntX)
 #define RC4_CNTY(ctx)      ((ctx)->cntY)
 #define RC4_SBOX(ctx)      ((ctx)->Sbox)
 #define RC4_SBOX0(ctx)     ((ctx)->Sbox0)
 
-#define RC4_VALID_ID(ctx)  (RC4_ID((ctx))==idCtxARCFOUR)
+#define RC4_VALID_ID(ctx)  ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxARCFOUR)
 
 /*
 // internal functions
 */
 #define ARCFourProcessData OWNAPI(ARCFourProcessData)
-   void ARCFourProcessData(const Ipp8u *pSrc, Ipp8u *pDst, int length, IppsARCFourState *pCtx);
+   IPP_OWN_DECL (void, ARCFourProcessData, (const Ipp8u *pSrc, Ipp8u *pDst, int length, IppsARCFourState *pCtx))
 
 #endif /* _ARCFOUR_H */

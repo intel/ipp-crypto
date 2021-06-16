@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -376,10 +376,12 @@ int8u ifma_mb8_to_BNU(int64u* const out_bn[8], const int64u inp_mb8[][8], const 
     // Check input parameters
     assert(bitLen > 0);
 
+    int bnu_bitlen = NUMBER_OF_DIGITS(bitLen, 64) * 64; // gres: output length is multiple 64
     int byteLens[8];
     int i;
     for (i = 0; i < 8; ++i)
-        byteLens[i] = (NULL != out_bn[i]) ? NUMBER_OF_DIGITS(bitLen, 8) : 0;
+        //gres: byteLens[i] = (NULL != out_bn[i]) ? NUMBER_OF_DIGITS(bitLen, 8) : 0;
+         byteLens[i] = (NULL != out_bn[i]) ? NUMBER_OF_DIGITS(bnu_bitlen, 8) : 0;
 
     transform_mb8_to_8sb((int8u**)out_bn, byteLens, (U64*)inp_mb8, bitLen, RADIX_CVT);
 
@@ -458,7 +460,7 @@ int8u ifma_BN_transpose_copy(int64u out_mb8[][8], const BIGNUM* const bn[8], int
    // check input length
    assert((0<bitLen) && (bitLen<=IFMA_MAX_BITSIZE));
 
-   int byteLen = NUMBER_OF_DIGITS(bitLen, 8);
+   int byteLen = NUMBER_OF_DIGITS(bitLen, 64) * 8;
 
    int64u *inp[8];
    #ifndef BN_OPENSSL_PATCH

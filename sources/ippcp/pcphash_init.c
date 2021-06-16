@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 #include "pcphash_func.h"
 #include "pcptool.h"
 
-int cpInitHash(IppsHashState* pCtx, IppHashAlgId algID)
+IPP_OWN_DEFN (int, cpInitHash, (IppsHashState* pCtx, IppHashAlgId algID))
 {
    /* setup default processing function */
    HASH_FUNC(pCtx) = cpHashProcFunc[algID];

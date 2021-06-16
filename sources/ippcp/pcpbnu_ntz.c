@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@
 //
 *F*/
 
-cpSize cpNTZ_BNU(BNU_CHUNK_T x)
+IPP_OWN_DEFN (cpSize, cpNTZ_BNU, (BNU_CHUNK_T x))
 {
    cpSize ntz = BNU_CHUNK_BITS;
    if(x) {

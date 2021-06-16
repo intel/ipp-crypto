@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -78,8 +78,6 @@ IPPFUN(IppStatus, ippsAES_XTSEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int bitLen
 {
    /* test pointers */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned AES context */
-   pCtx = (IppsAES_XTSSpec*)( IPP_ALIGNED_PTR(pCtx, AES_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_AES_XTS_ID(pCtx), ippStsContextMatchErr);
 
@@ -121,7 +119,7 @@ IPPFUN(IppStatus, ippsAES_XTSEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int bitLen
             #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
             /* use Intel(R) AES New Instructions version if possible */
             if(AES_NI_ENABLED==RIJ_AESNI(pdatAES)) {
-               #if(_IPP32E>=_IPP32E_K0)
+               #if(_IPP32E>=_IPP32E_K1)
                if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
                   cpAESEncryptXTS_VAES(pDst, pSrc, encBlocks, RIJ_EKEYS(pdatAES), RIJ_NR(pdatAES), tweakCT);
                }

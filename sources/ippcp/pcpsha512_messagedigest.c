@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 #include "pcptool.h"
 #include "pcpsha512stuff.h"
 
-IppStatus cpSHA512MessageDigest(DigestSHA512 hash, const Ipp8u* pMsg, int msgLen, const DigestSHA512 IV)
+IPP_OWN_DEFN (IppStatus, cpSHA512MessageDigest, (DigestSHA512 hash, const Ipp8u* pMsg, int msgLen, const DigestSHA512 IV))
 {
    /* test digest pointer */
    IPP_BAD_PTR1_RET(hash);

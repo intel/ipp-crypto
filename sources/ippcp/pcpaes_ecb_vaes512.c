@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,12 +32,12 @@
 #include "pcpaes_encrypt_vaes512.h"
 #include "pcpaes_decrypt_vaes512.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 
-void EncryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,        // pointer to the plaintext
-                                   Ipp8u* pDst,              // pointer to the ciphertext buffer
-                                   int len,                  // text length in bytes
-                                   const IppsAESSpec* pCtx)  // pointer to the context
+IPP_OWN_DEFN (void, EncryptECB_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,        // pointer to the plaintext
+                                                   Ipp8u* pDst,              // pointer to the ciphertext buffer
+                                                   int len,                  // text length in bytes
+                                                   const IppsAESSpec* pCtx))  // pointer to the context
 {
    int cipherRounds = RIJ_NR(pCtx) - 1;
 
@@ -116,10 +116,10 @@ void EncryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,        // pointer to the p
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void DecryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,         // pointer to the plaintext
-                                   Ipp8u* pDst,               // pointer to the ciphertext buffer
-                                   int len,                   // text length in bytes
-                                   const IppsAESSpec* pCtx)   // pointer to the context
+IPP_OWN_DEFN (void, DecryptECB_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,         // pointer to the plaintext
+                                                   Ipp8u* pDst,               // pointer to the ciphertext buffer
+                                                   int len,                   // text length in bytes
+                                                   const IppsAESSpec* pCtx))   // pointer to the context
 {
    int cipherRounds = RIJ_NR(pCtx) - 1;
 
@@ -195,4 +195,4 @@ void DecryptECB_RIJ128pipe_VAES_NI(const Ipp8u* pSrc,         // pointer to the 
    }
 }
 
-#endif /* _IPP32E>=_IPP32E_K0 */
+#endif /* _IPP32E>=_IPP32E_K1 */
