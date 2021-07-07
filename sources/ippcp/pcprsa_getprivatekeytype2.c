@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,11 +66,9 @@ IPPFUN(IppStatus, ippsRSA_GetPrivateKeyType2,(IppsBigNumState* pFactorP,
                                               const IppsRSAPrivateKeyState* pKey))
 {
    IPP_BAD_PTR1_RET(pKey);
-   pKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PRIVATE_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PRV_KEY2_VALID_ID(pKey), ippStsContextMatchErr);
 
    if(pFactorP) {
-      pFactorP = (IppsBigNumState*)( IPP_ALIGNED_PTR(pFactorP, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pFactorP), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
       IPP_BADARG_RET(BN_ROOM(pFactorP) < BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_P(pKey)), ippStsSizeErr);
@@ -81,7 +79,6 @@ IPPFUN(IppStatus, ippsRSA_GetPrivateKeyType2,(IppsBigNumState* pFactorP,
    }
 
    if(pFactorQ) {
-      pFactorQ = (IppsBigNumState*)( IPP_ALIGNED_PTR(pFactorQ, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pFactorQ), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
       IPP_BADARG_RET(BN_ROOM(pFactorQ) < BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_Q(pKey)), ippStsSizeErr);
@@ -95,7 +92,6 @@ IPPFUN(IppStatus, ippsRSA_GetPrivateKeyType2,(IppsBigNumState* pFactorP,
       cpSize expLen = BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_P(pKey));
       FIX_BNU(RSA_PRV_KEY_DP(pKey), expLen);
 
-      pCrtExpP = (IppsBigNumState*)( IPP_ALIGNED_PTR(pCrtExpP, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pCrtExpP), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
       IPP_BADARG_RET(BN_ROOM(pCrtExpP) < expLen, ippStsSizeErr);
@@ -107,7 +103,6 @@ IPPFUN(IppStatus, ippsRSA_GetPrivateKeyType2,(IppsBigNumState* pFactorP,
       cpSize expLen = BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_Q(pKey));
       FIX_BNU(RSA_PRV_KEY_DQ(pKey), expLen);
 
-      pCrtExpQ = (IppsBigNumState*)( IPP_ALIGNED_PTR(pCrtExpQ, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pCrtExpQ), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
       IPP_BADARG_RET(BN_ROOM(pCrtExpQ) < expLen, ippStsSizeErr);
@@ -119,7 +114,6 @@ IPPFUN(IppStatus, ippsRSA_GetPrivateKeyType2,(IppsBigNumState* pFactorP,
       cpSize coeffLen = BITS_BNU_CHUNK(RSA_PRV_KEY_BITSIZE_P(pKey));
       FIX_BNU(RSA_PRV_KEY_INVQ(pKey), coeffLen);
 
-      pInverseQ = (IppsBigNumState*)( IPP_ALIGNED_PTR(pInverseQ, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pInverseQ), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
       IPP_BADARG_RET(BN_ROOM(pInverseQ) < coeffLen, ippStsSizeErr);

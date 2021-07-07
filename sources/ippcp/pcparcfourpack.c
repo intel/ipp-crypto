@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2005-2020 Intel Corporation
+* Copyright 2005-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -46,11 +46,12 @@ IPPFUN(IppStatus, ippsARCFourPack,(const IppsARCFourState* pCtx, Ipp8u* pBuffer)
 {
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
-   /* use aligned context */
-   pCtx = (IppsARCFourState*)( IPP_ALIGNED_PTR(pCtx, RC4_ALIGNMENT) );
    /* test the context */
    IPP_BADARG_RET(!RC4_VALID_ID(pCtx), ippStsContextMatchErr);
 
    CopyBlock(pCtx, pBuffer, sizeof(IppsARCFourState));
+   IppsARCFourState* pCopy = (IppsARCFourState*)pBuffer;
+   RC4_RESET_ID(pCopy);
+   
    return ippStsNoErr;
 }

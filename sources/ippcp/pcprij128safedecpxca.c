@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -141,11 +141,7 @@ static void InvMixColumn(Ipp8u inp_out[])
 #define SC           NB(128)
 #define STATE_SIZE   (sizeof(Ipp32u)*SC)
 
-void SafeDecrypt_RIJ128(const Ipp8u* pInpBlk,
-                              Ipp8u* pOutBlk,
-                              int nr,
-                        const Ipp8u* pKeys,
-                        const void* pTables)
+IPP_OWN_DEFN (void, SafeDecrypt_RIJ128, (const Ipp8u* pInpBlk, Ipp8u* pOutBlk, int nr, const Ipp8u* pKeys, const void* pTables))
 {
    int r;
 
@@ -373,11 +369,7 @@ static void InvMixColumn(Ipp8u blk[16])
 #define SC           NB(128)
 #define STATE_SIZE   (sizeof(Ipp32u)*SC)
 
-void SafeDecrypt_RIJ128(const Ipp8u* pInpBlk,
-                              Ipp8u* pOutBlk,
-                              int nr,
-                        const Ipp8u* pKeys,
-                        const void* pTables)
+IPP_OWN_DEFN (void, SafeDecrypt_RIJ128, (const Ipp8u* pInpBlk, Ipp8u* pOutBlk, int nr, const Ipp8u* pKeys, const void* pTables))
 {
    int r;
 

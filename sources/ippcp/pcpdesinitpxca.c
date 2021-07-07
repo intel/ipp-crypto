@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ static Ipp8u pc2[] = {
 /*
 // Generate key schedule for encryption and decryption
 */
-void SetKey_DES(const Ipp8u* pKey, IppsDESSpec* pCtx)
+IPP_OWN_DEFN (void, SetKey_DES, (const Ipp8u* pKey, IppsDESSpec* pCtx))
 {
    RoundKeyDES* pEncRoundKey = DES_EKEYS(pCtx);
    RoundKeyDES* pDecRoundKey = DES_DKEYS(pCtx);

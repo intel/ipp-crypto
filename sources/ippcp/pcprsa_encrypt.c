@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,19 +66,16 @@ IPPFUN(IppStatus, ippsRSA_Encrypt,(const IppsBigNumState* pPtxt,
                                          Ipp8u* pBuffer))
 {
    IPP_BAD_PTR2_RET(pKey, pBuffer);
-   pKey = (IppsRSAPublicKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PUBLIC_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(pKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
 
    IPP_BAD_PTR1_RET(pPtxt);
-   pPtxt = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPtxt, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPtxt), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pPtxt), ippStsOutOfRangeErr);
    IPP_BADARG_RET(0 <= cpCmp_BNU(BN_NUMBER(pPtxt), BN_SIZE(pPtxt),
                                  MOD_MODULUS(RSA_PUB_KEY_NMONT(pKey)), MOD_LEN(RSA_PUB_KEY_NMONT(pKey))), ippStsOutOfRangeErr);
 
    IPP_BAD_PTR1_RET(pCtxt);
-   pCtxt = (IppsBigNumState*)( IPP_ALIGNED_PTR(pCtxt, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pCtxt), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_ROOM(pCtxt) < BITS_BNU_CHUNK(RSA_PUB_KEY_BITSIZE_N(pKey)), ippStsSizeErr);
 

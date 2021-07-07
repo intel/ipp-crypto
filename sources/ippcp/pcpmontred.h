@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,14 +30,9 @@
 // Montgomery reduction
 */
 #define cpMontRedAdc_BNU OWNAPI(cpMontRedAdc_BNU)
-void    cpMontRedAdc_BNU(BNU_CHUNK_T* pR,
-                        BNU_CHUNK_T* pProduct,
-                  const BNU_CHUNK_T* pModulus, cpSize nsM, BNU_CHUNK_T m0);
-
+    IPP_OWN_DECL (void, cpMontRedAdc_BNU, (BNU_CHUNK_T* pR, BNU_CHUNK_T* pProduct, const BNU_CHUNK_T* pModulus, cpSize nsM, BNU_CHUNK_T m0))
 #define cpMontRedAdx_BNU OWNAPI(cpMontRedAdx_BNU)
-void    cpMontRedAdx_BNU(BNU_CHUNK_T* pR,
-                        BNU_CHUNK_T* pProduct,
-                  const BNU_CHUNK_T* pModulus, cpSize nsM, BNU_CHUNK_T m0);
+    IPP_OWN_DECL (void, cpMontRedAdx_BNU, (BNU_CHUNK_T* pR, BNU_CHUNK_T* pProduct, const BNU_CHUNK_T* pModulus, cpSize nsM, BNU_CHUNK_T m0))
 
 __INLINE void cpMontRed_BNU_opt(BNU_CHUNK_T* pR,
                                 BNU_CHUNK_T* pProduct,

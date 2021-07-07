@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #include "pcpgfpecstuff.h"
 #include "pcpmask_ct.h"
 
-void gfec_base_point_mul(BNU_CHUNK_T* pRdata, const Ipp8u* pScalar8, int scalarBitSize, IppsGFpECState* pEC)
+IPP_OWN_DEFN (void, gfec_base_point_mul, (BNU_CHUNK_T* pRdata, const Ipp8u* pScalar8, int scalarBitSize, IppsGFpECState* pEC))
 {
    /* size of window, get function and pre-computed table */
    int window_size = ECP_PREMULBP(pEC)->w;

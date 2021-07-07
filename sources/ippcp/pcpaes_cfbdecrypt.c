@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ void cpDecryptAES_cfb(const Ipp8u* pIV,
                       const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks, int cfbBlkSize,
                       const IppsAESSpec* pCtx)
 {
-#if(_IPP32E>=_IPP32E_K0)
+#if(_IPP32E>=_IPP32E_K1)
    if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
       if(cfbBlkSize==MBS_RIJ128)
          DecryptCFB128_RIJ128pipe_VAES_NI(pSrc, pDst, nBlocks*cfbBlkSize, pCtx, pIV);
@@ -84,7 +84,7 @@ void cpDecryptAES_cfb(const Ipp8u* pIV,
 #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    /* use pipelined version is possible */
    if(AES_NI_ENABLED==RIJ_AESNI(pCtx)) {
-      #if !defined (__INTEL_COMPILER) && defined (_MSC_VER) && (_MSC_VER < 1920) && (_IPP32E>=_IPP32E_K0)
+      #if !defined (__INTEL_COMPILER) && defined (_MSC_VER) && (_MSC_VER < 1920) && (_IPP32E>=_IPP32E_K1)
 msvc_fallback:
       #endif
       if(cfbBlkSize==MBS_RIJ128)
@@ -155,8 +155,6 @@ IPPFUN(IppStatus, ippsAESDecryptCFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, in
 {
    /* test context */
    IPP_BAD_PTR1_RET(pCtx);
-   /* use aligned AES context */
-   pCtx = (IppsAESSpec*)( IPP_ALIGNED_PTR(pCtx, AES_ALIGNMENT) );
    /* test the context ID */
    IPP_BADARG_RET(!VALID_AES_ID(pCtx), ippStsContextMatchErr);
 

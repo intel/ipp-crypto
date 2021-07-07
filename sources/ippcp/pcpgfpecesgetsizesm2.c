@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@
 *F*/
 IPPFUN(IppStatus, ippsGFpECESGetSize_SM2, (const IppsGFpECState* pEC, int* pSize)) {
    IPP_BAD_PTR2_RET(pEC, pSize);
-   IPP_BADARG_RET(pEC->idCtx != idCtxGFPEC, ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
    IPP_BADARG_RET(!pEC->subgroup, ippStsContextMatchErr);
    IPP_BADARG_RET(1 < pEC->pGF->pGFE->extdegree, ippStsNotSupportedModeErr);
 

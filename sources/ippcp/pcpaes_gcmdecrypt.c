@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -91,11 +91,8 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
 
       AadFinalize_ aadHashFinalize = AES_GCM_AAD_FINALIZE(pState);
 
-      /* complete AAD processing */
-      if(AESGCM_BUFLEN(pState)) {
-         aadHashFinalize(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), 
-                         AESGCM_GHASH(pState), (Ipp64u)AESGCM_BUFLEN(pState), AESGCM_AAD_LEN(pState));
-      }
+      aadHashFinalize(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), 
+                      AESGCM_GHASH(pState), (Ipp64u)AESGCM_BUFLEN(pState), AESGCM_AAD_LEN(pState));
 
       #else
       

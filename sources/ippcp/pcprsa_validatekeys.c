@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -170,17 +170,14 @@ IPPFUN(IppStatus, ippsRSA_ValidateKeys,(int* pResult,
                                         IppBitSupplier rndFunc, void* pRndParam))
 {
    IPP_BAD_PTR1_RET(pPublicKey);
-   pPublicKey = (IppsRSAPublicKeyState*)( IPP_ALIGNED_PTR(pPublicKey, RSA_PUBLIC_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(pPublicKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(pPublicKey), ippStsIncompleteContextErr);
 
    IPP_BAD_PTR1_RET(pPrivateKeyType2);
-   pPrivateKeyType2 = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pPrivateKeyType2, RSA_PRIVATE_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PRV_KEY2_VALID_ID(pPrivateKeyType2), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pPrivateKeyType2), ippStsIncompleteContextErr);
 
    if(pPrivateKeyType1) { /* pPrivateKeyType1 is optional */
-      pPrivateKeyType1 = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pPrivateKeyType1, RSA_PRIVATE_KEY_ALIGNMENT) );
       IPP_BADARG_RET(!RSA_PRV_KEY1_VALID_ID(pPrivateKeyType1), ippStsContextMatchErr);
       IPP_BADARG_RET(!RSA_PRV_KEY_IS_SET(pPrivateKeyType1), ippStsIncompleteContextErr);
    }

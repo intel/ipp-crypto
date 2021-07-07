@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 
 __INLINE int cpSizeofCtx_AESCMAC(void)
 {
-   return sizeof(IppsAES_CMACState) + AESCMAC_ALIGNMENT-1;
+   return sizeof(IppsAES_CMACState);
 }
 
 static void init(IppsAES_CMACState* pCtx)

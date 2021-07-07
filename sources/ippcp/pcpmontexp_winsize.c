@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2003-2020 Intel Corporation
+* Copyright 2003-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 
 
 #if !defined(_USE_WINDOW_EXP_)
-cpSize cpMontExp_WinSize(int bitsize)
+IPP_OWN_DEFN (cpSize, cpMontExp_WinSize, (int bitsize))
 {
    IPP_UNREFERENCED_PARAMETER(bitsize);
    return 1;
@@ -48,7 +48,7 @@ cpSize cpMontExp_WinSize(int bitsize)
       (_IPP32E==_IPP32E_M7) || \
       (_IPP32E==_IPP32E_U8) || (_IPP32E==_IPP32E_Y8) || \
       (_IPP32E==_IPP32E_N8) || (_IPP32E>=_IPP32E_E9))
-cpSize cpMontExp_WinSize(int bitsize)
+IPP_OWN_DEFN (cpSize, cpMontExp_WinSize, (int bitsize))
 {
    IPP_UNREFERENCED_PARAMETER(bitsize);
    return 1;
@@ -61,7 +61,7 @@ cpSize cpMontExp_WinSize(int bitsize)
      (_IPP32E==_IPP32E_M7) || \
      (_IPP32E==_IPP32E_U8) || (_IPP32E==_IPP32E_Y8) || \
      (_IPP32E==_IPP32E_N8) || (_IPP32E>=_IPP32E_E9))
-cpSize cpMontExp_WinSize(int bitsize)
+IPP_OWN_DEFN (cpSize, cpMontExp_WinSize, (int bitsize))
 {
    return
           //bitsize>3715? 8 : /*limited by 6 or 4 (LOG_CACHE_LINE_SIZE); we use it for windowing-exp imtigation */

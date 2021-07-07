@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,9 +48,7 @@ static inline void aes_encrypt4_aesni_mb4(__m128i blocks[4], __m128i enc_keys[4]
 }
 
 
-void aes_cfb16_enc_aesni_mb4(const Ipp8u* const source_pa[4], Ipp8u* const dst_pa[4],
-                             const int len[4], const int cipherRounds,
-                             const Ipp32u* enc_keys[4], const Ipp8u* pIV[4])
+IPP_OWN_DEFN (void, aes_cfb16_enc_aesni_mb4, (const Ipp8u* const source_pa[4], Ipp8u* const dst_pa[4], const int len[4], const int cipherRounds, const Ipp32u* enc_keys[4], const Ipp8u* pIV[4]))
 {
     __m128i* pSrc[4];
     __m128i* pDst[4];

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ IPPFUN(IppStatus, ippsSHA1GetSize,(int* pSize))
    /* test pointer */
    IPP_BAD_PTR1_RET(pSize);
 
-   *pSize = sizeof(IppsSHA1State) +(SHA1_ALIGNMENT-1);
+   *pSize = sizeof(IppsSHA1State);
 
    return ippStsNoErr;
 }

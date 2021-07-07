@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -91,8 +91,7 @@ IPPFUN(IppStatus, ippsGFpECInitStd192r1,(const IppsGFpState* pGFp, IppsGFpECStat
 {
    IPP_BAD_PTR2_RET(pGFp, pEC);
 
-   pGFp = (IppsGFpState*)( IPP_ALIGNED_PTR(pGFp, GFP_ALIGNMENT) );
-   IPP_BADARG_RET( !GFP_TEST_ID(pGFp), ippStsContextMatchErr );
+   IPP_BADARG_RET( !GFP_VALID_ID(pGFp), ippStsContextMatchErr );
 
    {
       gsModEngine* pGFE = GFP_PMA(pGFp);
@@ -101,8 +100,6 @@ IPPFUN(IppStatus, ippsGFpECInitStd192r1,(const IppsGFpState* pGFp, IppsGFpECStat
       IPP_BADARG_RET(!GFP_IS_BASIC(pGFE), ippStsBadArgErr);
       /* test underlying prime value*/
       IPP_BADARG_RET(cpCmp_BNU(secp192r1_p, BITS_BNU_CHUNK(192), GFP_MODULUS(pGFE), BITS_BNU_CHUNK(192)), ippStsBadArgErr);
-
-      pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
 
       ippsGFpECInit(pGFp, NULL, NULL, pEC);
       cpGFpECSetStd(BITS_BNU_CHUNK(192), secp192r1_a,

@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2015-2020 Intel Corporation
+; Copyright 2015-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@
 %assign _IPP32E_L9 512  ; Intel(R) Advanced Vector Extensions 2 - intel64
 %assign _IPP32E_N0 1024 ; Intel(R) Advanced Vector Extensions 512 - Intel(R) Xeon Phi(TM) processor (formerly Knight Landing) - intel64
 %assign _IPP32E_K0 2048 ; Intel(R) Advanced Vector Extensions 512 - Intel(R) Xeon(R) processor (formerly Skylake) - intel64
+%assign _IPP32E_K1 4096 ; Intel(R) Advanced Vector Extensions 512 - Intel(R) Xeon(R) processor (formerly Icelake) - intel64
 
 %assign _IPP _IPP_PX
 %assign _IPP32E _IPP32E_PX
@@ -91,6 +92,10 @@
   %assign IPP_ALIGN_FACTOR 64
   %assign _IPP _IPP_PX
   %assign _IPP32E _IPP32E_K0
+%elifdef _K1 ; Intel(R) Advanced Vector Extensions 512 - Intel(R) Xeon(R) processor (formerly Icelake) - intel64
+  %assign IPP_ALIGN_FACTOR 64
+  %assign _IPP _IPP_PX
+  %assign _IPP32E _IPP32E_K1
 %else
   %assign _IPP _IPP_PX ; pure C-code
 %endif

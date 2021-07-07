@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include "pcpbn.h"
 #include "pcpgfpstuff.h"
 
-BNU_CHUNK_T* cpGFpInv(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFE)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpInv, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFE))
 {
    GFP_METHOD(pGFE)->decode(pR, pA, pGFE);
    /* gs_mont_inv(pR, pR, pGFE, alm_mont_inv); */

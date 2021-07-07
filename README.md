@@ -54,6 +54,12 @@ The library provides a comprehensive set of routines commonly used for cryptogra
 - [Intel IPP Cryptography Developer Reference](https://software.intel.com/en-us/ipp-crypto-reference)
 - [Intel IPP Documentation](https://software.intel.com/en-us/intel-ipp/documentation)
 
+## Branches Description
+
+- `develop` - snapshots of the library under active development.
+Contains code that may not be fully functional and that Intel may substantially modify in development of a production version.
+- `ipp_crypto_<release>` - source code of the official production release `<release>`.
+
 ## How to Contribute
 
 We welcome community contributions to Intel IPP Cryptography. If you have an idea how to improve the product, let us know about your proposal via the Intel IPP Forum or GitHub* Issues.

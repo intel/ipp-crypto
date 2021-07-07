@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ IPPFUN(IppStatus, ippsHashGetTag,(Ipp8u* pTag, int tagLen, const IppsHashState* 
    /* test state pointer and ID */
    IPP_BAD_PTR2_RET(pTag, pState);
    /* test the context */
-   IPP_BADARG_RET(!HASH_VALID_ID(pState), ippStsContextMatchErr);
+   IPP_BADARG_RET(!HASH_VALID_ID(pState, idCtxHash), ippStsContextMatchErr);
 
    {
       /* size of hash */

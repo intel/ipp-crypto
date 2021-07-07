@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,12 +58,10 @@
 IPPFUN(IppStatus, ippsGFpInitArbitrary,(const IppsBigNumState* pPrime, int primeBitSize, IppsGFpState* pGFp))
 {
    IPP_BAD_PTR1_RET(pGFp);
-   pGFp = (IppsGFpState*)( IPP_ALIGNED_PTR(pGFp, GFP_ALIGNMENT) );
 
    IPP_BADARG_RET((primeBitSize< IPP_MIN_GF_BITSIZE) || (primeBitSize> IPP_MAX_GF_BITSIZE), ippStsSizeErr);
 
    IPP_BAD_PTR1_RET(pPrime);
-   pPrime = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrime, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrime), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_SIGN(pPrime)!= IppsBigNumPOS, ippStsBadArgErr);                                   /* prime is negative */
    IPP_BADARG_RET(BITSIZE_BNU(BN_NUMBER(pPrime),BN_SIZE(pPrime)) != primeBitSize, ippStsBadArgErr);  /* primeBitSize == bitsize(prime) */

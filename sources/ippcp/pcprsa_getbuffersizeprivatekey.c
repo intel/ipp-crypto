@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@
 IPPFUN(IppStatus, ippsRSA_GetBufferSizePrivateKey,(int* pBufferSize, const IppsRSAPrivateKeyState* pKey))
 {
    IPP_BAD_PTR1_RET(pKey);
-   pKey = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pKey, RSA_PUBLIC_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PRV_KEY_VALID_ID(pKey), ippStsContextMatchErr);
    IPP_BADARG_RET(RSA_PRV_KEY1_VALID_ID(pKey) && !RSA_PRV_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
 
@@ -63,7 +62,9 @@ IPPFUN(IppStatus, ippsRSA_GetBufferSizePrivateKey,(int* pBufferSize, const IppsR
    {
       cpSize modulusBits = (RSA_PRV_KEY1_VALID_ID(pKey))? RSA_PRV_KEY_BITSIZE_N(pKey) :
                                                   IPP_MAX(RSA_PRV_KEY_BITSIZE_P(pKey), RSA_PRV_KEY_BITSIZE_Q(pKey));
-      gsMethod_RSA* m = getDefaultMethod_RSA_private(modulusBits);
+      gsMethod_RSA* m = getDualExpMethod_RSA_private(RSA_PRV_KEY_BITSIZE_P(pKey), RSA_PRV_KEY_BITSIZE_Q(pKey));
+      if (NULL == m)
+         m = getDefaultMethod_RSA_private(modulusBits);
 
       cpSize bitSizeN = (RSA_PRV_KEY1_VALID_ID(pKey))? modulusBits : modulusBits*2;
       cpSize nsN = BITS_BNU_CHUNK(bitSizeN);

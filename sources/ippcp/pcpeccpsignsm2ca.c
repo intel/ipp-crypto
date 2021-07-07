@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -84,10 +84,8 @@ IPPFUN(IppStatus, ippsECCPSignSM2,(const IppsBigNumState* pMsgDigest,
                                    IppsBigNumState* pSignR, IppsBigNumState* pSignS,
                                    IppsECCPState* pEC))
 {
-   /* use aligned EC context */
    IPP_BAD_PTR1_RET(pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    return ippsGFpECSignSM2(pMsgDigest,
                            pRegPrivate, pEphPrivate,

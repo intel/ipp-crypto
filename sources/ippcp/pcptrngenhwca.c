@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2015-2020 Intel Corporation
+* Copyright 2015-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 #if ((_IPP>=_IPP_G9) || (_IPP32E>=_IPP32E_E9))
 static int cpSeed_hw_sample(BNU_CHUNK_T* pSample)
 {
-#define LOCAL_COUNTER (32) /* this constant has been tuned manually stated from 1024, looks that 16 is enouhg, but increased twice */
+#define LOCAL_COUNTER (320) /* this constant has been tuned manually */
    int n;
    int success = 0;
    for(n=0; n<LOCAL_COUNTER && !success; n++)
@@ -57,7 +57,7 @@ static int cpSeed_hw_sample(BNU_CHUNK_T* pSample)
 #if (_IPP32E>=_IPP32E_E9)
 static int cpSeed_hw_sample32(Ipp32u* pSample)
 {
-#define LOCAL_COUNTER (32) /* this constant has been tuned manually stated from 1024, looks that 16 is enouhg, but increased twice */
+#define LOCAL_COUNTER (320) /* this constant has been tuned manually */
    int n;
    int success = 0;
    for(n=0; n<LOCAL_COUNTER && !success; n++)
@@ -167,7 +167,6 @@ IPPFUN(IppStatus, ippsTRNGenRDSEED_BN,(IppsBigNumState* pRand, int nBits, void* 
 {
    /* test random BN */
    IPP_BAD_PTR1_RET(pRand);
-   pRand = (IppsBigNumState*)( IPP_ALIGNED_PTR(pRand, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pRand), ippStsContextMatchErr);
 
    /* test sizes */

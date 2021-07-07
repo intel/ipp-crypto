@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -175,8 +175,7 @@ __INLINE Ipp32u InvMixColumn(Ipp32u x)
 /*
 // Expansion of key for Rijndael's Encryption
 */
-void ExpandRijndaelKey(const Ipp8u* pKey, int NK, int NB, int NR, int nKeys,
-                       Ipp8u* pEncKeys, Ipp8u* pDecKeys)
+IPP_OWN_DEFN (void, ExpandRijndaelKey, (const Ipp8u* pKey, int NK, int NB, int NR, int nKeys, Ipp8u* pEncKeys, Ipp8u* pDecKeys))
 {
    Ipp32u* enc_keys = (Ipp32u*)pEncKeys;
    Ipp32u* dec_keys = (Ipp32u*)pDecKeys;

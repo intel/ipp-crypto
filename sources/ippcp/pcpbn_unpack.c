@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,12 +41,20 @@
 *F*/
 
 
-void cpUnpackBigNumCtx(const Ipp8u* pBuffer, IppsBigNumState* pBN)
+IPP_OWN_DEFN (void, cpUnpackBigNumCtx, (const Ipp8u* pBuffer, IppsBigNumState* pBN))
 {
-   IppsBigNumState* pAlignedBuffer = (IppsBigNumState*)(IPP_ALIGNED_PTR((pBuffer), BN_ALIGNMENT));
+   IppsBigNumState* pB = (IppsBigNumState*)(pBuffer);
    CopyBlock(pBuffer, pBN, sizeof(IppsBigNumState));
-   BN_NUMBER(pBN) = (BNU_CHUNK_T*)((Ipp8u*)pBN + IPP_UINT_PTR(BN_NUMBER(pAlignedBuffer)));
-   BN_BUFFER(pBN) = (BNU_CHUNK_T*)((Ipp8u*)pBN + IPP_UINT_PTR(BN_BUFFER(pAlignedBuffer)));
-   CopyBlock((Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(BN_NUMBER(pAlignedBuffer)), BN_NUMBER(pBN), BN_ROOM(pBN)*(Ipp32s)sizeof(BNU_CHUNK_T));
-   CopyBlock((Ipp8u*)pAlignedBuffer+IPP_UINT_PTR(BN_BUFFER(pAlignedBuffer)), BN_BUFFER(pBN), BN_ROOM(pBN)*(Ipp32s)sizeof(BNU_CHUNK_T));
+
+   Ipp8u* ptr = (Ipp8u*)pBN;
+   ptr += sizeof(IppsBigNumState);
+   ptr = IPP_ALIGNED_PTR(ptr, BN_ALIGNMENT);
+   BN_NUMBER(pBN) = (BNU_CHUNK_T*)(ptr);
+   ptr += BN_ROOM(pBN)*(Ipp32s)sizeof(BNU_CHUNK_T);
+   BN_BUFFER(pBN) = (BNU_CHUNK_T*)(ptr);
+
+   cpSize bufferOffset = (cpSize)(IPP_INT_PTR(BN_BUFFER(pBN)) - IPP_INT_PTR(pBN));
+
+   CopyBlock((Ipp8u*)pB+sizeof(IppsBigNumState), BN_NUMBER(pBN), BN_ROOM(pBN)*(Ipp32s)sizeof(BNU_CHUNK_T));
+   CopyBlock((Ipp8u*)pB+bufferOffset, BN_BUFFER(pBN), BN_ROOM(pBN)*(Ipp32s)sizeof(BNU_CHUNK_T));
 }

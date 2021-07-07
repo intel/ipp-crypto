@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2020 Intel Corporation
+# Copyright 2017-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,11 +18,21 @@
 # Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 #
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/sources/cmake/ippcp-utils.cmake")
+ippcp_getlibversion("${CMAKE_CURRENT_SOURCE_DIR}/include/ippversion.h")
+if ((NOT DEFINED IPPCP_VERSION_MAJOR) OR
+    (NOT DEFINED IPPCP_VERSION_MINOR) OR
+    (NOT DEFINED IPPCP_VERSION_UPDATE) OR
+    (NOT DEFINED IPPCP_INTERFACE_VERSION_MAJOR) OR
+    (NOT DEFINED IPPCP_INTERFACE_VERSION_MINOR))
+    message(WARNING "Cannot parse version from ippversion.h file. The project might be corrupted.")
+endif()
 
 set(PROJECT_FULL_NAME "Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)")
 set(PROJECT_NAME "Intel(R) IPP Crypto")
-set(PROJECT_VERSION "2020.0.2")
+set(PROJECT_VERSION ${IPPCP_VERSION})
 
 set(LIB_NAME ippcp)
 
@@ -92,11 +102,11 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 set(IPP_CRYPTO_DIR                  "${CMAKE_CURRENT_SOURCE_DIR}")
-set(IPP_CRYPTO_INCLUDE_DIR          "${CMAKE_CURRENT_SOURCE_DIR}/include")
-set(IPP_CRYPTO_SOURCES_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/sources/include")
-set(IPP_CRYPTO_SOURCES_DIR          "${CMAKE_CURRENT_SOURCE_DIR}/sources/ippcp")
-set(IPP_CRYPTO_DISPATCHER_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/sources/dispatcher")
-set(TOOLS_DIR                       "${CMAKE_CURRENT_SOURCE_DIR}/tools")
+set(IPP_CRYPTO_INCLUDE_DIR          "${IPP_CRYPTO_DIR}/include")
+set(IPP_CRYPTO_SOURCES_INCLUDE_DIR  "${IPP_CRYPTO_DIR}/sources/include")
+set(IPP_CRYPTO_SOURCES_DIR          "${IPP_CRYPTO_DIR}/sources/ippcp")
+set(IPP_CRYPTO_DISPATCHER_DIR       "${IPP_CRYPTO_DIR}/sources/dispatcher")
+set(TOOLS_DIR                       "${IPP_CRYPTO_DIR}/tools")
 
 if(NOT CMAKE_OUTPUT_DIR)
   set(CMAKE_OUTPUT_DIR              "${CMAKE_BINARY_DIR}/.build")
@@ -118,20 +128,24 @@ set(NONPIC_SUBDIRECTORY "")
 if(NONPIC_LIB)
   set(NONPIC_SUBDIRECTORY "/nonpic")
 endif()
+
 foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
   string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/lib${NONPIC_SUBDIRECTORY}")
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/lib${NONPIC_SUBDIRECTORY}")
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/lib${NONPIC_SUBDIRECTORY}")
 endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE}")
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE}")
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}")
 endif()
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}")
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}")
 endif()
 
 message (STATUS "PROJECT ............................... " ${PROJECT_FULL_NAME})
@@ -175,10 +189,10 @@ else()
 endif()
 
 add_subdirectory(sources/ippcp)
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/")
+if(EXISTS "${IPP_CRYPTO_DIR}/tests/")
   add_subdirectory(tests)
 endif()
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/perf_tests/")
+if(EXISTS "${IPP_CRYPTO_DIR}/perf_tests/")
   add_subdirectory(perf_tests)
 endif()
 

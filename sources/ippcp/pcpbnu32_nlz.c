@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@
 *F*/
 
 #if (_IPP < _IPP_H9)
-   cpSize cpNLZ_BNU32(Ipp32u x)
+   IPP_OWN_DEFN (cpSize, cpNLZ_BNU32, (Ipp32u x))
    {
       cpSize nlz = BITSIZE(Ipp32u);
       if(x) {

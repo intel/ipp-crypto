@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -75,9 +75,6 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
     // Check number of buffers to be processed
     IPP_BADARG_RET((numBuffers < 1), ippStsLengthErr);
 
-    /* Use aligned AES context */
-    IppsAESSpec* pAlignedCtx;
-    
     // Sequential check of all input buffers
     int isAllBuffersValid = 1;
     int numRounds = 0;
@@ -89,10 +86,8 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
             continue;
         }
 
-        pAlignedCtx = (IppsAESSpec*)(IPP_ALIGNED_PTR(pCtx[i], AES_ALIGNMENT));
-
         // Test the context ID
-        if(!VALID_AES_ID(pAlignedCtx)) {
+        if(!VALID_AES_ID(pCtx[i])) {
             status[i] = ippStsContextMatchErr;
             isAllBuffersValid = 0;
             continue;
@@ -106,7 +101,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
         }
 
         // Test stream integrity
-        if ((len[i] % CFB16_BLK_SIZE)) {
+        if ((len[i] % CFB16_BLOCK_SIZE)) {
             status[i] = ippStsUnderRunErr;
             isAllBuffersValid = 0;
             continue;
@@ -120,11 +115,9 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
     IPP_BADARG_RET(!isAllBuffersValid, ippStsErr)
 
     // Check compatibility of the keys
-    pAlignedCtx = (IppsAESSpec*)(IPP_ALIGNED_PTR(pCtx[0], AES_ALIGNMENT));
-    int referenceKeySize = RIJ_NK(pAlignedCtx);
+    int referenceKeySize = RIJ_NK(pCtx[0]);
     for (i = 0; i < numBuffers; i++) {
-        pAlignedCtx = (IppsAESSpec*)(IPP_ALIGNED_PTR(pCtx[i], AES_ALIGNMENT));
-        IPP_BADARG_RET((RIJ_NK(pAlignedCtx) != referenceKeySize), ippStsContextMatchErr);
+        IPP_BADARG_RET((RIJ_NK(pCtx[i]) != referenceKeySize), ippStsContextMatchErr);
     }
 
     #if (_IPP32E>=_IPP32E_Y8)
@@ -133,7 +126,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
     int buffersProcessed = 0;
     #endif
 
-    #if(_IPP32E>=_IPP32E_K0)
+    #if(_IPP32E>=_IPP32E_K1)
     if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
         while(numBuffers > 0) {
             if (numBuffers > AES_MB_MAX_KERNEL_SIZE / 2) {
@@ -143,8 +136,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
                         continue;
                     }
 
-                    pAlignedCtx = (IppsAESSpec*)(IPP_ALIGNED_PTR(pCtx[i + buffersProcessed], AES_ALIGNMENT));
-                    enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pAlignedCtx);
+                    enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
                     tmp_len[i] = len[i + buffersProcessed];
                 }
 
@@ -159,8 +151,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
                         continue;
                     }
 
-                    pAlignedCtx = (IppsAESSpec*)(IPP_ALIGNED_PTR(pCtx[i + buffersProcessed], AES_ALIGNMENT));
-                    enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pAlignedCtx);
+                    enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
                     tmp_len[i] = len[i + buffersProcessed];
                 }
 
@@ -175,8 +166,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
                         continue;
                     }
 
-                    pAlignedCtx = (IppsAESSpec*)(IPP_ALIGNED_PTR(pCtx[i + buffersProcessed], AES_ALIGNMENT));
-                    enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pAlignedCtx);
+                    enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
                     tmp_len[i] = len[i + buffersProcessed];
                 }
 
@@ -189,7 +179,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
             }
         }
     }
-    #endif // if(_IPP32E>=_IPP32E_K0)
+    #endif // if(_IPP32E>=_IPP32E_K1)
 
     #if (_IPP32E>=_IPP32E_Y8)
     if( IsFeatureEnabled(ippCPUID_AES) ) {
@@ -200,8 +190,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
                     continue;
                 }
 
-                pAlignedCtx = (IppsAESSpec*)(IPP_ALIGNED_PTR(pCtx[i + buffersProcessed], AES_ALIGNMENT));
-                enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pAlignedCtx);
+                enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
                 tmp_len[i] = len[i + buffersProcessed];
             }
 
@@ -213,7 +202,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
     #endif // (_IPP32E>=_IPP32E_Y8)
 
     for (i = 0; i < numBuffers; i++) {
-        status[i] = ippsAESEncryptCFB(pSrc[i], pDst[i], len[i], CFB16_BLK_SIZE, pCtx[i], pIV[i]);
+        status[i] = ippsAESEncryptCFB(pSrc[i], pDst[i], len[i], CFB16_BLOCK_SIZE, pCtx[i], pIV[i]);
     }
 
     for (i = 0; i < numBuffers; i++) {

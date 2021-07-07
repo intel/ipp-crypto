@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2015-2020 Intel Corporation
+; Copyright 2015-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -168,7 +168,7 @@ IPPASM EncryptCFB_RIJ128_AES_NI,PUBLIC
    movdqu      oword [rsp+1*16+r11],xmm0  ;and store into the stack
 
    add         r11, r9                       ; advance index
-   sub         r12, r9                       ; decrease lenth
+   sub         r12, r9                       ; decrease length
    jg          .single_blk
 
    COPY_8U     rsi, {rsp+1*16}, r10, r11b    ; move 1-4 blocks to output
@@ -259,7 +259,7 @@ IPPASM EncryptCFB32_RIJ128_AES_NI,PUBLIC
    movdqu      oword [rsp+1*16+r11],xmm0  ;and store into the stack
 
    add         r11, r9                       ; advance index
-   sub         r12, r9                       ; decrease lenth
+   sub         r12, r9                       ; decrease length
    jg          .single_blk
 
    COPY_32U    rsi, {rsp+1*16}, r10, r11d    ; move 1-4 blocks to output

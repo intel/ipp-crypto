@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,16 +39,17 @@
 *F*/
 
 /* BN(1) and reference */
-IppsBigNumState* cpBN_OneRef(void)
+IPP_OWN_DEFN (IppsBigNumState*, cpBN_OneRef, (void))
 {
    static IppsBigNumStateChunk cpChunk_BN1 = {
       {
-         idCtxBigNum,
+         idCtxUnknown,
          ippBigNumPOS,
          1,1,
          &cpChunk_BN1.value,&cpChunk_BN1.temporary
       },
       1,0
    };
+   BN_SET_ID(&cpChunk_BN1.bn);
    return &cpChunk_BN1.bn;
 }

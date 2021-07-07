@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,8 +45,7 @@
 // Note 1:
 //    must to be hexStrLen <= 64 (512 bits)
 */
-static
-void SHA1_G(Ipp32u* xBNU, const Ipp32u* T, Ipp8u* pHexStr, int hexStrLen)
+static void SHA1_G(Ipp32u* xBNU, const Ipp32u* T, Ipp8u* pHexStr, int hexStrLen)
 {
    /* select processing function */
    cpHashProc updateFunc;
@@ -91,7 +90,7 @@ void SHA1_G(Ipp32u* xBNU, const Ipp32u* T, Ipp8u* pHexStr, int hexStrLen)
 //    pRnd     pointer to the context
 *F*/
 
-int cpPRNGen(Ipp32u* pRand, cpSize nBits, IppsPRNGState* pRnd)
+IPP_OWN_DEFN (int, cpPRNGen, (Ipp32u* pRand, cpSize nBits, IppsPRNGState* pRnd))
 {
    BNU_CHUNK_T Xj  [BITS_BNU_CHUNK(MAX_XKEY_SIZE)];
    BNU_CHUNK_T XVAL[BITS_BNU_CHUNK(MAX_XKEY_SIZE)];

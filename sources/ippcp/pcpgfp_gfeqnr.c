@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 
 //tbcd: temporary excluded: #include <assert.h>
 
-void cpGFEqnr(gsModEngine* pGFE)
+IPP_OWN_DEFN (void, cpGFEqnr, (gsModEngine* pGFE))
 {
    BNU_CHUNK_T* pQnr = GFP_QNR(pGFE);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -37,15 +37,12 @@
 #define MAX_W  (6)
 
 #define gsGetScrambleBufferSize OWNAPI(gsGetScrambleBufferSize)
-int     gsGetScrambleBufferSize(int modulusLen, int w);
-
+    IPP_OWN_DECL (int, gsGetScrambleBufferSize, (int modulusLen, int w))
 #define gsScramblePut OWNAPI(gsScramblePut)
-void gsScramblePut(BNU_CHUNK_T* tbl, int idx, const BNU_CHUNK_T* val, int vLen, int w);
-
+    IPP_OWN_DECL (void, gsScramblePut, (BNU_CHUNK_T* tbl, int idx, const BNU_CHUNK_T* val, int vLen, int w))
 #define gsScrambleGet OWNAPI(gsScrambleGet)
-void gsScrambleGet(BNU_CHUNK_T* val, int vLen, const BNU_CHUNK_T* tbl, int idx, int w);
-
+    IPP_OWN_DECL (void, gsScrambleGet, (BNU_CHUNK_T* val, int vLen, const BNU_CHUNK_T* tbl, int idx, int w))
 #define gsScrambleGet_sscm OWNAPI(gsScrambleGet_sscm)
-void gsScrambleGet_sscm(BNU_CHUNK_T* val, int vLen, const BNU_CHUNK_T* tbl, int idx, int w);
+    IPP_OWN_DECL (void, gsScrambleGet_sscm, (BNU_CHUNK_T* val, int vLen, const BNU_CHUNK_T* tbl, int idx, int w))
 
 #endif /* _GS_SCRAMBLE_H */

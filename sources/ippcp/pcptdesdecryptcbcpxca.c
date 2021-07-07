@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #include "owncp.h"
 #include "pcpdes.h"
 
-void DecryptCBC_TDES(const Ipp64u* pSrc, Ipp64u* pDst, int nBlocks, const RoundKeyDES* pRKey[3], Ipp64u iv, const Ipp32u spbox[])
+IPP_OWN_DEFN (void, DecryptCBC_TDES, (const Ipp64u* pSrc, Ipp64u* pDst, int nBlocks, const RoundKeyDES* pRKey[3], Ipp64u iv, const Ipp32u spbox[]))
 {
    while(nBlocks) {
       Ipp64u tmp = *pSrc;

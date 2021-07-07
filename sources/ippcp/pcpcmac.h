@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2007-2020 Intel Corporation
+* Copyright 2007-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,14 +33,12 @@
 // Rijndael128 based CMAC context
 */
 struct _cpAES_CMAC {
-   IppCtxId idCtx;              /* CMAC  identifier              */
+   Ipp32u   idCtx;              /* CMAC  identifier              */
    int      index;              /* internal buffer entry (free)  */
-   int      dummy[2];           /* align-16                      */
    Ipp8u    k1[MBS_RIJ128];     /* k1 subkey                     */
    Ipp8u    k2[MBS_RIJ128];     /* k2 subkey                     */
    Ipp8u    mBuffer[MBS_RIJ128];/* buffer                        */
    Ipp8u    mMAC[MBS_RIJ128];   /* intermediate digest           */
-   __ALIGN16                    /* aligned AES context           */
    IppsRijndael128Spec mCipherCtx;
 };
 
@@ -51,7 +49,7 @@ struct _cpAES_CMAC {
 /*
 // Useful macros
 */
-#define CMAC_ID(stt)      ((stt)->idCtx)
+#define CMAC_SET_ID(stt)  ((stt)->idCtx = (Ipp32u)idCtxCMAC ^ (Ipp32u)IPP_UINT_PTR(stt))
 #define CMAC_INDX(stt)    ((stt)->index)
 #define CMAC_K1(stt)      ((stt)->k1)
 #define CMAC_K2(stt)      ((stt)->k2)
@@ -60,9 +58,9 @@ struct _cpAES_CMAC {
 #define CMAC_CIPHER(stt)  ((stt)->mCipherCtx)
 
 /* valid context ID */
-#define VALID_AESCMAC_ID(ctx) (CMAC_ID((ctx))==idCtxCMAC)
+#define VALID_AESCMAC_ID(ctx) ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxCMAC)
 
 #define cpAESCMAC_Update_AES_NI OWNAPI(cpAESCMAC_Update_AES_NI)
-   void cpAESCMAC_Update_AES_NI(Ipp8u* pMac, const Ipp8u* inpBlk, int nBlks, int nr, const Ipp8u* pKeys);
+   IPP_OWN_DECL (void, cpAESCMAC_Update_AES_NI, (Ipp8u* pMac, const Ipp8u* inpBlk, int nBlks, int nr, const Ipp8u* pKeys))
 
 #endif /* _PCP_CMAC_H */

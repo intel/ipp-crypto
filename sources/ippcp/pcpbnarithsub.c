@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -54,11 +54,8 @@ IPPFUN(IppStatus, ippsSub_BN, (IppsBigNumState* pA, IppsBigNumState* pB, IppsBig
 {
    IPP_BAD_PTR3_RET(pA, pB, pR);
 
-   pA = (IppsBigNumState*)( IPP_ALIGNED_PTR(pA, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pA), ippStsContextMatchErr);
-   pB = (IppsBigNumState*)( IPP_ALIGNED_PTR(pB, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pB), ippStsContextMatchErr);
-   pR = (IppsBigNumState*)( IPP_ALIGNED_PTR(pR, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pR), ippStsContextMatchErr);
 
    {

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2005-2020 Intel Corporation
+* Copyright 2005-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,14 +56,13 @@ IPPFUN(IppStatus, ippsDLPInit,(int feBitSize, int ordBitSize, IppsDLPState* pDL)
 {
    /* test DSA context */
    IPP_BAD_PTR1_RET(pDL);
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
 
    /* test sizes of DL system */
    IPP_BADARG_RET(MIN_DLP_BITSIZE >feBitSize,  ippStsSizeErr);
    IPP_BADARG_RET(MIN_DLP_BITSIZER>ordBitSize, ippStsSizeErr);
    IPP_BADARG_RET(ordBitSize>=feBitSize,       ippStsSizeErr);
 
-   DLP_ID(pDL)       = idCtxDLP;
+   DLP_SET_ID(pDL);
    DLP_FLAG(pDL)     = 0;
    DLP_BITSIZEP(pDL) = feBitSize;
    DLP_BITSIZER(pDL) = ordBitSize;
@@ -114,26 +113,26 @@ IPPFUN(IppStatus, ippsDLPInit,(int feBitSize, int ordBitSize, IppsDLPState* pDL)
 
       /* allocate buffers */
       ptr += sizeof(IppsDLPState);
-      DLP_MONTP0(pDL)  = (gsModEngine*)(IPP_ALIGNED_PTR(ptr,MONT_ALIGNMENT));
+      DLP_MONTP0(pDL)  = (gsModEngine*)(ptr);
       ptr += montSizeP;
       DLP_MONTP1(pDL)  = 0;
-      DLP_MONTR(pDL)   = (gsModEngine*)(IPP_ALIGNED_PTR(ptr,MONT_ALIGNMENT));
+      DLP_MONTR(pDL)   = (gsModEngine*)(ptr);
       ptr += montSizeR;
 
-      DLP_GENC(pDL)    = (IppsBigNumState*)( IPP_ALIGNED_PTR(ptr,BN_ALIGNMENT) );
+      DLP_GENC(pDL)    = (IppsBigNumState*)(ptr);
       ptr += bnSizeP;
-      DLP_X(pDL)       = (IppsBigNumState*)( IPP_ALIGNED_PTR(ptr,BN_ALIGNMENT) );
+      DLP_X(pDL)       = (IppsBigNumState*)(ptr);
       ptr += bnSizeR;
-      DLP_YENC(pDL)    = (IppsBigNumState*)( IPP_ALIGNED_PTR(ptr,BN_ALIGNMENT) );
+      DLP_YENC(pDL)    = (IppsBigNumState*)(ptr);
       ptr += bnSizeP;
 
-      DLP_PRIMEGEN(pDL)= (IppsPrimeState*)( IPP_ALIGNED_PTR(ptr,PRIME_ALIGNMENT));
+      DLP_PRIMEGEN(pDL)= (IppsPrimeState*)(ptr);
       ptr += primeGenSize;
 
       DLP_METBL(pDL)   = (BNU_CHUNK_T*)( IPP_ALIGNED_PTR(ptr, CACHE_LINE_SIZE) );
       ptr += sizeMeTable;
 
-      DLP_BNCTX(pDL)   = (BigNumNode*)( IPP_ALIGNED_PTR(ptr,BN_ALIGNMENT) );
+      DLP_BNCTX(pDL)   = (BigNumNode*)(ptr);
       ptr += bn_resourceSize;
 
       #if defined(_USE_WINDOW_EXP_)

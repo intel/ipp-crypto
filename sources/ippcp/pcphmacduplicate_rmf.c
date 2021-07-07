@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,11 +56,13 @@ IPPFUN(IppStatus, ippsHMACDuplicate_rmf,(const IppsHMACState_rmf* pSrcCtx, IppsH
    /* test state pointers */
    IPP_BAD_PTR2_RET(pSrcCtx, pDstCtx);
    /* test states ID */
-   pSrcCtx = (IppsHMACState_rmf*)( IPP_ALIGNED_PTR(pSrcCtx, HASH_ALIGNMENT) );
-   pDstCtx = (IppsHMACState_rmf*)( IPP_ALIGNED_PTR(pDstCtx, HASH_ALIGNMENT) );
    IPP_BADARG_RET(!HMAC_VALID_ID(pSrcCtx), ippStsContextMatchErr);
 
-   /* copy HMAC state */
-   CopyBlock(pSrcCtx, pDstCtx, sizeof(IppsHMACState_rmf));
+   /* copy HMAC state without Hash context */
+   CopyBlock(pSrcCtx, pDstCtx, (int)(IPP_UINT_PTR(&HASH_CTX(pSrcCtx)) - IPP_UINT_PTR(pSrcCtx)));
+   HMAC_SET_CTX_ID(pDstCtx);
+   /* copy Hash context separately */
+   ippsHashDuplicate_rmf(&HASH_CTX(pSrcCtx), &HASH_CTX(pDstCtx));
+
    return ippStsNoErr;
 }

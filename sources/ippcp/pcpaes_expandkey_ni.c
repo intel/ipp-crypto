@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,9 +31,7 @@
 
 #if (_AES_NI_ENABLING_==_FEATURE_ON_) || (_AES_NI_ENABLING_==_FEATURE_TICKTOCK_)
 
-//////////////////////////////////////////////////////////////////////
-#define cpExpandAesKey_NI OWNAPI(cpExpandAesKey_NI)
-void cpExpandAesKey_NI(const Ipp8u* pSecret, IppsAESSpec* pCtx)
+IPP_OWN_DEFN (void, cpExpandAesKey_NI, (const Ipp8u* pSecret, IppsAESSpec* pCtx))
 {
    int nRounds = RIJ_NR(pCtx);
    Ipp8u* pEncKeys = RIJ_EKEYS(pCtx);

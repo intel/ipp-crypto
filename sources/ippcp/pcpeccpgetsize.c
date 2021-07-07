@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2003-2020 Intel Corporation
+* Copyright 2003-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -65,9 +65,7 @@ IPPFUN(IppStatus, ippsECCPGetSize, (int feBitSize, int *pSize))
       int ecScratchBufferSize = 16*(BITS_BNU_CHUNK(feBitSize)*3)*(Ipp32s)sizeof(BNU_CHUNK_T);
 
       *pSize = ecCtxSize            /* EC context */
-              +ECGFP_ALIGNMENT
               +gfCtxSize            /* GF context */
-              +GFP_ALIGNMENT
               +ecScratchBufferSize  /* *scratch buffer */
               +ecScratchBufferSize  /* should be enough for 2 tables */
               +CACHE_LINE_SIZE;

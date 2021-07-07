@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ static BNU_CHUNK_T* gfpxGeneratorDiv(BNU_CHUNK_T* pQ, BNU_CHUNK_T* pR, const BNU
    }
 }
 
-BNU_CHUNK_T* cpGFpxInv(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFEx)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxInv, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngine* pGFEx))
 {
    if( GFP_IS_BASIC(pGFEx) )
       return cpGFpInv(pR, pA, pGFEx);

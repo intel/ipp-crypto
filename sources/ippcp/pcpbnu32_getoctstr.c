@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@
 //    strLen      octet string length
 *F*/
 
-cpSize cpToOctStr_BNU32(Ipp8u* pStr, cpSize strLen, const Ipp32u* pBNU, cpSize bnuSize)
+IPP_OWN_DEFN (cpSize, cpToOctStr_BNU32, (Ipp8u* pStr, cpSize strLen, const Ipp32u* pBNU, cpSize bnuSize))
 {
    FIX_BNU32(pBNU, bnuSize);
    {

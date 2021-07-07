@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2015-2020 Intel Corporation
+* Copyright 2015-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ __INLINE Ipp8u getInvSboxValue(Ipp8u x)
 
    Ipp32u _x = x/sizeof(BNU_CHUNK_T);
    Ipp32u i;
-   for(i=0; i<sizeof(RijEncSbox)/sizeof(BNU_CHUNK_T); i++) {
+   for(i=0; i<sizeof(RijEncSbox)/(sizeof(BNU_CHUNK_T)); i++) {
       BNS_CHUNK_T mask = (BNS_CHUNK_T)cpIsEqu_ct(_x, i);
       selection |= SboxEntry[i] & (BNU_CHUNK_T)mask;
    }
@@ -121,11 +121,7 @@ __INLINE void invMixColumns(Ipp32u* state)
 }
 
 
-void Safe2Decrypt_RIJ128(const Ipp8u* in,
-                               Ipp8u* out,
-                               int Nr,
-                               const Ipp8u* RoundKey,
-                               const void* sbox)
+IPP_OWN_DEFN (void, Safe2Decrypt_RIJ128, (const Ipp8u* in, Ipp8u* out, int Nr, const Ipp8u* RoundKey, const void* sbox))
 {
    Ipp32u state[4];
 

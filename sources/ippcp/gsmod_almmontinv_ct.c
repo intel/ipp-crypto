@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2020 Intel Corporation
+* Copyright 2017-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@
 //
 // (constant-execution-time version)
 */
-int alm_mont_inv_ct(BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME)
+IPP_OWN_DEFN (int, alm_mont_inv_ct, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModEngine* pME))
 {
    const BNU_CHUNK_T* pm = MOD_MODULUS(pME);
    int mLen = MOD_LEN(pME);

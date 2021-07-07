@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@
 #include "pcpaesauthgcm_avx512.h"
 #else
 #include "pcpaesauthgcm.h"
-#endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K1) */
 
 /*F*
 //    Name: ippsAES_GCMStart

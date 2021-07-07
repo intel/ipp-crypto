@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -316,7 +316,7 @@ static Ipp32u PrimeList[] = {
 //    len32       length of prime number
 *F*/
 
-int cpMimimalPrimeTest(const Ipp32u* pPrime, cpSize len32)
+IPP_OWN_DEFN (int, cpMimimalPrimeTest, (const Ipp32u* pPrime, cpSize len32))
 {
    cpSize i;
 

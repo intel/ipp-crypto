@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,10 +32,7 @@
 
 #include "pcprsa_getdefmeth_pub.h"
 
-void gsRSApub_cipher(IppsBigNumState* pY,
-               const IppsBigNumState* pX,
-               const IppsRSAPublicKeyState* pKey,
-                     BNU_CHUNK_T* pBuffer)
+IPP_OWN_DEFN (void, gsRSApub_cipher, (IppsBigNumState* pY, const IppsBigNumState* pX, const IppsRSAPublicKeyState* pKey, BNU_CHUNK_T* pBuffer))
 {
    gsMethod_RSA* m = getDefaultMethod_RSA_public(RSA_PRV_KEY_BITSIZE_N(pKey));
 

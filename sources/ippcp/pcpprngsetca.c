@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,18 +52,16 @@ IPPFUN(IppStatus, ippsPRNGSetH0,(const IppsBigNumState* pH0, IppsPRNGState* pCtx
 {
    /* test PRNG context */
    IPP_BAD_PTR1_RET(pCtx);
-   pCtx = (IppsPRNGState*)( IPP_ALIGNED_PTR(pCtx, PRNG_ALIGNMENT) );
    IPP_BADARG_RET(!RAND_VALID_ID(pCtx), ippStsContextMatchErr);
 
    /* test H0 */
    IPP_BAD_PTR1_RET(pH0);
-   pH0 = (IppsBigNumState*)( IPP_ALIGNED_PTR(pH0, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pH0), ippStsContextMatchErr);
 
    {
       cpSize len = IPP_MIN(5, BN_SIZE(pH0)*((Ipp32s)(sizeof(BNU_CHUNK_T)/sizeof(Ipp32u))));
       ZEXPAND_BNU(RAND_T(pCtx), 0, (int)(sizeof(RAND_T(pCtx))/sizeof(BNU_CHUNK_T)));
-      ZEXPAND_COPY_BNU((Ipp32u*)RAND_T(pCtx), (int)(sizeof(RAND_T(pCtx))/sizeof(Ipp32u)),
+      ZEXPAND_COPY_BNU((Ipp32u*)RAND_T(pCtx), (int)(sizeof(RAND_T(pCtx))/(sizeof(Ipp32u))),
                        (Ipp32u*)BN_NUMBER(pH0), len);
       return ippStsNoErr;
    }

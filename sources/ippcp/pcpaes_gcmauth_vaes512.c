@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,17 +36,13 @@
 #include "pcpaes_gcm_vaes512.h"
 #include "pcpaesauthgcm.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(disable: 4310) // cast truncates constant value in MSVC
 #endif
 
 /* AES-GCM authentication function. It calculates GHASH of the source input */
-void AesGcmAuth_vaes(Ipp8u* pGHash,
-                     const Ipp8u* pSrc,
-                     int len,
-                     const Ipp8u* pHKey,
-                     const void* pParam)
+IPP_OWN_DEFN (void, AesGcmAuth_vaes, (Ipp8u* pGHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam))
 {
    IPP_UNREFERENCED_PARAMETER(pParam);
 
@@ -229,6 +225,6 @@ void AesGcmAuth_vaes(Ipp8u* pGHash,
    _mm512_mask_storeu_epi64(pGHash, 0x03, ghash512);
 }
 
-#endif /* #if (_IPP32E>=_IPP32E_K0) */
+#endif /* #if (_IPP32E>=_IPP32E_K1) */
 
 #endif

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -65,14 +65,12 @@ IPPFUN(IppStatus, ippsPrimeGen, (int nBits, int nTrials, IppsPrimeState* pCtx,
 {
    IPP_BAD_PTR2_RET(pCtx, rndFunc);
 
-   /* use aligned context */
-   pCtx = (IppsPrimeState*)( IPP_ALIGNED_PTR(pCtx, PRIME_ALIGNMENT) );
    IPP_BADARG_RET(!PRIME_VALID_ID(pCtx), ippStsContextMatchErr);
 
    IPP_BADARG_RET(nBits<1, ippStsLengthErr);
    IPP_BADARG_RET(nBits>PRIME_MAXBITSIZE(pCtx), ippStsOutOfRangeErr);
 
-   IPP_BADARG_RET(nTrials<1, ippStsBadArgErr);
+   IPP_BADARG_RET(nTrials < 0, ippStsBadArgErr);
 
    {
       cpSize count;
@@ -85,6 +83,9 @@ IPPFUN(IppStatus, ippsPrimeGen, (int nBits, int nTrials, IppsPrimeState* pCtx,
       cpSize randLen = BITS_BNU_CHUNK(nBits);
 
       ZEXPAND_BNU(pRand, 0, BITS_BNU_CHUNK(PRIME_MAXBITSIZE(pCtx)));
+
+      if(nTrials < 1)
+         nTrials =  MR_rounds_p80(nBits);
 
       #define MAX_COUNT (1000)
       for(count=0; count<MAX_COUNT; count++) {

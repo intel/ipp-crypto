@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2004-2020 Intel Corporation
+* Copyright 2004-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -60,12 +60,11 @@ IPPFUN(IppStatus, ippsPRNGen_BN,(IppsBigNumState* pRand, int nBits, void* pCtx))
 
    /* test PRNG context */
    IPP_BAD_PTR1_RET(pCtx);
-   pRndCtx = (IppsPRNGState*)( IPP_ALIGNED_PTR(pCtx, PRNG_ALIGNMENT) );
+   pRndCtx = (IppsPRNGState*)(pCtx);
    IPP_BADARG_RET(!RAND_VALID_ID(pRndCtx), ippStsContextMatchErr);
 
    /* test random BN */
    IPP_BAD_PTR1_RET(pRand);
-   pRand = (IppsBigNumState*)( IPP_ALIGNED_PTR(pRand, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pRand), ippStsContextMatchErr);
 
    /* test sizes */

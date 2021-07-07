@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -85,8 +85,7 @@ IPPFUN(IppStatus, ippsGFpECSignSM2,(const IppsBigNumState* pMsgDigest,
 
    /* EC context and buffer */
    IPP_BAD_PTR2_RET(pEC, pScratchBuffer);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
    IPP_BADARG_RET(!ECP_SUBGROUP(pEC), ippStsContextMatchErr);
 
    pGF = ECP_GFP(pEC);
@@ -95,7 +94,6 @@ IPPFUN(IppStatus, ippsGFpECSignSM2,(const IppsBigNumState* pMsgDigest,
 
    /* test message representative */
    IPP_BAD_PTR1_RET(pMsgDigest);
-   pMsgDigest = (IppsBigNumState*)( IPP_ALIGNED_PTR(pMsgDigest, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pMsgDigest), ippStsMessageErr);
    /* make sure bisize(pMsgDigest) <= bitsiz(order) */
@@ -103,8 +101,6 @@ IPPFUN(IppStatus, ippsGFpECSignSM2,(const IppsBigNumState* pMsgDigest,
 
    /* test signature */
    IPP_BAD_PTR2_RET(pSignS, pSignR);
-   pSignR = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignR, ALIGN_VAL) );
-   pSignS = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSignS, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pSignR), ippStsContextMatchErr);
    IPP_BADARG_RET(!BN_VALID_ID(pSignS), ippStsContextMatchErr);
    IPP_BADARG_RET((BN_ROOM(pSignR)*BITSIZE(BNU_CHUNK_T)<ECP_ORDBITSIZE(pEC)), ippStsRangeErr);
@@ -113,11 +109,9 @@ IPPFUN(IppStatus, ippsGFpECSignSM2,(const IppsBigNumState* pMsgDigest,
    /* test private keys */
    IPP_BAD_PTR2_RET(pRegPrivate, pEphPrivate);
 
-   pRegPrivate = (IppsBigNumState*)( IPP_ALIGNED_PTR(pRegPrivate, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pRegPrivate), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pRegPrivate), ippStsIvalidPrivateKey);
 
-   pEphPrivate = (IppsBigNumState*)( IPP_ALIGNED_PTR(pEphPrivate, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pEphPrivate), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pEphPrivate), ippStsEphemeralKeyErr);
 

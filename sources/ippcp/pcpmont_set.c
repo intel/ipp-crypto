@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ __INLINE int cpGetBitSize(Ipp32u offset, Ipp32u val)
 //    pMont       pointer to the context
 *F*/
 
-IppStatus cpMontSet(const Ipp32u* pModulus, cpSize len32, IppsMontState* pMont)
+IPP_OWN_DEFN (IppStatus, cpMontSet, (const Ipp32u* pModulus, cpSize len32, IppsMontState* pMont))
 {
    IPP_BADARG_RET(len32<1, ippStsLengthErr);
 

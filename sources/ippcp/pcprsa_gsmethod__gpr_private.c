@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 // definition of RSA exponentiation (PX/GPR based)
 */
 
-gsMethod_RSA* gsMethod_RSA_gpr_private(void)
+IPP_OWN_DEFN (gsMethod_RSA*, gsMethod_RSA_gpr_private, (void))
 {
    static gsMethod_RSA m = {
       MIN_RSA_SIZE, MAX_RSA_SIZE,   /* RSA range */
@@ -48,6 +48,7 @@ gsMethod_RSA* gsMethod_RSA_gpr_private(void)
       #else
       gsModExpWin_BNU_sscm
       #endif
+      , NULL
    };
    return &m;
 }

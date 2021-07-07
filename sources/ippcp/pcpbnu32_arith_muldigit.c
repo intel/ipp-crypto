@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@
 //    pR    result
 //
 *F*/
-Ipp32u cpMulDgt_BNU32(Ipp32u* pR, const Ipp32u* pA, cpSize nsA, Ipp32u val)
+IPP_OWN_DEFN (Ipp32u, cpMulDgt_BNU32, (Ipp32u* pR, const Ipp32u* pA, cpSize nsA, Ipp32u val))
 {
    Ipp32u carry = 0;
    cpSize i;

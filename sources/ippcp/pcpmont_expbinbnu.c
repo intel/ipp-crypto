@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2003-2020 Intel Corporation
+* Copyright 2003-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -54,10 +54,7 @@
 //        no less than (m->n->length) number of 32-bit words.
 *F*/
 
-cpSize cpMontExpBin_BNU(BNU_CHUNK_T* dataY,
-                  const BNU_CHUNK_T* dataX, cpSize nsX,
-                  const BNU_CHUNK_T* dataE, cpSize nsE,
-                        gsModEngine* pModEngine)
+IPP_OWN_DEFN (cpSize, cpMontExpBin_BNU, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pModEngine))
 {
    cpSize nsM = MOD_LEN( pModEngine );
 

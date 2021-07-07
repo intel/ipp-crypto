@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ static void aes192_assist(__m128i* temp1, __m128i * temp2, __m128i * temp3)
    *temp3 = _mm_xor_si128 (*temp3, *temp2);
 }
 
-void aes192_KeyExpansion_NI(Ipp8u* keyExp, const Ipp8u* userkey)
+IPP_OWN_DEFN (void, aes192_KeyExpansion_NI, (Ipp8u* keyExp, const Ipp8u* userkey))
 {
    __m128i *pKeySchedule = (__m128i*)keyExp;
 

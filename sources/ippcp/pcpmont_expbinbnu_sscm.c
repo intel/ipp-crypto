@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2003-2020 Intel Corporation
+* Copyright 2003-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -63,10 +63,7 @@
 /       dataY        the Montgomery exponentation result.
 //
 *F*/
-cpSize cpMontExpBin_BNU_sscm(BNU_CHUNK_T* dataY,
-                       const BNU_CHUNK_T* dataX, cpSize nsX,
-                       const BNU_CHUNK_T* dataE, cpSize nsE,
-                             gsModEngine* pMont)
+IPP_OWN_DEFN (cpSize, cpMontExpBin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont))
 {
    cpSize nsM = MOD_LEN(pMont);
 

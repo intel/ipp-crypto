@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -144,7 +144,6 @@ static int cpSMS4_ECB_aesni_tail(Ipp8u* pOut, const Ipp8u* pInp, int len, const 
 // 4*MBS_SMS4 processing
 */
 static
-//#define cpSMS4_ECB_aesni_x4 OWNAPI(cpSMS4_ECB_aesni_x4)
 int cpSMS4_ECB_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey)
 {
    __ALIGN16 __m128i TMP[5];
@@ -230,7 +229,7 @@ int cpSMS4_ECB_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
 
    /* clear secret data */
    for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+      TMP[i] = _mm_setzero_si128(); //_mm_xor_si128(TMP[i],TMP[i]);
    }
 
    return processedLen;
@@ -240,7 +239,6 @@ int cpSMS4_ECB_aesni_x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
 // 8*MBS_SMS4 processing
 */
 static
-//#define cpSMS4_ECB_aesni_x8 OWNAPI(cpSMS4_ECB_aesni_x8)
 int cpSMS4_ECB_aesni_x8(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey)
 {
    __ALIGN16 __m128i TMP[10];
@@ -375,7 +373,7 @@ int cpSMS4_ECB_aesni_x8(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
    
    /* clear secret data */
    for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+      TMP[i] = _mm_setzero_si128(); //_mm_xor_si128(TMP[i],TMP[i]);
    }
 
    return processedLen;
@@ -386,10 +384,12 @@ int cpSMS4_ECB_aesni_x8(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* p
 */
 #if (_IPP>=_IPP_H9) || (_IPP32E>=_IPP32E_L9)
 #define cpSMS4_ECB_aesni_x12 OWNAPI(cpSMS4_ECB_aesni_x12)
-int cpSMS4_ECB_aesni_x12(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey)
+   IPP_OWN_DECL (int, cpSMS4_ECB_aesni_x12, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey))
+   IPP_OWN_DEFN (int, cpSMS4_ECB_aesni_x12, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey))
 #else
 #define cpSMS4_ECB_aesni OWNAPI(cpSMS4_ECB_aesni)
-int cpSMS4_ECB_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey)
+   IPP_OWN_DECL (int, cpSMS4_ECB_aesni, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey))
+   IPP_OWN_DEFN (int, cpSMS4_ECB_aesni, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey))
 #endif
 {
    __ALIGN16 __m128i TMP[15];
@@ -578,7 +578,7 @@ int cpSMS4_ECB_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKe
    
    /* clear secret data */
    for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
+      TMP[i] = _mm_setzero_si128(); //_mm_xor_si128(TMP[i],TMP[i]);
    }
 
    return processedLen;

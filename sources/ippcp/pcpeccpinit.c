@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2003-2020 Intel Corporation
+* Copyright 2003-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,8 +50,6 @@ IPPFUN(IppStatus, ippsECCPInit, (int feBitSize, IppsECCPState* pEC))
 {
    /* test pEC pointer */
    IPP_BAD_PTR1_RET(pEC);
-   /* use aligned EC context */
-   pEC = (IppsECCPState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
 
    /* test size of field element */
    IPP_BADARG_RET((2>feBitSize || feBitSize>EC_GFP_MAXBITSIZE), ippStsSizeErr);
@@ -63,7 +61,7 @@ IPPFUN(IppStatus, ippsECCPInit, (int feBitSize, IppsECCPState* pEC))
       /* size of EC context */
       int ecCtxSize = cpGFpECGetSize(1, feBitSize);
 
-      IppsGFpState* pGF = (IppsGFpState*)(IPP_ALIGNED_PTR((Ipp8u*)pEC+ecCtxSize, GFP_ALIGNMENT));
+      IppsGFpState* pGF = (IppsGFpState*)((Ipp8u*)pEC+ecCtxSize);
       BNU_CHUNK_T* pScratchBuffer = (BNU_CHUNK_T*)IPP_ALIGNED_PTR((Ipp8u*)pGF+gfCtxSize, CACHE_LINE_SIZE);
 
       /* set up contexts */

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 #if (_IPP>=_IPP_W7)
 #include "pcpngmontexpstuff_sse2.h"
 
-gsMethod_RSA* gsMethod_RSA_sse2_private(void)
+IPP_OWN_DEFN (gsMethod_RSA*, gsMethod_RSA_sse2_private, (void))
 {
    static gsMethod_RSA m = {
       RSA_SSE2_MIN_BITSIZE, RSA_SSE2_MAX_BITSIZE,  /* RSA range */
@@ -49,6 +49,7 @@ gsMethod_RSA* gsMethod_RSA_sse2_private(void)
       gsMontExpWinBuffer_sse2,
       gsMontExpWin_BNU_sscm_sse2
       #endif
+      , NULL
    };
    return &m;
 }

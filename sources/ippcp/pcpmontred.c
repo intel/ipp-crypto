@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,10 +36,10 @@
       (_IPP32E>=_IPP32E_E9) || \
       (_IPP32E==_IPP32E_N8)) || \
       defined(_USE_C_cpMontRedAdc_BNU_)
+
 #define cpMontRedAdc_BNU OWNAPI(cpMontRedAdc_BNU)
-void cpMontRedAdc_BNU(BNU_CHUNK_T* pR,
-                      BNU_CHUNK_T* pProduct,
-                const BNU_CHUNK_T* pModulus, cpSize nsM, BNU_CHUNK_T m0)
+
+IPP_OWN_DEFN (void, cpMontRedAdc_BNU, (BNU_CHUNK_T* pR, BNU_CHUNK_T* pProduct, const BNU_CHUNK_T* pModulus, cpSize nsM, BNU_CHUNK_T m0))
 {
    BNU_CHUNK_T carry;
    BNU_CHUNK_T extension;

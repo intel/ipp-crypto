@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #include "gsscramble.h"
 
 
-BNU_CHUNK_T* cpGFpxRand(BNU_CHUNK_T* pR, gsModEngine* pGFEx, IppBitSupplier rndFunc, void* pRndParam)
+IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxRand, (BNU_CHUNK_T* pR, gsModEngine* pGFEx, IppBitSupplier rndFunc, void* pRndParam))
 {
    if( GFP_IS_BASIC(pGFEx) )
       return cpGFpRand(pR, pGFEx, rndFunc, pRndParam);

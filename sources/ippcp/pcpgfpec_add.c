@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@
 // complexity = 4s+12m
 */
 
-void gfec_point_add(BNU_CHUNK_T* pRdata, const BNU_CHUNK_T* pPdata, const BNU_CHUNK_T* pQdata, IppsGFpECState* pEC)
+IPP_OWN_DEFN (void, gfec_point_add, (BNU_CHUNK_T* pRdata, const BNU_CHUNK_T* pPdata, const BNU_CHUNK_T* pQdata, IppsGFpECState* pEC))
 {
    IppsGFpState* pGF = ECP_GFP(pEC);
    gsModEngine* pGFE = GFP_PMA(pGF);

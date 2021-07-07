@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,86 +34,42 @@
 #if(_IPP32E>=_IPP32E_K0)
 
 #define aes_gcm_enc_128_update_avx512 OWNAPI(aes_gcm_enc_128_update_avx512)
-void aes_gcm_enc_128_update_avx512(const struct gcm_key_data *key_data,
-                                   struct gcm_context_data *context_data,
-                                   Ipp8u *out, const Ipp8u *in,
-                                   Ipp64u len);
-
+    IPP_OWN_DECL (void, aes_gcm_enc_128_update_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *out, const Ipp8u *in, Ipp64u len))
 #define aes_gcm_enc_192_update_avx512 OWNAPI(aes_gcm_enc_192_update_avx512)
-void aes_gcm_enc_192_update_avx512(const struct gcm_key_data *key_data,
-                                   struct gcm_context_data *context_data,
-                                   Ipp8u *out, const Ipp8u *in,
-                                   Ipp64u len);
-
+    IPP_OWN_DECL (void, aes_gcm_enc_192_update_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *out, const Ipp8u *in, Ipp64u len))
 #define aes_gcm_enc_256_update_avx512 OWNAPI(aes_gcm_enc_256_update_avx512)
-void aes_gcm_enc_256_update_avx512(const struct gcm_key_data *key_data,
-                                   struct gcm_context_data *context_data,
-                                   Ipp8u *out, const Ipp8u *in,
-                                   Ipp64u len);
-
+    IPP_OWN_DECL (void, aes_gcm_enc_256_update_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *out, const Ipp8u *in, Ipp64u len))
+    
 #define aes_gcm_dec_128_update_avx512 OWNAPI(aes_gcm_dec_128_update_avx512)
-void aes_gcm_dec_128_update_avx512(const struct gcm_key_data *key_data,
-                                   struct gcm_context_data *context_data,
-                                   Ipp8u *out, const Ipp8u *in,
-                                   Ipp64u len);
-
+    IPP_OWN_DECL (void, aes_gcm_dec_128_update_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *out, const Ipp8u *in, Ipp64u len))
 #define aes_gcm_dec_192_update_avx512 OWNAPI(aes_gcm_dec_192_update_avx512)
-void aes_gcm_dec_192_update_avx512(const struct gcm_key_data *key_data,
-                                   struct gcm_context_data *context_data,
-                                   Ipp8u *out, const Ipp8u *in,
-                                   Ipp64u len);
-
+    IPP_OWN_DECL (void, aes_gcm_dec_192_update_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *out, const Ipp8u *in, Ipp64u len))
 #define aes_gcm_dec_256_update_avx512 OWNAPI(aes_gcm_dec_256_update_avx512)
-void aes_gcm_dec_256_update_avx512(const struct gcm_key_data *key_data,
-                                   struct gcm_context_data *context_data,
-                                   Ipp8u *out, const Ipp8u *in,
-                                   Ipp64u len);
+    IPP_OWN_DECL (void, aes_gcm_dec_256_update_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *out, const Ipp8u *in, Ipp64u len))
 
 #define aes_gcm_gettag_128_avx512 OWNAPI(aes_gcm_gettag_128_avx512)
-void aes_gcm_gettag_128_avx512(const struct gcm_key_data *key_data,
-                                     struct gcm_context_data *context_data,
-                                     Ipp8u *auth_tag, Ipp64u auth_tag_len);
-
+    IPP_OWN_DECL (void, aes_gcm_gettag_128_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *auth_tag, Ipp64u auth_tag_len))
 #define aes_gcm_gettag_192_avx512 OWNAPI(aes_gcm_gettag_192_avx512)
-void aes_gcm_gettag_192_avx512(const struct gcm_key_data *key_data,
-                               struct gcm_context_data *context_data,
-                               Ipp8u *auth_tag, Ipp64u auth_tag_len);
-
+    IPP_OWN_DECL (void, aes_gcm_gettag_192_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *auth_tag, Ipp64u auth_tag_len))
 #define aes_gcm_gettag_256_avx512 OWNAPI(aes_gcm_gettag_256_avx512)
-void aes_gcm_gettag_256_avx512(const struct gcm_key_data *key_data,
-                               struct gcm_context_data *context_data,
-                               Ipp8u *auth_tag, Ipp64u auth_tag_len);
+    IPP_OWN_DECL (void, aes_gcm_gettag_256_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, Ipp8u *auth_tag, Ipp64u auth_tag_len))
 
 #define aes_gcm_precomp_128_avx512 OWNAPI(aes_gcm_precomp_128_avx512)
-void aes_gcm_precomp_128_avx512(struct gcm_key_data *key_data);
-
+    IPP_OWN_DECL (void, aes_gcm_precomp_128_avx512, (struct gcm_key_data *key_data))
 #define aes_gcm_precomp_192_avx512 OWNAPI(aes_gcm_precomp_192_avx512)
-void aes_gcm_precomp_192_avx512(struct gcm_key_data *key_data);
-
+    IPP_OWN_DECL (void, aes_gcm_precomp_192_avx512, (struct gcm_key_data *key_data))
 #define aes_gcm_precomp_256_avx512 OWNAPI(aes_gcm_precomp_256_avx512)
-void aes_gcm_precomp_256_avx512(struct gcm_key_data *key_data);
+    IPP_OWN_DECL (void, aes_gcm_precomp_256_avx512, (struct gcm_key_data *key_data))
 
 #define aes_gcm_aad_hash_update_avx512 OWNAPI(aes_gcm_aad_hash_update_avx512)
-void aes_gcm_aad_hash_update_avx512(const struct gcm_key_data *key_data,
-                                     struct gcm_context_data *context_data,
-                                     const Ipp8u *aad, const Ipp64u aad_len);
-
+    IPP_OWN_DECL (void, aes_gcm_aad_hash_update_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, const Ipp8u *aad, const Ipp64u aad_len))
 #define aes_gcm_aad_hash_finalize_avx512 OWNAPI(aes_gcm_aad_hash_finalize_avx512)
-void aes_gcm_aad_hash_finalize_avx512(const struct gcm_key_data *key_data,
-                                       struct gcm_context_data *context_data,
-                                       const Ipp8u *aad, const Ipp64u aad_len,
-                                       const Ipp64u aad_general_len);
+    IPP_OWN_DECL (void, aes_gcm_aad_hash_finalize_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, const Ipp8u *aad, const Ipp64u aad_len, const Ipp64u aad_general_len))
 
 #define aes_gcm_iv_hash_update_avx512 OWNAPI(aes_gcm_iv_hash_update_avx512)
-void aes_gcm_iv_hash_update_avx512(const struct gcm_key_data *key_data,
-                                     struct gcm_context_data *context_data,
-                                     const Ipp8u *iv, const Ipp64u iv_len);
-
+    IPP_OWN_DECL (void, aes_gcm_iv_hash_update_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, const Ipp8u *iv, const Ipp64u iv_len))
 #define aes_gcm_iv_hash_finalize_avx512 OWNAPI(aes_gcm_iv_hash_finalize_avx512)
-void aes_gcm_iv_hash_finalize_avx512(const struct gcm_key_data *key_data,
-                                     struct gcm_context_data *context_data,
-                                     const Ipp8u *iv, const Ipp64u iv_len,
-                                     const Ipp64u iv_general_len);
+    IPP_OWN_DECL (void, aes_gcm_iv_hash_finalize_avx512, (const struct gcm_key_data *key_data, struct gcm_context_data *context_data, const Ipp8u *iv, const Ipp64u iv_len, const Ipp64u iv_general_len))
 
 #endif /* #if(_IPP32E>=_IPP32E_K0) */
 

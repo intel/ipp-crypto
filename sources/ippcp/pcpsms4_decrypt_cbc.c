@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,9 +43,7 @@
 //    pCtx        pointer to the SMS4 context
 //
 *F*/
-void cpDecryptSMS4_cbc(const Ipp8u* pIV,
-                       const Ipp8u* pSrc, Ipp8u* pDst, int dataLen,
-                       const IppsSMS4Spec* pCtx)
+IPP_OWN_DEFN (void, cpDecryptSMS4_cbc, (const Ipp8u* pIV, const Ipp8u* pSrc, Ipp8u* pDst, int dataLen, const IppsSMS4Spec* pCtx))
 {
    const Ipp32u* pRoundKeys = SMS4_DRK(pCtx);
 
@@ -63,7 +61,7 @@ void cpDecryptSMS4_cbc(const Ipp8u* pIV,
    CopyBlock16(pIV, iv);
 
    /* do decryption */
-   #if (_IPP32E>=_IPP32E_K0)
+   #if (_IPP32E>=_IPP32E_K1)
    #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
    if (IsFeatureEnabled(ippCPUID_AVX512GFNI)) {
       int processedLen = cpSMS4_CBC_dec_gfni512(pDst, pSrc, dataLen, pRoundKeys, (Ipp8u*)iv);
@@ -73,7 +71,7 @@ void cpDecryptSMS4_cbc(const Ipp8u* pIV,
    }
    else
    #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
-   #endif /* (_IPP32E>=_IPP32E_K0) */
+   #endif /* (_IPP32E>=_IPP32E_K1) */
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    if(IsFeatureEnabled(ippCPUID_AES)) {
       int processedLen = cpSMS4_CBC_dec_aesni(pDst, pSrc, dataLen, pRoundKeys, (Ipp8u*)iv);

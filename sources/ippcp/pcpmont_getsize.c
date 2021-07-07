@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@
 //
 *F*/
 
-IppStatus cpMontGetSize(cpSize maxLen32, int poolLength, cpSize* pCtxSize)
+IPP_OWN_DEFN (IppStatus, cpMontGetSize, (cpSize maxLen32, int poolLength, cpSize* pCtxSize))
 {
    {
       int size = 0;
@@ -53,8 +53,7 @@ IppStatus cpMontGetSize(cpSize maxLen32, int poolLength, cpSize* pCtxSize)
       gsModEngineGetSize(maxBitSize, poolLength, &size);
 
       *pCtxSize = (Ipp32s)sizeof(IppsMontState)
-               + (cpSize)size
-               + MONT_ALIGNMENT-1;
+               + (cpSize)size;
 
       return ippStsNoErr;
    }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019-2020 Intel Corporation
+ * Copyright 2019-2021 Intel Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ void AMS52x30_diagonal_mb8(int64u *out_mb, const int64u *inpA_mb,
 
   __ALIGN64 U64 res[60];
   __ALIGN64 U64 u[30];
-  U64 k; //, carry;
+  U64 k;
   U64 *a = (U64 *)inpA_mb;
   U64 *m = (U64 *)inpM_mb;
   U64 *r = (U64 *)out_mb;
@@ -1028,7 +1028,6 @@ void AMS52x30_diagonal_mb8(int64u *out_mb, const int64u *inpA_mb,
   res[59] = fma52hi(res[59], a[29], a[29]); // Add sqr(58)
 
   // Montgomery Reduction
-  // carry = get_zero64();
   int it;
   for (it = 0; it < 30; it += 10) { // Reduction step
     int jt = 0;

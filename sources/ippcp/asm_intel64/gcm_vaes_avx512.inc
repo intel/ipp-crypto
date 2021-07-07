@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2020 Intel Corporation
+; Copyright 2020-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -3989,9 +3989,15 @@ default rel
 
         vmovdqu64       %%AAD_HASH, [%%GDATA_CTX + AadHash]   ; load current hash
 
+        ;; Check AAD length in bytes != 0
+        cmp             %%A_LEN, 0
+        jz              %%zero_len
+
         UPDATE_HASH     %%A_IN, %%A_LEN, %%AAD_HASH, %%GDATA_KEY, \
                         %%ZT0, %%ZT1, %%ZT2, %%ZT3, %%ZT4, %%ZT5, %%ZT6, %%ZT7, %%ZT8, %%ZT9, \
                         %%GPR1, %%GPR2, %%GPR3, %%MASKREG
+
+%%zero_len:
 
         mov             %%GPR1, %%A_GEN_LEN
         vmovdqu64       [%%GDATA_CTX + AadHash], %%AAD_HASH   ; ctx.aad hash = aad_hash

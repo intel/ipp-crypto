@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2020 Intel Corporation
+# Copyright 2017-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -72,11 +72,17 @@ if(compiler == "GNU" or compiler == "Clang"):
                   ##################################################
                   ASMDISP= open( os.sep.join([OutDir, "jmp_" + FunName+"_" + hashlib.sha512(FunName.encode('utf-8')).hexdigest()[:8] +".asm"]), 'w' )
 
+                  # Symbol type setting for extern functions initially appeared in version 2.15
+                  ASMDISP.write("%if ((__NASM_MAJOR__ > 2) || ((__NASM_MAJOR__ == 2) && (__NASM_MINOR__ > 14)))\n");
+                  ASMDISP.write("  %xdefine elf_symbol_type :function\n");
+                  ASMDISP.write("%else\n");
+                  ASMDISP.write("  %xdefine elf_symbol_type\n");
+                  ASMDISP.write("%endif\n");
                   for cpu in cpulist:
-                      ASMDISP.write("extern "+cpu+"_"+FunName+":function\n")
+                      ASMDISP.write("extern "+cpu+"_"+FunName+"%+elf_symbol_type\n")
 
                   ASMDISP.write("extern ippcpJumpIndexForMergedLibs\n")
-                  ASMDISP.write("extern ippcpInit:function\n\n")
+                  ASMDISP.write("extern ippcpInit%+elf_symbol_type\n\n")
                   ASMDISP.write("""
 segment .data
 align 4
@@ -126,7 +132,7 @@ else:
 
                   DISP.write("typedef void (*IPP_PROC)(void);\n\n")
                   DISP.write("extern int ippcpJumpIndexForMergedLibs;\n")
-                  DISP.write("extern IPP_STDCALL ippcpInit();\n\n")
+                  DISP.write("extern IPP_CALL ippcpInit();\n\n")
 
                   DISP.write("extern IppStatus in_"+FunName+FunArg+";\n")
 

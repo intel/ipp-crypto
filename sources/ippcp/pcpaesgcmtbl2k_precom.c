@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ static void RightShiftBlock16(Ipp8u* pBlock)
    }
 }
 
-void AesGcmPrecompute_table2K(Ipp8u* pPrecomputeData, const Ipp8u* pHKey)
+IPP_OWN_DEFN (void, AesGcmPrecompute_table2K, (Ipp8u* pPrecomputeData, const Ipp8u* pHKey))
 {
    Ipp8u t[BLOCK_SIZE];
    int n;

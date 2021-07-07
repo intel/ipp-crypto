@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2003-2020 Intel Corporation
+* Copyright 2003-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
 
 __INLINE IppsBigNumState* cpConstructBN(IppsBigNumState* pBN, cpSize len, BNU_CHUNK_T* pData, BNU_CHUNK_T* pBuffer)
 {
-   BN_ID(pBN)   = idCtxBigNum;
+   BN_SET_ID(pBN);
    BN_SIGN(pBN) = ippBigNumPOS;
    BN_SIZE(pBN) = len;
    BN_ROOM(pBN) = len;
@@ -42,15 +42,7 @@ __INLINE IppsBigNumState* cpConstructBN(IppsBigNumState* pBN, cpSize len, BNU_CH
 
 /* set EC parameters */
 #define ECCPSetDP OWNAPI(ECCPSetDP)
-IppStatus ECCPSetDP(const IppsGFpMethod* method,
-                        int pLen, const BNU_CHUNK_T* pP,
-                        int aLen, const BNU_CHUNK_T* pA,
-                        int bLen, const BNU_CHUNK_T* pB,
-                        int xLen, const BNU_CHUNK_T* pX,
-                        int yLen, const BNU_CHUNK_T* pY,
-                        int rLen, const BNU_CHUNK_T* pR,
-                        BNU_CHUNK_T h,
-                        IppsGFpECState* pEC);
+   IPP_OWN_DECL (IppStatus, ECCPSetDP, (const IppsGFpMethod* method, int pLen, const BNU_CHUNK_T* pP, int aLen, const BNU_CHUNK_T* pA, int bLen, const BNU_CHUNK_T* pB, int xLen, const BNU_CHUNK_T* pX, int yLen, const BNU_CHUNK_T* pY, int rLen, const BNU_CHUNK_T* pR, BNU_CHUNK_T h, IppsGFpECState* pEC))
 
 /*
 // Recommended (Standard) Domain Parameters

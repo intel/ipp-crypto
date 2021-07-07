@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ IPPFUN(IppStatus, ippsAES_GCMGetTag,(Ipp8u* pDstTag, int tagLen, const IppsAES_G
    /* add encrypted initial counter */
    XorBlock16(tmpHash, AESGCM_ECOUNTER0(pState), tmpHash);
 
-   /* return tag of required lenth */
+   /* return tag of required length */
    CopyBlock(tmpHash, pDstTag, tagLen);
 
    #endif /* #if(_IPP32E>=_IPP32E_K0) */

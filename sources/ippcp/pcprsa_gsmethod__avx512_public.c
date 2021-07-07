@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,17 +32,18 @@
 #include "pcpngrsamethod.h"
 #include "pcpngrsa.h"
 
-#if (_IPP32E>=_IPP32E_K0)
+#if (_IPP32E>=_IPP32E_K1)
 #include "pcpngmontexpstuff_avx512.h"
 
-gsMethod_RSA* gsMethod_RSA_avx512_public(void)
+IPP_OWN_DEFN (gsMethod_RSA*, gsMethod_RSA_avx512_public, (void))
 {
     static gsMethod_RSA m = {
         RSA_AVX512_MIN_BITSIZE, RSA_AVX512_MAX_BITSIZE, /* RSA range */
 
         /* public key exponentiation: public, binary, avx512 */
         gsMontExpBinBuffer_avx512,
-        gsMontExpBin_BNU_avx512
+        gsMontExpBin_BNU_avx512,
+        NULL
     };
     return &m;
 }

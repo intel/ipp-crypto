@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2016-2020 Intel Corporation
+; Copyright 2016-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 ;      p192r1_mul_mont_slm
 ;      p192r1_sqr_mont_slm
 ;      p192r1_mred
-;      p192r1_select_pp_w5
 ;      p192r1_select_ap_w7
 ;
 
@@ -805,80 +804,6 @@ align IPP_ALIGN_FACTOR
    REST_GPR
    ret
 ENDFUNC p192r1_mred
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; void p192r1_select_pp_w5(P192_POINT *val, const P192_POINT *inTbl, int index)
-;;
-align IPP_ALIGN_FACTOR
-IPPASM p192r1_select_pp_w5,PUBLIC
-  USES_GPR esi,edi
-
-%xdefine pP   [esp + ARG_1 + 0*sizeof(dword)] ; pointer to output projective point
-%xdefine pTbl [esp + ARG_1 + 1*sizeof(dword)] ; address of the table
-%xdefine idx  [esp + ARG_1 + 2*sizeof(dword)] ; index in the table
-
-      pxor     xmm0, xmm0
-      mov      edi, pP
-      mov      esi, pTbl
-
-      mov      eax, idx          ; broadcast input index
-      movd     xmm7, eax
-      pshufd   xmm7, xmm7, 00000000b
-
-      mov      edx, 1            ; broadcast index increment index
-      movd     xmm6, edx
-      pshufd   xmm6, xmm6, 00000000b
-
-      movdqa   oword [edi], xmm0                   ; clear P
-      movdqa   oword [edi+sizeof(oword)], xmm0
-      movdqa   oword [edi+sizeof(oword)*2], xmm0
-      movdqa   oword [edi+sizeof(oword)*3], xmm0
-      movq     qword [edi+sizeof(oword)*4], xmm0
-
-      ; skip index = 0, is implicictly infty -> load with offset -1
-      movdqa   xmm5, xmm6           ; current_idx
-      mov      ecx, 16
-align IPP_ALIGN_FACTOR
-.select_loop:
-      movdqa   xmm4, xmm5
-      pcmpeqd  xmm4, xmm7     ; mask = current_idx==idx? 0xFF : 0x00
-
-      movdqu   xmm0, oword [esi]
-      pand     xmm0, xmm4
-      por      xmm0, oword [edi]
-      movdqa   oword [edi], xmm0
-
-      movdqu   xmm1, oword [esi+sizeof(oword)]
-      pand     xmm1, xmm4
-      por      xmm1, oword [edi+sizeof(oword)]
-      movdqa   oword [edi+sizeof(oword)], xmm1
-
-      movdqu   xmm2, oword [esi+sizeof(oword)*2]
-      pand     xmm2, xmm4
-      por      xmm2, oword [edi+sizeof(oword)*2]
-      movdqa   oword [edi+sizeof(oword)*2], xmm2
-
-      movdqu   xmm3, oword [esi+sizeof(oword)*3]
-      pand     xmm3, xmm4
-      por      xmm3, oword [edi+sizeof(oword)*3]
-      movdqa   oword [edi+sizeof(oword)*3], xmm3
-
-      movq     xmm0, qword [esi+sizeof(oword)*4]
-      movq     xmm1, qword [edi+sizeof(oword)*4]
-      pand     xmm0, xmm4
-      por      xmm0, xmm1
-      movq     qword [edi+sizeof(oword)*4], xmm0
-
-      paddd    xmm5, xmm6     ; increment current_idx
-      add      esi, sizeof(dword)*LEN192*3
-      sub      ecx, 1
-      jnz      .select_loop
-
-   REST_GPR
-   ret
-ENDFUNC p192r1_select_pp_w5
 
 %endif    ;; _IPP >= _IPP_P8
 

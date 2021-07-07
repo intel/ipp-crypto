@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2020 Intel Corporation
+; Copyright 2020-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -3230,10 +3230,16 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 %define %%A_GEN_LEN           %8     ; [in] AAD general length in bytes
 
 %define %%AAD_HASH      xmm14
-        
+
         vmovdqu64       %%AAD_HASH, [%%GDATA_CTX + AadHash]   ; load current hash
 
+        ;; Check AAD length in bytes != 0
+        cmp             %%A_LEN, 0
+        jz              %%zero_len
+
         UPDATE_HASH     %%A_IN, %%A_LEN, %%AAD_HASH, %%GDATA_KEY, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, %%GPR1, %%GPR2, %%GPR3
+
+%%zero_len:
 
         mov             %%GPR1, %%A_GEN_LEN
         vmovdqu64       [%%GDATA_CTX + AadHash], %%AAD_HASH   ; ctx.aad hash = aad_hash
@@ -3489,6 +3495,8 @@ ENDFUNC FN_NAME(dec,_update_)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 IPPASM FN_NAME(gettag,_), PUBLIC
 
+        FUNC_SAVE
+        
 ;; All parameters are passed through registers
 %ifdef SAFE_PARAM
         ;; Check key_data != NULL
@@ -3544,6 +3552,7 @@ IPPASM FN_NAME(gettag,_), PUBLIC
         pop r12
 
 .exit_enc_fin:
+        FUNC_RESTORE
 	ret
 
 ENDFUNC FN_NAME(gettag,_)

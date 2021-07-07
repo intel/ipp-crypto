@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2016-2020 Intel Corporation
+* Copyright 2016-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -62,18 +62,16 @@ IPPFUN(IppStatus, ippsGFpECPublicKey, (const IppsBigNumState* pPrivate, IppsGFpE
 {
    /* EC context and buffer */
    IPP_BAD_PTR2_RET(pEC, pScratchBuffer);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET(!ECP_TEST_ID(pEC), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
    IPP_BADARG_RET(!ECP_SUBGROUP(pEC), ippStsContextMatchErr);
 
    /* test private keys */
    IPP_BAD_PTR1_RET(pPrivate);
-   pPrivate = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrivate, ALIGN_VAL) );
    IPP_BADARG_RET(!BN_VALID_ID(pPrivate), ippStsContextMatchErr);
 
    /* test public key */
    IPP_BAD_PTR1_RET(pPublic);
-   IPP_BADARG_RET(!ECP_POINT_TEST_ID(pPublic), ippStsContextMatchErr);
+   IPP_BADARG_RET(!ECP_POINT_VALID_ID(pPublic), ippStsContextMatchErr);
    IPP_BADARG_RET(ECP_POINT_FELEN(pPublic)<GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsRangeErr);
 
    {

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -62,10 +62,9 @@ IPPFUN(IppStatus, ippsGFpECCpyPoint,(const IppsGFpECPoint* pA,
                                            IppsGFpECState* pEC))
 {
    IPP_BAD_PTR3_RET(pA, pR, pEC);
-   pEC = (IppsGFpECState*)( IPP_ALIGNED_PTR(pEC, ECGFP_ALIGNMENT) );
-   IPP_BADARG_RET( !ECP_TEST_ID(pEC), ippStsContextMatchErr );
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pA), ippStsContextMatchErr );
-   IPP_BADARG_RET( !ECP_POINT_TEST_ID(pR), ippStsContextMatchErr );
+   IPP_BADARG_RET( !VALID_ECP_ID(pEC), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pA), ippStsContextMatchErr );
+   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pR), ippStsContextMatchErr );
 
    IPP_BADARG_RET( ECP_POINT_FELEN(pA)!=GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);
    IPP_BADARG_RET( ECP_POINT_FELEN(pR)!=GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsOutOfRangeErr);

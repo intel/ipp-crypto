@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,7 +57,9 @@ static const IppLibraryVersion ippcpLibVer = {
     #endif
 
 #elif ( _IPP_ARCH == _IPP_ARCH_EM64T ) || ( _IPP_ARCH == _IPP_ARCH_LP64 )
-    #if ( _IPP32E == _IPP32E_K0 )       /* Intel® Advanced Vector Extensions 512 (formerly Skylake) - intel64 */
+    #if ( _IPP32E == _IPP32E_K1 )       /* Intel® Advanced Vector Extensions 512 (formerly Icelake) - intel64 */
+        GET_LIBRARY_NAME( k1, "AVX-512F/CD/BW/DQ/VL/SHA/VBMI/VBMI2/IFMA/GFNI/VAES/VCLMUL" )
+    #elif ( _IPP32E == _IPP32E_K0 )       /* Intel® Advanced Vector Extensions 512 (formerly Skylake) - intel64 */
         GET_LIBRARY_NAME( k0, "AVX-512F/CD/BW/DQ/VL" )
     #elif ( _IPP32E == _IPP32E_N0 )     /* Intel® Advanced Vector Extensions 512 (formerly codenamed Knights Landing) - intel64 */
         GET_LIBRARY_NAME( n0, "AVX-512F/CD/ER/PF" )

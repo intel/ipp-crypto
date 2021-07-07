@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@
 
 #include "pcpsms4_l9cn.h"
 
-int cpSMS4_ECB_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey)
+IPP_OWN_DEFN (int, cpSMS4_ECB_aesni, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey))
 {
    __ALIGN16 __m256i TMP[16];
    /*
@@ -213,7 +213,7 @@ int cpSMS4_ECB_aesni(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKe
 
    /* clear secret data */
    for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
-      TMP[i] = _mm256_xor_si256(TMP[i],TMP[i]);
+      TMP[i] = _mm256_setzero_si256(); //_mm256_xor_si256(TMP[i],TMP[i]);
    }
 
    return processedLen;

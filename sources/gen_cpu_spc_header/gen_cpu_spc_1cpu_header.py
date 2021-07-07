@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2020 Intel Corporation
+# Copyright 2017-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ if not os.path.exists(OutDir):
 
 
 Filename="ippcp"
-Filenames=["h9", "p8", "s8", "w7", "e9", "k0", "l9", "m7", "n0", "n8", "y8", "g9"]
+Filenames=["h9", "p8", "s8", "w7", "e9", "k0", "k1", "l9", "m7", "n0", "n8", "y8", "g9"]
 
 for name in Filenames:
   OutFile  = os.sep.join([OutDir, Filename + "_"+ name + ".h"])

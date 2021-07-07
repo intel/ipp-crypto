@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2006-2020 Intel Corporation
+* Copyright 2006-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -109,15 +109,11 @@ IPPFUN(IppStatus, ippsTDESEncryptOFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, i
 {
    /* test contexts */
    IPP_BAD_PTR3_RET(pCtx1, pCtx2, pCtx3);
-   /* use aligned DES contexts */
-   pCtx1 = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx1, DES_ALIGNMENT) );
-   pCtx2 = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx2, DES_ALIGNMENT) );
-   pCtx3 = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx3, DES_ALIGNMENT) );
 
    /* test context validity */
-   IPP_BADARG_RET(!DES_ID_TEST(pCtx1), ippStsContextMatchErr);
-   IPP_BADARG_RET(!DES_ID_TEST(pCtx2), ippStsContextMatchErr);
-   IPP_BADARG_RET(!DES_ID_TEST(pCtx3), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_DES_ID(pCtx1), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_DES_ID(pCtx2), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_DES_ID(pCtx3), ippStsContextMatchErr);
 
    /* test source and destination pointers */
    IPP_BAD_PTR3_RET(pSrc, pDst, pIV);
@@ -168,15 +164,11 @@ IPPFUN(IppStatus, ippsTDESDecryptOFB,(const Ipp8u* pSrc, Ipp8u* pDst, int len, i
 {
    /* test contexts */
    IPP_BAD_PTR3_RET(pCtx1, pCtx2, pCtx3);
-   /* use aligned DES contexts */
-   pCtx1 = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx1, DES_ALIGNMENT) );
-   pCtx2 = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx2, DES_ALIGNMENT) );
-   pCtx3 = (IppsDESSpec*)( IPP_ALIGNED_PTR(pCtx3, DES_ALIGNMENT) );
 
    /* test context validity */
-   IPP_BADARG_RET(!DES_ID_TEST(pCtx1), ippStsContextMatchErr);
-   IPP_BADARG_RET(!DES_ID_TEST(pCtx2), ippStsContextMatchErr);
-   IPP_BADARG_RET(!DES_ID_TEST(pCtx3), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_DES_ID(pCtx1), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_DES_ID(pCtx2), ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_DES_ID(pCtx3), ippStsContextMatchErr);
 
    /* test source and destination pointers */
    IPP_BAD_PTR3_RET(pSrc, pDst, pIV);

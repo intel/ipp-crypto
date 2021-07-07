@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
 
 #if ( ECP_PROJECTIVE_COORD == JACOBIAN )
 /* returns 1/0 if point is finite/infinite */
-int gfec_GetPoint(BNU_CHUNK_T* pX, BNU_CHUNK_T* pY, const IppsGFpECPoint* pPoint, IppsGFpECState* pEC)
+IPP_OWN_DEFN (int, gfec_GetPoint, (BNU_CHUNK_T* pX, BNU_CHUNK_T* pY, const IppsGFpECPoint* pPoint, IppsGFpECState* pEC))
 {
    IppsGFpState* pGF = ECP_GFP(pEC);
    gsModEngine* pGFE = GFP_PMA(pGF);

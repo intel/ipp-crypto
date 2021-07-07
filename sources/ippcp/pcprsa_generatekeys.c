@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -89,7 +89,6 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys,(const IppsBigNumState* pSrcPublicExp,
                                         IppBitSupplier rndFunc, void* pRndParam))
 {
    IPP_BAD_PTR1_RET(pSrcPublicExp);
-   pSrcPublicExp = (IppsBigNumState*)( IPP_ALIGNED_PTR(pSrcPublicExp, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pSrcPublicExp), ippStsContextMatchErr);
    IPP_BADARG_RET(!(0 < cpBN_tst(pSrcPublicExp)), ippStsOutOfRangeErr);
    /* test if e is odd and e>=3 */
@@ -97,21 +96,17 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys,(const IppsBigNumState* pSrcPublicExp,
    IPP_BADARG_RET((0 > cpBN_cmp(pSrcPublicExp, cpBN_ThreeRef())), ippStsBadArgErr);
 
    IPP_BAD_PTR1_RET(pModulus);
-   pModulus = (IppsBigNumState*)( IPP_ALIGNED_PTR(pModulus, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pModulus), ippStsContextMatchErr);
 
    IPP_BAD_PTR1_RET(pPublicExp);
-   pPublicExp = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPublicExp, BN_ALIGNMENT) );
    IPP_BADARG_RET(!BN_VALID_ID(pPublicExp), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_ROOM(pPublicExp)<BN_SIZE(pSrcPublicExp), ippStsSizeErr);
 
    if(pPrivateExp) {
-      pPrivateExp = (IppsBigNumState*)( IPP_ALIGNED_PTR(pPrivateExp, BN_ALIGNMENT) );
       IPP_BADARG_RET(!BN_VALID_ID(pPrivateExp), ippStsContextMatchErr);
    }
 
    IPP_BAD_PTR1_RET(pPrivateKeyType2);
-   pPrivateKeyType2 = (IppsRSAPrivateKeyState*)( IPP_ALIGNED_PTR(pPrivateKeyType2, RSA_PRIVATE_KEY_ALIGNMENT) );
    IPP_BADARG_RET(!RSA_PRV_KEY2_VALID_ID(pPrivateKeyType2), ippStsContextMatchErr);
 
    IPP_BAD_PTR2_RET(pBuffer, rndFunc);

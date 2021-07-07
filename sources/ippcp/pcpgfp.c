@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@
 /*
 // size of GFp engine context (Montgomery)
 */
-int cpGFpGetSize(int feBitSize, int peBitSize, int numpe)
+IPP_OWN_DEFN (int, cpGFpGetSize, (int feBitSize, int peBitSize, int numpe))
 {
    int ctxSize = 0;
    int elemLen = BITS_BNU_CHUNK(feBitSize);
@@ -91,16 +91,15 @@ static void cpGFEInit(gsModEngine* pGFE, int modulusBitSize, int peBitSize, int 
    cpGFpElementPad(GFP_QNR(pGFE), modLen, 0);
 }
 
-IppStatus cpGFpInitGFp(int primeBitSize, IppsGFpState* pGF)
+IPP_OWN_DEFN (IppStatus, cpGFpInitGFp, (int primeBitSize, IppsGFpState* pGF))
 {
    IPP_BADARG_RET((primeBitSize< IPP_MIN_GF_BITSIZE) || (primeBitSize> IPP_MAX_GF_BITSIZE), ippStsSizeErr);
    IPP_BAD_PTR1_RET(pGF);
-   pGF = (IppsGFpState*)( IPP_ALIGNED_PTR(pGF, GFP_ALIGNMENT) );
 
    {
       Ipp8u* ptr = (Ipp8u*)pGF;
 
-      GFP_ID(pGF)      = idCtxGFP;
+      GFP_SET_ID(pGF);
       GFP_PMA(pGF) = (gsModEngine*)(ptr+sizeof(IppsGFpState));
       cpGFEInit(GFP_PMA(pGF), primeBitSize, primeBitSize+BITSIZE(BNU_CHUNK_T), GFP_POOL_SIZE);
 

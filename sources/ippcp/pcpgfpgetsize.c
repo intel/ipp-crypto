@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,7 +52,6 @@ IPPFUN(IppStatus, ippsGFpGetSize,(int feBitSize, int* pSize))
    IPP_BAD_PTR1_RET(pSize);
    IPP_BADARG_RET((feBitSize < 2) || (feBitSize > GFP_MAX_BITSIZE), ippStsSizeErr);
 
-   *pSize = cpGFpGetSize(feBitSize, feBitSize+BITSIZE(BNU_CHUNK_T), GFP_POOL_SIZE)
-          + GFP_ALIGNMENT;
+   *pSize = cpGFpGetSize(feBitSize, feBitSize+BITSIZE(BNU_CHUNK_T), GFP_POOL_SIZE);
    return ippStsNoErr;
 }

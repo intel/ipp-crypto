@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ typedef enum {
 } ECESAlgoState;
 
 struct _cpStateECES_SM2 {
-   IppCtxId idCtx;
+   Ipp32u idCtx;
    Ipp8u* pSharedSecret;
    Ipp32s sharedSecretLen;
 
@@ -49,6 +49,9 @@ struct _cpStateECES_SM2 {
    IppsHashState_rmf* pKdfHasher;
    IppsHashState_rmf* pTagHasher;
 };
+
+#define ECES_SM2_SET_ID(stt)   ((stt)->idCtx = (Ipp32u)idxCtxECES_SM2 ^ (Ipp32u)IPP_UINT_PTR(stt))
+#define VALID_ECES_SM2_ID(stt) ((((stt)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((stt))) == (Ipp32u)idxCtxECES_SM2)
 
 /* get a byte, update 0-kdf status */
 __INLINE Ipp8u cpECES_SM2KdfNextByte(IppsECESState_SM2* pState) {

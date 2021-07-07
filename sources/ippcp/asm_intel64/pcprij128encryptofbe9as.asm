@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2015-2020 Intel Corporation
+; Copyright 2015-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -150,7 +150,7 @@ align IPP_ALIGN_FACTOR
    movdqa      oword [rsp], xmm0
 
    add         r11, r9                       ; advance index
-   sub         r12, r9                       ; decrease lenth
+   sub         r12, r9                       ; decrease length
    jg          .single_blk
 
    COPY_8U     rsi, {rsp+2*16}, r10, r11b    ; move 1-4 blocks to output

@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2015-2020 Intel Corporation
+; Copyright 2015-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -949,91 +949,6 @@ IPPASM p192r1_mont_back,PUBLIC
    ret
 ENDFUNC p192r1_mont_back
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; void p192r1_select_pp_w5(POINT *val, const POINT *in_t, int index);
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-align IPP_ALIGN_FACTOR
-IPPASM p192r1_select_pp_w5,PUBLIC
-%assign LOCAL_FRAME 0
-        USES_GPR rsi,rdi
-        USES_XMM xmm6,xmm7,xmm8,xmm9,xmm10,xmm11,xmm12,xmm13
-        COMP_ABI 3
-
-%xdefine val   rdi
-%xdefine in_t  rsi
-%xdefine idx   edx
-
-%xdefine ONE   xmm0
-%xdefine INDEX xmm1
-
-%xdefine Ra    xmm2
-%xdefine Rb    xmm3
-%xdefine Rc    xmm4
-%xdefine Rd    xmm5
-%xdefine Re    xmm6
-
-%xdefine T0a   xmm7
-%xdefine T0b   xmm8
-%xdefine T0c   xmm9
-%xdefine T0d   xmm10
-%xdefine T0e   xmm11
-
-%xdefine M0    xmm12
-%xdefine TMP0  xmm13
-
-   movdqa   ONE, oword [rel LOne]
-
-   movdqa   M0, ONE
-
-   movd     INDEX, idx
-   pshufd   INDEX, INDEX, 0
-
-   pxor     Ra, Ra
-   pxor     Rb, Rb
-   pxor     Rc, Rc
-   pxor     Rd, Rd
-   pxor     Re, Re
-
-   ; Skip index = 0, is implicictly infty -> load with offset -1
-   mov      rcx, dword 16
-.select_loop_sse_w5:
-      movdqa   TMP0, M0
-      pcmpeqd  TMP0, INDEX
-      paddd    M0, ONE
-
-      movdqu   T0a, oword [in_t+sizeof(oword)*0]
-      movdqu   T0b, oword [in_t+sizeof(oword)*1]
-      movdqu   T0c, oword [in_t+sizeof(oword)*2]
-      movdqu   T0d, oword [in_t+sizeof(oword)*3]
-      movq     T0e, qword [in_t+sizeof(oword)*4]
-      add      in_t, sizeof(qword)*3*3
-
-      pand     T0a, TMP0
-      pand     T0b, TMP0
-      pand     T0c, TMP0
-      pand     T0d, TMP0
-      pand     T0e, TMP0
-
-      por      Ra, T0a
-      por      Rb, T0b
-      por      Rc, T0c
-      por      Rd, T0d
-      por      Re, T0e
-      dec      rcx
-      jnz      .select_loop_sse_w5
-
-   movdqu   oword [val+sizeof(oword)*0], Ra
-   movdqu   oword [val+sizeof(oword)*1], Rb
-   movdqu   oword [val+sizeof(oword)*2], Rc
-   movdqu   oword [val+sizeof(oword)*3], Rd
-   movq     qword [val+sizeof(oword)*4], Re
-
-   REST_XMM
-   REST_GPR
-   ret
-ENDFUNC p192r1_select_pp_w5
 
 %ifndef _DISABLE_ECP_192R1_HARDCODED_BP_TBL_
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

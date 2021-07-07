@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@
 /*
 // Compute digest
 */
-void cpFinalizeMD5(DigestMD5 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen)
+IPP_OWN_DEFN (void, cpFinalizeMD5, (DigestMD5 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u processedMsgLen))
 {
    /* local buffer and it length */
    Ipp8u buffer[MBS_MD5*2];

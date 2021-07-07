@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ IPPFUN(IppStatus, ippsHMAC_GetSize,(int* pSize))
    /* test size's pointer */
    IPP_BAD_PTR1_RET(pSize);
 
-   *pSize = sizeof(IppsHMACState)
-          + HASH_ALIGNMENT;
+   *pSize = sizeof(IppsHMACState);
+
    return ippStsNoErr;
 }

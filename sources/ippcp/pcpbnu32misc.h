@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2002-2020 Intel Corporation
+* Copyright 2002-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@
 
 /* number of leading/trailing zeros */
 #if (_IPP < _IPP_H9)
-   #define cpNLZ_BNU32 OWNAPI(cpNLZ_BNU32)
-   cpSize  cpNLZ_BNU32(Ipp32u x);
+#define cpNLZ_BNU32 OWNAPI(cpNLZ_BNU32)
+   IPP_OWN_DECL (cpSize, cpNLZ_BNU32, (Ipp32u x))
 #else
    __INLINE cpSize cpNLZ_BNU32(Ipp32u x)
    {
@@ -90,8 +90,8 @@ __INLINE int cpCmp_BNU32(const Ipp32u* pA, cpSize nsA, const Ipp32u* pB, cpSize 
 
 /* to/from oct string conversion */
 #define cpToOctStr_BNU32 OWNAPI(cpToOctStr_BNU32)
-cpSize  cpToOctStr_BNU32(Ipp8u* pStr, cpSize strLen, const Ipp32u* pBNU, cpSize bnuSize);
+   IPP_OWN_DECL (cpSize, cpToOctStr_BNU32, (Ipp8u* pStr, cpSize strLen, const Ipp32u* pBNU, cpSize bnuSize))
 #define cpFromOctStr_BNU32 OWNAPI(cpFromOctStr_BNU32)
-cpSize  cpFromOctStr_BNU32(Ipp32u* pBNU, const Ipp8u* pOctStr, cpSize strLen);
+   IPP_OWN_DECL (cpSize, cpFromOctStr_BNU32, (Ipp32u* pBNU, const Ipp8u* pOctStr, cpSize strLen))
 
 #endif /* _CP_BNU32_MISC_H */

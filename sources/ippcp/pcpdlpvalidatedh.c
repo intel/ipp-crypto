@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2005-2020 Intel Corporation
+* Copyright 2005-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -129,7 +129,6 @@ IPPFUN(IppStatus, ippsDLPValidateDH,(int nTrials, IppDLResult* pResult, IppsDLPS
 {
    /* test DL context */
    IPP_BAD_PTR1_RET(pDL);
-   pDL = (IppsDLPState*)( IPP_ALIGNED_PTR(pDL, DLP_ALIGNMENT) );
    IPP_BADARG_RET(!DLP_VALID_ID(pDL), ippStsContextMatchErr);
 
    /* test operation flag */

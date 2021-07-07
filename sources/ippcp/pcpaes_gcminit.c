@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    pState = (IppsAES_GCMState*)( IPP_ALIGNED_PTR(pState, AESGCM_ALIGNMENT) );
 
    /* set and clear GCM context */
-   AESGCM_ID(pState) = idCtxAESGCM;
+   AESGCM_SET_ID(pState);
    ippsAES_GCMReset(pState);
 
    #if(_IPP32E>=_IPP32E_K0)
@@ -85,7 +85,7 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    Ipp8u zeroKey[32] = {0};
    const Ipp8u* pActualKey = pKey? pKey : zeroKey;
 
-   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+   if (IsFeatureEnabled(ippCPUID_AVX512VAES) && IsFeatureEnabled(ippCPUID_AVX512VCLMUL)) {
 
       switch AES_GCM_KEY_LEN(pState) {
          case 16:

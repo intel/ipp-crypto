@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2010-2020 Intel Corporation
+* Copyright 2010-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@
 //      (_IPP32E==_IPP32E_U8) || (_IPP32E==_IPP32E_Y8) || \
 //      (_IPP32E==_IPP32E_N8) || (_IPP32E>=_IPP32E_E9))
 #if 0
-void AesGcmAuth_table2K(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam)
+IPP_OWN_DEFN (void, AesGcmAuth_table2K, (Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam))
 {
    IPP_UNREFERENCED_PARAMETER(pParam);
 
@@ -60,7 +60,7 @@ void AesGcmAuth_table2K(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* p
 
 #if(_IPP32E<_IPP32E_K0)
 
-void AesGcmAuth_table2K_ct(Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam)
+IPP_OWN_DEFN (void, AesGcmAuth_table2K_ct, (Ipp8u* pHash, const Ipp8u* pSrc, int len, const Ipp8u* pHKey, const void* pParam))
 {
    IPP_UNREFERENCED_PARAMETER(pParam);
 

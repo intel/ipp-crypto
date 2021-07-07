@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2018-2020 Intel Corporation
+* Copyright 2018-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@
 IPPFUN(IppStatus, ippsGFpECSetPointOctString, (const Ipp8u* pStr,
    int strLen, IppsGFpECPoint* pPoint, IppsGFpECState* pEC)) {
    IPP_BAD_PTR3_RET(pPoint, pEC, pStr);
-   IPP_BADARG_RET(pEC->idCtx != idCtxGFPEC, ippStsContextMatchErr);
+   IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
 
    {
       gsModEngine* pGFE = pEC->pGF->pGFE;

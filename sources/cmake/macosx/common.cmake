@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2017-2020 Intel Corporation
+# Copyright 2017-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,4 +21,4 @@
 set(OS_DEFAULT_COMPILER Intel19.0.0)
 
 set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPP_PIC -DOSXEM64T -DLINUX32E -D_ARCH_EM64T")
-set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DBN_OPENSSL_DISABLE")
+#set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DBN_OPENSSL_DISABLE")

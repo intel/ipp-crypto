@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2013-2020 Intel Corporation
+* Copyright 2013-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -54,14 +54,24 @@ IPPFUN(IppStatus, ippsAESPack,(const IppsAESSpec* pCtx, Ipp8u* pBuffer, int bufs
    /* test pointers */
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
 
-   /* use aligned AES context */
-   pCtx = (IppsAESSpec*)( IPP_ALIGNED_PTR(pCtx, AES_ALIGNMENT) );
    /* test the context */
    IPP_BADARG_RET(!VALID_AES_ID(pCtx), ippStsContextMatchErr);
 
    /* test available size of destination buffer */
    IPP_BADARG_RET(bufsize<cpSizeofCtx_AES(), ippStsLengthErr);
 
-   CopyBlock(pCtx, pBuffer, sizeof(IppsAESSpec));
+   cpSize keysBufSize = sizeof(RIJ_KEYS_BUFFER(pCtx));
+   cpSize keysOffset  = (cpSize)(IPP_INT_PTR(RIJ_KEYS_BUFFER(pCtx)) - IPP_INT_PTR(pCtx));
+   cpSize keysAlignment = (cpSize)(IPP_INT_PTR(RIJ_EKEYS(pCtx)) - IPP_INT_PTR(RIJ_KEYS_BUFFER(pCtx)));
+
+   /* dump context without expanded keys */
+   CopyBlock(pCtx, pBuffer, keysOffset);
+   /* dump expanded keys, alignment is not counted */
+   CopyBlock(RIJ_EKEYS(pCtx), pBuffer+keysOffset, (keysBufSize - keysAlignment));
+
+   /* Restore real Id */
+   IppsAESSpec* pCopy = (IppsAESSpec*)pBuffer;
+   RIJ_RESET_ID(pCopy);
+
    return ippStsNoErr;
 }

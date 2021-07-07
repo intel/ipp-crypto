@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2020 Intel Corporation
+* Copyright 2019-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -74,6 +74,15 @@ enum MBX_ALGO {
     MBX_ALGO_RSA_3K,
     MBX_ALGO_RSA_4K,
     MBX_ALGO_X25519,
+    MBX_ALGO_EC_NIST_P256,
+    MBX_ALGO_ECDHE_NIST_P256 = MBX_ALGO_EC_NIST_P256,
+    MBX_ALGO_ECDSA_NIST_P256 = MBX_ALGO_EC_NIST_P256,
+    MBX_ALGO_EC_NIST_P384,
+    MBX_ALGO_ECDHE_NIST_P384 = MBX_ALGO_EC_NIST_P384,
+    MBX_ALGO_ECDSA_NIST_P384 = MBX_ALGO_EC_NIST_P384,
+    MBX_ALGO_EC_NIST_P521,
+    MBX_ALGO_ECDHE_NIST_P521 = MBX_ALGO_EC_NIST_P521,
+    MBX_ALGO_ECDSA_NIST_P521 = MBX_ALGO_EC_NIST_P521
 };
 
 /* multi-buffer width implemented by library */

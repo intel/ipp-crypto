@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2017-2020 Intel Corporation
+* Copyright 2017-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,17 +26,17 @@
 typedef struct _gsModEngine gsEngine;
 
 /* modular arith methods */
-typedef BNU_CHUNK_T* (*mod_encode)(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA);
-typedef BNU_CHUNK_T* (*mod_decode)(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA);
-typedef BNU_CHUNK_T* (*mod_red)   (BNU_CHUNK_T* pR,       BNU_CHUNK_T* pA, gsEngine* pMA);
-typedef BNU_CHUNK_T* (*mod_sqr)   (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA);
-typedef BNU_CHUNK_T* (*mod_mul)   (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pMA);
-typedef BNU_CHUNK_T* (*mod_add)   (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pMA);
-typedef BNU_CHUNK_T* (*mod_sub)   (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pMA);
-typedef BNU_CHUNK_T* (*mod_neg)   (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA);
-typedef BNU_CHUNK_T* (*mod_div2)  (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA);
-typedef BNU_CHUNK_T* (*mod_mul2)  (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA);
-typedef BNU_CHUNK_T* (*mod_mul3)  (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA);
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_encode, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA))
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_decode, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA))
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_red,    (BNU_CHUNK_T* pR,       BNU_CHUNK_T* pA, gsEngine* pMA))
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_sqr,    (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA))
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_mul,    (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pMA))
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_add,    (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pMA))
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_sub,    (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pMA))
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_neg,    (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA))
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_div2,   (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA))
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_mul2,   (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA))
+IPP_OWN_FUNPTR (BNU_CHUNK_T*, mod_mul3,   (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pMA))
 
 typedef struct _gsModMethod {
    mod_encode encode;
@@ -72,24 +72,24 @@ __INLINE void cpMaskMove_gs(BNU_CHUNK_T* dst, const BNU_CHUNK_T* src, int len, B
 }
 
 /* common available pre-defined methos */
-#define      gsModArith OWNAPI(gsModArith)
-gsModMethod* gsModArith(void);
+#define gsModArith OWNAPI(gsModArith)
+   IPP_OWN_DECL (gsModMethod*, gsModArith, (void))
 
 /* available pre-defined methos for RSA */
-#define      gsModArithRSA OWNAPI(gsModArithRSA)
-gsModMethod* gsModArithRSA(void);
+#define gsModArithRSA OWNAPI(gsModArithRSA)
+   IPP_OWN_DECL (gsModMethod*, gsModArithRSA, (void))
 
 /* available pre-defined methos for ippsMont* */
-#define      gsModArithMont OWNAPI(gsModArithMont)
-gsModMethod* gsModArithMont(void);
+#define gsModArithMont OWNAPI(gsModArithMont)
+   IPP_OWN_DECL (gsModMethod*, gsModArithMont, (void))
 
 /* available pre-defined methos for DLP * */
-#define      gsModArithDLP OWNAPI(gsModArithDLP)
-gsModMethod* gsModArithDLP(void);
+#define gsModArithDLP OWNAPI(gsModArithDLP)
+   IPP_OWN_DECL (gsModMethod*, gsModArithDLP, (void))
 
 /* available pre-defined common methos for GF over prime * */
-#define      gsArithGFp OWNAPI(gsArithGFp)
-gsModMethod* gsArithGFp(void);
+#define gsArithGFp OWNAPI(gsArithGFp)
+   IPP_OWN_DECL (gsModMethod*, gsArithGFp, (void))
 
 /* ... and etc ... */
 

@@ -1,5 +1,5 @@
 ;===============================================================================
-; Copyright 2017-2020 Intel Corporation
+; Copyright 2017-2021 Intel Corporation
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -144,7 +144,7 @@
    vpshufb  yT1,yT1,YMM_DCzz
    vpaddd   %%W0,%%W0,yT1
    vpaddd   yT1,%%W0,YMMWORD [rbp+(%%nr/4)*sizeof(ymmword)]
-   vmovdqa  YMMWORD [rsp+(%%W_AHEAD/4)*sizeof(ymmword)+(%%nr/4)*sizeof(ymmword)],yT1
+   vmovdqa  YMMWORD [rsi+(%%W_AHEAD/4)*sizeof(ymmword)+(%%nr/4)*sizeof(ymmword)],yT1
 %endmacro
 
 ;;
@@ -197,7 +197,7 @@
   %xdefine %%hG %8
   %xdefine %%hH %9
 
-   add   %%hH, dword [rsp+(%%nr/4)*sizeof(ymmword)+(%%nr & 3)*sizeof(dword)] ;; h += (k[t]+w[t])
+   add   %%hH, dword [rsi+(%%nr/4)*sizeof(ymmword)+(%%nr & 3)*sizeof(dword)] ;; h += (k[t]+w[t])
    and   T1, %%hE       ;; ch(e,f,g): (f&e)
    rorx  T2, %%hE, 25   ;; sum1(e): e>>>25
    rorx  T4, %%hE, 11   ;; sum1(e): e>>>11
@@ -234,7 +234,7 @@
   %assign %%W_AHEAD  16
 vpalignr yT3,W1,W0,4
   %assign %%nr  %%round
-   add   hH, dword [rsp+(%%nr/4)*sizeof(ymmword)+(%%nr & 3)*sizeof(dword)]
+   add   hH, dword [rsi+(%%nr/4)*sizeof(ymmword)+(%%nr & 3)*sizeof(dword)]
    and   T1, hE
    rorx  T2, hE, 25
 vpalignr yT2,W3,W2,4
@@ -270,7 +270,7 @@ vpshufd  yT2,W3,250
 
 vpsrld   yT1,yT1,11
   %assign %%nr  %%nr+1
-   add   hH, dword [rsp+(%%nr/4)*sizeof(ymmword)+(%%nr & 3)*sizeof(dword)]
+   add   hH, dword [rsi+(%%nr/4)*sizeof(ymmword)+(%%nr & 3)*sizeof(dword)]
    and   T1, hE
    rorx  T2, hE, 25
 vpxor    yT3,yT3,yT4
@@ -306,7 +306,7 @@ vpaddd   W0,W0,yT3
 
 vpxor    yT1,yT1,yT2
   %assign %%nr  %%nr+1
-   add   hH, dword [rsp+(%%nr/4)*sizeof(ymmword)+(%%nr & 3)*sizeof(dword)]
+   add   hH, dword [rsi+(%%nr/4)*sizeof(ymmword)+(%%nr & 3)*sizeof(dword)]
    and   T1, hE
    rorx  T2, hE, 25
 vpsrlq   yT2,yT2,2
@@ -342,7 +342,7 @@ vpsrlq   yT2,yT2,17
 
 vpxor    yT1,yT1,yT2
   %assign %%nr  %%nr+1
-   add   hH, dword [rsp+(%%nr/4)*sizeof(ymmword)+(%%nr & 3)*sizeof(dword)]
+   add   hH, dword [rsi+(%%nr/4)*sizeof(ymmword)+(%%nr & 3)*sizeof(dword)]
    and   T1, hE
    rorx  T2, hE, 25
 vpsrlq   yT2,yT2,2
@@ -368,7 +368,7 @@ vpaddd   yT1,W0,YMMWORD [rbp+(%%nr/4)*sizeof(ymmword)]
    and   T5, T4
    xor   T3, T1
    xor   T5, hB
-vmovdqa  YMMWORD [rsp+(%%W_AHEAD/4)*sizeof(ymmword)+(%%round/4)*sizeof(ymmword)],yT1
+vmovdqa  YMMWORD [rsi+(%%W_AHEAD/4)*sizeof(ymmword)+(%%round/4)*sizeof(ymmword)],yT1
    xor   T3, T2
    add   hH, T5
    mov   T1, hE
@@ -445,11 +445,12 @@ IPPASM UpdateSHA256,PUBLIC
 ;;
 ;; stack structure:
 ;;
-%assign _reserve 0                      ;; reserved
-%assign _hash    _reserve+sizeof(qword) ;; hash address
-%assign _len     _hash+sizeof(qword)    ;; rest of processed data
-%assign _frame   _len+sizeof(qword)     ;; rsp before alignment
-%assign _dataW   _frame+sizeof(qword)   ;; W[t] values
+%assign _block    0                          ;; block address
+%assign _hash    _block+sizeof(qword)        ;; hash address
+%assign _len     _hash+sizeof(qword)         ;; rest of processed data
+%assign _frame   _len+sizeof(qword)          ;; rsp before alignment
+%assign _dataW   _frame+sizeof(qword)        ;; W[t] values
+
 
    mov      r15, rsp                ; store orifinal rsp
    and      rsp, -IPP_ALIGN_FACTOR  ; 32-byte aligned stack
@@ -459,7 +460,6 @@ IPPASM UpdateSHA256,PUBLIC
    mov      qword [rsp+_hash], rdi  ; store hash address
    mov      qword [rsp+_len], r14   ; store length
    mov      qword [rsp+_frame], r15 ; store rsp
-   lea      rsp, qword [rsp+_dataW] ; set up rsp
 
    mov      hA, dword [rdi]       ; load initial hash value
    mov      hB, dword [rdi+1*sizeof(dword)]
@@ -487,9 +487,9 @@ align IPP_ALIGN_FACTOR
 
    cmp      r14, MBS_SHA256         ; %if single block processed
    cmovbe   r12, rsi                ; use the same data block address
-   lea      rbp, ymmword [rel SHA256_YMM_K] ; to SHA256 consts
+   lea      rbp, [rel SHA256_YMM_K] ; to SHA256 consts
 
-   vmovdqu  W0L, xmmword [rsi]           ; load data block
+   vmovdqu  W0L, xmmword [rsi]            ; load data block
    vmovdqu  W1L, xmmword [rsi+1*sizeof(xmmword)]
    vmovdqu  W2L, xmmword [rsi+2*sizeof(xmmword)]
    vmovdqu  W3L, xmmword [rsi+3*sizeof(xmmword)]
@@ -508,15 +508,18 @@ align IPP_ALIGN_FACTOR
    vpaddd   yT3, W2, ymmword [rbp+2*sizeof(ymmword)]
    vpaddd   yT4, W3, ymmword [rbp+3*sizeof(ymmword)]
    add      rbp, 4*sizeof(ymmword)
-   vmovdqa  ymmword [rsp], yT1
-   vmovdqa  ymmword [rsp+1*sizeof(ymmword)], yT2
-   vmovdqa  ymmword [rsp+2*sizeof(ymmword)], yT3
-   vmovdqa  ymmword [rsp+3*sizeof(ymmword)], yT4
+   vmovdqa  ymmword [rsp+_dataW], yT1
+   vmovdqa  ymmword [rsp+_dataW+1*sizeof(ymmword)], yT2
+   vmovdqa  ymmword [rsp+_dataW+2*sizeof(ymmword)], yT3
+   vmovdqa  ymmword [rsp+_dataW+3*sizeof(ymmword)], yT4
 
    mov      T5, hB   ; T5 = b^c
    xor      T3, T3   ; T3 = 0
    mov      T1, hF   ; T1 = f
    xor      T5, hC
+
+   mov   qword [rsp+_block], rsi ; store block addres
+   lea   rsi, [rsp+_dataW]       ; use rsi as stack pointer
 
 align IPP_ALIGN_FACTOR
 .block1_shed_proc:
@@ -525,7 +528,7 @@ align IPP_ALIGN_FACTOR
    SHA256_4ROUND_SHED 8
    SHA256_4ROUND_SHED 12
 
-   add      rsp, 4*sizeof(ymmword)
+   add      rsi, 4*sizeof(ymmword)
    add      rbp, 4*sizeof(ymmword)
 
    ;; and repeat
@@ -551,10 +554,10 @@ align IPP_ALIGN_FACTOR
    SHA256_ROUND 15, hB,hC,hD,hE,hF,hG,hH,hA
    add          hA, T3
 
-   sub      rsp, (16-4)*sizeof(ymmword)   ; restore stack to W
+   sub      rsi, (16-4)*sizeof(ymmword)   ; restore stack to W
 
-   mov   rdi, qword [rsp+_hash-_dataW] ; restore hash pointer
-   mov   r14, qword [rsp+_len-_dataW]  ; restore data length
+   mov   rdi, qword [rsp+_hash] ; restore hash pointer
+   mov   r14, qword [rsp+_len]  ; restore data length
 
    ;; update hash values by 1-st data block
    UPDATE_HASH    dword [rdi],   hA
@@ -570,8 +573,8 @@ align IPP_ALIGN_FACTOR
    jl    .done
 
    ;; do 64 rounds for the next block
-   add      rsp, 4*sizeof(dword)          ; restore stack to next block W
-   lea      rbp, [rsp+16*sizeof(ymmword)] ; use rbp for loop limiter
+   add      rsi, 4*sizeof(dword)          ; restore stack to next block W
+   lea      rbp, [rsi+16*sizeof(ymmword)] ; use rbp for loop limiter
 
    mov      T5, hB   ; T5 = b^c
    xor      T3, T3   ; T3 = 0
@@ -588,15 +591,13 @@ align IPP_ALIGN_FACTOR
    SHA256_ROUND  5, hD,hE,hF,hG,hH,hA,hB,hC
    SHA256_ROUND  6, hC,hD,hE,hF,hG,hH,hA,hB
    SHA256_ROUND  7, hB,hC,hD,hE,hF,hG,hH,hA
-   add      rsp, 2*sizeof(ymmword)
-   cmp      rsp, rbp
+   add      rsi, 2*sizeof(ymmword)
+   cmp      rsi, rbp
    jb       .block2_proc
    add      hA, T3
 
-   sub      rsp, 16*sizeof(ymmword)+4*sizeof(dword)   ; restore stack
-
-   mov   rdi, qword [rsp+_hash-_dataW] ; restore hash pointer
-   mov   r14, qword [rsp+_len-_dataW]  ; restore data length
+   mov   rdi, qword [rsp+_hash] ; restore hash pointer
+   mov   r14, qword [rsp+_len]  ; restore data length
 
    ;; update hash values by 2-nd data block
    UPDATE_HASH    dword [rdi],   hA
@@ -608,13 +609,14 @@ align IPP_ALIGN_FACTOR
    UPDATE_HASH    dword [rdi+6*sizeof(dword)], hG
    UPDATE_HASH    dword [rdi+7*sizeof(dword)], hH
 
+   mov      rsi, qword [rsp+_block]   ; restore block addres
    add      rsi, MBS_SHA256*2                ; move data pointer
    sub      r14, MBS_SHA256*2                ; update data length
-   mov      qword [rsp+_len-_dataW], r14
+   mov      qword [rsp+_len], r14
    jg       .sha256_block2_loop
 
 .done:
-   mov   rsp, qword [rsp+_frame-_dataW]
+   mov   rsp, qword [rsp+_frame]
    REST_XMM_AVX
    REST_GPR
    ret
