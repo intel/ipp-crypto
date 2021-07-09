@@ -37,6 +37,7 @@
 - [Common tools](#common-tools)
 - Intel® C++ Compiler 19.1 for Windows\* OS
 - Microsoft Visual C++ Compiler\* version 19.16 provided by Microsoft Visual Studio\* 2017 version 15.9
+> **NOTE:** Support for this compiler version will be removed from Intel IPP Cryptography starting 2021.4 release. If you use it for building Intel IPP Cryptography library, please plan on migrating to a newer supported version of Microsoft Visual C++ Compiler\*.
 - Microsoft Visual C++ Compiler\* version 19.24 provided by Microsoft Visual Studio\* 2019 version 16.4
 ### macOS*
 - [Common tools](#common-tools)
