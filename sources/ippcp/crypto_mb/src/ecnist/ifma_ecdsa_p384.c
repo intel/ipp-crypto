@@ -506,7 +506,7 @@ mbx_status mbx_nistp384_ecdsa_verify_mb8(const int8u* const pa_sign_r[8],
    // it's equivalent to sign_<r/s> != 0 (because it is unsigned value) and sign_<r/s> < n
    */
    status |= MBX_SET_STS_BY_MASK(status, MB_FUNC_NAME(ifma_check_range_n384_)(msg), MBX_STATUS_MISMATCH_PARAM_ERR);
-   status |= MBX_SET_STS_BY_MASK(status, MB_FUNC_NAME(ifma_check_range_p384_)(sign_r), MBX_STATUS_MISMATCH_PARAM_ERR);
+   status |= MBX_SET_STS_BY_MASK(status, MB_FUNC_NAME(ifma_check_range_n384_)(sign_r), MBX_STATUS_MISMATCH_PARAM_ERR);
    status |= MBX_SET_STS_BY_MASK(status, MB_FUNC_NAME(ifma_check_range_n384_)(sign_s), MBX_STATUS_MISMATCH_PARAM_ERR);
 
    if (!MBX_IS_ANY_OK_STS(status))
@@ -859,7 +859,7 @@ mbx_status mbx_nistp384_ecdsa_verify_ssl_mb8(const ECDSA_SIG* const pa_sig[8],
    ifma_BN_to_mb8((int64u(*)[8])sign_s, (const BIGNUM(**))pa_sign_s, P384_BITSIZE);
 
    status |= MBX_SET_STS_BY_MASK(status, MB_FUNC_NAME(ifma_check_range_n384_)(msg), MBX_STATUS_MISMATCH_PARAM_ERR);
-   status |= MBX_SET_STS_BY_MASK(status, MB_FUNC_NAME(ifma_check_range_p384_)(sign_r), MBX_STATUS_MISMATCH_PARAM_ERR);
+   status |= MBX_SET_STS_BY_MASK(status, MB_FUNC_NAME(ifma_check_range_n384_)(sign_r), MBX_STATUS_MISMATCH_PARAM_ERR);
    status |= MBX_SET_STS_BY_MASK(status, MB_FUNC_NAME(ifma_check_range_n384_)(sign_s), MBX_STATUS_MISMATCH_PARAM_ERR);
 
    if (!MBX_IS_ANY_OK_STS(status))

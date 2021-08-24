@@ -98,7 +98,7 @@ mbx_status MB_FUNC_NAME(mbx_ed25519_public_key_)(ed25519_public_key* pa_public_k
 
       /* r = [scalar]*G */
       ge52_ext_mb r;
-      ifma_ed25519_mul_pointbase(&r, scalar);
+      ifma_ed25519_mul_basepoint(&r, scalar);
 
       /* compress point to public */
       fe52_mb packed_point;
@@ -142,7 +142,7 @@ static void ed25519_nonce(int8u* pa_nonce[8], int8u* pa_az[8], const int8u* cons
    OPENSSL_cleanse(&ctx, sizeof(ctx));
 }
 
-static void ed25519_hram(int8u* pa_hram[8], const ed25519_sign_component* pa_sign_r[], const ed25519_public_key* const pa_public_key[8], const int8u* const pa_msg[8], const int32u msgLen[8])
+static void ed25519_hash_r_pub_msg(int8u* pa_hram[8], const ed25519_sign_component* const pa_sign_r[], const ed25519_public_key* const pa_public_key[8], const int8u* const pa_msg[8], const int32u msgLen[8])
 {
    SHA512_CTX ctx;
 
@@ -245,7 +245,7 @@ mbx_status MB_FUNC_NAME(mbx_ed25519_sign_)(ed25519_sign_component* pa_sign_r[8],
       ifma_BNU_transpose_copy((int64u(*)[8])mb_scalar, (const int64u**)pa_nonce, N25519_BITSIZE);
 
       ge52_ext_mb R;
-      ifma_ed25519_mul_pointbase(&R, mb_scalar);   /* R = [scalar]*G */
+      ifma_ed25519_mul_basepoint(&R, mb_scalar);   /* R = [scalar]*G */
       fe52_mb mb_sign_r;
       ge52_ext_compress(mb_sign_r, &R);            /* compress point to r-component */
 
@@ -253,7 +253,7 @@ mbx_status MB_FUNC_NAME(mbx_ed25519_sign_)(ed25519_sign_component* pa_sign_r[8],
       ifma_mb8_to_BNU((int64u * const*)pa_sign_r, (const int64u(*)[8])mb_sign_r, GE25519_COMP_BITSIZE);
 
       /* computes hram, hram = H(r_sign, public_key,  msg)  */
-      ed25519_hram((int8u**)pa_hram, (const ed25519_sign_component**)pa_sign_r, pa_public_key, pa_msg, msgLen);
+      ed25519_hash_r_pub_msg((int8u**)pa_hram, (const ed25519_sign_component**)pa_sign_r, pa_public_key, pa_msg, msgLen);
 
       U64 mb_hram[NUMBER_OF_DIGITS(SHA512_HASH_BITLENGTH, DIGIT_SIZE)];
       ifma_BNU_to_mb8((int64u(*)[8])mb_hram, (const int64u**)pa_hram, SHA512_HASH_BITLENGTH);
@@ -270,6 +270,119 @@ mbx_status MB_FUNC_NAME(mbx_ed25519_sign_)(ed25519_sign_component* pa_sign_r[8],
       MB_FUNC_NAME(zero_)((int64u(*)[8])az, sizeof(az)/sizeof(U64));
       MB_FUNC_NAME(zero_)((int64u(*)[8])nonce, sizeof(nonce)/sizeof(U64));
       MB_FUNC_NAME(zero_)((int64u(*)[8])mb_scalar, sizeof(mb_scalar)/sizeof(U64));
+   }
+
+   return status;
+}
+
+/*
+// ED25519 prime base point order
+// n = 2^252+27742317777372353535851937790883648493 = 0x1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED
+// in 2^64 radix
+*/
+__ALIGN64 static int64u ed25519n_mb64[NE_LEN64][sizeof(U64)/sizeof(int64u)] = {
+   { REP8_DECL(0x5812631A5CF5D3ED) },
+   { REP8_DECL(0x14DEF9DEA2F79CD6) },
+   { REP8_DECL(0x0000000000000000) },
+   { REP8_DECL(0x1000000000000000) }
+};
+
+DLL_PUBLIC
+mbx_status MB_FUNC_NAME(mbx_ed25519_verify_)(const ed25519_sign_component* const pa_sign_r[8],
+                                             const ed25519_sign_component* const pa_sign_s[8],
+                                             const int8u* const pa_msg[8], const int32u msgLen[8],
+                                             const ed25519_public_key* const pa_public_key[8])
+{
+   mbx_status status = MBX_STATUS_OK;
+
+   /* test input pointers */
+   if (NULL == pa_sign_r || NULL == pa_sign_s ||
+      NULL == pa_msg || NULL == msgLen ||
+      NULL == pa_public_key) {
+      status = MBX_SET_STS_ALL(MBX_STATUS_NULL_PARAM_ERR);
+      return status;
+   }
+
+   /* check pointers and values */
+   int buf_no;
+   for (buf_no = 0; buf_no < 8; buf_no++) {
+      const ed25519_sign_component* sign_r = pa_sign_r[buf_no];
+      const ed25519_sign_component* sign_s = pa_sign_s[buf_no];
+      const int8u* msg = pa_msg[buf_no];
+      const ed25519_public_key* public = pa_public_key[buf_no];
+
+      /* if any of pointer NULL set error status */
+      if (NULL == sign_r || NULL == sign_s || NULL == msg ||
+         NULL == public) {
+         status = MBX_SET_STS(status, buf_no, MBX_STATUS_NULL_PARAM_ERR);
+      }
+   }
+
+   /* continue processing if there are correct parameters */
+   if (MBX_IS_ANY_OK_STS(status)) {
+
+      /* h = SHA512(sign_r || public_key || msg) */
+      __ALIGN64 int8u h[8][HASH_LENGTH] = { 0 };
+      int64u* pa_h[8] = {
+         (int64u*)h[0], (int64u*)h[1], (int64u*)h[2], (int64u*)h[3],
+         (int64u*)h[4], (int64u*)h[5], (int64u*)h[6], (int64u*)h[7]
+      };
+      ed25519_hash_r_pub_msg((int8u**)pa_h, pa_sign_r, pa_public_key, pa_msg, msgLen);
+
+      /* reduce h %= n */
+      __ALIGN64 U64 h_mb[NUMBER_OF_DIGITS(SHA512_HASH_BITLENGTH, DIGIT_SIZE)];
+      ifma_BNU_to_mb8((int64u(*)[8])h_mb, (const int64u**)pa_h, SHA512_HASH_BITLENGTH);
+      ifma52_ed25519n_reduce(h_mb, h_mb);
+
+      /* convert h_mb: fe52 => fe64 */
+      __ALIGN64 U64 h64_mb[FE_LEN64+1];
+      fe52_to_fe64_mb(h64_mb, h_mb);
+      h64_mb[FE_LEN64] = get_zero64();
+
+      /* input r-components to mb */
+      __ALIGN64 fe52_mb inputR_mb;
+      ifma_BNU_to_mb8((int64u(*)[8])inputR_mb, (const int64u**)pa_sign_r, GE25519_COMP_BITSIZE);
+
+      /* input s-components to mb */
+      __ALIGN64 U64 s_mb[NE_LEN64 + 1];
+      ifma_BNU_transpose_copy((int64u(*)[8])s_mb, (const int64u**)pa_sign_s, 256);
+      s_mb[NE_LEN64] = get_zero64();
+
+      /* (comppressed) publickey to mb */
+      __ALIGN64 fe52_mb pubfe_mb;
+      ifma_BNU_to_mb8((int64u(*)[8])pubfe_mb, (const int64u**)pa_public_key, P25519_BITSIZE + 1);
+
+      /* check that s<n */
+      U64* n_mb = (U64*)ed25519n_mb64;
+      __mmask8 k = 0;
+      for(int n=NE_LEN64; n>0; n--) {
+         k |= cmp64_mask(n_mb[n - 1], s_mb[n - 1], _MM_CMPINT_NLE);
+      }
+      status |= MBX_SET_STS_BY_MASK(status, ~k, MBX_STATUS_MISMATCH_PARAM_ERR);
+
+      /* continue processing if there are correct parameters */
+      if (MBX_IS_ANY_OK_STS(status)) {
+         /* decompress public to ext point A */
+         __ALIGN64 ge52_ext_mb pubA_mb;
+         k = ge52_ext_decompress(&pubA_mb, pubfe_mb);
+         fe52_neg(pubA_mb.X, pubA_mb.X);
+         fe52_neg(pubA_mb.T, pubA_mb.T);
+         status |= MBX_SET_STS_BY_MASK(status, ~k, MBX_STATUS_SIGNATURE_ERR);
+
+         if (MBX_IS_ANY_OK_STS(status)) {
+            /* R = [h]A + [s]G */
+            __ALIGN64 ge52_ext_mb R_mb;
+            ifma_ed25519_prod_point(&R_mb, &pubA_mb, h64_mb, s_mb);
+
+            /* recovered r-components */
+            __ALIGN64 fe52_mb checkR_mb;
+            ge52_ext_compress(checkR_mb, &R_mb);
+
+            /* check that recovered r- and input r- components are equal each other */
+            k = fe52_mb_is_equ(checkR_mb, inputR_mb);
+            status |= MBX_SET_STS_BY_MASK(status, ~k, MBX_STATUS_SIGNATURE_ERR);
+         }
+      }
    }
 
    return status;

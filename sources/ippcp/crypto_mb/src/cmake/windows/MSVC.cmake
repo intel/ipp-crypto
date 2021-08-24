@@ -26,6 +26,8 @@ set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} /HIGHENTROPYVA")
 set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} /LARGEADDRESSAWARE")
 # Indicates that an executable is compatible with the Windows Data Execution Prevention (DEP) feature
 set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} /NXCOMPAT")
+# Enable Intel® Control-Flow Enforcement Technology (Intel® CET) protection
+set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} /CETCOMPAT")
 
 # Security Compiler flags
 

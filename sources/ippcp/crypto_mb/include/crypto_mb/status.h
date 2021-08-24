@@ -89,18 +89,27 @@ __INLINE mbx_status16 MBX_SET_STS16_ALL(mbx_status16 stsVal)
    return (stsVal<<4*15) | (stsVal<<4*14) | (stsVal<<4*13) | (stsVal<<4*12) | (stsVal<<4*11)  | (stsVal<<4*10) | (stsVal<<4*9) | (stsVal<<4*8) | \
           (stsVal<<4*7)  | (stsVal<<4*6)  | (stsVal<<4*5)  | (stsVal<<4*4)  | (stsVal<<4*3)   | (stsVal<<4*2)  | (stsVal<<4*1) | stsVal;
 }
-
+   
 __INLINE mbx_status16 MBX_SET_STS16(mbx_status16 status, int numb, mbx_status16 sttVal)
 {
    numb &= 15; /* 0 <= numb < 16 */
-   status &= (mbx_status16)(~(0xF << (numb*4)));
+   status &= (mbx_status16)(~((int64u)0xF << (numb*4)));
    return status |= (sttVal & 0xF) << (numb*4);
+}
 
+__INLINE mbx_status16 MBX_SET_STS16_BY_MASK(mbx_status16 status, int16u mask, mbx_status16 sttVal)
+{
+    int numb;
+    for (numb = 0; numb < 16; numb++) {
+        mbx_status16 buf_stt = (0 - ((mask >> numb) & 1)) & sttVal;
+        status = MBX_SET_STS16(status, numb, buf_stt);
+    }
+    return status;
 }
 
 __INLINE int MBX_IS_ANY_OK_STS16(mbx_status16 status)
 {
-   return MBX_IS_ANY_OK_STS(MBX_GET_HIGH_PART_STS16(status)) && \
+   return MBX_IS_ANY_OK_STS(MBX_GET_HIGH_PART_STS16(status)) || \
           MBX_IS_ANY_OK_STS(MBX_GET_LOW_PART_STS16(status));
 }
 

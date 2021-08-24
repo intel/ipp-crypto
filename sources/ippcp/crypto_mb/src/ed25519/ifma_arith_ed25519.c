@@ -27,7 +27,6 @@
 // Twisted Edwards Curve parameters
 */
 
-#if 0
 /* d = -(121665/121666) */
 __ALIGN64 static const int64u ed25519_d[FE_LEN52][sizeof(U64)/sizeof(int64u)] = {
    { REP8_DECL(0x000b4dca135978a3) },
@@ -36,7 +35,7 @@ __ALIGN64 static const int64u ed25519_d[FE_LEN52][sizeof(U64)/sizeof(int64u)] = 
    { REP8_DECL(0x000fe738cc740797) },
    { REP8_DECL(0x000052036cee2b6f) }
 };
-#endif
+
 /* (2*d) */
 __ALIGN64 static const int64u ed25519_d2[FE_LEN52][sizeof(U64) / sizeof(int64u)] = {
    { REP8_DECL(0x00069b9426b2f159) },
@@ -46,8 +45,17 @@ __ALIGN64 static const int64u ed25519_d2[FE_LEN52][sizeof(U64) / sizeof(int64u)]
    { REP8_DECL(0x00002406d9dc56df) }
 };
 
-/* r = p */
-static void ge_ext_to_cached(ge52_cached_mb *r, const ge52_ext_mb* p)
+/* 2^((p-1)/4) = 0x2b8324804fc1df0b2b4d00993dfbd7a72f431806ad2fe478c4ee1b274a0ea0b0 */
+__ALIGN64 static const int64u ed25519_2_pm1_4[FE_LEN52][sizeof(U64) / sizeof(int64u)] = {
+   { REP8_DECL(0x000e1b274a0ea0b0) },
+   { REP8_DECL(0x00006ad2fe478c4e) },
+   { REP8_DECL(0x000dfbd7a72f4318) },
+   { REP8_DECL(0x000df0b2b4d00993) },
+   { REP8_DECL(0x00002b8324804fc1) }
+};
+
+/* ext => cached */
+__INLINE void ge_ext_to_cached_mb(ge52_cached_mb *r, const ge52_ext_mb* p)
 {
    fe52_add(r->YaddX, p->Y, p->X);
    fe52_sub(r->YsubX, p->Y, p->X);
@@ -108,7 +116,14 @@ static void ge_dbl(ge52_p1p1_mb *r, const ge52_homo_mb* p)
    fe52_sub(r->T, r->T, r->Z);
 }
 
-/* point compress */
+
+#define PARITY_SLOT ((GE25519_COMP_BITSIZE-1)/DIGIT_SIZE)
+#define PARITY_BIT  (1LL << ((GE25519_COMP_BITSIZE - 1) % DIGIT_SIZE))
+
+#define SIGN_FE52(fe) srli64((fe)[PARITY_SLOT], ((GE25519_COMP_BITSIZE - 1) % DIGIT_SIZE))
+#define PARITY_FE52(fe) and64_const((fe)[0], 1)
+
+/* compress point */
 void ge52_ext_compress(fe52_mb r, const ge52_ext_mb* p)
 {
    fe52_mb recip;
@@ -123,6 +138,72 @@ void ge52_ext_compress(fe52_mb r, const ge52_ext_mb* p)
    y[(GE25519_COMP_BITSIZE-1)/DIGIT_SIZE] = _mm512_mask_or_epi64(y[(GE25519_COMP_BITSIZE-1)/DIGIT_SIZE], is_negative, y[(GE25519_COMP_BITSIZE - 1) / DIGIT_SIZE], set1(1LL << (GE25519_COMP_BITSIZE-1)%DIGIT_SIZE));
 
    fe52_copy_mb(r, y);
+}
+
+/* decompress point */
+__mb_mask ge52_ext_decompress(ge52_ext_mb* r, const fe52_mb compressed_point)
+{
+   fe52_mb x;
+   fe52_mb y;
+
+   fe52_mb u;
+   fe52_mb v;
+   fe52_mb v3;
+   fe52_mb vxx;
+
+   /* inital values are neutral */
+   neutral_ge52_ext_mb(r);
+
+   /* y = fe and clear "x-sign" bit */
+   fe52_copy_mb(y, compressed_point);
+   y[FE_LEN52-1] = and64_const(y[FE_LEN52-1], PRIME25519_HI);
+
+   /* x^2 = (y^2 -1) / (d y^2 +1) = u/v. compute numerator (u) and denumerator (v) */
+   fe52_sqr(u, y);
+   fe52_mul(v, u, (U64*)ed25519_d);
+   fe52_sub(u, u, r->Z); /* u = y^2-1 */
+   fe52_add(v, v, r->Z); /* v = dy^2+1 */
+
+   /*
+   // compute candidate x = sqrt(u/v) = uv^3(uv^7)^((p-5)/8)
+   */
+   fe52_sqr(v3, v);
+   fe52_mul(v3, v3, v);    /* v3 = v^3 */
+   fe52_sqr(x, v3);
+   fe52_mul(x, x, v);
+   fe52_mul(x, x, u);      /* x = uv^7 */
+
+   fe52_p2_252m3(x, x);    /* x = (uv^7)^((p-5)/8) */
+   fe52_mul(x, x, v3);
+   fe52_mul(x, x, u);      /* x = uv^3(uv^7)^((p-5)/8) */
+
+   fe52_sqr(vxx, x);
+   fe52_mul(vxx, vxx, v);  /* vxx = v*x^2 */
+
+   /* case 1: check if v*x^2 == u */
+   fe52_sub(v3, vxx, u); /* v*x^2-u */
+   __mb_mask k1 = fe52_mb_is_zero(v3);
+   fe52_cmov_mb(r->X, r->X, k1, x);
+
+   /* case 2: check if v*x^2 == -u */
+   fe52_add(v3, vxx, u);
+   __mb_mask k2 = fe52_mb_is_zero(v3);
+   fe52_mul(x, x, (U64*)ed25519_2_pm1_4);
+   fe52_cmov_mb(r->X, r->X, k2, x);
+
+   /* copy y coordinate*/
+   __mb_mask k = k1|k2;
+   fe52_cmov_mb(r->Y, r->Y, k, y);
+
+   /* set x to (-x) if x.parity different with compressed_point.sign */
+   k1 = cmp64_mask(SIGN_FE52(compressed_point), PARITY_FE52(r->X), _MM_CMPINT_NE);
+   fe52_neg(v3, r->X);
+   fe52_cmov_mb(r->X, r->X, k1, v3);
+
+   /* update T compomemt */
+   fe52_mul(r->T, r->X, r->Y);
+
+   return k;
 }
 
 
@@ -179,14 +260,14 @@ static void extract_precomputed_basepoint_dual(ge52_precomp_mb* p0,
 }
 
 /*
- * r = [s]*G
- *
- * where s = s[0] + 256*s[1] +...+ 256^31 s[31]
- * G is the Ed25519 base point (x,4/5) with x positive.
- *
- * Preconditions:
- *   s[31] <= 127
- */
+// r = [s]*G
+//
+// where s = s[0] + 256*s[1] +...+ 256^31*s[31]
+//       G is the Ed25519 base point (x,4/5) with x positive.
+//
+// Preconditions:
+//   s[31] <= 127
+*/
 
 /* if msb set */
 __INLINE int32u isMsb_ct(int32u a)
@@ -200,7 +281,7 @@ __INLINE int32u isZero(int32u a)
 __INLINE int32u isEqu(int32u a, int32u b)
 { return isZero(a ^ b); }
 
-void ifma_ed25519_mul_pointbase(ge52_ext_mb* r, const U64 scalar[])
+void ifma_ed25519_mul_basepoint(ge52_ext_mb* r, const U64 scalar[])
 {
    /* implementation uses scalar representation over base b=16, q[i] are half-bytes */
    __ALIGN64 ge52_ext_mb r0; /* q[0]*16^0 + q[2]*16^2 + q[4]*16^4 + ...+ q[30]*16^30 */
@@ -277,8 +358,180 @@ void ifma_ed25519_mul_pointbase(ge52_ext_mb* r, const U64 scalar[])
 
    // r = r0 + r1
    __ALIGN64 ge52_cached_mb c;
-   ge_ext_to_cached(&c, &r0); //
+   ge_ext_to_cached_mb(&c, &r0);
    ge_add(&t, &r1, &c);
 
+   ge52_p1p1_to_ext_mb(r, &t);
+}
+
+
+#define SCALAR_BITSIZE  (256)
+#define WIN_SIZE  (4)
+/*
+   s = (Ipp8u)(~((wvalue >> ws) - 1)); //sign
+   d = (1 << (ws+1)) - wvalue - 1;     // digit, win size "ws"
+   d = (d & s) | (wvaluen & ~s);
+   d = (d >> 1) + (d & 1);
+   *sign = s & 1;
+   *digit = (Ipp8u)d;
+*/
+__INLINE void booth_recode(__mb_mask* sign, U64* dvalue, U64 wvalue)
+{
+   U64 one = set1(1);
+   U64 zero = get_zero64();
+   U64 t = srli64(wvalue, WIN_SIZE);
+   __mb_mask s = cmp64_mask(t, zero, _MM_CMPINT_NE);
+   U64 d = sub64(sub64(set1(1 << (WIN_SIZE + 1)), wvalue), one);
+   d = mask_mov64(wvalue, s, d);
+   U64 odd = and64(d, one);
+   d = add64(srli64(d, 1), odd);
+
+   *sign = s;
+   *dvalue = d;
+}
+
+/* extract point */
+static void extract_cached_point(ge52_cached_mb* r, const ge52_cached_mb tbl[], U64 idx, __mb_mask sign)
+{
+   /* decrement index (the table does not contain neutral element) */
+   U64 idx_target = sub64(idx, set1(1));
+
+   neutral_ge52_cached_mb(r);
+
+   /* find out what we actually need or just keep neutral */
+   int32u n;
+   for(n=0; n<(1<<(WIN_SIZE-1)); n++) {
+      U64 idx_curr = set1(n);
+      __mb_mask k = cmp64_mask(idx_curr, idx_target, _MM_CMPINT_EQ);
+      /* r = k? tbl[] : r */
+      cmov_ge52_cached_mb(r, r, k, &tbl[n]);
+   }
+
+   /* adjust for sign */
+   fe52_mb neg;
+   fe52_neg(neg, r->T2d);
+   fe52_cswap_mb(r->YsubX, sign, r->YaddX);
+   fe52_cmov_mb(r->T2d, r->T2d, sign, neg);
+}
+
+/*
+// r = [s]*P
+//
+// where s = s[0] + 256*s[1] +...+ 256^31*s[31]
+//       P is an arbitrary Ed25519 point.
+*/
+void ifma_ed25519_mul_point(ge52_ext_mb* r, const ge52_ext_mb* p, const U64 scalar[])
+{
+   __ALIGN64 ge52_p1p1_mb p1p1;
+   __ALIGN64 ge52_homo_mb homo;
+   __ALIGN64 ge52_cached_mb cached;
+   __ALIGN64 ge52_ext_mb ext;
+
+   /* generate the table  tbl[] = {p, [2]p, [3]p, [4]p, [5]p, [6]p, [7]p, [8]p} */
+   __ALIGN64 ge52_cached_mb tbl[1 << (WIN_SIZE-1)];
+   int n;
+   ge_ext_to_cached_mb(&tbl[0], p);          /* tbl[0] = p */
+   for(n=1; n<(1 << (WIN_SIZE-1)); n++) {
+      ge_add(&p1p1, p, &tbl[n-1]);              /* tbl[n] = p + tbl[n-1] */
+      ge52_p1p1_to_ext_mb(&ext, &p1p1);
+      ge_ext_to_cached_mb(&tbl[n], &ext);
+   }
+
+   /* ext = neutral */
+   neutral_ge52_ext_mb(&ext);
+
+   /*
+   // point (LR) multiplication, 256-bit scalar
+   */
+   U64 idx_mask = set1((1 << (WIN_SIZE + 1)) - 1);
+   int bit = SCALAR_BITSIZE - (SCALAR_BITSIZE% WIN_SIZE);
+   int chunk_no = (bit - 1) / 64;
+   int chunk_shift = (bit - 1) % 64;
+
+   U64  dvalue;      /* digit value */
+   __mb_mask dsign;  /* digit sign  */
+
+   /*
+   // first window
+   */
+   U64 wvalue = loadu64(&scalar[chunk_no]);
+   wvalue = and64(srli64(wvalue, chunk_shift), idx_mask);
+
+   booth_recode(&dsign, &dvalue, wvalue);
+   extract_cached_point(&cached, tbl, dvalue, dsign);
+
+   /* ext = cached */
+   ge_add(&p1p1, &ext, &cached);
+   ge52_p1p1_to_ext_mb(&ext, &p1p1);
+
+   /*
+   // other windows
+   */
+   for(bit-=WIN_SIZE; bit>=WIN_SIZE; bit-=WIN_SIZE) {
+      /* 4-x doubling: ext = [16]ext */
+      ge52_ext_to_homo_mb(&homo, &ext);
+
+      ge_dbl(&p1p1, &homo);
+      ge52_p1p1_to_homo_mb(&homo, &p1p1);
+      ge_dbl(&p1p1, &homo);
+      ge52_p1p1_to_homo_mb(&homo, &p1p1);
+      ge_dbl(&p1p1, &homo);
+      ge52_p1p1_to_homo_mb(&homo, &p1p1);
+      ge_dbl(&p1p1, &homo);
+      ge52_p1p1_to_ext_mb(&ext, &p1p1);
+
+      /* extract precomputed []P */
+      chunk_no = (bit - 1) / 64;
+      chunk_shift = (bit - 1) % 64;
+
+      wvalue = loadu64(&scalar[chunk_no]);
+      wvalue = _mm512_shrdv_epi64(wvalue, loadu64(&scalar[chunk_no + 1]), set1((int32u)chunk_shift));
+      wvalue = and64(wvalue, idx_mask);
+
+      booth_recode(&dsign, &dvalue, wvalue);
+      extract_cached_point(&cached, tbl, dvalue, dsign);
+
+      /* acumulate ext += cached */
+      ge_add(&p1p1, &ext, &cached);
+      ge52_p1p1_to_ext_mb(&ext, &p1p1);
+   }
+
+   /*
+   // last window
+   */
+   ge52_ext_to_homo_mb(&homo, &ext);
+   ge_dbl(&p1p1, &homo);
+   ge52_p1p1_to_homo_mb(&homo, &p1p1);
+   ge_dbl(&p1p1, &homo);
+   ge52_p1p1_to_homo_mb(&homo, &p1p1);
+   ge_dbl(&p1p1, &homo);
+   ge52_p1p1_to_homo_mb(&homo, &p1p1);
+   ge_dbl(&p1p1, &homo);
+   ge52_p1p1_to_ext_mb(&ext, &p1p1);
+
+   /* extract precomputed []P */
+   wvalue = loadu64(&scalar[0]);
+   wvalue = and64(slli64(wvalue, 1), idx_mask);
+   booth_recode(&dsign, &dvalue, wvalue);
+   extract_cached_point(&cached, tbl, dvalue, dsign);
+
+   /* acumulate ext += cached */
+   ge_add(&p1p1, &ext, &cached);
+   ge52_p1p1_to_ext_mb(r, &p1p1);
+}
+#undef SCALAR_BITSIZE
+#undef WIN_SIZE
+
+/* R = [p]P + [g]G */
+void ifma_ed25519_prod_point(ge52_ext_mb* r, const ge52_ext_mb* p, const U64 scalarP[], const U64 scalarG[])
+{
+   __ALIGN64 ge52_ext_mb T_mb;
+   ifma_ed25519_mul_point(r, p, scalarP);
+   ifma_ed25519_mul_basepoint(&T_mb, scalarG);
+
+   __ALIGN64 ge52_cached_mb c;
+   __ALIGN64 ge52_p1p1_mb t;
+   ge_ext_to_cached_mb(&c, &T_mb);
+   ge_add(&t, r, &c);
    ge52_p1p1_to_ext_mb(r, &t);
 }

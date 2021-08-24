@@ -19,10 +19,6 @@
 #include <internal/common/ifma_math.h>
 #include <internal/ed25519/ifma_arith_n25519.h>
 
-/* Constants */
-//#define N25519_BITSIZE  (253)
-//#define NE_LEN52        NUMBER_OF_DIGITS(N25519_BITSIZE, DIGIT_SIZE)
-
 /*
 // ED25519 prime base point order
 // n = 2^252+27742317777372353535851937790883648493 = 0x1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED

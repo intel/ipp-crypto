@@ -25,9 +25,9 @@ ENV_VAR = {
 }
 
 CALL_ENV_SCRIPT_COMMAND = {
-    WINDOWS : 'call "{env_script}" {arch}',
-    LINUX   : 'source "{env_script}" -arch {arch}',
-    MACOSX  : 'source "{env_script}" -arch {arch}'
+    WINDOWS : 'call "{env_script}" {arch} {force_flag}',
+    LINUX   : 'source "{env_script}" -arch {arch} {force_flag}',
+    MACOSX  : 'source "{env_script}" -arch {arch} {force_flag}'
 }
 
 SET_ENV_COMMAND = {
@@ -117,7 +117,7 @@ EXP_LIBS = {
     WINDOWS: {
         SINGLE_THREADED : '',
         MULTI_THREADED  : 'libiomp5md.lib',
-        TBB             : '',
+        TBB             : 'tbb.lib',
         OPENMP          : 'libiomp5md.lib'
     },
     LINUX: {
@@ -129,7 +129,7 @@ EXP_LIBS = {
     MACOSX:  {
         SINGLE_THREADED : '',
         MULTI_THREADED  : '-liomp5',
-        TBB             : '-ltbb',
+        TBB             : '"${TBBROOT}/lib/libtbb.dylib"',
         OPENMP          : '-liomp5'
     }
 }
@@ -186,6 +186,9 @@ CUSTOM_DISPATCHER_FILE = '{include_lines}\n'\
                          '#define NULL    ((void *)0)\n'\
                          '#endif\n'\
                          '#endif\n\n'\
+                         '#define AVX3I_FEATURES ( ippCPUID_SHA|ippCPUID_AVX512VBMI|'\
+                         'ippCPUID_AVX512VBMI2|ippCPUID_AVX512IFMA|ippCPUID_AVX512GFNI|'\
+                         'ippCPUID_AVX512VAES|ippCPUID_AVX512VCLMUL )\n'\
                          '#define AVX3X_FEATURES ( ippCPUID_AVX512F|ippCPUID_AVX512CD|'\
                          'ippCPUID_AVX512VL|ippCPUID_AVX512BW|ippCPUID_AVX512DQ )\n'\
                          '#define AVX3M_FEATURES ( ippCPUID_AVX512F|ippCPUID_AVX512CD|'\
@@ -204,7 +207,7 @@ FUNCTION_DISPATCHER = '{ippapi}\n'\
                       '{ippfun}\n'\
                       '{{\n'\
                       '    Ipp64u _features;\n'\
-                      '    {package_type}GetCpuFeatures( &_features{second_arg} );\n\n'\
+                      '    _features = {package_type}GetEnabledCpuFeatures();\n\n'\
                       '{dispatching_scheme}'\
                       '}}\n\n'
 
@@ -224,6 +227,7 @@ BUILD_SCRIPT = {
     WINDOWS: ':: Generates {threading} dynamic library '
              + 'for {architecture} architecture\n'
              + '@echo off\n'
+             + 'setlocal\n'
              + '{env_command}\n'
              + 'set "OUTPUT_PATH={output_path}"\n\n'
              + 'if not exist %OUTPUT_PATH% mkdir %OUTPUT_PATH%\n'
@@ -234,8 +238,9 @@ BUILD_SCRIPT = {
              + '/DEF:"{export_file}" {obj_files}'
              + '/OUT:"{custom_library}.dll" /IMPLIB:"{custom_library}.lib" '
              + '{ipp_libraries} '
-             + '{exp_libs}\n\n'
-             + 'if exist "{custom_library}.dll" (\n'
+             + '{exp_libs}\n'
+             + 'endlocal\n\n'
+             + 'if %ERRORLEVEL%==0 (\n'
              + '    echo Build completed!\n'
              + ') else (\n'
              + '    echo Build failed!\n'
@@ -245,7 +250,7 @@ BUILD_SCRIPT = {
            + '# Generates {threading} dynamic library '
            + 'for {architecture} architecture\n'
            + '{env_command}\n'
-           + 'export LIBRARY_PATH=$LD_LIBRARY_PATH\n'
+           + 'export LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBRARY_PATH\n'
            + 'OUTPUT_PATH="{output_path}"\n\n'
            + 'mkdir -p $OUTPUT_PATH\n'
            + 'cd $OUTPUT_PATH\n\n'
@@ -256,7 +261,7 @@ BUILD_SCRIPT = {
            + '-o "{custom_library}.so" '
            + '{ipp_libraries} '
            + '-L"{sys_libs_path}" -lc -lm {exp_libs}\n\n'
-           + 'if [ -f "{custom_library}.so" ]; then\n'
+           + 'if [ $? == 0 ]; then\n'
            + '    echo Build completed!\n'
            + 'else\n'
            + '    echo Build failed!\n'
@@ -266,7 +271,7 @@ BUILD_SCRIPT = {
             + '# Generates {threading} dynamic library '
             + 'for {architecture} architecture\n'
             + '{env_command}\n'
-            + 'export LIBRARY_PATH=$DYLD_LIBRARY_PATH\n'
+            + 'export LIBRARY_PATH=$DYLD_LIBRARY_PATH:$LIBRARY_PATH\n'
             + 'OUTPUT_PATH="{output_path}"\n\n'
             + 'mkdir -p $OUTPUT_PATH\n'
             + 'cd $OUTPUT_PATH\n\n'
@@ -278,7 +283,7 @@ BUILD_SCRIPT = {
             + '-exported_symbols_list "{export_file}" {obj_files} '
             + '{ipp_libraries} '
             + '-lgcc_s.1 -lm {exp_libs}\n\n'
-            + 'if [ -f "{custom_library}.dylib" ]; then\n'
+            + 'if [ $? == 0 ]; then\n'
             + '    echo Build completed!\n'
             + 'else\n'
             + '    echo Build failed!\n'

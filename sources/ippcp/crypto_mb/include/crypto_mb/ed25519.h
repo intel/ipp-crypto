@@ -49,4 +49,17 @@ EXTERN_C mbx_status mbx_ed25519_sign_mb8(ed25519_sign_component* pa_sign_r[8],
                                          const ed25519_private_key* const pa_private_key[8],
                                          const ed25519_public_key* const pa_public_key[8]);
 
+/*
+// Verifies ed25519 signature
+// pa_sign_r[]       array of pointers to the r-components of the verified signatures
+// pa_sign_s[]       array of pointers to the s-components of the verified signatures
+// pa_msg[]          array of pointers to the signed messages
+// msgLen[]          array of signed messages lengths
+// pa_public_key[]   array of pointers to the signer's public keys
+*/
+EXTERN_C mbx_status mbx_ed25519_verify_mb8(const ed25519_sign_component* const pa_sign_r[8],
+                                           const ed25519_sign_component* const pa_sign_s[8],
+                                           const int8u* const pa_msg[8], const int32u msgLen[8],
+                                           const ed25519_public_key* const pa_public_key[8]);
+
 #endif /* ED25519_H */

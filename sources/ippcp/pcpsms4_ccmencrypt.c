@@ -155,8 +155,11 @@ IPPFUN(IppStatus, ippsSMS4_CCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, 
       }
 
       if(len) {
+         /* workaround to avoid false positive stringop-overflow error on gcc10.1 and gcc11.1 */
+         len = ( IPP_MIN(len, MBS_SMS4-1) );
+         
          /* store partial data block */
-         CopyBlock_safe(pSrc, len, SMS4CCM_BLK(pCtx), MBS_SMS4);
+         CopyBlock(pSrc, SMS4CCM_BLK(pCtx), len);
 
          /* increment counter and format counter block */
          *counterVal+=1;

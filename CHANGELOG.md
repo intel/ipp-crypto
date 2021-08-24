@@ -3,6 +3,10 @@
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
 ## Intel(R) IPP Cryptography 2021.4
+- Crypto Multi buffer library was extended with ECB, CBC, CTR, OFB and CFB modes of SM4 algorithm.
+- Crypto Multi buffer library was extended with EC SM2 public key generation, ECDHE and ECDSA (Sign and Verify) algorithms.
+- Crypto Multi buffer library extended with ECDSA Ed25519 verify algorithm.
+- Crypto Multi buffer library extended with modular exponent algorithm.
 
 ## Intel(R) IPP Cryptography 2021.3
 - Enabled ECDSA Ed25519sign crypto multi buffer API within Intel® IPP Cryptography for 3rd Generation Intel® Xeon® Processor Scalable and 10th Gen Intel® Core™ Processors.

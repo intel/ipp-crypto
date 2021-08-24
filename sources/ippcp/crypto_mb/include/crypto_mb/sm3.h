@@ -25,13 +25,13 @@
 #define SM3_SIZE_IN_WORDS       (SM3_SIZE_IN_BITS/(sizeof(int32u)*8))     /*                sm3 hash size in words                   */
 #define SM3_MSG_BLOCK_SIZE                     (64)                       /*                  messge block size                      */
 
-#define SM3_NUM_BUFFERS                        (16)                       /*         max number of buffers in sm3 multi buffer       */
+#define SM3_NUM_BUFFERS                      (16)                         /*        max number of buffers in sm3 multi-buffer        */
 
 /*
-// sm3 context
+// sm3 context for mb16
 */
 
-typedef int32u sm3_hash_mb[SM3_SIZE_IN_WORDS][SM3_NUM_BUFFERS];         /* sm3 hash value in multi-buffer format */
+typedef int32u sm3_hash_mb[SM3_SIZE_IN_WORDS][SM3_NUM_BUFFERS];       /*  sm3 hash value in multi-buffer format */
 
 struct _sm3_context_mb16 {
     int             msg_buff_idx[SM3_NUM_BUFFERS];                      /*              buffer entry             */
@@ -42,20 +42,17 @@ struct _sm3_context_mb16 {
 
 typedef struct _sm3_context_mb16 SM3_CTX_mb16;
 
-
-EXTERN_C mbx_status16 mbx_sm3_init_mb16(SM3_CTX_mb16 * p_state);
+EXTERN_C mbx_status16 mbx_sm3_init_mb16(SM3_CTX_mb16* p_state);
 
 EXTERN_C mbx_status16 mbx_sm3_update_mb16(const int8u* msg_pa[16], 
-                                                int len[16], 
-                                                SM3_CTX_mb16 * p_state);
+                                                   int len[16], 
+                                         SM3_CTX_mb16* p_state);
 
 EXTERN_C mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16], 
-                                         SM3_CTX_mb16 * p_state);
+                                  SM3_CTX_mb16* p_state);
 
 EXTERN_C mbx_status16 mbx_sm3_msg_digest_mb16(const int8u* msg_pa[16],
-                                                    int len[16],
+                                                       int len[16],
                                                     int8u* hash_pa[16]);
-
-
 
 #endif /* SM3_H */

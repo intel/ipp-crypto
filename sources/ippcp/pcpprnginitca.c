@@ -75,8 +75,11 @@ IPPFUN(IppStatus, ippsPRNGInit, (int seedBits, IppsPRNGState* pCtx))
       ((Ipp32u*)RAND_Q(pCtx))[3] = 0xFFFFFFFF;
       ((Ipp32u*)RAND_Q(pCtx))[4] = 0xFFFFFFFF;
 
+      /* workaround to avoid false positive stringop-overflow error on gcc10.1 and gcc11.1 */
+      hashIvSize = ( IPP_MIN(hashIvSize, BITS2WORD8_SIZE(160)) );
+
       /* default T parameter */
-      CopyBlock_safe(iv, hashIvSize, RAND_T(pCtx), BITS2WORD8_SIZE(160));
+      CopyBlock(iv, RAND_T(pCtx), hashIvSize);
 
       return ippStsNoErr;
    }

@@ -54,6 +54,9 @@ if(CODE_COVERAGE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -prof-gen:srcpos -prof-dir ${PROF_DATA_DIR}")
 endif()
 
+# Architectural flags for assembler. The old XCode tools require an explicit enumeration of architectural flags be given to assembler.
+set(CMAKE_ASM_FLAGS "-Wa,-mavx512dq,-mavx512ifma,-mavx512f,-mavx512cd,-mavx512vbmi,-mavx512bw,-mavx512vl,-mbmi")
+
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 
 # Tells the compiler to conform to a specific language standard.

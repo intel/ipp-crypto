@@ -18,6 +18,14 @@ mbx_x25519_public_key_mb8
 mbx_x25519_mb8
 mbx_ed25519_public_key_mb8
 mbx_ed25519_sign_mb8
+mbx_ed25519_verify_mb8
+
+mbx_exp_BufferSize
+mbx_exp1024_mb8
+mbx_exp2048_mb8
+mbx_exp3072_mb8
+mbx_exp4096_mb8
+mbx_exp_mb8
 
 mbx_nistp256_ecdh_mb8
 mbx_nistp256_ecdsa_sign_setup_mb8
@@ -61,6 +69,16 @@ mbx_nistp521_ecdsa_sign_ssl_mb8
 mbx_nistp521_ecdsa_verify_ssl_mb8
 mbx_nistp521_ecpublic_key_ssl_mb8
 
+mbx_sm2_ecdh_mb8
+mbx_sm2_ecdsa_sign_mb8
+mbx_sm2_ecdsa_verify_mb8
+mbx_sm2_ecpublic_key_mb8
+
+mbx_sm2_ecdh_ssl_mb8
+mbx_sm2_ecdsa_sign_ssl_mb8
+mbx_sm2_ecdsa_verify_ssl_mb8
+mbx_sm2_ecpublic_key_ssl_mb8
+
 mbx_RSA1K_pub65537_Method
 mbx_RSA2K_pub65537_Method
 mbx_RSA3K_pub65537_Method
@@ -82,3 +100,15 @@ mbx_sm3_init_mb16
 mbx_sm3_update_mb16
 mbx_sm3_final_mb16
 mbx_sm3_msg_digest_mb16
+
+mbx_sm4_set_key_mb16
+mbx_sm4_encrypt_ecb_mb16
+mbx_sm4_decrypt_ecb_mb16
+mbx_sm4_encrypt_cbc_mb16
+mbx_sm4_decrypt_cbc_mb16
+mbx_sm4_encrypt_ctr128_mb16
+mbx_sm4_decrypt_ctr128_mb16
+mbx_sm4_encrypt_ofb_mb16
+mbx_sm4_decrypt_ofb_mb16
+mbx_sm4_encrypt_cfb128_mb16
+mbx_sm4_decrypt_cfb128_mb16

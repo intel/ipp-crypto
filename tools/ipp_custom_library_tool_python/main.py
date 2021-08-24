@@ -64,10 +64,20 @@ if __name__ == '__main__':
                               choices=utils.TL_TYPES)
     console_args.add_argument('-d', '--custom_dispatcher',
                               help='Build dynamic library with custom dispatcher.\n'
-                                   'Set of CPUs can be any combination of the following:\n'
-                                   'IA32 architecture - ' + ' '.join(utils.SUPPORTED_CPUS[utils.IA32]
-                                                                                         [utils.HOST_SYSTEM]) +
-                                   '\nIntel 64 architecture - ' + ' '.join(utils.SUPPORTED_CPUS[utils.INTEL64]
+                                   'Set of CPUs can be any combination of the following:\n' +
+                                   utils.PACKAGE_NAME[utils.IPP] + ':\n'
+                                   '\tIA32 architecture     - ' + ' '.join(utils.SUPPORTED_CPUS[utils.IPP]
+                                                                                               [utils.IA32]
+                                                                                               [utils.HOST_SYSTEM]) + '\n' +
+                                   '\tIntel 64 architecture - ' + ' '.join(utils.SUPPORTED_CPUS[utils.IPP]
+                                                                                               [utils.INTEL64]
+                                                                                               [utils.HOST_SYSTEM]) + '\n' +
+                                   utils.PACKAGE_NAME[utils.IPPCP] + ':\n'
+                                   '\tIA32 architecture     - ' + ' '.join(utils.SUPPORTED_CPUS[utils.IPPCP]
+                                                                                               [utils.IA32]
+                                                                                               [utils.HOST_SYSTEM]) + '\n' +
+                                   '\tIntel 64 architecture - ' + ' '.join(utils.SUPPORTED_CPUS[utils.IPPCP]
+                                                                                               [utils.INTEL64]
                                                                                                [utils.HOST_SYSTEM]),
                               nargs='+',
                               metavar='CPU')
@@ -115,8 +125,9 @@ if __name__ == '__main__':
         custom_cpu_set = []
         if args.custom_dispatcher:
             for cpu in args.custom_dispatcher:
-                if cpu not in utils.SUPPORTED_CPUS[architecture][utils.HOST_SYSTEM]:
-                    sys.exit("Error: " + cpu + " isn't supported for " + utils.HOST_SYSTEM + ' ' + architecture)
+                if cpu not in utils.SUPPORTED_CPUS[package.type][architecture][utils.HOST_SYSTEM]:
+                    sys.exit("Error: " + cpu + " isn't supported for " + utils.PACKAGE_NAME[package.type] + ' ' +
+                             utils.HOST_SYSTEM + ' ' + architecture)
             custom_cpu_set = args.custom_dispatcher
 
         custom_library_name = args.name
@@ -137,7 +148,10 @@ if __name__ == '__main__':
             success = generate_script()
             print('Generation', 'completed!' if success else 'failed!')
         else:
-            build()
+            success = build()
+
+        if not success:
+            exit(1)
     else:
         from PyQt5.QtWidgets import QApplication
         from gui.app import MainAppWindow

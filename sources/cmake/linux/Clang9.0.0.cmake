@@ -74,6 +74,8 @@ if ((${ARCH} MATCHES "ia32") OR (NOT NONPIC_LIB))
   # Stack-based Buffer Overrun Detection (only when not nonpic intel64)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
 endif()
+# Enable Intel® Control-Flow Enforcement Technology (Intel® CET) protection
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcf-protection=full")
 
 # Security flag that adds compile-time and run-time checks
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2")

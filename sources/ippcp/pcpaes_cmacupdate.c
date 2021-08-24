@@ -156,7 +156,10 @@ IPPFUN(IppStatus, ippsAES_CMACUpdate,(const Ipp8u* pSrc, int len, IppsAES_CMACSt
       // remaind
       */
       if(len) {
-         CopyBlock_safe(pSrc, len, (Ipp8u*)(&CMAC_BUFF(pState)), MBS_RIJ128);
+         /* workaround to avoid false positive stringop-overflow error on gcc10.1 and gcc11.1 */
+         len = ( IPP_MIN(len, MBS_RIJ128) );
+         
+         CopyBlock(pSrc, (Ipp8u*)(&CMAC_BUFF(pState)), len);
          /* update internal buffer filling */
          CMAC_INDX(pState) += len;
       }

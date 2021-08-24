@@ -41,7 +41,10 @@ TL_TYPES = [TBB, OPENMP]
 
 PATH_TO_PACKAGE_REGEX        = '(?P<path>.*)\Wtools\W.*'
 COMPONENTS_INSTALL_DIR_REGEX = '(?P<path>.*)\Wipp.*'
-VERSION_REGEX                = '.*VERSION_STR.*"(?P<ver>.*)".*'
+VERSION_REGEX                = '.*VERSION_STR\s*(?P<ver>.*)\s*'
+STR_MACROS_REGEX             = '.*STR\((?P<macros>\S*)\).*'
+C_STRING_REGEX               = '.*(\S|^)(?P<string>\s*".*"\s*)(\S|$).*'
+C_STRING_VALUE_REGEX         = '.*"(?P<value>.*)".*'
 FUNCTION_NAME_REGEX          = 'IPPAPI\s*\(\s*(?P<ret_type>.*?)\s*,' \
                                '\s*(?P<function_name>\S*)\s*,' \
                                '\s*\(?(?P<args>.*?)\s*\)?\s*\)?\s*$'
@@ -96,20 +99,22 @@ DOMAINS = {
         'ippcp'   : 'Cryptography'
     },
     THREADING_LAYER: {
-        'ippcc'   : 'Color conversion TL',
-        'ippi'    : 'Image processing TL',
-        'ippcore' : 'Core TL',
+        'ippcc'   : 'Color Conversion TL',
+        'ippcv'   : 'Computer Vision TL',
+        'ippi'    : 'Image Processing TL',
+        'ippcore' : 'Core TL'
     }
 }
 
-SSE2     = 'sse2'
-SSE3     = 'sse3'
-SSSE3    = 'ssse3'
-SSE42    = 'sse42'
-AVX      = 'avx'
-AVX2     = 'avx2'
-AVX512F  = 'avx512f'
-AVX512BW = 'avx512bw'
+SSE2       = 'sse2'
+SSE3       = 'sse3'
+SSSE3      = 'ssse3'
+SSE42      = 'sse42'
+AVX        = 'avx'
+AVX2       = 'avx2'
+AVX512F    = 'avx512f'
+AVX512BW   = 'avx512bw'
+AVX512IFMA = 'avx512ifma'
 
 CPU = {
     SSE2: {
@@ -143,31 +148,50 @@ CPU = {
     AVX512BW: {
         IA32    : '',
         INTEL64 : 'k0'
+    },
+    AVX512IFMA: {
+        IA32    : '',
+        INTEL64 : 'k1'
     }
 }
 
 SUPPORTED_CPUS = {
-    IA32: {
-        WINDOWS : [SSE2, SSSE3, SSE42, AVX, AVX2],
-        LINUX   : [SSE2, SSSE3, SSE42, AVX, AVX2],
-        MACOSX  : []
+    IPP: {
+        IA32: {
+            WINDOWS : [SSE2, SSSE3, SSE42, AVX, AVX2],
+            LINUX   : [SSE2, SSSE3, SSE42, AVX, AVX2],
+            MACOSX  : []
+        },
+        INTEL64: {
+            WINDOWS : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512BW],
+            LINUX   : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512F, AVX512BW],
+            MACOSX  : [SSE42, AVX, AVX2, AVX512BW]
+        }
     },
-    INTEL64: {
-        WINDOWS : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512BW],
-        LINUX   : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512F, AVX512BW],
-        MACOSX  : [SSE42, AVX, AVX2, AVX512BW]
+    IPPCP: {
+        IA32: {
+            WINDOWS : [SSE2, SSSE3, SSE42, AVX, AVX2],
+            LINUX   : [SSE2, SSSE3, SSE42, AVX, AVX2],
+            MACOSX  : []
+        },
+        INTEL64: {
+            WINDOWS : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512BW, AVX512IFMA],
+            LINUX   : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512F, AVX512BW, AVX512IFMA],
+            MACOSX  : [SSE42, AVX, AVX2, AVX512BW, AVX512IFMA]
+        }
     }
 }
 
 CPUID = {
-    AVX512BW : 'AVX3X_FEATURES',
-    AVX512F  : 'AVX3M_FEATURES',
-    AVX2     : 'ippCPUID_AVX2',
-    AVX      : 'ippCPUID_AVX',
-    SSE42    : 'ippCPUID_SSE42',
-    SSSE3    : 'ippCPUID_SSSE3',
-    SSE3     : 'ippCPUID_SSE3',
-    SSE2     : 'ippCPUID_SSE2',
+    AVX512IFMA : 'AVX3I_FEATURES',
+    AVX512BW   : 'AVX3X_FEATURES',
+    AVX512F    : 'AVX3M_FEATURES',
+    AVX2       : 'ippCPUID_AVX2',
+    AVX        : 'ippCPUID_AVX',
+    SSE42      : 'ippCPUID_SSE42',
+    SSSE3      : 'ippCPUID_SSSE3',
+    SSE3       : 'ippCPUID_SSE3',
+    SSE2       : 'ippCPUID_SSE2',
 }
 
 PATH_TO_LIBRARIES = {
@@ -181,6 +205,13 @@ LIB_PREFIX = {
     WINDOWS : '',
     LINUX   : 'lib',
     MACOSX  : 'lib'
+}
+
+LIB_POSTFIX = {
+    SINGLE_THREADED : '',
+    MULTI_THREADED  : '',
+    TBB:    '_tl_tbb',
+    OPENMP: '_tl_omp'
 }
 
 STATIC_LIB_POSTFIX = {

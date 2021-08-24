@@ -19,6 +19,7 @@
 
 /* data types */
 typedef unsigned char int8u;
+typedef unsigned short int16u;
 typedef unsigned int  int32u;
 typedef unsigned long long int64u;
 

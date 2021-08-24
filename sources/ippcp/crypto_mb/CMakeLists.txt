@@ -39,7 +39,8 @@ if(NOT DEFINED MB_STANDALONE)
   set(MB_STANDALONE true)
 endif()
 
-set(MB_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
+set(CRYPTO_MB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+set(CRYPTO_MB_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 set(MB_DYN_LIB_TARGET    "crypto_mb")   # Dynamic library
 set(MB_STATIC_LIB_TARGET "crypto_mb_s") # Static library
@@ -55,7 +56,7 @@ if(MB_STANDALONE)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 else()
-    file(GLOB MB_PUBLIC_HEADERS "${MB_INCLUDE_DIRS}/crypto_mb/*.h*")
+    file(GLOB MB_PUBLIC_HEADERS "${CRYPTO_MB_INCLUDE_DIR}/crypto_mb/*.h*")
 
     # Make variables below accessible in parent CMakeLists.txt
     set(MBX_INTERFACE_VERSION ${MBX_INTERFACE_VERSION} PARENT_SCOPE)
@@ -71,7 +72,6 @@ if(BORINGSSL) # off by default
 else()
     find_package(OpenSSL 1.1.0 REQUIRED) # set -DOPENSSL_INCLUDE_DIR= -DOPENSSL_LIBRARIES= -DOPENSSL_ROOT_DIR= to use patched
 endif()
-list(APPEND MB_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
 
 if(BN_OPENSSL_PATCH)
     # Link static OpenSSL only for patched version
@@ -79,7 +79,8 @@ if(BN_OPENSSL_PATCH)
 endif()
 
 include_directories(
-     ${MB_INCLUDE_DIRS}
+     ${CRYPTO_MB_INCLUDE_DIR}
+     ${OPENSSL_INCLUDE_DIR}
      $<$<C_COMPILER_ID:Intel>:$ENV{ROOT}/compiler/include $ENV{ROOT}/compiler/include/icc>
      $<$<NOT:$<C_COMPILER_ID:Intel>>:${CMAKE_SYSTEM_INCLUDE_PATH}>
      $<$<OR:$<C_COMPILER_ID:Intel>,$<BOOL:${MSVC_IDE}>>:$ENV{INCLUDE}>

@@ -39,7 +39,7 @@ if(WIN32)
 endif(WIN32)
 if(UNIX)
   if(APPLE)
-    set(BASE_PLATFORM_LIST ${BASE_PLATFORM_LIST} y8 e9 l9 k0)
+    set(BASE_PLATFORM_LIST ${BASE_PLATFORM_LIST} y8 e9 l9 k0 k1)
   else()
     if (${ARCH} MATCHES "ia32")
       set(BASE_PLATFORM_LIST ${BASE_PLATFORM_LIST} w7 s8 p8 g9 h9)
@@ -301,12 +301,14 @@ if(MERGED_BLD)
   set(HEADERS ${LIBRARY_HEADERS} ${INTERNAL_INCLUDE_DIR}/ippcp_cpuspc.h)
 endif(MERGED_BLD)
 
-# Copy public headers to the output directory
+# Copy headers to the output directory
 foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
-   file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
-   file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippcpdefs.h DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
-   file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippversion.h DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
+   file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippcp.h
+             ${IPP_CRYPTO_INCLUDE_DIR}/ippcpdefs.h
+             ${IPP_CRYPTO_INCLUDE_DIR}/ippversion.h
+             ${ONE_CPU_FOLDER}
+        DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
 endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
 foreach(opt ${PLATFORM_LIST})
@@ -555,7 +557,7 @@ install(DIRECTORY "${TOOLS_DIR}/ipp_custom_library_tool_python/"
         DESTINATION "tools/custom_library_tool_python")
 
 # Crypto multi-buffer library
-if ("${ARCH}" STREQUAL "intel64")
+if ((NOT NO_CRYPTO_MB) AND ("${ARCH}" STREQUAL "intel64"))
     # MB_STANDALONE adjusts some build settings in crypto_mb
     # (e.g. output directories, make some crypto_mb build variables visible in parent scope, etc)
     set(MB_STANDALONE false)

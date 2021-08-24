@@ -27,7 +27,7 @@ set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-flat_namespace")
 # Automatically adds space for future expansion of load commands such that all paths could expand to MAXPATHLEN.
 set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-headerpad_max_install_names")
 # This is set to indicate the oldest Mac OS X version that that the output is to be used on.
-set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -Wl,-macosx_version_min,10.8")
+set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -mmacosx-version-min=10.8")
 # Prevents the compiler from using standard libraries and startup files when linking.
 set(LINK_FLAG_DYNAMIC_MACOSX "${LINK_FLAG_DYNAMIC_MACOSX} -nostdlib")
 # Dynamically link to lib c

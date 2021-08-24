@@ -41,8 +41,8 @@ class Package:
         self.set_env_script()
 
         self.set_headers_functions_declarations_dicts()
-        self.set_libraries_features_errors_dicts(self.type,             utils.THREAD_MODES, '')
-        self.set_libraries_features_errors_dicts(utils.THREADING_LAYER, utils.TL_TYPES,     '_tl')
+        self.set_libraries_features_errors_dicts(self.type,             utils.THREAD_MODES)
+        self.set_libraries_features_errors_dicts(utils.THREADING_LAYER, utils.TL_TYPES)
 
         self.package_validation()
         self.set_name()
@@ -52,8 +52,14 @@ class Package:
         self.type = (utils.IPP if not os.path.exists(header) else utils.IPPCP)
 
     def set_name(self):
-        version = ''
         self.name = 'None'
+        version = self.get_version()
+
+        if not self.broken:
+            self.name = utils.PACKAGE_NAME[self.type] + ' Version ' + version
+
+    def get_version(self):
+        version = ''
         header = os.path.join(self.headers_dir, 'ippversion.h')
 
         for line in utils.get_lines_from_file(header):
@@ -63,8 +69,33 @@ class Package:
         if not version:
             version = 'None'
 
-        if not self.broken:
-            self.name = utils.PACKAGE_NAME[self.type] + ' Version ' + version
+        version = self.parse_version_string(version, header)
+
+        return version
+
+    def parse_version_string(self, version, header):
+        while True:
+            macros   = utils.get_match(utils.STR_MACROS_REGEX, version, 'macros')
+            if not macros:
+                break
+
+            macros_value = ''
+            for line in utils.get_lines_from_file(header):
+                if macros in line:
+                    macros_value = line.split(macros, 1)[1].strip()
+                    break
+
+            version = version.replace('STR(' + macros + ')', macros_value)
+
+        while True:
+            c_string = utils.get_match(utils.C_STRING_REGEX, version, 'string')
+            if not c_string:
+                break
+
+            c_string_value = utils.get_match(utils.C_STRING_VALUE_REGEX, c_string, 'value')
+            version = version.replace(c_string, c_string_value)
+
+        return version
 
     def set_env_script(self):
         paths_to_search = []
@@ -121,7 +152,7 @@ class Package:
                domain == 'ippcore':
                 self.functions_without_dispatcher += functions_list
 
-    def set_libraries_features_errors_dicts(self, domains_type, thread_types, domains_postfix):
+    def set_libraries_features_errors_dicts(self, domains_type, thread_types):
         host = utils.HOST_SYSTEM
 
         for arch in utils.ARCHITECTURES:
@@ -133,7 +164,7 @@ class Package:
                     lib_name = utils.LIB_PREFIX[host] + \
                                domain + \
                                utils.STATIC_LIB_POSTFIX[host] + \
-                               domains_postfix + \
+                               utils.LIB_POSTFIX[thread_type] + \
                                utils.STATIC_LIB_EXTENSION[host]
 
                     lib_path = os.path.join(path_to_libraries,

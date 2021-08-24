@@ -20,6 +20,16 @@
 #include <internal/common/ifma_defs.h>
 #include <internal/common/ifma_math.h>
 
+/*
+// prime25519 = 2^255-19
+// in the radix 2^52
+// int64u prime25519[5] = {PRIME25519_LO, PRIME25519_MID, PRIME25519_MID, PRIME25519_MID, PRIME25519_HI}
+*/
+#define PRIME25519_LO  0x000FFFFFFFFFFFED
+#define PRIME25519_MID 0x000FFFFFFFFFFFFF
+#define PRIME25519_HI  0x00007FFFFFFFFFFF
+
+
 /* underlying prime bitsize */
 #define P25519_BITSIZE (255)
 
@@ -34,10 +44,6 @@ typedef int64u fe52[FE_LEN52];
 /* mb field element */
 typedef U64 fe64_mb[FE_LEN64];
 typedef U64 fe52_mb[FE_LEN52];
-
-/* bitsize basepoint order L */
-//#define L254_BITSIZE (254)
-//#define L_LEN64  NUMBER_OF_DIGITS(L254_BITSIZE, 64)
 
 
 /* set FE to zero */
@@ -62,11 +68,32 @@ __INLINE void fe52_copy_mb(fe52_mb r, const fe52_mb a)
    r[4] = a[4];
 }
 
+/* convert fe52_mb => fe64_mb */
+__INLINE void fe52_to_fe64_mb(fe64_mb r, const fe52_mb a)
+{
+   r[0] = xor64(slli64(a[1],52), a[0]);
+   r[1] = xor64(slli64(a[2],40), srli64(a[1],12));
+   r[2] = xor64(slli64(a[3],28), srli64(a[2],24));
+   r[3] = xor64(slli64(a[4],16), srli64(a[3],36));
+}
+
 /* check if FE is zero */
 __INLINE __mb_mask fe52_mb_is_zero(const fe52_mb a)
 {
    U64 t = or64(or64(a[0], a[1]), or64(or64(a[2], a[3]), a[4]));
    return cmpeq64_mask(t, get_zero64());
+}
+
+/* check if a==b */
+__INLINE __mb_mask fe52_mb_is_equ(const fe52_mb a, const fe52_mb b)
+{
+   __ALIGN64 fe52_mb t;
+   t[0] = xor64(a[0], b[0]);
+   t[1] = xor64(a[1], b[1]);
+   t[2] = xor64(a[2], b[2]);
+   t[3] = xor64(a[3], b[3]);
+   t[4] = xor64(a[4], b[4]);
+   return fe52_mb_is_zero(t);
 }
 
 /* move FE under mask (conditionally): r = k? a : b */
@@ -110,6 +137,7 @@ void fe52_mb_neg_mod25519(fe52_mb vr, const fe52_mb va);
 void fe52_mb_mul_mod25519(fe52_mb vr, const fe52_mb va, const fe52_mb vb);
 void fe52_mb_sqr_mod25519(fe52_mb vr, const fe52_mb va);
 void fe52_mb_inv_mod25519(fe52_mb vr, const fe52_mb va);
+void fe52_pow_2_252m3_mod25519(fe52_mb vr, const fe52_mb va);
 
 #define fe52_add  fe52_mb_add_mod25519
 #define fe52_sub  fe52_mb_sub_mod25519
@@ -118,5 +146,6 @@ void fe52_mb_inv_mod25519(fe52_mb vr, const fe52_mb va);
 #define fe52_sqr  fe52_mb_sqr_mod25519
 #define fe52_inv  fe52_mb_inv_mod25519
 #define fe52_p2n  fe52_mb_sqr_mod25519_times
+#define fe52_p2_252m3 fe52_pow_2_252m3_mod25519
 
 #endif /* IFMA_ARITH_P25519_H */

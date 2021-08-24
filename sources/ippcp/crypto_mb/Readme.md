@@ -72,8 +72,12 @@ You can find the installed files in:
     │        ├── ec_nistp256.h
     │        ├── ec_nistp384.h
     │        ├── ec_nistp521.h
+    │        ├── ec_sm2.h
+    │        ├── ed25519.h
+    │        ├── exp.h
     │        ├── rsa.h
     │        ├── sm3.h
+    │        ├── sm4.h
     │        ├── status.h
     |        ├── version.h
     │        └── x25519.h

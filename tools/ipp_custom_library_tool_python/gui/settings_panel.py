@@ -59,6 +59,7 @@ class SettingsPanel(QWidget):
         self.avx2            = QCheckBox('AVX2')
         self.avx512f         = QCheckBox('AVX512F')
         self.avx512bw        = QCheckBox('AVX512BW')
+        self.avx512ifma      = QCheckBox('AVX512IFMA')
 
         self.tl_group.setCheckable(True)
         self.custom_dispatch.setCheckable(True)
@@ -105,6 +106,7 @@ class SettingsPanel(QWidget):
         custom_dispatch_layout.addWidget(self.avx2, 2, 1)
         custom_dispatch_layout.addWidget(self.avx512f, 2, 2)
         custom_dispatch_layout.addWidget(self.avx512bw, 2, 3)
+        custom_dispatch_layout.addWidget(self.avx512ifma, 2, 4)
 
         self.custom_dispatch.setLayout(custom_dispatch_layout)
 
@@ -141,7 +143,7 @@ class SettingsPanel(QWidget):
 
     def on_switch_custom_dispatch(self):
         self.refresh_group(self.custom_dispatch,
-                           search_list=utils.SUPPORTED_CPUS[self.current_arch][utils.HOST_SYSTEM])
+                           search_list=utils.SUPPORTED_CPUS[self.package.type][self.current_arch][utils.HOST_SYSTEM])
 
     def on_select_package(self):
         while True:

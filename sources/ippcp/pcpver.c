@@ -34,7 +34,7 @@ static const IppLibraryVersion ippcpLibVer = {
 #if defined IPP_REVISION
     IPP_REVISION,
 #else
-    -1,
+    0,
 #endif /* IPP_REVISION */
        /* targetCpu[4] */
 #if ( _IPP_ARCH == _IPP_ARCH_IA32 ) || ( _IPP_ARCH == _IPP_ARCH_LP32 )

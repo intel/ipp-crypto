@@ -96,7 +96,14 @@ __INLINE void ge52_p1p1_to_ext_mb(ge52_ext_mb *r, const ge52_p1p1_mb *p)
    fe52_mul(r->Z, p->Z, p->T);
 }
 
+
 /* set GE to neutral */
+__INLINE void neutral_ge52_homo_mb(ge52_homo_mb* ge)
+{
+   fe52_0_mb(ge->X);
+   fe52_1_mb(ge->Y);
+   fe52_1_mb(ge->Z);
+}
 __INLINE void neutral_ge52_ext_mb(ge52_ext_mb* ge)
 {
    fe52_0_mb(ge->X);
@@ -109,6 +116,13 @@ __INLINE void neutral_ge52_precomp_mb(ge52_precomp_mb *ge)
    fe52_1_mb(ge->ysubx);
    fe52_1_mb(ge->yaddx);
    fe52_0_mb(ge->t2d);
+}
+__INLINE void neutral_ge52_cached_mb(ge52_cached_mb* ge)
+{
+   fe52_1_mb(ge->YsubX);
+   fe52_1_mb(ge->YaddX);
+   fe52_0_mb(ge->T2d);
+   fe52_1_mb(ge->Z);
 }
 
 /* move GE under mask (conditionally): r = k? a : b */
@@ -124,10 +138,21 @@ __INLINE void cmov_ge52_precomp_mb(ge52_precomp_mb* r, const ge52_precomp_mb* b,
    fe52_cmov_mb(r->yaddx, b->yaddx, k, a->yaddx);
    fe52_cmov_mb(r->t2d,   b->t2d,   k, a->t2d);
 }
+__INLINE void cmov_ge52_cached_mb(ge52_cached_mb* r, const ge52_cached_mb* b, __mb_mask k, const ge52_cached_mb* a)
+{
+   fe52_cmov_mb(r->YsubX, b->YsubX, k, a->YsubX);
+   fe52_cmov_mb(r->YaddX, b->YaddX, k, a->YaddX);
+   fe52_cmov_mb(r->T2d,   b->T2d,   k, a->T2d);
+   fe52_cmov_mb(r->Z,     b->Z,     k, a->Z);
+}
 
 
 /* private functions */
-void ifma_ed25519_mul_pointbase(ge52_ext_mb* r, const U64 scalar[]);
-void ge52_ext_compress(fe52_mb r, const ge52_ext_mb* p);
+void ifma_ed25519_mul_basepoint(ge52_ext_mb* r, const U64 scalar[]);
+void ifma_ed25519_mul_point(ge52_ext_mb* r, const ge52_ext_mb* p, const U64 scalar[]);
+void ifma_ed25519_prod_point(ge52_ext_mb* r, const ge52_ext_mb* p, const U64 scalarP[], const U64 scalarG[]);
+
+void ge52_ext_compress(fe52_mb fe, const ge52_ext_mb* p);
+__mb_mask ge52_ext_decompress(ge52_ext_mb* p, const fe52_mb fe);
 
 #endif /* IFMA_ED25519_H */

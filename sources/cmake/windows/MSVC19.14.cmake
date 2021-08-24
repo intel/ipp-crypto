@@ -32,6 +32,8 @@ set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /NODEFAULTLIB")
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /NXCOMPAT")
 # Specifies whether to generate an executable image that can be randomly rebased at load time.
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /DYNAMICBASE")
+# Enable Intel® Control-Flow Enforcement Technology (Intel® CET) protection
+set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /CETCOMPAT")
 if(${ARCH} MATCHES "ia32")
   # When /SAFESEH is specified, the linker will only produce an image if it can also produce a table of the image's safe exception handlers.
   set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /SAFESEH")

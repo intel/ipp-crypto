@@ -17,12 +17,12 @@
 #include <crypto_mb/status.h>
 #include <crypto_mb/sm3.h>
 
-#include <internal/sm3/sm3_avx512.h>
+#include <internal/sm3/sm3_mb16.h>
 #include <internal/common/ifma_defs.h>
 
 DLL_PUBLIC
 mbx_status16 mbx_sm3_msg_digest_mb16(const int8u* msg_pa[16],
-                                           int len[16],
+                                              int len[16],
                                            int8u* hash_pa[16])
 {
     int buf_no;

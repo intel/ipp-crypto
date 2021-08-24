@@ -14,15 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <internal/sm3/sm3_avx512.h>
-
-__ALIGN64 static const int32u tj_calculated[] = { 0x79CC4519,0xF3988A32,0xE7311465,0xCE6228CB,0x9CC45197,0x3988A32F,0x7311465E,0xE6228CBC,
-                                                  0xCC451979,0x988A32F3,0x311465E7,0x6228CBCE,0xC451979C,0x88A32F39,0x11465E73,0x228CBCE6,
-                                                  0x9D8A7A87,0x3B14F50F,0x7629EA1E,0xEC53D43C,0xD8A7A879,0xB14F50F3,0x629EA1E7,0xC53D43CE,
-                                                  0x8A7A879D,0x14F50F3B,0x29EA1E76,0x53D43CEC,0xA7A879D8,0x4F50F3B1,0x9EA1E762,0x3D43CEC5,
-                                                  0x7A879D8A,0xF50F3B14,0xEA1E7629,0xD43CEC53,0xA879D8A7,0x50F3B14F,0xA1E7629E,0x43CEC53D,
-                                                  0x879D8A7A,0x0F3B14F5,0x1E7629EA,0x3CEC53D4,0x79D8A7A8,0xF3B14F50,0xE7629EA1,0xCEC53D43 };
-
+#include <internal/sm3/sm3_mb16.h>
 
 __INLINE void TRANSPOSE_16X16_I32(int32u out[][16], const int32u* inp[16])
 {
@@ -181,7 +173,6 @@ __INLINE void TRANSPOSE_16X16_I32(int32u out[][16], const int32u* inp[16])
 }
 
 
-
 void sm3_avx512_mb16(int32u* hash_pa[16], const int8u* msg_pa[16], int len[16])
 {
     int i;
@@ -195,8 +186,6 @@ void sm3_avx512_mb16(int32u* hash_pa[16], const int8u* msg_pa[16], int len[16])
 
     /* Allocate memory to handle numBuffers < 16, set data in not valid buffers to zero */
     __m512i zero_buffer = _mm512_setzero_si512();
-    /* Allocate memory for transposed data */
-    __m512i transposed_data[SM3_NUM_BUFFERS];
 
     /* Load processing mask */
     __mmask16 mb_mask = _mm512_cmp_epi32_mask(_mm512_loadu_si512(len), zero_buffer, 4);
@@ -220,11 +209,10 @@ void sm3_avx512_mb16(int32u* hash_pa[16], const int8u* msg_pa[16], int len[16])
     /* Loop over the message */
     while (mb_mask){
         /* Transpose the message data */
-        TRANSPOSE_16X16_I32((int32u(*)[16])transposed_data, (const int32u**)loc_data);  
+        TRANSPOSE_16X16_I32((int32u(*)[16])W, (const int32u**)loc_data);
 
         /* Init W (remember about endian) */
         for (i = 0; i < 16; i++) {
-            W[i] = transposed_data[i];
             W[i] = SIMD_ENDIANNESS32(W[i]);
         }
 

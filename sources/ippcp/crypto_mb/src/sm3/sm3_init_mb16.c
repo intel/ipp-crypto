@@ -17,12 +17,8 @@
 #include <crypto_mb/status.h>
 #include <crypto_mb/sm3.h>
 
-#include <internal/sm3/sm3_avx512.h>
+#include <internal/sm3/sm3_mb16.h>
 #include <internal/common/ifma_defs.h>
-
-static const int32u sm3_iv[] = { 0x7380166F, 0x4914B2B9, 0x172442D7, 0xDA8A0600,
-                                 0xA96F30BC, 0x163138AA, 0xE38DEE4D, 0xB0FB0E4E };
-
 
 void sm3_mask_init_mb16(SM3_CTX_mb16 * p_state, __mmask16 mb_mask)
 {

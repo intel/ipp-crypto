@@ -27,6 +27,8 @@ set(LINK_FLAG_SECURITY "${LINK_FLAG_SECURITY} -Wl,-z,noexecstack")
 set(CMAKE_C_FLAGS_SECURITY "")
 # Format string vulnerabilities
 set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -Wformat -Wformat-security -Werror=format-security")
+# Enable Intel® Control-Flow Enforcement Technology (Intel® CET) protection
+set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -fcf-protection=full")
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     if(NOT DEFINED NO_FORTIFY_SOURCE)
@@ -55,8 +57,10 @@ set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} ${CRYPTO_MB_SOURCES_DIR}/cmake/dll
 
 # Tells the compiler to align functions and loops
 set(CMAKE_C_FLAGS " -falign-functions=32")
-# Ensures that compilation takes place in a freestanding environment
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding")
+
+# -ffreestanding flag removed for clang because it causes compilation eroor in combination with -D_FORTIFY_SOURCE=2
+# and limits.h and stdlib.h headers because of wrong value of MB_LEN_MAX defined in limits.h and checked in stdlib.h
+# This issue is reprodusable with clang9. Flag is not removed for other compilers to prevent other possible issues. 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 

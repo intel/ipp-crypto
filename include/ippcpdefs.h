@@ -178,14 +178,14 @@ extern "C" {
 #define IPP_ABS( a ) ( ((a) < 0) ? (-(a)) : (a) )
 
 typedef struct {
-    int    major;                     /* e.g. 1                               */
-    int    minor;                     /* e.g. 2                               */
-    int    majorBuild;                /* e.g. 3                               */
-    int    build;                     /* e.g. 10, always >= majorBuild        */
-    char  targetCpu[4];               /* corresponding to Intel® processor    */
-    const char* Name;                 /* e.g. "ippsw7"                        */
-    const char* Version;              /* e.g. "v1.2 Beta"                     */
-    const char* BuildDate;            /* e.g. "Jul 20 99"                     */
+    int          major;         /* e.g. 1                               */
+    int          minor;         /* e.g. 2                               */
+    int          majorBuild;    /* e.g. 3                               */
+    unsigned int revision;      /* e.g. 0xf6f5e5bc                      */
+    char         targetCpu[4];  /* corresponding to Intel® processor    */
+    const char*  Name;          /* e.g. "ippsw7"                        */
+    const char*  Version;       /* e.g. "v1.2 Beta"                     */
+    const char*  BuildDate;     /* e.g. "Jul 20 99"                     */
 } IppLibraryVersion;
 
 typedef unsigned char  Ipp8u;
@@ -195,8 +195,8 @@ typedef signed char    Ipp8s;
 typedef signed short   Ipp16s;
 typedef signed int     Ipp32s;
 typedef float          Ipp32f;
-typedef IPP_INT64        Ipp64s;
-typedef IPP_UINT64       Ipp64u;
+typedef IPP_INT64      Ipp64s;
+typedef IPP_UINT64     Ipp64u;
 typedef double         Ipp64f;
 typedef Ipp16s         Ipp16f;
 

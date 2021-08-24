@@ -17,119 +17,12 @@
 #include <crypto_mb/status.h>
 #include <crypto_mb/sm3.h>
 
-#include <internal/sm3/sm3_avx512.h>
+#include <internal/sm3/sm3_mb16.h>
 #include <internal/common/ifma_defs.h>
-
-__ALIGN64 static const int8u swapBytes[] = { 7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8,
-                                             7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8,
-                                             7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8,
-                                             7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8 };
-
-__INLINE void TRANSPOSE_8X8_I32(__m256i *v0, __m256i *v1, __m256i *v2, __m256i *v3,
-                                __m256i *v4, __m256i *v5, __m256i *v6, __m256i *v7) 
-{
-    __m256i w0, w1, w2, w3, w4, w5, w6, w7;
-    __m256i x0, x1, x2, x3, x4, x5, x6, x7;
-    __m256i t1, t2;
-
-    x0 = _mm256_permute4x64_epi64(*v0, 0b11011000);
-    x1 = _mm256_permute4x64_epi64(*v1, 0b11011000);
-    w0 = _mm256_unpacklo_epi32(x0, x1);
-    w1 = _mm256_unpackhi_epi32(x0, x1);
-
-    x2 = _mm256_permute4x64_epi64(*v2, 0b11011000);
-    x3 = _mm256_permute4x64_epi64(*v3, 0b11011000);
-    w2 = _mm256_unpacklo_epi32(x2, x3);
-    w3 = _mm256_unpackhi_epi32(x2, x3);
-
-    x4 = _mm256_permute4x64_epi64(*v4, 0b11011000);
-    x5 = _mm256_permute4x64_epi64(*v5, 0b11011000);
-    w4 = _mm256_unpacklo_epi32(x4, x5);
-    w5 = _mm256_unpackhi_epi32(x4, x5);
-
-    x6 = _mm256_permute4x64_epi64(*v6, 0b11011000);
-    x7 = _mm256_permute4x64_epi64(*v7, 0b11011000);
-    w6 = _mm256_unpacklo_epi32(x6, x7);
-    w7 = _mm256_unpackhi_epi32(x6, x7);
-
-    t1 = _mm256_permute4x64_epi64(w0, 0b11011000);
-    t2 = _mm256_permute4x64_epi64(w2, 0b11011000);
-    x0 = _mm256_unpacklo_epi64(t1, t2);
-    x1 = _mm256_unpackhi_epi64(t1, t2);
-
-    t1 = _mm256_permute4x64_epi64(w1, 0b11011000);
-    t2 = _mm256_permute4x64_epi64(w3, 0b11011000);
-    x2 = _mm256_unpacklo_epi64(t1, t2);
-    x3 = _mm256_unpackhi_epi64(t1, t2);
-
-    t1 = _mm256_permute4x64_epi64(w4, 0b11011000);
-    t2 = _mm256_permute4x64_epi64(w6, 0b11011000);
-    x4 = _mm256_unpacklo_epi64(t1, t2);
-    x5 = _mm256_unpackhi_epi64(t1, t2);
-
-    t1 = _mm256_permute4x64_epi64(w5, 0b11011000);
-    t2 = _mm256_permute4x64_epi64(w7, 0b11011000);
-    x6 = _mm256_unpacklo_epi64(t1, t2);
-    x7 = _mm256_unpackhi_epi64(t1, t2);
-    
-    *v0 = _mm256_permute2x128_si256(x0, x4, 0b100000);
-    *v1 = _mm256_permute2x128_si256(x0, x4, 0b110001);
-    *v2 = _mm256_permute2x128_si256(x1, x5, 0b100000);
-    *v3 = _mm256_permute2x128_si256(x1, x5, 0b110001);
-    *v4 = _mm256_permute2x128_si256(x2, x6, 0b100000);
-    *v5 = _mm256_permute2x128_si256(x2, x6, 0b110001);
-    *v6 = _mm256_permute2x128_si256(x3, x7, 0b100000);
-    *v7 = _mm256_permute2x128_si256(x3, x7, 0b110001);
-}
-
-
-void TRANSPOSE_8X16_I32(const int32u* out[16], int32u inp[][16], __mmask16 mb_mask) {
-    __m256i* v0 = (__m256i*)&inp[0];
-    __m256i* v1 = (__m256i*)&inp[1];
-    __m256i* v2 = (__m256i*)&inp[2];
-    __m256i* v3 = (__m256i*)&inp[3];
-    __m256i* v4 = (__m256i*)&inp[4];
-    __m256i* v5 = (__m256i*)&inp[5];
-    __m256i* v6 = (__m256i*)&inp[6];
-    __m256i* v7 = (__m256i*)&inp[7];
-
-    TRANSPOSE_8X8_I32(v0, v1, v2, v3, v4, v5, v6, v7);
-
-    /* mask store hashes to the first 8 buffers */
-    _mm256_mask_storeu_epi32((void*)out[0], (__mmask8)(((mb_mask >> 0) & 1)) * 0xFF, *v0);
-    _mm256_mask_storeu_epi32((void*)out[1], (__mmask8)(((mb_mask >> 1) & 1)) * 0xFF, *v1);
-    _mm256_mask_storeu_epi32((void*)out[2], (__mmask8)(((mb_mask >> 2) & 1)) * 0xFF, *v2);
-    _mm256_mask_storeu_epi32((void*)out[3], (__mmask8)(((mb_mask >> 3) & 1)) * 0xFF, *v3);
-    _mm256_mask_storeu_epi32((void*)out[4], (__mmask8)(((mb_mask >> 4) & 1)) * 0xFF, *v4);
-    _mm256_mask_storeu_epi32((void*)out[5], (__mmask8)(((mb_mask >> 5) & 1)) * 0xFF, *v5);
-    _mm256_mask_storeu_epi32((void*)out[6], (__mmask8)(((mb_mask >> 6) & 1)) * 0xFF, *v6);
-    _mm256_mask_storeu_epi32((void*)out[7], (__mmask8)(((mb_mask >> 7) & 1)) * 0xFF, *v7);
-
-    v0 = (__m256i*)&inp[0]+1;
-    v1 = (__m256i*)&inp[1]+1;
-    v2 = (__m256i*)&inp[2]+1;
-    v3 = (__m256i*)&inp[3]+1;
-    v4 = (__m256i*)&inp[4]+1;
-    v5 = (__m256i*)&inp[5]+1;
-    v6 = (__m256i*)&inp[6]+1;
-    v7 = (__m256i*)&inp[7]+1;
-
-    TRANSPOSE_8X8_I32(v0, v1, v2, v3, v4, v5, v6, v7);
-
-    /* mask store hashes to the last 8 buffers */
-    _mm256_mask_storeu_epi32((void*)out[8],  (__mmask8)(((mb_mask >> 8) & 1)) * 0xFF, *v0);
-    _mm256_mask_storeu_epi32((void*)out[9],  (__mmask8)(((mb_mask >> 9) & 1)) * 0xFF, *v1);
-    _mm256_mask_storeu_epi32((void*)out[10], (__mmask8)(((mb_mask >> 10) & 1)) * 0xFF, *v2);
-    _mm256_mask_storeu_epi32((void*)out[11], (__mmask8)(((mb_mask >> 11) & 1)) * 0xFF, *v3);
-    _mm256_mask_storeu_epi32((void*)out[12], (__mmask8)(((mb_mask >> 12) & 1)) * 0xFF, *v4);
-    _mm256_mask_storeu_epi32((void*)out[13], (__mmask8)(((mb_mask >> 13) & 1)) * 0xFF, *v5);
-    _mm256_mask_storeu_epi32((void*)out[14], (__mmask8)(((mb_mask >> 14) & 1)) * 0xFF, *v6);
-    _mm256_mask_storeu_epi32((void*)out[15], (__mmask8)(((mb_mask >> 15) & 1)) * 0xFF, *v7);
-}
 
 DLL_PUBLIC
 mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16], 
-                                       SM3_CTX_mb16 * p_state)
+                         SM3_CTX_mb16* p_state)
 {
     int i;
     mbx_status16 status = 0;
@@ -147,9 +40,9 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     /* allocate local buffer */
     __ALIGN64 int8u loc_buffer[SM3_NUM_BUFFERS][SM3_MSG_BLOCK_SIZE*2];
     int8u* buffer_pa[SM3_NUM_BUFFERS] = { loc_buffer[0],  loc_buffer[1],  loc_buffer[2],  loc_buffer[3], 
-                                               loc_buffer[4],  loc_buffer[5],  loc_buffer[6],  loc_buffer[7],
-                                               loc_buffer[8],  loc_buffer[9],  loc_buffer[10], loc_buffer[11],
-                                               loc_buffer[12], loc_buffer[13], loc_buffer[14], loc_buffer[15] };
+                                          loc_buffer[4],  loc_buffer[5],  loc_buffer[6],  loc_buffer[7],
+                                          loc_buffer[8],  loc_buffer[9],  loc_buffer[10], loc_buffer[11],
+                                          loc_buffer[12], loc_buffer[13], loc_buffer[14], loc_buffer[15] };
 
     __m512i zero_buffer = _mm512_setzero_si512();
 
@@ -196,6 +89,8 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     
     /* Convert hash into big endian */
     __m512i T[8];
+    int32u* p_T[8] = { (int32u*)&T[0], (int32u*)&T[1], (int32u*)&T[2], (int32u*)&T[3], (int32u*)&T[4], (int32u*)&T[5], (int32u*)&T[6], (int32u*)&T[7] };
+
     T[0]  = SIMD_ENDIANNESS32(_mm512_loadu_si512(HASH_VALUE(p_state)[0]));
     T[1]  = SIMD_ENDIANNESS32(_mm512_loadu_si512(HASH_VALUE(p_state)[1]));
     T[2]  = SIMD_ENDIANNESS32(_mm512_loadu_si512(HASH_VALUE(p_state)[2]));
@@ -204,9 +99,9 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     T[5]  = SIMD_ENDIANNESS32(_mm512_loadu_si512(HASH_VALUE(p_state)[5]));
     T[6]  = SIMD_ENDIANNESS32(_mm512_loadu_si512(HASH_VALUE(p_state)[6]));
     T[7]  = SIMD_ENDIANNESS32(_mm512_loadu_si512(HASH_VALUE(p_state)[7]));
-    
+
     /* Transpose hash and store in array with pointers to hash values */
-    TRANSPOSE_8X16_I32((const int32u**)hash_pa, (int32u(*)[16])T, mb_mask16);
+    TRANSPOSE_8X16_I32((int32u**)hash_pa, (const int32u**)p_T, mb_mask16);
 
     /* re-init hash value using mb masks */
     _mm512_storeu_si512(MSG_LEN(p_state), _mm512_mask_set1_epi64(_mm512_loadu_si512(MSG_LEN(p_state)), mb_mask8[0], 0));

@@ -97,7 +97,6 @@ def func_dispatcher_generator(arch, function):
     package_type = utils.CONFIGS[PACKAGE].type
     declarations = utils.CONFIGS[PACKAGE].declarations[function]
     ippfun = declarations.replace('IPPAPI', 'IPPFUN')
-    second_arg = (', NULL' if package_type == IPP else '')
 
     args = utils.get_match(utils.FUNCTION_NAME_REGEX, declarations, 'args').split(',')
     args = [utils.get_match(utils.ARGUMENT_REGEX, arg, 'arg') for arg in args]
@@ -129,7 +128,6 @@ def func_dispatcher_generator(arch, function):
     return FUNCTION_DISPATCHER.format(ippapi=ippapi,
                                       ippfun=ippfun,
                                       package_type=package_type.lower(),
-                                      second_arg=second_arg,
                                       dispatching_scheme=dispatching_scheme)
 
 
@@ -156,8 +154,13 @@ def build_script_generator():
     root_type = (IPPROOT if package.type == IPP else IPPCRYPTOROOT)
 
     if package.env_script:
+        force_flag = ''
+        if 'setvars' in package.env_script:
+            force_flag = '--force'
+
         env_command = CALL_ENV_SCRIPT_COMMAND[host].format(env_script=package.env_script,
-                                                           arch=arch)
+                                                           arch=arch,
+                                                           force_flag=force_flag)
     else:
         env_command = SET_ENV_COMMAND[host].format(env_var=root_type,
                                                    path=package.root)

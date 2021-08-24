@@ -191,6 +191,9 @@ IPPFUN(IppStatus, ippsAES_CCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
          /* store cipher text */
          XorBlock(pSrc, S, pDst, len);
 
+         /* workaround to avoid false positive stringop-overflow error on gcc10.1 and gcc11.1 */
+         len = ( IPP_MIN(len, MBS_RIJ128-1) );
+
          /* store partial data block */
          CopyBlock(pDst, AESCCM_BLK(pState), len);
 
