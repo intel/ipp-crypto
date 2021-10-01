@@ -134,10 +134,12 @@ static __ALIGN64 const int8u  nextInc[] = {
     SM4_ONE_ROUND(X3, X0, X1, X2, TMP, (RK + sign * 3));     \
 }
 
-#define EXPAND_ONE_RKEY(X, p_rk)     X[0] = _mm512_permutexvar_epi32(M512(idx_0_3), _mm512_loadu_si512(p_rk)); \
-                                     X[1] = _mm512_permutexvar_epi32(M512(idx_4_7), _mm512_loadu_si512(p_rk)); \
-                                     X[2] = _mm512_permutexvar_epi32(M512(idx_8_b), _mm512_loadu_si512(p_rk)); \
-                                     X[3] = _mm512_permutexvar_epi32(M512(idx_c_f), _mm512_loadu_si512(p_rk));
+#define EXPAND_ONE_RKEY(X, p_rk) { \
+   X[0] = _mm512_permutexvar_epi32(M512(idx_0_3), _mm512_loadu_si512(p_rk)); \
+   X[1] = _mm512_permutexvar_epi32(M512(idx_4_7), _mm512_loadu_si512(p_rk)); \
+   X[2] = _mm512_permutexvar_epi32(M512(idx_8_b), _mm512_loadu_si512(p_rk)); \
+   X[3] = _mm512_permutexvar_epi32(M512(idx_c_f), _mm512_loadu_si512(p_rk)); \
+}
 
 #define ENDIANNESS_16x32(x)     _mm512_shuffle_epi8((x), M512(swapBytes));
 #define CHANGE_ORDER_BLOCKS(x)  _mm512_shuffle_epi8((x), M512(swapEndianness));
@@ -165,7 +167,7 @@ EXTERN_C void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[
 EXTERN_C void sm4_cbc_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, const int8u* pa_iv[SM4_LINES]);
 EXTERN_C void sm4_cbc_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, const int8u* pa_iv[SM4_LINES]);
 EXTERN_C void sm4_ctr128_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int8u* pa_ctr[SM4_LINES]);
-EXTERN_C void sm4_ofb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int8u* pa_iv[SM4_LINES]);
+EXTERN_C void sm4_ofb128_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int8u* pa_iv[SM4_LINES]);
 EXTERN_C void sm4_cfb128_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask);
 EXTERN_C void sm4_cfb128_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask);
 
@@ -178,13 +180,7 @@ __INLINE __m512i sBox512(__m512i block)
 
 __INLINE __m512i Lblock512(__m512i x)
 {
-    __m512i rolled0 = _mm512_rol_epi32(x, 2);
-    __m512i rolled1 = _mm512_rol_epi32(x, 10);
-    __m512i temp = _mm512_xor_si512(rolled0, rolled1);
-    __m512i rolled2 = _mm512_rol_epi32(x, 18);
-    __m512i rolled3 = _mm512_rol_epi32(x, 24);
-    __m512i res = _mm512_ternarylogic_epi32(temp, rolled2, rolled3, 0x96);
-    return  res;
+    return _mm512_ternarylogic_epi32(_mm512_xor_si512(_mm512_rol_epi32(x, 2), _mm512_rol_epi32(x, 10)), _mm512_rol_epi32(x, 18), _mm512_rol_epi32(x, 24), 0x96);
 }
 
 __INLINE __m512i Lkey512(__m512i x)

@@ -81,6 +81,9 @@ if __name__ == '__main__':
                                                                                                [utils.HOST_SYSTEM]),
                               nargs='+',
                               metavar='CPU')
+    console_args.add_argument('--prefix',
+                              help='Rename functions in custom dispatcher with specified prefix',
+                              default='')
 
     args = args_parser.parse_args()
 
@@ -129,6 +132,7 @@ if __name__ == '__main__':
                     sys.exit("Error: " + cpu + " isn't supported for " + utils.PACKAGE_NAME[package.type] + ' ' +
                              utils.HOST_SYSTEM + ' ' + architecture)
             custom_cpu_set = args.custom_dispatcher
+        prefix = args.prefix
 
         custom_library_name = args.name
         output_path = os.path.abspath(args.output_path)
@@ -142,7 +146,8 @@ if __name__ == '__main__':
                                threading_layer_type=threading_layer_type,
                                custom_library_name=custom_library_name,
                                output_path=output_path,
-                               custom_cpu_set=custom_cpu_set)
+                               custom_cpu_set=custom_cpu_set,
+                               prefix=prefix)
 
         if args.generate:
             success = generate_script()

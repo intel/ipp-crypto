@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <internal/sm4/sm4_mb.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 static void sm4_ctr128_mask_kernel_mb16(__m512i* CTR, const __m512i* p_rk, __m512i loc_len, const int8u** loc_inp, int8u** loc_out, int8u* inc, __mmask16 tmp_mask, __mmask16 mb_mask)
 {
@@ -235,6 +236,9 @@ static void sm4_ctr128_mask_kernel_mb16(__m512i* CTR, const __m512i* p_rk, __m51
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, loc_len, _mm512_set1_epi32(0), _MM_CMPINT_NLE);
         inc = (int8u*)nextInc;
     }
+
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u(*)[8])TMP, sizeof(TMP) / sizeof(TMP[0]));
 }
 
 void sm4_ctr128_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int8u* pa_ctr[SM4_LINES])
@@ -491,9 +495,6 @@ void sm4_ctr128_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LI
         }
     }
 
-    /* Clear secret data */
-    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-        TMP[i] = _mm512_setzero_si512();
-    }
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u(*)[8])TMP, sizeof(TMP) / sizeof(TMP[0]));
 }
-

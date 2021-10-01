@@ -29,12 +29,9 @@
 // Computes public key
 // pa_pubx[]   array of pointers to the public keys X-coordinates
 // pa_puby[]   array of pointers to the public keys Y-coordinates
-// pa_pubz[]   array of pointers to the public keys Z-coordinates
+// pa_pubz[]   array of pointers to the public keys Z-coordinates (or NULL, if affine coordinate requested)
 // pa_skey[]   array of pointers to the private keys
 // pBuffer     pointer to the scratch buffer
-//
-// Note:
-// output public key is represented by (X:Y:Z) projective Jacobian coordinates
 */
 EXTERN_C mbx_status mbx_sm2_ecpublic_key_mb8(int64u* pa_pubx[8],
                                              int64u* pa_puby[8],
@@ -48,11 +45,11 @@ EXTERN_C mbx_status mbx_sm2_ecpublic_key_mb8(int64u* pa_pubx[8],
 // pa_skey[]         array of pointers to the own (ephemeral) private keys
 // pa_pubx[]         array of pointers to the party's public keys X-coordinates
 // pa_puby[]         array of pointers to the party's public keys Y-coordinates
-// pa_pubz[]         array of pointers to the party's public keys Z-coordinates
+// pa_pubz[]         array of pointers to the party's public keys Z-coordinates (or NULL, if affine coordinate requested)
 // pBuffer           pointer to the scratch buffer
 //
 // Note:
-// input party's public key is represented by (X:Y:Z) projective Jacobian coordinates
+// This function implements ECDHE over SM2 curve according to IEEE 1363-2000 standard.
 */
 EXTERN_C mbx_status mbx_sm2_ecdh_mb8(int8u* pa_shared_key[8],
                         const int64u* const pa_skey[8],
@@ -63,7 +60,7 @@ EXTERN_C mbx_status mbx_sm2_ecdh_mb8(int8u* pa_shared_key[8],
 
 /*
 // Computes SM2 ECDSA signature
-// pa_sign_r[]       array of pointers to the computed r-components of the signatures 
+// pa_sign_r[]       array of pointers to the computed r-components of the signatures
 // pa_sign_s[]       array of pointers to the computed s-components of the signatures
 // pa_user_id[]      array of pointers to the users ID
 // user_id_len[]     array of users ID length
@@ -73,7 +70,7 @@ EXTERN_C mbx_status mbx_sm2_ecdh_mb8(int8u* pa_shared_key[8],
 // pa_reg_skey[]     array of pointers to the signer's regular private keys
 // pa_pubx[]         array of pointers to the party's public keys X-coordinates
 // pa_puby[]         array of pointers to the party's public keys Y-coordinates
-// pa_pubz[]         array of pointers to the party's public keys Z-coordinates
+// pa_pubz[]         array of pointers to the party's public keys Z-coordinates (or NULL, if affine coordinate requested)
 // pBuffer           pointer to the scratch buffer
 */
 EXTERN_C mbx_status mbx_sm2_ecdsa_sign_mb8(int8u* pa_sign_r[8],
@@ -90,7 +87,7 @@ EXTERN_C mbx_status mbx_sm2_ecdsa_sign_mb8(int8u* pa_sign_r[8],
                                            int8u* pBuffer);
 
 /*
-// Verifies SM2 ECDSA signature 
+// Verifies SM2 ECDSA signature
 // pa_sign_r[]       array of pointers to the computed r-components of the signatures
 // pa_sign_s[]       array of pointers to the computed s-components of the signatures
 // pa_user_id[]      array of pointers to the users ID
@@ -124,7 +121,7 @@ EXTERN_C mbx_status mbx_sm2_ecpublic_key_ssl_mb8(BIGNUM* pa_pubx[8],
                                                   int8u* pBuffer);
 
 EXTERN_C mbx_status mbx_sm2_ecdh_ssl_mb8(int8u* pa_shared_key[8],
-                            const BIGNUM* const pa_skey[8], 
+                            const BIGNUM* const pa_skey[8],
                             const BIGNUM* const pa_pubx[8],
                             const BIGNUM* const pa_puby[8],
                             const BIGNUM* const pa_pubz[8],

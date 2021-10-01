@@ -15,8 +15,9 @@
 *******************************************************************************/
 
 #include <internal/sm4/sm4_mb.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
-void sm4_ofb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int8u* pa_iv[SM4_LINES])
+void sm4_ofb128_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int8u* pa_iv[SM4_LINES])
 {
     const int8u* loc_inp[SM4_LINES];
     int8u* loc_out[SM4_LINES];
@@ -44,8 +45,8 @@ void sm4_ofb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
     TRANSPOSE_16x4_I32_EPI32(&iv0, &iv1, &iv2, &iv3, (const int8u**)pa_iv, tmp_mask);
 
     /* Main loop */
+    __m512i tmp;
     while (tmp_mask) {
-        __m512i tmp; 
         for (int itr = 0; itr < SM4_ROUNDS; itr += 4, p_rk += 4)
             SM4_FOUR_ROUNDS(iv0, iv1, iv2, iv3, tmp, p_rk, 1);
 
@@ -68,16 +69,17 @@ void sm4_ofb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
         M512(loc_out + 8) = _mm512_add_epi64(_mm512_loadu_si512(loc_out + 8), _mm512_set1_epi64(SM4_BLOCK_SIZE));
 
         /* Update number of blocks left and processing mask */
-        loc_len = _mm512_sub_epi32(loc_len, _mm512_set1_epi32(16));
+        loc_len = _mm512_sub_epi32(loc_len, _mm512_set1_epi32(SM4_BLOCK_SIZE));
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, loc_len, _mm512_setzero_si512(), _MM_CMPINT_NLE);
     }
 
     /* Update ofb values */
     TRANSPOSE_4x16_I32_EPI32(&iv0, &iv1, &iv2, &iv3, pa_iv, tmp_mask);
 
-    /* clear secret data */
-    iv0 = _mm512_xor_si512(iv0, iv0);
-    iv1 = _mm512_xor_si512(iv1, iv1);
-    iv2 = _mm512_xor_si512(iv2, iv2);
-    iv3 = _mm512_xor_si512(iv3, iv3);
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u(*)[8])&iv0, 1);
+    zero_mb8((int64u(*)[8])&iv1, 1);
+    zero_mb8((int64u(*)[8])&iv2, 1);
+    zero_mb8((int64u(*)[8])&iv3, 1);
+    zero_mb8((int64u(*)[8])&tmp, 1);
 }

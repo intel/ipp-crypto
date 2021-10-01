@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <internal/sm4/sm4_mb.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int operation)
 {
@@ -456,9 +457,6 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_setzero_si512(), _MM_CMPINT_NLE);
     }
 
-    /* Clear secret data */
-    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-        TMP[i] = _mm512_setzero_si512();
-    }        
-
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u(*)[8])TMP, sizeof(TMP) / sizeof(TMP[0]));
 }

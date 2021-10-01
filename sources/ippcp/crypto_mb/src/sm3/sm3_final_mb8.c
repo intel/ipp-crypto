@@ -45,7 +45,7 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
     // corresponding element in mask = 0 if hash_pa[i] = 0 
     */
     __m512i zero_buffer = _mm512_setzero_si512();
-    __mmask8 mb_mask8 = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa), zero_buffer, 4);
+    __mmask8 mb_mask8 = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa), zero_buffer, _MM_CMPINT_NE);
 
     M512(sum_msg_len) = _mm512_maskz_loadu_epi64(mb_mask8, MSG_LEN(p_state));
     

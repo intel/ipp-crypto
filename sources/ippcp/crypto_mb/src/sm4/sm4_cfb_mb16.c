@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <internal/sm4/sm4_mb.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 void sm4_cfb128_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask)
 {
@@ -43,8 +44,8 @@ void sm4_cfb128_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM
     TRANSPOSE_16x4_I32_EPI32(&iv0, &iv1, &iv2, &iv3, (const int8u**)pa_iv, tmp_mask);
 
     /* Main loop */
+    __m512i z0, z1, z2, z3, tmp;
     while (tmp_mask) {
-        __m512i z0, z1, z2, z3, tmp;
         for (int itr = 0; itr < SM4_ROUNDS; itr += 4, p_rk += 4)
             SM4_FOUR_ROUNDS(iv0, iv1, iv2, iv3, tmp, p_rk, 1);
 
@@ -76,11 +77,17 @@ void sm4_cfb128_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, loc_len, _mm512_setzero_si512(), _MM_CMPINT_NLE);
     }
 
-    /* Clear secret data */
-    iv0 = _mm512_xor_si512(iv0, iv0);
-    iv1 = _mm512_xor_si512(iv1, iv1);
-    iv2 = _mm512_xor_si512(iv2, iv2);
-    iv3 = _mm512_xor_si512(iv3, iv3);
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u(*)[8])&iv0, 1);
+    zero_mb8((int64u(*)[8])&iv1, 1);
+    zero_mb8((int64u(*)[8])&iv2, 1);
+    zero_mb8((int64u(*)[8])&iv3, 1);
+
+    zero_mb8((int64u(*)[8])&z0, 1);
+    zero_mb8((int64u(*)[8])&z1, 1);
+    zero_mb8((int64u(*)[8])&z2, 1);
+    zero_mb8((int64u(*)[8])&z3, 1);
+    zero_mb8((int64u(*)[8])&tmp, 1);
 }
 
 static void sm4_cfb128_mask_dec_kernel_mb16(const int8u** loc_inp, int8u** loc_out, __m512i loc_len, const __m512i* p_rk, __mmask16 tmp_mask, __mmask64 stream_mask[16])
@@ -309,6 +316,9 @@ static void sm4_cfb128_mask_dec_kernel_mb16(const int8u** loc_inp, int8u** loc_o
         /* Check if we have any data */
         tmp_mask = _mm512_mask_cmp_epi32_mask(tmp_mask, loc_len, _mm512_setzero_si512(), _MM_CMPINT_NLE);
     }
+
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u(*)[8])TMP, sizeof(TMP) / sizeof(TMP[0]));
 }
 
 void sm4_cfb128_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask) {
@@ -596,9 +606,7 @@ void sm4_cfb128_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM
     if (tmp_mask)
         sm4_cfb128_mask_dec_kernel_mb16(loc_inp, loc_out, loc_len, p_rk, tmp_mask, stream_mask);
 
-    /* Clear secret data */
-    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-        TMP[i] = _mm512_setzero_si512();
-    }
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u(*)[8])TMP, sizeof(TMP) / sizeof(TMP[0]));
 }
 

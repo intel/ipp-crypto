@@ -23,9 +23,10 @@
 
 #define SM4_LINES       (16)        /*    Max number of buffers    */
 #define SM4_BLOCK_SIZE  (16)        /* SM4 data block size (bytes) */
+#define SM4_KEY_SIZE    (16)        /*    SM4 key size (bytes)     */
 #define SM4_ROUNDS      (32)        /*    SM4 number of rounds     */
 
-typedef int8u  sm4_key[16];
+typedef int8u  sm4_key[SM4_KEY_SIZE];
 typedef int32u mbx_sm4_key_schedule[SM4_ROUNDS][SM4_LINES];
 
 EXTERN_C mbx_status16 mbx_sm4_set_key_mb16(mbx_sm4_key_schedule* key_sched, const sm4_key* pa_key[SM4_LINES]);

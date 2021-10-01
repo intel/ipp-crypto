@@ -81,7 +81,7 @@ static void sm2_ecdsa_compute_z_digest(int8u* pa_z_digest[8],
       pa_entl_lo[i] = &entl_lo[i];
       pa_entl_hi[i] = &entl_hi[i];
    }
-   
+
    sm3_update_mb8((const int8u **)pa_entl_hi, len_1, p_ctx);
    sm3_update_mb8((const int8u **)pa_entl_lo, len_1, p_ctx);
 
@@ -126,7 +126,7 @@ static void reverse_inplace(int8u* out, const int8u* inp, int len)
 
 /*
 // SM2_POINT* P - Public key in Jacobian projective coordinates, coordinates are in Montgomery over p
-// int64u* pa_rev_bytes_pubX[8] - X coordinate (affine), bytes reversed for future hashing  
+// int64u* pa_rev_bytes_pubX[8] - X coordinate (affine), bytes reversed for future hashing
 // int64u* pa_rev_bytes_pubY[8] - Y coordinate (affine), bytes reversed for future hashing
 */
 static mbx_status sm2_ecdsa_process_pubkeys(SM2_POINT* P,
@@ -179,7 +179,7 @@ static mbx_status sm2_ecdsa_process_pubkeys(SM2_POINT* P,
 /* compute and check signature components */
 static mbx_status sm2_ecdsa_sign_mb8(U64 sign_r[],
                                      U64 sign_s[],
-                                     U64 msg[],
+                                     U64 msg_digest[],
                                      U64 scalar_eph_skey[],
                                      U64 eph_skey[],
                                      U64 reg_skey[],
@@ -202,9 +202,9 @@ static mbx_status sm2_ecdsa_sign_mb8(U64 sign_r[],
 
    /* compute r component */
    MB_FUNC_NAME(ifma_tomont52_nsm2_)(sign_r, P_eph.X);
-   MB_FUNC_NAME(ifma_tomont52_nsm2_)(msg, msg);
+   MB_FUNC_NAME(ifma_tomont52_nsm2_)(msg_digest, msg_digest);
 
-   MB_FUNC_NAME(ifma_add52_nsm2_)(sign_r, sign_r, msg);
+   MB_FUNC_NAME(ifma_add52_nsm2_)(sign_r, sign_r, msg_digest);
 
    /* check r component */
    MB_FUNC_NAME(ifma_tomont52_nsm2_)(eph_skey, eph_skey);
@@ -225,7 +225,7 @@ static mbx_status sm2_ecdsa_sign_mb8(U64 sign_r[],
    MB_FUNC_NAME(ifma_tomont52_nsm2_)(tmp, (U64*)ones);
    MB_FUNC_NAME(ifma_tomont52_nsm2_)(reg_skey, reg_skey);
 
-   MB_FUNC_NAME(ifma_amm52_nsm2_)(sign_s, sign_r, reg_skey);  /* r * d        */ 
+   MB_FUNC_NAME(ifma_amm52_nsm2_)(sign_s, sign_r, reg_skey);  /* r * d        */
    MB_FUNC_NAME(ifma_add52_nsm2_)(reg_skey, reg_skey, tmp);   /* 1 + d        */
    MB_FUNC_NAME(ifma_aminv52_nsm2_)(reg_skey, reg_skey);      /* (1 + d) ^ -1 */
    MB_FUNC_NAME(ifma_sub52_nsm2_)(sign_s, eph_skey, sign_s);  /* k - r * d    */
@@ -238,14 +238,14 @@ static mbx_status sm2_ecdsa_sign_mb8(U64 sign_r[],
 }
 
 /* verify signature components */
-static mbx_status nistp256_ecdsa_verify_mb8(U64 sign_r[],
+static mbx_status sm2_ecdsa_verify_mb8(U64 sign_r[],
                                             U64 sign_s[],
-                                            U64 msg[],
+                                            U64 msg_digest[],
                                      SM2_POINT* P,
                                      mbx_status current_status)
 {
    mbx_status status = current_status;
-   
+
    __ALIGN64 U64 t[PSM2_LEN52];
    /* compute t = (r + s) mod n */
    MB_FUNC_NAME(ifma_tomont52_nsm2_)(t, sign_r);
@@ -291,8 +291,8 @@ static mbx_status nistp256_ecdsa_verify_mb8(U64 sign_r[],
    MB_FUNC_NAME(ifma_frommont52_psm2_)(sign_r_restored, sign_r_restored);
    MB_FUNC_NAME(ifma_tomont52_nsm2_)(sign_r_restored, sign_r_restored);
 
-   MB_FUNC_NAME(ifma_tomont52_nsm2_)(msg, msg);
-   MB_FUNC_NAME(ifma_add52_nsm2_)(sign_r_restored, sign_r_restored, msg);
+   MB_FUNC_NAME(ifma_tomont52_nsm2_)(msg_digest, msg_digest);
+   MB_FUNC_NAME(ifma_add52_nsm2_)(sign_r_restored, sign_r_restored, msg_digest);
 
    MB_FUNC_NAME(ifma_frommont52_nsm2_)(sign_r_restored, sign_r_restored);
    signature_err_mask |= ~(MB_FUNC_NAME(cmp_eq_FESM2_)(sign_r_restored, sign_r));
@@ -303,7 +303,7 @@ static mbx_status nistp256_ecdsa_verify_mb8(U64 sign_r[],
 
 /*
 // Computes SM2 ECDSA signature
-// pa_sign_r[]       array of pointers to the computed r-components of the signatures 
+// pa_sign_r[]       array of pointers to the computed r-components of the signatures
 // pa_sign_s[]       array of pointers to the computed s-components of the signatures
 // pa_user_id[]      array of pointers to the users ID
 // user_id_len[]     array of users ID length
@@ -353,7 +353,7 @@ mbx_status mbx_sm2_ecdsa_sign_mb8(int8u* pa_sign_r[8],
       const int64u* pubx = pa_pubx[buf_no];
       const int64u* puby = pa_puby[buf_no];
       const int64u* pubz = use_jproj_coords? pa_pubz[buf_no] : NULL;
-      
+
       user_id_len_checked[buf_no] = user_id_len[buf_no];
 
       /* if any of pointer NULL set error status */
@@ -473,7 +473,7 @@ mbx_status mbx_sm2_ecdsa_sign_mb8(int8u* pa_sign_r[8],
 }
 
 /*
-// Verifies SM2 ECDSA signature 
+// Verifies SM2 ECDSA signature
 // pa_sign_r[]       array of pointers to the computed r-components of the signatures
 // pa_sign_s[]       array of pointers to the computed s-components of the signatures
 // pa_msg[]          array of pointers to the messages that have been signed
@@ -594,7 +594,7 @@ mbx_status mbx_sm2_ecdsa_verify_mb8(const int8u* const pa_sign_r[8],
    __ALIGN64 U64 msg[PSM2_LEN52];
    ifma_HexStr8_to_mb8((int64u (*)[8])msg, (const int8u* const*)pa_msg_digest, PSM2_BITSIZE);
 
-   status = nistp256_ecdsa_verify_mb8(sign_r, sign_s, msg, &P, status);
+   status = sm2_ecdsa_verify_mb8(sign_r, sign_s, msg, &P, status);
 
    return status;
 }
@@ -818,7 +818,7 @@ mbx_status mbx_sm2_ecdsa_verify_ssl_mb8(const ECDSA_SIG* const pa_sig[8],
    {
       if(pa_sig[buf_no] != NULL)
       {
-         ECDSA_SIG_get0(pa_sig[buf_no], (const BIGNUM(**))pa_sign_r + buf_no, 
+         ECDSA_SIG_get0(pa_sig[buf_no], (const BIGNUM(**))pa_sign_r + buf_no,
                                         (const BIGNUM(**))pa_sign_s + buf_no);
       }
    }
@@ -878,7 +878,7 @@ mbx_status mbx_sm2_ecdsa_verify_ssl_mb8(const ECDSA_SIG* const pa_sig[8],
    __ALIGN64 U64 msg[PSM2_LEN52];
    ifma_HexStr8_to_mb8((int64u (*)[8])msg, (const int8u* const*)pa_msg_digest, PSM2_BITSIZE);
 
-   status = nistp256_ecdsa_verify_mb8(sign_r, sign_s, msg, &P, status);
+   status = sm2_ecdsa_verify_mb8(sign_r, sign_s, msg, &P, status);
 
    return status;
 }

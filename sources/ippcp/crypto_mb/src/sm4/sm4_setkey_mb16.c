@@ -19,6 +19,7 @@
 
 #include <internal/sm4/sm4_mb.h>
 #include <internal/common/ifma_defs.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 /* FK[] constants */
 static const int32u SM4_FK[4] = {
@@ -75,6 +76,13 @@ static void sm4_set_round_keys_mb16(int32u* key_sched[SM4_ROUNDS], const int8u* 
     int itr;
     for (itr = 0; itr < SM4_ROUNDS; itr += 4, pCK += 4, p_rk += 4)
         SM4_FOUR_RK(z0, z1, z2, z3, rki, pCK, p_rk);
+
+    /* clear copies of sensitive data and round keys */
+    zero_mb8((int64u(*)[8])&z0, 1);
+    zero_mb8((int64u(*)[8])&z1, 1);
+    zero_mb8((int64u(*)[8])&z2, 1);
+    zero_mb8((int64u(*)[8])&z3, 1);
+    zero_mb8((int64u(*)[8])&rki, 1);
 }
 
 DLL_PUBLIC

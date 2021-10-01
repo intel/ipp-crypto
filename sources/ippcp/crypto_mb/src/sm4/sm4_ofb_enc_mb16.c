@@ -48,7 +48,7 @@ mbx_status16 mbx_sm4_encrypt_ofb_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_
     }
 
     if (MBX_IS_ANY_OK_STS16(status))
-        sm4_ofb_kernel_mb16(pa_out, (const int8u**)pa_inp, (const int*)len, (const int32u**)key_sched, mb_mask, pa_iv);
+        sm4_ofb128_kernel_mb16(pa_out, (const int8u**)pa_inp, (const int*)len, (const int32u**)key_sched, mb_mask, pa_iv);
 
     return status;
 }

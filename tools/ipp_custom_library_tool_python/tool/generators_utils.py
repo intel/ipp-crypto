@@ -36,6 +36,12 @@ SET_ENV_COMMAND = {
     MACOSX  : 'export "{env_var}={path}"'
 }
 
+ADDITIONAL_ENV = {
+    WINDOWS : '',
+    LINUX   : 'export LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBRARY_PATH',
+    MACOSX  : 'export LIBRARY_PATH=$DYLD_LIBRARY_PATH:$LIBRARY_PATH'
+}
+
 COMPILERS = {
     WINDOWS : 'cl.exe',
     LINUX   : 'g++',
@@ -50,8 +56,8 @@ LINKERS = {
 
 COMPILERS_FLAGS = {
     WINDOWS: {
-        INTEL64 : '/c /MT /GS /sdl /O2',
-        IA32    : '/c /MT /GS /sdl /O2'
+        INTEL64 : '/c /MP /MT /GS /sdl /O2',
+        IA32    : '/c /MP /MT /GS /sdl /O2'
     },
     LINUX: {
         INTEL64: '-c -m64 -fPIC -fPIE -fstack-protector-strong '
@@ -65,18 +71,6 @@ COMPILERS_FLAGS = {
         INTEL64 : '-c -m64',
         IA32    : '-c -m32'
     }
-}
-
-COMPILE_COMMAND_FORMAT = {
-    WINDOWS: '{compiler} {cmp_flags} '
-             + '/I "%{root_type}%\\include" '
-             + '"{file_name}.c" /Fo:"{file_name}.obj"\n',
-    LINUX: '{compiler} {cmp_flags}'
-           + ' -I "${root_type}/include" '
-           + '"{file_name}.c" -o "{file_name}.obj"\n',
-    MACOSX: '{compiler} {cmp_flags} '
-            + '-I "${root_type}/include" '
-            + '"{file_name}.c" -o "{file_name}.obj"\n'
 }
 
 LINKER_FLAGS = {
@@ -96,6 +90,37 @@ LINKER_FLAGS = {
                  + '-flat_namespace -headerpad_max_install_names '
                  + '-current_version 2017.0 -compatibility_version 2017.0'
     }
+}
+
+COMPILE_COMMAND_FORMAT = {
+    WINDOWS: '{compiler} {cmp_flags} '
+             '/I "%{root_type}%\\include" '
+             '{c_files}',
+    LINUX: '{compiler} {cmp_flags}'
+           ' -I "${root_type}/include" '
+           '{c_files}',
+    MACOSX: '{compiler} {cmp_flags} '
+            '-I "${root_type}/include" '
+            '{c_files}'
+}
+
+LINK_COMMAND_FORMAT = {
+    WINDOWS: '{linker} /DLL {link_flags} /VERBOSE:SAFESEH '
+             '/DEF:"{export_file}" *.obj '
+             '/OUT:"{custom_library}.dll" /IMPLIB:"{custom_library}.lib" '
+             '{ipp_libraries} '
+             '{exp_libs}',
+    LINUX:   '{linker} -shared {link_flags} '
+             '"{export_file}" *.o '
+             '-o "{custom_library}.so" '
+             '{ipp_libraries} '
+             '-L"{sys_libs_path}" -lc -lm {exp_libs}',
+    MACOSX:  '{linker} {link_flags} '
+             '-install_name @rpath/{custom_library}.dylib '
+             '-o "{custom_library}.dylib" '
+             '-exported_symbols_list "{export_file}" *.o '
+             '{ipp_libraries} '
+             '-lgcc_s.1 -lm {exp_libs}'
 }
 
 SYS_LIBS_PATH = {
@@ -178,6 +203,9 @@ MAIN_FILE = {
 }
 
 CUSTOM_DISPATCHER_FILE = '{include_lines}\n'\
+                         '#ifndef IPP_CALL\n' \
+                         '#define IPP_CALL IPP_STDCALL\n' \
+                         '#endif\n'\
                          '#define IPPFUN(type,name,arg) extern type IPP_CALL name arg\n\n'\
                          '#ifndef NULL\n'\
                          '#ifdef  __cplusplus\n'\
@@ -186,13 +214,8 @@ CUSTOM_DISPATCHER_FILE = '{include_lines}\n'\
                          '#define NULL    ((void *)0)\n'\
                          '#endif\n'\
                          '#endif\n\n'\
-                         '#define AVX3I_FEATURES ( ippCPUID_SHA|ippCPUID_AVX512VBMI|'\
-                         'ippCPUID_AVX512VBMI2|ippCPUID_AVX512IFMA|ippCPUID_AVX512GFNI|'\
-                         'ippCPUID_AVX512VAES|ippCPUID_AVX512VCLMUL )\n'\
-                         '#define AVX3X_FEATURES ( ippCPUID_AVX512F|ippCPUID_AVX512CD|'\
-                         'ippCPUID_AVX512VL|ippCPUID_AVX512BW|ippCPUID_AVX512DQ )\n'\
-                         '#define AVX3M_FEATURES ( ippCPUID_AVX512F|ippCPUID_AVX512CD|'\
-                         'ippCPUID_AVX512PF|ippCPUID_AVX512ER )\n\n'\
+                         '{architecture}\n'\
+                         '{features}\n'\
                          '#ifdef __cplusplus\n'\
                          'extern "C" {{\n'\
                          '#endif\n\n'\
@@ -200,8 +223,27 @@ CUSTOM_DISPATCHER_FILE = '{include_lines}\n'\
                          '#ifdef __cplusplus\n'\
                          '}}\n'\
                          '#endif\n\n'\
+                         '#endif\n'
 
-INCLUDE_STR = '#include "{header_name}.h"\n'
+RENAME_FORMAT = '#define {function} {prefix}{function}'
+
+INCLUDE_STR = '#include "{header_name}"\n'
+
+ARCHITECTURE_DEFINE = {
+    IA32    : '#if !defined (_M_AMD64) && !defined (__x86_64__)',
+    INTEL64 : '#if defined (_M_AMD64) || defined (__x86_64__)'
+}
+
+FEATURES = {
+    IA32: '',
+    INTEL64: '\n#define AVX3I_FEATURES ( ippCPUID_SHA|ippCPUID_AVX512VBMI|'
+             'ippCPUID_AVX512VBMI2|ippCPUID_AVX512IFMA|ippCPUID_AVX512GFNI|'
+             'ippCPUID_AVX512VAES|ippCPUID_AVX512VCLMUL )\n'
+             '#define AVX3X_FEATURES ( ippCPUID_AVX512F|ippCPUID_AVX512CD|'
+             'ippCPUID_AVX512VL|ippCPUID_AVX512BW|ippCPUID_AVX512DQ )\n'
+             '#define AVX3M_FEATURES ( ippCPUID_AVX512F|ippCPUID_AVX512CD|'
+             'ippCPUID_AVX512PF|ippCPUID_AVX512ER )\n'
+}
 
 FUNCTION_DISPATCHER = '{ippapi}\n'\
                       '{ippfun}\n'\
@@ -227,21 +269,19 @@ BUILD_SCRIPT = {
     WINDOWS: ':: Generates {threading} dynamic library '
              + 'for {architecture} architecture\n'
              + '@echo off\n'
-             + 'setlocal\n'
-             + '{env_command}\n'
-             + 'set "OUTPUT_PATH={output_path}"\n\n'
+             + 'set "OUTPUT_PATH={output_path}"\n'
              + 'if not exist %OUTPUT_PATH% mkdir %OUTPUT_PATH%\n'
              + 'cd /d %OUTPUT_PATH%\n\n'
              + 'if exist "{custom_library}.dll" del "{custom_library}.dll"\n\n'
-             + '{compile_commands}\n'
-             + '{linker} /DLL {link_flags} /VERBOSE:SAFESEH '
-             + '/DEF:"{export_file}" {obj_files}'
-             + '/OUT:"{custom_library}.dll" /IMPLIB:"{custom_library}.lib" '
-             + '{ipp_libraries} '
-             + '{exp_libs}\n'
+             + 'setlocal\n'
+             + '{env_commands}\n'
+             + '{compile_command}\n'
+             + '{link_command}\n'
              + 'endlocal\n\n'
              + 'if %ERRORLEVEL%==0 (\n'
              + '    echo Build completed!\n'
+             + '    del /s /q /f *.obj > nul\n'
+             + '    exit /b 0\n'
              + ') else (\n'
              + '    echo Build failed!\n'
              + '    exit /b 1\n'
@@ -249,20 +289,17 @@ BUILD_SCRIPT = {
     LINUX: '#!/bin/bash\n'
            + '# Generates {threading} dynamic library '
            + 'for {architecture} architecture\n'
-           + '{env_command}\n'
-           + 'export LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBRARY_PATH\n'
-           + 'OUTPUT_PATH="{output_path}"\n\n'
+           + 'OUTPUT_PATH="{output_path}"\n'
            + 'mkdir -p $OUTPUT_PATH\n'
            + 'cd $OUTPUT_PATH\n\n'
            + 'rm -rf "{custom_library}.so"\n\n'
-           + '{compile_commands}\n'
-           + '{linker} -shared {link_flags} '
-           + '"{export_file}" {obj_files}'
-           + '-o "{custom_library}.so" '
-           + '{ipp_libraries} '
-           + '-L"{sys_libs_path}" -lc -lm {exp_libs}\n\n'
+           + '{env_commands}\n'
+           + '{compile_command}\n'
+           + '{link_command}\n'
            + 'if [ $? == 0 ]; then\n'
            + '    echo Build completed!\n'
+           + '    rm -rf *.o\n'
+           + '    exit 0\n'
            + 'else\n'
            + '    echo Build failed!\n'
            + '    exit 1\n'
@@ -270,21 +307,17 @@ BUILD_SCRIPT = {
     MACOSX: '#!/bin/bash\n'
             + '# Generates {threading} dynamic library '
             + 'for {architecture} architecture\n'
-            + '{env_command}\n'
-            + 'export LIBRARY_PATH=$DYLD_LIBRARY_PATH:$LIBRARY_PATH\n'
-            + 'OUTPUT_PATH="{output_path}"\n\n'
+            + 'OUTPUT_PATH="{output_path}"\n'
             + 'mkdir -p $OUTPUT_PATH\n'
             + 'cd $OUTPUT_PATH\n\n'
             + 'rm -rf "{custom_library}.dylib"\n\n'
-            + '{compile_commands}\n'
-            + '{linker} {link_flags} '
-            + '-install_name @rpath/{custom_library}.dylib '
-            + '-o "{custom_library}.dylib" '
-            + '-exported_symbols_list "{export_file}" {obj_files} '
-            + '{ipp_libraries} '
-            + '-lgcc_s.1 -lm {exp_libs}\n\n'
+            + '{env_commands}\n'
+            + '{compile_command}\n'
+            + '{link_command}\n\n'
             + 'if [ $? == 0 ]; then\n'
             + '    echo Build completed!\n'
+            + '    rm -rf *.o\n'
+            + '    exit 0\n'
             + 'else\n'
             + '    echo Build failed!\n'
             + '    exit 1\n'

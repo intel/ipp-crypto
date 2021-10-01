@@ -51,8 +51,8 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     // corresponding element in mask = 0 if hash_pa[i] = 0 
     */
     __mmask8 mb_mask8[2];
-    mb_mask8[0] = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa), zero_buffer, 4);
-    mb_mask8[1] = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa + 8), zero_buffer, 4);
+    mb_mask8[0] = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa), zero_buffer, _MM_CMPINT_NE);
+    mb_mask8[1] = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa + 8), zero_buffer, _MM_CMPINT_NE);
     __mmask16 mb_mask16 = *(__mmask16*)mb_mask8;
 
     M512(sum_msg_len) = _mm512_maskz_loadu_epi64(mb_mask8[0], MSG_LEN(p_state));

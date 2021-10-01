@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <internal/sm4/sm4_mb.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 void sm4_cbc_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, const int8u* pa_iv[SM4_LINES])
 {
@@ -79,11 +80,12 @@ void sm4_cbc_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_L
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_setzero_si512(), _MM_CMPINT_NLE);
     }
 
-    /* clear secret data */
-    z0 = _mm512_xor_si512(z0, z0);
-    z1 = _mm512_xor_si512(z1, z1);
-    z2 = _mm512_xor_si512(z2, z2);
-    z3 = _mm512_xor_si512(z3, z3);
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u(*)[8])&z0, 1);
+    zero_mb8((int64u(*)[8])&z1, 1);
+    zero_mb8((int64u(*)[8])&z2, 1);
+    zero_mb8((int64u(*)[8])&z3, 1);
+    zero_mb8((int64u(*)[8])&xi, 1);
 }
 
 void sm4_cbc_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, const int8u* pa_iv[SM4_LINES])
@@ -587,8 +589,6 @@ void sm4_cbc_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_L
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_setzero_si512(), _MM_CMPINT_NLE);
     }
         
-    /* Clear secret data */
-    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-        TMP[i] = _mm512_setzero_si512();
-    }
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u (*)[8])TMP, sizeof(TMP)/sizeof(TMP[0]));
 }
