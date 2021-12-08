@@ -28,6 +28,7 @@
 #define _PCP_SMS4_H
 
 #include "owncp.h"
+#include "pcpmask_ct.h"
 
 /* SMS4 round keys number */
 #define SMS4_ROUND_KEYS_NUM (32)
@@ -80,40 +81,18 @@ extern const Ipp32u SMS4_CK[32];
 #include "pcpbnuimpl.h"
 #define SELECTION_BITS  ((sizeof(BNU_CHUNK_T)/sizeof(Ipp8u)) -1)
 
-#if defined(__INTEL_COMPILER)
 __INLINE Ipp8u getSboxValue(Ipp8u x)
 {
-   BNU_CHUNK_T selection = 0;
-   const BNU_CHUNK_T* SboxEntry = (BNU_CHUNK_T*)SMS4_Sbox;
+  BNU_CHUNK_T selection = 0;
+  const Ipp8u* SboxEntry = SMS4_Sbox;
 
-   BNU_CHUNK_T i_sel = x/sizeof(BNU_CHUNK_T);  /* selection index */
-   BNU_CHUNK_T i;
-   for(i=0; i<sizeof(SMS4_Sbox)/sizeof(BNU_CHUNK_T); i++) {
-      BNU_CHUNK_T mask = (i==i_sel)? (BNU_CHUNK_T)(-1) : 0;  
-      /* ipp and IPP build specific avoid jump instruction here */
-      /* Intel(R) C++ Compiler compile this code with movcc instruction */
-      selection |= SboxEntry[i] & mask;
-   }
-   selection >>= (x & SELECTION_BITS)*8;
-   return (Ipp8u)(selection & 0xFF);
+  Ipp32u i;
+  for (i = 0; i<sizeof(SMS4_Sbox); i++) {
+    BNU_CHUNK_T mask = cpIsEqu_ct(x, i);
+    selection |= SboxEntry[i] & mask;
+  }
+  return (Ipp8u)(selection & 0xFF);
 }
-#else
-#include "pcpmask_ct.h"
-__INLINE Ipp8u getSboxValue(Ipp8u x)
-{
-   BNU_CHUNK_T selection = 0;
-   const BNU_CHUNK_T* SboxEntry = (BNU_CHUNK_T*)SMS4_Sbox;
-
-   Ipp32u _x = x/sizeof(BNU_CHUNK_T);
-   Ipp32u i;
-   for(i=0; i<sizeof(SMS4_Sbox)/(sizeof(BNU_CHUNK_T)); i++) {
-      BNS_CHUNK_T mask = (BNS_CHUNK_T)cpIsEqu_ct(_x, i);
-      selection |= SboxEntry[i] & (BNU_CHUNK_T)mask;
-   }
-   selection >>= (x & SELECTION_BITS)*8;
-   return (Ipp8u)(selection & 0xFF);
-}
-#endif
 
 __INLINE Ipp32u cpSboxT_SMS4(Ipp32u x)
 {
@@ -179,7 +158,7 @@ __INLINE Ipp32u cpCipherMix_SMS4(Ipp32u x)
    IPP_OWN_DECL (int, cpSMS4_CTR_aesni_x4, (Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* pRKey, const Ipp8u* pCtrMask, Ipp8u* pCtr))
 
 #if (_IPP32E>=_IPP32E_K1)
-#if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+#if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
 
 #define cpSMS4_ECB_gfni_x1 OWNAPI(cpSMS4_ECB_gfni_x1)
    IPP_OWN_DECL (void, cpSMS4_ECB_gfni_x1, (Ipp8u* pOut, const Ipp8u* pInp, const Ipp32u* pRKey))
@@ -192,7 +171,7 @@ __INLINE Ipp32u cpCipherMix_SMS4(Ipp32u x)
 #define cpSMS4_CFB_dec_gfni512 OWNAPI(cpSMS4_CFB_dec_gfni512)
    IPP_OWN_DECL (void, cpSMS4_CFB_dec_gfni512, (Ipp8u* pOut, const Ipp8u* pInp, int len, int cfbBlkSize, const Ipp32u* pRKey, Ipp8u* pIV))
 
-#endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
+#endif /* #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
 #endif /* (_IPP32E>=_IPP32E_K1) */
 
 #endif /* (_IPP>=_IPP_H9) || (_IPP32E>=_IPP32E_L9) */

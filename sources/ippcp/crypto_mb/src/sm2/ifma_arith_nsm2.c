@@ -83,6 +83,7 @@ void MB_FUNC_NAME(ifma_tomont52_nsm2_)(U64 r[], const U64 a[])
 void MB_FUNC_NAME(ifma_frommont52_nsm2_)(U64 r[], const U64 a[])
 {
    MB_FUNC_NAME(ifma_amm52_nsm2_)(r, a, (U64*)ones);
+   MB_FUNC_NAME(ifma_fastred52_pnsm2_)(r, r);
 }
 
 /*

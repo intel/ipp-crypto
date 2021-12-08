@@ -66,7 +66,7 @@ IPPFUN(IppStatus, ippsSHA384GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSHA384
       DigestSHA512 digest;
       CopyBlock(HASH_VALUE(pState), digest, sizeof(DigestSHA512));
       cpFinalizeSHA512(digest,
-                       HASH_BUFF(pState), HAHS_BUFFIDX(pState),
+                       HASH_BUFF(pState), HASH_BUFFIDX(pState),
                        HASH_LENLO(pState), HASH_LENHI(pState));
       digest[0] = ENDIANNESS64(digest[0]);
       digest[1] = ENDIANNESS64(digest[1]);

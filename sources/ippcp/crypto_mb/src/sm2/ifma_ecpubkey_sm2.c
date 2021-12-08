@@ -108,26 +108,27 @@ mbx_status mbx_sm2_ecpublic_key_ssl_mb8(BIGNUM* pa_pubx[8],
       MB_FUNC_NAME(ifma_frommont52_psm2_)(P.Z, P.Z);
 
    /* convert public key and store BIGNUM result */
-   int8u tmp[8][NUMBER_OF_DIGITS(PSM2_BITSIZE,8)];
+   const int len_coord = NUMBER_OF_DIGITS(PSM2_BITSIZE,8);
+   int8u tmp[8][NUMBER_OF_DIGITS(PSM2_BITSIZE,8)]; /* need set inplace - MSVC compiler problem */
    int8u* const pa_tmp[8] = {tmp[0],tmp[1],tmp[2],tmp[3],tmp[4],tmp[5],tmp[6],tmp[7]};
 
    /* X */
    ifma_mb8_to_HexStr8(pa_tmp, (const int64u (*)[8])P.X, PSM2_BITSIZE);
    for(buf_no=0; (buf_no<8) && (0==MBX_GET_STS(status, buf_no)); buf_no++) {
-      BN_bin2bn(pa_tmp[buf_no], NUMBER_OF_DIGITS(PSM2_BITSIZE,8), pa_pubx[buf_no]);
+      BN_bin2bn(pa_tmp[buf_no], len_coord, pa_pubx[buf_no]);
    }
 
    /* Y */
    ifma_mb8_to_HexStr8(pa_tmp, (const int64u (*)[8])P.Y, PSM2_BITSIZE);
    for(buf_no=0; (buf_no<8) && (0==MBX_GET_STS(status, buf_no)); buf_no++) {
-      BN_bin2bn(pa_tmp[buf_no], NUMBER_OF_DIGITS(PSM2_BITSIZE,8), pa_puby[buf_no]);
+      BN_bin2bn(pa_tmp[buf_no], len_coord, pa_puby[buf_no]);
    }
 
    /* Z */
    if(use_jproj_coords) {
       ifma_mb8_to_HexStr8(pa_tmp, (const int64u (*)[8])P.Z, PSM2_BITSIZE);
       for(buf_no=0; (buf_no<8) && (0==MBX_GET_STS(status, buf_no)); buf_no++) {
-         BN_bin2bn(pa_tmp[buf_no], NUMBER_OF_DIGITS(PSM2_BITSIZE,8), pa_pubz[buf_no]);
+         BN_bin2bn(pa_tmp[buf_no], len_coord, pa_pubz[buf_no]);
       }
    }
 

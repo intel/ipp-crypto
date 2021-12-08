@@ -92,16 +92,16 @@ IPPFUN(IppStatus, ippsHashUpdate,(const Ipp8u* pSrc, int len, IppsHashState* pSt
             int procLen;
 
             /* test if internal buffer is not empty */
-            int n = HAHS_BUFFIDX(pState);
+            int n = HASH_BUFFIDX(pState);
             if(n) {
                procLen = IPP_MIN(len, (mbs-n));
                CopyBlock(pSrc, HASH_BUFF(pState)+n, procLen);
-               HAHS_BUFFIDX(pState) = n += procLen;
+               HASH_BUFFIDX(pState) = n += procLen;
 
                /* block processing */
                if(mbs==n) {
                   hashFunc(HASH_VALUE(pState), HASH_BUFF(pState), mbs, pParam);
-                  HAHS_BUFFIDX(pState) = 0;
+                  HASH_BUFFIDX(pState) = 0;
                }
 
                /* update message pointer and length */
@@ -120,7 +120,7 @@ IPPFUN(IppStatus, ippsHashUpdate,(const Ipp8u* pSrc, int len, IppsHashState* pSt
             /* rest of input message */
             if(len) {
                CopyBlock(pSrc, HASH_BUFF(pState), len);
-               HAHS_BUFFIDX(pState) += len;
+               HASH_BUFFIDX(pState) += len;
             }
          }
 

@@ -111,10 +111,6 @@ __INLINE BNU_CHUNK_T* cpGFpElementCopyPad(BNU_CHUNK_T* pR, int nsR, const BNU_CH
    for(; n<nsR; n++) pR[n] = 0;
    return pR;
 }
-__INLINE int cpGFpElementCmp(const BNU_CHUNK_T* pE, const BNU_CHUNK_T* pX, int nsE)
-{
-   return cpCmp_BNU(pE, nsE, pX, nsE);
-}
 
 __INLINE int cpGFpElementIsEquChunk(const BNU_CHUNK_T* pE, int nsE, BNU_CHUNK_T x)
 {
@@ -161,18 +157,13 @@ __INLINE BNU_CHUNK_T* cpGFpHalve(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEn
 }
 
 
-#define GFP_LT(a,b,size)  (-1==cpGFpElementCmp((a),(b),(size)))
-#define GFP_EQ(a,b,size)  ( 0==cpGFpElementCmp((a),(b),(size)))
-#define GFP_GT(a,b,size)  ( 1==cpGFpElementCmp((a),(b),(size)))
+#define GFP_EQ(a,b,size)      (0 == cpCmp_BNU((a), (size), (b), (size)))
 
-#define GFP_IS_ZERO(a,size)  cpGFpElementIsEquChunk((a),(size), 0)
-#define GFP_IS_ONE(a,size)   cpGFpElementIsEquChunk((a),(size), 1)
+#define GFP_IS_ZERO(a,size)   cpGFpElementIsEquChunk((a),(size), 0)
+#define GFP_IS_ONE(a,size)    cpGFpElementIsEquChunk((a),(size), 1)
 
 #define GFP_ZERO(a,size)      cpGFpElementSetChunk((a),(size), 0)
 #define GFP_ONE(a,size)       cpGFpElementSetChunk((a),(size), 1)
-
-#define GFP_IS_EVEN(a)  (0==((a)[0]&1))
-#define GFP_IS_ODD(a)   (1==((a)[0]&1))
 
 
 /* construct GF element */

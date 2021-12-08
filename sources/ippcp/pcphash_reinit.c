@@ -53,7 +53,7 @@ IPP_OWN_DEFN (int, cpReInitHash, (IppsHashState* pCtx, IppHashAlgId algID))
 
    HASH_LENLO(pCtx) = CONST_64(0);
    HASH_LENHI(pCtx) = CONST_64(0);
-   HAHS_BUFFIDX(pCtx) = 0;
+   HASH_BUFFIDX(pCtx) = 0;
    CopyBlock(iv, HASH_VALUE(pCtx), hashIvSize);
 
    return hashIvSize;

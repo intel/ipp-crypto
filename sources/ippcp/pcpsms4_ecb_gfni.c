@@ -40,7 +40,7 @@
 
 #if (_IPP32E>=_IPP32E_K1)
 
-#if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+#if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
 
 #include "pcpsms4_gfni.h"
 
@@ -1164,6 +1164,6 @@ int cpSMS4_ECB_gfni128_tail(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32
    return len;
 }
 
-#endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
+#endif /* #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
 
 #endif /* _IPP32E>=_IPP32E_K1 */

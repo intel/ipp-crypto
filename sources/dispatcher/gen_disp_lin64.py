@@ -56,7 +56,7 @@ FunType = ""
 FunName = ""
 FunArg = ""
 
-if(compiler == "GNU" or compiler == "Clang"):
+if(compiler == "GNU" or compiler == "Clang"  or compiler == "IntelLLVM"):
 
     while (isFunctionFound == True):
 

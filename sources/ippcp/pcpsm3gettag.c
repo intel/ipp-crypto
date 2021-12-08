@@ -64,7 +64,7 @@ IPPFUN(IppStatus, ippsSM3GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSM3State*
    {
       DigestSM3 digest;
       CopyBlock(HASH_VALUE(pState), digest, sizeof(DigestSM3));
-      cpFinalizeSM3(digest, HASH_BUFF(pState), HAHS_BUFFIDX(pState), HASH_LENLO(pState));
+      cpFinalizeSM3(digest, HASH_BUFF(pState), HASH_BUFFIDX(pState), HASH_LENLO(pState));
       digest[0] = ENDIANNESS32(digest[0]);
       digest[1] = ENDIANNESS32(digest[1]);
       digest[2] = ENDIANNESS32(digest[2]);

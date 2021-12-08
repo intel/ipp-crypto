@@ -55,7 +55,7 @@ curLine = 0
 FunName = ""
 FunArg = ""
 
-if(compiler == "GNU" or compiler == "Clang"):
+if(compiler == "GNU" or compiler == "Clang" or compiler == "IntelLLVM"):
       while (isFunctionFound == True):
 
             result = readNextFunction(h, curLine, headerID)

@@ -172,7 +172,7 @@
       return cmpeq64_mask(Z, get_zero64());
   }
 
-#if defined(_MSC_VER) && !defined(__INTEL_COMPILER) // for MSVC
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER) // for MSVC
   #define mask_xor(m1,m2) (__mb_mask)(_mm512_kxor((m1),(m2)))
 #else
   #define mask_xor _kxor_mask8

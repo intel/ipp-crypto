@@ -35,7 +35,7 @@
 #endif
 
 #if !defined(__INLINE)
-#if defined(__INTEL_COMPILER) || defined(_MSC_VER)
+#if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER) || defined(_MSC_VER)
   #define __INLINE static __inline
 #elif defined( __GNUC__ )
   #define __INLINE static __inline__
@@ -47,21 +47,21 @@
 #if !defined(__FORCEINLINE)
 #if defined(_MSC_VER)
   #define __FORCEINLINE __forceinline
-#elif defined(__INTEL_COMPILER) || defined( __GNUC__ )
+#elif defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER) || defined( __GNUC__ )
   #define __FORCEINLINE __INLINE __attribute__((always_inline))
 #else
   #define __FORCEINLINE
 #endif
 #endif /*__FORCEINLINE*/
 
-#if defined(__INTEL_COMPILER)
+#if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
  #define __RESTRICT restrict
 #elif !defined( __RESTRICT )
  #define __RESTRICT
 #endif
 
 #if defined( IPP_W32DLL )
-  #if defined( _MSC_VER ) || defined( __INTEL_COMPILER )
+  #if defined( _MSC_VER ) || defined( __INTEL_COMPILER ) || defined(__INTEL_LLVM_COMPILER)
     #define IPPDEF(type) __declspec(dllexport) type
   #else
     #define IPPDEF(type) type
@@ -96,7 +96,7 @@
 #define _IPP32E_K1 4096    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Icelake)      */
 
 
-#if defined(__INTEL_COMPILER) || (_MSC_VER >= 1300)
+#if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER) || (_MSC_VER >= 1300)
     #define __ALIGN8  __declspec (align(8))
     #define __ALIGN16 __declspec (align(16))
     #define __ALIGN32 __declspec (align(32))
@@ -226,7 +226,7 @@
 #define IPP_OWN_FUNPTR(type,name,param) typedef type (IPP_CDECL *name) param ;
 
 #if defined( IPP_W32DLL )
-  #if defined( _MSC_VER ) || defined( __INTEL_COMPILER )
+  #if defined( _MSC_VER ) || defined( __INTEL_COMPILER ) || defined(__INTEL_LLVM_COMPILER)
     #define IPPFUN(type,name,arg) __declspec(dllexport) type IPP_CALL name arg
   #else
     #define IPPFUN(type,name,arg)                extern type IPP_CALL name arg

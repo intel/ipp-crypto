@@ -40,7 +40,7 @@ class SettingsPanel(QWidget):
 
         self.arch_group = QGroupBox('Architecture')
         self.ia32       = QRadioButton('IA32')
-        self.intel64    = QRadioButton('Intel® 64')
+        self.intel64    = QRadioButton('Intel(R) 64')
 
         self.thread_group    = QGroupBox('Thread mode')
         self.single_threaded = QRadioButton('Single-threaded')

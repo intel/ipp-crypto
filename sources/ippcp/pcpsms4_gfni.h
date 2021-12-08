@@ -36,7 +36,7 @@
 
 #if (_IPP32E>=_IPP32E_K1)
 
-#if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+#if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
 
 static __ALIGN64 Ipp8u swapBytes[] = { 3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12,
                                       3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12,
@@ -296,6 +296,6 @@ T0=K0,T1=K1,T2=K2,T3=K3
 
 #endif
 
-#endif /* if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
+#endif /* if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
 
 #endif /* __SMS4_SBOX_GFNI512_H_ */

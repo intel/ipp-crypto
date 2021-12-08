@@ -41,7 +41,7 @@ if(WIN32)
 
   ippcp_extend_variable(CMAKE_CXX_FLAGS "/TP /nologo /W3 /EHa /Zm512 /GS")
   # Intel compiler-specific option
-  if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
+  if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM")
     ippcp_extend_variable(CMAKE_CXX_FLAGS "-nologo -Qfp-speculation:safe -Qfreestanding")
   endif()
 

@@ -56,13 +56,13 @@ static void cpSMS4_ECB_gpr_x1(Ipp8u* otxt, const Ipp8u* itxt, const Ipp32u* pRou
 IPP_OWN_DEFN (void, cpSMS4_Cipher, (Ipp8u* otxt, const Ipp8u* itxt, const Ipp32u* pRoundKeys))
 {
    #if (_IPP32E>=_IPP32E_K1)
-   #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+   #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
    if (IsFeatureEnabled(ippCPUID_AVX512GFNI)){
       cpSMS4_ECB_gfni_x1(otxt, itxt, pRoundKeys);
       return;
    }
    else
-   #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
+   #endif /* #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
    #endif
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    if(IsFeatureEnabled(ippCPUID_AES)){

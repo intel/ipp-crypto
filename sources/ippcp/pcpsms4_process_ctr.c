@@ -129,12 +129,12 @@ IPP_OWN_DEFN (IppStatus, cpProcessSMS4_ctr, (const Ipp8u* pSrc, Ipp8u* pDst, int
          int processedLen = 0;
 
          #if (_IPP32E>=_IPP32E_K1)
-         #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+         #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
          if (IsFeatureEnabled(ippCPUID_AVX512GFNI)) {
             processedLen = cpSMS4_CTR_gfni512(pDst, pSrc, dataLen, SMS4_RK(pCtx), maskIV, counter);
          }
          else
-         #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
+         #endif /* #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
          #endif /* (_IPP32E>=_IPP32E_K1) */
          if(IsFeatureEnabled(ippCPUID_AES)) {
             processedLen = cpSMS4_CTR_aesni(pDst, pSrc, dataLen, SMS4_RK(pCtx), maskIV, counter);

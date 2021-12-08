@@ -66,7 +66,7 @@ IPPFUN(IppStatus, ippsHashGetTag_rmf,(Ipp8u* pTag, int tagLen, const IppsHashSta
       const IppsHashMethod* method = HASH_METHOD(pState);
       CopyBlock(HASH_VALUE(pState), hash, sizeof(DigestSHA512));
       cpFinalize_rmf(hash,
-                  HASH_BUFF(pState), HAHS_BUFFIDX(pState),
+                  HASH_BUFF(pState), HASH_BUFFIDX(pState),
                   HASH_LENLO(pState), HASH_LENHI(pState),
                   method);
       method->hashOctStr(pTag, hash);

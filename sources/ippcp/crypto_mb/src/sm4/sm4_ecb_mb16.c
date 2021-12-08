@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <internal/sm4/sm4_mb.h>
+#include <internal/rsa/ifma_rsa_arith.h>
 
 void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int operation)
 {
@@ -25,7 +26,7 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
     __m512i num_blocks;
     GET_NUM_BLOCKS(num_blocks, len, SM4_BLOCK_SIZE);
 
-    /* Local copies of the pointers to input and otput buffers */
+    /* Local copies of the pointers to input and output buffers */
     _mm512_storeu_si512((void*)loc_inp, _mm512_loadu_si512(pa_inp));
     _mm512_storeu_si512((void*)(loc_inp + 8), _mm512_loadu_si512(pa_inp + 8));
 
@@ -84,108 +85,8 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
         TMP[3] = _mm512_shuffle_epi8(TMP[3], M512(swapBytes));
         TRANSPOSE_INP_512(TMP[16], TMP[17], TMP[18], TMP[19], TMP[0], TMP[1], TMP[2], TMP[3]);
 
-        for (int itr = 0, j = 0; itr < 8; itr++, j++) {
-            /* initial xors */
-            EXPAND_ONE_RKEY(TMP, p_rk);  p_rk += sign * 1;
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);
-            /* Sbox */
-            TMP[0] = sBox512(TMP[0]);
-            TMP[1] = sBox512(TMP[1]);
-            TMP[2] = sBox512(TMP[2]);
-            TMP[3] = sBox512(TMP[3]);
-            /* Sbox done, now L */
-            TMP[4] = _mm512_xor_si512(_mm512_xor_si512(TMP[4], TMP[0]), Lblock512(TMP[0]));
-            TMP[8] = _mm512_xor_si512(_mm512_xor_si512(TMP[8], TMP[1]), Lblock512(TMP[1]));
-            TMP[12] = _mm512_xor_si512(_mm512_xor_si512(TMP[12], TMP[2]), Lblock512(TMP[2]));
-            TMP[16] = _mm512_xor_si512(_mm512_xor_si512(TMP[16], TMP[3]), Lblock512(TMP[3]));
-
-            /* initial xors */
-            EXPAND_ONE_RKEY(TMP, p_rk);  p_rk += sign * 1;
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);
-            /* Sbox */
-            TMP[0] = sBox512(TMP[0]);
-            TMP[1] = sBox512(TMP[1]);
-            TMP[2] = sBox512(TMP[2]);
-            TMP[3] = sBox512(TMP[3]);
-            /* Sbox done, now L */
-            TMP[5] = _mm512_xor_si512(_mm512_xor_si512(TMP[5], TMP[0]), Lblock512(TMP[0]));
-            TMP[9] = _mm512_xor_si512(_mm512_xor_si512(TMP[9], TMP[1]), Lblock512(TMP[1]));
-            TMP[13] = _mm512_xor_si512(_mm512_xor_si512(TMP[13], TMP[2]), Lblock512(TMP[2]));
-            TMP[17] = _mm512_xor_si512(_mm512_xor_si512(TMP[17], TMP[3]), Lblock512(TMP[3]));
-
-            /* initial xors */
-            EXPAND_ONE_RKEY(TMP, p_rk);  p_rk += sign * 1;
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);
-            /* Sbox */
-            TMP[0] = sBox512(TMP[0]);
-            TMP[1] = sBox512(TMP[1]);
-            TMP[2] = sBox512(TMP[2]);
-            TMP[3] = sBox512(TMP[3]);
-            /* Sbox done, now L */
-            TMP[6] = _mm512_xor_si512(_mm512_xor_si512(TMP[6], TMP[0]), Lblock512(TMP[0]));
-            TMP[10] = _mm512_xor_si512(_mm512_xor_si512(TMP[10], TMP[1]), Lblock512(TMP[1]));
-            TMP[14] = _mm512_xor_si512(_mm512_xor_si512(TMP[14], TMP[2]), Lblock512(TMP[2]));
-            TMP[18] = _mm512_xor_si512(_mm512_xor_si512(TMP[18], TMP[3]), Lblock512(TMP[3]));
-
-            /* initial xors */
-            EXPAND_ONE_RKEY(TMP, p_rk);  p_rk += sign * 1;
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);
-            /* Sbox */
-            TMP[0] = sBox512(TMP[0]);
-            TMP[1] = sBox512(TMP[1]);
-            TMP[2] = sBox512(TMP[2]);
-            TMP[3] = sBox512(TMP[3]);
-            /* Sbox done, now L */
-            TMP[7] = _mm512_xor_si512(_mm512_xor_si512(TMP[7], TMP[0]), Lblock512(TMP[0]));
-            TMP[11] = _mm512_xor_si512(_mm512_xor_si512(TMP[11], TMP[1]), Lblock512(TMP[1]));
-            TMP[15] = _mm512_xor_si512(_mm512_xor_si512(TMP[15], TMP[2]), Lblock512(TMP[2]));
-            TMP[19] = _mm512_xor_si512(_mm512_xor_si512(TMP[19], TMP[3]), Lblock512(TMP[3]));
-        }
-        p_rk -= sign*32;
+        SM4_KERNEL(TMP, p_rk, sign);
+        p_rk -= sign*SM4_ROUNDS;
 
         TRANSPOSE_OUT_512(TMP[0], TMP[1], TMP[2], TMP[3], TMP[4], TMP[5], TMP[6], TMP[7]);
         TMP[0] = _mm512_shuffle_epi8(TMP[0], M512(swapBytes));
@@ -243,7 +144,7 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
     tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_setzero_si512(), _MM_CMPINT_NLE);
 
     while (tmp_mask) {
-        /* Generate the array of masks for data loading. 0 - 4 bloks will be can load from each buffer - depend on the amount of remaining data */
+        /* Generate the array of masks for data loading. 0 - 4 blocks will be can load from each buffer - depend on the amount of remaining data */
         __mmask8 block_mask[SM4_LINES];
 
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_set1_epi32(4), _MM_CMPINT_NLT);
@@ -299,108 +200,8 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
         TMP[3] = _mm512_shuffle_epi8(TMP[3], M512(swapBytes));
         TRANSPOSE_INP_512(TMP[16], TMP[17], TMP[18], TMP[19], TMP[0], TMP[1], TMP[2], TMP[3]);
 
-        for (int itr = 0, j = 0; itr < 8; itr++, j++) {
-            /* initial xors */
-            EXPAND_ONE_RKEY(TMP, p_rk);  p_rk += sign * 1;
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);
-            /* Sbox */
-            TMP[0] = sBox512(TMP[0]);
-            TMP[1] = sBox512(TMP[1]);
-            TMP[2] = sBox512(TMP[2]);
-            TMP[3] = sBox512(TMP[3]);
-            /* Sbox done, now L */
-            TMP[4] = _mm512_xor_si512(_mm512_xor_si512(TMP[4], TMP[0]), Lblock512(TMP[0]));
-            TMP[8] = _mm512_xor_si512(_mm512_xor_si512(TMP[8], TMP[1]), Lblock512(TMP[1]));
-            TMP[12] = _mm512_xor_si512(_mm512_xor_si512(TMP[12], TMP[2]), Lblock512(TMP[2]));
-            TMP[16] = _mm512_xor_si512(_mm512_xor_si512(TMP[16], TMP[3]), Lblock512(TMP[3]));
-
-            /* initial xors */
-            EXPAND_ONE_RKEY(TMP, p_rk);  p_rk += sign * 1;
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);
-            /* Sbox */
-            TMP[0] = sBox512(TMP[0]);
-            TMP[1] = sBox512(TMP[1]);
-            TMP[2] = sBox512(TMP[2]);
-            TMP[3] = sBox512(TMP[3]);
-            /* Sbox done, now L */
-            TMP[5] = _mm512_xor_si512(_mm512_xor_si512(TMP[5], TMP[0]), Lblock512(TMP[0]));
-            TMP[9] = _mm512_xor_si512(_mm512_xor_si512(TMP[9], TMP[1]), Lblock512(TMP[1]));
-            TMP[13] = _mm512_xor_si512(_mm512_xor_si512(TMP[13], TMP[2]), Lblock512(TMP[2]));
-            TMP[17] = _mm512_xor_si512(_mm512_xor_si512(TMP[17], TMP[3]), Lblock512(TMP[3]));
-
-            /* initial xors */
-            EXPAND_ONE_RKEY(TMP, p_rk);  p_rk += sign * 1;
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);
-            /* Sbox */
-            TMP[0] = sBox512(TMP[0]);
-            TMP[1] = sBox512(TMP[1]);
-            TMP[2] = sBox512(TMP[2]);
-            TMP[3] = sBox512(TMP[3]);
-            /* Sbox done, now L */
-            TMP[6] = _mm512_xor_si512(_mm512_xor_si512(TMP[6], TMP[0]), Lblock512(TMP[0]));
-            TMP[10] = _mm512_xor_si512(_mm512_xor_si512(TMP[10], TMP[1]), Lblock512(TMP[1]));
-            TMP[14] = _mm512_xor_si512(_mm512_xor_si512(TMP[14], TMP[2]), Lblock512(TMP[2]));
-            TMP[18] = _mm512_xor_si512(_mm512_xor_si512(TMP[18], TMP[3]), Lblock512(TMP[3]));
-
-            /* initial xors */
-            EXPAND_ONE_RKEY(TMP, p_rk);  p_rk += sign * 1;
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);
-            TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);
-            TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);
-            TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);
-            TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);
-            /* Sbox */
-            TMP[0] = sBox512(TMP[0]);
-            TMP[1] = sBox512(TMP[1]);
-            TMP[2] = sBox512(TMP[2]);
-            TMP[3] = sBox512(TMP[3]);
-            /* Sbox done, now L */
-            TMP[7] = _mm512_xor_si512(_mm512_xor_si512(TMP[7], TMP[0]), Lblock512(TMP[0]));
-            TMP[11] = _mm512_xor_si512(_mm512_xor_si512(TMP[11], TMP[1]), Lblock512(TMP[1]));
-            TMP[15] = _mm512_xor_si512(_mm512_xor_si512(TMP[15], TMP[2]), Lblock512(TMP[2]));
-            TMP[19] = _mm512_xor_si512(_mm512_xor_si512(TMP[19], TMP[3]), Lblock512(TMP[3]));
-        }
-        p_rk -= sign * 32;
+        SM4_KERNEL(TMP, p_rk, sign);
+        p_rk -= sign*SM4_ROUNDS;
 
         TRANSPOSE_OUT_512(TMP[0], TMP[1], TMP[2], TMP[3], TMP[4], TMP[5], TMP[6], TMP[7]);
         TMP[0] = _mm512_shuffle_epi8(TMP[0], M512(swapBytes));
@@ -456,9 +257,6 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_setzero_si512(), _MM_CMPINT_NLE);
     }
 
-    /* Clear secret data */
-    for (unsigned int i = 0; i < sizeof(TMP) / sizeof(TMP[0]); ++i) {
-        TMP[i] = _mm512_setzero_si512();
-    }        
-
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u(*)[8])TMP, sizeof(TMP) / sizeof(TMP[0]));
 }

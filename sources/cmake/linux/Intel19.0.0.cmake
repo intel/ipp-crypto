@@ -100,6 +100,8 @@ endif()
 
 # Optimization level = 3, no-debug definition (turns off asserts), warning level = 3, treat warnings as errors
 set (CMAKE_C_FLAGS_RELEASE " -O3 -DNDEBUG -w3 -Werror")
+# DEBUG flags Optimization level = 0, generation maximum GDB information (-g3)
+set (CMAKE_C_FLAGS_DEBUG " -O0 -g3")
 
 # Do not include compilation options and version number in the resulting file
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-sox")

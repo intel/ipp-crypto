@@ -14,12 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     AES-GCM
-// 
+//
 //  Contents:
 //        ippsAES_GCMProcessAAD()
 //
@@ -74,26 +74,16 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
 
    IPP_BADARG_RET(!(GcmIVprocessing==AESGCM_STATE(pState) || GcmAADprocessing==AESGCM_STATE(pState)), ippStsBadArgErr);
 
-   #if(_IPP32E<_IPP32E_K0)
-
-   /* get method */
-   MulGcm_ hashFunc = AESGCM_HASH(pState);
-   
-   #endif
-
    if( GcmIVprocessing==AESGCM_STATE(pState) ) {
       IPP_BADARG_RET(0==AESGCM_IV_LEN(pState), ippStsBadArgErr);
 
-      #if(_IPP32E>=_IPP32E_K0)
-
-      IvFinalaze_ ivHashFinalize = AES_GCM_IV_FINALIZE(pState);
+#if(_IPP32E>=_IPP32E_K0)
+      IvFinalize_ ivHashFinalize = AES_GCM_IV_FINALIZE(pState);
 
       /* complete IV processing */
-      ivHashFinalize(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), 
+      ivHashFinalize(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState),
                      AESGCM_COUNTER(pState), (Ipp64u)AESGCM_BUFLEN(pState), AESGCM_IV_LEN(pState));
-         
-      #else
-
+#else
       /* complete IV processing */
       if(CTR_POS==AESGCM_IV_LEN(pState)) {
          /* apply special format if IV length is 12 bytes */
@@ -101,8 +91,10 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
          AESGCM_COUNTER(pState)[13] = 0;
          AESGCM_COUNTER(pState)[14] = 0;
          AESGCM_COUNTER(pState)[15] = 1;
-      }
-      else {
+      } else {
+         /* get method */
+         MulGcm_ hashFunc = AESGCM_HASH(pState);
+
          /* process the rest of IV */
          if(AESGCM_BUFLEN(pState))
             hashFunc(AESGCM_COUNTER(pState), AESGCM_HKEY(pState), AesGcmConst_table);
@@ -130,8 +122,7 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
          encoder(AESGCM_COUNTER(pState), AESGCM_ECOUNTER0(pState), RIJ_NR(pAES), RIJ_EKEYS(pAES), NULL);
          #endif
       }
-
-      #endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K0) */
 
       /* switch mode and init counters */
       AESGCM_STATE(pState) = GcmAADprocessing;
@@ -143,31 +134,32 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
    // AAD processing
    */
 
-   #if(_IPP32E>=_IPP32E_K0)
-   
-   AadUpdate_ aadHashUpdate = AES_GCM_AAD_UPDATE(pState);
-
+#if(_IPP32E>=_IPP32E_K0)
    /* test if buffer is not empty */
    if(AESGCM_BUFLEN(pState)) {
-      int locLen = IPP_MIN(aadLen, BLOCK_SIZE-AESGCM_BUFLEN(pState));
-      CopyBlock((void*)pAAD, (void*)(AESGCM_GHASH(pState)+AESGCM_BUFLEN(pState)), locLen);
-      AESGCM_BUFLEN(pState) += locLen;
+      /* Cast to int here does not produce loss of data as AESGCM_BUFLEN <= BLOCK_SIZE, which is 16 bytes */
+      int bufCapacity = BLOCK_SIZE-(int)AESGCM_BUFLEN(pState);
+      int locLen = IPP_MIN(aadLen, bufCapacity);
+      XorBlockMirror(pAAD, AESGCM_GHASH(pState), AESGCM_GHASH(pState), bufCapacity, locLen);
+      AESGCM_BUFLEN(pState) += (Ipp64u)locLen;
 
       /* if buffer full */
-      if(BLOCK_SIZE==AESGCM_BUFLEN(pState)) {          
-         aadHashUpdate(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), AESGCM_GHASH(pState), BLOCK_SIZE);
+      if(BLOCK_SIZE==AESGCM_BUFLEN(pState)) {
+         MulGcm_ ghashFunc = AES_GCM_GMUL(pState);
+         ghashFunc(&AES_GCM_KEY_DATA(pState), AESGCM_GHASH(pState));
          AESGCM_BUFLEN(pState) = 0;
       }
 
       AESGCM_AAD_LEN(pState) += (Ipp64u)locLen;
       pAAD += locLen;
       aadLen -= locLen;
-
    }
 
    /* process main part of AAD */
    int lenBlks = aadLen & (-BLOCK_SIZE);
    if(lenBlks) {
+      AadUpdate_ aadHashUpdate = AES_GCM_AAD_UPDATE(pState);
+
       aadHashUpdate(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), pAAD, (Ipp64u)lenBlks);
 
       AESGCM_AAD_LEN(pState) += (Ipp64u)lenBlks;
@@ -177,13 +169,12 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
 
    /* copy the rest of AAD into the buffer */
    if(aadLen) {
-      CopyBlock((void*)pAAD, (void*)(AESGCM_GHASH(pState)), aadLen);
+      /* Note: GHASH in the IPsec context is byte-reflected */
+      XorBlockMirror(pAAD, AESGCM_GHASH(pState), AESGCM_GHASH(pState), BLOCK_SIZE, aadLen);
       AESGCM_AAD_LEN(pState) += (Ipp64u)aadLen;
-      AESGCM_BUFLEN(pState) = aadLen;
+      AESGCM_BUFLEN(pState) = (Ipp64u)aadLen;
    }
-
-   #else
-
+#else
    /* test if buffer is not empty */
    if(AESGCM_BUFLEN(pState)) {
       int locLen = IPP_MIN(aadLen, BLOCK_SIZE-AESGCM_BUFLEN(pState));
@@ -192,6 +183,7 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
 
       /* if buffer full */
       if(BLOCK_SIZE==AESGCM_BUFLEN(pState)) {
+         MulGcm_ hashFunc = AESGCM_HASH(pState);
          hashFunc(AESGCM_GHASH(pState), AESGCM_HKEY(pState), AesGcmConst_table);
          AESGCM_BUFLEN(pState) = 0;
       }
@@ -221,8 +213,7 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
       AESGCM_AAD_LEN(pState) += (Ipp64u)aadLen;
       AESGCM_BUFLEN(pState) = aadLen;
    }
-
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K0) */
 
    return ippStsNoErr;
 }

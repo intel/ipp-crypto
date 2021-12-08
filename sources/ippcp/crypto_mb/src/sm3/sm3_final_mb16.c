@@ -51,8 +51,8 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     // corresponding element in mask = 0 if hash_pa[i] = 0 
     */
     __mmask8 mb_mask8[2];
-    mb_mask8[0] = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa), zero_buffer, 4);
-    mb_mask8[1] = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa + 8), zero_buffer, 4);
+    mb_mask8[0] = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa), zero_buffer, _MM_CMPINT_NE);
+    mb_mask8[1] = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa + 8), zero_buffer, _MM_CMPINT_NE);
     __mmask16 mb_mask16 = *(__mmask16*)mb_mask8;
 
     M512(sum_msg_len) = _mm512_maskz_loadu_epi64(mb_mask8[0], MSG_LEN(p_state));
@@ -64,7 +64,7 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     M512(sum_msg_len) = _mm512_shuffle_epi8(M512(sum_msg_len), M512(swapBytes));
     M512(sum_msg_len +8) = _mm512_shuffle_epi8(M512(sum_msg_len +8), M512(swapBytes));
 
-    M512(input_len) = _mm512_maskz_loadu_epi32(mb_mask16, HAHS_BUFFIDX(p_state));
+    M512(input_len) = _mm512_maskz_loadu_epi32(mb_mask16, HASH_BUFFIDX(p_state));
 
     __mmask16 tmp_mask = _mm512_cmplt_epi32_mask(M512(input_len), _mm512_set1_epi32(SM3_MSG_BLOCK_SIZE - (int)SM3_MSG_LEN_REPR));
     M512(buffer_len) = _mm512_mask_set1_epi32(_mm512_set1_epi32(SM3_MSG_BLOCK_SIZE * 2), tmp_mask, SM3_MSG_BLOCK_SIZE);
@@ -106,7 +106,7 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     /* re-init hash value using mb masks */
     _mm512_storeu_si512(MSG_LEN(p_state), _mm512_mask_set1_epi64(_mm512_loadu_si512(MSG_LEN(p_state)), mb_mask8[0], 0));
     _mm512_storeu_si512(MSG_LEN(p_state)+8, _mm512_mask_set1_epi64(_mm512_loadu_si512(MSG_LEN(p_state)+8), mb_mask8[1], 0));
-    _mm512_storeu_si512(HAHS_BUFFIDX(p_state), _mm512_mask_set1_epi32(_mm512_loadu_si512(HAHS_BUFFIDX(p_state)), mb_mask16, 0));
+    _mm512_storeu_si512(HASH_BUFFIDX(p_state), _mm512_mask_set1_epi32(_mm512_loadu_si512(HASH_BUFFIDX(p_state)), mb_mask16, 0));
 
     sm3_mask_init_mb16(p_state, mb_mask16);
     

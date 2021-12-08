@@ -62,7 +62,7 @@ IPP_OWN_DEFN (void, cpDecryptSMS4_cbc, (const Ipp8u* pIV, const Ipp8u* pSrc, Ipp
 
    /* do decryption */
    #if (_IPP32E>=_IPP32E_K1)
-   #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+   #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
    if (IsFeatureEnabled(ippCPUID_AVX512GFNI)) {
       int processedLen = cpSMS4_CBC_dec_gfni512(pDst, pSrc, dataLen, pRoundKeys, (Ipp8u*)iv);
       pSrc += processedLen;
@@ -70,7 +70,7 @@ IPP_OWN_DEFN (void, cpDecryptSMS4_cbc, (const Ipp8u* pIV, const Ipp8u* pSrc, Ipp
       dataLen -= processedLen;
    }
    else
-   #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
+   #endif /* #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
    #endif /* (_IPP32E>=_IPP32E_K1) */
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    if(IsFeatureEnabled(ippCPUID_AES)) {

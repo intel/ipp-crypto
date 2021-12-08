@@ -60,7 +60,7 @@ __INLINE int cpFix_BNU32(const Ipp32u* pA, int nsA)
       zscan &= (Ipp32u)cpIsZero_ct((BNU_CHUNK_T)pA[nsA-1]);
       outLen -= 1 & zscan;
    }
-   return (int)((1 & zscan) | ((BNU_CHUNK_T)outLen & ~zscan)); // change to scanz
+   return (int)((1 & zscan) | ((BNU_CHUNK_T)outLen & ~(BNU_CHUNK_T)zscan)); // change to scanz
 }
 
 #define FIX_BNU32(src,srcLen) ((srcLen) = cpFix_BNU32((src), (srcLen)))

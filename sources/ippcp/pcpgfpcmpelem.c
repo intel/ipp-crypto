@@ -14,13 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
+/*
 //     Intel(R) Integrated Performance Primitives. Cryptography Primitives.
 //     Operations over GF(p).
-// 
+//
 //     Context:
 //        ippsGFpCmpElement()
-// 
+//
 */
 #include "owndefs.h"
 #include "owncp.h"
@@ -69,11 +69,23 @@ IPPFUN(IppStatus, ippsGFpCmpElement,(const IppsGFpElement* pA, const IppsGFpElem
       gsModEngine* pGFE = GFP_PMA(pGFp);
       IPP_BADARG_RET( (GFPE_ROOM(pA)!=GFP_FELEN(pGFE)) || (GFPE_ROOM(pB)!=GFP_FELEN(pGFE)), ippStsOutOfRangeErr);
       {
-         int flag = cpGFpElementCmp(GFPE_DATA(pA), GFPE_DATA(pB), GFP_FELEN(pGFE));
+         BNU_CHUNK_T* a = cpGFpGetPool(2, pGFE);
+         BNU_CHUNK_T* b = a + GFP_PELEN(pGFE);
+
+         GFP_METHOD(pGFE)->decode(a, GFPE_DATA(pA), pGFE);
+         GFP_METHOD(pGFE)->decode(b, GFPE_DATA(pB), pGFE);
+
+         ZEXPAND_BNU(a, GFP_FELEN(pGFE), GFP_PELEN(pGFE));
+         ZEXPAND_BNU(b, GFP_FELEN(pGFE), GFP_PELEN(pGFE));
+
+         int flag = cpCmp_BNU(a, GFP_PELEN(pGFE), b, GFP_PELEN(pGFE));
          if( GFP_IS_BASIC(pGFE) )
             *pResult = (0==flag)? IPP_IS_EQ : (0<flag)? IPP_IS_GT : IPP_IS_LT;
          else
             *pResult = (0==flag)? IPP_IS_EQ : IPP_IS_NE;
+
+         cpGFpReleasePool(2, pGFE);
+
          return ippStsNoErr;
       }
    }

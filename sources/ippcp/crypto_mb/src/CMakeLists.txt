@@ -83,8 +83,8 @@ set(MB_LIB_TARGET ${MB_DYN_LIB_TARGET})
 set_source_files_properties(${CRYPTO_MB_SOURCES} PROPERTIES COMPILE_DEFINITIONS  "${AVX512_LIBRARY_DEFINES}"
                                                             COMPILE_FLAGS        "${AVX512_CFLAGS} ${CMAKE_ASM_FLAGS} ${CMAKE_C_FLAGS_SECURITY}")
 
-# Don't specify architectural flags for the assembler for this sources, because of the bug in Intel® C Compiler under MacOS: error: invalid instruction mnemonic 'vkmovb'
-# The bug has been fixed since version 2021.3. This is a workaround to support older versions of Intel® C Compiler.
+# Don't specify architectural flags for the assembler for this sources, because of the bug in IntelÂ® C Compiler under MacOS: error: invalid instruction mnemonic 'vkmovb'
+# The bug has been fixed since version 2021.3. This is a workaround to support older versions of IntelÂ® C Compiler.
 if(CMAKE_C_COMPILER_VERSION VERSION_LESS 20.2.3)
     set_source_files_properties(${X25519_SOURCES} PROPERTIES    COMPILE_DEFINITIONS  "${AVX512_LIBRARY_DEFINES}"
                                                                 COMPILE_FLAGS        "${AVX512_CFLAGS} ${CMAKE_C_FLAGS_SECURITY}")

@@ -64,7 +64,7 @@ IPPFUN(IppStatus, ippsSHA1GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSHA1Stat
    {
       DigestSHA1 digest;
       CopyBlock(HASH_VALUE(pState), digest, sizeof(DigestSHA1));
-      cpFinalizeSHA1(digest, HASH_BUFF(pState), HAHS_BUFFIDX(pState), HASH_LENLO(pState));
+      cpFinalizeSHA1(digest, HASH_BUFF(pState), HASH_BUFFIDX(pState), HASH_LENLO(pState));
       digest[0] = ENDIANNESS32(digest[0]);
       digest[1] = ENDIANNESS32(digest[1]);
       digest[2] = ENDIANNESS32(digest[2]);

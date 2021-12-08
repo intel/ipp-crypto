@@ -45,7 +45,7 @@ IPP_OWN_DEFN (void, cpComputeDigest, (Ipp8u* pHashTag, int hashTagLen, const Ipp
    int msgLenRepSize = pAttr->msgLenRepSize; /* length of the message representation */
 
    /* number of bytes in context buffer */
-   int n = HAHS_BUFFIDX(pCtx);
+   int n = HASH_BUFFIDX(pCtx);
    /* buffer and it actual length */
    Ipp8u buffer[MBS_HASH_MAX*2];
    int bufferLen = n < (mbs-msgLenRepSize)? mbs : mbs*2;

@@ -59,6 +59,7 @@ ARCHITECTURE        = 'Architecture'
 THREAD_MODE         = 'Thread mode'
 THREADING_LAYER     = 'Threading layer'
 CUSTOM_CPU_SET      = 'Custom CPU set'
+PREFIX              = 'Prefix'
 
 CONFIGS = {
     CUSTOM_LIBRARY_NAME : 'custom_library',
@@ -69,7 +70,8 @@ CONFIGS = {
     ARCHITECTURE        : '',
     THREAD_MODE         : '',
     THREADING_LAYER     : '',
-    CUSTOM_CPU_SET      : []
+    CUSTOM_CPU_SET      : [],
+    PREFIX              : ''
 }
 
 IPP   = 'IPP'
@@ -79,8 +81,8 @@ IPPROOT       = 'IPPROOT'
 IPPCRYPTOROOT = 'IPPCRYPTOROOT'
 
 PACKAGE_NAME = {
-    IPP   : 'Intel® Integrated Performance Primitives',
-    IPPCP : 'Intel® Integrated Performance Primitives Cryptography'
+    IPP   : 'Intel(R) Integrated Performance Primitives',
+    IPPCP : 'Intel(R) Integrated Performance Primitives Cryptography'
 }
 
 DOMAINS = {
@@ -244,8 +246,9 @@ BATCH_EXTENSIONS = {
     MACOSX  : '.sh'
 }
 
-MAIN_FILE_NAME = 'main'
-CUSTOM_DISPATCHER_FILE_NAME = 'custom_dispatcher'
+MAIN_FILE_NAME              = 'main.c'
+CUSTOM_DISPATCHER_FILE_NAME = '{function}.c'
+RENAME_HEADER_NAME          = 'rename.h'
 
 EXPORT_FILE = {
     WINDOWS : 'export.def',
@@ -270,7 +273,7 @@ def set_host_system():
     if host_system == 'Darwin':
         host_system = MACOSX
     if host_system not in SUPPORTED_SYSTEMS:
-        sys.exit("Error: Intel® Integrated Performance Primitives Custom Library Tool isn't supported for OS " +
+        sys.exit("Error: Intel(R) Integrated Performance Primitives Custom Library Tool isn't supported for OS " +
                  host_system)
 
     global HOST_SYSTEM
@@ -285,7 +288,8 @@ def set_configs_dict(package,
                      custom_library_name=CONFIGS[CUSTOM_LIBRARY_NAME],
                      build_script_name=CONFIGS[BUILD_SCRIPT_NAME],
                      output_path=CONFIGS[OUTPUT_PATH],
-                     custom_cpu_set=CONFIGS[CUSTOM_CPU_SET]):
+                     custom_cpu_set=CONFIGS[CUSTOM_CPU_SET],
+                     prefix=CONFIGS[PREFIX]):
     CONFIGS[CUSTOM_LIBRARY_NAME] = custom_library_name
     CONFIGS[OUTPUT_PATH]         = output_path
     CONFIGS[FUNCTIONS_LIST]      = functions_list
@@ -294,6 +298,7 @@ def set_configs_dict(package,
     CONFIGS[THREAD_MODE]         = thread_mode
     CONFIGS[THREADING_LAYER]     = threading_layer_type
     CONFIGS[CUSTOM_CPU_SET]      = custom_cpu_set
+    CONFIGS[PREFIX]              = prefix
 
     if not build_script_name:
         build_script_name = BUILD_SCRIPT_NAME_FORMAT[HOST_SYSTEM].format(name=custom_library_name, arch=architecture)

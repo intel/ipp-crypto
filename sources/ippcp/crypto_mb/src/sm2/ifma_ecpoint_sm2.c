@@ -145,23 +145,17 @@ void MB_FUNC_NAME(ifma_ec_sm2_add_point_)(SM2_POINT* r, const SM2_POINT* p, cons
    sub(R, S2, S1);      /* R = S2-S1 */
    sub(H, U2, U1);      /* H = U2-U1 */
 
-   /*
-   // Spefial case handlig omitted
-   // due to function is using in context of point multiplication
-   // and even more precisely in context of ECDH, ECDSA operations.
-   //
-   // inside ECDH and ECDSA are using 0 < scalar < order_of_base_point
-   //
-      if (is_equal(U1, U2) && !in1infty && !in2infty) {
-         if (is_equal(S1, S2)) {
-               ifma_ec_sm2_dbl_point_(r, a);
-               return;
-         } else {
-               memset(r, 0, sizeof(*r));
-               return;
-         }
-      }
-   */
+
+   /* check if affine (p.x:p.y) == (q.x:q.y) and and do doubling if this happens */
+   __mb_mask x_are_equal = MB_FUNC_NAME(is_zero_FESM2_)(H);
+   __mb_mask y_are_equal = MB_FUNC_NAME(is_zero_FESM2_)(R);
+   __mb_mask points_are_equal = (x_are_equal & y_are_equal & (~p_at_infinity) & (~q_at_infinity));
+
+   SM2_POINT P2;
+   MB_FUNC_NAME(set_point_to_infinity_)(&P2);
+   if (points_are_equal) {
+      MB_FUNC_NAME(ifma_ec_sm2_dbl_point_)(&P2, p);
+   }
 
    mul(Z3, Z1, Z2);     /* Z3 = Z1*Z2 */
    sqr(U2, H);          /* U2 = H^2 */
@@ -188,10 +182,10 @@ void MB_FUNC_NAME(ifma_ec_sm2_add_point_)(SM2_POINT* r, const SM2_POINT* p, cons
    MB_FUNC_NAME(mask_mov_FESM2_)(Y3, Y3, q_at_infinity, p->Y);
    MB_FUNC_NAME(mask_mov_FESM2_)(Z3, Z3, q_at_infinity, p->Z);
 
-   /* r = T */
-   MB_FUNC_NAME(mov_FESM2_)(r->X, X3);
-   MB_FUNC_NAME(mov_FESM2_)(r->Y, Y3);
-   MB_FUNC_NAME(mov_FESM2_)(r->Z, Z3);
+   /* r = points_are_equal? P2 : T */
+   MB_FUNC_NAME(mask_mov_FESM2_)(r->X, X3, points_are_equal, P2.X);
+   MB_FUNC_NAME(mask_mov_FESM2_)(r->Y, Y3, points_are_equal, P2.Y);
+   MB_FUNC_NAME(mask_mov_FESM2_)(r->Z, Z3, points_are_equal, P2.Z);
 }
 
 

@@ -23,7 +23,7 @@
 void sm3_mask_init_mb8(SM3_CTX_mb8* p_state, __mmask8 mb_mask)
 {
     /* clear buffer index */
-    _mm256_storeu_si256((__m256i *)HAHS_BUFFIDX(p_state), _mm256_mask_set1_epi32(_mm256_loadu_si256((__m256i *)HAHS_BUFFIDX(p_state)), mb_mask, 0));
+    _mm256_storeu_si256((__m256i *)HASH_BUFFIDX(p_state), _mm256_mask_set1_epi32(_mm256_loadu_si256((__m256i *)HASH_BUFFIDX(p_state)), mb_mask, 0));
 
     /* clear summary message length */
     _mm512_storeu_si512(MSG_LEN(p_state), _mm512_maskz_loadu_epi64(~mb_mask, MSG_LEN(p_state)));

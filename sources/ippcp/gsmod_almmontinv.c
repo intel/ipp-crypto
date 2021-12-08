@@ -95,7 +95,7 @@ IPP_OWN_DEFN (int, alm_mont_inv, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsModE
 
    else {
       ext -= cpSub_BNU(pr, pt, pm, mLen);             // if(t>mod) r = t-mod;
-      cpMaskMove_gs(pr, pt, mLen, cpIsNonZero(ext));  // else r = t;
+      cpMaskedReplace_ct(pr, pt, mLen, ~cpIsZero_ct(ext));  // else r = t;
       cpSub_BNU(pr, pm, pr, mLen);                    // return  r= (mod - r) and k
    }
 

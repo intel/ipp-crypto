@@ -137,7 +137,7 @@ IPP_OWN_DEFN (int, cpGFpSqrt, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsModEngi
 
       /* choose smallest between R and (modulus-R) */
       GFP_METHOD(pGFE)->decode(q, pR, pGFE);
-      if(GFP_GT(q, GFP_HMODULUS(pGFE), elemLen))
+      if(1 == cpCmp_BNU(q, elemLen, GFP_HMODULUS(pGFE), elemLen))
          GFP_METHOD(pGFE)->neg(pR, pR, pGFE);
 
       cpGFpReleasePool(4, pGFE);

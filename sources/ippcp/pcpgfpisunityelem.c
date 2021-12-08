@@ -14,13 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
+/*
 //     Intel(R) Integrated Performance Primitives. Cryptography Primitives.
 //     Operations over GF(p).
-// 
+//
 //     Context:
 //        ippsGFpIsUnityElement()
-// 
+//
 */
 #include "owndefs.h"
 #include "owncp.h"
@@ -75,7 +75,7 @@ IPPFUN(IppStatus, ippsGFpIsUnityElement,(const IppsGFpElement* pA,
          FIX_BNU(pUnity, basicElmLen);
          FIX_BNU(GFPE_DATA(pA), elmLen);
 
-         flag = (basicElmLen==elmLen) && (0 == cpGFpElementCmp(GFPE_DATA(pA), pUnity, elmLen));
+         flag = (basicElmLen==elmLen) && (GFP_EQ(GFPE_DATA(pA), pUnity, elmLen));
          *pResult = (1==flag)? IPP_IS_EQ : IPP_IS_NE;
          return ippStsNoErr;
       }

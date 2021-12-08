@@ -70,7 +70,7 @@ static __ALIGN64 const int8u swapBytes[] = {
     3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12,
     3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12 
 };
-// Constant for swapping the endiannes
+// Constant for swapping the endianness
 static __ALIGN64 const int8u swapEndianness[] = { 
     15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0,
     15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0,
@@ -134,16 +134,18 @@ static __ALIGN64 const int8u  nextInc[] = {
     SM4_ONE_ROUND(X3, X0, X1, X2, TMP, (RK + sign * 3));     \
 }
 
-#define EXPAND_ONE_RKEY(X, p_rk)     X[0] = _mm512_permutexvar_epi32(M512(idx_0_3), _mm512_loadu_si512(p_rk)); \
-                                     X[1] = _mm512_permutexvar_epi32(M512(idx_4_7), _mm512_loadu_si512(p_rk)); \
-                                     X[2] = _mm512_permutexvar_epi32(M512(idx_8_b), _mm512_loadu_si512(p_rk)); \
-                                     X[3] = _mm512_permutexvar_epi32(M512(idx_c_f), _mm512_loadu_si512(p_rk));
+#define EXPAND_ONE_RKEY(X, p_rk) { \
+   X[0] = _mm512_permutexvar_epi32(M512(idx_0_3), _mm512_loadu_si512(p_rk)); \
+   X[1] = _mm512_permutexvar_epi32(M512(idx_4_7), _mm512_loadu_si512(p_rk)); \
+   X[2] = _mm512_permutexvar_epi32(M512(idx_8_b), _mm512_loadu_si512(p_rk)); \
+   X[3] = _mm512_permutexvar_epi32(M512(idx_c_f), _mm512_loadu_si512(p_rk)); \
+}
 
 #define ENDIANNESS_16x32(x)     _mm512_shuffle_epi8((x), M512(swapBytes));
 #define CHANGE_ORDER_BLOCKS(x)  _mm512_shuffle_epi8((x), M512(swapEndianness));
 
 /* Workaround for gcc91, got the error: implicit declaration of function ‘_mm512_div_epi32’ */
-#if defined(__GNUC__) && !defined(__INTEL_COMPILER)
+#if defined(__GNUC__) && !defined(__INTEL_COMPILER)  && !defined(__INTEL_LLVM_COMPILER)
     #define GET_NUM_BLOCKS(X,Y,Z)  for(int i=0;i<SM4_LINES;i++) \
                                     *((int32u*)&X+i) = Y[i]/Z;
 #else
@@ -169,6 +171,7 @@ EXTERN_C void sm4_ofb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[
 EXTERN_C void sm4_cfb128_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask);
 EXTERN_C void sm4_cfb128_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask);
 
+// The transformation based on SM4 sbox algebraic structure, parameters were computed manually
 __INLINE __m512i sBox512(__m512i block)
 {
     block = _mm512_gf2p8affine_epi64_epi8(block, M512(affineIn), 0x65);
@@ -178,13 +181,7 @@ __INLINE __m512i sBox512(__m512i block)
 
 __INLINE __m512i Lblock512(__m512i x)
 {
-    __m512i rolled0 = _mm512_rol_epi32(x, 2);
-    __m512i rolled1 = _mm512_rol_epi32(x, 10);
-    __m512i temp = _mm512_xor_si512(rolled0, rolled1);
-    __m512i rolled2 = _mm512_rol_epi32(x, 18);
-    __m512i rolled3 = _mm512_rol_epi32(x, 24);
-    __m512i res = _mm512_ternarylogic_epi32(temp, rolled2, rolled3, 0x96);
-    return  res;
+    return _mm512_ternarylogic_epi32(_mm512_xor_si512(_mm512_rol_epi32(x, 2), _mm512_rol_epi32(x, 10)), _mm512_rol_epi32(x, 18), _mm512_rol_epi32(x, 24), 0x96);
 }
 
 __INLINE __m512i Lkey512(__m512i x)
@@ -201,6 +198,108 @@ __INLINE __m512i IncBlock512(__m512i x, const int8u* increment)
 
     return t;
 }
+
+#define SM4_KERNEL(TMP, p_rk, iterator) \
+    for (int itr = 0, j = 0; itr < 8; itr++, j++) {    \
+        /* initial xors */                             \
+        EXPAND_ONE_RKEY(TMP, p_rk);  p_rk+=iterator;   \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);     \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);     \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);     \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);     \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);    \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);    \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);    \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);    \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);    \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);    \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);    \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);    \
+        /* Sbox */                                     \
+        TMP[0] = sBox512(TMP[0]);                      \
+        TMP[1] = sBox512(TMP[1]);                      \
+        TMP[2] = sBox512(TMP[2]);                      \
+        TMP[3] = sBox512(TMP[3]);                      \
+        /* Sbox done, now L */                         \
+        TMP[4] = _mm512_xor_si512(_mm512_xor_si512(TMP[4], TMP[0]), Lblock512(TMP[0]));    \
+        TMP[8] = _mm512_xor_si512(_mm512_xor_si512(TMP[8], TMP[1]), Lblock512(TMP[1]));    \
+        TMP[12] = _mm512_xor_si512(_mm512_xor_si512(TMP[12], TMP[2]), Lblock512(TMP[2]));  \
+        TMP[16] = _mm512_xor_si512(_mm512_xor_si512(TMP[16], TMP[3]), Lblock512(TMP[3]));  \
+        /* initial xors */                             \
+        EXPAND_ONE_RKEY(TMP, p_rk);   p_rk+=iterator;  \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);     \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);     \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);     \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);    \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);    \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);     \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);    \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);    \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);    \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);    \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);    \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);    \
+        /* Sbox */                                     \
+        TMP[0] = sBox512(TMP[0]);         \
+        TMP[1] = sBox512(TMP[1]);       \
+        TMP[2] = sBox512(TMP[2]);      \
+        TMP[3] = sBox512(TMP[3]);      \
+        /* Sbox done, now L */     \
+        TMP[5] = _mm512_xor_si512(_mm512_xor_si512(TMP[5], TMP[0]), Lblock512(TMP[0]));     \
+        TMP[9] = _mm512_xor_si512(_mm512_xor_si512(TMP[9], TMP[1]), Lblock512(TMP[1]));      \
+        TMP[13] = _mm512_xor_si512(_mm512_xor_si512(TMP[13], TMP[2]), Lblock512(TMP[2]));   \
+        TMP[17] = _mm512_xor_si512(_mm512_xor_si512(TMP[17], TMP[3]), Lblock512(TMP[3]));   \
+                                                           \
+        /* initial xors */                   \
+        EXPAND_ONE_RKEY(TMP, p_rk);   p_rk+=iterator;  \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);  \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);  \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);  \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);  \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);   \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);   \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);   \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);   \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);   \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);   \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);    \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);  \
+        /* Sbox */                           \
+        TMP[0] = sBox512(TMP[0]);   \
+        TMP[1] = sBox512(TMP[1]);    \
+        TMP[2] = sBox512(TMP[2]);   \
+        TMP[3] = sBox512(TMP[3]);   \
+        /* Sbox done, now L */     \
+        TMP[6] = _mm512_xor_si512(_mm512_xor_si512(TMP[6], TMP[0]), Lblock512(TMP[0]));   \
+        TMP[10] = _mm512_xor_si512(_mm512_xor_si512(TMP[10], TMP[1]), Lblock512(TMP[1])); \
+        TMP[14] = _mm512_xor_si512(_mm512_xor_si512(TMP[14], TMP[2]), Lblock512(TMP[2])); \
+        TMP[18] = _mm512_xor_si512(_mm512_xor_si512(TMP[18], TMP[3]), Lblock512(TMP[3])); \
+                                                              \
+        /* initial xors */        \
+        EXPAND_ONE_RKEY(TMP, p_rk);   p_rk+=iterator;  \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);      \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);     \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);      \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);       \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);    \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);      \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);     \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);    \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);    \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);    \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);    \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);    \
+        /* Sbox */                                   \
+        TMP[0] = sBox512(TMP[0]);    \
+        TMP[1] = sBox512(TMP[1]);   \
+        TMP[2] = sBox512(TMP[2]);    \
+        TMP[3] = sBox512(TMP[3]);    \
+        /* Sbox done, now L */                                      \
+        TMP[7] = _mm512_xor_si512(_mm512_xor_si512(TMP[7], TMP[0]), Lblock512(TMP[0]));  \
+        TMP[11] = _mm512_xor_si512(_mm512_xor_si512(TMP[11], TMP[1]), Lblock512(TMP[1])); \
+        TMP[15] = _mm512_xor_si512(_mm512_xor_si512(TMP[15], TMP[2]), Lblock512(TMP[2]));  \
+        TMP[19] = _mm512_xor_si512(_mm512_xor_si512(TMP[19], TMP[3]), Lblock512(TMP[3]));  \
+        }
 
 /*
 // Transpose functions
@@ -291,7 +390,7 @@ __INLINE void TRANSPOSE_4x16_I32_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __
     __m512i z2 = _mm512_unpacklo_epi32(*t2, *t3);
     __m512i z3 = _mm512_unpackhi_epi32(*t2, *t3);
 
-    /* Get the right endiannes and do (Y0, Y1, Y2, Y3) = R(X32, X33, X34, X35) = (X35, X34, X33, X32) */
+    /* Get the right endianness and do (Y0, Y1, Y2, Y3) = R(X32, X33, X34, X35) = (X35, X34, X33, X32) */
     *t0 = CHANGE_ORDER_BLOCKS(_mm512_unpacklo_epi64(z0, z2));
     *t1 = CHANGE_ORDER_BLOCKS(_mm512_unpackhi_epi64(z0, z2));
     *t2 = CHANGE_ORDER_BLOCKS(_mm512_unpacklo_epi64(z1, z3));
@@ -338,7 +437,7 @@ __INLINE void TRANSPOSE_4x16_I32_EPI8(__m512i t0, __m512i t1, __m512i t2, __m512
     __m512i z2 = _mm512_unpacklo_epi32(t2, t3);
     __m512i z3 = _mm512_unpackhi_epi32(t2, t3);
 
-    /* Get the right endiannes */
+    /* Get the right endianness */
     t0 = ENDIANNESS_16x32(_mm512_unpacklo_epi64(z0, z2));
     t1 = ENDIANNESS_16x32(_mm512_unpackhi_epi64(z0, z2));
     t2 = ENDIANNESS_16x32(_mm512_unpacklo_epi64(z1, z3));
@@ -404,7 +503,7 @@ __INLINE void TRANSPOSE_AND_XOR_4x16_I32_EPI32(__m512i* t0, __m512i* t1, __m512i
     z2 = _mm512_unpacklo_epi32(*t2, *t3);
     z3 = _mm512_unpackhi_epi32(*t2, *t3);
 
-    /* Get the right endiannes and do (Y0, Y1, Y2, Y3) = R(X32, X33, X34, X35) = (X35, X34, X33, X32) */
+    /* Get the right endianness and do (Y0, Y1, Y2, Y3) = R(X32, X33, X34, X35) = (X35, X34, X33, X32) */
     *t0 = CHANGE_ORDER_BLOCKS(_mm512_unpacklo_epi64(z0, z2));
     *t1 = CHANGE_ORDER_BLOCKS(_mm512_unpackhi_epi64(z0, z2));
     *t2 = CHANGE_ORDER_BLOCKS(_mm512_unpacklo_epi64(z1, z3));

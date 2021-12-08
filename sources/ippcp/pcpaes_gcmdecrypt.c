@@ -76,26 +76,20 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
    IPP_BAD_PTR2_RET(pSrc, pDst);
    IPP_BADARG_RET(len<0, ippStsLengthErr);
 
-   #if(_IPP32E<_IPP32E_K0)
-
+#if (_IPP32E < _IPP32E_K0)
    /* get method */
-   IppsAESSpec* pAES = AESGCM_CIPHER(pState);
+   IppsAESSpec *pAES = AESGCM_CIPHER(pState);
    RijnCipher encoder = RIJ_ENCODER(pAES);
    MulGcm_ hashFunc = AESGCM_HASH(pState);
-   
-   #endif
+#endif
 
    if( GcmAADprocessing==AESGCM_STATE(pState) ) {
-
-      #if(_IPP32E>=_IPP32E_K0)
-
-      AadFinalize_ aadHashFinalize = AES_GCM_AAD_FINALIZE(pState);
-
-      aadHashFinalize(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), 
-                      AESGCM_GHASH(pState), (Ipp64u)AESGCM_BUFLEN(pState), AESGCM_AAD_LEN(pState));
-
-      #else
-      
+#if(_IPP32E>=_IPP32E_K0)
+      if(AESGCM_BUFLEN(pState)) {
+         MulGcm_ ghashFunc = AES_GCM_GMUL(pState);
+         ghashFunc(&AES_GCM_KEY_DATA(pState), AESGCM_GHASH(pState));
+      }
+#else
       /* complete AAD processing */
       if(AESGCM_BUFLEN(pState))
          hashFunc(AESGCM_GHASH(pState), AESGCM_HKEY(pState), AesGcmConst_table);
@@ -108,8 +102,7 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
       #else
       encoder(AESGCM_COUNTER(pState), AESGCM_ECOUNTER(pState), RIJ_NR(pAES), RIJ_EKEYS(pAES), NULL);
       #endif
-
-      #endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K0) */
 
       /* switch mode and init counters */
       AESGCM_BUFLEN(pState) = 0; 
@@ -121,13 +114,10 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
    // process text (authenticate and decrypt)
    */
 
-   #if(_IPP32E>=_IPP32E_K0)
-
+#if(_IPP32E>=_IPP32E_K0)
    DecryptUpdate_ dec = AES_GCM_DECRYPT_UPDATE(pState);
    dec(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), pDst, pSrc, (Ipp64u)len);
-
-   #else
-
+#else
    /* process partial block */
    if(AESGCM_BUFLEN(pState)) {
       int locLen = IPP_MIN(len, BLOCK_SIZE-AESGCM_BUFLEN(pState));
@@ -183,8 +173,7 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
       AESGCM_BUFLEN(pState) += len;
       AESGCM_TXT_LEN(pState) += (Ipp64u)len;
    }
-
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K0) */
 
    return ippStsNoErr;
 }

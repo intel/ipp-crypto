@@ -24,37 +24,41 @@ This library consists of highly-optimized kernels taking advantage of Intel’s 
 
 ### Linux* OS
 
-- Intel® C++ Compiler 19.0 Update 4 for Linux\* OS
-- GCC 8.2
-- Clang 9
+- Intel® C++ Compiler Classic 2021.3 for Linux\* OS
+- GCC 8.3
+- GCC 9.1
+- GCC 10.1
+- GCC 11.1
+- Clang 9.0
+- Clang 12.0
 - GNU binutils 2.32
 
 ### Windows* OS
 
-- Intel® C++ Compiler 19.0 Update 4 for Windows\* OS
-- Microsoft Visual C++ Compiler\* version 19.16 provided by Microsoft Visual Studio\* 2017 version 15.9
+- Intel® C++ Compiler Classic 2021.3 for Windows\* OS
+- Microsoft Visual C++ Compiler\* version 19.24 provided by Microsoft Visual Studio\* 2019 version 16.4
 
 ### macOS*
 
-- Intel® C++ Compiler 19.0 Update 4 for macOS\*
+- Intel® C++ Compiler Classic 2021.3 for macOS\*
 
 ## Installation
 
 You can install the Crypto Multi-buffer library in two different ways:
-1. Installation to the default directories.  
+1. Installation to the default directories.
    > **Note**: To run this installation type, you need to have appropriate permissions to write to the installation directory.
 
    Default locations (default values of `CMAKE_INSTALL_PREFIX`):
    - Unix:  /usr/local
    - Windows: C:\Program Files\crypto_mb or C:\Program Files (x86)\crypto_mb
-   
+
    To begin installation, run the command below in the project folder that was specified with `-B`:
    ``` bash
    make install
    ```
    > **Note**: Installation requires write permissions to the build directory to create the installation manifest file. If it is not feasible in your setup, copy the build to the local directory and change permissions accordingly.
-   
-2. Installation to your own directory.  
+
+2. Installation to your own directory.
    If you want to install the library not by default paths, specify the `CMAKE_INSTALL_PREFIX` variable at the configuration step, for example:
    ``` bash
    cmake . -B"../build" -DCMAKE_INSTALL_PREFIX=path/to/libcrypto_mb/installation
@@ -115,10 +119,10 @@ The Crypto Multi-buffer library will be built automatically with Intel® IPP Cry
 - Use `OPENSSL_INCLUDE_DIR`,     `OPENSSL_LIBRARIES` and `OPENSSL_ROOT_DIR` to   override path to OpenSSL\*:
 
    ``` bash
-   cmake . -B"../build"  
-   -DOPENSSL_INCLUDE_DIR=/path/to/openssl/include  
-   -DOPENSSL_LIBRARIES=/path/to/openssl/lib  
+   cmake . -B"../build"
+   -DOPENSSL_INCLUDE_DIR=/path/to/openssl/include
+   -DOPENSSL_LIBRARIES=/path/to/openssl/lib
    -DOPENSSL_ROOT_DIR=/path/to/openssl/installation/dir
    ```
-   
+
 - Set `-DOPENSSL_USE_STATIC_LIBS=TRUE` if static OpenSSL libraries are preferred.

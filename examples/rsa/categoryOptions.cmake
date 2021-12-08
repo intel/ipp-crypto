@@ -16,4 +16,5 @@
 
 set(rsa_CATEGORY_COMMON_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/bignum.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils/utils.cpp
    )

@@ -25,6 +25,7 @@
 #include "gsmodstuff.h"
 #include "gsmodmethod.h"
 #include "pcpmontred.h"
+#include "pcpmask_ct.h"
 
 //tbcd: temporary excluded: #include <assert.h>
 
@@ -47,7 +48,7 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_add, (BNU_CHUNK_T* pr, const BNU_CHUN
    {
       BNU_CHUNK_T extension = cpAdd_BNU(pr, pa, pb, mLen);
       extension -= cpSub_BNU(pBuffer, pr, pm, mLen);
-      cpMaskMove_gs(pr, pBuffer, mLen, cpIsZero(extension));
+      cpMaskedReplace_ct(pr, pBuffer, mLen, cpIsZero_ct(extension));
    }
    gsModPoolFree(pME, polLength);
    return pr;
@@ -72,7 +73,7 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_sub, (BNU_CHUNK_T* pr, const BNU_CHUN
    {
       BNU_CHUNK_T extension = cpSub_BNU(pr, pa, pb, mLen);
       cpAdd_BNU(pBuffer, pr, pm, mLen);
-      cpMaskMove_gs(pr, pBuffer, mLen, cpIsNonZero(extension));
+      cpMaskedReplace_ct(pr, pBuffer, mLen, ~cpIsZero_ct(extension));
    }
    gsModPoolFree(pME, polLength);
    return pr;
@@ -96,7 +97,7 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_neg, (BNU_CHUNK_T* pr, const BNU_CHUN
    {
       BNU_CHUNK_T extension = cpSub_BNU(pr, pm, pa, mLen);
       extension -= cpSub_BNU(pBuffer, pr, pm, mLen);
-      cpMaskMove_gs(pr, pBuffer, mLen, cpIsZero(extension));
+      cpMaskedReplace_ct(pr, pBuffer, mLen, cpIsZero_ct(extension));
    }
    gsModPoolFree(pME, polLength);
    return pr;
@@ -205,7 +206,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_red, (BNU_CHUNK_T* pr, BNU_CHUNK_T* p
 
    {
       carry -= cpSub_BNU(pr, prod, pm, mLen);
-      cpMaskMove_gs(pr, prod, mLen, cpIsNonZero(carry));
+      cpMaskedReplace_ct(pr, prod, mLen, ~cpIsZero_ct(carry));
+
       return pr;
    }
 }
@@ -303,7 +305,7 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_mul, (BNU_CHUNK_T* pr, const BNU_CHUN
       }
 
       carry -= cpSub_BNU(pr, pBuffer, pm, mLen);
-      cpMaskMove_gs(pr, pBuffer, mLen, cpIsNonZero(carry));
+      cpMaskedReplace_ct(pr, pBuffer, mLen, ~cpIsZero_ct(carry));
    }
 
    gsModPoolFree(pME, polLength);

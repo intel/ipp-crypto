@@ -500,3 +500,27 @@ void fe52_pow_2_252m3_mod25519(fe52_mb r, const fe52_mb z)
    fe52_p2n(t0, t0, 2);    /* t0 = z^((2^250 -2^0) * (2^2)) = z^(2^252 -2^2) */
    fe52_mul(r, t0, z);     /* r  = z^(2^252 -2^2) * z = z^(2^252 -2^2 +1) = z^(2^252 -3) */
 }
+
+void fe52mb8_red_p25519(fe52_mb r, const fe52_mb a)
+{
+   /* r = a-p */
+   U64 r0 = sub64(a[0], loadu64(VPRIME25519_LO));
+   U64 r1 = sub64(a[1], loadu64(VPRIME25519_MID));
+   U64 r2 = sub64(a[2], loadu64(VPRIME25519_MID));
+   U64 r3 = sub64(a[3], loadu64(VPRIME25519_MID));
+   U64 r4 = sub64(a[4], loadu64(VPRIME25519_HI));
+
+   /* normalize r0, r1, r2, r3, r4 */
+   NORM_ASHIFTR(r, 0, 1)
+   NORM_ASHIFTR(r, 1, 2)
+   NORM_ASHIFTR(r, 2, 3)
+   NORM_ASHIFTR(r, 3, 4)
+
+   /* condition move r[] = r4<0? a[] : {r0:r1:r2:r3:r4} */
+   __mb_mask cmask = cmp64_mask(r4, get_zero64(), _MM_CMPINT_LT);
+   r[0] = mask_mov64(r0, cmask, a[0]);
+   r[1] = mask_mov64(r1, cmask, a[1]);
+   r[2] = mask_mov64(r2, cmask, a[2]);
+   r[3] = mask_mov64(r3, cmask, a[3]);
+   r[4] = mask_mov64(r4, cmask, a[4]);
+}

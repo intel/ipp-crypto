@@ -84,6 +84,11 @@ __INLINE BNU_CHUNK_T cpIsEqu_ct(BNU_CHUNK_T a, BNU_CHUNK_T b)
    return cpIsZero_ct(a ^ b);
 }
 
+/* Disable optimization for Clang compiler to produce constant execution time code */
+#if defined( __clang__ ) && !defined (__INTEL_COMPILER)
+   #pragma clang optimize off
+#endif
+
 /* replace under mask: dst[] = replaceFlag? src[] : dst[] */
 __INLINE void cpMaskedReplace_ct(BNU_CHUNK_T* dst, const BNU_CHUNK_T* src, int len, BNU_CHUNK_T replaceMask)
 {
@@ -100,6 +105,10 @@ __INLINE void cpMaskedCopyBNU_ct(BNU_CHUNK_T* dst, BNU_CHUNK_T mask, const BNU_C
    for(i=0; i<(len); i++)
       dst[i] = (src1[i] & mask) ^ (src2[i] & ~mask);
 }
+
+#if defined( __clang__ ) && !defined (__INTEL_COMPILER)
+   #pragma clang optimize on
+#endif
 
 /* test if GF element is equal to x chunk */
 __INLINE BNU_CHUNK_T cpIsGFpElemEquChunk_ct(const BNU_CHUNK_T* pE, int nsE, BNU_CHUNK_T x)

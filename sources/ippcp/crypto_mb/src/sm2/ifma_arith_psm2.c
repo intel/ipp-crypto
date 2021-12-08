@@ -290,6 +290,30 @@ void MB_FUNC_NAME(ifma_aminv52_psm2_)(U64 r[], const U64 z[])
 
 }
 
+void MB_FUNC_NAME(ifma_reduce52_psm2_)(U64 R[], const U64 A[])
+{
+   /* r = a - p384_mb */
+   U64 r0 = sub64(A[0], ((U64*)(psm2_mb))[0]);
+   U64 r1 = sub64(A[1], ((U64*)(psm2_mb))[1]);
+   U64 r2 = sub64(A[2], ((U64*)(psm2_mb))[2]);
+   U64 r3 = sub64(A[3], ((U64*)(psm2_mb))[3]);
+   U64 r4 = sub64(A[4], ((U64*)(psm2_mb))[4]);
+
+   /* normalize r0 - r4 */
+   NORM_ASHIFTR(r, 0, 1)
+   NORM_ASHIFTR(r, 1, 2)
+   NORM_ASHIFTR(r, 2, 3)
+   NORM_ASHIFTR(r, 3, 4)
+
+   /* r = a<psm2_mb? a : r */
+   __mb_mask lt = cmp64_mask(r4, get_zero64(), _MM_CMPINT_LT);
+   R[0] = mask_mov64(r0, lt, A[0]);
+   R[1] = mask_mov64(r1, lt, A[1]);
+   R[2] = mask_mov64(r2, lt, A[2]);
+   R[3] = mask_mov64(r3, lt, A[3]);
+   R[4] = mask_mov64(r4, lt, A[4]);
+}
+
 void MB_FUNC_NAME(ifma_tomont52_psm2_)(U64 r[], const U64 a[])
 {
    MB_FUNC_NAME(ifma_amm52_psm2_)(r, a, (U64*)psm2_rr_mb);
@@ -298,6 +322,7 @@ void MB_FUNC_NAME(ifma_tomont52_psm2_)(U64 r[], const U64 a[])
 void MB_FUNC_NAME(ifma_frommont52_psm2_)(U64 r[], const U64 a[])
 {
    MB_FUNC_NAME(ifma_amm52_psm2_)(r, a, (U64*)ones);
+   MB_FUNC_NAME(ifma_reduce52_psm2_)(r, r);
 }
 
 void MB_FUNC_NAME(ifma_add52_psm2_)(U64 r[], const U64 a[], const U64 b[])

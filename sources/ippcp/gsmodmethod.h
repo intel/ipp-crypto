@@ -52,6 +52,8 @@ typedef struct _gsModMethod {
    mod_mul3 mul3;
 } gsModMethod;
 
+/* These functions should not be used, because they have non-constant execution time, see their safe analogues in pcpmask_ct.h */
+#if 0
 __INLINE BNU_CHUNK_T cpIsZero(BNU_CHUNK_T x)
 {  return x==0; }
 __INLINE BNU_CHUNK_T cpIsNonZero(BNU_CHUNK_T x)
@@ -70,6 +72,7 @@ __INLINE void cpMaskMove_gs(BNU_CHUNK_T* dst, const BNU_CHUNK_T* src, int len, B
    for(n=0; n<len; n++)
       dst[n] = (src[n] & srcMask) ^  (dst[n] & dstMask);
 }
+#endif
 
 /* common available pre-defined methos */
 #define gsModArith OWNAPI(gsModArith)

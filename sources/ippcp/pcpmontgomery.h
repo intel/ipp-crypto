@@ -240,7 +240,6 @@ __INLINE void cpMontExpBin_BN(IppsBigNumState* pYbn,
    BN_SIGN(pYbn) = ippBigNumPOS;
 }
 
-
 /*
 // Montgomery exponentiation (fixed window)
 */

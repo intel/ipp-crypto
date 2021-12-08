@@ -41,9 +41,9 @@ extern "C" {
   #endif
 #endif
 
-#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER)
 #pragma warning(push)
-#pragma warning(disable : 4100) // for MSVC, unreferenced param
+#pragma warning(disable : 4100) // for MSVC, unreferenced parameter
 #endif
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -311,7 +311,7 @@ IPPAPI(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
 IPPAPI(IppStatus, ippsAES_GCMReset,(IppsAES_GCMState* pState))
 IPPAPI(IppStatus, ippsAES_GCMProcessIV,(const Ipp8u* pIV, int ivLen,
                                         IppsAES_GCMState* pState))
-IPPAPI(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int ivAAD,
+IPPAPI(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen,
                                         IppsAES_GCMState* pState))
 IPPAPI(IppStatus, ippsAES_GCMStart,(const Ipp8u* pIV, int ivLen,
                                     const Ipp8u* pAAD, int aadLen,
@@ -363,7 +363,8 @@ IPPAPI(IppStatus, ippsAES_CMACGetTag,(Ipp8u* pMD, int mdLen, const IppsAES_CMACS
 // =========================================================
 */
 
-#define RC4_DEPRECATED "is deprecated. This function is obsolete and will be removed in one of the future Intel IPP Cryptography releases"
+#define RC4_DEPRECATED "is deprecated. This algorithm is considered weak due to known attacks on it. \
+It is obsolete and will be removed in one of the future Intel IPP Cryptography releases."
 
 IPP_DEPRECATED(RC4_DEPRECATED) \
 IPPAPI(IppStatus, ippsARCFourCheckKey, (const Ipp8u *pKey, int keyLen, IppBool* pIsWeak))
@@ -395,26 +396,30 @@ IPPAPI(IppStatus, ippsARCFourDecrypt, (const Ipp8u *pSrc, Ipp8u *pDst, int lengt
 #define OBSOLETE_API "is deprecated. This API is considered obsolete and will be removed in one of future Intel IPP Cryptography releases. \
 Use the following link for opening a ticket and providing feedback: https://supporttickets.intel.com/ if you have concerns."
 
+#define SHA1_DEPRECATED "This algorithm is considered weak due to known attacks on it. \
+The functionality remains in the library, but the implementation will no be longer \
+optimized and no security patches will be applied. A more secure alternative is available: SHA-2"
+
 /* SHA1 Hash Primitives */
-IPP_DEPRECATED(OBSOLETE_API) \
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI(IppStatus, ippsSHA1GetSize,(int* pSize))
-IPP_DEPRECATED(OBSOLETE_API) \
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI(IppStatus, ippsSHA1Init,(IppsSHA1State* pState))
-IPP_DEPRECATED(OBSOLETE_API) \
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI(IppStatus, ippsSHA1Duplicate,(const IppsSHA1State* pSrcState, IppsSHA1State* pDstState))
 
-IPP_DEPRECATED(OBSOLETE_API) \
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI(IppStatus, ippsSHA1Pack,(const IppsSHA1State* pState, Ipp8u* pBuffer))
-IPP_DEPRECATED(OBSOLETE_API) \
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI(IppStatus, ippsSHA1Unpack,(const Ipp8u* pBuffer, IppsSHA1State* pState))
 
-IPP_DEPRECATED(OBSOLETE_API) \
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI(IppStatus, ippsSHA1Update,(const Ipp8u* pSrc, int len, IppsSHA1State* pState))
-IPP_DEPRECATED(OBSOLETE_API) \
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI(IppStatus, ippsSHA1GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsSHA1State* pState))
-IPP_DEPRECATED(OBSOLETE_API) \
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI(IppStatus, ippsSHA1Final,(Ipp8u* pMD, IppsSHA1State* pState))
-IPP_DEPRECATED(OBSOLETE_API) \
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI(IppStatus, ippsSHA1MessageDigest,(const Ipp8u* pMsg, int len, Ipp8u* pMD))
 
 /* SHA224 Hash Primitives */
@@ -581,8 +586,11 @@ IPP_DEPRECATED(MD5_DEPRECATED) \
 IPPAPI( const IppsHashMethod*, ippsHashMethod_MD5, (void) )
 IPPAPI( const IppsHashMethod*, ippsHashMethod_SM3, (void) )
 
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI( const IppsHashMethod*, ippsHashMethod_SHA1, (void) )
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI( const IppsHashMethod*, ippsHashMethod_SHA1_NI, (void) )
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI( const IppsHashMethod*, ippsHashMethod_SHA1_TT, (void) )
 
 IPPAPI( const IppsHashMethod*, ippsHashMethod_SHA256, (void) )
@@ -603,8 +611,11 @@ IPP_DEPRECATED(MD5_DEPRECATED) \
 IPPAPI( IppStatus, ippsHashMethodSet_MD5, (IppsHashMethod* pMethod) )
 IPPAPI( IppStatus, ippsHashMethodSet_SM3, (IppsHashMethod* pMethod) )
 
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI( IppStatus, ippsHashMethodSet_SHA1, (IppsHashMethod* pMethod) )
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI( IppStatus, ippsHashMethodSet_SHA1_NI, (IppsHashMethod* pMethod) )
+IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI( IppStatus, ippsHashMethodSet_SHA1_TT, (IppsHashMethod* pMethod) )
 
 IPPAPI( IppStatus, ippsHashMethodSet_SHA256, (IppsHashMethod* pMethod) )
@@ -1006,7 +1017,7 @@ IPPAPI(IppStatus, ippsDLPSetKeyPair,(const IppsBigNumState* pPrvKey,
                                      const IppsBigNumState* pPubKey,
                                      IppsDLPState* pCtx))
 
-/* Singing/Verifying (DSA version) */
+/* Signing/Verifying (DSA version) */
 IPPAPI(IppStatus, ippsDLPSignDSA,  (const IppsBigNumState* pMsgDigest,
                                     const IppsBigNumState* pPrvKey,
                                     IppsBigNumState* pSignR, IppsBigNumState* pSignS,
@@ -1205,7 +1216,7 @@ IPPAPI(IppStatus, ippsECCPSharedSecretDHC,(const IppsBigNumState* pPrivateA,
                                            IppsBigNumState* pShare,
                                            IppsECCPState* pEC))
 
-/* Sing/Verify */
+/* Sign/Verify */
 IPP_DEPRECATED(OBSOLETE_API) \
 IPPAPI(IppStatus, ippsECCPSignDSA,(const IppsBigNumState* pMsgDigest,
                         const IppsBigNumState* pPrivate,
@@ -1443,7 +1454,7 @@ IPPAPI(IppStatus, ippsGFpECESFinal_SM2, (Ipp8u* pTag, int tagLen, IppsECESState_
 IPPAPI(IppStatus, ippsGFpECESGetBuffersSize_SM2, (int* pPublicKeySize,
                         int* pMaximumTagSize, const IppsECESState_SM2* pState))
 
-#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER)
 #pragma warning(pop)
 #endif
 #ifdef  __cplusplus

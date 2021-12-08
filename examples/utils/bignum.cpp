@@ -17,6 +17,7 @@
 #include "bignum.h"
 #include <cstring>
 #include <cstdlib>
+#include "utils.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -83,11 +84,11 @@ BigNumber::BigNumber(const char* s)
    if(hex) {
       s += 2;
       base = 0x10;
-      dataLen = (int)(strlen(s) + 7)/8;
+      dataLen = (int)(strlen_safe(s) + 7)/8;
    }
    else {
       base = 10;
-      dataLen = (int)(strlen(s) + 9)/10;
+      dataLen = (int)(strlen_safe(s) + 9)/10;
    }
 
    create(0, dataLen);
@@ -153,7 +154,7 @@ BigNumber& BigNumber::operator =(const BigNumber& bn)
       Ipp32u* bnData;
       ippsRef_BN(&bnSgn, &bnBitLen, &bnData, bn);
 
-      delete (Ipp8u*)m_pBN;
+      delete [] (Ipp8u*)m_pBN;
       create(bnData, BITSIZE_WORD(bnBitLen), bnSgn);
    }
    return *this;

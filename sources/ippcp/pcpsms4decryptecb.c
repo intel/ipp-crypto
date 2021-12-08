@@ -67,7 +67,7 @@ IPPFUN(IppStatus, ippsSMS4DecryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
 
    /* do encryption */
    #if (_IPP32E>=_IPP32E_K1)
-   #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+   #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
    if (IsFeatureEnabled(ippCPUID_AVX512GFNI)) {
       int processedLen = cpSMS4_ECB_gfni512(pDst, pSrc, len, SMS4_DRK(pCtx));
       pSrc += processedLen;
@@ -75,7 +75,7 @@ IPPFUN(IppStatus, ippsSMS4DecryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
       len -= processedLen;
    }
    else
-   #endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)) */
+   #endif /* #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)) */
    #endif /* (_IPP32E>=_IPP32E_K1) */
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    if(IsFeatureEnabled(ippCPUID_AES)) {

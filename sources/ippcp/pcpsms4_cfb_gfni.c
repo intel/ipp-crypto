@@ -61,7 +61,7 @@
 #include "pcptool.h"
 
 #if (_IPP32E>=_IPP32E_K1)
-#if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
+#if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920)
 
 #include "pcpsms4_gfni.h"
 
@@ -1622,5 +1622,5 @@ void cpSMS4_CFB_dec_gfni128x4(Ipp8u* pDst, const Ipp8u* pSrc, int len, int cfbBl
    }
 }
 
-#endif /* #if defined (__INTEL_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
+#endif /* #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
 #endif /* _IPP32E>=_IPP32E_K1 */

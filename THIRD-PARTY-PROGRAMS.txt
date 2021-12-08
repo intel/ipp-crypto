@@ -9,7 +9,7 @@ below.
 
 -------------------------------------------------------------
 
-1. Intel(R) Multi-Buffer Crypto for IPsec Library 
+1. Intel(R) Multi-Buffer Crypto for IPSec Library
 
 Copyright (c) 2012-2021, Intel Corporation
 

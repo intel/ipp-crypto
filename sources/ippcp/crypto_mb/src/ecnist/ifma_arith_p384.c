@@ -277,6 +277,39 @@ void MB_FUNC_NAME(ifma_ams52_p384_)(U64 r[], const U64 va[])
    r[7] = r15;
 }
 
+void MB_FUNC_NAME(ifma_reduce52_p384_)(U64 R[], const U64 A[])
+{
+   /* r = a - p384_mb */
+   U64 r0 = sub64(A[0], ((U64*)(p384_mb))[0]);
+   U64 r1 = sub64(A[1], ((U64*)(p384_mb))[1]);
+   U64 r2 = sub64(A[2], ((U64*)(p384_mb))[2]);
+   U64 r3 = sub64(A[3], ((U64*)(p384_mb))[3]);
+   U64 r4 = sub64(A[4], ((U64*)(p384_mb))[4]);
+   U64 r5 = sub64(A[5], ((U64*)(p384_mb))[5]);
+   U64 r6 = sub64(A[6], ((U64*)(p384_mb))[6]);
+   U64 r7 = sub64(A[7], ((U64*)(p384_mb))[7]);
+
+   /* normalize r0 - r7 */
+   NORM_ASHIFTR(r, 0, 1)
+   NORM_ASHIFTR(r, 1, 2)
+   NORM_ASHIFTR(r, 2, 3)
+   NORM_ASHIFTR(r, 3, 4)
+   NORM_ASHIFTR(r, 4, 5)
+   NORM_ASHIFTR(r, 5, 6)
+   NORM_ASHIFTR(r, 6, 7)
+
+   /* r = a<p384_mb? a : r */
+   __mb_mask lt = cmp64_mask(r7, get_zero64(), _MM_CMPINT_LT);
+   R[0] = mask_mov64(r0, lt, A[0]);
+   R[1] = mask_mov64(r1, lt, A[1]);
+   R[2] = mask_mov64(r2, lt, A[2]);
+   R[3] = mask_mov64(r3, lt, A[3]);
+   R[4] = mask_mov64(r4, lt, A[4]);
+   R[5] = mask_mov64(r5, lt, A[5]);
+   R[6] = mask_mov64(r6, lt, A[6]);
+   R[7] = mask_mov64(r7, lt, A[7]);
+}
+
 void MB_FUNC_NAME(ifma_tomont52_p384_)(U64 r[], const U64 a[])
 {
    MB_FUNC_NAME(ifma_amm52_p384_)(r, a, (U64*)p384_rr_mb);
@@ -285,6 +318,7 @@ void MB_FUNC_NAME(ifma_tomont52_p384_)(U64 r[], const U64 a[])
 void MB_FUNC_NAME(ifma_frommont52_p384_)(U64 r[], const U64 a[])
 {
    MB_FUNC_NAME(ifma_amm52_p384_)(r, a, (U64*)ones);
+   MB_FUNC_NAME(ifma_reduce52_p384_)(r, r);
 }
 
 /*

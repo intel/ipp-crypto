@@ -51,6 +51,23 @@ extern "C" {
 
 #endif
 
+/* icc 2021 supports short float data type, icx supports _Float16 data type */
+#define _FLOAT_16    2
+#define _SHORT_FLOAT 1
+#define _NO_FLOAT_16 0
+#if defined(__INTEL_LLVM_COMPILER) && defined(__AVX512FP16__)
+#    define COMPILER_SUPPORT_SHORT_FLOAT _FLOAT_16
+#else
+#    if defined(__INTEL_COMPILER)
+#        if(__INTEL_COMPILER >= 2021)
+#            define COMPILER_SUPPORT_SHORT_FLOAT _SHORT_FLOAT
+#        endif
+#    endif
+#endif
+#if !(defined(COMPILER_SUPPORT_SHORT_FLOAT))
+#    define COMPILER_SUPPORT_SHORT_FLOAT _NO_FLOAT_16
+#endif
+
 #if !defined(_NO_IPP_DEPRECATED)
    #if (defined( __ICL ) || defined( __ECL ) || defined(_MSC_VER)) && !defined( _PCS ) && !defined( _PCS_GENSTUBS )
      #if( __INTEL_COMPILER >= 1100 ) /* icl 11.0 supports additional comment */
@@ -62,9 +79,9 @@ extern "C" {
          #pragma message ("use -Qvc8 switch for icl command line to see these additional comments")
          #define IPP_DEPRECATED( comment ) __declspec( deprecated )
        #endif
-     #elif( _MSC_FULL_VER >= 140050727 )&&( !defined( __INTEL_COMPILER )) /* VS2005 supports additional comment */
+     #elif( _MSC_FULL_VER >= 140050727 )&&( !defined( __INTEL_COMPILER ))&&( !defined(__INTEL_LLVM_COMPILER)) /* VS2005 supports additional comment */
        #define IPP_DEPRECATED( comment ) __declspec( deprecated ( comment ))
-     #elif( _MSC_VER <= 1200 )&&( !defined( __INTEL_COMPILER )) /* VS 6 doesn't support deprecation */
+     #elif( _MSC_VER <= 1200 )&&( !defined( __INTEL_COMPILER ))&&( !defined(__INTEL_LLVM_COMPILER)) /* VS 6 doesn't support deprecation */
        #define IPP_DEPRECATED( comment )
      #else
        #define IPP_DEPRECATED( comment ) __declspec( deprecated )
@@ -106,7 +123,7 @@ extern "C" {
 
 #if defined (_MSC_VER)
   #define IPP_CDECL    __cdecl
-#elif (defined (__INTEL_COMPILER) || defined (__GNUC__ ) || defined (__clang__)) && defined (_ARCH_IA32)
+#elif (defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || defined (__GNUC__ ) || defined (__clang__)) && defined (_ARCH_IA32)
   #define IPP_CDECL    __attribute((cdecl))
 #else
   #define IPP_CDECL
@@ -198,7 +215,16 @@ typedef float          Ipp32f;
 typedef IPP_INT64      Ipp64s;
 typedef IPP_UINT64     Ipp64u;
 typedef double         Ipp64f;
-typedef Ipp16s         Ipp16f;
+
+#if (COMPILER_SUPPORT_SHORT_FLOAT == _FLOAT_16)
+    typedef _Float16       Ipp16f;
+#endif
+#if (COMPILER_SUPPORT_SHORT_FLOAT == _SHORT_FLOAT)
+    typedef short float    Ipp16f;
+#endif
+#if (COMPILER_SUPPORT_SHORT_FLOAT == _NO_FLOAT_16)
+    typedef Ipp16s         Ipp16f;
+#endif
 
 typedef struct {
     Ipp8s  re;
@@ -235,6 +261,11 @@ typedef struct {
     Ipp64f  im;
 } Ipp64fc;
 
+typedef struct {
+    Ipp16f  re;
+    Ipp16f  im;
+} Ipp16fc;
+
 typedef enum {
    ippUndef = -1,
    ipp1u    =  0,
@@ -257,7 +288,8 @@ typedef enum {
    ipp64s   = 17,
    ipp64sc  = 18,
    ipp64f   = 19,
-   ipp64fc  = 20
+   ipp64fc  = 20,
+   ipp16fc  = 21 /* This is necessary for TS */
 } IppDataType;
 
 typedef enum {
@@ -311,15 +343,16 @@ typedef enum {
 #else
   #define INT64_SUFFIX(name) name##LL
 #endif
- #define   ippCPUID_AVX512IFMA   INT64_SUFFIX(0x100000000)        /* Intel® Advanced Vector Extensions 512 IFMA (PMADD52) instruction set      */
- #define   ippCPUID_NOCHECK      INT64_SUFFIX(0x8000000000000000) /* Force ippSetCpuFeatures to set CPU features without check                 */
- #define   ippCPUID_GETINFO_A    INT64_SUFFIX(0x616f666e69746567) /* Force ippGetCpuFeatures to work as cpuid instruction                      */
- #define   ippAVX512_ENABLEDBYOS INT64_SUFFIX(0x200000000)        /* Intel® Advanced Vector Extensions 512 is supported by OS                  */
+ #define   ippCPUID_AVX512IFMA      INT64_SUFFIX(0x100000000)        /* Intel® Advanced Vector Extensions 512 IFMA (PMADD52) instruction set             */
+ #define   ippCPUID_NOCHECK         INT64_SUFFIX(0x8000000000000000) /* Force ippSetCpuFeatures to set CPU features without check                        */
+ #define   ippCPUID_GETINFO_A       INT64_SUFFIX(0x616f666e69746567) /* Force ippGetCpuFeatures to work as cpuid instruction                             */
+ #define   ippAVX512_ENABLEDBYOS    INT64_SUFFIX(0x200000000)        /* Intel® Advanced Vector Extensions 512 is supported by OS                         */
 
- #define   ippCPUID_AVX512GFNI   INT64_SUFFIX(0x400000000)        /*                                                                           */
- #define   ippCPUID_AVX512VAES   INT64_SUFFIX(0x800000000)        /*                                                                           */
- #define   ippCPUID_AVX512VCLMUL INT64_SUFFIX(0x1000000000)       /*                                                                           */
- #define   ippCPUID_AVX512VBMI2  INT64_SUFFIX(0x2000000000)       /* Intel® Advanced Vector Extensions 512 Bit Manipulation instructions 2     */
+ #define   ippCPUID_AVX512GFNI   INT64_SUFFIX(0x400000000)        /*                                                                                      */
+ #define   ippCPUID_AVX512VAES   INT64_SUFFIX(0x800000000)        /*                                                                                      */
+ #define   ippCPUID_AVX512VCLMUL INT64_SUFFIX(0x1000000000)       /*                                                                                      */
+ #define   ippCPUID_AVX512VBMI2  INT64_SUFFIX(0x2000000000)       /* Intel® Advanced Vector Extensions 512 Bit Manipulation instructions 2                */
+ #define   ippCPUID_AVX512_FP16  INT64_SUFFIX(0x1000000000)       /* Intel(R) Advanced Vector Extensions 512 16-bit floating point (FP16) instruction set */
 
 
 #endif /* IPP_CPU_FEATURES__ */

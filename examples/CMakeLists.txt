@@ -23,6 +23,9 @@ set(IPPCP_EXAMPLES
   # AES examples
   aes/aes-256-ctr-encryption.cpp
   aes/aes-256-ctr-decryption.cpp
+  # DSA
+  dsa/dsa-dlp-sha-1-verification.cpp
+  dsa/dsa-dlp-sha-256-verification.cpp
   # RSA SSA-PSS examples
   rsa/rsa-3k-pss-sha384-type1-signature.cpp
   rsa/rsa-1k-pss-sha1-verification.cpp
@@ -59,7 +62,8 @@ function(ippcp_define_example out_target source_file category)
                         PROJECT_LABEL "(example) ${name}"    # Set name of the target in IDE
                         FOLDER "examples/${category}"        # Group projects in solution folder
                         RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_OUTPUT_DIR}/$<UPPER_CASE:$<CONFIG>>/examples"  # Set output directory for examples in the build folder
-                        RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${CMAKE_OUTPUT_DIR}/$<UPPER_CASE:$<CONFIG>>/examples")
+                        RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${CMAKE_OUTPUT_DIR}/$<UPPER_CASE:$<CONFIG>>/examples"
+                        COMPILE_DEFINITIONS _NO_IPP_DEPRECATED) # ignore deprecation warnings
 
   # Add a single target to build all examples of the same category (e.g. 'make ippcp_examples_aes')
   set(parent_target ippcp_examples_${category})
