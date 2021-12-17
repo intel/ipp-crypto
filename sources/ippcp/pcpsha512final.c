@@ -58,7 +58,7 @@ IPPFUN(IppStatus, ippsSHA512Final,(Ipp8u* pMD, IppsSHA512State* pState))
    IPP_BAD_PTR1_RET(pMD);
 
    cpFinalizeSHA512(HASH_VALUE(pState),
-                    HASH_BUFF(pState), HAHS_BUFFIDX(pState),
+                    HASH_BUFF(pState), HASH_BUFFIDX(pState),
                     HASH_LENLO(pState), HASH_LENHI(pState));
    /* convert hash into big endian */
    ((Ipp64u*)pMD)[0] = ENDIANNESS64(HASH_VALUE(pState)[0]);
@@ -71,7 +71,7 @@ IPPFUN(IppStatus, ippsSHA512Final,(Ipp8u* pMD, IppsSHA512State* pState))
    ((Ipp64u*)pMD)[7] = ENDIANNESS64(HASH_VALUE(pState)[7]);
 
    /* re-init hash value */
-   HAHS_BUFFIDX(pState) = 0;
+   HASH_BUFFIDX(pState) = 0;
    HASH_LENLO(pState) = 0;
    HASH_LENHI(pState) = 0;
    sha512_hashInit(HASH_VALUE(pState));

@@ -67,7 +67,7 @@ IPPFUN(IppStatus, ippsMD5GetTag,(Ipp8u* pTag, Ipp32u tagLen, const IppsMD5State*
    {
       DigestMD5 digest;
       CopyBlock(HASH_VALUE(pState), digest, sizeof(DigestMD5));
-      cpFinalizeMD5(digest, HASH_BUFF(pState), HAHS_BUFFIDX(pState), HASH_LENLO(pState));
+      cpFinalizeMD5(digest, HASH_BUFF(pState), HASH_BUFFIDX(pState), HASH_LENLO(pState));
       CopyBlock(digest, pTag, (cpSize)tagLen);
 
       return ippStsNoErr;

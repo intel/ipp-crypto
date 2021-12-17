@@ -25,6 +25,7 @@
 //
 */
 
+#include "aes_gcm_avx512.h"
 #include "owndefs.h"
 #include "owncp.h"
 #include "pcpaesm.h"
@@ -76,8 +77,7 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    AESGCM_SET_ID(pState);
    ippsAES_GCMReset(pState);
 
-   #if(_IPP32E>=_IPP32E_K0)
-   
+#if(_IPP32E>=_IPP32E_K0)
    /* make sure in legal keyLen */
    IPP_BADARG_RET(keyLen!=16 && keyLen!=24 && keyLen!=32, ippStsLengthErr);
    AES_GCM_KEY_LEN(pState) = (Ipp64u)keyLen;
@@ -91,8 +91,8 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
          case 16:
             aes_keyexp_128_enc(pActualKey, &AES_GCM_KEY_DATA(pState));
             aes_gcm_precomp_128_vaes_avx512(&AES_GCM_KEY_DATA(pState));
-            
-            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_128_update_vaes_avx512; 
+
+            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_128_update_vaes_avx512;
             AES_GCM_DECRYPT_UPDATE(pState)    = aes_gcm_dec_128_update_vaes_avx512;
             AES_GCM_GET_TAG(pState)           = aes_gcm_gettag_128_vaes_avx512;
             break;
@@ -100,7 +100,7 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
             aes_keyexp_192_enc(pActualKey, &AES_GCM_KEY_DATA(pState));
             aes_gcm_precomp_192_vaes_avx512(&AES_GCM_KEY_DATA(pState));
 
-            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_192_update_vaes_avx512; 
+            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_192_update_vaes_avx512;
             AES_GCM_DECRYPT_UPDATE(pState)    = aes_gcm_dec_192_update_vaes_avx512;
             AES_GCM_GET_TAG(pState)           = aes_gcm_gettag_192_vaes_avx512;
             break;
@@ -108,25 +108,24 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
             aes_keyexp_256_enc(pActualKey, &AES_GCM_KEY_DATA(pState));
             aes_gcm_precomp_256_vaes_avx512(&AES_GCM_KEY_DATA(pState));
 
-            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_256_update_vaes_avx512; 
+            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_256_update_vaes_avx512;
             AES_GCM_DECRYPT_UPDATE(pState)    = aes_gcm_dec_256_update_vaes_avx512;
             AES_GCM_GET_TAG(pState)           = aes_gcm_gettag_256_vaes_avx512;
             break;
       }
 
-      AES_GCM_IV_UPDATE(pState)    = aes_gcm_iv_hash_update_vaes512;
-      AES_GCM_IV_FINALIZE(pState)  = aes_gcm_iv_hash_finalize_vaes512;
-      AES_GCM_AAD_UPDATE(pState)   = aes_gcm_aad_hash_update_vaes512;     
-      AES_GCM_AAD_FINALIZE(pState) = aes_gcm_aad_hash_finalize_vaes512;
-   }
-   else {
-      
+      AES_GCM_IV_UPDATE(pState)   = aes_gcm_iv_hash_update_vaes512;
+      AES_GCM_IV_FINALIZE(pState) = aes_gcm_iv_hash_finalize_vaes512;
+      AES_GCM_AAD_UPDATE(pState)  = aes_gcm_aad_hash_update_vaes512;
+      AES_GCM_GMUL(pState)        = aes_gcm_gmult_vaes512;
+   } else {
+
       switch AES_GCM_KEY_LEN(pState) {
          case 16:
             aes_keyexp_128_enc(pActualKey, &AES_GCM_KEY_DATA(pState));
             aes_gcm_precomp_128_avx512(&AES_GCM_KEY_DATA(pState));
 
-            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_128_update_avx512; 
+            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_128_update_avx512;
             AES_GCM_DECRYPT_UPDATE(pState)    = aes_gcm_dec_128_update_avx512;
             AES_GCM_GET_TAG(pState)           = aes_gcm_gettag_128_avx512;
             break;
@@ -134,7 +133,7 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
             aes_keyexp_192_enc(pActualKey, &AES_GCM_KEY_DATA(pState));
             aes_gcm_precomp_192_avx512(&AES_GCM_KEY_DATA(pState));
 
-            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_192_update_avx512; 
+            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_192_update_avx512;
             AES_GCM_DECRYPT_UPDATE(pState)    = aes_gcm_dec_192_update_avx512;
             AES_GCM_GET_TAG(pState)           = aes_gcm_gettag_192_avx512;
             break;
@@ -142,19 +141,19 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
             aes_keyexp_256_enc(pActualKey, &AES_GCM_KEY_DATA(pState));
             aes_gcm_precomp_256_avx512(&AES_GCM_KEY_DATA(pState));
 
-            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_256_update_avx512; 
+            AES_GCM_ENCRYPT_UPDATE(pState)    = aes_gcm_enc_256_update_avx512;
             AES_GCM_DECRYPT_UPDATE(pState)    = aes_gcm_dec_256_update_avx512;
             AES_GCM_GET_TAG(pState)           = aes_gcm_gettag_256_avx512;
             break;
       }
 
-      AES_GCM_IV_UPDATE(pState)    = aes_gcm_iv_hash_update_avx512;
-      AES_GCM_IV_FINALIZE(pState)  = aes_gcm_iv_hash_finalize_avx512;
-      AES_GCM_AAD_UPDATE(pState)   = aes_gcm_aad_hash_update_avx512;     
-      AES_GCM_AAD_FINALIZE(pState) = aes_gcm_aad_hash_finalize_avx512;
+      AES_GCM_IV_UPDATE(pState)   = aes_gcm_iv_hash_update_avx512;
+      AES_GCM_IV_FINALIZE(pState) = aes_gcm_iv_hash_finalize_avx512;
+      AES_GCM_AAD_UPDATE(pState)  = aes_gcm_aad_hash_update_avx512;
+      AES_GCM_GMUL(pState)        = aes_gcm_gmult_avx512;
    }
 
-   #else
+#else
 
    /* init cipher */
    {
@@ -210,7 +209,7 @@ IPPFUN(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
    if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
       /* pre-compute hKey<<1, (hKey<<1)^2, (hKey<<1)^3, ... , (hKey<<1)^15 and corresponding
          Karatsuba constant multipliers for aggregated reduction */
-      AesGcmPrecompute_vaes(AESGCM_CPWR(pState), AESGCM_HKEY(pState));   
+      AesGcmPrecompute_vaes(AESGCM_CPWR(pState), AESGCM_HKEY(pState));
    }
    else
    #endif /* #if(_IPP32E>=_IPP32E_K0) */

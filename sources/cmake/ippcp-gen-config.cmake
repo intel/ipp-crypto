@@ -20,6 +20,10 @@ set(IPPCP_INC_REL_PATH    "include")
 
 configure_file("${IPP_CRYPTO_DIR}/sources/cmake/ippcp-config.cmake.in" "${CMAKE_BINARY_DIR}/ippcp-config.cmake" @ONLY)
 configure_file("${IPP_CRYPTO_DIR}/sources/cmake/ippcp-config-version.cmake.in" "${CMAKE_BINARY_DIR}/ippcp-config-version.cmake" @ONLY)
+
+# Produce pkg-config files
+include("${IPP_CRYPTO_DIR}/sources/cmake/ippcp-gen-pkg-config.cmake")
+
 install(FILES
     "${CMAKE_BINARY_DIR}/ippcp-config.cmake"
     "${CMAKE_BINARY_DIR}/ippcp-config-version.cmake"

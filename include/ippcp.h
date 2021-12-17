@@ -43,7 +43,7 @@ extern "C" {
 
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
 #pragma warning(push)
-#pragma warning(disable : 4100) // for MSVC, unreferenced param
+#pragma warning(disable : 4100) // for MSVC, unreferenced parameter
 #endif
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -311,7 +311,7 @@ IPPAPI(IppStatus, ippsAES_GCMInit,(const Ipp8u* pKey, int keyLen, IppsAES_GCMSta
 IPPAPI(IppStatus, ippsAES_GCMReset,(IppsAES_GCMState* pState))
 IPPAPI(IppStatus, ippsAES_GCMProcessIV,(const Ipp8u* pIV, int ivLen,
                                         IppsAES_GCMState* pState))
-IPPAPI(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int ivAAD,
+IPPAPI(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen,
                                         IppsAES_GCMState* pState))
 IPPAPI(IppStatus, ippsAES_GCMStart,(const Ipp8u* pIV, int ivLen,
                                     const Ipp8u* pAAD, int aadLen,
@@ -1006,7 +1006,7 @@ IPPAPI(IppStatus, ippsDLPSetKeyPair,(const IppsBigNumState* pPrvKey,
                                      const IppsBigNumState* pPubKey,
                                      IppsDLPState* pCtx))
 
-/* Singing/Verifying (DSA version) */
+/* Signing/Verifying (DSA version) */
 IPPAPI(IppStatus, ippsDLPSignDSA,  (const IppsBigNumState* pMsgDigest,
                                     const IppsBigNumState* pPrvKey,
                                     IppsBigNumState* pSignR, IppsBigNumState* pSignS,
@@ -1205,7 +1205,7 @@ IPPAPI(IppStatus, ippsECCPSharedSecretDHC,(const IppsBigNumState* pPrivateA,
                                            IppsBigNumState* pShare,
                                            IppsECCPState* pEC))
 
-/* Sing/Verify */
+/* Sign/Verify */
 IPP_DEPRECATED(OBSOLETE_API) \
 IPPAPI(IppStatus, ippsECCPSignDSA,(const IppsBigNumState* pMsgDigest,
                         const IppsBigNumState* pPrivate,

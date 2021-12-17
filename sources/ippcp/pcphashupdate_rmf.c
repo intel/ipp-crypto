@@ -67,7 +67,7 @@ IPPFUN(IppStatus, ippsHashUpdate_rmf,(const Ipp8u* pSrc, int len, IppsHashState_
 
       int procLen;
 
-      int idx = HAHS_BUFFIDX(pState);
+      int idx = HASH_BUFFIDX(pState);
       Ipp64u lenLo = HASH_LENLO(pState);
       Ipp64u lenHi = HASH_LENHI(pState);
       lenLo += (Ipp64u)len;
@@ -107,7 +107,7 @@ IPPFUN(IppStatus, ippsHashUpdate_rmf,(const Ipp8u* pSrc, int len, IppsHashState_
       /* update length of processed message */
       HASH_LENLO(pState) = lenLo;
       HASH_LENHI(pState) = lenHi;
-      HAHS_BUFFIDX(pState) = idx;
+      HASH_BUFFIDX(pState) = idx;
    }
 
    return ippStsNoErr;

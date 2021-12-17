@@ -58,14 +58,14 @@ IPPFUN(IppStatus, ippsHashFinal_rmf,(Ipp8u* pMD, IppsHashState_rmf* pState))
       const IppsHashMethod* method = HASH_METHOD(pState);
 
       cpFinalize_rmf(HASH_VALUE(pState),
-                     HASH_BUFF(pState), HAHS_BUFFIDX(pState),
+                     HASH_BUFF(pState), HASH_BUFFIDX(pState),
                      HASH_LENLO(pState), HASH_LENHI(pState),
                      method);
       /* convert hash into oct string */
       method->hashOctStr(pMD, HASH_VALUE(pState));
 
       /* re-init hash value */
-      HAHS_BUFFIDX(pState) = 0;
+      HASH_BUFFIDX(pState) = 0;
       HASH_LENLO(pState) = 0;
       HASH_LENHI(pState) = 0;
       method->hashInit(HASH_VALUE(pState));

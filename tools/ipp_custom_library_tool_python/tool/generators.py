@@ -71,32 +71,41 @@ EXPORT_GENERATORS = {
 }
 
 
-def custom_dispatcher_generator():
+def custom_dispatcher_generator(function):
     package       = utils.CONFIGS[PACKAGE]
     arch          = utils.CONFIGS[ARCHITECTURE]
-    include_lines = INCLUDE_STR.format(header_name=package.type.lower())
+    include_lines = INCLUDE_STR.format(header_name=package.type.lower() + '.h')
 
     dispatcher = ''
-    additional_include = ''
-    for function in utils.CONFIGS[FUNCTIONS_LIST]:
-        if function not in package.functions_without_dispatcher:
-            dispatcher += func_dispatcher_generator(arch, function)
+    dispatcher += func_dispatcher_generator(arch, function)
 
-        ippe = utils.DOMAINS[IPP]['ippe']
-        if ippe in package.functions[IPP].keys() and \
-                function in package.functions[IPP][ippe]:
-            additional_include = INCLUDE_STR.format(header_name='ippe')
+    ippe = utils.DOMAINS[IPP]['ippe']
+    if ippe in package.functions[IPP].keys() and \
+            function in package.functions[IPP][ippe]:
+        include_lines += INCLUDE_STR.format(header_name='ippe.h')
 
-    include_lines += additional_include
+    if utils.CONFIGS[PREFIX]:
+        include_lines += INCLUDE_STR.format(header_name=RENAME_HEADER_NAME)
 
     return CUSTOM_DISPATCHER_FILE.format(include_lines=include_lines,
+                                         architecture=ARCHITECTURE_DEFINE[arch],
+                                         features=FEATURES[arch],
                                          dispatcher=dispatcher)
+
+
+def rename_header_generator(functions_list):
+    content = ''
+    for function in functions_list:
+        content += RENAME_FORMAT.format(function=function,
+                                        prefix=utils.CONFIGS[PREFIX])
+
+    return content
 
 
 def func_dispatcher_generator(arch, function):
     package_type = utils.CONFIGS[PACKAGE].type
     declarations = utils.CONFIGS[PACKAGE].declarations[function]
-    ippfun = declarations.replace('IPPAPI', 'IPPFUN')
+    ippfun = declarations.replace('IPPAPI', 'IPPFUN').replace(function, utils.CONFIGS[PREFIX] + function)
 
     args = utils.get_match(utils.FUNCTION_NAME_REGEX, declarations, 'args').split(',')
     args = [utils.get_match(utils.ARGUMENT_REGEX, arg, 'arg') for arg in args]
@@ -138,18 +147,13 @@ def build_script_generator():
     """
     host    = utils.HOST_SYSTEM
     configs = utils.CONFIGS
-    package = configs[PACKAGE]
+
+    package     = configs[PACKAGE]
+    output_path = configs[OUTPUT_PATH]
 
     arch   = configs[ARCHITECTURE]
     thread = configs[THREAD_MODE]
     tl     = configs[THREADING_LAYER]
-
-    c_files = [MAIN_FILE_NAME]
-    if configs[CUSTOM_CPU_SET]:
-        c_files.append(CUSTOM_DISPATCHER_FILE_NAME)
-
-    export_file = EXPORT_FILE[host]
-    custom_library = LIB_PREFIX[host] + configs[CUSTOM_LIBRARY_NAME]
 
     root_type = (IPPROOT if package.type == IPP else IPPCRYPTOROOT)
 
@@ -158,30 +162,34 @@ def build_script_generator():
         if 'setvars' in package.env_script:
             force_flag = '--force'
 
-        env_command = CALL_ENV_SCRIPT_COMMAND[host].format(env_script=package.env_script,
-                                                           arch=arch,
-                                                           force_flag=force_flag)
+        env_commands = CALL_ENV_SCRIPT_COMMAND[host].format(env_script=package.env_script,
+                                                            arch=arch,
+                                                            force_flag=force_flag)
     else:
-        env_command = SET_ENV_COMMAND[host].format(env_var=root_type,
-                                                   path=package.root)
+        env_commands = SET_ENV_COMMAND[host].format(env_var=root_type,
+                                                    path=package.root)
+    if ADDITIONAL_ENV[host]:
+        env_commands += '\n' + ADDITIONAL_ENV[host]
 
     compiler  = COMPILERS[host]
-    cmp_flags = COMPILERS_FLAGS[host][arch]
 
+    cmp_flags = COMPILERS_FLAGS[host][arch]
     if tl == OPENMP and host == WINDOWS:
         cmp_flags += ' /openmp'
 
-    obj_files = ''
-    compile_commands = ''
-    for file in c_files:
-        compile_commands += COMPILE_COMMAND_FORMAT[host].format(compiler=compiler,
-                                                                cmp_flags=cmp_flags,
-                                                                root_type=root_type,
-                                                                file_name=file)
-        obj_files += '"' + file + '.obj" '
+    c_files = MAIN_FILE_NAME
+    if configs[utils.CUSTOM_CPU_SET]:
+        c_files   += ' ' + os.path.join('custom_dispatcher', arch, '*.c')
 
-    linker     = LINKERS[host]
-    link_flags = LINKER_FLAGS[host][arch]
+    compile_command = COMPILE_COMMAND_FORMAT[host].format(compiler=compiler,
+                                                           cmp_flags=cmp_flags,
+                                                           root_type=root_type,
+                                                           c_files=c_files)
+
+    linker         = LINKERS[host]
+    link_flags     = LINKER_FLAGS[host][arch]
+    custom_library = LIB_PREFIX[host] + configs[CUSTOM_LIBRARY_NAME]
+    export_file    = EXPORT_FILE[host]
 
     ipp_libraries = package.libraries[arch][thread]
     if tl:
@@ -196,16 +204,18 @@ def build_script_generator():
 
     sys_libs_path = SYS_LIBS_PATH[host][arch]
 
-    return BUILD_SCRIPT[host].format(env_command=env_command,
-                                     compile_commands=compile_commands,
-                                     linker=linker,
-                                     link_flags=link_flags,
+    link_command = LINK_COMMAND_FORMAT[host].format(linker=linker,
+                                                    link_flags=link_flags,
+                                                    custom_library=custom_library,
+                                                    export_file=export_file,
+                                                    ipp_libraries=ipp_libraries,
+                                                    exp_libs=exp_libs,
+                                                    sys_libs_path=sys_libs_path,)
+
+    return BUILD_SCRIPT[host].format(architecture=arch,
+                                     threading=thread.lower(),
+                                     output_path=output_path,
                                      custom_library=custom_library,
-                                     output_path=configs[OUTPUT_PATH],
-                                     obj_files=obj_files,
-                                     export_file=export_file,
-                                     ipp_libraries=ipp_libraries,
-                                     exp_libs=exp_libs,
-                                     sys_libs_path=sys_libs_path,
-                                     architecture=arch,
-                                     threading=thread.lower())
+                                     env_commands=env_commands,
+                                     compile_command=compile_command,
+                                     link_command=link_command)

@@ -747,6 +747,31 @@ __INLINE void fe52mb8_sub_mod25519(U64 vr[], const U64 va[], const U64 vb[])
     storeu64(&vr[4], cmov_U64(r4, t4, cmask));
 }
 
+__INLINE void fe52mb8_red_p25519(U64 vr[], const U64 va[])
+{
+   /* r = a-p */
+   U64 r0 = sub64(va[0], loadu64(VPRIME25519_LO));
+   U64 r1 = sub64(va[1], loadu64(VPRIME25519_MID));
+   U64 r2 = sub64(va[2], loadu64(VPRIME25519_MID));
+   U64 r3 = sub64(va[3], loadu64(VPRIME25519_MID));
+   U64 r4 = sub64(va[4], loadu64(VPRIME25519_HI));
+
+   /* normalize r0, r1, r2, r3, r4 */
+   NORM_ASHIFTR(r, 0, 1)
+   NORM_ASHIFTR(r, 1, 2)
+   NORM_ASHIFTR(r, 2, 3)
+   NORM_ASHIFTR(r, 3, 4)
+
+   /* condition mask r4<0? (-1) : 0 */
+   __mb_mask cmask = cmp64_mask(r4, get_zero64(), _MM_CMPINT_LT);
+
+   storeu64(&vr[0], cmov_U64(r0, va[0], cmask));
+   storeu64(&vr[1], cmov_U64(r1, va[1], cmask));
+   storeu64(&vr[2], cmov_U64(r2, va[2], cmask));
+   storeu64(&vr[3], cmov_U64(r3, va[3], cmask));
+   storeu64(&vr[4], cmov_U64(r4, va[4], cmask));
+}
+
 // #define USE_DUAL_MUL_SQR
 // #define fe52_mul  fe52mb8_mul_mod25519
 // #define fe52_sqr  fe52mb8_sqr_mod25519
@@ -1210,7 +1235,8 @@ __INLINE void x25519_scalar_mul_dual(U64 out[], U64 scalar[], U64 point[])
     }
 
     fe52mb8_inv_mod25519(z2, z2);
-    fe52_mul(out, x2, z2);
+    fe52_mul(x2, x2, z2);
+    fe52mb8_red_p25519(out, x2);
 }
 
 DLL_PUBLIC
@@ -1673,6 +1699,7 @@ mbx_status MB_FUNC_NAME(mbx_x25519_public_key_)(int8u* const pa_public_key[8],
 
       fe52mb8_inv_mod25519(A, Z1);
       fe52_mul(U1, U1, A);
+      fe52mb8_red_p25519(U1, U1);
 
       /* convert result back */
       ifma_mb8_to_BNU((int64u * const*)pa_public_key, (const int64u (*)[8])U1, 256);

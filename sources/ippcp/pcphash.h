@@ -147,7 +147,7 @@ struct _cpHashCtx {
 #define HASH_FUNC(stt)              ((stt)->hashProc)
 #define HASH_FUNC_PAR(stt)          ((stt)->pParam)
 #define HASH_VALUE(stt)             ((stt)->msgHash)
-#define HAHS_BUFFIDX(stt)           ((stt)->msgBuffIdx)
+#define HASH_BUFFIDX(stt)           ((stt)->msgBuffIdx)
 #define HASH_BUFF(stt)              ((stt)->msgBuffer)
 #define HASH_VALID_ID(stt,ctxId)    ((((stt)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((stt))) == (Ipp32u)ctxId)
 

@@ -2490,6 +2490,9 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
         mov     %%T1, %%A_IN            ; T1 = AAD
         mov     %%T2, %%A_LEN           ; T2 = aadLen
 
+        or              %%T2, %%T2
+        jz              %%_CALC_AAD_done
+
 %%_get_AAD_loop128:
         cmp     %%T2, 128
         jl      %%_exit_AAD_loop128
@@ -3179,12 +3182,15 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 
 %%_return_T_done:
 
-%ifdef SAFE_DATA
-        ;; Clear sensitive data from context structure
-        vpxor   xmm0, xmm0
-        vmovdqu [%%GDATA_CTX + AadHash], xmm0
-        vmovdqu [%%GDATA_CTX + PBlockEncKey], xmm0
-%endif
+;; IPPCP: disabled clearing of context fields, as in IPPCP case GetTag may be called
+;; several times and it should not stop GCM processing. Context zeroing is done by user.
+;; https://software.intel.com/content/www/us/en/develop/documentation/ipp-crypto-reference/top/symmetric-cryptography-primitive-functions/aes-gcm-functions.html
+;; %ifdef SAFE_DATA
+;;         ;; Clear sensitive data from context structure
+;;         vpxor   xmm0, xmm0
+;;         vmovdqu [%%GDATA_CTX + AadHash], xmm0
+;;         vmovdqu [%%GDATA_CTX + PBlockEncKey], xmm0
+;; %endif
 %endmacro ; GCM_COMPLETE
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -3209,45 +3215,6 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
         UPDATE_HASH     %%A_IN, %%A_LEN, %%AAD_HASH, %%GDATA_KEY, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, %%GPR1, %%GPR2, %%GPR3
 
         vmovdqu64       [%%GDATA_CTX + AadHash], %%AAD_HASH   ; store updated hash
-
-%endmacro
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; GCM_FINALIZE_AAD_HASH finalize updating of AadHash value in gcm_context_data struct 
-;;; to prepare for encoding/decoding.
-;;; Input: gcm_key_data * (GDATA_KEY), gcm_context_data *(GDATA_CTX),
-;;; Additional Authentication data (A_IN), Additional Data length (A_LEN).
-;;; Output: Updated GDATA_CTX with the hash of A_IN (AadHash) and initialized other parts of GDATA_CTX.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-%macro  GCM_FINALIZE_AAD_HASH   8
-%define %%GDATA_KEY           %1      ; [in] GCM expanded keys pointer
-%define %%GDATA_CTX           %2      ; [in] GCM context pointer
-%define %%A_IN                %3      ; [in] AAD pointer
-%define %%A_LEN               %4      ; [in] AAD length in bytes
-%define %%GPR1                %5      ; temp GPR
-%define %%GPR2                %6      ; temp GPR
-%define %%GPR3                %7      ; temp GPR
-%define %%A_GEN_LEN           %8     ; [in] AAD general length in bytes
-
-%define %%AAD_HASH      xmm14
-
-        vmovdqu64       %%AAD_HASH, [%%GDATA_CTX + AadHash]   ; load current hash
-
-        ;; Check AAD length in bytes != 0
-        cmp             %%A_LEN, 0
-        jz              %%zero_len
-
-        UPDATE_HASH     %%A_IN, %%A_LEN, %%AAD_HASH, %%GDATA_KEY, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, %%GPR1, %%GPR2, %%GPR3
-
-%%zero_len:
-
-        mov             %%GPR1, %%A_GEN_LEN
-        vmovdqu64       [%%GDATA_CTX + AadHash], %%AAD_HASH   ; ctx.aad hash = aad_hash
-        mov             [%%GDATA_CTX + AadLen], %%GPR1        ; ctx.aad_length = aad_length
-
-        xor             %%GPR1, %%GPR1
-        mov             [%%GDATA_CTX + InLen], %%GPR1         ; ctx.in_length = 0
-        mov             [%%GDATA_CTX + PBlockLen], %%GPR1     ; ctx.partial_block_length = 0
 
 %endmacro
 
@@ -3304,7 +3271,7 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
         vmovdqa xmm4, [rel ONEf]
         vpternlogq xmm2, xmm3, xmm4, 0xfe     ; xmm2 = xmm2 or xmm3 or xmm4
                 
-%else ;; IV is 12 bytes
+%else ;; IV is not 12 bytes
 
         vmovdqu xmm2, [%%GDATA_CTX + OrigIV]
 
@@ -3519,94 +3486,13 @@ IPPASM FN_NAME(gettag,_), PUBLIC
         ja      exit_enc_fin
 %endif
 
-        push r12
-
-%ifidn __OUTPUT_FORMAT__, win64
-        ; xmm6:xmm15 need to be maintained for Windows
-	sub	rsp, 7*16
-        vmovdqu	[rsp + 0*16], xmm6
-        vmovdqu	[rsp + 1*16], xmm9
-        vmovdqu	[rsp + 2*16], xmm10
-        vmovdqu	[rsp + 3*16], xmm11
-        vmovdqu	[rsp + 4*16], xmm13
-        vmovdqu	[rsp + 5*16], xmm14
-        vmovdqu	[rsp + 6*16], xmm15
-%endif
         GCM_COMPLETE    arg1, arg2, arg3, arg4, ENC, multi_call
-
-%ifdef SAFE_DATA
-        clear_scratch_gps_asm
-        clear_scratch_zmms_asm
-%endif
-%ifidn __OUTPUT_FORMAT__, win64
-        vmovdqu	xmm15, [rsp + 6*16]
-        vmovdqu	xmm14, [rsp + 5*16]
-        vmovdqu	xmm13, [rsp + 4*16]
-        vmovdqu	xmm11, [rsp + 3*16]
-        vmovdqu	xmm10, [rsp + 2*16]
-        vmovdqu	xmm9,  [rsp + 1*16]
-        vmovdqu	xmm6,  [rsp + 0*16]
-        add     rsp, 7*16
-%endif
-
-        pop r12
 
 .exit_enc_fin:
         FUNC_RESTORE
 	ret
 
 ENDFUNC FN_NAME(gettag,_)
-
-%ifdef GCM128_MODE
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;void   ghash_avx512
-;        const struct gcm_key_data *key_data,
-;        const void   *in,
-;        const u64    in_len,
-;        void         *tag,
-;        const u64    tag_len);
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IPPASM ghash_avx512, PUBLIC
-
-        FUNC_SAVE
-
-%ifdef SAFE_PARAM
-        ;; Check key_data != NULL
-        cmp     arg1, 0
-        jz      exit_ghash
-
-        ;; Check in != NULL
-        cmp     arg2, 0
-        jz      exit_ghash
-
-        ;; Check in_len != 0
-        cmp     arg3, 0
-        jz      exit_ghash
-
-        ;; Check tag != NULL
-        cmp     arg4, 0
-        jz      exit_ghash
-
-        ;; Check tag_len != 0
-        cmp     arg5, 0
-        jz      exit_ghash
-%endif
-
-        CALC_AAD_HASH arg2, arg3, xmm0, arg1, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, \
-                      r10, r11, r12
-
-        vpshufb xmm0, [rel SHUF_MASK] ; perform a 16Byte swap
-
-        simd_store_avx arg4, xmm0, arg5, r12, rax
-
-.exit_ghash:
-        FUNC_RESTORE
-
-        ret
-
-ENDFUNC ghash_avx512
-
-%endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; IV and AAD in disconnected buffers processing 
@@ -3631,25 +3517,6 @@ IPPASM aes_gcm_aad_hash_update_avx512, PUBLIC
 
         ret
 ENDFUNC aes_gcm_aad_hash_update_avx512
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;void   aes_gcm_aad_hash_finalize_avx512(
-;        const struct gcm_key_data *key_data,
-;        struct       gcm_context_data *context_data,
-;        const u8    *aad,
-;        const u64    aad_len,
-;        const u64    aad_general_len);
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IPPASM aes_gcm_aad_hash_finalize_avx512, PUBLIC
-
-        FUNC_SAVE
-
-        GCM_FINALIZE_AAD_HASH arg1, arg2, arg3, arg4, r10, r11, r12, arg5
-
-        FUNC_RESTORE
-
-        ret
-ENDFUNC aes_gcm_aad_hash_finalize_avx512
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;void   aes_gcm_iv_hash_update_avx512(
@@ -3696,6 +3563,27 @@ IPPASM aes_gcm_iv_hash_finalize_avx512, PUBLIC
 
         ret
 ENDFUNC aes_gcm_iv_hash_finalize_avx512
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;void   aes_gcm_gmult_avx512(
+;        const struct gcm_key_data *key_data,
+;        u8    *ghash)
+;
+; Function updates |ghash| value by multiplying it on H^1 key.
+; Leaf function.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+IPPASM aes_gcm_gmult_avx512, PUBLIC
+
+        vmovdqu64         xmm1, [arg2]
+        vmovdqu64         xmm2, [arg1 + HashKey_1]
+
+        GHASH_MUL xmm1, xmm2, xmm3, xmm4, xmm5, xmm16, xmm17
+
+        vmovdqu64         [arg2], xmm1
+
+        ret
+ENDFUNC aes_gcm_gmult_avx512
+
 
 %endif
 

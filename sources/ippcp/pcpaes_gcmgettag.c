@@ -14,12 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     AES-GCM
-// 
+//
 //  Contents:
 //        ippsAES_GCMGetTag()
 //
@@ -54,6 +54,7 @@
 //    pState      pointer to the context
 //
 *F*/
+
 IPPFUN(IppStatus, ippsAES_GCMGetTag,(Ipp8u* pDstTag, int tagLen, const IppsAES_GCMState* pState))
 {
    /* test State pointer */
@@ -67,19 +68,10 @@ IPPFUN(IppStatus, ippsAES_GCMGetTag,(Ipp8u* pDstTag, int tagLen, const IppsAES_G
    IPP_BAD_PTR1_RET(pDstTag);
    IPP_BADARG_RET(tagLen<=0 || tagLen>BLOCK_SIZE, ippStsLengthErr);
 
-   #if(_IPP32E>=_IPP32E_K0)
-
-   __ALIGN16 struct gcm_context_data context_data;
-
-   CopyBlock((void*)&AES_GCM_CONTEXT_DATA(pState), (void*)&context_data, sizeof(struct gcm_context_data));
-
+#if(_IPP32E>=_IPP32E_K0)
    GetTag_ getTag = AES_GCM_GET_TAG(pState);
-   getTag(&AES_GCM_KEY_DATA(pState), &context_data, pDstTag, (Ipp64u)tagLen);
-
-   PurgeBlock((void*)&context_data, sizeof(context_data));
-
-   #else
-
+   getTag(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), pDstTag, (Ipp64u)tagLen);
+#else
    /* get method */
    MulGcm_ hashFunc = AESGCM_HASH(pState);
 
@@ -112,8 +104,7 @@ IPPFUN(IppStatus, ippsAES_GCMGetTag,(Ipp8u* pDstTag, int tagLen, const IppsAES_G
 
    /* return tag of required length */
    CopyBlock(tmpHash, pDstTag, tagLen);
-
-   #endif /* #if(_IPP32E>=_IPP32E_K0) */
+#endif /* #if(_IPP32E>=_IPP32E_K0) */
 
    return ippStsNoErr;
 }

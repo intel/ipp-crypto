@@ -45,7 +45,7 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
     // corresponding element in mask = 0 if hash_pa[i] = 0 
     */
     __m512i zero_buffer = _mm512_setzero_si512();
-    __mmask8 mb_mask8 = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa), zero_buffer, 4);
+    __mmask8 mb_mask8 = _mm512_cmp_epi64_mask(_mm512_loadu_si512(hash_pa), zero_buffer, _MM_CMPINT_NE);
 
     M512(sum_msg_len) = _mm512_maskz_loadu_epi64(mb_mask8, MSG_LEN(p_state));
     
@@ -53,7 +53,7 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
     M512(sum_msg_len) = _mm512_rol_epi64(M512(sum_msg_len), 3);
     M512(sum_msg_len) = _mm512_shuffle_epi8(M512(sum_msg_len), M512(swapBytes));
 
-    M256(input_len) = _mm256_maskz_loadu_epi32(mb_mask8, HAHS_BUFFIDX(p_state));
+    M256(input_len) = _mm256_maskz_loadu_epi32(mb_mask8, HASH_BUFFIDX(p_state));
 
     __mmask8 tmp_mask = _mm256_cmplt_epi32_mask(M256(input_len), _mm256_set1_epi32(SM3_MSG_BLOCK_SIZE - (int)SM3_MSG_LEN_REPR));
     M256(buffer_len) = _mm256_mask_set1_epi32(_mm256_set1_epi32(SM3_MSG_BLOCK_SIZE * 2), tmp_mask, SM3_MSG_BLOCK_SIZE);
@@ -92,7 +92,7 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
 
     /* re-init hash value using mb masks */
     _mm512_storeu_si512(MSG_LEN(p_state), _mm512_mask_set1_epi64(_mm512_loadu_si512(MSG_LEN(p_state)), mb_mask8, 0));
-    _mm256_storeu_si256((__m256i*)HAHS_BUFFIDX(p_state), _mm256_mask_set1_epi32(_mm256_loadu_si256((__m256i*)HAHS_BUFFIDX(p_state)), mb_mask8, 0));
+    _mm256_storeu_si256((__m256i*)HASH_BUFFIDX(p_state), _mm256_mask_set1_epi32(_mm256_loadu_si256((__m256i*)HASH_BUFFIDX(p_state)), mb_mask8, 0));
 
     sm3_mask_init_mb8(p_state, mb_mask8);
 

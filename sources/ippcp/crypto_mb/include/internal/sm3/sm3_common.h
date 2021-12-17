@@ -42,7 +42,7 @@
 
 #define MSG_LEN(ctx)                ((ctx)->msg_len)
 #define HASH_VALUE(ctx)             ((ctx)->msg_hash)
-#define HAHS_BUFFIDX(ctx)           ((ctx)->msg_buff_idx)
+#define HASH_BUFFIDX(ctx)           ((ctx)->msg_buff_idx)
 #define HASH_BUFF(ctx)              ((ctx)->msg_buffer)
 
 /*

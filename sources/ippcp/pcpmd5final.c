@@ -60,11 +60,11 @@ IPPFUN(IppStatus, ippsMD5Final,(Ipp8u* pMD, IppsMD5State* pState))
    /* test digest pointer */
    IPP_BAD_PTR1_RET(pMD);
 
-   cpFinalizeMD5(HASH_VALUE(pState), HASH_BUFF(pState), HAHS_BUFFIDX(pState), HASH_LENLO(pState));
+   cpFinalizeMD5(HASH_VALUE(pState), HASH_BUFF(pState), HASH_BUFFIDX(pState), HASH_LENLO(pState));
    CopyBlock(HASH_VALUE(pState), pMD, sizeof(DigestMD5));
 
    /* re-init hash value */
-   HAHS_BUFFIDX(pState) = 0;
+   HASH_BUFFIDX(pState) = 0;
    HASH_LENLO(pState) = 0;
    md5_hashInit(HASH_VALUE(pState));
 

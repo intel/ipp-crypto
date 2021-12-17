@@ -71,7 +71,7 @@ IPP_OWN_DEFN (void, gfec_point_mul, (BNU_CHUNK_T* pRdata, const BNU_CHUNK_T* pPd
       gsScrambleGet_sscm(pTdata, pointLen, pTable, digit-1, 5-1);
 
       for(bit-=window_size; bit>=window_size; bit-=window_size) {
-         gfec_point_double(pTdata, pTdata, pEC); /* probablyit's better to have separate calls */
+         gfec_point_double(pTdata, pTdata, pEC); /* probably it's better to have separate calls */
          gfec_point_double(pTdata, pTdata, pEC); /* instead of gfec_point_double_k() */
          gfec_point_double(pTdata, pTdata, pEC);
          gfec_point_double(pTdata, pTdata, pEC);

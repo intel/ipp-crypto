@@ -123,6 +123,21 @@ __INLINE void XorBlock(const void* pSrc1, const void* pSrc2, void* pDst, int len
    for(k=0; k<len; k++)
       d[k] = (Ipp8u)(p1[k] ^p2[k]);
 }
+/* Performs operation:
+ *      reverse(pSrc1 `xor_len_bytes` reverse(pSrc2))
+ * and stores the result in |pDst|.
+ *  |len| specifies how many bytes of |pSrc1| shall be xor-ed to |pSrc2|. It must not
+ *  be more than |blockSize|, and this condition should be ensured outside.
+ */
+__INLINE void XorBlockMirror(const void* pSrc1, const void* pSrc2, void* pDst, int blockSize, int len)
+{
+   const Ipp8u* p1 = (const Ipp8u*)pSrc1;
+   const Ipp8u* p2 = (const Ipp8u*)pSrc2;
+   Ipp8u* d  = (Ipp8u*)pDst;
+   int k;
+   for(k=0; k<len; k++)
+      d[blockSize-k-1] = (Ipp8u)(p1[k] ^ p2[blockSize-k-1]);
+}
 __INLINE void XorBlock8(const void* pSrc1, const void* pSrc2, void* pDst)
 {
    const Ipp8u* p1 = (const Ipp8u*)pSrc1;

@@ -23,6 +23,9 @@ set(IPPCP_EXAMPLES
   # AES examples
   aes/aes-256-ctr-encryption.cpp
   aes/aes-256-ctr-decryption.cpp
+  # DSA
+  dsa/dsa-dlp-sha-1-verification.cpp
+  dsa/dsa-dlp-sha-256-verification.cpp
   # RSA SSA-PSS examples
   rsa/rsa-3k-pss-sha384-type1-signature.cpp
   rsa/rsa-1k-pss-sha1-verification.cpp

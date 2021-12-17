@@ -25,17 +25,11 @@
 #include <internal/ed25519/ifma_arith_ed25519.h>
 #include <internal/ed25519/ifma_arith_p25519.h>
 #include <internal/ed25519/ifma_arith_n25519.h>
-
+#include <internal/ed25519/sha512.h>
 
 /* length of SHA512 hash in bits and bytes */
 #define SHA512_HASH_BITLENGTH  (512)
 #define HASH_LENGTH            NUMBER_OF_DIGITS(SHA512_HASH_BITLENGTH, 8)
-
-#include <openssl/sha.h>
-#ifdef OPENSSL_IS_BORINGSSL
-#include <openssl/mem.h>
-#endif
-
 
 static void ed25519_expand_key(int8u* pa_secret_expand[8], const ed25519_private_key* const pa_secret_key[8])
 {
@@ -43,7 +37,7 @@ static void ed25519_expand_key(int8u* pa_secret_expand[8], const ed25519_private
    for (int n = 0; n < 8; n++) {
       const ed25519_private_key* psecret = pa_secret_key[n];
       if (psecret) {
-         SHA512(*psecret, sizeof(ed25519_private_key), pa_secret_expand[n]);
+          SHA512MsgDigest(*psecret, sizeof(ed25519_private_key), pa_secret_expand[n]);
          /* prune the buffer according to RFC8032 */
          pa_secret_expand[n][0]  &= 0xf8;
          pa_secret_expand[n][31] &= 0x7f;
@@ -126,42 +120,41 @@ mbx_status MB_FUNC_NAME(mbx_ed25519_public_key_)(ed25519_public_key* pa_public_k
 */
 static void ed25519_nonce(int8u* pa_nonce[8], int8u* pa_az[8], const int8u* const pa_msg[8], const int32u msgLen[8])
 {
-   SHA512_CTX ctx;
+   SHA512State pState;
 
    for(int n=0; n<8; n++) {
       int8u* az = pa_az[n];
       const int8u* msg = pa_msg[n];
       int32u mlen = msgLen[n];
-      SHA512_Init(&ctx);
-      SHA512_Update(&ctx, az, 32);
+      
+      SHA512Init(&pState);
+      SHA512Update(az, 32, &pState);
       if (msg)
-         SHA512_Update(&ctx, msg, mlen);
-      SHA512_Final(pa_nonce[n], &ctx);
+          SHA512Update(msg, mlen, &pState);
+      
+      SHA512Final(pa_nonce[n], &pState);
    }
-
-   OPENSSL_cleanse(&ctx, sizeof(ctx));
 }
 
 static void ed25519_hash_r_pub_msg(int8u* pa_hram[8], const ed25519_sign_component* const pa_sign_r[], const ed25519_public_key* const pa_public_key[8], const int8u* const pa_msg[8], const int32u msgLen[8])
 {
-   SHA512_CTX ctx;
+   SHA512State pState;
 
    for (int n = 0; n < 8; n++) {
       const ed25519_sign_component* sign_r = pa_sign_r[n];
       const ed25519_public_key* public = pa_public_key[n];
       const int8u* msg = pa_msg[n];
       int32u mlen = msgLen[n];
-      SHA512_Init(&ctx);
-      if(sign_r)
-         SHA512_Update(&ctx, sign_r, NUMBER_OF_DIGITS(GE25519_COMP_BITSIZE, 8));
-      if(public)
-         SHA512_Update(&ctx, public, sizeof(ed25519_public_key));
-      if(msg)
-         SHA512_Update(&ctx, msg, mlen);
-      SHA512_Final(pa_hram[n], &ctx);
-   }
+      SHA512Init(&pState);
 
-   OPENSSL_cleanse(&ctx, sizeof(ctx));
+      if(sign_r)
+          SHA512Update((const int8u*)sign_r, NUMBER_OF_DIGITS(GE25519_COMP_BITSIZE, 8), &pState);
+      if(public)
+          SHA512Update((const int8u*)public, sizeof(ed25519_public_key), &pState);
+      if(msg)
+          SHA512Update(msg, mlen, &pState);
+      SHA512Final(pa_hram[n], &pState);
+   }
 }
 
 DLL_PUBLIC

@@ -557,6 +557,30 @@ ENDFUNC p384r1_neg
 ; void p384r1_mred(Ipp464u* res, Ipp64u product);
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;
+; mred_step does single Montgomery reduction step -- computes {a0:a1:a2:a3:a4:a5:a6} += u*M[]
+; where u = a0*m0 = a0*(2^32+1) and
+;  M[] = (2^32-1) + (2^64-2^32)*2^64 + (2^64-2)*2^64*2 + (2^64-1)*2^64*3 + (2^64-1)*2^64*4 + (2^64-1)*2^64*5
+;
+; u*M[] = u*(2^32-1) + u*(2^64-2^32)*2^64 + u*(2^64-2)*2^64*2 + u*(2^64-1)*2^64*3 + u*(2^64-1)*2^64*4 + u*(2^64-1)*2^64*5
+;       = u*2^32 -u
+;        +u*2^128 -u*2^32*2^64
+;        +u*2^192 -u*2^128 -u*2^128
+;        +u*2^256 -u*2^192
+;        +u*2^320 -u*2^256
+;        +u*2^384 -u*2^320
+;
+;       = (u*2^32 -u) + u*2^384
+;        -u*2^32*2^64 -u*2^128
+;
+;       = (u*2^32 -u) + u*B^5
+;        -(u*2^32 +u*B)*B,     where B=2^64 is the target radix
+;
+; so update of {a0:a1:a2:a3:a4:a5:a6} consisns of 2 steps:
+;  {a0:a1:a2:a3:a4:a5:a6} += {(u*2^32 -u):0:0:0:0:0:u} and
+;  {a0:a1:a2:a3:a4:a5:a6} -= {0:(u*2^32 +u*B):0:0:0:0:0}
+;
 %macro mred_step 9.nolist
   %xdefine %%a6 %1
   %xdefine %%a5 %2
@@ -568,44 +592,51 @@ ENDFUNC p384r1_neg
   %xdefine %%t2 %8
   %xdefine %%t1 %9
 
-   mov   rax, %%a0     ;; u = (m0*a0) mod 2^64= ((2^32+1)*a0) mod 2^64
+   mov   rax, %%a0      ;; u = (m0*a0) mod 2^64= ((2^32+1)*a0) mod 2^64
    shl   rax, 32
    add   rax, %%a0
 
-   mov   %%t2, rax     ;; (t2:t1) = u*2^32, store
+   mov   %%t2, rax      ;; (t2:t1) = u*2^32, store
    shr   %%t2, (64-32)
    push  %%t2
    mov   %%t1, rax
    shl   %%t1, 32
    push  %%t1
 
-   sub   %%t1, rax     ;; {t2:t1} = (2^32 -1)*u
+   sub   %%t1, rax      ;; {t2:t1} = (2^32 -1)*u
    sbb   %%t2, 0
 
-   add   %%a0, %%t1      ;; {a0:a1} += {t2:t1}
-   pop   %%t1          ;; restore {t2:t1} = u*2^32
-   adc   %%a1, %%t2      ;; and accomodate carry
+   ;; {a0:a1:a2:a3:a4:a5:a6} += (u*2^32 -u) + u*2^64*6
+   add   %%a0, %%t1     ;; {a0:a1} += (u*2^32 -u)
+   mov   %%t1, rdx      ;; t1 = carry_inp
+   mov   rdx, 0
+   adc   %%a1, %%t2
+   adc   %%a2, 0
+   adc   %%a3, 0
+   adc   %%a4, 0
+   adc   %%a5, 0
+   adc   %%a6, rax      ;; a6 += u + cf
+   adc   rdx,  0        ;; rdx = carry_out
+
+   add   %%a6, %%t1     ;; add input carry
+   adc   rdx, 0         ;; rdx = carry_out
+
+   pop   %%t1           ;; restore {t2:t1} = u*2^32
    pop   %%t2
-   sbb   %%t2, 0
 
-   sub   %%a1, %%t1      ;; {a1:a2} -= {t1:t2}
-   mov   %%t1, dword 0
+   add   %%t2, rax      ;; {t1:t2} = u*2^32 +u*2^64
+   mov   rax,0
+   adc   rax,0
+
+   ;; {a1:a2:a3:a4:a5:a6} -= (u*2^32 + u)
+   sub   %%a1, %%t1
    sbb   %%a2, %%t2
-   adc   %%t1, 0
+   sbb   %%a3, rax
+   sbb   %%a4, 0
+   sbb   %%a5, 0
+   sbb   %%a6, 0
 
-   sub   %%a2, rax     ;; a2 -= u
-   adc   %%t1, 0
-
-   sub   %%a3, %%t1      ;; a3 -= borrow
-   sbb   %%a4, 0       ;; a4 -= borrow
-   sbb   %%a5, 0       ;; a5 -= borrow
-
-   sbb   rax, 0
-   add   rax, rdx
-   mov   rdx, dword 0
-   adc   rdx, 0
-   add   %%a6, rax
-   adc   rdx, 0
+   sbb   rdx, 0         ;; update carry_out
 %endmacro
 
 align IPP_ALIGN_FACTOR

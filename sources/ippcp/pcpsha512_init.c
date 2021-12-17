@@ -43,7 +43,7 @@ IPP_OWN_DEFN (IppStatus, InitSHA512, (IppsSHA512State* pState, const DigestSHA51
    HASH_LENLO(pState) = 0;
    HASH_LENHI(pState) = 0;
    /* message buffer is free */
-   HAHS_BUFFIDX(pState) = 0;
+   HASH_BUFFIDX(pState) = 0;
    /* setup initial digest */
    hashInit(HASH_VALUE(pState), IV);
 

@@ -258,4 +258,6 @@ section .text
 	%define	VX512STR vmovdqu8
 %endif
 
+%define SAFE_DATA 1
+
 %endif ; GCM_DEFINES_ASM_INCLUDED

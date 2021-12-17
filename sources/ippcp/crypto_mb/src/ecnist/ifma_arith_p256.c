@@ -24,19 +24,19 @@
 // in 2^52 radix
 */
 __ALIGN64 static const int64u p256_mb[LEN52][8] = {
-   {0xfffffffffffff, 0xfffffffffffff, 0xfffffffffffff, 0xfffffffffffff, 0xfffffffffffff, 0xfffffffffffff, 0xfffffffffffff, 0xfffffffffffff},
-   {0x00fffffffffff, 0x00fffffffffff, 0x00fffffffffff, 0x00fffffffffff, 0x00fffffffffff, 0x00fffffffffff, 0x00fffffffffff, 0x00fffffffffff}, 
-   {0x0000000000000, 0x0000000000000, 0x0000000000000, 0x0000000000000, 0x0000000000000, 0x0000000000000, 0x0000000000000, 0x0000000000000}, 
-   {0x0001000000000, 0x0001000000000, 0x0001000000000, 0x0001000000000, 0x0001000000000, 0x0001000000000, 0x0001000000000, 0x0001000000000}, 
-   {0x0ffffffff0000, 0x0ffffffff0000, 0x0ffffffff0000, 0x0ffffffff0000, 0x0ffffffff0000, 0x0ffffffff0000, 0x0ffffffff0000, 0x0ffffffff0000} 
+   { REP8_DECL(0x000fffffffffffff) },
+   { REP8_DECL(0x00000fffffffffff) },
+   { REP8_DECL(0x0000000000000000) },
+   { REP8_DECL(0x0000001000000000) },
+   { REP8_DECL(0x0000ffffffff0000) }
 };
 
 __ALIGN64 static const int64u p256x2_mb[LEN52][8] = {
-   {0xffffffffffffe, 0xffffffffffffe, 0xffffffffffffe, 0xffffffffffffe, 0xffffffffffffe, 0xffffffffffffe, 0xffffffffffffe, 0xffffffffffffe},
-   {0x01fffffffffff, 0x01fffffffffff, 0x01fffffffffff, 0x01fffffffffff, 0x01fffffffffff, 0x01fffffffffff, 0x01fffffffffff, 0x01fffffffffff}, 
-   {0x0000000000000, 0x0000000000000, 0x0000000000000, 0x0000000000000, 0x0000000000000, 0x0000000000000, 0x0000000000000, 0x0000000000000}, 
-   {0x0002000000000, 0x0002000000000, 0x0002000000000, 0x0002000000000, 0x0002000000000, 0x0002000000000, 0x0002000000000, 0x0002000000000}, 
-   {0x1fffffffe0000, 0x1fffffffe0000, 0x1fffffffe0000, 0x1fffffffe0000, 0x1fffffffe0000, 0x1fffffffe0000, 0x1fffffffe0000, 0x1fffffffe0000} 
+   { REP8_DECL(0x000ffffffffffffe) },
+   { REP8_DECL(0x00001fffffffffff) },
+   { REP8_DECL(0x0000000000000000) },
+   { REP8_DECL(0x0000002000000000) },
+   { REP8_DECL(0x0001fffffffe0000) }
 };
 
 /*
@@ -49,11 +49,11 @@ __ALIGN64 static const int64u p256x2_mb[LEN52][8] = {
 // rr = 2^((5*DIGIT_SIZE)*2) mod p256
 */
 __ALIGN64 static const int64u p256_rr_mb[5][8] = {
-{0x0000000000000300,0x0000000000000300,0x0000000000000300,0x0000000000000300,0x0000000000000300,0x0000000000000300,0x0000000000000300,0x0000000000000300},
-{0x000ffffffff00000,0x000ffffffff00000,0x000ffffffff00000,0x000ffffffff00000,0x000ffffffff00000,0x000ffffffff00000,0x000ffffffff00000,0x000ffffffff00000},
-{0x000ffffefffffffb,0x000ffffefffffffb,0x000ffffefffffffb,0x000ffffefffffffb,0x000ffffefffffffb,0x000ffffefffffffb,0x000ffffefffffffb,0x000ffffefffffffb},
-{0x000fdfffffffffff,0x000fdfffffffffff,0x000fdfffffffffff,0x000fdfffffffffff,0x000fdfffffffffff,0x000fdfffffffffff,0x000fdfffffffffff,0x000fdfffffffffff},
-{0x0000000004ffffff,0x0000000004ffffff,0x0000000004ffffff,0x0000000004ffffff,0x0000000004ffffff,0x0000000004ffffff,0x0000000004ffffff,0x0000000004ffffff}
+   { REP8_DECL(0x0000000000000300) },
+   { REP8_DECL(0x000ffffffff00000) },
+   { REP8_DECL(0x000ffffefffffffb) },
+   { REP8_DECL(0x000fdfffffffffff) },
+   { REP8_DECL(0x0000000004ffffff) }
 };
 
 
@@ -451,6 +451,29 @@ void MB_FUNC_NAME(ifma_amm52_p256_dual_)(U64 r0[], U64 r1[],
 
 #define LEN52    NUMBER_OF_DIGITS(256,DIGIT_SIZE)
 
+void MB_FUNC_NAME(ifma_reduce52_p256_)(U64 R[], const U64 A[])
+{
+   /* r = a - p256_mb */
+   U64 r0 = sub64(A[0], ((U64*)(p256_mb))[0]);
+   U64 r1 = sub64(A[1], ((U64*)(p256_mb))[1]);
+   U64 r2 = sub64(A[2], ((U64*)(p256_mb))[2]);
+   U64 r3 = sub64(A[3], ((U64*)(p256_mb))[3]);
+   U64 r4 = sub64(A[4], ((U64*)(p256_mb))[4]);
+
+   /* normalize r0 - r4 */
+   NORM_ASHIFTR(r, 0, 1)
+   NORM_ASHIFTR(r, 1, 2)
+   NORM_ASHIFTR(r, 2, 3)
+   NORM_ASHIFTR(r, 3, 4)
+
+   /* r = a<p256_mb? a : r */
+   __mb_mask lt = cmp64_mask(r4, get_zero64(), _MM_CMPINT_LT);
+   R[0] = mask_mov64(r0, lt, A[0]);
+   R[1] = mask_mov64(r1, lt, A[1]);
+   R[2] = mask_mov64(r2, lt, A[2]);
+   R[3] = mask_mov64(r3, lt, A[3]);
+   R[4] = mask_mov64(r4, lt, A[4]);
+}
 
 void MB_FUNC_NAME(ifma_tomont52_p256_)(U64 r[], const U64 a[])
 {
@@ -460,6 +483,7 @@ void MB_FUNC_NAME(ifma_tomont52_p256_)(U64 r[], const U64 a[])
 void MB_FUNC_NAME(ifma_frommont52_p256_)(U64 r[], const U64 a[])
 {
    MB_FUNC_NAME(ifma_amm52_p256_)(r, a, (U64*)ones);
+   MB_FUNC_NAME(ifma_reduce52_p256_)(r, r);
 }
 
 /*

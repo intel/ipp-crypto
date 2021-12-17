@@ -29,26 +29,30 @@
 
 ### Linux* OS
 - [Common tools](#common-tools)
-- Intel® C++ Compiler 19.1 for Linux\* OS
+- Intel® C++ Compiler Classic 2021.3 for Linux\* OS
 - GCC 8.3
 - GCC 9.1
+- GCC 10.1
+- GCC 11.1
+- Clang 9.0
+- Clang 12.0
 - GNU binutils 2.32
 ### Windows* OS
 - [Common tools](#common-tools)
-- Intel® C++ Compiler 19.1 for Windows\* OS
+- Intel® C++ Compiler Classic 2021.3 for Windows\* OS
 - Microsoft Visual C++ Compiler\* version 19.16 provided by Microsoft Visual Studio\* 2017 version 15.9
 > **NOTE:** Support for this compiler version will be removed from Intel IPP Cryptography starting 2021.4 release. If you use it for building Intel IPP Cryptography library, please plan on migrating to a newer supported version of Microsoft Visual C++ Compiler\*.
 - Microsoft Visual C++ Compiler\* version 19.24 provided by Microsoft Visual Studio\* 2019 version 16.4
 ### macOS*
 - [Common tools](#common-tools)
-- Intel® C++ Compiler 19.1 for macOS\* 
+- Intel® C++ Compiler Classic 2021.3 for macOS\*
 ## Building Intel IPP Cryptography on Linux\* OS
 
 The software was validated on:
 
 - Red Hat\* Enterprise Linux\* 7
 
-To build the Intel IPP Cryptography library on Linux\* OS, complete the following steps: 
+To build the Intel IPP Cryptography library on Linux\* OS, complete the following steps:
 1. Clone the source code from GitHub\* as follows:
 
     ``` bash
@@ -117,7 +121,7 @@ To build the Intel IPP Cryptography library on Windows* OS, complete the followi
     For Intel® C++ Compiler and Visual Studio\* 2019:
 
     ``` bash
-    cmake CMakeLists.txt -B_build -G"Visual Studio 16 2019" -T"Intel C++ Compiler 19.1" -Ax64
+    cmake CMakeLists.txt -B_build -G"Visual Studio 16 2019" -T"Intel C++ Compiler 19.2" -Ax64
     ```
 
     For MSVC\* Compiler and Visual Studio\* 2019:
@@ -143,7 +147,7 @@ To build the Intel IPP Cryptography library on Windows* OS, complete the followi
 
 The software was validated on:
 
-- macOS\* 10.14
+- macOS\* 10.15
 
 To build the Intel IPP Cryptography library on macOS*, complete the following steps:
 

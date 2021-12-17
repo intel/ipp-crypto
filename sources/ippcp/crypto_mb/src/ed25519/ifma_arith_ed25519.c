@@ -133,6 +133,8 @@ void ge52_ext_compress(fe52_mb r, const ge52_ext_mb* p)
    fe52_inv(recip, p->Z);
    fe52_mul(x, p->X, recip);
    fe52_mul(y, p->Y, recip);
+   fe52_red(x, x);
+   fe52_red(y, y);
 
    __mb_mask is_negative = cmp64_mask(and64_const(x[0], 1), set1(1), _MM_CMPINT_EQ);
    y[(GE25519_COMP_BITSIZE-1)/DIGIT_SIZE] = _mm512_mask_or_epi64(y[(GE25519_COMP_BITSIZE-1)/DIGIT_SIZE], is_negative, y[(GE25519_COMP_BITSIZE - 1) / DIGIT_SIZE], set1(1LL << (GE25519_COMP_BITSIZE-1)%DIGIT_SIZE));

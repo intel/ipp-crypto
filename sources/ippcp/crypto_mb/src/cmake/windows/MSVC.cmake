@@ -36,6 +36,8 @@ set(CMAKE_C_FLAGS_SECURITY "")
 set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} /GS")
 # Warning level = 3
 set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} /W3")
+# Changes all warnings to errors.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
 
 
 # Linker flags

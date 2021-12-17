@@ -57,7 +57,7 @@ IPPFUN(IppStatus, ippsSHA1Final,(Ipp8u* pMD, IppsSHA1State* pState))
    /* test digest pointer */
    IPP_BAD_PTR1_RET(pMD);
 
-   cpFinalizeSHA1(HASH_VALUE(pState), HASH_BUFF(pState), HAHS_BUFFIDX(pState), HASH_LENLO(pState));
+   cpFinalizeSHA1(HASH_VALUE(pState), HASH_BUFF(pState), HASH_BUFFIDX(pState), HASH_LENLO(pState));
    /* convert hash into big endian */
    ((Ipp32u*)pMD)[0] = ENDIANNESS32(HASH_VALUE(pState)[0]);
    ((Ipp32u*)pMD)[1] = ENDIANNESS32(HASH_VALUE(pState)[1]);
@@ -66,7 +66,7 @@ IPPFUN(IppStatus, ippsSHA1Final,(Ipp8u* pMD, IppsSHA1State* pState))
    ((Ipp32u*)pMD)[4] = ENDIANNESS32(HASH_VALUE(pState)[4]);
 
    /* re-init hash value */
-   HAHS_BUFFIDX(pState) = 0;
+   HASH_BUFFIDX(pState) = 0;
    HASH_LENLO(pState) = 0;
    sha1_hashInit(HASH_VALUE(pState));
 

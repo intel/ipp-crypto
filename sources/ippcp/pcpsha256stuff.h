@@ -151,7 +151,7 @@ IPP_OWN_DEFN (static IppStatus, InitSHA256, (IppsSHA256State* pState, const Dige
 
    HASH_SET_ID(pState, idCtxSHA256);
    HASH_LENLO(pState) = 0;
-   HAHS_BUFFIDX(pState) = 0;
+   HASH_BUFFIDX(pState) = 0;
 
    /* setup initial digest */
    HASH_VALUE(pState)[0] = IV[0];

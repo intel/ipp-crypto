@@ -85,7 +85,7 @@ void sm3_avx512_mb8(int32u* hash_pa[8], const int8u* msg_pa[8], int len[8])
     __m512i zero_buffer = _mm512_setzero_si512();
 
      /* Load processing mask */
-    __mmask8 mb_mask = _mm256_cmp_epi32_mask(_mm256_loadu_si256((__m256i*)len), M256(&zero_buffer), 4);
+    __mmask8 mb_mask = _mm256_cmp_epi32_mask(_mm256_loadu_si256((__m256i*)len), M256(&zero_buffer), _MM_CMPINT_NE);
 
     /* Load data and set the data to zero in not valid buffers */
     M256(loc_len) = _mm256_loadu_si256((__m256i*)len);
@@ -218,6 +218,6 @@ void sm3_avx512_mb8(int32u* hash_pa[8], const int8u* msg_pa[8], int len[8])
         /* Update pointers to data, local  lengths and mask */
         M512(loc_data) = _mm512_mask_add_epi64(_mm512_set1_epi64((long long)&zero_buffer), (__mmask8)mb_mask, _mm512_loadu_si512(loc_data), _mm512_set1_epi64(SM3_MSG_BLOCK_SIZE));
         M256(loc_len) = _mm256_mask_sub_epi32(M256(&zero_buffer), mb_mask, _mm256_loadu_si256((__m256i*)loc_len), _mm256_set1_epi32(SM3_MSG_BLOCK_SIZE)); 
-        mb_mask = _mm256_cmp_epi32_mask(_mm256_loadu_si256((__m256i*)loc_len), M256(&zero_buffer), 4); 
+        mb_mask = _mm256_cmp_epi32_mask(_mm256_loadu_si256((__m256i*)loc_len), M256(&zero_buffer), _MM_CMPINT_NE); 
     }
 }

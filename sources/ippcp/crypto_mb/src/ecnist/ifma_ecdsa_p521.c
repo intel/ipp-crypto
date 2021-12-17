@@ -458,10 +458,10 @@ DLL_PUBLIC
 mbx_status mbx_nistp521_ecdsa_verify_mb8(const int8u* const pa_sign_r[8],
                                          const int8u* const pa_sign_s[8],
                                          const int8u* const pa_msg[8],
-                                        const int64u* const pa_pubx[8],
-                                        const int64u* const pa_puby[8],
-                                        const int64u* const pa_pubz[8],                                       
-                                                     int8u* pBuffer)
+                                         const int64u* const pa_pubx[8],
+                                         const int64u* const pa_puby[8],
+                                         const int64u* const pa_pubz[8],                                       
+                                               int8u* pBuffer)
 {
    mbx_status status = 0;
    int buf_no;
@@ -799,11 +799,11 @@ mbx_status mbx_nistp521_ecdsa_sign_ssl_mb8(int8u* pa_sign_r[8],
 
 DLL_PUBLIC
 mbx_status mbx_nistp521_ecdsa_verify_ssl_mb8(const ECDSA_SIG* const pa_sig[8],
-                                                 const int8u* const pa_msg[8],                                             
-                                                const BIGNUM* const pa_pubx[8],
-                                                const BIGNUM* const pa_puby[8],
-                                                const BIGNUM* const pa_pubz[8],                                       
-                                                             int8u* pBuffer)
+                                             const int8u* const pa_msg[8],                                             
+                                             const BIGNUM* const pa_pubx[8],
+                                             const BIGNUM* const pa_puby[8],
+                                             const BIGNUM* const pa_pubz[8],                                       
+                                                   int8u* pBuffer)
 {
    mbx_status status = 0;
    int buf_no;

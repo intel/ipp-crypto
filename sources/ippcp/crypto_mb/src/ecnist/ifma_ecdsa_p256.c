@@ -458,9 +458,9 @@ DLL_PUBLIC
 mbx_status mbx_nistp256_ecdsa_verify_mb8(const int8u* const pa_sign_r[8],
                                          const int8u* const pa_sign_s[8],
                                          const int8u* const pa_msg[8],
-                                        const int64u* const pa_pubx[8],
-                                        const int64u* const pa_puby[8],
-                                        const int64u* const pa_pubz[8],                                       
+                                         const int64u* const pa_pubx[8],
+                                         const int64u* const pa_puby[8],
+                                         const int64u* const pa_pubz[8],                                       
                                                int8u* pBuffer)
 {
    mbx_status status = 0;
