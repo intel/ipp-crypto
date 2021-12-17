@@ -311,6 +311,13 @@ void MB_FUNC_NAME(get_nistp384_ec_affine_coords_)(U64 x[], U64 y[], const P384_P
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+static __NOINLINE void clear_secret_context(U64* wval, U64* dval, __mb_mask* dsign)
+{
+   *wval = get_zero64();
+   *dval = get_zero64();
+   *dsign = 0;
+   return;
+}
 
 #define WIN_SIZE  (4)
 
@@ -473,9 +480,7 @@ void MB_FUNC_NAME(ifma_ec_nistp384_mul_point_)(P384_POINT* r, const P384_POINT* 
    MB_FUNC_NAME(zero_)((int64u (*)[8])&R, sizeof(R)/sizeof(U64));
 
    /* clear stubs of secret scalar */
-   wvalue = _mm512_setzero_si512();
-   dvalue = _mm512_setzero_si512();
-   dsign = 0;
+   clear_secret_context(&wvalue, &dvalue, &dsign);
 }
 #undef WIN_SIZE
 
@@ -632,9 +637,7 @@ void MB_FUNC_NAME(ifma_ec_nistp384_mul_pointbase_)(P384_POINT* r, const U64 scal
    MB_FUNC_NAME(mov_FE384_)(r->Z, R.Z);
 
    /* clear stubs of secret scalar */
-   wvalue = _mm512_setzero_si512();
-   dvalue = _mm512_setzero_si512();
-   dsign = 0;
+   clear_secret_context(&wvalue, &dvalue, &dsign);
 }
 #undef BP_WIN_SIZE
 

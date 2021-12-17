@@ -312,6 +312,13 @@ void MB_FUNC_NAME(get_sm2_ec_affine_coords_)(U64 x[], U64 y[], const SM2_POINT* 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+static __NOINLINE void clear_secret_context(U64* wval, U64* dval, __mb_mask* dsign)
+{
+   *wval = get_zero64();
+   *dval = get_zero64();
+   *dsign = 0;
+   return;
+}
 
 #define WIN_SIZE  (4)
 
@@ -474,9 +481,7 @@ void MB_FUNC_NAME(ifma_ec_sm2_mul_point_)(SM2_POINT* r, const SM2_POINT* p, cons
    MB_FUNC_NAME(zero_)((int64u (*)[8])&R, sizeof(R)/sizeof(U64));
 
    /* clear stubs of secret scalar */
-   wvalue = _mm512_setzero_si512();
-   dvalue = _mm512_setzero_si512();
-   dsign = 0;
+   clear_secret_context(&wvalue, &dvalue, &dsign);
 }
 #undef WIN_SIZE
 
@@ -619,9 +624,7 @@ void MB_FUNC_NAME(ifma_ec_sm2_mul_pointbase_)(SM2_POINT* r, const U64 scalar[])
    MB_FUNC_NAME(mov_FESM2_)(r->Z, R.Z);
 
    /* clear stubs of secret scalar */
-   wvalue = _mm512_setzero_si512();
-   dvalue = _mm512_setzero_si512();
-   dsign = 0;
+   clear_secret_context(&wvalue, &dvalue, &dsign);
 }
 #undef BP_WIN_SIZE
 
