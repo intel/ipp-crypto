@@ -49,7 +49,7 @@ __INLINE Ipp8u getInvSboxValue(Ipp8u x)
    BNU_CHUNK_T i_sel = x/sizeof(BNU_CHUNK_T);  /* selection index */
    BNU_CHUNK_T i;
    for(i=0; i<sizeof(RijEncSbox)/sizeof(BNU_CHUNK_T); i++) {
-      BNU_CHUNK_T mask = (i==i_sel)? (BNU_CHUNK_T)(-1) : 0; /* ipp and IPP build specific avoid jump instruction here */
+      BNU_CHUNK_T mask = (i==i_sel)? (BNU_CHUNK_T)(-1) : 0; /* build specific to avoid jump instruction here */
       selection |= SboxEntry[i] & mask;
    }
    selection >>= (x & SELECTION_BITS)*8;

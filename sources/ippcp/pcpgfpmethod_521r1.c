@@ -29,6 +29,8 @@
 #include "pcpbnuarith.h"
 #include "pcpecprime.h"
 
+#include "ecnist/ifma_arith_method_p521.h"
+
 //tbcd: temporary excluded: #include <assert.h>
 
 #if(_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_M7)
@@ -197,11 +199,17 @@ IPPFUN( const IppsGFpMethod*, ippsGFpMethod_p521r1, (void) )
       NULL
    };
 
-   #if(_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_M7)
+#if (_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_M7)
    method.arith = gsArithGF_p521r1();
-   #else
+#else
    method.arith = gsArithGFp();
-   #endif
+#endif
+
+#if (_IPP32E >= _IPP32E_K1)
+   if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+      method.arith_alt = gsArithGF_p521r1_avx512();
+   }
+#endif
 
    return &method;
 }

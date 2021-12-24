@@ -22,6 +22,8 @@
 #include "owndefs.h"
 #include "owncp.h"
 
+#include "ecnist/ifma_arith_method.h"
+
 #include "pcpbnumisc.h"
 #include "gsmodstuff.h"
 #include "pcpgfpstuff.h"
@@ -181,7 +183,7 @@ static gsModMethod* gsArithGF_p384r1 (void)
 //           operations over GF(q). q = 2^384 - 2^128 - 2^96 + 2^32 - 1
 *F*/
 
-IPPFUN( const IppsGFpMethod*, ippsGFpMethod_p384r1, (void) )
+IPPFUN(const IppsGFpMethod *, ippsGFpMethod_p384r1, (void))
 {
    static IppsGFpMethod method = {
       cpID_PrimeP384r1,
@@ -190,11 +192,17 @@ IPPFUN( const IppsGFpMethod*, ippsGFpMethod_p384r1, (void) )
       NULL
    };
 
-   #if(_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_M7)
+#if (_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_M7)
    method.arith = gsArithGF_p384r1();
-   #else
+#else
    method.arith = gsArithGFp();
-   #endif
+#endif
+
+#if (_IPP32E >= _IPP32E_K1)
+   if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+      method.arith_alt = gsArithGF_p384r1_avx512();
+   }
+#endif
 
    return &method;
 }

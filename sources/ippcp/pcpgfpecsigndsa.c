@@ -25,6 +25,8 @@
 #include "owndefs.h"
 #include "owncp.h"
 #include "pcpeccp.h"
+#include "pcpgfpmethod.h"
+#include "pcpgfpstuff.h"
 
 /*F*
 //    Name: ippsGFpECSignDSA
@@ -144,9 +146,33 @@ IPPFUN(IppStatus, ippsGFpECSignDSA,(const IppsBigNumState* pMsgDigest,
       IPP_BADARG_RET(cpEqu_BNU_CHUNK(pEphData, ephLen, 0) ||
                   0<=cpCmp_BNU(pEphData, ephLen, pOrder, ordLen), ippStsEphemeralKeyErr);
 
-      {
-         IppStatus sts = ippStsEphemeralKeyErr;
+      IppStatus sts = ippStsEphemeralKeyErr;
 
+#if (_IPP32E >= _IPP32E_K1)
+      if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+         switch (ECP_MODULUS_ID(pEC)) {
+            case cpID_PrimeP256r1: {
+               sts = gfec_SignDSA_nistp256_avx512(pMsgDigest, pRegPrivate, pEphPrivate, pSignR, pSignS, pEC, pScratchBuffer);
+               goto exit;
+               break;
+            }
+            case cpID_PrimeP384r1: {
+               sts = gfec_SignDSA_nistp384_avx512(pMsgDigest, pRegPrivate, pEphPrivate, pSignR, pSignS, pEC, pScratchBuffer);
+               goto exit;
+               break;
+            }
+            case cpID_PrimeP521r1: {
+               sts = gfec_SignDSA_nistp521_avx512(pMsgDigest, pRegPrivate, pEphPrivate, pSignR, pSignS, pEC, pScratchBuffer);
+               goto exit;
+               break;
+            }
+            default:
+               /* Go to default implementation below */
+               break;
+         }
+      } /* no else */
+#endif // (_IPP32E >= _IPP32E_K1)
+      {
          int elmLen = GFP_FELEN(pMontP);
          int ns;
 
@@ -211,11 +237,14 @@ IPPFUN(IppStatus, ippsGFpECSignDSA,(const IppsBigNumState* pMsgDigest,
                sts = ippStsNoErr;
             }
          }
-
-         /* clear ephemeral private key */
-         cpBN_zero(pEphPrivate);
-
-         return sts;
       }
+
+#if (_IPP32E >= _IPP32E_K1)
+exit:
+#endif
+      /* clear ephemeral private key */
+      cpBN_zero(pEphPrivate);
+
+      return sts;
    }
 }

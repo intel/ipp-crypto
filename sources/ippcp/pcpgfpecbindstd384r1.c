@@ -27,7 +27,7 @@
 #include "owncp.h"
 #include "pcpgfpecstuff.h"
 #include "pcpeccp.h"
-
+#include "pcpgfpmethod.h"
 
 
 static IppStatus cpGFpECBindGxyTbl(const BNU_CHUNK_T* pPrime,
@@ -48,6 +48,12 @@ static IppStatus cpGFpECBindGxyTbl(const BNU_CHUNK_T* pPrime,
       IPP_BADARG_RET(cpCmp_BNU(pPrime, (cpSize)elemLen, GFP_MODULUS(pGFE), (cpSize)elemLen), ippStsBadArgErr);
 
       {
+#if (_IPP32E >= _IPP32E_K1)
+         /* No need in testing base point consistency, as it is fixed initialization with hardcoded table pointer. */
+         if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+            return (ECP_MODULUS_ID(pEC) == cpID_PrimeP384r1) ? ippStsNoErr : ippStsBadArgErr;
+         }
+#endif
          BNU_CHUNK_T* pbp_ec = ECP_G(pEC);
          int cmpFlag;
          BNU_CHUNK_T* pbp_tbl = cpEcGFpGetPool(1, pEC);
@@ -87,11 +93,19 @@ static IppStatus cpGFpECBindGxyTbl(const BNU_CHUNK_T* pPrime,
 
 IPPFUN(IppStatus, ippsGFpECBindGxyTblStd384r1,(IppsGFpECState* pEC))
 {
-   IppStatus sts = cpGFpECBindGxyTbl(secp384r1_p, gfpec_precom_nistP384r1_fun(), pEC);
+   const cpPrecompAP* precomp = gfpec_precom_nistP384r1_fun();
+
+#if (_IPP32E >= _IPP32E_K1)
+   if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+      precomp = gfpec_precom_nistP384r1_radix52_fun();
+   }
+#endif
+
+   IppStatus sts = cpGFpECBindGxyTbl(secp384r1_p, precomp, pEC);
 
    /* setup pre-computed g-table and point access function */
    if(ippStsNoErr==sts)
-      ECP_PREMULBP(pEC) = gfpec_precom_nistP384r1_fun();
+      ECP_PREMULBP(pEC) = precomp;
 
    return sts;
 }

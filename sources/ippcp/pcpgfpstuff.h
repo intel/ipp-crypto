@@ -47,6 +47,7 @@ typedef struct _cpGFpElement {
 /* GF(p) context */
 typedef struct _cpGFp {
    Ipp32u         idCtx;   /* GFp spec ident     */
+   cpModulusID    modulusID;
    gsModEngine*   pGFE;    /* arithmethic engine */
 } cpGFp;
 
@@ -67,6 +68,7 @@ typedef struct _cpGFp {
 #define GFP_FELEN32(pCtx)     MOD_LEN32((pCtx))
 #define GFP_PELEN(pCtx)       MOD_PELEN((pCtx))
 #define GFP_METHOD(pCtx)      MOD_METHOD((pCtx))
+#define GFP_METHOD_ALT(pCtx)  MOD_METHOD_ALT((pCtx))
 #define GFP_MODULUS(pCtx)     MOD_MODULUS((pCtx))
 #define GFP_MNT_FACTOR(pCtx)  MOD_MNT_FACTOR((pCtx))
 #define GFP_MNT_R(pCtx)       MOD_MNT_R((pCtx))

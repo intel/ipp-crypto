@@ -36,7 +36,8 @@ typedef struct _gsModEngine
    int                  modLen;        /* length of modulus  (BNU_CHUNK_T) */
    int                  modLen32;      /* length of modulus  (Ipp32u)      */
    int                  peLen;         /* length of pool element (BNU_CHUNK_T) */
-   const gsModMethod*   method;        /* modular arithmetic methods       */
+   const gsModMethod*   method;        /* modular arithmetic methods - regular radix */
+   const void*          method_alt;    /* modular arithmetic methods - alternative radix implementation */
    BNU_CHUNK_T*         pModulus;      /* modulus                          */
    BNU_CHUNK_T          k0;            /* low word of (1/modulus) mod R    */
    BNU_CHUNK_T*         pMontR;        /* mont_enc(1)                      */
@@ -56,6 +57,7 @@ typedef struct _gsModEngine
 #define MOD_LEN32(eng)       ((eng)->modLen32)
 #define MOD_PELEN(eng)       ((eng)->peLen)
 #define MOD_METHOD(eng)      ((eng)->method)
+#define MOD_METHOD_ALT(eng)  ((eng)->method_alt)
 #define MOD_MODULUS(eng)     ((eng)->pModulus)
 #define MOD_MNT_FACTOR(eng)  ((eng)->k0)
 #define MOD_MNT_R(eng)       ((eng)->pMontR)

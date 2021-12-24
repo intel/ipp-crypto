@@ -123,7 +123,7 @@ static void ed25519_nonce(int8u* pa_nonce[8], int8u* pa_az[8], const int8u* cons
    SHA512State pState;
 
    for(int n=0; n<8; n++) {
-      int8u* az = pa_az[n];
+      int8u* az = pa_az[n] + HASH_LENGTH/2;
       const int8u* msg = pa_msg[n];
       int32u mlen = msgLen[n];
       
@@ -200,10 +200,6 @@ mbx_status MB_FUNC_NAME(mbx_ed25519_sign_)(ed25519_sign_component* pa_sign_r[8],
          (int64u*)az[0], (int64u*)az[1], (int64u*)az[2], (int64u*)az[3],
          (int64u*)az[4], (int64u*)az[5], (int64u*)az[6], (int64u*)az[7]
       };
-      int64u* pa_az_hi[8] = {
-         (int64u*)(az[0]+HASH_LENGTH/2), (int64u*)(az[1]+HASH_LENGTH/2), (int64u*)(az[2]+HASH_LENGTH/2), (int64u*)(az[3]+HASH_LENGTH/2),
-         (int64u*)(az[4]+HASH_LENGTH/2), (int64u*)(az[5]+HASH_LENGTH/2), (int64u*)(az[6]+HASH_LENGTH/2), (int64u*)(az[7]+HASH_LENGTH/2)
-      };
 
       /* nonce */
       int8u nonce[8][HASH_LENGTH] = { 0 };
@@ -225,7 +221,8 @@ mbx_status MB_FUNC_NAME(mbx_ed25519_sign_)(ed25519_sign_component* pa_sign_r[8],
       ifma_BNU_to_mb8((int64u(*)[8])mb_az, (const int64u**)pa_az, SHA512_HASH_BITLENGTH/2);
 
       /* computes nonce, nonce = H(az+32, msg)  */
-      ed25519_nonce((int8u**)pa_nonce, (int8u**)pa_az_hi, pa_msg, msgLen);
+      /* Note: only a second half of each pa_az[n] item is used in the ed25519_nonce() function */
+      ed25519_nonce((int8u**)pa_nonce, (int8u**)pa_az, pa_msg, msgLen);
 
       /* reduce nonce wrt n */
       U64 mb_nonce[NUMBER_OF_DIGITS(SHA512_HASH_BITLENGTH, DIGIT_SIZE)];

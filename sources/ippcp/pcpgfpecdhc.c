@@ -86,6 +86,14 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDHC,(const IppsBigNumState* pPrivateA, co
    IPP_BADARG_RET(!BN_VALID_ID(pShare), ippStsContextMatchErr);
    IPP_BADARG_RET((BN_ROOM(pShare)<GFP_FELEN(pGFE)), ippStsRangeErr);
 
+   BNU_CHUNK_T* pCofactor = ECP_COFACTOR(pEC);
+   int cofactorLen = GFP_FELEN(pGFE);
+   cofactorLen = cpGFpElementLen(pCofactor, cofactorLen);
+
+   /* check if cofactor == 1 */
+   if(GFP_IS_ONE(pCofactor, cofactorLen))
+      return ippsGFpECSharedSecretDH(pPrivateA, pPublicB, pShare, pEC, pScratchBuffer);
+
    {
       int elmLen = GFP_FELEN(pGFE);
 
@@ -99,16 +107,8 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDHC,(const IppsBigNumState* pPrivateA, co
       BNU_CHUNK_T* F = cpGFpGetPool(2, pGFE);
 
       /* compute factored secret F = coFactor*privateA */
-      BNU_CHUNK_T* pCofactor = ECP_COFACTOR(pEC);
-      int cofactorLen = GFP_FELEN(pGFE);
-      cofactorLen = cpGFpElementLen(pCofactor, cofactorLen);
-
-      if(GFP_IS_ONE(pCofactor, cofactorLen))
-         cpGFpElementCopyPad(F, nsR, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA));
-      else {
-         cpMontEnc_BNU_EX(F, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA), montR);
-         cpMontMul_BNU_EX(F, F, nsR, pCofactor, cofactorLen, montR);
-      }
+      cpMontEnc_BNU_EX(F, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA), montR);
+      cpMontMul_BNU_EX(F, F, nsR, pCofactor, cofactorLen, montR);
       /* T = [F]pPublicB */
       cpEcGFpInitPoint(&T, cpEcGFpGetPool(1, pEC),0, pEC);
       gfec_MulPoint(&T, pPublicB, F, nsR, /*ECP_ORDBITSIZE(pEC),*/ pEC, pScratchBuffer);
@@ -127,7 +127,6 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDHC,(const IppsBigNumState* pPrivateA, co
          FIX_BNU(pShareData, nsShare);
          BN_SIZE(pShare) = nsShare;
       }
-
       cpGFpReleasePool(2, pGFE);
       cpEcGFpReleasePool(1, pEC);
 

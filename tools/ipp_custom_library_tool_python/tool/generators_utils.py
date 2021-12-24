@@ -225,7 +225,7 @@ CUSTOM_DISPATCHER_FILE = '{include_lines}\n'\
                          '#endif\n\n'\
                          '#endif\n'
 
-RENAME_FORMAT = '#define {function} {prefix}{function}'
+RENAME_FORMAT = '#define {function} {prefix}{function}\n'
 
 INCLUDE_STR = '#include "{header_name}"\n'
 

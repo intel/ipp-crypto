@@ -29,6 +29,7 @@
 #include "pcpeccp.h"
 
 
+#include "ecnist/ifma_arith_method_p521.h"
 
 
 static void cpGFpECSetStd(int aLen, const BNU_CHUNK_T* pA,
@@ -63,6 +64,12 @@ static void cpGFpECSetStd(int aLen, const BNU_CHUNK_T* pA,
    ippsGFpSetElement((Ipp32u*)pY, BITS2WORD32_SIZE(BITSIZE_BNU(pY,yLen)), &elmB, pGF);
    /* and init EC subgroup */
    ippsGFpECSetSubgroup(&elmA, &elmB, &R, &H, pEC);
+
+#if (_IPP32E >= _IPP32E_K1)
+      if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+         ECP_MONT_R(pEC)->method_alt = gsArithGF_n521r1_avx512();
+      }
+#endif
 }
 
 /*F*
@@ -109,6 +116,8 @@ IPPFUN(IppStatus, ippsGFpECInitStd521r1,(const IppsGFpState* pGF, IppsGFpECState
                     BITS_BNU_CHUNK(521), secp521r1_r,
                     secp521r1_h,
                     pEC);
+
+      ECP_MODULUS_ID(pEC) = cpID_PrimeP521r1;
 
       return ippStsNoErr;
    }

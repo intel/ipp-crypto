@@ -26,10 +26,6 @@
 #include "owncp.h"
 #include "pcpgfpecstuff.h"
 
-
-
-
-
 /*F*
 //    Name: ippsGFpECSharedSecretDHC
 //
@@ -65,15 +61,15 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDH,(const IppsBigNumState* pPrivateA, con
                                            IppsBigNumState* pShare,
                                            IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 {
-   IppsGFpState*  pGF;
-   gsModEngine* pGFE;
+   IppsGFpState *pGF;
+   gsModEngine *pGFE;
 
    /* EC context and buffer */
    IPP_BAD_PTR2_RET(pEC, pScratchBuffer);
    IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
    IPP_BADARG_RET(!ECP_SUBGROUP(pEC), ippStsContextMatchErr);
 
-   pGF = ECP_GFP(pEC);
+   pGF  = ECP_GFP(pEC);
    pGFE = GFP_PMA(pGF);
 
    /* test private (own) key */
@@ -82,43 +78,93 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDH,(const IppsBigNumState* pPrivateA, con
 
    /* test public (other party) key */
    IPP_BAD_PTR1_RET(pPublicB);
-   IPP_BADARG_RET( !ECP_POINT_VALID_ID(pPublicB), ippStsContextMatchErr );
+   IPP_BADARG_RET(!ECP_POINT_VALID_ID(pPublicB), ippStsContextMatchErr);
 
    /* test share secret value */
    IPP_BAD_PTR1_RET(pShare);
    IPP_BADARG_RET(!BN_VALID_ID(pShare), ippStsContextMatchErr);
-   IPP_BADARG_RET((BN_ROOM(pShare)<GFP_FELEN(pGFE)), ippStsRangeErr);
+   IPP_BADARG_RET((BN_ROOM(pShare) < GFP_FELEN(pGFE)), ippStsRangeErr);
 
    {
-      int elmLen = GFP_FELEN(pGFE);
-
-      IppsGFpElement elm;
+      /* init tmp Point */
       IppsGFpECPoint T;
-      int finite_point;
+      cpEcGFpInitPoint(/* pPoint = */ &T,
+                       /* pData = */ cpEcGFpGetPool(1, pEC),
+                       /* flags = */ 0,
+                       /* pEC = */ pEC);
 
-      /* T = [privateA]pPublicB */
-      cpEcGFpInitPoint(&T, cpEcGFpGetPool(1, pEC),0, pEC);
-      gfec_MulPoint(&T, pPublicB, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA), /*ECP_ORDBITSIZE(pEC),*/ pEC, pScratchBuffer);
+      int finite_point = 0;
+      const int elmLen = GFP_FELEN(pGFE);
+      /* share data */
+      BNU_CHUNK_T *pShareData = BN_NUMBER(pShare);
+      int nsShare             = BN_ROOM(pShare);
 
-      /* share = T.x */
-      cpGFpElementConstruct(&elm, cpGFpGetPool(1, pGFE), elmLen);
-      finite_point = gfec_GetPoint(GFPE_DATA(&elm), NULL, &T, pEC);
+#if (_IPP32E >= _IPP32E_K1)
+      if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+         switch (ECP_MODULUS_ID(pEC)) {
+         case cpID_PrimeP256r1: {
+            finite_point = gfec_SharedSecretDH_nistp256_avx512(&T, pPublicB, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA), pEC, pScratchBuffer);
+            if (finite_point) {
+               cpGFpElementCopy(pShareData, ECP_POINT_X(&T), elmLen);
+               cpGFpElementPad(pShareData + elmLen, nsShare - elmLen, 0);
+            }
+            goto exit;
+            break;
+         }
+         case cpID_PrimeP384r1: {
+            finite_point = gfec_SharedSecretDH_nistp384_avx512(&T, pPublicB, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA), pEC, pScratchBuffer);
+            if (finite_point) {
+               cpGFpElementCopy(pShareData, ECP_POINT_X(&T), elmLen);
+               cpGFpElementPad(pShareData + elmLen, nsShare - elmLen, 0);
+            }
+            goto exit;
+            break;
+         }
+         case cpID_PrimeP521r1: {
+            finite_point = gfec_SharedSecretDH_nistp521_avx512(&T, pPublicB, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA), pEC, pScratchBuffer);
+            if (finite_point) {
+               cpGFpElementCopy(pShareData, ECP_POINT_X(&T), elmLen);
+               cpGFpElementPad(pShareData + elmLen, nsShare - elmLen, 0);
+            }
+            goto exit;
+            break;
+         }
+         default:
+            /* Go to default implementation below */
+            break;
+         }
+      } /* no else */
+#endif  // (_IPP32E >= _IPP32E_K1)
+      {
+         /* T  = [privateA]pPublicB */
+         gfec_MulPoint(&T, pPublicB, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA), /*ECP_ORDBITSIZE(pEC),*/ pEC, pScratchBuffer);
+         /* share = T.x */
+         IppsGFpElement elm;
+         /* Buffer by GFpElement - get in Pool data */
+         cpGFpElementConstruct(&elm, cpGFpGetPool(1, pGFE), elmLen);
 
-      if(finite_point) {
-         BNU_CHUNK_T* pShareData = BN_NUMBER(pShare);
-         int nsShare = BN_ROOM(pShare);
-         /* share = decode(T.x) */
-         GFP_METHOD(pGFE)->decode(pShareData, GFPE_DATA(&elm), pGFE);
-         cpGFpElementPad(pShareData+elmLen, nsShare-elmLen, 0);
+         finite_point = gfec_GetPoint(GFPE_DATA(&elm), NULL, &T, pEC);
 
+         /* check finit point */
+         if (finite_point) {
+            /* share = decode(T.x) */
+            GFP_METHOD(pGFE)->decode(pShareData, GFPE_DATA(&elm), pGFE);
+            cpGFpElementPad(pShareData + elmLen, nsShare - elmLen, 0);
+         }
+
+         cpGFpReleasePool(1, pGFE); /* GFpElement */
+      }
+
+#if (_IPP32E >= _IPP32E_K1)
+exit:
+#endif
+
+      if (finite_point) {
          BN_SIGN(pShare) = ippBigNumPOS;
          FIX_BNU(pShareData, nsShare);
          BN_SIZE(pShare) = nsShare;
       }
-
-      cpGFpReleasePool(1, pGFE);
-      cpEcGFpReleasePool(1, pEC);
-
-      return finite_point? ippStsNoErr : ippStsShareKeyErr;
+      cpEcGFpReleasePool(1, pEC); /* ECPoint */
+      return finite_point ? ippStsNoErr : ippStsShareKeyErr;
    }
 }

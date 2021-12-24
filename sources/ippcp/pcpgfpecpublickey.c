@@ -72,20 +72,44 @@ IPPFUN(IppStatus, ippsGFpECPublicKey, (const IppsBigNumState* pPrivate, IppsGFpE
    /* test public key */
    IPP_BAD_PTR1_RET(pPublic);
    IPP_BADARG_RET(!ECP_POINT_VALID_ID(pPublic), ippStsContextMatchErr);
-   IPP_BADARG_RET(ECP_POINT_FELEN(pPublic)<GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsRangeErr);
+   IPP_BADARG_RET(ECP_POINT_FELEN(pPublic) < GFP_FELEN(GFP_PMA(ECP_GFP(pEC))), ippStsRangeErr);
 
    {
-      BNU_CHUNK_T* pS= BN_NUMBER(pPrivate);
-      int nsS= BN_SIZE(pPrivate);
+      BNU_CHUNK_T *pS = BN_NUMBER(pPrivate);
+      int nsS         = BN_SIZE(pPrivate);
 
-      BNU_CHUNK_T* pOrder = MOD_MODULUS(ECP_MONT_R(pEC));
-      int orderLen = BITS_BNU_CHUNK(ECP_ORDBITSIZE(pEC));
+      BNU_CHUNK_T *pOrder = MOD_MODULUS(ECP_MONT_R(pEC));
+      int orderLen        = BITS_BNU_CHUNK(ECP_ORDBITSIZE(pEC));
 
       IPP_BADARG_RET(cpEqu_BNU_CHUNK(pS, nsS, 0)
-               || 0<=cpCmp_BNU(pS, nsS, pOrder, orderLen), ippStsIvalidPrivateKey);
+                         || 0 <= cpCmp_BNU(pS, nsS, pOrder, orderLen),
+                     ippStsIvalidPrivateKey);
 
       /* calculates public key */
-      gfec_MulBasePoint(pPublic, pS, nsS, pEC, pScratchBuffer);
+#if (_IPP32E >= _IPP32E_K1)
+      if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+         switch (ECP_MODULUS_ID(pEC)) {
+         case cpID_PrimeP256r1: {
+            gfec_PubKey_nist256_avx512(pPublic, pS, nsS, pEC, pScratchBuffer);
+            return ippStsNoErr;
+         }
+         case cpID_PrimeP384r1: {
+            gfec_PubKey_nist384_avx512(pPublic, pS, nsS, pEC, pScratchBuffer);
+            return ippStsNoErr;
+         }
+         case cpID_PrimeP521r1: {
+            gfec_PubKey_nist521_avx512(pPublic, pS, nsS, pEC, pScratchBuffer);
+            return ippStsNoErr;
+         }
+         default:
+            /* Go to default implementation below */
+            break;
+         }
+      } /* no else */
+#endif  // (_IPP32E >= _IPP32E_K1)
+      {
+         gfec_MulBasePoint(pPublic, pS, nsS, pEC, pScratchBuffer);
+      }
 
       return ippStsNoErr;
    }

@@ -27,6 +27,7 @@
 #include "owncp.h"
 #include "pcpgfpecstuff.h"
 #include "pcpeccp.h"
+#include "pcpgfpmethod.h"
 
 /*F*
 // Name: ippsGFpECInit
@@ -78,6 +79,7 @@ IPPFUN(IppStatus, ippsGFpECInit,(const IppsGFpState* pGFp,
       gsModEngineGetSize(maxOrderBits, MONT_DEFAULT_POOL_LENGTH, &modEngineCtxSize);
 
       ECP_SET_ID(pEC);
+      ECP_MODULUS_ID(pEC) = cpID_Prime;
       ECP_GFP(pEC) = (IppsGFpState*)pGFp;
       ECP_SUBGROUP(pEC) = 0;
       ECP_POINTLEN(pEC) = elemLen*3;

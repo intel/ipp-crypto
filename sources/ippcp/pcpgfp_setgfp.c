@@ -23,6 +23,8 @@
 // 
 // 
 */
+#include "gsmodmethod.h"
+#include "gsmodstuff.h"
 #include "owndefs.h"
 #include "owncp.h"
 
@@ -31,12 +33,15 @@
 #include "pcptool.h"
 
 
-static void cpGFESet(gsModEngine* pGFE, const BNU_CHUNK_T* pPrime, int primeBitSize, const gsModMethod* method)
+IPP_OWN_DEFN (IppStatus, cpGFpSetGFp, (const BNU_CHUNK_T* pPrime, int primeBitSize, const IppsGFpMethod* method, IppsGFpState* pGF))
 {
+   gsModEngine* pGFE = GFP_PMA(pGF);
+
    int primeLen = BITS_BNU_CHUNK(primeBitSize);
 
    /* arithmetic methods */
-   GFP_METHOD(pGFE) = method;
+   GFP_METHOD(pGFE) = method->arith;
+   pGFE->method_alt = method->arith_alt;
 
    /* store modulus */
    COPY_BNU(GFP_MODULUS(pGFE), pPrime, primeLen);
@@ -59,10 +64,6 @@ static void cpGFESet(gsModEngine* pGFE, const BNU_CHUNK_T* pPrime, int primeBitS
 
    /* set qnr value */
    cpGFEqnr(pGFE);
-}
 
-IPP_OWN_DEFN (IppStatus, cpGFpSetGFp, (const BNU_CHUNK_T* pPrime, int primeBitSize, const IppsGFpMethod* method, IppsGFpState* pGF))
-{
-   cpGFESet(GFP_PMA(pGF), pPrime, primeBitSize, method->arith);
    return ippStsNoErr;
 }

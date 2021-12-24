@@ -44,6 +44,17 @@
 #endif
 #endif /*__INLINE*/
 
+/* TODO: to check ICX compiler */
+#if !defined(__NOINLINE)
+#if defined(__INTEL_COMPILER) || defined(_MSC_VER)
+  #define __NOINLINE __declspec(noinline)
+#elif defined( __GNUC__ )
+  #define __NOINLINE __attribute__((noinline))
+#else
+  #define __NOINLINE
+#endif
+#endif /*__NOINLINE*/
+
 #if !defined(__FORCEINLINE)
 #if defined(_MSC_VER)
   #define __FORCEINLINE __forceinline

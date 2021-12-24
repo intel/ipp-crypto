@@ -28,6 +28,8 @@
 #include "pcpgfpmethod.h"
 #include "pcpecprime.h"
 
+#include "ifma_arith_method.h"
+
 //tbcd: temporary excluded: #include <assert.h>
 
 #if(_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_M7)
@@ -192,11 +194,18 @@ IPPFUN( const IppsGFpMethod*, ippsGFpMethod_p256r1, (void) )
       NULL
    };
 
-   #if(_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_M7)
+#if (_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_M7)
    method.arith = gsArithGF_p256r1();
-   #else
+#else
    method.arith = gsArithGFp();
-   #endif
+#endif
+
+#if (_IPP32E >= _IPP32E_K1)
+   if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+      method.arith_alt = gsArithGF_p256r1_avx512();
+   }
+#endif
+
    return &method;
 }
 

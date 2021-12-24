@@ -53,6 +53,7 @@ typedef struct _cpGFpMethod {
    int          modulusBitDeg;
    const BNU_CHUNK_T* modulus;
    const gsModMethod* arith;
+   const void* arith_alt; // alternative radix implementation
 } cpGFpMethod;
 
 /* common GF arith methods */

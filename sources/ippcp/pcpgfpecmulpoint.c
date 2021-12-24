@@ -117,11 +117,34 @@ IPPFUN(IppStatus, ippsGFpECMulPoint, (const IppsGFpECPoint* pP,
    IPP_BADARG_RET(BN_NEGATIVE(pN), ippStsBadArgErr);
 
    {
-      BNU_CHUNK_T* pScalar = BN_NUMBER(pN);
-      int scalarLen = BN_SIZE(pN);
-      IPP_BADARG_RET(0<cpCmp_BNU(pScalar, scalarLen, MOD_MODULUS(ECP_MONT_R(pEC)), MOD_LEN(ECP_MONT_R(pEC))), ippStsBadArgErr);
+      BNU_CHUNK_T *pScalar = BN_NUMBER(pN);
+      int scalarLen        = BN_SIZE(pN);
+      IPP_BADARG_RET(0 < cpCmp_BNU(pScalar, scalarLen, MOD_MODULUS(ECP_MONT_R(pEC)), MOD_LEN(ECP_MONT_R(pEC))), ippStsBadArgErr);
+
+#if (_IPP32E >= _IPP32E_K1)
+      if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+         switch (ECP_MODULUS_ID(pEC)) {
+         case cpID_PrimeP256r1: {
+            gfec_MulPoint_nistp256_avx512(pR, pP, pScalar, scalarLen, pEC, pScratchBuffer);
+            return ippStsNoErr;
+         }
+         case cpID_PrimeP384r1: {
+            gfec_MulPoint_nistp384_avx512(pR, pP, pScalar, scalarLen, pEC, pScratchBuffer);
+            return ippStsNoErr;
+         }
+         case cpID_PrimeP521r1: {
+            gfec_MulPoint_nistp521_avx512(pR, pP, pScalar, scalarLen, pEC, pScratchBuffer);
+            return ippStsNoErr;
+         }
+         default:
+            /* Go to default implementation below */
+            break;
+         }
+      } /* no else */
+#endif  // (_IPP32E >= _IPP32E_K1)
 
       gfec_MulPoint(pR, pP, pScalar, scalarLen, pEC, pScratchBuffer);
+
       return ippStsNoErr;
    }
 }
