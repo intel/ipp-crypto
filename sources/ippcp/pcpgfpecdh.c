@@ -75,10 +75,14 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDH,(const IppsBigNumState* pPrivateA, con
    /* test private (own) key */
    IPP_BAD_PTR1_RET(pPrivateA);
    IPP_BADARG_RET(!BN_VALID_ID(pPrivateA), ippStsContextMatchErr);
+   /* test if 0 < pPrivateA < Order */
+   IPP_BADARG_RET(0==gfec_CheckPrivateKey(pPrivateA, pEC), ippStsInvalidPrivateKey);
 
    /* test public (other party) key */
    IPP_BAD_PTR1_RET(pPublicB);
    IPP_BADARG_RET(!ECP_POINT_VALID_ID(pPublicB), ippStsContextMatchErr);
+   /* test if pPublicB belongs EC */
+   IPP_BADARG_RET(0==gfec_IsPointOnCurve(pPublicB, pEC), ippStsInvalidPoint);
 
    /* test share secret value */
    IPP_BAD_PTR1_RET(pShare);
@@ -122,6 +126,15 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDH,(const IppsBigNumState* pPrivateA, con
          }
          case cpID_PrimeP521r1: {
             finite_point = gfec_SharedSecretDH_nistp521_avx512(&T, pPublicB, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA), pEC, pScratchBuffer);
+            if (finite_point) {
+               cpGFpElementCopy(pShareData, ECP_POINT_X(&T), elmLen);
+               cpGFpElementPad(pShareData + elmLen, nsShare - elmLen, 0);
+            }
+            goto exit;
+            break;
+         }
+         case cpID_PrimeTPM_SM2: {
+            finite_point = gfec_SharedSecretDH_sm2_avx512(&T, pPublicB, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA), pEC, pScratchBuffer);
             if (finite_point) {
                cpGFpElementCopy(pShareData, ECP_POINT_X(&T), elmLen);
                cpGFpElementPad(pShareData + elmLen, nsShare - elmLen, 0);

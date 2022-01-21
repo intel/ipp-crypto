@@ -225,9 +225,9 @@ IPP_OWN_DEFN(void, ifma_lnorm52_dual_p521, (fe521 pr1[], const fe521 a1, fe521 p
 
 IPP_OWN_DEFN(void, ifma_amm52_p521, (fe521 pr[], const fe521 a, const fe521 b))
 {
-   const Ipp64u *pb_lo  = (const Ipp64u *)(&(FE521_LO(b)));
-   const Ipp64u *pb_mid = (const Ipp64u *)(&(FE521_MID(b)));
-   const Ipp64u *pb_hi  = (const Ipp64u *)(&(FE521_HI(b)));
+   const Ipp64s *pb_lo  = (const Ipp64s *)(&(FE521_LO(b)));
+   const Ipp64s *pb_mid = (const Ipp64s *)(&(FE521_MID(b)));
+   const Ipp64s *pb_hi  = (const Ipp64s *)(&(FE521_HI(b)));
 
    const m256i b0  = m256_set1_i64(pb_lo[0]);
    const m256i b1  = m256_set1_i64(pb_lo[1]);
@@ -487,9 +487,9 @@ IPP_OWN_DEFN(void, ifma_amm52_p521, (fe521 pr[], const fe521 a, const fe521 b))
 
 IPP_OWN_DEFN(void, ifma_ams52_p521, (fe521 pr[], const fe521 a))
 {
-   const Ipp64u *pa_lo  = (const Ipp64u *)(&(FE521_LO(a)));
-   const Ipp64u *pa_mid = (const Ipp64u *)(&(FE521_MID(a)));
-   const Ipp64u *pa_hi  = (const Ipp64u *)(&(FE521_HI(a)));
+   const Ipp64s *pa_lo  = (const Ipp64s *)(&(FE521_LO(a)));
+   const Ipp64s *pa_mid = (const Ipp64s *)(&(FE521_MID(a)));
+   const Ipp64s *pa_hi  = (const Ipp64s *)(&(FE521_HI(a)));
 
    const m256i a0 = m256_set1_i64(pa_lo[0]);
    const m256i a1 = m256_set1_i64(pa_lo[1]);
@@ -624,12 +624,12 @@ IPP_OWN_DEFN(void, ifma_amm52_dual_p521,
              (fe521 pr1[], const fe521 a1, const fe521 b1,
               fe521 pr2[], const fe521 a2, const fe521 b2))
 {
-   const Ipp64u *pb_lo_1  = (const Ipp64u *)(&(FE521_LO(b1)));
-   const Ipp64u *pb_mid_1 = (const Ipp64u *)(&(FE521_MID(b1)));
-   const Ipp64u *pb_hi_1  = (const Ipp64u *)(&(FE521_HI(b1)));
-   const Ipp64u *pb_lo_2  = (const Ipp64u *)(&(FE521_LO(b2)));
-   const Ipp64u *pb_mid_2 = (const Ipp64u *)(&(FE521_MID(b2)));
-   const Ipp64u *pb_hi_2  = (const Ipp64u *)(&(FE521_HI(b2)));
+   const Ipp64s *pb_lo_1  = (const Ipp64s *)(&(FE521_LO(b1)));
+   const Ipp64s *pb_mid_1 = (const Ipp64s *)(&(FE521_MID(b1)));
+   const Ipp64s *pb_hi_1  = (const Ipp64s *)(&(FE521_HI(b1)));
+   const Ipp64s *pb_lo_2  = (const Ipp64s *)(&(FE521_LO(b2)));
+   const Ipp64s *pb_mid_2 = (const Ipp64s *)(&(FE521_MID(b2)));
+   const Ipp64s *pb_hi_2  = (const Ipp64s *)(&(FE521_HI(b2)));
 
    const m256i b0_1  = m256_set1_i64(pb_lo_1[0]);
    const m256i b1_1  = m256_set1_i64(pb_lo_1[1]);

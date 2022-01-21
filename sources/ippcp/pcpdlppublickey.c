@@ -46,7 +46,7 @@
 //    ippStsIncompleteContextErr
 //                               incomplete context
 //
-//    ippStsIvalidPrivateKey     !(0 < pPrivate < DLP_R())
+//    ippStsInvalidPrivateKey    !(0 < pPrivate < DLP_R())
 //
 //    ippStsRangeErr             not enough room for pPubKey
 //
@@ -75,7 +75,7 @@ IPPFUN(IppStatus, ippsDLPPublicKey,(const IppsBigNumState* pPrvKey,
 
    /* test private key */
    IPP_BADARG_RET((0<=cpBN_cmp(cpBN_OneRef(), pPrvKey))||
-                  (0<=cpCmp_BNU(BN_NUMBER(pPrvKey),BN_SIZE(pPrvKey), DLP_R(pDL),BITS_BNU_CHUNK(DLP_BITSIZER(pDL)))), ippStsIvalidPrivateKey);
+                  (0<=cpCmp_BNU(BN_NUMBER(pPrvKey),BN_SIZE(pPrvKey), DLP_R(pDL),BITS_BNU_CHUNK(DLP_BITSIZER(pDL)))), ippStsInvalidPrivateKey);
 
    /* test public key's room */
    IPP_BADARG_RET(BN_ROOM(pPubKey)<BITS_BNU_CHUNK(DLP_BITSIZEP(pDL)), ippStsRangeErr);

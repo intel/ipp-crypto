@@ -23,7 +23,7 @@
 
 #include "pcpgfpecstuff.h"
 
-#include "ifma_defs.h"
+#include "ifma_defs_p521.h"
 #include "ifma_ecpoint_p521.h"
 
 #define BASE_POINT_WIN_SIZE (4)

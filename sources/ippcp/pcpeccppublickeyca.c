@@ -45,7 +45,7 @@
 //                            illegal pPrivate->idCtx
 //                            illegal pPublic->idCtx
 //
-//    ippStsIvalidPrivateKey  !(0 < pPrivate < order)
+//    ippStsInvalidPrivateKey !(0 < pPrivate < order)
 //
 //    ippStsNoErr             no errors
 //

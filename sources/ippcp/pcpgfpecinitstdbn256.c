@@ -63,6 +63,7 @@ static void cpGFpECSetStd(int aLen, const BNU_CHUNK_T* pA,
    ippsGFpSetElement((Ipp32u*)pY, BITS2WORD32_SIZE(BITSIZE_BNU(pY,yLen)), &elmB, pGF);
    /* and init EC subgroup */
    ippsGFpECSetSubgroup(&elmA, &elmB, &R, &H, pEC);
+   cpGFpReleasePool(2, pGFE);
 }
 
 /*F*

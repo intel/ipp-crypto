@@ -44,7 +44,7 @@
 //                            illegal pPrivate->idCtx
 //                            illegal pPublic->idCtx
 //
-//    ippStsIvalidPrivateKey  !(0 < pPrivate < order)
+//    ippStsInvalidPrivateKey !(0 < pPrivate < order)
 //
 //    ippStsRangeErr          ECP_POINT_FELEN(pPublic)<GFP_FELEN()
 //
@@ -68,6 +68,8 @@ IPPFUN(IppStatus, ippsGFpECPublicKey, (const IppsBigNumState* pPrivate, IppsGFpE
    /* test private keys */
    IPP_BAD_PTR1_RET(pPrivate);
    IPP_BADARG_RET(!BN_VALID_ID(pPrivate), ippStsContextMatchErr);
+   /* test if 0 < pPrivateA < Order */
+   IPP_BADARG_RET(0 == gfec_CheckPrivateKey(pPrivate, pEC), ippStsInvalidPrivateKey);
 
    /* test public key */
    IPP_BAD_PTR1_RET(pPublic);
@@ -83,7 +85,7 @@ IPPFUN(IppStatus, ippsGFpECPublicKey, (const IppsBigNumState* pPrivate, IppsGFpE
 
       IPP_BADARG_RET(cpEqu_BNU_CHUNK(pS, nsS, 0)
                          || 0 <= cpCmp_BNU(pS, nsS, pOrder, orderLen),
-                     ippStsIvalidPrivateKey);
+                     ippStsInvalidPrivateKey);
 
       /* calculates public key */
 #if (_IPP32E >= _IPP32E_K1)
@@ -99,6 +101,10 @@ IPPFUN(IppStatus, ippsGFpECPublicKey, (const IppsBigNumState* pPrivate, IppsGFpE
          }
          case cpID_PrimeP521r1: {
             gfec_PubKey_nist521_avx512(pPublic, pS, nsS, pEC, pScratchBuffer);
+            return ippStsNoErr;
+         }
+         case cpID_PrimeTPM_SM2: {
+            gfec_PubKey_sm2_avx512(pPublic, pS, nsS, pEC, pScratchBuffer);
             return ippStsNoErr;
          }
          default:

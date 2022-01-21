@@ -114,7 +114,7 @@
     #if !defined(__ALIGN64)
         #define __ALIGN64 __declspec (align(64))
     #endif/*__ALIGN64*/
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__CLANG__)
     #define __ALIGN8  __attribute__((aligned(8)))
     #define __ALIGN16 __attribute__((aligned(16)))
     #define __ALIGN32 __attribute__((aligned(32)))

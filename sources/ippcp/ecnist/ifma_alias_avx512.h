@@ -30,41 +30,56 @@ typedef __mmask64 mask64;
 /* set */
 #define setzero_i64 _mm512_setzero_si512
 #define set1_i64 _mm512_set1_epi64
+
+#if 0
+/* Note: intrinsics below not available in GCC 8.4 */
 #define set_i8 _mm512_set_epi8
 #define set_i16 _mm512_set_epi16
+#endif
+
 #define set_i64 _mm512_set_epi64
+
 /* load/store */
 #define loadu_i64 _mm512_loadu_si512
 #define maskz_loadu_i64 _mm512_maskz_loadu_epi64
 #define storeu_i64 _mm512_storeu_si512
 #define mask_storeu_i64 _mm512_mask_storeu_epi64
+
 /* logical shift */
 #define srli_i64 _mm512_srli_epi64
 #define srlv_i64 _mm512_srlv_epi64
 #define slli_i64 _mm512_slli_epi64
 #define sllv_i64 _mm512_sllv_epi64
+
 /* arithmetic shift */
 #define srai_i64 _mm512_srai_epi64
 #define maskz_srai_i64 _mm512_maskz_srai_epi64
 #define maskz_srli_i64 _mm512_maskz_srli_epi64
+
 /* logical */
 #define and_i64 _mm512_and_epi64
 #define or_i64 _mm512_or_si512
+
 /* add */
 #define add_i64 _mm512_add_epi64
 #define mask_add_i64 _mm512_mask_add_epi64
+
 /* sub */
 #define sub_i64 _mm512_sub_epi64
 #define mask_sub_i64 _mm512_mask_sub_epi64
+
 /* cmp */
 #define cmp_i64_mask _mm512_cmp_epi64_mask
 #define cmp_u64_mask _mm512_cmp_epu64_mask
+
 /* perm */
 #define maskz_permutexvar_i8 _mm512_maskz_permutexvar_epi8
 #define permutexvar_i8 _mm512_permutexvar_epi8
 #define permutexvar_i16 _mm512_permutexvar_epi16
+
 /* move */
 #define mask_mov_i64 _mm512_mask_mov_epi64
+
 /* ifma */
 #define madd52lo_i64 _mm512_madd52lo_epu64
 #define madd52hi_i64 _mm512_madd52hi_epu64

@@ -49,14 +49,14 @@ IPP_OWN_DEFN(IppsGFpECPoint*, gfec_PubKey_nist384_avx512, (IppsGFpECPoint * pR,
       /* Copy scalar */
       cpGFpElementCopyPad(pExtendedScalar, orderLen + 1, pScalar, scalarLen);
 
-      P384_POINT_IFMA R;
+      __ALIGN64 P384_POINT_IFMA R;
       R.x = R.y = R.z = setzero_i64();
 
       if (ECP_PREMULBP(pEC)) {
          ifma_ec_nistp384_mul_pointbase(&R, (Ipp8u *)pExtendedScalar, orderBits);
       } else {
          /* Convert base point to a new Montgomery domain */
-         P384_POINT_IFMA G52;
+         __ALIGN64 P384_POINT_IFMA G52;
          recode_point_to_mont52(&G52, ECP_G(pEC), pPointPool /* 3 elem */, pmeth, pME);
 
          ifma_ec_nistp384_mul_point(&R, &G52, (Ipp8u *)pExtendedScalar, orderBits);

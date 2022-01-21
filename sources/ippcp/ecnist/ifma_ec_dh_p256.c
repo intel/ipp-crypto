@@ -52,7 +52,7 @@ IPP_OWN_DEFN(int, gfec_SharedSecretDH_nistp256_avx512, (IppsGFpECPoint * pR,
       BNU_CHUNK_T *pExtendedScalar = cpGFpGetPool(2, pME);
       cpGFpElementCopyPad(pExtendedScalar, orderLen + 1, pScalar, scalarLen);
 
-      P256_POINT_IFMA P52, R52;
+      __ALIGN64 P256_POINT_IFMA P52, R52;
       BNU_CHUNK_T *pPool = cpGFpGetPool(3, pME);
 
       /* Convert point coordinates to a new Montgomery domain */

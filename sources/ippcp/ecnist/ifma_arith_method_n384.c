@@ -25,23 +25,24 @@
 IPP_OWN_DEFN(ifmaArithMethod *, gsArithGF_n384r1_avx512, (void))
 {
    static ifmaArithMethod m = {
-      convert_radix_to_52x8,
-      convert_radix_to_64x6,
-      ifma_tomont52_n384,
-      ifma_frommont52_n384,
-      ifma_amm52_n384,
-      ifma_amm52_dual_n384,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      ifma_add52_n384,
-      0,
-      0,
-      ifma_aminv52_n384,
-      ifma_fastred52_n384
+     /* import_to52 = */ convert_radix_to_52x8,
+     /* export_to64 = */ convert_radix_to_64x6,
+     /* encode      = */ ifma_tomont52_n384,
+     /* decode      = */ ifma_frommont52_n384,
+     /* mul         = */ ifma_amm52_n384,
+     /* mul_dual    = */ 0,
+     /* sqr         = */ 0,
+     /* sqr_dual    = */ 0,
+     /* norm        = */ 0,
+     /* norm_dual   = */ 0,
+     /* lnorm       = */ 0,
+     /* lnorm_dual  = */ 0,
+     /* add         = */ ifma_add52_n384,
+     /* sub         = */ 0,
+     /* neg         = */ 0,
+     /* div2        = */ 0,
+     /* inv         = */ ifma_aminv52_n384,
+     /* red         = */ ifma_fastred52_n384
    };
 
    return &m;

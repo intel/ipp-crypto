@@ -28,7 +28,7 @@
  *
  *  Montgomery multiplication
  *
- *   a * b * R mod n, where R = 2^(5*52) mod n
+ *   a * b * R mod n, where R = 2^(6*52) mod n
  *
  * \param[in]  a   first value (in radix 2^52)
  * \param[in]  b   second value (in radix 2^52)
@@ -36,28 +36,9 @@
 IPP_OWN_DECL(m512, ifma_amm52_n256, (const m512 a, const m512 b))
 
 /**
-
  * \brief
  *
- *  Dual Montgomery multiplication without final normalization to 2^52 radix.
- *  (two independent multiplications)
- *
- *   a1 * b1 * R mod n
- *   a2 * b2 * R mod n, where R = 2^(5*52) mod n
- *
- * \param[out] r1
- * \param[in]  a1  first  value (in radix 2^52)
- * \param[in]  b1  second value (in radix 2^52)
- * \param[out] r2
- * \param[in]  a2  first  value (in radix 2^52)
- * \param[in]  b2  second value (in radix 2^52)
- */
-IPP_OWN_DECL(void, ifma_amm52_dual_n256, (m512 *r1, const m512 a1, const m512 b1, m512 *r2, const m512 a2, const m512 b2))
-
-/**
- * \brief
- *
- *  A + B (mod 2n)
+ *  A + B (mod n)
  *
  * \param[in] a first  value (in radix 2^52)
  * \param[in] b second value (in radix 2^52)
@@ -80,7 +61,7 @@ IPP_OWN_DECL(m512, ifma_fastred52_n256, (const m512 a))
  *
  *  Conversion to Montgomery domain modulo n (subgroup order).
  *
- *  a * R mod n, where R = 2^(5*52) mod n
+ *  a * R mod n, where R = 2^(6*52) mod n
  *
  * \param[in] a value (in radix 2^52)
  */

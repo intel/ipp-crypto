@@ -46,7 +46,7 @@
 //    ippStsIncompleteContextErr
 //                               incomplete context: P and/or R and/or G is not set
 //
-//    ippStsIvalidPrivateKey     PrvKey >= R
+//    ippStsInvalidPrivateKey    PrvKey >= R
 //                               PrvKey <  0
 //
 //    ippStsRangeErr             PubKey >= P
@@ -73,7 +73,7 @@ IPPFUN(IppStatus, ippsDLPSetKeyPair,(const IppsBigNumState* pPrvKey,
    /* set up private key */
    if(pPrvKey) {
       IPP_BADARG_RET(!BN_VALID_ID(pPrvKey), ippStsContextMatchErr);
-      IPP_BADARG_RET(BN_NEGATIVE(pPrvKey), ippStsIvalidPrivateKey);
+      IPP_BADARG_RET(BN_NEGATIVE(pPrvKey), ippStsInvalidPrivateKey);
       {
          gsModEngine* pMontR = DLP_MONTR(pDL);
          BNU_CHUNK_T* pOrder = MOD_MODULUS(pMontR);
@@ -84,7 +84,7 @@ IPPFUN(IppStatus, ippsDLPSetKeyPair,(const IppsBigNumState* pPrvKey,
 
          /* make sure regular 0 < private < order */
          IPP_BADARG_RET(cpEqu_BNU_CHUNK(pPriData, priLen, 0) ||
-                     0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsIvalidPrivateKey);
+                     0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsInvalidPrivateKey);
 
          cpBN_copy(DLP_X(pDL), pPrvKey);
          BN_SIZE(DLP_X(pDL)) = ordLen;

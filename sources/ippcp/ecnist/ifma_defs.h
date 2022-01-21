@@ -18,6 +18,9 @@
 #define IFMA_DEFS_H
 
 #include "owndefs.h"
+
+#if (_IPP32E >= _IPP32E_K1)
+
 #include "ifma_alias_avx512.h"
 
 /* Internal radix definition */
@@ -31,14 +34,7 @@
 #define MS_DIGIT_MASK(bitsize, digsize) (((int64u)1 << ((bitsize) % digsize)) - 1)
 
 
-#define REPL8(e7, e6, e5, e4, e3, e2, e1, e0) e7, e6, e5, e4, e3, e2, e1, e0, \
-                                              e7, e6, e5, e4, e3, e2, e1, e0, \
-                                              e7, e6, e5, e4, e3, e2, e1, e0, \
-                                              e7, e6, e5, e4, e3, e2, e1, e0, \
-                                              e7, e6, e5, e4, e3, e2, e1, e0, \
-                                              e7, e6, e5, e4, e3, e2, e1, e0, \
-                                              e7, e6, e5, e4, e3, e2, e1, e0, \
-                                              e7, e6, e5, e4, e3, e2, e1, e0
+#define REPL8(e) e, e, e, e, e, e, e, e
 
 /**
  * \brief
@@ -69,5 +65,6 @@ __INLINE mask8 is_zero_i64(const m512 a)
    return check_bit((~mask & (mask - 1u)), 7);
 }
 
+#endif // (_IPP32E >= _IPP32E_K1)
 
 #endif // IFMA_DEFS_H

@@ -147,7 +147,7 @@ To build the Intel IPP Cryptography library on Windows* OS, complete the followi
 
 The software was validated on:
 
-- macOS\* 10.15
+- macOS\* 11.0
 
 To build the Intel IPP Cryptography library on macOS*, complete the following steps:
 

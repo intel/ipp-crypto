@@ -32,7 +32,7 @@ IPP_OWN_DEFN(IppsGFpECPoint*, gfec_AddPoint_nistp521_avx512, (IppsGFpECPoint* pR
    gsModEngine *pME = GFP_PMA(ECP_GFP(pEC));
    ifmaArithMethod_p521 *pmeth = (ifmaArithMethod_p521 *)GFP_METHOD_ALT(pME);
 
-   P521_POINT_IFMA P, R;
+   __ALIGN64 P521_POINT_IFMA P, R;
 
    BNU_CHUNK_T *pPool = cpGFpGetPool(3, pME);
 
@@ -41,7 +41,8 @@ IPP_OWN_DEFN(IppsGFpECPoint*, gfec_AddPoint_nistp521_avx512, (IppsGFpECPoint* pR
    if (pP == pQ) {
       ifma_ec_nistp521_dbl_point(&R, &P);
    } else {
-      P521_POINT_IFMA Q;
+      __ALIGN64 P521_POINT_IFMA Q;
+
       recode_point_to_mont52(&Q, ECP_POINT_DATA(pQ), pPool, pmeth, pME);
 
       ifma_ec_nistp521_add_point(&R, &P, &Q);

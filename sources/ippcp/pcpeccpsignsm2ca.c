@@ -52,7 +52,7 @@
 //                               illegal pSignR->idCtx
 //                               illegal pSignS->idCtx
 //
-//    ippStsIvalidPrivateKey     (1 + regPrivate) >= order
+//    ippStsInvalidPrivateKey    (1 + regPrivate) >= order
 //
 //    ippStsMessageErr           MsgDigest >= order
 //                               MsgDigest <  0

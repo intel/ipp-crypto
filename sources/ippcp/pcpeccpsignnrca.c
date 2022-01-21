@@ -50,7 +50,7 @@
 //                               illegal pSignX->idCtx
 //                               illegal pSignY->idCtx
 //
-//    ippStsIvalidPrivateKey     0 >= Private
+//    ippStsInvalidPrivateKey    0 >= Private
 //                               Private >= order
 //
 //    ippStsMessageErr           MsgDigest >= order
@@ -88,7 +88,7 @@ IPPFUN(IppStatus, ippsECCPSignNR,(const IppsBigNumState* pMsgDigest,
    /* test private key*/
    IPP_BAD_PTR1_RET(pPrivate);
    IPP_BADARG_RET(!BN_VALID_ID(pPrivate), ippStsContextMatchErr);
-   IPP_BADARG_RET(BN_NEGATIVE(pPrivate), ippStsIvalidPrivateKey);
+   IPP_BADARG_RET(BN_NEGATIVE(pPrivate), ippStsInvalidPrivateKey);
 
    /* test message representative: msg>=0 */
    IPP_BAD_PTR1_RET(pMsgDigest);
@@ -115,7 +115,7 @@ IPPFUN(IppStatus, ippsECCPSignNR,(const IppsBigNumState* pMsgDigest,
 
       /* make sure regular 0 < private < order */
       IPP_BADARG_RET(cpEqu_BNU_CHUNK(pPriData, priLen, 0) ||
-                  0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsIvalidPrivateKey);
+                  0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsInvalidPrivateKey);
       /* make sure 0<= msg < order */
       IPP_BADARG_RET(0<=cpCmp_BNU(pMsgData, msgLen, pOrder, ordLen), ippStsMessageErr);
 

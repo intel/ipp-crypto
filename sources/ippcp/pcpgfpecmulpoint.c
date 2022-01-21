@@ -136,6 +136,10 @@ IPPFUN(IppStatus, ippsGFpECMulPoint, (const IppsGFpECPoint* pP,
             gfec_MulPoint_nistp521_avx512(pR, pP, pScalar, scalarLen, pEC, pScratchBuffer);
             return ippStsNoErr;
          }
+         case cpID_PrimeTPM_SM2: {
+            gfec_MulPoint_sm2_avx512(pR, pP, pScalar, scalarLen, pEC, pScratchBuffer);
+            return ippStsNoErr;
+         }
          default:
             /* Go to default implementation below */
             break;

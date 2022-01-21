@@ -47,7 +47,7 @@ IPP_OWN_DEFN (IppsGFpECPoint*, gfec_MulPoint_nistp256_avx512, (IppsGFpECPoint* p
    /* Copy scalar */
    cpGFpElementCopyPad(pExtendedScalar, orderLen + 1, pScalar, scalarLen);
 
-   P256_POINT_IFMA P, R;
+   __ALIGN64 P256_POINT_IFMA P, R;
 
    recode_point_to_mont52(&P, ECP_POINT_DATA(pP), pPointPool, pmeth, pME);
 

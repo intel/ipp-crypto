@@ -30,7 +30,7 @@ IPP_OWN_DEFN(ifmaArithMethod_p521 *, gsArithGF_n521r1_avx512, (void))
       ifma_tomont52_n521,
       ifma_frommont52_n521,
       ifma_amm52_n521,
-      ifma_amm52_dual_n521,
+      0,
       0,
       0,
       0,

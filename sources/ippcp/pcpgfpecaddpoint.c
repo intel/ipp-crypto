@@ -89,6 +89,10 @@ IPPFUN(IppStatus, ippsGFpECAddPoint,(const IppsGFpECPoint* pP, const IppsGFpECPo
          gfec_AddPoint_nistp521_avx512(pR, pP, pQ, pEC);
          return ippStsNoErr;
       }
+      case cpID_PrimeTPM_SM2: {
+         gfec_AddPoint_sm2_avx512(pR, pP, pQ, pEC);
+         return ippStsNoErr;
+      }
       default:
          /* Go to default implementation below */
          break;

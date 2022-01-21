@@ -37,7 +37,8 @@ IPP_OWN_FUNPTR(m512, ifma_norm, (const m512 a))
 IPP_OWN_FUNPTR(void, ifma_norm_dual, (m512 *r1, const m512 a1, m512 *r2, const m512 a2))
 IPP_OWN_FUNPTR(m512, ifma_lnorm, (const m512 a))
 IPP_OWN_FUNPTR(void, ifma_lnorm_dual, (m512 *r1, const m512 a1, m512 *r2, const m512 a2))
-IPP_OWN_FUNPTR(m512, ifma_add, (const m512 a, m512 b))
+IPP_OWN_FUNPTR(m512, ifma_add, (const m512 a, const m512 b))
+IPP_OWN_FUNPTR(m512, ifma_sub, (const m512 a, const m512 b))
 IPP_OWN_FUNPTR(m512, ifma_neg, (const m512 a))
 IPP_OWN_FUNPTR(m512, ifma_div2, (const m512 a))
 IPP_OWN_FUNPTR(m512, ifma_inv, (const m512 z))
@@ -57,6 +58,7 @@ typedef struct _ifmaArithMethod {
    ifma_lnorm lnorm;
    ifma_lnorm_dual lnorm_dual;
    ifma_add add;
+   ifma_sub sub;
    ifma_neg neg;
    ifma_div2 div2;
    ifma_inv inv;

@@ -50,7 +50,7 @@
 //                               illegal pSignR->idCtx
 //                               illegal pSignS->idCtx
 //
-//    ippStsIvalidPrivateKey     0 >= RegPrivate
+//    ippStsInvalidPrivateKey    0 >= RegPrivate
 //                               RegPrivate >= order
 //
 //                               0 >= EphPrivate
@@ -116,7 +116,7 @@ IPPFUN(IppStatus, ippsGFpECSignDSA,(const IppsBigNumState* pMsgDigest,
    IPP_BAD_PTR2_RET(pRegPrivate, pEphPrivate);
 
    IPP_BADARG_RET(!BN_VALID_ID(pRegPrivate), ippStsContextMatchErr);
-   IPP_BADARG_RET(BN_NEGATIVE(pRegPrivate), ippStsIvalidPrivateKey);
+   IPP_BADARG_RET(BN_NEGATIVE(pRegPrivate), ippStsInvalidPrivateKey);
 
    IPP_BADARG_RET(!BN_VALID_ID(pEphPrivate), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pEphPrivate), ippStsEphemeralKeyErr);
@@ -142,7 +142,7 @@ IPPFUN(IppStatus, ippsGFpECSignDSA,(const IppsBigNumState* pMsgDigest,
 
       /* test value of private keys: 0 < regPrivate < order, 0 < ephPrivate < order */
       IPP_BADARG_RET(cpEqu_BNU_CHUNK(pPriData, priLen, 0) ||
-                  0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsIvalidPrivateKey);
+                  0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsInvalidPrivateKey);
       IPP_BADARG_RET(cpEqu_BNU_CHUNK(pEphData, ephLen, 0) ||
                   0<=cpCmp_BNU(pEphData, ephLen, pOrder, ordLen), ippStsEphemeralKeyErr);
 

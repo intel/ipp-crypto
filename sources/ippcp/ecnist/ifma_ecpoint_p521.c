@@ -208,24 +208,26 @@ IPP_OWN_DEFN(void, ifma_ec_nistp521_add_point, (P521_POINT_IFMA * r, const P521_
               U2, U2);     /**/
                            /*=====*/
    sub(R, S2, S1);         /* r = D - C (F) */
-   add(R, R, M2);          /**/
    sub(H, U2, U1);         /* h = B - A (E) */
-   add(H, H, M2);          /**/
-                           /*=====*/
-                           /* normalization */
-   norm_dual(R, R,         /**/
-             H, H);        /**/
 
-   /* norm H,R ? */
-   const mask8 e_f_eq         = FE521_CMP_MASK(R, H, _MM_CMPINT_EQ);
-   const mask8 point_is_equal = (e_f_eq & (~p_is_inf) & (~q_is_inf));
+   /* checking the equality of X and Y coordinates (D - C == 0) and (B - A == 0) */
+   const mask8 f_are_zero     = FE521_IS_ZERO(R);
+   const mask8 e_are_zero     = FE521_IS_ZERO(H);
+   const mask8 point_is_equal = ((e_are_zero & f_are_zero) & (~p_is_inf) & (~q_is_inf));
 
-   P521_POINT_IFMA r2;
+   __ALIGN64 P521_POINT_IFMA r2;
    FE521_SET(r2.x) = FE521_SET(r2.y) = FE521_SET(r2.z) = m256_setzero_i64();
-   if (0xF == point_is_equal) {
+   if ((mask8)0xFF == point_is_equal) {
       ifma_ec_nistp521_dbl_point(&r2, p);
    }
 
+   add(R, R, M2);         /**/
+   add(H, H, M2);         /**/
+                          /*=====*/
+                          /* normalization */
+   norm_dual(R, R,        /**/
+             H, H);       /**/
+                          /**/
    mul_dual(z3, *z1, *z2, /* z3 = z1*z2 */
             U2, H, H);    /* u2 = E^2 */
                           /*=====*/
@@ -530,7 +532,7 @@ __INLINE void extract_table_point(P521_POINT_IFMA *r, const Ipp32s digit, const 
 {
    Ipp32s idx = digit - 1;
 
-   P521_POINT_IFMA R;
+   __ALIGN64 P521_POINT_IFMA R;
    FE521_SET(R.x) = FE521_SET(R.y) = FE521_SET(R.z) = m256_setzero_i64();
 
    for (Ipp32s n = 0; n < (1 << (WIN_SIZE - 1)); ++n) {
@@ -555,10 +557,10 @@ __INLINE void extract_table_point(P521_POINT_IFMA *r, const Ipp32s digit, const 
 IPP_OWN_DEFN(void, ifma_ec_nistp521_mul_point, (P521_POINT_IFMA * r, const P521_POINT_IFMA *p, const Ipp8u *pExtendedScalar, const int scalarBitSize))
 {
    /* default params */
-   P521_POINT_IFMA tbl[(1 << (WIN_SIZE - 1))];
+   __ALIGN64 P521_POINT_IFMA tbl[(1 << (WIN_SIZE - 1))];
 
-   P521_POINT_IFMA R;
-   P521_POINT_IFMA H;
+   __ALIGN64 P521_POINT_IFMA R;
+   __ALIGN64 P521_POINT_IFMA H;
 
    fe521 negHy;
    FE521_SET(negHy) = m256_setzero_i64();
@@ -694,8 +696,8 @@ IPP_OWN_DEFN(void, ifma_ec_nistp521_mul_pointbase, (P521_POINT_IFMA * r, const I
    /* precompute table */
    const P521_POINT_AFFINE_IFMA_MEM *tbl = &ifma_ec_nistp521r1_bp_precomp[0][0];
 
-   P521_POINT_IFMA R;
-   P521_POINT_AFFINE_IFMA A;
+   __ALIGN64 P521_POINT_IFMA R;
+   __ALIGN64 P521_POINT_AFFINE_IFMA A;
    fe521 Ty;
    FE521_SET(R.x) = FE521_SET(R.y) = FE521_SET(R.z) = m256_setzero_i64();
    FE521_SET(A.x) = FE521_SET(A.y) = m256_setzero_i64();

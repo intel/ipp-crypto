@@ -171,7 +171,8 @@ typedef struct _cpGFpEC {
 #define gfpec_precom_nistP384r1_radix52_fun OWNAPI(gfpec_precom_nistP384r1_radix52_fun)
 #define gfpec_precom_nistP521r1_fun OWNAPI(gfpec_precom_nistP521r1_fun)
 #define gfpec_precom_nistP521r1_radix52_fun OWNAPI(gfpec_precom_nistP521r1_radix52_fun)
-#define gfpec_precom_sm2_fun        OWNAPI(gfpec_precom_sm2_fun)
+#define gfpec_precom_sm2_fun         OWNAPI(gfpec_precom_sm2_fun)
+#define gfpec_precom_sm2_radix52_fun        OWNAPI(gfpec_precom_sm2_radix52_fun)
 
 IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP192r1_fun, (void))
 IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP224r1_fun, (void))
@@ -181,7 +182,8 @@ IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP384r1_fun, (void))
 IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP384r1_radix52_fun, (void))
 IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP521r1_fun, (void))
 IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_nistP521r1_radix52_fun, (void))
-IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_sm2_fun, (void))
+IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_sm2_fun,        (void))
+IPP_OWN_DECL (const cpPrecompAP*, gfpec_precom_sm2_radix52_fun,        (void))
 
 /*
 // get/release n points from/to the pool
@@ -327,49 +329,64 @@ IPP_OWN_DECL (void, p521r1_select_ap_w5, (BNU_CHUNK_T* pAffinePoint, const BNU_C
 #define gfec_SignDSA_nistp256_avx512 OWNAPI(gfec_SignDSA_nistp256_avx512)
 #define gfec_SignDSA_nistp384_avx512 OWNAPI(gfec_SignDSA_nistp384_avx512)
 #define gfec_SignDSA_nistp521_avx512 OWNAPI(gfec_SignDSA_nistp521_avx512)
+#define gfec_Sign_sm2_avx512         OWNAPI(gfec_Sign_sm2_avx512)
 
 #define gfec_VerifyDSA_nistp256_avx512 OWNAPI(gfec_VerifyDSA_nistp256_avx512)
 #define gfec_VerifyDSA_nistp384_avx512 OWNAPI(gfec_VerifyDSA_nistp384_avx512)
 #define gfec_VerifyDSA_nistp521_avx512 OWNAPI(gfec_VerifyDSA_nistp521_avx512)
+#define gfec_Verify_sm2_avx512         OWNAPI(gfec_Verify_sm2_avx512)
 
 #define gfec_SharedSecretDH_nistp256_avx512 OWNAPI(gfec_SharedSecretDH_nistp256_avx512)
 #define gfec_SharedSecretDH_nistp384_avx512 OWNAPI(gfec_SharedSecretDH_nistp384_avx512)
 #define gfec_SharedSecretDH_nistp521_avx512 OWNAPI(gfec_SharedSecretDH_nistp521_avx512)
+#define gfec_SharedSecretDH_sm2_avx512      OWNAPI(gfec_SharedSecretDH_sm2_avx512)
 
 #define gfec_PubKey_nist256_avx512 OWNAPI(gfec_PubKey_nist256_avx512)
 #define gfec_PubKey_nist384_avx512 OWNAPI(gfec_PubKey_nist384_avx512)
 #define gfec_PubKey_nist521_avx512 OWNAPI(gfec_PubKey_nist521_avx512)
+#define gfec_PubKey_sm2_avx512     OWNAPI(gfec_PubKey_sm2_avx512)
 
 #define gfec_MulPoint_nistp256_avx512 OWNAPI(gfec_MulPoint_nistp256_avx512)
 #define gfec_MulPoint_nistp384_avx512 OWNAPI(gfec_MulPoint_nistp384_avx512)
 #define gfec_MulPoint_nistp521_avx512 OWNAPI(gfec_MulPoint_nistp521_avx512)
+#define gfec_MulPoint_sm2_avx512      OWNAPI(gfec_MulPoint_sm2_avx512)
 
 #define gfec_AddPoint_nistp256_avx512 OWNAPI(gfec_AddPoint_nistp256_avx512)
 #define gfec_AddPoint_nistp384_avx512 OWNAPI(gfec_AddPoint_nistp384_avx512)
 #define gfec_AddPoint_nistp521_avx512 OWNAPI(gfec_AddPoint_nistp521_avx512)
+#define gfec_AddPoint_sm2_avx512      OWNAPI(gfec_AddPoint_sm2_avx512)
 
 IPP_OWN_DECL(IppStatus, gfec_SignDSA_nistp256_avx512, (const IppsBigNumState* pMsgDigest, const IppsBigNumState* pRegPrivate, IppsBigNumState* pEphPrivate, IppsBigNumState* pSignR, IppsBigNumState* pSignS, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 IPP_OWN_DECL(IppStatus, gfec_SignDSA_nistp384_avx512, (const IppsBigNumState* pMsgDigest, const IppsBigNumState* pRegPrivate, IppsBigNumState* pEphPrivate, IppsBigNumState* pSignR, IppsBigNumState* pSignS, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 IPP_OWN_DECL(IppStatus, gfec_SignDSA_nistp521_avx512, (const IppsBigNumState* pMsgDigest, const IppsBigNumState* pRegPrivate, IppsBigNumState* pEphPrivate, IppsBigNumState* pSignR, IppsBigNumState* pSignS, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPP_OWN_DECL(IppStatus, gfec_Sign_sm2_avx512,         (const IppsBigNumState* pMsgDigest, const IppsBigNumState* pRegPrivate, IppsBigNumState* pEphPrivate, IppsBigNumState* pSignR, IppsBigNumState* pSignS, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 
 IPP_OWN_DECL(IppECResult, gfec_VerifyDSA_nistp256_avx512, (const IppsBigNumState* pMsgDigest, const IppsGFpECPoint* pRegPublic, const IppsBigNumState* pSignR, const IppsBigNumState* pSignS, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 IPP_OWN_DECL(IppECResult, gfec_VerifyDSA_nistp384_avx512, (const IppsBigNumState* pMsgDigest, const IppsGFpECPoint* pRegPublic, const IppsBigNumState* pSignR, const IppsBigNumState* pSignS, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 IPP_OWN_DECL(IppECResult, gfec_VerifyDSA_nistp521_avx512, (const IppsBigNumState* pMsgDigest, const IppsGFpECPoint* pRegPublic, const IppsBigNumState* pSignR, const IppsBigNumState* pSignS, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPP_OWN_DECL(IppECResult, gfec_Verify_sm2_avx512,         (const IppsBigNumState* pMsgDigest, const IppsGFpECPoint* pRegPublic, const IppsBigNumState* pSignR, const IppsBigNumState* pSignS, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 
 IPP_OWN_DECL(int, gfec_SharedSecretDH_nistp256_avx512, (IppsGFpECPoint * pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 IPP_OWN_DECL(int, gfec_SharedSecretDH_nistp384_avx512, (IppsGFpECPoint * pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 IPP_OWN_DECL(int, gfec_SharedSecretDH_nistp521_avx512, (IppsGFpECPoint * pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPP_OWN_DECL(int, gfec_SharedSecretDH_sm2_avx512,      (IppsGFpECPoint * pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 
 IPP_OWN_DECL(IppsGFpECPoint*, gfec_PubKey_nist256_avx512, (IppsGFpECPoint * pR, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 IPP_OWN_DECL(IppsGFpECPoint*, gfec_PubKey_nist384_avx512, (IppsGFpECPoint * pR, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 IPP_OWN_DECL(IppsGFpECPoint*, gfec_PubKey_nist521_avx512, (IppsGFpECPoint * pR, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPP_OWN_DECL(IppsGFpECPoint*, gfec_PubKey_sm2_avx512,     (IppsGFpECPoint * pR, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 
 IPP_OWN_DECL (IppsGFpECPoint*, gfec_MulPoint_nistp256_avx512, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 IPP_OWN_DECL (IppsGFpECPoint*, gfec_MulPoint_nistp384_avx512, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 IPP_OWN_DECL (IppsGFpECPoint*, gfec_MulPoint_nistp521_avx512, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPP_OWN_DECL (IppsGFpECPoint*, gfec_MulPoint_sm2_avx512,      (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const BNU_CHUNK_T* pScalar, int scalarLen, IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 
 IPP_OWN_DECL (IppsGFpECPoint*, gfec_AddPoint_nistp256_avx512, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const IppsGFpECPoint* pQ, IppsGFpECState* pEC))
 IPP_OWN_DECL (IppsGFpECPoint*, gfec_AddPoint_nistp384_avx512, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const IppsGFpECPoint* pQ, IppsGFpECState* pEC))
 IPP_OWN_DECL (IppsGFpECPoint*, gfec_AddPoint_nistp521_avx512, (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const IppsGFpECPoint* pQ, IppsGFpECState* pEC))
+IPP_OWN_DECL (IppsGFpECPoint*, gfec_AddPoint_sm2_avx512,      (IppsGFpECPoint* pR, const IppsGFpECPoint* pP, const IppsGFpECPoint* pQ, IppsGFpECState* pEC))
+
+#define gfec_CheckPrivateKey OWNAPI(gfec_CheckPrivateKey)
+IPP_OWN_DECL(int, gfec_CheckPrivateKey, (const IppsBigNumState* pPrivate, IppsGFpECState* pEC))
 
 #endif /* _CP_ECGFP_H_ */

@@ -145,11 +145,16 @@ static __ALIGN64 const int8u  nextInc[] = {
 #define CHANGE_ORDER_BLOCKS(x)  _mm512_shuffle_epi8((x), M512(swapEndianness));
 
 /* Workaround for gcc91, got the error: implicit declaration of function ‘_mm512_div_epi32’ */
-#if defined(__GNUC__) && !defined(__INTEL_COMPILER)  && !defined(__INTEL_LLVM_COMPILER)
-    #define GET_NUM_BLOCKS(X,Y,Z)  for(int i=0;i<SM4_LINES;i++) \
-                                    *((int32u*)&X+i) = Y[i]/Z;
+#if defined(__GNUC__) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER)
+#define GET_NUM_BLOCKS(OUT, LEN, BLOCK_SIZE)  \
+   {                                          \
+      int32u blocks[SM4_LINES];               \
+      for (int i = 0; i < SM4_LINES; i++)     \
+         blocks[i] = (LEN)[i] / (BLOCK_SIZE); \
+      (OUT) = _mm512_loadu_si512(blocks);     \
+   }
 #else
-    #define GET_NUM_BLOCKS(X,Y,Z)  X = _mm512_div_epi32(_mm512_loadu_si512(Y), _mm512_set1_epi32(Z))                  
+#define GET_NUM_BLOCKS(OUT, LEN, BLOCK_SIZE) (OUT) = _mm512_div_epi32(_mm512_loadu_si512(LEN), _mm512_set1_epi32(BLOCK_SIZE))
 #endif
 
 #define UPDATE_STREAM_MASK_16(MASK, p_len) \

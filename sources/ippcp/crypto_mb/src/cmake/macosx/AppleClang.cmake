@@ -44,11 +44,10 @@ set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -Werror")
 
 # Linker flags
 
-# Create shared library
-set(LINK_FLAGS_DYNAMIC " -Wl,-shared")
 # Add export files
-
 set(LINK_FLAGS_DYNAMIC "-exported_symbols_list ${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb.macosx.lib-export")
+# Add mininmum version support macOS
+set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} -mmacosx-version-min=11.0")
 
 # Compiler flags
 

@@ -48,7 +48,7 @@
 //                               illegal pSignR->idCtx
 //                               illegal pSignS->idCtx
 //
-//    ippStsIvalidPrivateKey     (1 + regPrivate) >= order
+//    ippStsInvalidPrivateKey    (1 + regPrivate) >= order
 //
 //    ippStsMessageErr           MsgDigest >= order
 //                               MsgDigest <  0
@@ -110,7 +110,7 @@ IPPFUN(IppStatus, ippsGFpECSignSM2,(const IppsBigNumState* pMsgDigest,
    IPP_BAD_PTR2_RET(pRegPrivate, pEphPrivate);
 
    IPP_BADARG_RET(!BN_VALID_ID(pRegPrivate), ippStsContextMatchErr);
-   IPP_BADARG_RET(BN_NEGATIVE(pRegPrivate), ippStsIvalidPrivateKey);
+   IPP_BADARG_RET(BN_NEGATIVE(pRegPrivate), ippStsInvalidPrivateKey);
 
    IPP_BADARG_RET(!BN_VALID_ID(pEphPrivate), ippStsContextMatchErr);
    IPP_BADARG_RET(BN_NEGATIVE(pEphPrivate), ippStsEphemeralKeyErr);
@@ -136,18 +136,23 @@ IPPFUN(IppStatus, ippsGFpECSignSM2,(const IppsBigNumState* pMsgDigest,
 
       /* test value of private keys: 0 < regPrivate < order, 0 < ephPrivate < order */
       IPP_BADARG_RET(cpEqu_BNU_CHUNK(pPriData, priLen, 0) ||
-                  0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsIvalidPrivateKey);
+                  0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsInvalidPrivateKey);
       IPP_BADARG_RET(cpEqu_BNU_CHUNK(pEphData, ephLen, 0) ||
                   0<=cpCmp_BNU(pEphData, ephLen, pOrder, ordLen), ippStsEphemeralKeyErr);
 
       /* test value of private key: (regPrivate+1) != order */
       ZEXPAND_COPY_BNU(dataS,ordLen, pPriData, priLen);
       cpInc_BNU(dataS, dataS, ordLen, 1);
-      IPP_BADARG_RET(0==cpCmp_BNU(dataS, ordLen, pOrder, ordLen), ippStsIvalidPrivateKey);
+      IPP_BADARG_RET(0==cpCmp_BNU(dataS, ordLen, pOrder, ordLen), ippStsInvalidPrivateKey);
 
+      IppStatus sts = ippStsEphemeralKeyErr;
+#if (_IPP32E >= _IPP32E_K1)
+      if (IsFeatureEnabled(ippCPUID_AVX512IFMA) && ECP_MODULUS_ID(pEC) == cpID_PrimeTPM_SM2) {
+         sts = gfec_Sign_sm2_avx512(pMsgDigest, pRegPrivate, pEphPrivate, pSignR, pSignS, pEC, pScratchBuffer);
+         goto exit;
+      } /* no else */
+#endif // (_IPP32E >= _IPP32E_K1)
       {
-         IppStatus sts = ippStsEphemeralKeyErr;
-
          int elmLen = GFP_FELEN(pMontP);
          int ns;
 
@@ -206,11 +211,14 @@ IPPFUN(IppStatus, ippsGFpECSignSM2,(const IppsBigNumState* pMsgDigest,
                sts = ippStsNoErr;
             }
          }
-
-         /* clear ephemeral private key */
-         cpBN_zero(pEphPrivate);
-
-         return sts;
       }
+
+#if (_IPP32E >= _IPP32E_K1)
+exit:
+#endif
+      /* clear ephemeral private key */
+      cpBN_zero(pEphPrivate);
+
+      return sts;
    }
 }

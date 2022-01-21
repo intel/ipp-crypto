@@ -27,6 +27,42 @@
 #include "pcpgfpecstuff.h"
 
 
+/*
+// checks privateKey
+//
+// returns 1 if private_key belongs (0,order) range
+//         0 if otherwise
+*/
+int gfec_CheckPrivateKey(const IppsBigNumState* pPrivate, IppsGFpECState* pEC)
+{
+   /* order */
+   BNU_CHUNK_T* pOrder = MOD_MODULUS(ECP_MONT_R(pEC));
+   int orderLen = BITS_BNU_CHUNK(ECP_ORDBITSIZE(pEC));
+
+   /* key under check */
+   BNU_CHUNK_T* pKey = BN_NUMBER(pPrivate);
+   int keyLen = BN_SIZE(pPrivate);
+
+   IppsGFpState *pGF = ECP_GFP(pEC);
+   gsModEngine  *pGFE = GFP_PMA(pGF);
+
+   BNU_CHUNK_T* F = cpGFpGetPool(1, pGFE);
+
+   int ret = BN_POSITIVE(pPrivate);
+   if (ret)
+      ret = !IsZero_BN(pPrivate);
+   if (ret)
+      ret = ECP_ORDBITSIZE(pEC) >= cpBN_bitsize(pPrivate);
+   if (ret) {
+      cpGFpElementCopyPad(F, orderLen, pKey, keyLen);
+      /* cpSub_BNU() returns borrow bit, so any non - zero value corresponds to a valid key range(key < order) */
+      ret = 0 != cpSub_BNU(F, F, pOrder, orderLen);
+   }
+
+   cpGFpReleasePool(1, pGFE);
+
+   return ret;
+}
 
 /*F*
 //    Name: ippsGFpECTstKeyPair
@@ -61,6 +97,9 @@
 IPPFUN(IppStatus, ippsGFpECTstKeyPair, (const IppsBigNumState* pPrivate, const IppsGFpECPoint* pPublic, IppECResult* pResult,
                                         IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 {
+   /* at least private or public should be defined */
+   IPP_BADARG_RET(!pPublic && !pPrivate, ippStsNullPtrErr);
+
    /* EC context and buffer */
    IPP_BAD_PTR2_RET(pEC, pScratchBuffer);
    IPP_BADARG_RET(!VALID_ECP_ID(pEC), ippStsContextMatchErr);
@@ -74,18 +113,9 @@ IPPFUN(IppStatus, ippsGFpECTstKeyPair, (const IppsBigNumState* pPrivate, const I
    if( pPrivate ) {
       IPP_BADARG_RET(!BN_VALID_ID(pPrivate), ippStsContextMatchErr);
 
-      {
-         BNU_CHUNK_T* pS = BN_NUMBER(pPrivate);
-         int nsS = BN_SIZE(pPrivate);
-
-         BNU_CHUNK_T* pOrder = MOD_MODULUS(ECP_MONT_R(pEC));
-         int orderLen = BITS_BNU_CHUNK(ECP_ORDBITSIZE(pEC));
-
-         /* check private key */
-         if(cpEqu_BNU_CHUNK(pS, nsS, 0) || 0<=cpCmp_BNU(pS, nsS, pOrder, orderLen)) {
-            *pResult = ippECInvalidPrivateKey;
-            return ippStsNoErr;
-         }
+      if(0 == gfec_CheckPrivateKey(pPrivate, pEC)) {
+         *pResult = ippECInvalidPrivateKey;
+         return ippStsNoErr;
       }
    }
 

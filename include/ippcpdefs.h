@@ -399,6 +399,7 @@ typedef signed int IppStatus;
 #endif /* IPPSTATUS_H__ */
 
      /* ippCrypto specific statuses - any changes MUST be done in both repositories - IPP & ippCrypto */
+#define ippStsInvalidPoint               -1017 /* ippStsInvalidPoint ECC: Invalid point (out of EC).*/
 #define ippStsQuadraticNonResidueErr     -1016 /* SQRT operation on quadratic non-residue value. */
 #define ippStsPointAtInfinity            -1015 /* Point at infinity is detected. */
 #define ippStsOFBSizeErr                 -1014 /* Incorrect value for crypto OFB block size. */
@@ -407,7 +408,7 @@ typedef signed int IppStatus;
 #define ippStsEphemeralKeyErr            -1011 /* ECC: Invalid ephemeral key. */
 #define ippStsMessageErr                 -1010 /* ECC: Invalid message digest. */
 #define ippStsShareKeyErr                -1009 /* ECC: Invalid share key. */
-#define ippStsIvalidPrivateKey           -1008 /* ECC: Invalid private key. */
+#define ippStsInvalidPrivateKey          -1008 /* ECC: Invalid private key. */
 #define ippStsOutOfECErr                 -1007 /* ECC: Point out of EC. */
 #define ippStsECCInvalidFlagErr          -1006 /* ECC: Invalid Flag. */
 #define ippStsUnderRunErr                -1005 /* Error in data under run. */

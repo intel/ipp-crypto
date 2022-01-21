@@ -36,7 +36,7 @@
 #define GCM_BLOCK_LEN   16
 
 /**
- * @brief holds GCM operation context
+ * \brief holds GCM operation context
  */
 struct gcm_context_data {
         /* init, update and finalize context data */
@@ -54,7 +54,7 @@ struct gcm_context_data {
 #define GCM_KEY_SETS    (15) /*exp key + 14 exp round keys*/
 
 /**
- * @brief holds intermediate key data needed to improve performance
+ * \brief holds intermediate key data needed to improve performance
  *
  * gcm_key_data hold internal key information used by gcm128, gcm192 and gcm256.
  */

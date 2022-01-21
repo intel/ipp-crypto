@@ -259,24 +259,26 @@ IPP_OWN_DEFN(void, ifma_ec_nistp384_add_point, (P384_POINT_IFMA * r, const P384_
               U2, U2);     /**/
                            /*=====*/
    sub(R, S2, S1);         /* r = D - C (F) */
-   add(R, R, M2);          /**/
    sub(H, U2, U1);         /* h = B - A (E) */
-   add(H, H, M2);          /**/
-                           /*=====*/
-                           /* normalization */
-   norm_dual(R, R,         /**/
-             H, H);        /**/
 
-   /* norm H,R ? */
-   const mask8 e_f_eq         = cmp_i64_mask(R, H, _MM_CMPINT_EQ);
-   const mask8 point_is_equal = (e_f_eq & (~p_is_inf) & (~q_is_inf));
+   /* checking the equality of X and Y coordinates (D - C == 0) and (B - A == 0) */
+   const mask8 f_are_zero     = is_zero_i64(R);
+   const mask8 e_are_zero     = is_zero_i64(H);
+   const mask8 point_is_equal = ((e_are_zero & f_are_zero) & (~p_is_inf) & (~q_is_inf));
 
-   P384_POINT_IFMA r2;
+   __ALIGN64 P384_POINT_IFMA r2;
    r2.x = r2.y = r2.z = setzero_i64();
-   if (0xFF == point_is_equal) {
+   if ((mask8)0xFF == point_is_equal) {
       ifma_ec_nistp384_dbl_point(&r2, p);
    }
 
+   add(R, R, M2);         /**/
+   add(H, H, M2);         /**/
+                          /*=====*/
+                          /* normalization */
+   norm_dual(R, R,        /**/
+             H, H);       /**/
+                          /**/
    mul_dual(z3, *z1, *z2, /* z3 = z1*z2 */
             U2, H, H);    /* u2 = E^2 */
                           /*=====*/
@@ -557,7 +559,7 @@ __INLINE void extract_table_point(P384_POINT_IFMA *r, const Ipp32s digit, const 
 {
    Ipp32s idx = digit - 1;
 
-   P384_POINT_IFMA R;
+   __ALIGN64 P384_POINT_IFMA R;
    R.x = R.y = R.z = setzero_i64();
 
    for (Ipp32s n = 0; n < (1 << (WIN_SIZE - 1)); ++n) {
@@ -582,10 +584,10 @@ __INLINE void extract_table_point(P384_POINT_IFMA *r, const Ipp32s digit, const 
 IPP_OWN_DEFN(void, ifma_ec_nistp384_mul_point, (P384_POINT_IFMA * r, const P384_POINT_IFMA *p, const Ipp8u *pExtendedScalar, const int scalarBitSize))
 {
    /* default params */
-   P384_POINT_IFMA tbl[(1 << (WIN_SIZE - 1))];
+   __ALIGN64 P384_POINT_IFMA tbl[(1 << (WIN_SIZE - 1))];
 
-   P384_POINT_IFMA R;
-   P384_POINT_IFMA H;
+   __ALIGN64 P384_POINT_IFMA R;
+   __ALIGN64 P384_POINT_IFMA H;
 
    R.x = R.y = R.z = setzero_i64();
    H.x = H.y = H.z = setzero_i64();
@@ -712,7 +714,7 @@ __INLINE void extract_point_affine(P384_POINT_AFFINE_IFMA *r,
 
 IPP_OWN_DEFN(void, p384r1_select_ap_w4_ifma, (BNU_CHUNK_T * pAffinePoint, const BNU_CHUNK_T *pTable, int index))
 {
-   P384_POINT_AFFINE_IFMA ap;
+   __ALIGN64 P384_POINT_AFFINE_IFMA ap;
 
    extract_point_affine(&ap, (P384_POINT_AFFINE_IFMA_MEM *)pTable, index);
 
@@ -728,9 +730,9 @@ IPP_OWN_DEFN(void, ifma_ec_nistp384_mul_pointbase, (P384_POINT_IFMA * r, const I
    /* precompute table */
    const P384_POINT_AFFINE_IFMA_MEM *tbl = &ifma_ec_nistp384r1_bp_precomp[0][0];
 
-   P384_POINT_IFMA R;
+   __ALIGN64 P384_POINT_IFMA R;
    R.x = R.y = R.z = setzero_i64();
-   P384_POINT_AFFINE_IFMA A;
+   __ALIGN64 P384_POINT_AFFINE_IFMA A;
    A.x = A.y = setzero_i64();
 
    m512 Ty = setzero_i64();

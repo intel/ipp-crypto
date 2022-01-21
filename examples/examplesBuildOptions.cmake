@@ -70,7 +70,7 @@ if(UNIX)
     endif()
   else()
     # macOS
-    set(LINK_FLAG_S_ST_MACOSX "-mmacosx-version-min=10.12")
+    set(LINK_FLAG_S_ST_MACOSX "-mmacosx-version-min=11.0")
 
     ippcp_extend_variable(CMAKE_CXX_FLAGS "-fpic")
     if(${ARCH} MATCHES "ia32")

@@ -60,13 +60,13 @@ static const __ALIGN64 Ipp64u ones[LEN52] = {
 
 #define MUL_RED_ROUND(R, A, B, IDX)                                      \
    {                                                                     \
-      const m512 Bi = permutexvar_i8(idx##IDX, (B));                     \
+      const m512 Bi = permutexvar_i8(idx_b##IDX, (B));                   \
       m512 Rlo      = madd52lo_i64(zero, (A), Bi);                       \
       m512 tmp      = madd52hi_i64(zero, (A), Bi);                       \
                                                                          \
       (R) = add_i64((R), Rlo);                                           \
       /* broadcast R[0] */                                               \
-      const m512 R0 = permutexvar_i8(idx0, (R));                         \
+      const m512 R0 = permutexvar_i8(idx_b0, (R));                       \
       const m512 Yi = madd52lo_i64(zero, k0, R0);                        \
       (R)           = madd52lo_i64((R), N, Yi);                          \
       tmp           = madd52hi_i64(tmp, N, Yi);                          \
@@ -86,23 +86,23 @@ IPP_OWN_DEFN(m512, ifma_amm52_n256, (const m512 a, const m512 b))
    const m512 zero     = setzero_i64();
    const mask8 maskone = 0x1;
 
-   /* index broadcast */
-   const m512 idx0 = set_i8(REPL8(7, 6, 5, 4, 3, 2, 1, 0));         /* B[0] */
-   const m512 idx1 = set_i8(REPL8(15, 14, 13, 12, 11, 10, 9, 8));   /* B[1] */
-   const m512 idx2 = set_i8(REPL8(23, 22, 21, 20, 19, 18, 17, 16)); /* B[2] */
-   const m512 idx3 = set_i8(REPL8(31, 30, 29, 28, 27, 26, 25, 24)); /* B[3] */
-   const m512 idx4 = set_i8(REPL8(39, 38, 37, 36, 35, 34, 33, 32)); /* B[4] */
+   /* Index broadcast */
+   const m512 idx_b0 = set_i64(REPL8(0x0706050403020100)); // 7,   6,  5,  4,  3,  2,  1,  0
+   const m512 idx_b1 = set_i64(REPL8(0x0f0e0d0c0b0a0908)); // 15, 14, 13, 12, 11, 10,  9,  8
+   const m512 idx_b2 = set_i64(REPL8(0x1716151413121110)); // 23, 22, 21, 20, 19, 18, 17, 16
+   const m512 idx_b3 = set_i64(REPL8(0x1f1e1d1c1b1a1918)); // 31, 30, 29, 28, 27, 26, 25, 24
+   const m512 idx_b4 = set_i64(REPL8(0x2726252423222120)); // 39, 38, 37, 36, 35, 34, 33, 32
 
    /* Mask to shift zmm register right on 64-bit */
-   const mask64 mask_sr64 = 0x00FFFFFFFFFFFFFF;
-   const m512 idx_sr64    = set_i8(0, 0, 0, 0, 0, 0, 0, 0,
-                                63, 62, 61, 60, 59, 58, 57, 56,
-                                55, 54, 53, 52, 51, 50, 49, 48,
-                                47, 46, 45, 44, 43, 42, 41, 40,
-                                39, 38, 37, 36, 35, 34, 33, 32,
-                                31, 30, 29, 28, 27, 26, 25, 24,
-                                23, 22, 21, 20, 19, 18, 17, 16,
-                                15, 14, 13, 12, 11, 10, 9, 8);
+   const mask64 mask_sr64 = 0x00ffffffffffffff;
+   const m512 idx_sr64    = set_i64(0x0,            //  0,  0,  0,  0,  0,  0,  0,  0
+                                 0x3f3e3d3c3b3a3938,  // 63, 62, 61, 60, 59, 58, 57, 56
+                                 0x3736353433323130,  // 55, 54, 53, 52, 51, 50, 49, 48
+                                 0x2f2e2d2c2b2a2928,  // 47, 46, 45, 44, 43, 42, 41, 40
+                                 0x2726252423222120,  // 39, 38, 37, 36, 35, 34, 33, 32
+                                 0x1f1e1d1c1b1a1918,  // 31, 30, 29, 28, 27, 26, 25, 24
+                                 0x1716151413121110,  // 23, 22, 21, 20, 19, 18, 17, 16
+                                 0x0f0e0d0c0b0a0908); // 15, 14, 13, 12, 11, 10, 9, 8
 
    m512 r = setzero_i64();
 
@@ -117,58 +117,7 @@ IPP_OWN_DEFN(m512, ifma_amm52_n256, (const m512 a, const m512 b))
    return r;
 }
 
-/* R = (A*B) */
-IPP_OWN_DEFN(void, ifma_amm52_dual_n256, (m512 * r1, const m512 a1, const m512 b1, m512 *r2, const m512 a2, const m512 b2))
-{
-   const m512 N        = loadu_i64(n256_x1); /* modulus */
-   const m512 k0       = set1_i64(n256_k0);  /* k0 */
-   const m512 zero     = setzero_i64();
-   const mask8 maskone = 0x1;
-
-   /* index broadcast */
-   const m512 idx0 = set_i8(REPL8(7, 6, 5, 4, 3, 2, 1, 0));         /* B[0] */
-   const m512 idx1 = set_i8(REPL8(15, 14, 13, 12, 11, 10, 9, 8));   /* B[1] */
-   const m512 idx2 = set_i8(REPL8(23, 22, 21, 20, 19, 18, 17, 16)); /* B[2] */
-   const m512 idx3 = set_i8(REPL8(31, 30, 29, 28, 27, 26, 25, 24)); /* B[3] */
-   const m512 idx4 = set_i8(REPL8(39, 38, 37, 36, 35, 34, 33, 32)); /* B[4] */
-
-   /* Mask to shift zmm register right on 64-bit */
-   const mask64 mask_sr64 = 0x00FFFFFFFFFFFFFF;
-   const m512 idx_sr64    = set_i8(0, 0, 0, 0, 0, 0, 0, 0,
-                                63, 62, 61, 60, 59, 58, 57, 56,
-                                55, 54, 53, 52, 51, 50, 49, 48,
-                                47, 46, 45, 44, 43, 42, 41, 40,
-                                39, 38, 37, 36, 35, 34, 33, 32,
-                                31, 30, 29, 28, 27, 26, 25, 24,
-                                23, 22, 21, 20, 19, 18, 17, 16,
-                                15, 14, 13, 12, 11, 10, 9, 8);
-
-   m512 tmp1, tmp2;
-   tmp1 = tmp2 = setzero_i64();
-
-   MUL_RED_ROUND(tmp1, a1, b1, 0)
-   MUL_RED_ROUND(tmp2, a2, b2, 0)
-
-   MUL_RED_ROUND(tmp1, a1, b1, 1)
-   MUL_RED_ROUND(tmp2, a2, b2, 1)
-
-   MUL_RED_ROUND(tmp1, a1, b1, 2)
-   MUL_RED_ROUND(tmp2, a2, b2, 2)
-
-   MUL_RED_ROUND(tmp1, a1, b1, 3)
-   MUL_RED_ROUND(tmp2, a2, b2, 3)
-
-   MUL_RED_ROUND(tmp1, a1, b1, 4)
-   MUL_RED_ROUND(tmp2, a2, b2, 4)
-
-   tmp1 = ifma_lnorm52_p256(tmp1);
-   tmp2 = ifma_lnorm52_p256(tmp2);
-
-   *r1 = tmp1;
-   *r2 = tmp2;
-}
-
-IPP_OWN_DEFN(m512, ifma_add52_n256, (const m512 a, m512 b))
+IPP_OWN_DEFN(m512, ifma_add52_n256, (const m512 a, const m512 b))
 {
    const m512 zero = setzero_i64();
    const m512 Nx2  = loadu_i64(n256_x2);

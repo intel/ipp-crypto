@@ -27,7 +27,6 @@
 #include "pcpgfpecstuff.h"
 
 
-
 /*F*
 //    Name: ippsGFpECSharedSecretDHC
 //
@@ -76,10 +75,14 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDHC,(const IppsBigNumState* pPrivateA, co
    /* test private (own) key */
    IPP_BAD_PTR1_RET(pPrivateA);
    IPP_BADARG_RET(!BN_VALID_ID(pPrivateA), ippStsContextMatchErr);
+   /* test if 0 < pPrivateA < Order */
+   IPP_BADARG_RET(0 == gfec_CheckPrivateKey(pPrivateA, pEC), ippStsInvalidPrivateKey);
 
    /* test public (other party) key */
    IPP_BAD_PTR1_RET(pPublicB);
    IPP_BADARG_RET( !ECP_POINT_VALID_ID(pPublicB), ippStsContextMatchErr );
+   /* test if pPublicB belongs EC */
+   IPP_BADARG_RET(0 == gfec_IsPointOnCurve(pPublicB, pEC), ippStsInvalidPoint);
 
    /* test share key */
    IPP_BAD_PTR1_RET(pShare);
@@ -104,11 +107,12 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDHC,(const IppsBigNumState* pPrivateA, co
       gsModEngine* montR = ECP_MONT_R(pEC);
       int nsR = MOD_LEN(montR);
 
+      /* compute factored secret F = coFactor*privateA */
       BNU_CHUNK_T* F = cpGFpGetPool(2, pGFE);
 
-      /* compute factored secret F = coFactor*privateA */
       cpMontEnc_BNU_EX(F, BN_NUMBER(pPrivateA), BN_SIZE(pPrivateA), montR);
       cpMontMul_BNU_EX(F, F, nsR, pCofactor, cofactorLen, montR);
+
       /* T = [F]pPublicB */
       cpEcGFpInitPoint(&T, cpEcGFpGetPool(1, pEC),0, pEC);
       gfec_MulPoint(&T, pPublicB, F, nsR, /*ECP_ORDBITSIZE(pEC),*/ pEC, pScratchBuffer);
@@ -127,6 +131,7 @@ IPPFUN(IppStatus, ippsGFpECSharedSecretDHC,(const IppsBigNumState* pPrivateA, co
          FIX_BNU(pShareData, nsShare);
          BN_SIZE(pShare) = nsShare;
       }
+
       cpGFpReleasePool(2, pGFE);
       cpEcGFpReleasePool(1, pEC);
 

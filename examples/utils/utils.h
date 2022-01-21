@@ -21,11 +21,11 @@
 #define RSIZE_MAX_STR (4UL << 10) /* 4Kb */
 
 /**
- * @brief 
+ * \brief 
  * The strnlen_s function computes the length of the string pointed to by dest.
- * @param[in] dest pointer to string
- * @param[in] dmax restricted maximum length. (default 4Kb)
- * @return size_t 
+ * \param[in] dest pointer to string
+ * \param[in] dmax restricted maximum length. (default 4Kb)
+ * \return size_t 
  * The function returns the string length, excluding  the terminating
  * null character.  If dest is NULL, then strnlen_s returns 0.
  */

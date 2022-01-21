@@ -57,7 +57,7 @@
 //    ippStsMessageErr              MsgDigest >= R
 //                                  MsgDigest <  0
 //
-//    ippStsIvalidPrivateKey        PrvKey >= R
+//    ippStsInvalidPrivateKey       PrvKey >= R
 //                                  PrvKey < 0
 //
 //    ippStsRangeErr                not enough room for:
@@ -99,7 +99,7 @@ IPPFUN(IppStatus, ippsDLPSignDSA,(const IppsBigNumState* pMsgDigest,
    /* test regular private key */
    IPP_BAD_PTR1_RET(pPrvKey);
    IPP_BADARG_RET(!BN_VALID_ID(pPrvKey), ippStsContextMatchErr);
-   IPP_BADARG_RET(BN_NEGATIVE(pPrvKey), ippStsIvalidPrivateKey);
+   IPP_BADARG_RET(BN_NEGATIVE(pPrvKey), ippStsInvalidPrivateKey);
 
    /* test signature */
    IPP_BAD_PTR2_RET(pSignR,pSignS);
@@ -121,7 +121,7 @@ IPPFUN(IppStatus, ippsDLPSignDSA,(const IppsBigNumState* pMsgDigest,
 
       /* make sure regular 0 < private < order */
       IPP_BADARG_RET(cpEqu_BNU_CHUNK(pPriData, priLen, 0) ||
-                  0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsIvalidPrivateKey);
+                  0<=cpCmp_BNU(pPriData, priLen, pOrder, ordLen), ippStsInvalidPrivateKey);
       /* make sure msg <order */
       IPP_BADARG_RET(0<=cpCmp_BNU(pMsgData, msgLen, pOrder, ordLen), ippStsMessageErr);
 

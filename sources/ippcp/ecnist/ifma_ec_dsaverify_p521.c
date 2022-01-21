@@ -53,7 +53,7 @@ IPP_OWN_DEFN(IppECResult, gfec_VerifyDSA_nistp521_avx512, (const IppsBigNumState
    /* Mod engine (mod n - subgroup order) */
    ifma_encode n_to_mont    = nmeth->encode;
    ifma_decode n_from_mont  = nmeth->decode;
-   ifma_mul_dual n_mul_dual = nmeth->mul_dual;
+   ifma_mul    n_mul        = nmeth->mul;
    ifma_inv n_inv           = nmeth->inv;
    ifma_red n_red           = nmeth->red;
 
@@ -73,11 +73,12 @@ IPP_OWN_DEFN(IppECResult, gfec_VerifyDSA_nistp521_avx512, (const IppsBigNumState
    ZEXPAND_COPY_BNU(pBufSignS, orderLen, BN_NUMBER(pSignS), BN_SIZE(pSignS));
 
    to_radix52(&msg, (Ipp64u *)pBufMsg);
+   n_red(&msg, msg); /* reduce just in case */
    to_radix52(&signR, (Ipp64u *)pBufSignR);
    to_radix52(&signS, (Ipp64u *)pBufSignS);
 
    /* Convert public point to proper Montgomery domain and 2^52 radix */
-   P521_POINT_IFMA pubKey;
+   __ALIGN64 P521_POINT_IFMA pubKey;
    recode_point_to_mont52(&pubKey, ECP_POINT_DATA(pRegPublic), pPool /* 3 elem */, pmeth, pME);
 
    fe521 h, h1, h2;
@@ -91,8 +92,8 @@ IPP_OWN_DEFN(IppECResult, gfec_VerifyDSA_nistp521_avx512, (const IppsBigNumState
    n_to_mont(&h1, msg);
    n_to_mont(&h2, signR);
 
-   n_mul_dual(&h1, h1, h,
-              &h2, h2, h);
+   n_mul(&h1, h1, h);
+   n_mul(&h2, h2, h);
 
    n_from_mont(&h1, h1);
    n_from_mont(&h2, h2);
@@ -109,7 +110,7 @@ IPP_OWN_DEFN(IppECResult, gfec_VerifyDSA_nistp521_avx512, (const IppsBigNumState
 
    cpGFpReleasePool(2, pME); /* pH1, pH2 */
 
-   P521_POINT_IFMA P;
+   __ALIGN64 P521_POINT_IFMA P;
    FE521_SET(P.x) = FE521_SET(P.y) = FE521_SET(P.z) = m256_setzero_i64();
 
    /* P = h1*basePoint + h2*pubKey */
@@ -119,7 +120,7 @@ IPP_OWN_DEFN(IppECResult, gfec_VerifyDSA_nistp521_avx512, (const IppsBigNumState
       ifma_ec_nistp521_mul_pointbase(&P, (Ipp8u *)pExtendedH1, orderBits);
    } else {
       /* Convert base point to a new Montgomery domain */
-      P521_POINT_IFMA G52;
+      __ALIGN64 P521_POINT_IFMA G52;
       recode_point_to_mont52(&G52, ECP_G(pEC), pPool /* 3 elem */, pmeth, pME);
 
       ifma_ec_nistp521_mul_point(&P, &G52, (Ipp8u *)pExtendedH1, orderBits);

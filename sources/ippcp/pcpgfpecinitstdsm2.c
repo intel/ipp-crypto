@@ -28,7 +28,10 @@
 #include "pcpgfpecstuff.h"
 #include "pcpeccp.h"
 
-
+#if (_IPP32E >= _IPP32E_K1)
+#include "sm2/ifma_arith_method_sm2.h"
+#include "pcpgfpmethod.h"
+#endif // (_IPP32E >= _IPP32E_K1)
 
 
 static void cpGFpECSetStd(int aLen, const BNU_CHUNK_T* pA,
@@ -63,6 +66,13 @@ static void cpGFpECSetStd(int aLen, const BNU_CHUNK_T* pA,
    ippsGFpSetElement((Ipp32u*)pY, BITS2WORD32_SIZE(BITSIZE_BNU(pY,yLen)), &elmB, pGF);
    /* and init EC subgroup */
    ippsGFpECSetSubgroup(&elmA, &elmB, &R, &H, pEC);
+   cpGFpReleasePool(2, pGFE);
+
+#if (_IPP32E >= _IPP32E_K1)
+      if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+         ECP_MONT_R(pEC)->method_alt = gsArithGF_nsm2_avx512();
+      }
+#endif // (_IPP32E >= _IPP32E_K1)
 }
 
 /*F*
@@ -109,6 +119,8 @@ IPPFUN(IppStatus, ippsGFpECInitStdSM2,(const IppsGFpState* pGF, IppsGFpECState* 
                     BITS_BNU_CHUNK(256), tpmSM2_p256_r,
                     tpmSM2_p256_h,
                     pEC);
+
+      ECP_MODULUS_ID(pEC) = cpID_PrimeTPM_SM2;
 
       return ippStsNoErr;
    }

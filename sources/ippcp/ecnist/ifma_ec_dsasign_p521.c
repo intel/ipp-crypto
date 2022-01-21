@@ -64,7 +64,7 @@ IPP_OWN_DEFN(IppStatus, gfec_SignDSA_nistp521_avx512, (const IppsBigNumState *pM
    BNU_CHUNK_T *pExtendedScalar = cpGFpGetPool(2, pME);
    cpGFpElementCopyPad(pExtendedScalar, orderLen + 1, BN_NUMBER(pEphPrivate), BN_SIZE(pEphPrivate));
 
-   P521_POINT_IFMA P;
+   __ALIGN64 P521_POINT_IFMA P;
 
    if (ECP_PREMULBP(pEC)) {
       ifma_ec_nistp521_mul_pointbase(&P, (Ipp8u *)pExtendedScalar, orderBits);
@@ -72,7 +72,7 @@ IPP_OWN_DEFN(IppStatus, gfec_SignDSA_nistp521_avx512, (const IppsBigNumState *pM
       BNU_CHUNK_T *pPool = cpGFpGetPool(3, pME);
 
       /* Convert base point to a new Montgomery domain */
-      P521_POINT_IFMA G52;
+      __ALIGN64 P521_POINT_IFMA G52;
       recode_point_to_mont52(&G52, ECP_G(pEC), pPool, pmeth, pME);
 
       ifma_ec_nistp521_mul_point(&P, &G52, (Ipp8u *)pExtendedScalar, orderBits);
@@ -106,6 +106,7 @@ IPP_OWN_DEFN(IppStatus, gfec_SignDSA_nistp521_avx512, (const IppsBigNumState *pM
    FE521_SET(msgDigest) = m256_setzero_i64();
    ZEXPAND_COPY_BNU(pTmp, orderLen, BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest));
    to_radix52(&msgDigest, pTmp);
+   n_red(&msgDigest, msgDigest); /* reduce just in case */
    n_to_mont(&msgDigest, msgDigest);
 
    /* Regular private key */

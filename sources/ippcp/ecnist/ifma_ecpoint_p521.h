@@ -35,64 +35,64 @@ typedef struct P521_POINT_AFFINE_IFMA {
 } P521_POINT_AFFINE_IFMA;
 
 /**
- * @brief
+ * \brief
  * compute R = [pExtendedScalar]*P = (P + P + ... + P)
- * @param[out] r point (!)radix 52
- * @param[in]  p point (!)radix 52
- * @param[in]  pExtendedScalar ptr Extended scalar
- * @param[in]  scalarBitSize   size bits scalar
+ * \param[out] r point (in radix 2^52)
+ * \param[in]  p point (in radix 2^52)
+ * \param[in]  pExtendedScalar ptr Extended scalar
+ * \param[in]  scalarBitSize   size bits scalar
  */
 IPP_OWN_DECL(void, ifma_ec_nistp521_mul_point, (P521_POINT_IFMA * r, const P521_POINT_IFMA *p, const Ipp8u *pExtendedScalar, const int scalarBitSize))
 
 /**
- * @brief
+ * \brief
  * compute [pExtendedScalar]*BP
- * @param[out] r point (!)radix 52
- * @param pExtendedScalar ptr scaler (length 384 bits)
+ * \param[out] r point (in radix 2^52)
+ * \param pExtendedScalar ptr scaler (length 384 bits)
  */
 IPP_OWN_DECL(void, ifma_ec_nistp521_mul_pointbase, (P521_POINT_IFMA * r, const Ipp8u *pExtendedScalar, int scalarBitSize))
 
 /**
- * @brief
+ * \brief
  * convert point to affine coordinate
- * @param[out] prx affine X coordinate
- * @param[out] pry affine Y coordinate
- * @param[in]  a   point
+ * \param[out] prx affine X coordinate
+ * \param[out] pry affine Y coordinate
+ * \param[in]  a   point
  */
 IPP_OWN_DECL(void, ifma_ec_nistp521_get_affine_coords, (fe521 prx[], fe521 pry[], const P521_POINT_IFMA *a))
 
 /**
- * @brief
+ * \brief
  * check point on curve P521R1
- * @param[in] p                point (!)radix 52
- * @param[in] use_jproj_coords is Jacobian Projection coordinate or Affine Coordinate
- * @return int 1 - is true | 0 - is false
+ * \param[in] p                point (in radix 2^52)
+ * \param[in] use_jproj_coords is Jacobian Projection coordinate or Affine Coordinate
+ * \return int 1 - is true | 0 - is false
  */
 IPP_OWN_DECL(int, ifma_ec_nistp521_is_on_curve, (const P521_POINT_IFMA *p, const int use_jproj_coords))
 
 /**
- * @brief
+ * \brief
  * compute double point P521R1 Enhanced Montgomery Algorithm
- * @param[out] r point
- * @param[in]  p value point (!)radix 52
+ * \param[out] r point
+ * \param[in]  p value point (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_ec_nistp521_dbl_point, (P521_POINT_IFMA * r, const P521_POINT_IFMA *p))
 
 /**
- * @brief
+ * \brief
  * compute add point P384R1 Enhanced Montgomery Algorithm
- * @param[out] r point
- * @param[in]  p first  point (!)radix 52
- * @param[in]  q second point (!)radix 52
+ * \param[out] r point
+ * \param[in]  p first  point (in radix 2^52)
+ * \param[in]  q second point (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_ec_nistp521_add_point, (P521_POINT_IFMA * r, const P521_POINT_IFMA *p, const P521_POINT_IFMA *q))
 
 /**
- * @brief
+ * \brief
  * compute add point affine P384R1 Enhanced Montgomery Algorithm
- * @param[out] r point
- * @param[in]  p first  point (!)radix 52
- * @param[in]  q second affine point (!)radix 52
+ * \param[out] r point
+ * \param[in]  p first  point (in radix 2^52)
+ * \param[in]  q second affine point (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_ec_nistp521_add_point_affine, (P521_POINT_IFMA * r, const P521_POINT_IFMA *p, const P521_POINT_AFFINE_IFMA *q))
 

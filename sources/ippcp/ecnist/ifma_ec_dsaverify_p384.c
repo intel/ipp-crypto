@@ -53,7 +53,7 @@ IPP_OWN_DEFN(IppECResult, gfec_VerifyDSA_nistp384_avx512, (const IppsBigNumState
    /* Mod engine (mod n - subgroup order) */
    ifma_encode n_to_mont    = nmeth->encode;
    ifma_decode n_from_mont  = nmeth->decode;
-   ifma_mul_dual n_mul_dual = nmeth->mul_dual;
+   ifma_mul    n_mul        = nmeth->mul;
    ifma_inv n_inv           = nmeth->inv;
    ifma_red n_red           = nmeth->red;
 
@@ -73,11 +73,12 @@ IPP_OWN_DEFN(IppECResult, gfec_VerifyDSA_nistp384_avx512, (const IppsBigNumState
    ZEXPAND_COPY_BNU(pBufSignS, orderLen, BN_NUMBER(pSignS), BN_SIZE(pSignS));
 
    msg   = to_radix52((Ipp64u *)pBufMsg);
+   msg   = n_red(msg); /* reduce just in case */
    signR = to_radix52((Ipp64u *)pBufSignR);
    signS = to_radix52((Ipp64u *)pBufSignS);
 
    /* Convert public point to proper Montgomery domain and 2^52 radix */
-   P384_POINT_IFMA pubKey;
+   __ALIGN64 P384_POINT_IFMA pubKey;
    recode_point_to_mont52(&pubKey, ECP_POINT_DATA(pRegPublic), pPool /* 3 elem */, pmeth, pME);
 
    m512 h, h1, h2;
@@ -91,8 +92,8 @@ IPP_OWN_DEFN(IppECResult, gfec_VerifyDSA_nistp384_avx512, (const IppsBigNumState
    h1 = n_to_mont(msg);
    h2 = n_to_mont(signR);
 
-   n_mul_dual(&h1, h1, h,
-              &h2, h2, h);
+   h1 = n_mul(h1, h);
+   h2 = n_mul(h2, h);
 
    h1 = n_from_mont(h1);
    h2 = n_from_mont(h2);
@@ -109,7 +110,7 @@ IPP_OWN_DEFN(IppECResult, gfec_VerifyDSA_nistp384_avx512, (const IppsBigNumState
 
    cpGFpReleasePool(2, pME);    /* pH1, pH2 */
 
-   P384_POINT_IFMA P;
+   __ALIGN64 P384_POINT_IFMA P;
    P.x = P.y = P.z = setzero_i64();
 
    /* P = h1*basePoint + h2*pubKey */
@@ -119,7 +120,7 @@ IPP_OWN_DEFN(IppECResult, gfec_VerifyDSA_nistp384_avx512, (const IppsBigNumState
       ifma_ec_nistp384_mul_pointbase(&P, (Ipp8u *)pExtendedH1, orderBits);
    } else {
       /* Convert base point to a new Montgomery domain */
-      P384_POINT_IFMA G52;
+      __ALIGN64 P384_POINT_IFMA G52;
       recode_point_to_mont52(&G52, ECP_G(pEC), pPool /* 3 elem */, pmeth, pME);
 
       ifma_ec_nistp384_mul_point(&P, &G52, (Ipp8u *)pExtendedH1, orderBits);

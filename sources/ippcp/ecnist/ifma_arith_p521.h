@@ -119,36 +119,36 @@ static const __ALIGN64 Ipp64u P521R1_R52[P521R1_NUM_CHUNK][P521R1_LENFE521_52] =
 
 /**
  * \brief
- * normalization input fe521 to (!)radix 52
- * \param[out] pr ptr value (!)radix 52
+ * normalization input fe521 to (in radix 2^52)
+ * \param[out] pr ptr value (in radix 2^52)
  * \param[in]  a  value (52 radix or more)
  */
 IPP_OWN_DECL(void, ifma_norm52_p521, (fe521 pr[], const fe521 a))
 
 /**
  * \brief
- * duplicate normalization input double fe521 to (!)radix 52
- * \param[out] pr1 ptr first value (!)radix 52
+ * duplicate normalization input double fe521 to (in radix 2^52)
+ * \param[out] pr1 ptr first value (in radix 2^52)
  * \param[in]  a1  value first (52 radix or more)
- * \param[out] pr2 ptr second value (!)radix 52
+ * \param[out] pr2 ptr second value (in radix 2^52)
  * \param[in]  a2  value second (52 radix or more)
  */
 IPP_OWN_DECL(void, ifma_norm52_dual_p521, (fe521 pr1[], const fe521 a1, fe521 pr2[], const fe521 a2))
 
 /**
  * \brief
- * light (mul|add only) normalization input fe521 to (!)radix 52
- * \param[out] pr ptr value (!)radix 52
+ * light (mul|add only) normalization input fe521 to (in radix 2^52)
+ * \param[out] pr ptr value (in radix 2^52)
  * \param[in]  a  value (52 radix or more)
  */
 IPP_OWN_DECL(void, ifma_lnorm52_p521, (fe521 pr[], const fe521 a))
 
 /**
  * \brief
- * light (mul|add only) duplicate normalization input double fe521 to (!)radix 52
- * \param[out] pr1 ptr first value (!)radix 52
+ * light (mul|add only) duplicate normalization input double fe521 to (in radix 2^52)
+ * \param[out] pr1 ptr first value (in radix 2^52)
  * \param[in]  a1  value first (52 radix or more)
- * \param[out] pr2 ptr second value (!)radix 52
+ * \param[out] pr2 ptr second value (in radix 2^52)
  * \param[in]  a2  value second (52 radix or more)
  */
 IPP_OWN_DECL(void, ifma_lnorm52_dual_p521, (fe521 pr1[], const fe521 a1, fe521 pr2[], const fe521 a2))
@@ -157,27 +157,27 @@ IPP_OWN_DECL(void, ifma_lnorm52_dual_p521, (fe521 pr1[], const fe521 a1, fe521 p
  * \brief
  * R = (A * B) - no normalization
  * \param[out] pr ptr value
- * \param[in]  a  first  value (!)radix 52
- * \param[in]  b  second value (!)radix 52
+ * \param[in]  a  first  value (in radix 2^52)
+ * \param[in]  b  second value (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_amm52_p521, (fe521 pr[], const fe521 a, const fe521 b))
 
 /**
  * \brief
  * duplicate mul (R = A * B - no normalization) input double complect
- * \param[out] pr1 ptr first value (!)no normalization
- * \param[in]  a1  value first  (!)radix 52
- * \param[in]  b1  value second (!)radix 52
- * \param[out] pr2 ptr second value (!)no normalization
- * \param[in]  a2  value first  (!)radix 52
- * \param[in]  b2  value second (!)radix 52
+ * \param[out] pr1 ptr first value no normalization
+ * \param[in]  a1  value first  (in radix 2^52)
+ * \param[in]  b1  value second (in radix 2^52)
+ * \param[out] pr2 ptr second value no normalization
+ * \param[in]  a2  value first  (in radix 2^52)
+ * \param[in]  b2  value second (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_amm52_dual_p521, (fe521 pr1[], const fe521 a1, const fe521 b1, fe521 pr2[], const fe521 a2, const fe521 b2))
 
 /**
  * \brief
  * R = A/2 - with normalization
- * \param[out] pr ptr value (!)radix 52
+ * \param[out] pr ptr value (in radix 2^52)
  * \param[in]  a  value (52 radix or more)
  */
 IPP_OWN_DECL(void, ifma_half52_p521, (fe521 pr[], const fe521 a))
@@ -185,48 +185,48 @@ IPP_OWN_DECL(void, ifma_half52_p521, (fe521 pr[], const fe521 a))
 /**
  * \brief
  * compute R = (-A) enhanced Montgomery (Gueron modification group operation)
- * \param[out] pr ptr value (!)radix 52
- * \param[in]  a  value (!)radix 52
+ * \param[out] pr ptr value (in radix 2^52)
+ * \param[in]  a  value (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_neg52_p521, (fe521 pr[], const fe521 a))
 
 /**
  * \brief
- * to Montgomery domain (!)radix 52
- * \param[out] pr ptr value (!)radix 52 in Montgomery domain
- * \param[in]  a  value (!)radix 52
+ * to Montgomery domain (in radix 2^52)
+ * \param[out] pr ptr value (in radix 2^52) in Montgomery domain
+ * \param[in]  a  value (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_tomont52_p521, (fe521 pr[], const fe521 a))
 
 /**
  * \brief
- * from Montgomery domain (!)radix 52
- * \param[out] pr ptr value (!)radix 52 from Montgomery domain
- * \param[in]  a  value (!)radix 52
+ * from Montgomery domain (in radix 2^52)
+ * \param[out] pr ptr value (in radix 2^52) from Montgomery domain
+ * \param[in]  a  value (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_frommont52_p521, (fe521 pr[], const fe521 a))
 
 /**
  * \brief
  * R = 1/Z
- * \param[out] pr ptr value (!)radix 52
- * \param[in]  z  value (!)radix 52
+ * \param[out] pr ptr value (in radix 2^52)
+ * \param[in]  z  value (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_aminv52_p521, (fe521 pr[], const fe521 z))
 
 /**
  * \brief
- * convert radix 64 to radix 52
- * \param[out] pr     ptr value (!)radix 52
+ * convert radix 64 to (in radix 2^52)
+ * \param[out] pr     ptr value (in radix 2^52)
  * \param[in]  arad64 ptr array size (9) - 521 bit
  */
 IPP_OWN_DECL(void, convert_radix_to_52_p521, (fe521 pr[], const Ipp64u arad64[P521R1_LEN64]))
 
 /**
  * \brief
- * convert radix 52 to radix 64
+ * convert (in radix 2^52) to radix 64
  * \param[out] rrad64 ptr array size (9) - 521 bit
- * \param[in]  a      value (!)radix 52
+ * \param[in]  a      value (in radix 2^52)
  */
 IPP_OWN_DECL(void, convert_radix_to_64_p521, (Ipp64u rrad64[P521R1_LEN64], const fe521 a))
 
@@ -234,17 +234,17 @@ IPP_OWN_DECL(void, convert_radix_to_64_p521, (Ipp64u rrad64[P521R1_LEN64], const
  * \brief
  * R = (A * A) - no normalization
  * \param[out] pr ptr value
- * \param[in]  a  first  value (!)radix 52
+ * \param[in]  a  first  value (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_ams52_p521, (fe521 pr[], const fe521 a))
 
 /**
  * \brief
  * duplicate sqr (R = A * A - no normalization) input double complect
- * \param[out] pr1 ptr first value (!)no normalization
- * \param[in]  a1  value first  (!)radix 52
- * \param[out] pr2 ptr second value (!)no normalization
- * \param[in]  a2  value first  (!)radix 52
+ * \param[out] pr1 ptr first value no normalization
+ * \param[in]  a1  value first  (in radix 2^52)
+ * \param[out] pr2 ptr second value no normalization
+ * \param[in]  a2  value first  (in radix 2^52)
  */
 IPP_OWN_DECL(void, ifma_ams52_dual_p521, (fe521 pr1[], const fe521 a1, fe521 pr2[], const fe521 a2))
 
