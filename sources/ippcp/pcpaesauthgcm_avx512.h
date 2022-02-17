@@ -78,7 +78,7 @@ struct _cpAES_GCM {
    Ipp64u   aadLen;                 /* header length (bytes)         */
    Ipp64u   txtLen;                 /* text length (bytes)           */
 
-   int      bufLen;                 /* staff buffer length           */
+   int      bufLen;                 /* stuff buffer length           */
    __ALIGN16                        /* aligned buffers               */
    Ipp8u    counter[BLOCK_SIZE];    /* counter                       */
    Ipp8u    ecounter0[BLOCK_SIZE];  /* encrypted initial counter     */
@@ -108,7 +108,6 @@ struct _cpAES_GCM {
 #define AESGCM_STATE(context)        ((context)->state)
 
 #define AESGCM_IV_LEN(context)       ((context)->ivLen)
-#define AESGCM_TXT_LEN(context)      ((context)->txtLen)
 
 #define AESGCM_COUNTER(context)      ((context)->counter)
 #define AESGCM_ECOUNTER0(context)    ((context)->ecounter0)
@@ -128,6 +127,7 @@ struct _cpAES_GCM {
 
 // Fields retargeted to IPsec context
 #define AESGCM_GHASH(context)              (&(AES_GCM_CONTEXT_DATA(context).aad_hash[0]))
+#define AESGCM_TXT_LEN(context)            (AES_GCM_CONTEXT_DATA(context).in_length)
 #define AESGCM_AAD_LEN(context)            (AES_GCM_CONTEXT_DATA(context).aad_length)
 #define AESGCM_BUFLEN(context)             (AES_GCM_CONTEXT_DATA(context).partial_block_length)
 

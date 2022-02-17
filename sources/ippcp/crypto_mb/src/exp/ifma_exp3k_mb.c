@@ -276,7 +276,7 @@ void ifma_modexp3072_mb(int64u out[][8],
       ifma_amm52x60_mb8((int64u*)red_table[2*idx+1], (int64u*)red_table[2*idx], (int64u*)red_table[1], (int64u*)modulus, (int64u*)k0);
    }
 
-   /* exponentition */
+   /* exponentiation */
    {
       int rem = expBitLen % EXP_WIN_SIZE;
       int delta = rem? rem : EXP_WIN_SIZE;
@@ -286,9 +286,19 @@ void ifma_modexp3072_mb(int64u out[][8],
       int exp_chunk_no = exp_bit_no/64;
       int exp_chunk_shift = exp_bit_no%64;
 
+      __m512i red_table_idx, T;
+
       /* process 1-st exp window - just init result */
-      __m512i red_table_idx = _mm512_load_si512(expz[exp_chunk_no]);
-      red_table_idx = _mm512_srli_epi64(red_table_idx, exp_chunk_shift);
+      red_table_idx = _mm512_load_si512(expz[exp_chunk_no]);
+      if (exp_bit_no < (expBitLen & (~63))) { // crossed 64-bit boundary
+         T = _mm512_load_si512(expz[exp_chunk_no + 1]);
+
+         red_table_idx = _mm512_srl_epi64(red_table_idx, _mm_set1_epi64x(exp_chunk_shift));
+         T = _mm512_sll_epi64(T, _mm_set1_epi64x(64 - exp_chunk_shift));
+         red_table_idx = _mm512_and_si512(_mm512_xor_si512(red_table_idx, T), table_idx_mask);
+      } else {
+         red_table_idx = _mm512_srl_epi64(red_table_idx, _mm_set1_epi64x(exp_chunk_shift));
+      }
 
       extract_multiplier_mb8(red_Y, red_table, (int64u*)(&red_table_idx));
 
@@ -306,7 +316,6 @@ void ifma_modexp3072_mb(int64u out[][8],
 
          /* extract pre-computed multiplier from the table */
          {
-            __m512i T;
             exp_chunk_no = exp_bit_no/64;
             exp_chunk_shift = exp_bit_no%64;
 

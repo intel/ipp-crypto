@@ -27,6 +27,10 @@ class Package:
         self.headers_dir   = os.path.join(self.root, 'include')
         self.libraries_dir = os.path.join(self.root, 'lib')
 
+        self.type   = utils.NONE
+        self.name   = utils.NONE
+        self.broken = True
+
         self.headers      = utils.nested_dict_init()
         self.functions    = utils.nested_dict_init()
         self.declarations = defaultdict()
@@ -38,40 +42,39 @@ class Package:
         self.functions_without_dispatcher = []
 
         self.set_type()
-        self.set_env_script()
-
-        self.set_headers_functions_declarations_dicts()
-        self.set_libraries_features_errors_dicts(self.type,             utils.THREAD_MODES)
-        self.set_libraries_features_errors_dicts(utils.THREADING_LAYER, utils.TL_TYPES)
-
-        self.package_validation()
         self.set_name()
 
+        if self.type != utils.NONE:
+            self.set_env_script()
+
+            self.set_headers_functions_declarations_dicts()
+            self.set_libraries_features_errors_dicts()
+
+            self.package_validation()
+
     def set_type(self):
-        header = os.path.join(self.headers_dir, 'ippcp.h')
-        self.type = (utils.IPP if not os.path.exists(header) else utils.IPPCP)
+        for name in utils.PRODUCT_FULL_NAME.keys():
+            header = os.path.join(self.headers_dir, name.lower() + '.h')
+            if os.path.exists(header):
+                self.type = name
+                break
 
     def set_name(self):
-        self.name = 'None'
-        version = self.get_version()
-
-        if not self.broken:
-            self.name = utils.PACKAGE_NAME[self.type] + ' Version ' + version
+        product_name = utils.PRODUCT_FULL_NAME[self.type]
+        version      = self.get_version()
+        self.name = product_name + ' Version ' + version
 
     def get_version(self):
-        version = ''
-        header = os.path.join(self.headers_dir, 'ippversion.h')
+        header_name = (self.type.lower() + 'version.h' if not self.type == utils.IPPCP else 'ippversion.h')
+        header = os.path.join(self.headers_dir, header_name)
 
         for line in utils.get_lines_from_file(header):
             version = utils.get_match(utils.VERSION_REGEX, line, 'ver')
             if version:
-                break
-        if not version:
-            version = 'None'
+                version = self.parse_version_string(version, header)
+                return version
 
-        version = self.parse_version_string(version, header)
-
-        return version
+        return utils.NONE
 
     def parse_version_string(self, version, header):
         while True:
@@ -100,8 +103,10 @@ class Package:
     def set_env_script(self):
         paths_to_search = []
         batch_extension = utils.BATCH_EXTENSIONS[utils.HOST_SYSTEM]
+        components_install_dir_regex = utils.COMPONENTS_INSTALL_DIR_REGEX_FORMAT.format(
+                                       component_name=utils.PRODUCT_SHORT_NAME[self.type])
 
-        components_install_dir = utils.get_match(utils.COMPONENTS_INSTALL_DIR_REGEX, self.root, 'path')
+        components_install_dir = utils.get_match(components_install_dir_regex, self.root, 'path')
         if components_install_dir:
             paths_to_search.append(os.path.join(components_install_dir, 'setvars' + batch_extension))
             paths_to_search.append(os.path.join(components_install_dir, 'bin', 'compilervars' + batch_extension))
@@ -141,7 +146,7 @@ class Package:
 
             self.headers[domain_type][domain] = header
 
-            domain_name = utils.DOMAINS[domain_type][domain]
+            domain_name = utils.DOMAINS[self.type][domain_type][domain]
             if domain_name not in self.functions[domain_type]:
                 self.functions[domain_type][domain_name] = functions_list
             else:
@@ -149,38 +154,38 @@ class Package:
 
             if header == 'ippcpdefs.h' or \
                domain_type == utils.THREADING_LAYER or \
-               domain == 'ippcore':
+               'core' in domain:
                 self.functions_without_dispatcher += functions_list
 
-    def set_libraries_features_errors_dicts(self, domains_type, thread_types):
+    def set_libraries_features_errors_dicts(self):
         host = utils.HOST_SYSTEM
 
         for arch in utils.ARCHITECTURES:
-            for thread_type in thread_types:
-                self.libraries[arch][thread_type] = []
-                path_to_libraries = self.get_path_to_libraries(arch, thread_type)
+            for thread_type, threading in utils.walk_dict(utils.THREAD_TYPES):
+                self.errors[arch][threading]    = self.check_headers()
+                self.libraries[arch][threading] = []
+                path_to_libraries = self.get_path_to_libraries(arch, threading)
 
-                for domain in utils.DOMAINS[domains_type].keys():
+                for lib in utils.LIBRARIES[self.type][thread_type]:
                     lib_name = utils.LIB_PREFIX[host] + \
-                               domain + \
-                               utils.STATIC_LIB_POSTFIX[host] + \
-                               utils.LIB_POSTFIX[thread_type] + \
+                               lib + \
+                               utils.STATIC_LIB_POSTFIX[self.type][host] + \
+                               utils.LIB_POSTFIX[threading] + \
                                utils.STATIC_LIB_EXTENSION[host]
 
                     lib_path = os.path.join(path_to_libraries,
                                             lib_name)
 
                     if os.path.exists(lib_path):
-                        self.libraries[arch][thread_type].append(lib_path)
-                    elif not domain == 'ippe':
-                        self.libraries[arch][thread_type].clear()
+                        self.libraries[arch][threading].append(lib_path)
+                    elif not lib == 'ippe':
+                        self.errors[arch][threading] = "Cannot find " + lib + " " + threading + \
+                                                       " library for " + arch + " architecture"
                         break
 
-                self.features[arch][thread_type] = bool(self.libraries[arch][thread_type])
-                self.errors[arch][thread_type]   = self.check_headers_and_libs(arch, domains_type, thread_type)
+                self.features[arch][threading] = bool(self.libraries[arch][threading])
 
     def package_validation(self):
-        self.broken        = True
         self.error_message = self.errors[utils.INTEL64][utils.SINGLE_THREADED]
 
         for arch in utils.ARCHITECTURES:
@@ -190,8 +195,8 @@ class Package:
                     return
 
     def get_type_and_domain(self, header):
-        domain_type = (self.type if '_tl' not in header else utils.THREADING_LAYER)
-        for domain in utils.DOMAINS[domain_type].keys():
+        domain_type = (utils.COMMON if '_tl' not in header else utils.THREADING_LAYER)
+        for domain in utils.DOMAINS[self.type][domain_type].keys():
             if domain in header:
                 return domain_type, domain
         return '', ''
@@ -210,22 +215,20 @@ class Package:
 
         return utils.get_first_existing_path_in_list(paths_to_search)
 
-    def check_headers_and_libs(self, arch, domains_type, thread_type):
-        for domain in utils.DOMAINS[domains_type].keys():
-            if domains_type not in self.headers.keys() or \
-                    (domain not in self.headers[domains_type].keys() and not domain == 'ippe'):
-                return "Broken package - cannot find header files for " + domains_type + " functions"
-
-        if not self.libraries[arch][thread_type]:
-            return "Cannot find " + thread_type + " libraries for " + arch + " architecture"
-
+    def check_headers(self):
+        for domains_type in utils.DOMAINS[self.type].keys():
+            for domain in utils.DOMAINS[self.type][domains_type].keys():
+                if domains_type not in self.headers.keys() or \
+                        (domain not in self.headers[domains_type].keys() and not domain == 'ippe'):
+                    return "Broken package - cannot find header files for " + domain + " functions"
         return ''
 
 
 def get_package_path():
     current_path = os.path.realpath(__file__)
-    paths_to_search = [utils.get_match(utils.PATH_TO_PACKAGE_REGEX, current_path, 'path'),
-                       utils.get_env(utils.IPPROOT),
-                       utils.get_env(utils.IPPCRYPTOROOT)]
+    paths_to_search = [utils.get_match(utils.PATH_TO_PACKAGE_REGEX, current_path, 'path')]
+
+    for key in utils.ROOT_ENV_VAR.keys():
+        paths_to_search.append(utils.get_env(utils.ROOT_ENV_VAR[key]))
 
     return utils.get_first_existing_path_in_list(paths_to_search)

@@ -14,12 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     Digesting message according to SHA1
-// 
+//
 //  Contents:
 //        ippsHashMethod_SHA1_TT()
 //
@@ -35,13 +35,13 @@
 /*F*
 //    Name: ippsHashMethod_SHA1_TT
 //
-// Purpose: Return SHA1 method 
-//          (using the SHA-NI instructions set 
+// Purpose: Return SHA1 method
+//          (using the Intel® Secure Hash Algorithm - New Instructions (Intel® SHA-NI) instructions set
 //             if it is available at run time)
 //
 // Returns:
 //          Pointer to SHA1 hash-method
-//          (using the SHA-NI instructions set
+//          (using the Intel SHA-NI instructions set
 //             if it is available at run time)
 //
 *F*/

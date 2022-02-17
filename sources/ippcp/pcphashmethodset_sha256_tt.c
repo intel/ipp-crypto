@@ -14,12 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     Digesting message according to SHA256
-// 
+//
 //  Contents:
 //        ippsHashMethodSet_SHA256_TT()
 //
@@ -36,7 +36,7 @@
 //    Name: ippsHashMethodSet_SHA256_TT
 //
 // Purpose: Setup SHA256 method
-//          (using the SHA-NI instructions set
+//          (using the Intel® Secure Hash Algorithm - New Instructions (Intel® SHA-NI) instructions set
 //             if it is available at run time)
 //
 // Returns:                Reason:

@@ -72,6 +72,10 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
    IPP_BADARG_RET(aadLen && !pAAD, ippStsNullPtrErr);
    IPP_BADARG_RET(aadLen<0, ippStsLengthErr);
 
+   /* According to the NIST Special Publication 800-38D (Recommendation for GCM
+    * mode, p.5.2.1.1 Input Data) the AAD shall be between 0 and 2^64 bits. */
+   IPP_BADARG_RET(((AESGCM_AAD_LEN(pState) + (Ipp64u)aadLen) < (Ipp64u)aadLen), ippStsScaleRangeErr);
+
    IPP_BADARG_RET(!(GcmIVprocessing==AESGCM_STATE(pState) || GcmAADprocessing==AESGCM_STATE(pState)), ippStsBadArgErr);
 
    if( GcmIVprocessing==AESGCM_STATE(pState) ) {

@@ -60,6 +60,9 @@ def generate_script():
             with open(os.path.join(disp_folder, utils.RENAME_HEADER_NAME), 'w') as rename_header:
                 rename_header.write(rename_header_generator(functions_with_custom_disp))
 
+            functions_list = [configs[utils.PREFIX] + func if func in functions_with_custom_disp else func
+                              for func in functions_list]
+
     with open(os.path.join(output_path, utils.EXPORT_FILE[host]), 'w') as export_file:
         EXPORT_GENERATORS[host](export_file, functions_list)
 

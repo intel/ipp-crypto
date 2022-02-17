@@ -36,7 +36,7 @@ struct _cpAES_CCM {
    Ipp64u   msgLen;           /* length of message to be processed */
    Ipp64u   lenProcessed;     /* message length has been processed */
    Ipp32u   tagLen;           /* length of authentication tag      */
-   Ipp32u   counterVal;       /* currnt couter value */
+   Ipp32u   counterVal;       /* current counter value */
    Ipp8u   ctr0[MBS_RIJ128];  /* counter value */
    Ipp8u     s0[MBS_RIJ128];  /* S0 = ENC(CTR0) content */
    Ipp8u     si[MBS_RIJ128];  /* Si = ENC(CTRi) content */

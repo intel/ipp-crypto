@@ -61,7 +61,7 @@ struct _cpAES_GCM {
    Ipp64u   aadLen;                 /* header length (bytes)         */
    Ipp64u   txtLen;                 /* text length (bytes)           */
 
-   int      bufLen;                 /* staff buffer length           */
+   int      bufLen;                 /* stuff buffer length           */
    __ALIGN16                        /* aligned buffers               */
    Ipp8u    counter[BLOCK_SIZE];    /* counter                       */
    Ipp8u    ecounter0[BLOCK_SIZE];  /* encrypted initial counter     */

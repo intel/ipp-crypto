@@ -82,29 +82,29 @@
 #endif
 
 /* ia32 */
-#define _IPP_PX 0    /* pure C-code                                                                                                            */
-#define _IPP_M5 1    /* Intel® Quark(TM) processor                                                                                             */
-#define _IPP_W7 8    /* Intel® Streaming SIMD Extensions 2 (Intel® SSE2)                                                                       */
-#define _IPP_T7 16   /* Intel® Streaming SIMD Extensions 3 (Intel® SSE3)                                                                       */
-#define _IPP_V8 32   /* Supplemental Streaming SIMD Extensions 3 (SSSE3)                                                                       */
-#define _IPP_S8 33   /* Supplemental Streaming SIMD Extensions 3 (SSSE3) + MOVBE instruction                                                   */
-#define _IPP_P8 64   /* Intel® Streaming SIMD Extensions 4.2 (Intel® SSE4.2)                                                                   */
-#define _IPP_G9 128  /* Intel® Advanced Vector Extensions (Intel® AVX)                                                                         */
-#define _IPP_H9 256  /* Intel® Advanced Vector Extensions 2 (Intel® AVX2)                                                                      */
-#define _IPP_I0 512  /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon Phi(TM) Processor (formerly Knights Landing)       */
-#define _IPP_S0 1024 /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Skylake)            */
+#define _IPP_PX 0    /* pure C-code                                                                                                             */
+#define _IPP_M5 1    /* Intel® Quark(TM) processor                                                                                              */
+#define _IPP_W7 8    /* Intel® Streaming SIMD Extensions 2 (Intel® SSE2)                                                                        */
+#define _IPP_T7 16   /* Intel® Streaming SIMD Extensions 3 (Intel® SSE3)                                                                        */
+#define _IPP_V8 32   /* Supplemental Streaming SIMD Extensions 3 (SSSE3)                                                                        */
+#define _IPP_S8 33   /* Supplemental Streaming SIMD Extensions 3 (SSSE3) + MOVBE instruction                                                    */
+#define _IPP_P8 64   /* Intel® Streaming SIMD Extensions 4.2 (Intel® SSE4.2)                                                                    */
+#define _IPP_G9 128  /* Intel® Advanced Vector Extensions (Intel® AVX)                                                                          */
+#define _IPP_H9 256  /* Intel® Advanced Vector Extensions 2 (Intel® AVX2)                                                                       */
+#define _IPP_I0 512  /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Phi(TM) Processor (formerly Knights Landing)       */
+#define _IPP_S0 1024 /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Skylake)             */
 
 /* intel64 */
-#define _IPP32E_PX _IPP_PX /* pure C-code                                                                                                      */
-#define _IPP32E_M7 32      /* Intel® Streaming SIMD Extensions 3 (Intel® SSE3)                                                                 */
-#define _IPP32E_U8 64      /* Supplemental Streaming SIMD Extensions 3 (SSSE3)                                                                 */
-#define _IPP32E_N8 65      /* Supplemental Streaming SIMD Extensions 3 (SSSE3) + MOVBE instruction                                             */
-#define _IPP32E_Y8 128     /* Intel® Streaming SIMD Extensions 4.2 (Intel® SSE4.2)                                                             */
-#define _IPP32E_E9 256     /* Intel® Advanced Vector Extensions (Intel® AVX)                                                                   */
-#define _IPP32E_L9 512     /* Intel® Advanced Vector Extensions 2 (Intel® AVX2)                                                                */
-#define _IPP32E_N0 1024    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon Phi(TM) Processor (formerly Knights Landing) */
-#define _IPP32E_K0 2048    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Skylake)      */
-#define _IPP32E_K1 4096    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Icelake)      */
+#define _IPP32E_PX _IPP_PX /* pure C-code                                                                                                       */
+#define _IPP32E_M7 32      /* Intel® Streaming SIMD Extensions 3 (Intel® SSE3)                                                                  */
+#define _IPP32E_U8 64      /* Supplemental Streaming SIMD Extensions 3 (SSSE3)                                                                  */
+#define _IPP32E_N8 65      /* Supplemental Streaming SIMD Extensions 3 (SSSE3) + MOVBE instruction                                              */
+#define _IPP32E_Y8 128     /* Intel® Streaming SIMD Extensions 4.2 (Intel® SSE4.2)                                                              */
+#define _IPP32E_E9 256     /* Intel® Advanced Vector Extensions (Intel® AVX)                                                                    */
+#define _IPP32E_L9 512     /* Intel® Advanced Vector Extensions 2 (Intel® AVX2)                                                                 */
+#define _IPP32E_N0 1024    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Phi(TM) Processor (formerly Knights Landing) */
+#define _IPP32E_K0 2048    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Skylake)       */
+#define _IPP32E_K1 4096    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Icelake)       */
 
 
 #if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER) || (_MSC_VER >= 1300)

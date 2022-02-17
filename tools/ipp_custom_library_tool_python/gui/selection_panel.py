@@ -64,7 +64,7 @@ class SelectionPanel(QWidget):
             self.reset()
 
     def refresh(self):
-        self.domains_type = (self.settings.package.type if not self.settings.tl_group.isChecked()
+        self.domains_type = (utils.COMMON if not self.settings.tl_group.isChecked()
                              else utils.THREADING_LAYER)
         domains_list = self.functions_dict[self.domains_type].keys()
         self.set_widget_items(self.domains_list, domains_list)

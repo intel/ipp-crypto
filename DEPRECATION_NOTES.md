@@ -23,7 +23,7 @@ The deprecated API means it is obsolete and will be removed in one of future Int
 | ippsHashUpdate, ippsHashGetTag,ippsHashFinal                                                                                                                                                                                                                                                                                                                           |     ippsHashUpdate_rmf,ippsHashGetTag_rmf,ippsHashFinal_rmf     |
 | ippsHashMessage \*\*                                                                                                                                                                                                                                                                                                                                                   |                     ippsHashMessage_rmf \*                      |
 
->\* To choose hash algorithm, specify [IppsHashMethod parameter](#ippshashalgid-to-ippshashmethod-parameter-map)  
+>\* To choose hash algorithm, specify [IppsHashMethod parameter](#ippshashalgid-to-ippshashmethod-parameter-map)
 >\*\* IppsHashAlgId parameter used in 'ippsHMAC_Init' and in ippsHMAC_Message for choosing hash algorithm is deprecated (see Recommended replacement column for alternative in [IppsHashAlgId to IppsHashMethod parameter map](#ippshashalgid-to-ippshashmethod-parameter-map)
 
 ### Keyed HMAC Functionality
@@ -36,7 +36,7 @@ The deprecated API means it is obsolete and will be removed in one of future Int
 | ippsHMAC_Update, ippsHMAC_Final, ippsHMAC_GetTag  |  ippsHMAC_Update_rmf, ippsHMAC_Final_rmf, ippsHMAC_GetTag_rmf  |
 | ippsHMAC_Message \*\*                             |                    ippsHMAC_Message_rmf \*                     |
 
->\* To choose hash algorithm, specify [IppsHashMethod parameter](#ippshashalgid-to-ippshashmethod-parameter-map)  
+>\* To choose hash algorithm, specify [IppsHashMethod parameter](#ippshashalgid-to-ippshashmethod-parameter-map)
 >\*\* IppsHashAlgId parameter used in 'ippsHMAC_Init' and in ippsHMAC_Message for choosing hash algorithm is deprecated (see Recommended replacement column for alternative in [IppsHashAlgId to IppsHashMethod parameter map](#ippshashalgid-to-ippshashmethod-parameter-map)
 
 
@@ -76,9 +76,9 @@ The deprecated API means it is obsolete and will be removed in one of future Int
 
 | Algorithm  | IppsHashAlgId (deprecated) |                          IppsHashMethod(recommended)                          |                                                 Note                                                 |
 | :--------: | :------------------------: | :---------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------: |
-|    SHA1    |      ippsHashAlg_SHA1      |    ippsHashMethod_SHA1<br>ippsHashMethod_SHA1_NI<br>ippsHashMethod_SHA1_TT    | SHA-NI not supported<br>SHA-NI only supported<br>Automatic switch on SHA-NI, if possible (tick-tock) |
-|   SHA224   |     ippsHashAlg_SHA224     | ippsHashMethod_SHA224<br>ippsHashMethod_SHA224_NI<br>ippsHashMethod_SHA224_TT |  SHA-NI not supported<br>SHA-NI only supported<br>Automatic switch on SHA-NI, if possible supported  |
-|   SHA256   |     ippsHashAlg_SHA256     | ippsHashMethod_SHA256<br>ippsHashMethod_SHA256_NI<br>ippsHashMethod_SHA256_TT |  SHA-NI not supported<br>SHA-NI only supported<br>Automatic switch on SHA-NI, if possible supported  |
+|    SHA1    |      ippsHashAlg_SHA1      |    ippsHashMethod_SHA1<br>ippsHashMethod_SHA1_NI<br>ippsHashMethod_SHA1_TT    |  Intel® Secure Hash Algorithm - New Instructions (Intel® SHA-NI) not supported<br>Intel SHA-NI only supported<br>Automatic switch on Intel SHA-NI, if possible (tick-tock) |
+|   SHA224   |     ippsHashAlg_SHA224     | ippsHashMethod_SHA224<br>ippsHashMethod_SHA224_NI<br>ippsHashMethod_SHA224_TT |  Intel SHA-NI not supported<br>Intel SHA-NI only supported<br>Automatic switch on Intel SHA-NI, if possible supported  |
+|   SHA256   |     ippsHashAlg_SHA256     | ippsHashMethod_SHA256<br>ippsHashMethod_SHA256_NI<br>ippsHashMethod_SHA256_TT |  Intel SHA-NI not supported<br>Intel SHA-NI only supported<br>Automatic switch on Intel SHA-NI, if possible supported  |
 |   SHA384   |     ippsHashAlg_SHA384     |                             ippsHashMethod_SHA384                             |                                                  -                                                   |
 |   SHA512   |     ippsHashAgl_SHA512     |                             ippsHashMethod_SHA512                             |                                                  -                                                   |
 |    SM3     |      ippsHashAlg_SM3       |                              ippsHashMethod_SM3                               |                                                  -                                                   |

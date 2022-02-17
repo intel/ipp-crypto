@@ -96,7 +96,7 @@ List of CPU feature subsets that the library has special optimizations for:
 
 - Intel ADX (ADCX, ADOX)
 - Intel® Advanced Encryption Standard New Instructions (Intel® AES-NI)
-- Intel SHA-NI
+- Intel® Secure Hash Algorithm - New Instructions (Intel® SHA-NI)
 - RDRAND
 - RDSEED
 - CLMUL

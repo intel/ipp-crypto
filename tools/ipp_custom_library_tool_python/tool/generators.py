@@ -20,7 +20,9 @@ from tool.generators_utils import *
 
 
 def main_file_generator():
-    return MAIN_FILE[utils.HOST_SYSTEM].format(package_type=utils.CONFIGS[PACKAGE].type.lower())
+    product_name = utils.CONFIGS[PACKAGE].type
+    return MAIN_FILE[utils.HOST_SYSTEM].format(product_name=product_name.lower(),
+                                               prefix=utils.FUNCTIONS_PREFIX[product_name].lower())
 
 
 def create_windows_export_file(export_file, functions_list):
@@ -79,13 +81,11 @@ def custom_dispatcher_generator(function):
     dispatcher = ''
     dispatcher += func_dispatcher_generator(arch, function)
 
-    ippe = utils.DOMAINS[IPP]['ippe']
-    if ippe in package.functions[IPP].keys() and \
-            function in package.functions[IPP][ippe]:
-        include_lines += INCLUDE_STR.format(header_name='ippe.h')
-
-    if utils.CONFIGS[PREFIX]:
-        include_lines += INCLUDE_STR.format(header_name=RENAME_HEADER_NAME)
+    if package.type == utils.IPP:
+        ippe = utils.DOMAINS[IPP][COMMON]['ippe']
+        if ippe in package.functions[COMMON].keys() and \
+                function in package.functions[COMMON][ippe]:
+            include_lines += INCLUDE_STR.format(header_name='ippe.h')
 
     return CUSTOM_DISPATCHER_FILE.format(include_lines=include_lines,
                                          architecture=ARCHITECTURE_DEFINE[arch],
@@ -94,10 +94,16 @@ def custom_dispatcher_generator(function):
 
 
 def rename_header_generator(functions_list):
-    content = ''
+    package = utils.CONFIGS[PACKAGE]
+    prefix  = utils.CONFIGS[PREFIX]
+
+    defs_header = ('defs.h' if package.type == IPP or package.type == IPPCP else 'base.h')
+    content = INCLUDE_STR.format(header_name=package.type.lower() + defs_header)
     for function in functions_list:
-        content += RENAME_FORMAT.format(function=function,
-                                        prefix=utils.CONFIGS[PREFIX])
+        declaration = package.declarations[function].replace(function, prefix + function)
+        content += RENAME_FORMAT.format(declaration=declaration,
+                                        function=function,
+                                        prefix=prefix)
 
     return content
 
@@ -120,7 +126,7 @@ def func_dispatcher_generator(arch, function):
         cpuid    = CPUID[cpu]
         cpu_code = CPU[cpu][arch]
 
-        function_with_cpu_code = cpu_code + '_' + function
+        function_with_cpu_code = cpu_code + '_' + PRODUCT_PREFIX[package_type] + function
         ippapi += declarations.replace(function, function_with_cpu_code) + '\n'
 
         dispatching_scheme += DISPATCHING_SCHEME_FORMAT.format(cpuid=cpuid,
@@ -134,9 +140,12 @@ def func_dispatcher_generator(arch, function):
     if not ret_value:
         dispatching_scheme = dispatching_scheme.replace('return', '')
 
+    get_features = GET_FEATURES[package_type]
+
     return FUNCTION_DISPATCHER.format(ippapi=ippapi,
                                       ippfun=ippfun,
                                       package_type=package_type.lower(),
+                                      get_features=get_features,
                                       dispatching_scheme=dispatching_scheme)
 
 
@@ -155,7 +164,7 @@ def build_script_generator():
     thread = configs[THREAD_MODE]
     tl     = configs[THREADING_LAYER]
 
-    root_type = (IPPROOT if package.type == IPP else IPPCRYPTOROOT)
+    root_type = utils.ROOT_ENV_VAR[package.type]
 
     if package.env_script:
         force_flag = ''

@@ -84,6 +84,12 @@ __INLINE BNU_CHUNK_T cpIsEqu_ct(BNU_CHUNK_T a, BNU_CHUNK_T b)
    return cpIsZero_ct(a ^ b);
 }
 
+/* test if a<b */
+__INLINE BNU_CHUNK_T cpIsLt_ct(BNU_CHUNK_T a, BNU_CHUNK_T b)
+{
+   return cpIsMsb_ct(a ^ ((a ^ b) | ((a - b) ^ b)));
+}
+
 /* Disable optimization for Clang compiler to produce constant execution time code */
 #if defined( __clang__ ) && !defined (__INTEL_COMPILER)
    #pragma clang optimize off
@@ -121,6 +127,34 @@ __INLINE BNU_CHUNK_T cpIsGFpElemEquChunk_ct(const BNU_CHUNK_T* pE, int nsE, BNU_
    return cpIsZero_ct(accum);
 }
 
+/* test if memory blocks are equal */
+__INLINE BNU_CHUNK_T cpIsEquBlock_ct(const void* pSrc1, const void* pSrc2, int len)
+{
+   const Ipp8u* p1 = (const Ipp8u*)pSrc1;
+   const Ipp8u* p2 = (const Ipp8u*)pSrc2;
+   int i;
+   BNU_CHUNK_T accum = 0;
+   for(i=0, accum=0; i < len; i++)
+      accum |= (p1[i] ^ p2[i]);
+   return cpIsZero_ct(accum);
+}
+
 #define GFPE_IS_ZERO_CT(a,size)  cpIsGFpElemEquChunk_ct((a),(size), 0)
+
+/* r = mask? a : b */
+__INLINE BNU_CHUNK_T cpSelect_ct(BNU_CHUNK_T mask, BNU_CHUNK_T a, BNU_CHUNK_T b)
+{
+   return (mask & a) | (~mask & b);
+}
+
+__INLINE int cpSelect_ct_int(BNU_CHUNK_T mask, int a, int b)
+{
+   return (int)cpSelect_ct(mask, (BNU_CHUNK_T)a, (BNU_CHUNK_T)b);
+}
+
+__INLINE Ipp8u cpSelect_ct_8u(BNU_CHUNK_T mask, Ipp8u a, Ipp8u b)
+{
+   return (Ipp8u)cpSelect_ct(mask, a, b);
+}
 
 #endif /* _PCP_MASK_CT_H */

@@ -63,6 +63,12 @@
  *    \return ippStsNoErr                 No error
  */
 
+/* Work Load Size from Buffers */
+#define WORKLOAD_LINES_16 (AES_MB_MAX_KERNEL_SIZE)    /* size 16 */
+#define WORKLOAD_LINES_8 (AES_MB_MAX_KERNEL_SIZE / 2) /* size  8 */
+#define WORKLOAD_LINES_4 (AES_MB_MAX_KERNEL_SIZE / 4) /* size  4 */
+
+
 IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], int len[], const IppsAESSpec* pCtx[], 
                                             const Ipp8u* pIV[], IppStatus status[], int numBuffers))
 {  
@@ -121,62 +127,64 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
     }
 
     #if (_IPP32E>=_IPP32E_Y8)
-    Ipp32u* enc_keys[AES_MB_MAX_KERNEL_SIZE];
-    int tmp_len[AES_MB_MAX_KERNEL_SIZE];
+    Ipp32u const* loc_enc_keys[AES_MB_MAX_KERNEL_SIZE];
+    Ipp8u const* loc_src[AES_MB_MAX_KERNEL_SIZE];
+    Ipp8u* loc_dst[AES_MB_MAX_KERNEL_SIZE];
+    Ipp8u const* loc_iv[AES_MB_MAX_KERNEL_SIZE];
+    int loc_len[AES_MB_MAX_KERNEL_SIZE];
     int buffersProcessed = 0;
     #endif
 
     #if(_IPP32E>=_IPP32E_K1)
     if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+        int workLoadSize = 0;
         while(numBuffers > 0) {
-            if (numBuffers > AES_MB_MAX_KERNEL_SIZE / 2) {
-                for (i = 0; i < AES_MB_MAX_KERNEL_SIZE; i++) {
-                    if (i >= numBuffers) {
-                        tmp_len[i] = 0;
-                        continue;
-                    }
-
-                    enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
-                    tmp_len[i] = len[i + buffersProcessed];
-                }
-
-                aes_cfb16_enc_vaes_mb16((const Ipp8u* const*)(pSrc + buffersProcessed), (pDst + buffersProcessed), tmp_len, numRounds, (const Ipp32u **)enc_keys, (pIV + buffersProcessed));
-                numBuffers -= AES_MB_MAX_KERNEL_SIZE;
-                buffersProcessed += AES_MB_MAX_KERNEL_SIZE;
-            }
-            else if (numBuffers > AES_MB_MAX_KERNEL_SIZE / 4 && numBuffers <= AES_MB_MAX_KERNEL_SIZE / 2) {
-                for (i = 0; i < AES_MB_MAX_KERNEL_SIZE / 2; i++) {
-                    if (i >= numBuffers) {
-                        tmp_len[i] = 0;
-                        continue;
-                    }
-
-                    enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
-                    tmp_len[i] = len[i + buffersProcessed];
-                }
-
-                aes_cfb16_enc_vaes_mb8((const Ipp8u* const*)(pSrc + buffersProcessed), (pDst + buffersProcessed), tmp_len, numRounds, (const Ipp32u **)enc_keys, (pIV + buffersProcessed));
-                numBuffers -= AES_MB_MAX_KERNEL_SIZE / 2;
-                buffersProcessed += AES_MB_MAX_KERNEL_SIZE / 2;
-            }
-            else if (numBuffers > 0 && numBuffers <= AES_MB_MAX_KERNEL_SIZE / 4) {
-                for (i = 0; i < AES_MB_MAX_KERNEL_SIZE / 4; i++) {
-                    if (i >= numBuffers) {
-                        tmp_len[i] = 0;
-                        continue;
-                    }
-
-                    enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
-                    tmp_len[i] = len[i + buffersProcessed];
-                }
-
-                aes_cfb16_enc_vaes_mb4((const Ipp8u* const*)(pSrc + buffersProcessed), (pDst + buffersProcessed), tmp_len, numRounds, (const Ipp32u **)enc_keys, (pIV + buffersProcessed));
-                numBuffers -= AES_MB_MAX_KERNEL_SIZE / 4;
-                buffersProcessed += AES_MB_MAX_KERNEL_SIZE / 4;
-            }
-            else {
+            /* init work load size */
+            if (numBuffers > WORKLOAD_LINES_8) { /* size 16 */
+                workLoadSize = WORKLOAD_LINES_16;
+            } else if (numBuffers > WORKLOAD_LINES_4 && numBuffers <= WORKLOAD_LINES_8) { /* size  8 */
+                workLoadSize = WORKLOAD_LINES_8;
+            } else if (numBuffers > 0 && numBuffers <= WORKLOAD_LINES_4) { /* size  4 */
+                workLoadSize = WORKLOAD_LINES_4;
+            } else {
                 break;
             }
+
+            /* fill buffers */
+            for (i = 0; i < workLoadSize; i++) {
+                if (i >= numBuffers) {
+                    loc_len[i] = 0;
+                    continue;
+                }
+
+                loc_src[i]      = pSrc[i + buffersProcessed];
+                loc_dst[i]      = pDst[i + buffersProcessed];
+                loc_iv[i]       = pIV[i + buffersProcessed];
+                loc_enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
+                loc_len[i]      = len[i + buffersProcessed];
+            }
+
+            /* choosing a core for filled buffers */
+            switch (workLoadSize) {
+            case WORKLOAD_LINES_16: {
+                aes_cfb16_enc_vaes_mb16(loc_src, loc_dst, loc_len, numRounds, loc_enc_keys, loc_iv);
+                break;
+            }
+            case WORKLOAD_LINES_8: {
+                aes_cfb16_enc_vaes_mb8(loc_src, loc_dst, loc_len, numRounds, loc_enc_keys, loc_iv);
+                break;
+            }
+            case WORKLOAD_LINES_4: {
+                aes_cfb16_enc_vaes_mb4(loc_src, loc_dst, loc_len, numRounds, loc_enc_keys, loc_iv);
+                break;
+            }
+            default:
+                break;
+            }
+
+            /* changing the remaining buffers for processing */
+            numBuffers -= workLoadSize;
+            buffersProcessed += workLoadSize;
         }
     }
     #endif // if(_IPP32E>=_IPP32E_K1)
@@ -184,19 +192,22 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
     #if (_IPP32E>=_IPP32E_Y8)
     if( IsFeatureEnabled(ippCPUID_AES) ) {
         while(numBuffers > 0) {
-            for (i = 0; i < AES_MB_MAX_KERNEL_SIZE / 4; i++) {
+            for (i = 0; i < WORKLOAD_LINES_4; i++) {
                 if (i >= numBuffers) {
-                    tmp_len[i] = 0;
+                    loc_len[i] = 0;
                     continue;
                 }
 
-                enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
-                tmp_len[i] = len[i + buffersProcessed];
+                loc_src[i]      = pSrc[i + buffersProcessed];
+                loc_dst[i]      = pDst[i + buffersProcessed];
+                loc_iv[i]       = pIV[i + buffersProcessed];
+                loc_enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
+                loc_len[i]      = len[i + buffersProcessed];
             }
 
-            aes_cfb16_enc_aesni_mb4((const Ipp8u* const*)(pSrc + buffersProcessed), (pDst + buffersProcessed), tmp_len, numRounds, (const Ipp32u **)enc_keys, (pIV + buffersProcessed));
-            numBuffers -= AES_MB_MAX_KERNEL_SIZE / 4;
-            buffersProcessed += AES_MB_MAX_KERNEL_SIZE / 4;
+            aes_cfb16_enc_aesni_mb4(loc_src, loc_dst, loc_len, numRounds, loc_enc_keys, loc_iv);
+            numBuffers -= WORKLOAD_LINES_4;
+            buffersProcessed += WORKLOAD_LINES_4;
         }
     }
     #endif // (_IPP32E>=_IPP32E_Y8)
@@ -213,3 +224,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
 
     return ippStsNoErr;
 }
+
+#undef WORKLOAD_LINES_16
+#undef WORKLOAD_LINES_8
+#undef WORKLOAD_LINES_4

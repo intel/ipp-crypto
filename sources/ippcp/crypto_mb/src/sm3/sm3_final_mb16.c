@@ -69,19 +69,19 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     __mmask16 tmp_mask = _mm512_cmplt_epi32_mask(M512(input_len), _mm512_set1_epi32(SM3_MSG_BLOCK_SIZE - (int)SM3_MSG_LEN_REPR));
     M512(buffer_len) = _mm512_mask_set1_epi32(_mm512_set1_epi32(SM3_MSG_BLOCK_SIZE * 2), tmp_mask, SM3_MSG_BLOCK_SIZE);
     M512(buffer_len) = _mm512_mask_set1_epi32(M512(buffer_len), ~mb_mask16, 0);
-
     M512(buffer_len) = _mm512_mask_set1_epi32(M512(buffer_len), ~mb_mask16, 0);
    
-    __mmask64 mb_mask64;
     for (i = 0; i < SM3_NUM_BUFFERS; i++) {
         /* Copy rest of message into internal buffer */
-        mb_mask64 = ~(0xFFFFFFFFFFFFFFFF << input_len[i]);
-        M512(loc_buffer[i]) = _mm512_maskz_loadu_epi8(mb_mask64, HASH_BUFF(p_state)[i]);
+        if ((mb_mask16 >> i) & 0x1) {
+            __mmask64 mb_mask64 = ~(0xFFFFFFFFFFFFFFFF << input_len[i]);
+            M512(loc_buffer[i]) = _mm512_maskz_loadu_epi8(mb_mask64, HASH_BUFF(p_state)[i]);
 
-        /* Padd message */
-        loc_buffer[i][input_len[i]++] = 0x80;
-        pad_block(0, loc_buffer[i] + input_len[i], (int)(buffer_len[i] - input_len[i] - (int)SM3_MSG_LEN_REPR));
-        ((int64u*)(loc_buffer[i] + buffer_len[i]))[-1] = sum_msg_len[i];
+            /* Pad message */
+            loc_buffer[i][input_len[i]++] = 0x80;
+            pad_block(0, loc_buffer[i] + input_len[i], (int)(buffer_len[i] - input_len[i] - (int)SM3_MSG_LEN_REPR));
+            ((int64u*)(loc_buffer[i] + buffer_len[i]))[-1] = sum_msg_len[i];
+        }   
     }
 
     /* Copmplete hash computation */

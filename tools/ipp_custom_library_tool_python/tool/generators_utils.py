@@ -161,13 +161,13 @@ EXP_LIBS = {
 
 MAIN_FILE = {
     WINDOWS: "#include <Windows.h>\n"
-             "#include \"{package_type}.h\"\n\n"
+             "#include \"{product_name}.h\"\n\n"
              "int WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)\n"
              "{{\n"
              "    switch (fdwReason)\n"
              "    {{\n"
              "    case DLL_PROCESS_ATTACH:\n"
-             "        {package_type}Init(); break;\n"
+             "        {prefix}Init(); break;\n"
              "    case DLL_THREAD_ATTACH: break;\n"
              "    case DLL_THREAD_DETACH: break;\n"
              "    case DLL_PROCESS_DETACH: break;\n"
@@ -177,16 +177,16 @@ MAIN_FILE = {
              "    UNREFERENCED_PARAMETER(hinstDLL);\n"
              "    UNREFERENCED_PARAMETER(lpvReserved);\n"
              "}}\n",
-    LINUX: "#include \"{package_type}.h\"\n\n"
+    LINUX: "#include \"{product_name}.h\"\n\n"
            "int _init(void)\n"
            "{{\n"
-           "    {package_type}Init();\n"
+           "    {prefix}Init();\n"
            "    return 1;\n"
            "}}\n\n"
            "void _fini(void)\n"
            "{{\n"
            "}}\n",
-    MACOSX: "#include \"{package_type}.h\"\n\n"
+    MACOSX: "#include \"{product_name}.h\"\n\n"
             "__attribute__((constructor)) void initializer( void )\n"
             "{{\n"
             "    static int initialized = 0;\n"
@@ -194,7 +194,7 @@ MAIN_FILE = {
             "    {{\n"
             "        initialized = 1;\n"
             "    }}\n\n"
-            "    {package_type}Init();\n"
+            "    {prefix}Init();\n"
             "    return;\n"
             "}}\n\n"
             "__attribute__((destructor)) void destructor()\n"
@@ -225,7 +225,8 @@ CUSTOM_DISPATCHER_FILE = '{include_lines}\n'\
                          '#endif\n\n'\
                          '#endif\n'
 
-RENAME_FORMAT = '#define {function} {prefix}{function}\n'
+RENAME_FORMAT = '\n\n{declaration}\n' \
+                '#define {function} {prefix}{function}'
 
 INCLUDE_STR = '#include "{header_name}"\n'
 
@@ -249,9 +250,17 @@ FUNCTION_DISPATCHER = '{ippapi}\n'\
                       '{ippfun}\n'\
                       '{{\n'\
                       '    Ipp64u _features;\n'\
-                      '    _features = {package_type}GetEnabledCpuFeatures();\n\n'\
+                      '    {get_features}\n\n'\
                       '{dispatching_scheme}'\
                       '}}\n\n'
+
+GET_FEATURES = {
+    IPP   : '_features = ippGetEnabledCpuFeatures();',
+    IPPCP : '_features = ippcpGetEnabledCpuFeatures();',
+    SPL   : 'ippspGetIppFeatures(&_features);',
+    IPL   : 'ippipGetIppFeatures(&_features);',
+    DTL   : 'ippdtGetIppFeatures(&_features);',
+}
 
 DISPATCHING_SCHEME_FORMAT = '    if( {cpuid}  == ( _features & {cpuid}  )) {{\n'\
                             '        return {function}( {args} );\n'\

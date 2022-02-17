@@ -119,20 +119,21 @@ IPP_OWN_DEFN(void, aes_cfb16_enc_vaes_mb16, (const Ipp8u* const source_pa[16], I
 	__mmask8 mbMask128[16] = { 0x03, 0x0C, 0x30, 0xC0, 0x03, 0x0C, 0x30, 0xC0, 0x03, 0x0C, 0x30, 0xC0, 0x03, 0x0C, 0x30, 0xC0 };
 	__mmask8 mbMask[16]    = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-	// - Local copy of length, soure and target pointers, maxLen calculation
+	// - Local copy of length, source and target pointers, maxLen calculation
 	for (i = 0; i < 16; i++) {
-		loc_src[i] = (Ipp8u*)source_pa[i];
-		loc_dst[i] = (Ipp8u*)dst_pa[i];
-		int len64 = arr_len[i] / (Ipp32s)sizeof(Ipp64u); // legth in 64-bit chunks
-		loc_len64[i] = len64;
-
 		// The case of the empty input buffer
 		if (arr_len[i] == 0)
 		{
 			mbMask128[i] = 0;
-			mbMask[i] = 0;
+			mbMask[i]    = 0;
+			loc_len64[i] = 0;
 			continue;
 		}
+
+		loc_src[i] = (Ipp8u*)source_pa[i];
+		loc_dst[i] = (Ipp8u*)dst_pa[i];
+		int len64 = arr_len[i] / (Ipp32s)sizeof(Ipp64u); // length in 64-bit chunks
+		loc_len64[i] = len64;
 
 		if (len64 < 8)
 			mbMask[i] = (__mmask8)(((1 << len64) - 1) & 0xFF);
@@ -165,6 +166,7 @@ IPP_OWN_DEFN(void, aes_cfb16_enc_vaes_mb16, (const Ipp8u* const source_pa[16], I
 	{
 		k = 0;
 		for (j = 0; j < 16; j += 4) {
+			tmpKeyMb = _mm512_setzero_si512();
 			tmpKeyMb = _mm512_mask_expandloadu_epi64(tmpKeyMb, mbMask128[j], (const void *)(enc_keys[j] + (Ipp32u)i * sizeof(Ipp32u)));
 			tmpKeyMb = _mm512_mask_expandloadu_epi64(tmpKeyMb, mbMask128[j + 1], (const void *)(enc_keys[j + 1] + (Ipp32u)i * sizeof(Ipp32u)));
 			tmpKeyMb = _mm512_mask_expandloadu_epi64(tmpKeyMb, mbMask128[j + 2], (const void *)(enc_keys[j + 2] + (Ipp32u)i * sizeof(Ipp32u)));

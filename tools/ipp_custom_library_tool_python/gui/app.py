@@ -32,8 +32,7 @@ from gui.controller import Controller
 class MainAppWindow(QMainWindow):
     def __init__(self):
         super(MainAppWindow, self).__init__()
-        self.setWindowIcon(QIcon('icon.ico'))
-        self.setWindowTitle('Intel(R) Integrated Performance Primitives Custom Library Tool')
+        self.setWindowTitle('Intel(R) Custom Library Tool')
 
         project_menu = self.menuBar()
 

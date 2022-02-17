@@ -76,6 +76,14 @@ IPPFUN(IppStatus, ippsAES_GCMDecrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len, I
    IPP_BAD_PTR2_RET(pSrc, pDst);
    IPP_BADARG_RET(len<0, ippStsLengthErr);
 
+   /* According to the NIST Special Publication 800-38D (Recommendation for GCM
+    * mode, p.5.2.1.1 Input Data) the input text shall be between 0 and 2^39-256
+    * bits. */
+   const Ipp64u MAX_TXT_LEN = ((Ipp64u)1 << 36) - 32; /* length in bytes */
+   IPP_BADARG_RET(((AESGCM_TXT_LEN(pState) > MAX_TXT_LEN - (Ipp64u)len) ||
+                  ((AESGCM_TXT_LEN(pState) + (Ipp64u)len) < (Ipp64u)len)),
+                  ippStsScaleRangeErr);
+
 #if (_IPP32E < _IPP32E_K0)
    /* get method */
    IppsAESSpec *pAES = AESGCM_CIPHER(pState);

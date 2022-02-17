@@ -90,18 +90,19 @@ IPP_OWN_DEFN (void, aes_cfb16_enc_vaes_mb8, (const Ipp8u* const source_pa[8], Ip
 	__mmask8 mbMask[8]    = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
     for (i = 0; i < 8; i++) {
-		loc_src[i] = (Ipp8u*)source_pa[i];
-		loc_dst[i] = (Ipp8u*)dst_pa[i];
-		int len64 = arr_len[i] / (Ipp32s)sizeof(Ipp64u); // legth in 64-bit chunks
-		loc_len64[i] = len64;
-
         // The case of the empty input buffer
         if (arr_len[i] == 0)
         {
-			mbMask128[i] = 0;
-            mbMask[i] = 0;
+            mbMask128[i] = 0;
+            mbMask[i]    = 0;
+            loc_len64[i] = 0;
             continue;
         }
+
+		loc_src[i] = (Ipp8u*)source_pa[i];
+		loc_dst[i] = (Ipp8u*)dst_pa[i];
+		int len64 = arr_len[i] / (Ipp32s)sizeof(Ipp64u); // length in 64-bit chunks
+		loc_len64[i] = len64;
 
 		if (len64 < 8)
 			mbMask[i] = (__mmask8)(((1 << len64) - 1) & 0xFF);

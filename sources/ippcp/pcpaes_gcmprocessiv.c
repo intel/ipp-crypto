@@ -69,6 +69,10 @@ IPPFUN(IppStatus, ippsAES_GCMProcessIV,(const Ipp8u* pIV, int ivLen, IppsAES_GCM
    /* test context validity */
    IPP_BADARG_RET(!AESGCM_VALID_ID(pState), ippStsContextMatchErr);
 
+   /* According to the NIST Special Publication 800-38D (Recommendation for GCM
+    * mode, p.5.2.1.1 Input Data) the IV shall be between 1 and 2^64 bits. */
+   IPP_BADARG_RET(((AESGCM_IV_LEN(pState) + (Ipp64u)ivLen) < (Ipp64u)ivLen), ippStsScaleRangeErr);
+
    IPP_BADARG_RET(!(GcmInit==AESGCM_STATE(pState) || GcmIVprocessing==AESGCM_STATE(pState)), ippStsBadArgErr);
 
    /* switch IVprocessing on */

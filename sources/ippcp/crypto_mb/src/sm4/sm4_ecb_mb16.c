@@ -16,6 +16,12 @@
 
 #include <internal/sm4/sm4_mb.h>
 #include <internal/rsa/ifma_rsa_arith.h>
+#include <internal/common/ifma_defs.h>
+
+static void sm4_ecb_incomplete_buff_mb16(const int8u* loc_inp[SM4_LINES], int8u* loc_out[SM4_LINES],
+                                         __m512i num_blocks, const __m512i* p_rk, const int sign,
+                                         __mmask16 mb_mask,
+                                         __m512i TMP[20]);
 
 void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int operation)
 {
@@ -38,7 +44,7 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
     const int sign = (operation == SM4_ENC) ? 1 : -1;
     const __m512i* p_rk = (operation == SM4_ENC) ? (const __m512i*)key_sched : ((const __m512i*)key_sched + (SM4_ROUNDS - 1));
 
-    __m512i TMP[20];
+    __ALIGN64 __m512i TMP[20];
 
     /* Generate the mask to process 4 blocks from each buffer */
     __mmask16 tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_set1_epi32(4), _MM_CMPINT_NLT);
@@ -140,12 +146,28 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_set1_epi32(4), _MM_CMPINT_NLT);
     }
 
+    /* compute incomplete buffer loading */
+    sm4_ecb_incomplete_buff_mb16(loc_inp, loc_out,
+                                 num_blocks, p_rk, sign,
+                                 mb_mask,
+                                 TMP);
+    /* clear local copy of sensitive data */
+    zero_mb8((int64u(*)[8])TMP, sizeof(TMP) / sizeof(TMP[0]));
+}
+
+// Disable optimization for VS19 (>= 19.27)
+OPTIMIZE_OFF_VS19
+
+static void sm4_ecb_incomplete_buff_mb16(const int8u* loc_inp[SM4_LINES], int8u* loc_out[SM4_LINES],
+                                         __m512i num_blocks, const __m512i* p_rk, const int sign,
+                                         __mmask16 mb_mask,
+                                         __m512i TMP[20]){
     /* Check if we have any data */
-    tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_setzero_si512(), _MM_CMPINT_NLE);
+    __mmask16 tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_setzero_si512(), _MM_CMPINT_NLE);
 
     while (tmp_mask) {
         /* Generate the array of masks for data loading. 0 - 4 blocks will be can load from each buffer - depend on the amount of remaining data */
-        __mmask8 block_mask[SM4_LINES];
+        __ALIGN64 __mmask8 block_mask[SM4_LINES];
 
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_set1_epi32(4), _MM_CMPINT_NLT);
         /* Will be loaded 4 blocks of data */
@@ -256,7 +278,8 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
         /* Check if we have any data */
         tmp_mask = _mm512_mask_cmp_epi32_mask(mb_mask, num_blocks, _mm512_setzero_si512(), _MM_CMPINT_NLE);
     }
-
-    /* clear local copy of sensitive data */
-    zero_mb8((int64u(*)[8])TMP, sizeof(TMP) / sizeof(TMP[0]));
+    return;
 }
+
+// Enable optimization for VS19 (>= 19.27)
+OPTIMIZE_ON_VS19

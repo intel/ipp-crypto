@@ -1,18 +1,18 @@
 /*******************************************************************************
-* Copyright 2013-2021 Intel Corporation
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*******************************************************************************/
+ * Copyright 2013-2021 Intel Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 
 /*
 //
@@ -26,24 +26,27 @@
 */
 
 #include "owncp.h"
-#include "pcpaesm.h"
 #include "pcpaes_encrypt_vaes512.h"
+#include "pcpaesm.h"
 
-#if (_IPP32E>=_IPP32E_K1)
+#if (_IPP32E >= _IPP32E_K1)
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
-#pragma warning(disable: 4310) // cast truncates constant value in MSVC
+#pragma warning(disable : 4310) // cast truncates constant value in MSVC
 #endif
 
-#define M512(mem)    (*((__m512i*)((Ipp8u*)(mem))))
+#define M512(mem) (*((__m512i *)((Ipp8u *)(mem))))
 
 /* Mask to convert 64-bit parts of four 128-bit numbers stored in one 512-bit register
  * from Little-Endian to Big-Endian */
+
+/* clang-format off */
 static __ALIGN32 Ipp8u swapBytes[] = {
    7, 6, 5, 4,  3, 2, 1, 0,  15,14,13,12, 11,10, 9, 8,
    23,22,21,20, 19,18,17,16, 31,30,29,28, 27,26,25,24,
    39,38,37,36, 35,34,33,32, 47,46,45,44, 43,42,41,40,
    55,54,53,52, 51,50,49,48, 63,62,61,60, 59,58,57,56
 };
+/* clang-format on */
 
 /* Increment masks for Hi-Lo 64-bit parts of 128-bit numbers in 512-bit register */
 static __ALIGN64 Ipp64u startIncLoMask[] = { 0x0, 0x0, 0x0, 0x1, 0x0, 0x2, 0x0, 0x3 };
@@ -72,7 +75,7 @@ __INLINE __m512i applyNonce(__m512i a, __m512i ctrBitMask, __m512i templateCtr)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/* clang-format off */
 IPP_OWN_DEFN (void, EncryptCTR_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,
                                                    Ipp8u* pDst,
                                                    int nr,
@@ -80,18 +83,19 @@ IPP_OWN_DEFN (void, EncryptCTR_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,
                                                    int length,         /* message length in bytes   */
                                                    Ipp8u* pCtrValue,
                                                    const Ipp8u* pCtrBitMask))
+/* clang-format on */
 {
    int cipherRounds = nr - 1;
 
-   __m128i* pKeys   = (__m128i*)pRKey;
-   __m512i* pSrc512 = (__m512i*)pSrc;
-   __m512i* pDst512 = (__m512i*)pDst;
+   __m128i *pKeys   = (__m128i *)pRKey;
+   __m512i *pSrc512 = (__m512i *)pSrc;
+   __m512i *pDst512 = (__m512i *)pDst;
 
-   Ipp64u* pCtr64    = (Ipp64u*)pCtrValue;
+   Ipp64u *pCtr64 = (Ipp64u *)pCtrValue;
 
    // Initial counter
-   __m128i initialCtr128  = _mm_maskz_loadu_epi64(0x03, pCtrValue);
-   __m128i ctrBitMask128  = _mm_maskz_loadu_epi64(0x03, pCtrBitMask);
+   __m128i initialCtr128 = _mm_maskz_loadu_epi64(0x03, pCtrValue);
+   __m128i ctrBitMask128 = _mm_maskz_loadu_epi64(0x03, pCtrBitMask);
    // Unchanged counter part
    __m128i templateCtr128 = _mm_maskz_andnot_epi64(0x03 /* all 128-bits */, ctrBitMask128, initialCtr128);
 
@@ -101,11 +105,12 @@ IPP_OWN_DEFN (void, EncryptCTR_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,
    Ipp64u ctr64_h = ENDIANNESS64(pCtr64[0]); // high 64-bit of BE counter converted to LE
    Ipp64u ctr64_l = ENDIANNESS64(pCtr64[1]); // low 64-bit of BE counter converted to LE
 
-   __m512i ctr512 = _mm512_set4_epi64((Ipp64s)ctr64_l, (Ipp64s)ctr64_h, (Ipp64s)ctr64_l , (Ipp64s)ctr64_h);
+   __m512i ctr512 = _mm512_set4_epi64((Ipp64s)ctr64_l, (Ipp64s)ctr64_h, (Ipp64s)ctr64_l, (Ipp64s)ctr64_h);
 
-   int blocks;
+   // int blocks;
+   int remainded_length;
    __m512i incMsk = M512(startIncLoMask);
-   for (blocks = length / MBS_RIJ128; blocks >= (4 * 4); blocks -= (4 * 4)) {
+   for (remainded_length = length; remainded_length >= (4 * 4 * MBS_RIJ128); remainded_length -= (4 * 4 * MBS_RIJ128)) {
       __m512i counter0 = adcLo_epi64(incMsk, ctr512);
       __m512i counter1 = adcLo_epi64(M512(nextIncLoMask), counter0);
       __m512i counter2 = adcLo_epi64(M512(nextIncLoMask), counter1);
@@ -141,7 +146,7 @@ IPP_OWN_DEFN (void, EncryptCTR_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,
       pDst512 += 4;
    }
 
-   if ((3 * 4) <= blocks) {
+   if ((3 * 4 * MBS_RIJ128) <= remainded_length) {
       __m512i counter0 = adcLo_epi64(incMsk, ctr512);
       __m512i counter1 = adcLo_epi64(M512(nextIncLoMask), counter0);
       __m512i counter2 = adcLo_epi64(M512(nextIncLoMask), counter1);
@@ -170,10 +175,10 @@ IPP_OWN_DEFN (void, EncryptCTR_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,
 
       pSrc512 += 3;
       pDst512 += 3;
-      blocks -= (3 * 4);
+      remainded_length -= (3 * 4 * MBS_RIJ128);
    }
 
-   if ((4 * 2) <= blocks) {
+   if ((4 * 2 * MBS_RIJ128) <= remainded_length) {
       __m512i counter0 = adcLo_epi64(incMsk, ctr512);
       __m512i counter1 = adcLo_epi64(M512(nextIncLoMask), counter0);
 
@@ -197,10 +202,10 @@ IPP_OWN_DEFN (void, EncryptCTR_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,
 
       pSrc512 += 2;
       pDst512 += 2;
-      blocks -= (2 * 4);
+      remainded_length -= (2 * 4 * MBS_RIJ128);
    }
 
-   for (; blocks >= 4; blocks -= 4) {
+   for (; remainded_length >= 4 * MBS_RIJ128; remainded_length -= 4 * MBS_RIJ128) {
       __m512i counter0 = adcLo_epi64(incMsk, ctr512);
 
       incMsk = M512(nextIncLoMask);
@@ -212,19 +217,16 @@ IPP_OWN_DEFN (void, EncryptCTR_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,
       cpAESEncrypt1_VAES_NI(&counter0, pKeys, cipherRounds);
 
       __m512i blk0 = _mm512_loadu_si512(pSrc512);
-      blk0 = _mm512_xor_si512(blk0, counter0);
+      blk0         = _mm512_xor_si512(blk0, counter0);
       _mm512_storeu_si512(pDst512, blk0);
 
       pSrc512 += 1;
       pDst512 += 1;
    }
 
-   if (blocks) {
-      __mmask8 k8   = (__mmask8)((1 << (blocks + blocks)) - 1);   // 64-bit chunks
-      __mmask64 k64 = (__mmask64)((1LL << (blocks << 4)) - 1);     // 8-bit chunks
-
-      __m512i counter0 = _mm512_maskz_add_epi64(k8, incMsk, ctr512);
-      __mmask8 overMsk = _mm512_mask_cmplt_epu64_mask(k8, counter0, ctr512);
+   if (remainded_length) {
+      __m512i counter0 = _mm512_add_epi64(incMsk, ctr512);
+      __mmask8 overMsk = _mm512_cmplt_epu64_mask(counter0, ctr512);
       overMsk <<= 1;
       counter0 = _mm512_mask_add_epi64(counter0, overMsk, counter0, M512(incHiByOneMask));
 
@@ -232,20 +234,23 @@ IPP_OWN_DEFN (void, EncryptCTR_RIJ128pipe_VAES_NI, (const Ipp8u* pSrc,
       ctr512 = counter0;
 
       // convert back to BE and add nonce
-      counter0 = _mm512_maskz_shuffle_epi8(k64, counter0, M512(swapBytes));
-      counter0 = _mm512_maskz_and_epi64(k8, counter0, ctrBitMask512);
-      counter0 = _mm512_maskz_or_epi64(k8, counter0, templateCtr512);
+      counter0 = _mm512_shuffle_epi8(counter0, M512(swapBytes));
+      counter0 = _mm512_and_epi64(counter0, ctrBitMask512);
+      counter0 = _mm512_or_epi64(counter0, templateCtr512);
 
       cpAESEncrypt1_VAES_NI(&counter0, pKeys, cipherRounds);
 
-      __m512i blk0 = _mm512_maskz_loadu_epi64(k8, pSrc512);
-      blk0 = _mm512_maskz_xor_epi64(k8, blk0, counter0);
-      _mm512_mask_storeu_epi64(pDst512, k8, blk0);
+      __mmask64 rw_mask = (__mmask64)((1LL << remainded_length) - 1);
+
+      __m512i blk0 = _mm512_maskz_loadu_epi8(rw_mask, pSrc512);
+      blk0         = _mm512_xor_si512(blk0, counter0);
+      _mm512_mask_storeu_epi8(pDst512, rw_mask, blk0);
    }
 
    // return last counter
-   __mmask8  lastCtrK8  = blocks == 0 ? 0xC0 : (__mmask8)((Ipp8u)0x03<<((blocks-1)<<1));
-   __mmask64 lastCtrK64 = blocks == 0 ? 0xFFFF000000000000 : (__mmask64)((Ipp64u)0xFFFF<<((blocks-1)<<4));
+   int blocks           = remainded_length % MBS_RIJ128 == 0 ? remainded_length / MBS_RIJ128 : (remainded_length / MBS_RIJ128) + 1;
+   __mmask8 lastCtrK8   = blocks == 0 ? 0xC0 : (__mmask8)((Ipp8u)0x03 << ((blocks - 1) << 1));
+   __mmask64 lastCtrK64 = blocks == 0 ? 0xFFFF000000000000 : (__mmask64)((Ipp64u)0xFFFF << ((blocks - 1) << 4));
 
    ctr512 = adcLo_epi64(M512(incLoByOneMask), ctr512);
 

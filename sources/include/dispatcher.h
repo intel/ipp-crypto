@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-// 
+//
 // Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
 //
 
@@ -129,7 +129,7 @@ extern "C" {
     #define LIB_SSE42 LIB_P8
     #define LIB_AVX   LIB_G9
     #define LIB_AVX2  LIB_H9
-    #define LIB_AVX3M LIB_H9 /* no ia32 library for Intel® Xeon Phi(TM) processor (formerly Knight Landing) */
+    #define LIB_AVX3M LIB_H9 /* no ia32 library for Intel® Xeon® Phi(TM) processor (formerly Knight Landing) */
     #define LIB_AVX3X LIB_H9 /* no ia32 library for Intel® Xeon® processor (formerly Skylake) */
     #define LIB_AVX3I LIB_H9 /* no ia32 library for Intel® Xeon® processor (formerly Icelake) */
 #else
@@ -143,7 +143,7 @@ extern "C" {
     #define LIB_SSE42 LIB_P8
     #define LIB_AVX   LIB_G9
     #define LIB_AVX2  LIB_H9
-    #define LIB_AVX3M LIB_H9 /* no ia32 library for Intel® Xeon Phi(TM) processor (formerly Knight Landing) */
+    #define LIB_AVX3M LIB_H9 /* no ia32 library for Intel® Xeon® Phi(TM) processor (formerly Knight Landing) */
     #define LIB_AVX3X LIB_H9 /* no ia32 library for Intel® Xeon® processor (formerly Skylake) */
     #define LIB_AVX3I LIB_H9 /* no ia32 library for Intel® Xeon® processor (formerly Icelake) */
 #endif

@@ -200,4 +200,5 @@ class SettingsPanel(QWidget):
             group.setEnabled(False)
 
     def get_formatted_button_name(self, button):
-        return re.sub('[^\w-]', '', button.text().lower())
+        button_name = button.text().replace('(R)', '')
+        return re.sub('[^\w-]', '', button_name.lower())

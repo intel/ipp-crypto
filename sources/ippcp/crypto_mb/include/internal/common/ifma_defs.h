@@ -28,6 +28,15 @@
    #define DLL_LOCAL
 #endif
 
+/* define optimization on/off VS2019 (>= 19.27) */
+#if defined(_MSC_VER) && (_MSC_VER >= 1927) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER)
+   #define OPTIMIZE_OFF_VS19 _Pragma("optimize( \"\", off )")
+   #define OPTIMIZE_ON_VS19  _Pragma("optimize( \"\", on  )")
+#else
+   #define OPTIMIZE_OFF_VS19
+   #define OPTIMIZE_ON_VS19
+#endif
+
 /* define SIMD_LEN if not set (Default is 512 bit AVX) */
 #ifndef SIMD_LEN
   #define SIMD_LEN 512

@@ -337,7 +337,7 @@ typedef enum {
 #define   ippCPUID_MPX             0x10000000   /* Intel® Memory Protection Extensions                                       */
 #define   ippCPUID_AVX512_4FMADDPS 0x20000000   /* Intel® Advanced Vector Extensions 512 DL floating-point single precision  */
 #define   ippCPUID_AVX512_4VNNIW   0x40000000   /* Intel® Advanced Vector Extensions 512 DL enhanced word variable precision */
-#define   ippCPUID_KNC             0x80000000   /* Intel® Xeon Phi(TM) Coprocessor                                           */
+#define   ippCPUID_KNC             0x80000000   /* Intel® Xeon® Phi(TM) Coprocessor                                           */
 #if defined( _WIN32 ) || defined ( _WIN64 )
   #define INT64_SUFFIX(name) name##L
 #else

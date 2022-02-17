@@ -14,13 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-/* 
-// 
+/*
+//
 //  Purpose:
 //     Cryptography Primitive.
 //     Security Hash Standard
 //     General Functionality
-// 
+//
 //  Contents:
 //        cpInitHash()
 //
@@ -37,7 +37,7 @@ IPP_OWN_DEFN (int, cpInitHash, (IppsHashState* pCtx, IppHashAlgId algID))
    /* setup default processing function */
    HASH_FUNC(pCtx) = cpHashProcFunc[algID];
 
-   /* update default processing function if SHA-NI enabled */
+   /* update default processing function if Intel® Secure Hash Algorithm - New Instructions (Intel® SHA-NI) enabled */
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
    if( IsFeatureEnabled(ippCPUID_SHA) ) {
 
