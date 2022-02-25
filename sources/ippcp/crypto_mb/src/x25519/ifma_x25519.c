@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2021 Intel Corporation
+* Copyright 2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -199,7 +199,7 @@ __INLINE void ed25519_sqr(U64 out[], const U64 a[]) {
     r##I = and64_const(r##I, (1ULL << 52) - 1);
 
 
-void MB_FUNC_NAME(ed25519_sqr_latency_)(U64 out[], const U64 a[], int count) {
+static void MB_FUNC_NAME(ed25519_sqr_latency_)(U64 out[], const U64 a[], int count) {
     U64 r0, r1, r2, r3, r4, r5, r6, r7, r8, r9;
     U64 a0, a1, a2, a3, a4;
     U64 r4_1;

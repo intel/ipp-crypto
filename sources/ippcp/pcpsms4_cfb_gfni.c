@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 * All Rights Reserved.
 *
 * If this  software was obtained  under the  Intel Simplified  Software License,

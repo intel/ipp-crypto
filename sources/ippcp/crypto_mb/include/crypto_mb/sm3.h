@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ struct _sm3_context_mb16 {
     int             msg_buff_idx[SM3_NUM_BUFFERS];                      /*              buffer entry             */
     int64u          msg_len[SM3_NUM_BUFFERS];                           /*              message length           */
     int8u           msg_buffer[SM3_NUM_BUFFERS][SM3_MSG_BLOCK_SIZE];    /*                  buffer               */
+    __ALIGN64
     sm3_hash_mb     msg_hash;                                           /*             intermediate hash         */
 };
 

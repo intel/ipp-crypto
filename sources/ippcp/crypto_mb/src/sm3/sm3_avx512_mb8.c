@@ -67,12 +67,12 @@
 }
 
 
-void sm3_avx512_mb8(int32u* hash_pa[8], const int8u* msg_pa[8], int len[8])
+void sm3_avx512_mb8(int32u hash_pa[][8], const int8u* msg_pa[8], int len[8])
 {
     int i;
 
-    int32u* loc_data[SM3_NUM_BUFFERS8];
-    int loc_len[SM3_NUM_BUFFERS8];
+    __ALIGN64 int32u* loc_data[SM3_NUM_BUFFERS8];
+    __ALIGN64 int loc_len[SM3_NUM_BUFFERS8];
 
     __m256i W[16];
     int32u* p_W[16] = { (int32u*)&W[0], (int32u*)&W[1], (int32u*)&W[2],  (int32u*)&W[3],  (int32u*)&W[4],  (int32u*)&W[5],  (int32u*)&W[6],  (int32u*)&W[7],
@@ -94,13 +94,13 @@ void sm3_avx512_mb8(int32u* hash_pa[8], const int8u* msg_pa[8], int len[8])
 
     /* Load hash value */
     A = _mm256_loadu_si256((__m256i*)hash_pa);
-    B = _mm256_loadu_si256((__m256i*)(hash_pa + 1 * SM3_SIZE_IN_WORDS/2));
-    C = _mm256_loadu_si256((__m256i*)(hash_pa + 2 * SM3_SIZE_IN_WORDS/2));
-    D = _mm256_loadu_si256((__m256i*)(hash_pa + 3 * SM3_SIZE_IN_WORDS/2));
-    E = _mm256_loadu_si256((__m256i*)(hash_pa + 4 * SM3_SIZE_IN_WORDS/2));
-    F = _mm256_loadu_si256((__m256i*)(hash_pa + 5 * SM3_SIZE_IN_WORDS/2));
-    G = _mm256_loadu_si256((__m256i*)(hash_pa + 6 * SM3_SIZE_IN_WORDS/2));
-    H = _mm256_loadu_si256((__m256i*)(hash_pa + 7 * SM3_SIZE_IN_WORDS/2));
+    B = _mm256_loadu_si256((__m256i*)(hash_pa + 1));
+    C = _mm256_loadu_si256((__m256i*)(hash_pa + 2));
+    D = _mm256_loadu_si256((__m256i*)(hash_pa + 3));
+    E = _mm256_loadu_si256((__m256i*)(hash_pa + 4));
+    F = _mm256_loadu_si256((__m256i*)(hash_pa + 5));
+    G = _mm256_loadu_si256((__m256i*)(hash_pa + 6));
+    H = _mm256_loadu_si256((__m256i*)(hash_pa + 7));
 
     /* Loop over the message */
     while (mb_mask){
@@ -207,13 +207,13 @@ void sm3_avx512_mb8(int32u* hash_pa[8], const int8u* msg_pa[8], int len[8])
         H = _mm256_mask_xor_epi32(Vi[7], mb_mask, H, Vi[7]);
 
         _mm256_storeu_si256((__m256i*)hash_pa, A);
-        _mm256_storeu_si256((__m256i*)(hash_pa + 1 * SM3_SIZE_IN_WORDS/2), B);
-        _mm256_storeu_si256((__m256i*)(hash_pa + 2 * SM3_SIZE_IN_WORDS/2), C);
-        _mm256_storeu_si256((__m256i*)(hash_pa + 3 * SM3_SIZE_IN_WORDS/2), D);
-        _mm256_storeu_si256((__m256i*)(hash_pa + 4 * SM3_SIZE_IN_WORDS/2), E);
-        _mm256_storeu_si256((__m256i*)(hash_pa + 5 * SM3_SIZE_IN_WORDS/2), F);
-        _mm256_storeu_si256((__m256i*)(hash_pa + 6 * SM3_SIZE_IN_WORDS/2), G);
-        _mm256_storeu_si256((__m256i*)(hash_pa + 7 * SM3_SIZE_IN_WORDS/2), H);
+        _mm256_storeu_si256((__m256i*)(hash_pa + 1), B);
+        _mm256_storeu_si256((__m256i*)(hash_pa + 2), C);
+        _mm256_storeu_si256((__m256i*)(hash_pa + 3), D);
+        _mm256_storeu_si256((__m256i*)(hash_pa + 4), E);
+        _mm256_storeu_si256((__m256i*)(hash_pa + 5), F);
+        _mm256_storeu_si256((__m256i*)(hash_pa + 6), G);
+        _mm256_storeu_si256((__m256i*)(hash_pa + 7), H);
  
         /* Update pointers to data, local  lengths and mask */
         M512(loc_data) = _mm512_mask_add_epi64(_mm512_set1_epi64((long long)&zero_buffer), (__mmask8)mb_mask, _mm512_loadu_si512(loc_data), _mm512_set1_epi64(SM3_MSG_BLOCK_SIZE));

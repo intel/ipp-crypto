@@ -19,8 +19,8 @@
 
 void sm4_cfb128_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask)
 {
-    const int8u* loc_inp[SM4_LINES];
-    int8u* loc_out[SM4_LINES];
+    __ALIGN64 const int8u* loc_inp[SM4_LINES];
+    __ALIGN64 int8u* loc_out[SM4_LINES];
 
     /* Get the copy of input data lengths in bytes */
     __m512i loc_len = _mm512_loadu_si512(len);

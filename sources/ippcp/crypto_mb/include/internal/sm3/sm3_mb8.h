@@ -37,6 +37,7 @@ struct _sm3_context_mb8 {
     int             msg_buff_idx[SM3_NUM_BUFFERS8];                       /*              buffer entry             */
     int64u          msg_len[SM3_NUM_BUFFERS8];                            /*              message length           */
     int8u           msg_buffer[SM3_NUM_BUFFERS8][SM3_MSG_BLOCK_SIZE];     /*                  buffer               */
+    __ALIGN64
     sm3_hash_mb8    msg_hash;                                             /*             intermediate hash         */
 };
 
@@ -51,7 +52,7 @@ EXTERN_C mbx_status sm3_update_mb8(const int8u* msg_pa[8], int len[8], SM3_CTX_m
 EXTERN_C mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state);
 EXTERN_C mbx_status sm3_msg_digest_mb8(const int8u* msg_pa[8], int len[8], int8u* hash_pa[8]);
 
-EXTERN_C void sm3_avx512_mb8(int32u* hash_pa[8], const int8u* msg_pa[8], int len[8]);
+EXTERN_C void sm3_avx512_mb8(int32u hash_pa[][8], const int8u* msg_pa[8], int len[8]);
 EXTERN_C void sm3_mask_init_mb8(SM3_CTX_mb8 * p_state, __mmask8 mb_mask);
 
 #endif /* _SM3_MB8_H */

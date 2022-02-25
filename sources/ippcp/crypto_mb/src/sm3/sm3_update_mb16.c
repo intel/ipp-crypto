@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ mbx_status16 mbx_sm3_update_mb16(const int8u* msg_pa[16],
 
     /* handle non empty request */
     if (mb_mask16) {
-        int8u* loc_src[SM3_NUM_BUFFERS];
+        __ALIGN64 int8u* loc_src[SM3_NUM_BUFFERS];
         _mm512_storeu_si512(loc_src, _mm512_mask_loadu_epi64(_mm512_set1_epi64((long long)&zero_buffer), mb_mask8[0], msg_pa));
         _mm512_storeu_si512(loc_src + 8, _mm512_mask_loadu_epi64(_mm512_set1_epi64((long long)&zero_buffer), mb_mask8[1], msg_pa + 8));
 
@@ -68,11 +68,13 @@ mbx_status16 mbx_sm3_update_mb16(const int8u* msg_pa[16],
         int* p_proc_len = (int*)&proc_len;
         int* p_idx = (int*)&idx;
 
+        __ALIGN64
         int64u sum_msg_len[SM3_NUM_BUFFERS] = { (int64u)p_loc_len[0],  (int64u)p_loc_len[1],  (int64u)p_loc_len[2],  (int64u)p_loc_len[3],
                                                 (int64u)p_loc_len[4],  (int64u)p_loc_len[5],  (int64u)p_loc_len[6],  (int64u)p_loc_len[7],
                                                 (int64u)p_loc_len[8],  (int64u)p_loc_len[9],  (int64u)p_loc_len[10], (int64u)p_loc_len[11],
                                                 (int64u)p_loc_len[12], (int64u)p_loc_len[13], (int64u)p_loc_len[14], (int64u)p_loc_len[15] };
 
+        __ALIGN64
         int8u* p_buffer[SM3_NUM_BUFFERS]    = { HASH_BUFF(p_state)[0],  HASH_BUFF(p_state)[1],  HASH_BUFF(p_state)[2],  HASH_BUFF(p_state)[3],
                                                 HASH_BUFF(p_state)[4],  HASH_BUFF(p_state)[5],  HASH_BUFF(p_state)[6],  HASH_BUFF(p_state)[7],
                                                 HASH_BUFF(p_state)[8],  HASH_BUFF(p_state)[9],  HASH_BUFF(p_state)[10], HASH_BUFF(p_state)[11],
@@ -109,7 +111,7 @@ mbx_status16 mbx_sm3_update_mb16(const int8u* msg_pa[16],
 
             /* update digest if at least one buffer is full */
             if (processed_mask) {
-                sm3_avx512_mb16((int32u**)HASH_VALUE(p_state), (const int8u**)p_buffer, p_proc_len);
+                sm3_avx512_mb16(HASH_VALUE(p_state), (const int8u**)p_buffer, p_proc_len);
                 idx = _mm512_mask_set1_epi32(idx, ~_mm512_cmp_epi32_mask(proc_len, zero_buffer, _MM_CMPINT_LE), 0);
             }
         }
@@ -119,7 +121,7 @@ mbx_status16 mbx_sm3_update_mb16(const int8u* msg_pa[16],
         processed_mask = _mm512_cmp_epi32_mask(proc_len, zero_buffer, _MM_CMPINT_NLT);
 
         if (processed_mask)
-            sm3_avx512_mb16((int32u**)HASH_VALUE(p_state), (const int8u**)loc_src, p_proc_len);
+            sm3_avx512_mb16(HASH_VALUE(p_state), (const int8u**)loc_src, p_proc_len);
 
         loc_len = _mm512_sub_epi32(loc_len, proc_len);
 

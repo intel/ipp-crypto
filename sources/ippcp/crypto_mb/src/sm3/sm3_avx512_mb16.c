@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -173,12 +173,12 @@ __INLINE void TRANSPOSE_16X16_I32(int32u out[][16], const int32u* inp[16])
 }
 
 
-void sm3_avx512_mb16(int32u* hash_pa[16], const int8u* msg_pa[16], int len[16])
+void sm3_avx512_mb16(int32u hash_pa[][16], const int8u* msg_pa[16], int len[16])
 {
     int i;
 
-    int32u* loc_data[SM3_NUM_BUFFERS];
-    int loc_len[SM3_NUM_BUFFERS];
+    __ALIGN64 int32u* loc_data[SM3_NUM_BUFFERS];
+    __ALIGN64 int loc_len[SM3_NUM_BUFFERS];
 
     __m512i W[16];
     __m512i Vi[8];
@@ -198,13 +198,13 @@ void sm3_avx512_mb16(int32u* hash_pa[16], const int8u* msg_pa[16], int len[16])
 
     /* Load hash value */
     A = _mm512_loadu_si512(hash_pa);
-    B = _mm512_loadu_si512(hash_pa + 1 * SM3_SIZE_IN_WORDS);
-    C = _mm512_loadu_si512(hash_pa + 2 * SM3_SIZE_IN_WORDS);
-    D = _mm512_loadu_si512(hash_pa + 3 * SM3_SIZE_IN_WORDS);
-    E = _mm512_loadu_si512(hash_pa + 4 * SM3_SIZE_IN_WORDS);
-    F = _mm512_loadu_si512(hash_pa + 5 * SM3_SIZE_IN_WORDS);
-    G = _mm512_loadu_si512(hash_pa + 6 * SM3_SIZE_IN_WORDS);
-    H = _mm512_loadu_si512(hash_pa + 7 * SM3_SIZE_IN_WORDS);
+    B = _mm512_loadu_si512(hash_pa + 1);
+    C = _mm512_loadu_si512(hash_pa + 2);
+    D = _mm512_loadu_si512(hash_pa + 3);
+    E = _mm512_loadu_si512(hash_pa + 4);
+    F = _mm512_loadu_si512(hash_pa + 5);
+    G = _mm512_loadu_si512(hash_pa + 6);
+    H = _mm512_loadu_si512(hash_pa + 7);
 
     /* Loop over the message */
     while (mb_mask){
@@ -311,17 +311,17 @@ void sm3_avx512_mb16(int32u* hash_pa[16], const int8u* msg_pa[16], int len[16])
         H = _mm512_mask_xor_epi32(Vi[7], mb_mask, H, Vi[7]);
 
         _mm512_storeu_si512(hash_pa, A);
-        _mm512_storeu_si512(hash_pa + 1 * SM3_SIZE_IN_WORDS, B);
-        _mm512_storeu_si512(hash_pa + 2 * SM3_SIZE_IN_WORDS, C);
-        _mm512_storeu_si512(hash_pa + 3 * SM3_SIZE_IN_WORDS, D);
-        _mm512_storeu_si512(hash_pa + 4 * SM3_SIZE_IN_WORDS, E);
-        _mm512_storeu_si512(hash_pa + 5 * SM3_SIZE_IN_WORDS, F);
-        _mm512_storeu_si512(hash_pa + 6 * SM3_SIZE_IN_WORDS, G);
-        _mm512_storeu_si512(hash_pa + 7 * SM3_SIZE_IN_WORDS, H);
+        _mm512_storeu_si512(hash_pa + 1, B);
+        _mm512_storeu_si512(hash_pa + 2, C);
+        _mm512_storeu_si512(hash_pa + 3, D);
+        _mm512_storeu_si512(hash_pa + 4, E);
+        _mm512_storeu_si512(hash_pa + 5, F);
+        _mm512_storeu_si512(hash_pa + 6, G);
+        _mm512_storeu_si512(hash_pa + 7, H);
  
         /* Update pointers to data, local  lengths and mask */
-        M512(loc_data) = _mm512_mask_add_epi64(_mm512_set1_epi64((long long)&zero_buffer), (__mmask8)mb_mask, _mm512_loadu_si512(loc_data), _mm512_set1_epi64(SM3_MSG_BLOCK_SIZE));
-        M512(loc_data + 8) = _mm512_mask_add_epi64(_mm512_set1_epi64((long long)&zero_buffer), *((__mmask8*)&mb_mask + 1), _mm512_loadu_si512(loc_data+8), _mm512_set1_epi64(SM3_MSG_BLOCK_SIZE));
+        _mm512_storeu_si512(loc_data, _mm512_mask_add_epi64(_mm512_set1_epi64((long long)&zero_buffer), (__mmask8)mb_mask, _mm512_loadu_si512(loc_data), _mm512_set1_epi64(SM3_MSG_BLOCK_SIZE)));
+        _mm512_storeu_si512(loc_data + 8, _mm512_mask_add_epi64(_mm512_set1_epi64((long long)&zero_buffer), *((__mmask8*)&mb_mask + 1), _mm512_loadu_si512(loc_data+8), _mm512_set1_epi64(SM3_MSG_BLOCK_SIZE)));
 
         M512(loc_len) = _mm512_mask_sub_epi32(zero_buffer, mb_mask, _mm512_loadu_si512(loc_len), _mm512_set1_epi32(SM3_MSG_BLOCK_SIZE));
         mb_mask = _mm512_cmp_epi32_mask(_mm512_loadu_si512(loc_len), zero_buffer, _MM_CMPINT_NLE);

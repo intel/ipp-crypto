@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
         return status;
     }
 
-    int input_len[SM3_NUM_BUFFERS];
-    int buffer_len[SM3_NUM_BUFFERS];
-    int64u sum_msg_len[SM3_NUM_BUFFERS];
+    __ALIGN64 int input_len[SM3_NUM_BUFFERS];
+    __ALIGN64 int buffer_len[SM3_NUM_BUFFERS];
+    __ALIGN64 int64u sum_msg_len[SM3_NUM_BUFFERS];
 
     /* allocate local buffer */
     __ALIGN64 int8u loc_buffer[SM3_NUM_BUFFERS][SM3_MSG_BLOCK_SIZE*2];
@@ -85,11 +85,11 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     }
 
     /* Copmplete hash computation */
-    sm3_avx512_mb16((int32u**)HASH_VALUE(p_state), (const int8u**)buffer_pa, buffer_len);
+    sm3_avx512_mb16(HASH_VALUE(p_state), (const int8u**)buffer_pa, buffer_len);
     
     /* Convert hash into big endian */
     __m512i T[8];
-    int32u* p_T[8] = { (int32u*)&T[0], (int32u*)&T[1], (int32u*)&T[2], (int32u*)&T[3], (int32u*)&T[4], (int32u*)&T[5], (int32u*)&T[6], (int32u*)&T[7] };
+    const int32u* p_T[8] = { (int32u*)&T[0], (int32u*)&T[1], (int32u*)&T[2], (int32u*)&T[3], (int32u*)&T[4], (int32u*)&T[5], (int32u*)&T[6], (int32u*)&T[7] };
 
     T[0]  = SIMD_ENDIANNESS32(_mm512_loadu_si512(HASH_VALUE(p_state)[0]));
     T[1]  = SIMD_ENDIANNESS32(_mm512_loadu_si512(HASH_VALUE(p_state)[1]));

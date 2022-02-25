@@ -31,9 +31,9 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
         return status;
     }
 
-    int input_len[SM3_NUM_BUFFERS8];
-    int buffer_len[SM3_NUM_BUFFERS8];
-    int64u sum_msg_len[SM3_NUM_BUFFERS8];
+    __ALIGN64 int input_len[SM3_NUM_BUFFERS8];
+    __ALIGN64 int buffer_len[SM3_NUM_BUFFERS8];
+    __ALIGN64 int64u sum_msg_len[SM3_NUM_BUFFERS8];
 
     /* allocate local buffer */
     __ALIGN64 int8u loc_buffer[SM3_NUM_BUFFERS8][SM3_MSG_BLOCK_SIZE*2];
@@ -72,7 +72,7 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
     }
 
     /* Copmplete hash computation */
-    sm3_avx512_mb8((int32u**)HASH_VALUE(p_state), (const int8u**)buffer_pa, buffer_len);
+    sm3_avx512_mb8(HASH_VALUE(p_state), (const int8u**)buffer_pa, buffer_len);
     
     /* Convert hash into big endian */
     __m256i T[8];

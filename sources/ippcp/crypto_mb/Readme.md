@@ -37,6 +37,8 @@ This library consists of highly-optimized kernels taking advantage of Intel’s 
 
 - Intel® C++ Compiler Classic 2021.3 for Windows\* OS
 - Microsoft Visual C++ Compiler\* version 19.24 provided by Microsoft Visual Studio\* 2019 version 16.4
+- Microsoft Visual C++ Compiler\* version 19.30 provided by Microsoft Visual Studio\* 2022 version 17.0
+> **NOTE:** [CMake\*](https://cmake.org/download) 3.21 or higher is required to build using Microsoft Visual Studio\* 2022.
 
 ### macOS*
 

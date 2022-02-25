@@ -154,8 +154,8 @@ __INLINE __m128i IncBlock128(__m128i x, int32u increment)
 
 void sm4_ctr128_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int8u* pa_ctr[SM4_LINES])
 {
-    const int8u* loc_inp[SM4_LINES];
-    int8u* loc_out[SM4_LINES];
+    __ALIGN64 const int8u* loc_inp[SM4_LINES];
+    __ALIGN64 int8u* loc_out[SM4_LINES];
 
     /* Create the local copy of the input data length in bytes and set it to zero for non-valid buffers */
     __m512i loc_len;

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2021 Intel Corporation
+* Copyright 2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ typedef struct {
 
 /*
 // Intel(r) Architecture Instruction Set Extension and Future Features.
-// Programmomg Reference. 319433-038, March 2020
+// Programming Reference. 319433-038, March 2020
 // see Table 1-5, Table 1-6
 */
 static const cpu_feature_map cpu_feature_detector_1_0[] = {
@@ -242,9 +242,48 @@ int mbx_is_crypto_mb_applicable(int64u cpu_features)
    return (CRYPTO_MB_REQUIRED_CPU_FEATURES == (features & CRYPTO_MB_REQUIRED_CPU_FEATURES));
 }
 
+/* structure for determining the number of buffers(WIDTH) for the algorithm */
+typedef struct {
+   enum MBX_ALGO algo;
+   enum MBX_WIDTH width;
+} algo_width_map;
+
+/* clang-config off */
+static const algo_width_map arr_algo_width[] = {
+   { MBX_ALGO_RSA_1K,       MBX_WIDTH_MB8  },
+   { MBX_ALGO_RSA_2K,       MBX_WIDTH_MB8  },
+   { MBX_ALGO_RSA_3K,       MBX_WIDTH_MB8  },
+   { MBX_ALGO_RSA_4K,       MBX_WIDTH_MB8  },
+   { MBX_ALGO_X25519,       MBX_WIDTH_MB8  },
+   { MBX_ALGO_EC_NIST_P256, MBX_WIDTH_MB8  },
+   { MBX_ALGO_EC_NIST_P384, MBX_WIDTH_MB8  },
+   { MBX_ALGO_EC_NIST_P521, MBX_WIDTH_MB8  },
+   { MBX_ALGO_EC_SM2,       MBX_WIDTH_MB8  },
+   { MBX_ALGO_SM3,          MBX_WIDTH_MB16 },
+   { MBX_ALGO_SM4,          MBX_WIDTH_MB16 }
+};
+/* clang-config on */
+
 DLL_PUBLIC
 MBX_ALGO_INFO mbx_get_algo_info(enum MBX_ALGO algo)
 {
-    int mbx_mb_applicable = mbx_is_crypto_mb_applicable(0);
-    return (0 != mbx_mb_applicable) ? MBX_WIDTH_MB8 : 0;
+   const int mbx_mb_applicable = mbx_is_crypto_mb_applicable(0);
+
+   int num_width = 0;
+   /* check CPU feature */
+   if (0 == mbx_mb_applicable) {
+      return num_width;
+   }
+   const int num_tbl = sizeof(arr_algo_width) / sizeof(algo_width_map);
+
+   const algo_width_map *tbl = arr_algo_width;
+   /* loop determining the number of buffers to process */
+   for (int i = 0; i < num_tbl; ++i, ++tbl) {
+      if (algo == (*tbl).algo) {
+         num_width = (*tbl).width;
+         break;
+      }
+   }
+
+   return num_width;
 }

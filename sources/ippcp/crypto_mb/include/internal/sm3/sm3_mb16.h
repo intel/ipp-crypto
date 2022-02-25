@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2020 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ static __ALIGN64 const int8u swapBytesCtx[] = { 3,2,1,0, 7,6,5,4, 11,10,9,8, 15,
 // internal functions 
 */
 
-EXTERN_C void sm3_avx512_mb16(int32u* hash_pa[16], const int8u* msg_pa[16], int len[16]);
+EXTERN_C void sm3_avx512_mb16(int32u hash_pa[][16], const int8u* msg_pa[16], int len[16]);
 EXTERN_C void sm3_mask_init_mb16(SM3_CTX_mb16* p_state, unsigned short mb_mask);
 
 #endif /* _SM3_MB16_H */

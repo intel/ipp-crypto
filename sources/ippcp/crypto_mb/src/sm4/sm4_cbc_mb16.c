@@ -20,8 +20,8 @@
 
 void sm4_cbc_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, const int8u* pa_iv[SM4_LINES])
 {
-    const int8u* loc_inp[SM4_LINES];
-    int8u* loc_out[SM4_LINES];
+    __ALIGN64 const int8u* loc_inp[SM4_LINES];
+    __ALIGN64 int8u* loc_out[SM4_LINES];
 
     /* Length of the input data in 128-bit chunks - number of SM4 blocks */
     __m512i num_blocks;

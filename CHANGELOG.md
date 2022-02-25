@@ -2,6 +2,18 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## Intel(R) IPP Cryptography 2021.6
+- EC cryptography functionality for the NIST curves p256r1, p384r1, p521r1 and SM2 curve was enabled with Intel® Advanced Vector Extensions 512 (Intel® AVX-512) IFMA instructions.
+- EC cryptography functionality input parameters checking was improved by adding keys boundaries check.
+- AES-GCM input parameters checking was improved by adding input text boundary check.
+- An issue in AES-CTR Intel® Advanced Vector Extensions 512 (Intel® AVX-512) code path related to handling of last partial block was fixed.
+- The ability to build Intel® IPP Cryptography library and Crypto Multi buffer library with Microsoft Visual C++ Compiler\* version 19.30 provided by Microsoft Visual Studio\* 2022 version 17.0 was added.
+
+## Intel(R) IPP Cryptography 2021.5
+- AES-GCM small packets processing was optimized for Intel® Advanced Vector Extensions 512 (Intel® AVX-512) code path.
+- The ability to build Intel® IPP Cryptography library and Crypto Multi buffer library with GCC\* 10, GCC\* 11, Clang\* 9, Clang\* 12 and Intel® C++ Compiler Classic 2021.3 was added.
+- The ability to build Crypto Multi buffer library with OpenSSL\* 3.0 was added.
+
 ## Intel(R) IPP Cryptography 2021.4
 - Crypto Multi buffer library was extended with ECB, CBC, CTR, OFB and CFB modes of SM4 algorithm.
 - Crypto Multi buffer library was extended with EC SM2 public key generation, ECDHE and ECDSA (Sign and Verify) algorithms.

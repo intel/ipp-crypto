@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2019-2021 Intel Corporation
+* Copyright 2019 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -213,7 +213,7 @@ int8u ifma_BN_to_mb8(int64u out_mb8[][8], const BIGNUM* const bn[8], int bitLen)
 
    transform_8sb_to_mb8((U64*)out_mb8, bitLen, (int8u**)d, byteLens, RADIX_CVT);
 
-   return _mm512_cmpneq_epi64_mask(_mm512_loadu_si512((__m512i*)&bn), _mm512_setzero_si512());
+   return _mm512_cmpneq_epi64_mask(_mm512_loadu_si512((__m512i*)bn), _mm512_setzero_si512());
 }
 #endif /* BN_OPENSSL_DISABLE */
 
@@ -519,6 +519,6 @@ int8u ifma_BN_transpose_copy(int64u out_mb8[][8], const BIGNUM* const bn[8], int
       _mm512_mask_storeu_epi64(&out_mb8[7], MB_MASK(len--), X7);
    }
 
-   return _mm512_cmpneq_epi64_mask(_mm512_loadu_si512((__m512i*)&bn), _mm512_setzero_si512());
+   return _mm512_cmpneq_epi64_mask(_mm512_loadu_si512((__m512i*)bn), _mm512_setzero_si512());
 }
 #endif /* BN_OPENSSL_DISABLE */
