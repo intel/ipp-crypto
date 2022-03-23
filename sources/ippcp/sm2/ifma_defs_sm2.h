@@ -36,6 +36,13 @@ typedef m512 fesm2;
  */
 static const __ALIGN64 Ipp64u PSM2_ONE52[PSM2_LEN52] = {0x1, 0x0, 0x0, 0x0, 0x0};
 
+/* Montgomery(1)
+ * r = 2^(PSM2_LEN52*DIGIT_SIZE) mod psm2
+ */
+/* r = 2^(52*6) mod psm2 */
+static const __ALIGN64 Ipp64u PSM2_R[PSM2_LEN52] = {
+    0x0000000001000000, 0x000ffff000000010, 0x0000ffffffffffff, 0x0000000000000000, 0x0000010000000000};
+
 /**
  * \brief
  * check is most significant bit

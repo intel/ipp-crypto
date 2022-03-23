@@ -26,7 +26,7 @@ static gsModMethod* gsModArithMont_C(void)
 {
    static gsModMethod m = {
       gs_mont_encode,
-      NULL,
+      gs_mont_decode,
       gs_mont_mul,
       gs_mont_sqr,
       NULL,
@@ -44,7 +44,7 @@ static gsModMethod* gsModArithMont_X(void)
 {
    static gsModMethod m = {
       gs_mont_encodeX,
-      NULL,
+      gs_mont_decodeX,
       gs_mont_mulX,
       gs_mont_sqrX,
       NULL,

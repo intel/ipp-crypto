@@ -448,10 +448,9 @@ IPP_OWN_DEFN(int, ifma_ec_nistp521_is_on_curve, (const P521_POINT_IFMA *p, const
       lnorm(tmp, tmp);       /**/
                              /**/
       sqr(Z4, tmp);          /* z4 = z^4 */
+      lnorm(Z4, Z4);         /**/
       mul(Z6, Z4, tmp);      /* z6 = z^6 */
-                             /**/
-      lnorm_dual(Z4, Z4,     /**/
-                 Z6, Z6);    /**/
+      lnorm(Z6, Z6);         /**/
                              /**/
       add(tmp, Z4, Z4);      /* tmp = 2*z^4 */
       add(tmp, tmp, Z4);     /* tmp = 3*z^4 */
@@ -483,7 +482,7 @@ IPP_OWN_DEFN(int, ifma_ec_nistp521_is_on_curve, (const P521_POINT_IFMA *p, const
    from_mont(rh, rh);
 
    const mask8 mask = FE521_CMP_MASK(rh, tmp, _MM_CMPINT_EQ);
-   return (mask == 0xFF) ? 1 : 0;
+   return (mask == 0xF) ? 1 : 0;
 }
 
 #undef add

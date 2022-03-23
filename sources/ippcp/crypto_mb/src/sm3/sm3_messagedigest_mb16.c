@@ -21,7 +21,7 @@
 #include <internal/common/ifma_defs.h>
 
 DLL_PUBLIC
-mbx_status16 mbx_sm3_msg_digest_mb16(const int8u* msg_pa[16],
+mbx_status16 mbx_sm3_msg_digest_mb16(const int8u* const msg_pa[16],
                                               int len[16],
                                            int8u* hash_pa[16])
 {
@@ -46,7 +46,7 @@ mbx_status16 mbx_sm3_msg_digest_mb16(const int8u* msg_pa[16],
     mbx_sm3_init_mb16(&p_state);
 
     /* process main part of the message */
-    status = mbx_sm3_update_mb16((const int8u**)msg_pa, len, &p_state);
+    status = mbx_sm3_update_mb16(msg_pa, len, &p_state);
 
     if(MBX_IS_ANY_OK_STS16(status)) {
         /* finalize message processing */

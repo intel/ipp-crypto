@@ -48,11 +48,11 @@ typedef struct _sm3_context_mb8  SM3_CTX_mb8;
 */
 
 EXTERN_C mbx_status sm3_init_mb8(SM3_CTX_mb8* p_state);
-EXTERN_C mbx_status sm3_update_mb8(const int8u* msg_pa[8], int len[8], SM3_CTX_mb8* p_state);
+EXTERN_C mbx_status sm3_update_mb8(const int8u* const msg_pa[8], int len[8], SM3_CTX_mb8* p_state);
 EXTERN_C mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state);
-EXTERN_C mbx_status sm3_msg_digest_mb8(const int8u* msg_pa[8], int len[8], int8u* hash_pa[8]);
+EXTERN_C mbx_status sm3_msg_digest_mb8(const int8u* const msg_pa[8], int len[8], int8u* hash_pa[8]);
 
-EXTERN_C void sm3_avx512_mb8(int32u hash_pa[][8], const int8u* msg_pa[8], int len[8]);
+EXTERN_C void sm3_avx512_mb8(int32u hash_pa[][8], const int8u* const msg_pa[8], int len[8]);
 EXTERN_C void sm3_mask_init_mb8(SM3_CTX_mb8 * p_state, __mmask8 mb_mask);
 
 #endif /* _SM3_MB8_H */

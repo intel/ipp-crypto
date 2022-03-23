@@ -134,7 +134,7 @@ __INLINE void TRANSPOSE_8X8_I32(__m256i *v0, __m256i *v1, __m256i *v2, __m256i *
     *v7 = _mm256_permute2x128_si256(x3, x7, 0b110001);
 }
 
-__INLINE void MASK_TRANSPOSE_8X8_I32(int32u* out[8], const int32u* inp[8], __mmask16 mb_mask) {
+__INLINE void MASK_TRANSPOSE_8X8_I32(int32u* out[8], const int32u* const inp[8], __mmask16 mb_mask) {
     __m256i v0 = _mm256_loadu_si256((__m256i*)inp[0]);
     __m256i v1 = _mm256_loadu_si256((__m256i*)inp[1]);
     __m256i v2 = _mm256_loadu_si256((__m256i*)inp[2]);
@@ -158,7 +158,7 @@ __INLINE void MASK_TRANSPOSE_8X8_I32(int32u* out[8], const int32u* inp[8], __mma
 
 }
 
-__INLINE void TRANSPOSE_8X16_I32(int32u* out[16], const int32u* inp[8], __mmask16 mb_mask) {
+__INLINE void TRANSPOSE_8X16_I32(int32u* out[16], const int32u* const inp[8], __mmask16 mb_mask) {
     __m256i v0 = _mm256_loadu_si256((__m256i*)inp[0]);
     __m256i v1 = _mm256_loadu_si256((__m256i*)inp[1]);
     __m256i v2 = _mm256_loadu_si256((__m256i*)inp[2]);

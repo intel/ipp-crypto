@@ -66,15 +66,15 @@ static const __ALIGN64 Ipp64u p384_r[LEN52] = {
 #define sqr(R, A) (R) = ifma_ams52_p384((A))
 #define div2(R, A) (R) = ifma_half52_p384((A))
 #define inv(R, A) (R) = ifma_aminv52_p384((A))
-#define norm(R, A) (R) = ifma_norm52_p384((A))
-#define lnorm(R, A) (R) = ifma_lnorm52_p384((A))
+#define norm(R, A) (R) = ifma_norm52((A))
+#define lnorm(R, A) (R) = ifma_lnorm52((A))
 #define from_mont(R, A) (R) = ifma_frommont52_p384((A))
 
 /* Dual mult/sqr/norm */
 #define mul_dual(R1, A1, B1, R2, A2, B2) ifma_amm52_dual_p384(&(R1), (A1), (B1), &(R2), (A2), (B2))
 #define sqr_dual(R1, A1, R2, A2) ifma_ams52_dual_p384(&(R1), (A1), &(R2), (A2))
-#define norm_dual(R1, A1, R2, A2) ifma_norm52_dual_p384(&(R1), (A1), &(R2), (A2))
-#define lnorm_dual(R1, A1, R2, A2) ifma_lnorm52_dual_p384(&(R1), (A1), &(R2), (A2))
+#define norm_dual(R1, A1, R2, A2) ifma_norm52_dual(&(R1), (A1), &(R2), (A2))
+#define lnorm_dual(R1, A1, R2, A2) ifma_lnorm52_dual(&(R1), (A1), &(R2), (A2))
 
 /* to affine coordinate */
 IPP_OWN_DEFN(void, ifma_ec_nistp384_get_affine_coords, (m512 * prx, m512 *pry, const P384_POINT_IFMA *a))
@@ -476,10 +476,9 @@ IPP_OWN_DEFN(int, ifma_ec_nistp384_is_on_curve, (const P384_POINT_IFMA *p, const
       lnorm(tmp, tmp);       /**/
                              /**/
       sqr(Z4, tmp);          /* z4 = z^4 */
+      lnorm(Z4, Z4);         /**/
       mul(Z6, Z4, tmp);      /* z6 = z^6 */
-                             /**/
-      lnorm_dual(Z4, Z4,     /**/
-                 Z6, Z6);    /**/
+      lnorm(Z6, Z6);         /**/
                              /**/
       add(tmp, Z4, Z4);      /* tmp = 2*z^4 */
       add(tmp, tmp, Z4);     /* tmp = 3*z^4 */

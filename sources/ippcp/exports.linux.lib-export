@@ -520,6 +520,13 @@ EXTERN (ippsGFpECSignNR)
 EXTERN (ippsGFpECVerifyNR)
 EXTERN (ippsGFpECSignSM2)
 EXTERN (ippsGFpECVerifySM2)
+EXTERN (ippsGFpECUserIDHashSM2)
+EXTERN (ippsGFpECMessageRepresentationSM2)
+EXTERN (ippsGFpECKeyExchangeSM2_GetSize)
+EXTERN (ippsGFpECKeyExchangeSM2_Init)
+EXTERN (ippsGFpECKeyExchangeSM2_Setup)
+EXTERN (ippsGFpECKeyExchangeSM2_SharedKey)
+EXTERN (ippsGFpECKeyExchangeSM2_Confirmation)
 EXTERN (ippsGFpECESGetSize_SM2)
 EXTERN (ippsGFpECESInit_SM2)
 EXTERN (ippsGFpECESSetKey_SM2)
@@ -1056,6 +1063,13 @@ VERSION {
    ippsGFpECVerifyNR;
    ippsGFpECSignSM2;
    ippsGFpECVerifySM2;
+   ippsGFpECUserIDHashSM2;
+   ippsGFpECMessageRepresentationSM2;
+   ippsGFpECKeyExchangeSM2_GetSize;
+   ippsGFpECKeyExchangeSM2_Init;
+   ippsGFpECKeyExchangeSM2_Setup;
+   ippsGFpECKeyExchangeSM2_SharedKey;
+   ippsGFpECKeyExchangeSM2_Confirmation;
    ippsGFpECESGetSize_SM2;
    ippsGFpECESInit_SM2;
    ippsGFpECESSetKey_SM2;

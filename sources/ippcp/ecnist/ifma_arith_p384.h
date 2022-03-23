@@ -22,6 +22,7 @@
 #if (_IPP32E >= _IPP32E_K1)
 
 #include "ifma_alias_avx512.h"
+#include <ecnist/ifma_norm.h>
 
 /**
  * \brief
@@ -135,49 +136,6 @@ IPP_OWN_DECL(m512, ifma_tomont52_p384, (const m512 a))
 IPP_OWN_DECL(m512, ifma_frommont52_p384, (const m512 a))
 
 /* =====================================================================================  */
-
-/**
- * \brief
- *
- *  Serial 5-rounds normalization to radix 2^52.
- *
- * \param[in] a non-normalized value (high 12-bits of each 64-bit chunk can be non-zero).
- */
-IPP_OWN_DECL(m512, ifma_norm52_p384, (const m512 a))
-
-/**
- * \brief
- *
- *  Dual variant of ifma_norm52_p384() function.
- *
- * \param[out] r1 normalized value
- * \param[in]  a1  non-normalized value
- * \param[out] r2 normalized value
- * \param[in]  a2  non-normalized value
- */
-IPP_OWN_DECL(void, ifma_norm52_dual_p384, (m512 * r1, const m512 a1, m512 *r2, const m512 a2))
-
-/**
- * \brief
- *
- *  Lightweight single-round normalization. Can be used after multiplication or
- *  addition only.
- *
- * \param[in] a non-normalized value (high 12-bits of each 64-bit chunk can be non-zero).
- */
-IPP_OWN_DECL(m512, ifma_lnorm52_p384, (const m512 a))
-
-/**
- * \brief
- *
- *  Dual variant of ifma_lnorm52_p384() function.
- *
- * \param[out] r1 normalized value
- * \param[in]  a1  non-normalized value
- * \param[out] r2 normalized value
- * \param[in]  a2  non-normalized value
- */
-IPP_OWN_DECL(void, ifma_lnorm52_dual_p384, (m512 * r1, const m512 a1, m512 *r2, const m512 a2))
 
 /**
  * \brief

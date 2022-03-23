@@ -37,8 +37,8 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
 
     /* allocate local buffer */
     __ALIGN64 int8u loc_buffer[SM3_NUM_BUFFERS8][SM3_MSG_BLOCK_SIZE*2];
-    int8u* buffer_pa[SM3_NUM_BUFFERS8] = { loc_buffer[0],  loc_buffer[1],  loc_buffer[2],  loc_buffer[3], 
-                                           loc_buffer[4],  loc_buffer[5],  loc_buffer[6],  loc_buffer[7] };
+    const int8u* buffer_pa[SM3_NUM_BUFFERS8] = { loc_buffer[0],  loc_buffer[1],  loc_buffer[2],  loc_buffer[3], 
+                                                 loc_buffer[4],  loc_buffer[5],  loc_buffer[6],  loc_buffer[7] };
 
     /* 
     // create  __mmask8 based on input hash_pa 
@@ -72,11 +72,11 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
     }
 
     /* Copmplete hash computation */
-    sm3_avx512_mb8(HASH_VALUE(p_state), (const int8u**)buffer_pa, buffer_len);
+    sm3_avx512_mb8(HASH_VALUE(p_state), buffer_pa, buffer_len);
     
     /* Convert hash into big endian */
     __m256i T[8];
-    int32u* p_T[8] = { (int32u*)&T[0], (int32u*)&T[1], (int32u*)&T[2], (int32u*)&T[3], (int32u*)&T[4], (int32u*)&T[5], (int32u*)&T[6], (int32u*)&T[7] };
+   const int32u* p_T[8] = { (int32u*)&T[0], (int32u*)&T[1], (int32u*)&T[2], (int32u*)&T[3], (int32u*)&T[4], (int32u*)&T[5], (int32u*)&T[6], (int32u*)&T[7] };
 
     T[0]  = SIMD_ENDIANNESS32(_mm256_loadu_si256((__m256i*)HASH_VALUE(p_state)[0]));
     T[1]  = SIMD_ENDIANNESS32(_mm256_loadu_si256((__m256i*)HASH_VALUE(p_state)[1]));
@@ -88,13 +88,13 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
     T[7]  = SIMD_ENDIANNESS32(_mm256_loadu_si256((__m256i*)HASH_VALUE(p_state)[7]));
     
     /* Transpose hash and store in array with pointers to hash values */
-    MASK_TRANSPOSE_8X8_I32((int32u**)hash_pa, (const int32u**)p_T, mb_mask8);
+    MASK_TRANSPOSE_8X8_I32((int32u**)hash_pa, p_T, mb_mask8);
 
     /* re-init hash value using mb masks */
     _mm512_storeu_si512(MSG_LEN(p_state), _mm512_mask_set1_epi64(_mm512_loadu_si512(MSG_LEN(p_state)), mb_mask8, 0));
     _mm256_storeu_si256((__m256i*)HASH_BUFFIDX(p_state), _mm256_mask_set1_epi32(_mm256_loadu_si256((__m256i*)HASH_BUFFIDX(p_state)), mb_mask8, 0));
 
-    sm3_mask_init_mb8(p_state, mb_mask8);
+   sm3_mask_init_mb8(p_state, mb_mask8);
 
     return status;
 }

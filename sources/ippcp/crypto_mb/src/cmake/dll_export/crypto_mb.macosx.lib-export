@@ -110,3 +110,10 @@ _mbx_sm4_encrypt_ofb_mb16
 _mbx_sm4_decrypt_ofb_mb16
 _mbx_sm4_encrypt_cfb128_mb16
 _mbx_sm4_decrypt_cfb128_mb16
+
+_mbx_sm4_gcm_init_mb16
+_mbx_sm4_gcm_update_iv_mb16
+_mbx_sm4_gcm_update_aad_mb16
+_mbx_sm4_gcm_encrypt_mb16
+_mbx_sm4_gcm_decrypt_mb16
+_mbx_sm4_gcm_get_tag_mb16

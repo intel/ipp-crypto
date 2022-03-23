@@ -107,44 +107,44 @@ IPP_OWN_DEFN(void, ifma_norm52_dual_p521,
    return;
 }
 
-#define ROUND_LIGHT_LO_MID_NORM(RLO, RHI, CARRY)                       \
-   {                                                                   \
-      int k1, k2, k3;                                                  \
-      (CARRY) = m256_srai_i64((RLO), DIGIT_SIZE_52);                   \
-      (CARRY) = m256_permutexvar_i8(idx8_shuffle, (CARRY));            \
-      (RLO)   = m256_and_i64((RLO), filt_rad52);                       \
-      (RHI)   = m256_mask_add_i64((RHI), 0x1, (RHI), (CARRY));         \
-      (RLO)   = m256_mask_add_i64((RLO), 0xE, (RLO), (CARRY));         \
-      /* correct */                                                    \
-      k2 = (int)(m256_cmp_i64_mask(filt_rad52, (RLO), _MM_CMPINT_EQ)); \
-      k1 = (int)(m256_cmp_i64_mask(filt_rad52, (RLO), _MM_CMPINT_LT)); \
-                                                                       \
-      k1 = k2 + (k1 << 1);                                             \
-      k1 ^= k2;                                                        \
-      k3 = ((k1 >> 4) & 1);                                            \
-                                                                       \
-      (RHI) = m256_mask_add_i64((RHI), (mask8)k3, (RHI), one);         \
-                                                                       \
-      (RLO) = m256_mask_add_i64((RLO), (mask8)k1, (RLO), one);         \
-      (RLO) = m256_and_i64((RLO), filt_rad52);                         \
+#define ROUND_LOW_MID_LNORM(RLO, RHI)                            \
+   {                                                             \
+      m256i carry = m256_srai_i64((RLO), DIGIT_SIZE_52);         \
+      carry       = m256_permutexvar_i8(idx8_shuffle, carry);    \
+      (RLO)       = m256_and_i64((RLO), filt_rad52);             \
+      (RLO)       = m256_mask_add_i64((RLO), 0xE, (RLO), carry); \
+      (RHI)       = m256_mask_add_i64((RHI), 0x1, (RHI), carry); \
    }
 
-#define ROUND_LIGHT_HI_NORM(RLO, CARRY)                                \
-   {                                                                   \
-      int k1, k2;                                                      \
-      (CARRY) = m256_srai_i64((RLO), DIGIT_SIZE_52);                   \
-      (CARRY) = m256_permutexvar_i8(idx8_shuffle, (CARRY));            \
-      (RLO)   = m256_and_i64((RLO), filt_rad52);                       \
-      (RLO)   = m256_mask_add_i64((RLO), 0xE, (RLO), (CARRY));         \
-      /* correct */                                                    \
-      k2 = (int)(m256_cmp_i64_mask(filt_rad52, (RLO), _MM_CMPINT_EQ)); \
-      k1 = (int)(m256_cmp_i64_mask(filt_rad52, (RLO), _MM_CMPINT_LT)); \
-                                                                       \
-      k1 = k2 + (k1 << 1);                                             \
-      k1 ^= k2;                                                        \
-                                                                       \
-      (RLO) = m256_mask_add_i64((RLO), (mask8)k1, (RLO), one);                \
-      (RLO) = m256_and_i64((RLO), filt_rad52);                         \
+#define ROUND_HI_LNORM(R)                                     \
+   {                                                          \
+      m256i carry = m256_srai_i64((R), DIGIT_SIZE_52);        \
+      carry       = m256_permutexvar_i8(idx8_shuffle, carry); \
+      (R)         = m256_and_i64((R), filt_rad52);            \
+      (R)         = m256_mask_add_i64((R), 0xE, (R), carry);  \
+   }
+
+#define CREATE_MASK_ONE(OUT, R, MASK_CMP)                                                  \
+   {                                                                                       \
+      const int mk_lo  = (int)(m256_cmp_i64_mask(filt_rad52, FE521_LO((R)), (MASK_CMP)));  \
+      const int mk_mid = (int)(m256_cmp_i64_mask(filt_rad52, FE521_MID((R)), (MASK_CMP))); \
+      const int mk_hi  = (int)(m256_cmp_i64_mask(filt_rad52, FE521_HI((R)), (MASK_CMP)));  \
+                                                                                           \
+      (OUT) = (mk_lo & 0xF) | ((mk_mid & 0xF) << 4) | ((mk_hi & 0xF) << 8);                \
+   }
+
+#define ADD_VALUE_BY_MASK(R, MASK, VAL)                                                                        \
+   {                                                                                                           \
+      FE521_LO((R))  = m256_mask_add_i64(FE521_LO((R)), (mask8)((MASK)&0xF), FE521_LO((R)), (VAL));            \
+      FE521_MID((R)) = m256_mask_add_i64(FE521_MID((R)), (mask8)(((MASK) >> 4) & 0xF), FE521_MID((R)), (VAL)); \
+      FE521_HI((R))  = m256_mask_add_i64(FE521_HI((R)), (mask8)(((MASK) >> 8) & 0x7), FE521_HI((R)), (VAL));   \
+   }
+
+#define FILT_52(R)                                               \
+   {                                                             \
+      FE521_LO((R))  = m256_and_i64(FE521_LO((R)), filt_rad52);  \
+      FE521_MID((R)) = m256_and_i64(FE521_MID((R)), filt_rad52); \
+      FE521_HI((R))  = m256_and_i64(FE521_HI((R)), filt_rad52);  \
    }
 
 IPP_OWN_DEFN(void, ifma_lnorm52_p521, (fe521 pr[], const fe521 a))
@@ -156,13 +156,29 @@ IPP_OWN_DEFN(void, ifma_lnorm52_p521, (fe521 pr[], const fe521 a))
                                           7, 6, 5, 4, 3, 2, 1, 0,
                                           31, 30, 29, 28, 27, 26, 25, 24);
 
-   m256i carry;
    fe521 r;
    FE521_COPY(r, a);
 
-   ROUND_LIGHT_LO_MID_NORM(FE521_LO(r), FE521_MID(r), carry)
-   ROUND_LIGHT_LO_MID_NORM(FE521_MID(r), FE521_HI(r), carry)
-   ROUND_LIGHT_HI_NORM(FE521_HI(r), carry)
+   /* standart step - first round normalization */
+   /* low */
+   ROUND_LOW_MID_LNORM(FE521_LO(r), FE521_MID(r))
+   /* mid */
+   ROUND_LOW_MID_LNORM(FE521_MID(r), FE521_HI(r))
+   /* hi */
+   ROUND_HI_LNORM(FE521_HI(r))
+
+   /* create mask add ONE(1) to slot */
+   int k1, k2;
+   /* create k2 (r) == 0xF(13) */
+   CREATE_MASK_ONE(k2, r, _MM_CMPINT_EQ)
+   /* create k1 (r) > 0xF(13) */
+   CREATE_MASK_ONE(k1, r, _MM_CMPINT_LT)
+
+   k1 = k2 + (k1 << 1);
+   k1 ^= k2;
+
+   ADD_VALUE_BY_MASK(r, k1, one)
+   FILT_52(r)
 
    FE521_COPY(*pr, r);
    return;
@@ -176,18 +192,42 @@ IPP_OWN_DEFN(void, ifma_lnorm52_dual_p521, (fe521 pr1[], const fe521 a1, fe521 p
                                           15, 14, 13, 12, 11, 10, 9, 8,
                                           7, 6, 5, 4, 3, 2, 1, 0,
                                           31, 30, 29, 28, 27, 26, 25, 24);
-
-   m256i carry1, carry2;
    fe521 r1, r2;
    FE521_COPY(r1, a1);
    FE521_COPY(r2, a2);
 
-   ROUND_LIGHT_LO_MID_NORM(FE521_LO(r1), FE521_MID(r1), carry1)
-   ROUND_LIGHT_LO_MID_NORM(FE521_LO(r2), FE521_MID(r2), carry2)
-   ROUND_LIGHT_LO_MID_NORM(FE521_MID(r1), FE521_HI(r1), carry1)
-   ROUND_LIGHT_LO_MID_NORM(FE521_MID(r2), FE521_HI(r2), carry2)
-   ROUND_LIGHT_HI_NORM(FE521_HI(r1), carry1)
-   ROUND_LIGHT_HI_NORM(FE521_HI(r2), carry2)
+   /* standart step - first round normalization */
+   /* low */
+   ROUND_LOW_MID_LNORM(FE521_LO(r1), FE521_MID(r1))
+   ROUND_LOW_MID_LNORM(FE521_LO(r2), FE521_MID(r2))
+   /* mid */
+   ROUND_LOW_MID_LNORM(FE521_MID(r1), FE521_HI(r1))
+   ROUND_LOW_MID_LNORM(FE521_MID(r2), FE521_HI(r2))
+   /* hi */
+   ROUND_HI_LNORM(FE521_HI(r1))
+   ROUND_HI_LNORM(FE521_HI(r2))
+
+   /* create mask add ONE(1) to slot */
+   int k11, k21;
+   int k12, k22;
+   /* create k2 (r) == 0xF(13) */
+   CREATE_MASK_ONE(k21, r1, _MM_CMPINT_EQ)
+   CREATE_MASK_ONE(k22, r2, _MM_CMPINT_EQ)
+   /* create k1 (r) > 0xF(13) */
+   CREATE_MASK_ONE(k11, r1, _MM_CMPINT_LT)
+   CREATE_MASK_ONE(k12, r2, _MM_CMPINT_LT)
+
+   k11 = k21 + (k11 << 1);
+   k11 ^= k21;
+
+   k12 = k22 + (k12 << 1);
+   k12 ^= k22;
+
+   ADD_VALUE_BY_MASK(r1, k11, one)
+   ADD_VALUE_BY_MASK(r2, k12, one)
+
+   FILT_52(r1)
+   FILT_52(r2)
 
    FE521_COPY(*pr1, r1);
    FE521_COPY(*pr2, r2);

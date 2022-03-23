@@ -804,7 +804,17 @@ typedef struct {
    int   basicElmBitSize;
 } IppsGFpInfo;
 
+/* SM3 Digest Bytes Size */
+#define IPP_SM3_DIGEST_BYTESIZE ((IPP_SM3_DIGEST_BITSIZE + 7) / 8)
+
 typedef struct _cpStateECES_SM2 IppsECESState_SM2;
+
+typedef enum {
+   ippKESM2Requester = 0xF, /* corresponds to A user/participant */
+   ippKESM2Responder        /* corresponds to B user/participant */
+} IppsKeyExchangeRoleSM2;
+
+typedef struct _GFpECKeyExchangeSM2 IppsGFpECKeyExchangeSM2State;
 
 #endif /* !defined( _OWN_BLDPCS ) */
 

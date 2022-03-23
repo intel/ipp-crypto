@@ -44,174 +44,6 @@ static const __ALIGN64 Ipp64u ones[LEN52] = {
    1, 0, 0, 0, 0, 0, 0, 0
 };
 
-#define NORM_ROUND(R)                                                                           \
-   {                                                                                            \
-      const m512 carry       = srai_i64((R), DIGIT_SIZE);                            /* O(1) */ \
-      const m512 shift_carry = maskz_permutexvar_i8(mask_shift_carry, idxi8, carry); /* O(1) */ \
-      const m512 radix52     = and_i64((R), mask52radix);                            /* O(1) */ \
-      (R)                    = add_i64(radix52, shift_carry);                        /* O(1) */ \
-   }
-
-IPP_OWN_DEFN(m512, ifma_norm52_p384, (const m512 a))
-{
-   const m512 mask52radix        = set1_i64(DIGIT_MASK);
-   const mask64 mask_shift_carry = 0xffffffffffffff00;
-
-   const m512 idxi8 = set_i64(0x3736353433323130, // 55, 54, 53, 52, 51, 50, 49, 48
-                              0x2f2e2d2c2b2a2928, // 47, 46, 45, 44, 43, 42, 41, 40
-                              0x2726252423222120, // 39, 38, 37, 36, 35, 34, 33, 32
-                              0x1f1e1d1c1b1a1918, // 31, 30, 29, 28, 27, 26, 25, 24
-                              0x1716151413121110, // 23, 22, 21, 20, 19, 18, 17, 16
-                              0x0f0e0d0c0b0a0908, // 15, 14, 13, 12, 11, 10,  9,  8
-                              0x0706050403020100, //  7,  6,  5,  4,  3,  2,  1,  0
-                              0x0);             //  0,  0,  0,  0,  0,  0,  0,  0
-
-   m512 r = a;
-   /* 7 reduction round = O(32) */
-   NORM_ROUND(r)
-   NORM_ROUND(r)
-   NORM_ROUND(r)
-   NORM_ROUND(r)
-   NORM_ROUND(r)
-   NORM_ROUND(r)
-   NORM_ROUND(r)
-
-   return r;
-}
-
-IPP_OWN_DEFN(void, ifma_norm52_dual_p384,
-             (m512 * pr1, const m512 a1,
-              m512 *pr2, const m512 a2))
-{
-   const m512 mask52radix        = set1_i64(DIGIT_MASK);
-   const mask64 mask_shift_carry = 0xffffffffffffff00;
-
-   const m512 idxi8 = set_i64(0x3736353433323130, // 55, 54, 53, 52, 51, 50, 49, 48
-                              0x2f2e2d2c2b2a2928, // 47, 46, 45, 44, 43, 42, 41, 40
-                              0x2726252423222120, // 39, 38, 37, 36, 35, 34, 33, 32
-                              0x1f1e1d1c1b1a1918, // 31, 30, 29, 28, 27, 26, 25, 24
-                              0x1716151413121110, // 23, 22, 21, 20, 19, 18, 17, 16
-                              0x0f0e0d0c0b0a0908, // 15, 14, 13, 12, 11, 10,  9,  8
-                              0x0706050403020100, //  7,  6,  5,  4,  3,  2,  1,  0
-                              0x0);             //  0,  0,  0,  0,  0,  0,  0,  0
-
-   m512 r1 = a1;
-   m512 r2 = a2;
-   /* 7 reduction round = O(32) */
-   /* 1-2 */
-   NORM_ROUND(r1)
-   NORM_ROUND(r1)
-   /* 1-2 */
-   NORM_ROUND(r2)
-   NORM_ROUND(r2)
-   /* 3-4 */
-   NORM_ROUND(r1)
-   NORM_ROUND(r1)
-   /* 3-4 */
-   NORM_ROUND(r2)
-   NORM_ROUND(r2)
-   /* 5-6 */
-   NORM_ROUND(r1)
-   NORM_ROUND(r1)
-   /* 5-6 */
-   NORM_ROUND(r2)
-   NORM_ROUND(r2)
-   /* 7-7 */
-   NORM_ROUND(r1)
-   NORM_ROUND(r2)
-
-   *pr1 = r1;
-   *pr2 = r2;
-
-   return;
-}
-
-IPP_OWN_DEFN(m512, ifma_lnorm52_p384, (const m512 a))
-{
-   const m512 mask52             = set1_i64(DIGIT_MASK);
-   const m512 one                = set1_i64(1ULL);
-   const mask64 mask_shift_carry = 0xffffffffffffff00;
-
-   const m512 idxi8 = set_i64(0x3736353433323130, // 55, 54, 53, 52, 51, 50, 49, 48
-                              0x2f2e2d2c2b2a2928, // 47, 46, 45, 44, 43, 42, 41, 40
-                              0x2726252423222120, // 39, 38, 37, 36, 35, 34, 33, 32
-                              0x1f1e1d1c1b1a1918, // 31, 30, 29, 28, 27, 26, 25, 24
-                              0x1716151413121110, // 23, 22, 21, 20, 19, 18, 17, 16
-                              0x0f0e0d0c0b0a0908, // 15, 14, 13, 12, 11, 10,  9,  8
-                              0x0706050403020100, //  7,  6,  5,  4,  3,  2,  1,  0
-                              0x0);             //  0,  0,  0,  0,  0,  0,  0,  0
-
-   m512 r = a;
-   int k1, k2;
-   m512 carry = srai_i64(r, DIGIT_SIZE);
-   carry      = maskz_permutexvar_i8(mask_shift_carry, idxi8, carry);
-
-   r = and_i64(r, mask52);
-   r = add_i64(r, carry);
-
-   k2 = (int)(cmp_i64_mask(mask52, r, _MM_CMPINT_EQ));
-   k1 = (int)(cmp_i64_mask(mask52, r, _MM_CMPINT_LT));
-
-   k1 = k2 + (k1 << 1);
-   k1 ^= k2;
-
-   r = mask_add_i64(r, (mask8)(k1), r, one);
-   r = and_i64(r, mask52);
-
-   return r;
-}
-
-IPP_OWN_DEFN(void, ifma_lnorm52_dual_p384,
-             (m512 * pr1, const m512 a1,
-              m512 *pr2, const m512 a2))
-{
-   const m512 mask52             = set1_i64(DIGIT_MASK);
-   const m512 one                = set1_i64(1UL);
-   const mask64 mask_shift_carry = 0xffffffffffffff00;
-
-   const m512 idxi8 = set_i64(0x3736353433323130, // 55, 54, 53, 52, 51, 50, 49, 48
-                              0x2f2e2d2c2b2a2928, // 47, 46, 45, 44, 43, 42, 41, 40
-                              0x2726252423222120, // 39, 38, 37, 36, 35, 34, 33, 32
-                              0x1f1e1d1c1b1a1918, // 31, 30, 29, 28, 27, 26, 25, 24
-                              0x1716151413121110, // 23, 22, 21, 20, 19, 18, 17, 16
-                              0x0f0e0d0c0b0a0908, // 15, 14, 13, 12, 11, 10,  9,  8
-                              0x0706050403020100, //  7,  6,  5,  4,  3,  2,  1,  0
-                              0x0);             //  0,  0,  0,  0,  0,  0,  0,  0
-
-   m512 r1 = a1;
-   m512 r2 = a2;
-   int k1_1, k1_2, k2_1, k2_2;
-
-   m512 carry1 = srai_i64(r1, DIGIT_SIZE);
-   m512 carry2 = srai_i64(r2, DIGIT_SIZE);
-   carry1      = maskz_permutexvar_i8(mask_shift_carry, idxi8, carry1);
-   carry2      = maskz_permutexvar_i8(mask_shift_carry, idxi8, carry2);
-
-   r1 = and_i64(r1, mask52);
-   r1 = add_i64(r1, carry1);
-   r2 = and_i64(r2, mask52);
-   r2 = add_i64(r2, carry2);
-
-   k2_1 = (int)(cmp_i64_mask(mask52, r1, _MM_CMPINT_EQ));
-   k1_1 = (int)(cmp_i64_mask(mask52, r1, _MM_CMPINT_LT));
-   k2_2 = (int)(cmp_i64_mask(mask52, r2, _MM_CMPINT_EQ));
-   k1_2 = (int)(cmp_i64_mask(mask52, r2, _MM_CMPINT_LT));
-
-   k1_1 = k2_1 + (k1_1 << 1);
-   k1_1 ^= k2_1;
-   k1_2 = k2_2 + (k1_2 << 1);
-   k1_2 ^= k2_2;
-
-   r1 = mask_add_i64(r1, (mask8)(k1_1), r1, one);
-   r1 = and_i64(r1, mask52);
-   r2 = mask_add_i64(r2, (mask8)(k1_2), r2, one);
-   r2 = and_i64(r2, mask52);
-
-   *pr1 = r1;
-   *pr2 = r2;
-   return;
-}
-
 /* R = (A/2) */
 IPP_OWN_DEFN(m512, ifma_half52_p384, (const m512 a))
 {
@@ -223,7 +55,7 @@ IPP_OWN_DEFN(m512, ifma_half52_p384, (const m512 a))
    const mask8 mask        = (mask8)((is_last_one & 1) - 1);
 
    m512 r = mask_add_i64(a, mask, a, M);
-   r      = ifma_lnorm52_p384(r);
+   r      = ifma_lnorm52(r);
 
    /* 1-bit shift right */
    /* extract last bit + >> 64 */
@@ -256,7 +88,7 @@ IPP_OWN_DEFN(m512, ifma_neg52_p384, (const m512 a))
 
    /* r = 4*p - a */
    m512 r = mask_sub_i64(a, ~mask_zero, M4, a);
-   r      = ifma_norm52_p384(r);
+   r      = ifma_norm52(r);
    return r;
 }
 
@@ -414,7 +246,7 @@ __INLINE m512 ifma_amm52_p384_norm(const m512 a, const m512 b)
 {
    m512 r = ifma_amm52_p384(a, b);
    /* normalization */
-   return ifma_lnorm52_p384(r);
+   return ifma_lnorm52(r);
 }
 
 /* R = (A*A) with norm */
@@ -437,7 +269,7 @@ static m512 mod_reduction_p384(const m512 a)
 
    /* r = a - M */
    m512 r = sub_i64(a, M);
-   r      = ifma_norm52_p384(r);
+   r      = ifma_norm52(r);
 
    /* 1 < 0 */
    const mask8 lt   = cmp_i64_mask(zero, srli_i64(r, DIGIT_SIZE - 1), _MM_CMPINT_LT);
@@ -463,7 +295,7 @@ IPP_OWN_DEFN(m512, ifma_frommont52_p384, (const m512 a))
 #define mul(R, A, B) (R) = ifma_amm52_p384_norm((A), (B));
 #define mul_dual(R1, A1, B1, R2, A2, B2)                       \
    ifma_amm52_dual_p384(&(R1), (A1), (B1), &(R2), (A2), (B2)); \
-   ifma_lnorm52_dual_p384(&(R1), (R1), &(R2), (R2))
+   ifma_lnorm52_dual(&(R1), (R1), &(R2), (R2))
 
 __INLINE m512 ifma_ams52_p384_ntimes(const m512 a, Ipp32s n)
 {

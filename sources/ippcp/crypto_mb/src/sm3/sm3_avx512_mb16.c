@@ -16,7 +16,7 @@
 
 #include <internal/sm3/sm3_mb16.h>
 
-__INLINE void TRANSPOSE_16X16_I32(int32u out[][16], const int32u* inp[16])
+__INLINE void TRANSPOSE_16X16_I32(int32u out[][16], const int32u* const inp[16])
 {
     __m512i r0 = _mm512_loadu_si512(inp[0]);
     __m512i r1 = _mm512_loadu_si512(inp[1]);
@@ -173,7 +173,7 @@ __INLINE void TRANSPOSE_16X16_I32(int32u out[][16], const int32u* inp[16])
 }
 
 
-void sm3_avx512_mb16(int32u hash_pa[][16], const int8u* msg_pa[16], int len[16])
+void sm3_avx512_mb16(int32u hash_pa[][16], const int8u* const msg_pa[16], int len[16])
 {
     int i;
 

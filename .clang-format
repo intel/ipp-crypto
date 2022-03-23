@@ -31,3 +31,4 @@ ContinuationIndentWidth: 3
 IndentWidth: 3
 MaxEmptyLinesToKeep: 3
 PointerAlignment: Right
+SortIncludes: false

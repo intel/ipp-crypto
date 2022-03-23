@@ -66,7 +66,7 @@ static void sm2_ecdsa_compute_z_digest(int8u* pa_z_digest[8],
    sm3_init_mb8(p_ctx);
 
    int8u entl_data[8][2];
-   int8u* pa_entl[8];
+   const int8u* pa_entl[8];
 
    for (int i = 0; i < 8; ++i)
    {
@@ -78,17 +78,17 @@ static void sm2_ecdsa_compute_z_digest(int8u* pa_z_digest[8],
       pa_entl[i] = &(entl_data[i][0]);
    }
 
-   sm3_update_mb8((const int8u **)pa_entl, len_2, p_ctx);
+   sm3_update_mb8(pa_entl, len_2, p_ctx);
 
-   sm3_update_mb8((const int8u **)pa_user_id, (int *)user_id_len, p_ctx);
+   sm3_update_mb8(pa_user_id, (int *)user_id_len, p_ctx);
 
-   sm3_update_mb8((const int8u **)pa_a,  len_32, p_ctx);
-   sm3_update_mb8((const int8u **)pa_b,  len_32, p_ctx);
-   sm3_update_mb8((const int8u **)pa_xG, len_32, p_ctx);
-   sm3_update_mb8((const int8u **)pa_yG, len_32, p_ctx);
+   sm3_update_mb8(pa_a,  len_32, p_ctx);
+   sm3_update_mb8(pa_b,  len_32, p_ctx);
+   sm3_update_mb8(pa_xG, len_32, p_ctx);
+   sm3_update_mb8(pa_yG, len_32, p_ctx);
 
-   sm3_update_mb8((const int8u **)pa_pubx, len_32, p_ctx);
-   sm3_update_mb8((const int8u **)pa_puby, len_32, p_ctx);
+   sm3_update_mb8(pa_pubx, len_32, p_ctx);
+   sm3_update_mb8(pa_puby, len_32, p_ctx);
 
    sm3_final_mb8(pa_z_digest, p_ctx);
    return;
@@ -104,8 +104,8 @@ static void sm2_ecdsa_compute_msg_digest(int8u* pa_msg_digest[8],
 
    sm3_init_mb8(p_ctx);
 
-   sm3_update_mb8((const int8u **)pa_z_digest, len_32, p_ctx);
-   sm3_update_mb8((const int8u **)pa_msg, (int*)msg_len, p_ctx);
+   sm3_update_mb8(pa_z_digest, len_32, p_ctx);
+   sm3_update_mb8(pa_msg, (int*)msg_len, p_ctx);
 
    sm3_final_mb8(pa_msg_digest, p_ctx);
    return;

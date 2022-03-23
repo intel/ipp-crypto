@@ -64,25 +64,25 @@ static __ALIGN64 const int8u affineOut[] = {
     0x19,0x8b,0x6c,0x1e,0x51,0x8e,0x2d,0xd7, 0x19,0x8b,0x6c,0x1e,0x51,0x8e,0x2d,0xd7
 };
 // Constant for swapping the bytes inside the words
-static __ALIGN64 const int8u swapBytes[] = { 
+static __ALIGN64 const int8u swapBytes[] = {
     3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12,
     3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12,
     3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12,
-    3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12 
+    3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12
 };
 // Constant for swapping the endianness
-static __ALIGN64 const int8u swapEndianness[] = { 
+static __ALIGN64 const int8u swapEndianness[] = {
     15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0,
     15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0,
     15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0,
-    15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0 
+    15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0
 };
 // Constant for swapping the order of words
 static __ALIGN64 const int8u swapWordsOrder[] = {
     12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3,
     12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3,
     12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3,
-    12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3 
+    12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3
 };
 
 static __ALIGN64 const int64u idx_0_3[] = {
@@ -107,14 +107,14 @@ static __ALIGN64 const int8u  firstInc[] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 
+    3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
-static __ALIGN64 const int8u  nextInc[] = { 
+static __ALIGN64 const int8u  nextInc[] = {
     4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 
+    4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
 #define SM4_ONE_ROUND(X0, X1, X2, X3, TMP, RK) {    \
@@ -165,7 +165,7 @@ static __ALIGN64 const int8u  nextInc[] = {
 #define SM4_DEC (2)
 
 /*
-// Internal functions 
+// Internal functions
 */
 
 EXTERN_C void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int operation);
@@ -175,6 +175,7 @@ EXTERN_C void sm4_ctr128_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_i
 EXTERN_C void sm4_ofb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int8u* pa_iv[SM4_LINES]);
 EXTERN_C void sm4_cfb128_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask);
 EXTERN_C void sm4_cfb128_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask);
+EXTERN_C void sm4_set_round_keys_mb16(int32u* key_sched[SM4_ROUNDS], const int8u* pa_inp_key[SM4_LINES], __mmask16 mb_mask);
 
 // The transformation based on SM4 sbox algebraic structure, parameters were computed manually
 __INLINE __m512i sBox512(__m512i block)
@@ -346,7 +347,7 @@ __INLINE __m512i IncBlock512(__m512i x, const int8u* increment)
 
 __INLINE void TRANSPOSE_16x4_I32_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __m512i* t3, const int8u* p_inp[16], __mmask16 mb_mask) {
     __mmask16 loc_mb_mask = mb_mask;
-    
+
     // L0 - L3
     __m512i z0 = _mm512_maskz_loadu_epi32(0x000F * (0x1&loc_mb_mask), p_inp[0]);  loc_mb_mask >>= 1;
     __m512i z1 = _mm512_maskz_loadu_epi32(0x000F * (0x1&loc_mb_mask), p_inp[1]);  loc_mb_mask >>= 1;
@@ -424,7 +425,7 @@ __INLINE void TRANSPOSE_4x16_I32_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __
     STORE_RESULT((__m128i*)p_out[13] - 3, 0xF000, loc_mb_mask, *t1);
     STORE_RESULT((__m128i*)p_out[14] - 3, 0xF000, loc_mb_mask, *t2);
     STORE_RESULT((__m128i*)p_out[15] - 3, 0xF000, loc_mb_mask, *t3);
-    
+
 }
 
 __INLINE void TRANSPOSE_4x16_I32_EPI8(__m512i t0, __m512i t1, __m512i t2, __m512i t3, int8u* p_out[16], int* p_loc_len, __mmask16 mb_mask) {
@@ -490,12 +491,12 @@ __INLINE void TRANSPOSE_4x16_I32_EPI8(__m512i t0, __m512i t1, __m512i t2, __m512
 }
 
 __INLINE void TRANSPOSE_AND_XOR_4x16_I32_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __m512i* t3, int8u* p_out[16], const int8u* p_iv[16], __mmask16 mb_mask) {
-    
+
     #define XOR_AND_STORE_RESULT(OUT, store_mask, loc_mb_mask, Ti, IV, TMP)                              \
             TMP = _mm512_maskz_loadu_epi32(store_mask * (0x1&loc_mb_mask), IV);                       \
             _mm512_mask_storeu_epi32(OUT, store_mask * (0x1&loc_mb_mask), _mm512_xor_epi32(Ti, TMP)); \
             loc_mb_mask >>= 1;
-   
+
     __m512i z0 = _mm512_setzero_si512();
     __m512i z1 = _mm512_setzero_si512();
     __m512i z2 = _mm512_setzero_si512();

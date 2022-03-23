@@ -23,7 +23,7 @@
 
 /* FK[] constants */
 static const int32u SM4_FK[4] = {
-    0xA3B1BAC6,0x56AA3350,0x677D9197,0xB27022DC 
+    0xA3B1BAC6,0x56AA3350,0x677D9197,0xB27022DC
 };
 
 /* CK[] constants */
@@ -57,7 +57,7 @@ static const int32u SM4_CK[32] = {
 }
 
 
-static void sm4_set_round_keys_mb16(int32u* key_sched[SM4_ROUNDS], const int8u* pa_inp_key[SM4_LINES], __mmask16 mb_mask)
+void sm4_set_round_keys_mb16(int32u* key_sched[SM4_ROUNDS], const int8u* pa_inp_key[SM4_LINES], __mmask16 mb_mask)
 {
     __m512i rki = _mm512_setzero_si512();
     __m512i z0, z1, z2, z3;

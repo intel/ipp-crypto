@@ -25,7 +25,7 @@
     #pragma optimize( "", off )
 #endif
 
-mbx_status sm3_update_mb8(const int8u* msg_pa[8], int len[8], SM3_CTX_mb8* p_state)
+mbx_status sm3_update_mb8(const int8u* const msg_pa[8], int len[8], SM3_CTX_mb8* p_state)
 {
     int i;
     mbx_status status = 0;
@@ -36,7 +36,7 @@ mbx_status sm3_update_mb8(const int8u* msg_pa[8], int len[8], SM3_CTX_mb8* p_sta
         return status;
     }
 
-    __ALIGN64 int8u* loc_src[SM3_NUM_BUFFERS8];
+    __ALIGN64 const int8u* loc_src[SM3_NUM_BUFFERS8];
 
     __m256i loc_len = _mm256_loadu_si256((__m256i*)len);
     int* p_loc_len = (int*)&loc_len;
@@ -51,7 +51,7 @@ mbx_status sm3_update_mb8(const int8u* msg_pa[8], int len[8], SM3_CTX_mb8* p_sta
 
     /* handle non empty message */
     if (mb_mask) {
-        _mm512_storeu_si512(loc_src, _mm512_mask_loadu_epi64(_mm512_set1_epi64((long long)&zero_buffer), mb_mask, msg_pa));
+       _mm512_storeu_si512((void *)loc_src, _mm512_mask_loadu_epi64(_mm512_set1_epi64((long long)&zero_buffer), mb_mask, msg_pa));
 
         __m256i proc_len;
         __m256i idx = _mm256_loadu_si256((__m256i*)HASH_BUFFIDX(p_state));
@@ -97,7 +97,7 @@ mbx_status sm3_update_mb8(const int8u* msg_pa[8], int len[8], SM3_CTX_mb8* p_sta
 
             /* update digest if at least one buffer is full */
             if (processed_mask) {
-                sm3_avx512_mb8(HASH_VALUE(p_state), (const int8u**)p_buffer, p_proc_len);
+                sm3_avx512_mb8(HASH_VALUE(p_state), (const int8u **)p_buffer, p_proc_len);
                 idx = _mm256_mask_set1_epi32(idx, ~_mm256_cmp_epi32_mask(proc_len, M256(&zero_buffer), 2), _MM_CMPINT_EQ);
             }
         }
@@ -107,7 +107,7 @@ mbx_status sm3_update_mb8(const int8u* msg_pa[8], int len[8], SM3_CTX_mb8* p_sta
         processed_mask = _mm256_cmp_epi32_mask(proc_len, M256(&zero_buffer), _MM_CMPINT_NLT);
 
         if (processed_mask)
-            sm3_avx512_mb8(HASH_VALUE(p_state), (const int8u**)loc_src, p_proc_len);
+            sm3_avx512_mb8(HASH_VALUE(p_state), loc_src, p_proc_len);
 
         loc_len = _mm256_sub_epi32(loc_len, proc_len);
 

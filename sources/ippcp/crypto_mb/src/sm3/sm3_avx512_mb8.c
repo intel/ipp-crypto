@@ -67,7 +67,7 @@
 }
 
 
-void sm3_avx512_mb8(int32u hash_pa[][8], const int8u* msg_pa[8], int len[8])
+void sm3_avx512_mb8(int32u hash_pa[][8], const int8u* const msg_pa[8], int len[8])
 {
     int i;
 

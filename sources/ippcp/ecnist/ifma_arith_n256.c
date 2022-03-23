@@ -112,7 +112,7 @@ IPP_OWN_DEFN(m512, ifma_amm52_n256, (const m512 a, const m512 b))
    MUL_RED_ROUND(r, a, b, 3)
    MUL_RED_ROUND(r, a, b, 4)
 
-   r = ifma_lnorm52_p256(r);
+   r = ifma_lnorm52(r);
 
    return r;
 }
@@ -124,11 +124,11 @@ IPP_OWN_DEFN(m512, ifma_add52_n256, (const m512 a, const m512 b))
 
    /* r = a + b */
    m512 r = add_i64(a, b);
-   r      = ifma_lnorm52_p256(r);
+   r      = ifma_lnorm52(r);
 
    /* t = r - N */
    m512 t = sub_i64(r, Nx2);
-   t      = ifma_norm52_p256(t);
+   t      = ifma_norm52(t);
 
    /* lt = t < 0 */
    const mask8 lt   = cmp_i64_mask(zero, srli_i64(t, DIGIT_SIZE - 1), _MM_CMPINT_LT);
@@ -151,7 +151,7 @@ IPP_OWN_DEFN(m512, ifma_fastred52_n256, (const m512 a))
 
    /* r = a - N */
    m512 r = sub_i64(a, N);
-   r      = ifma_norm52_p256(r);
+   r      = ifma_norm52(r);
 
    /* 1 < 0 */
    const mask8 lt   = cmp_i64_mask(zero, srli_i64(r, DIGIT_SIZE - 1), _MM_CMPINT_LT);

@@ -39,10 +39,10 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
 
     /* allocate local buffer */
     __ALIGN64 int8u loc_buffer[SM3_NUM_BUFFERS][SM3_MSG_BLOCK_SIZE*2];
-    int8u* buffer_pa[SM3_NUM_BUFFERS] = { loc_buffer[0],  loc_buffer[1],  loc_buffer[2],  loc_buffer[3], 
-                                          loc_buffer[4],  loc_buffer[5],  loc_buffer[6],  loc_buffer[7],
-                                          loc_buffer[8],  loc_buffer[9],  loc_buffer[10], loc_buffer[11],
-                                          loc_buffer[12], loc_buffer[13], loc_buffer[14], loc_buffer[15] };
+    const int8u* buffer_pa[SM3_NUM_BUFFERS] = { loc_buffer[0],  loc_buffer[1],  loc_buffer[2],  loc_buffer[3], 
+                                                loc_buffer[4],  loc_buffer[5],  loc_buffer[6],  loc_buffer[7],
+                                                loc_buffer[8],  loc_buffer[9],  loc_buffer[10], loc_buffer[11],
+                                                loc_buffer[12], loc_buffer[13], loc_buffer[14], loc_buffer[15] };
 
     __m512i zero_buffer = _mm512_setzero_si512();
 
@@ -85,7 +85,7 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     }
 
     /* Copmplete hash computation */
-    sm3_avx512_mb16(HASH_VALUE(p_state), (const int8u**)buffer_pa, buffer_len);
+    sm3_avx512_mb16(HASH_VALUE(p_state), buffer_pa, buffer_len);
     
     /* Convert hash into big endian */
     __m512i T[8];
@@ -101,7 +101,7 @@ mbx_status16 mbx_sm3_final_mb16(int8u* hash_pa[16],
     T[7]  = SIMD_ENDIANNESS32(_mm512_loadu_si512(HASH_VALUE(p_state)[7]));
 
     /* Transpose hash and store in array with pointers to hash values */
-    TRANSPOSE_8X16_I32((int32u**)hash_pa, (const int32u**)p_T, mb_mask16);
+    TRANSPOSE_8X16_I32((int32u**)hash_pa, p_T, mb_mask16);
 
     /* re-init hash value using mb masks */
     _mm512_storeu_si512(MSG_LEN(p_state), _mm512_mask_set1_epi64(_mm512_loadu_si512(MSG_LEN(p_state)), mb_mask8[0], 0));

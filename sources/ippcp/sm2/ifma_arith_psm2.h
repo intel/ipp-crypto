@@ -22,51 +22,8 @@
 
 #include "ecnist/ifma_alias_avx512.h"
 #include "sm2/ifma_defs_sm2.h"
+#include <ecnist/ifma_norm.h>
 
-/**
- * \brief
- *
- *  Serial 5-rounds normalization to radix 2^52.
- *
- * \param[in] a ptr value (52 radix and more)
- * \return fesm2 value  (in radix 2^52)
- */
-IPP_OWN_DECL(fesm2, fesm2_norm, (const fesm2 a))
-
-/**
- * \brief
- *
- *  Lightweight single-round normalization. Can be used after multiplication or
- *  addition only.
- *
- * \param[in] a ptr value (52 radix and more)
- * \return fesm2 value  (in radix 2^52)
- */
-IPP_OWN_DECL(fesm2, fesm2_lnorm, (const fesm2 a))
-
-/**
- * \brief
- *
- *  Dual variant of fesm2_norm() function.
- *
- * \param[out] pr1 ptr first  value (in radix 2^52)
- * \param[in]  a1  value first (52 radix and more)
- * \param[out] pr2 ptr second value (in radix 2^52)
- * \param[in]  a2  ptr value second (52 radix and more)
- */
-IPP_OWN_DECL(void, fesm2_norm_dual, (fesm2 pr1[], const fesm2 a1, fesm2 pr2[], const fesm2 a2))
-
-/**
- * \brief
- *
- *  Dual variant of fesm2_lnorm() function.
- *
- * \param[out] pr1 ptr first  value (in radix 2^52)
- * \param[in]  a1  value first (52 radix and more)
- * \param[out] pr2 ptr second value (in radix 2^52)
- * \param[in]  a2  ptr value second (52 radix and more)
- */
-IPP_OWN_DECL(void, fesm2_lnorm_dual, (fesm2 pr1[], const fesm2 a1, fesm2 pr2[], const fesm2 a2))
 
 /**
  * \brief

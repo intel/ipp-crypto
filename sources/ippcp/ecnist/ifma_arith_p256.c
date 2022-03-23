@@ -63,77 +63,6 @@ static const __ALIGN64 Ipp64u ones[LEN52] = {
    1, 0, 0, 0, 0, 0, 0, 0
 };
 
-
-#define NORM_ROUND(R)                                               \
-   {                                                                \
-      const m512 carry       = srai_i64((R), DIGIT_SIZE);           \
-      const m512 shift_carry = alignr_i64(carry, setzero_i64(), 7); \
-      const m512 radix52     = and_i64((R), mask52radix);           \
-      (R)                    = add_i64(radix52, shift_carry);       \
-   }
-
-m512 ifma_norm52_p256(const m512 a)
-{
-   const m512 mask52radix = set1_i64(DIGIT_MASK);
-
-   m512 r = a;
-
-   NORM_ROUND(r)
-   NORM_ROUND(r)
-   NORM_ROUND(r)
-   NORM_ROUND(r)
-   NORM_ROUND(r)
-
-   return r;
-}
-
-IPP_OWN_DEFN(m512, ifma_lnorm52_p256, (const m512 a))
-{
-   m512 r = a;
-
-   const m512 mask52 = set1_i64(DIGIT_MASK);
-   m512 carry        = srli_i64(r, DIGIT_SIZE);
-   carry             = alignr_i64(carry, setzero_i64(), 7);
-
-   r = and_i64(r, mask52);
-   r = add_i64(r, carry);
-
-   Ipp16u k2 = cmp_u64_mask(mask52, r, _MM_CMPINT_EQ);
-   Ipp16u k1 = cmp_u64_mask(mask52, r, _MM_CMPINT_LT);
-
-   k1 = k2 + (Ipp16u)2 * k1;
-   k1 ^= k2;
-
-   r = mask_sub_i64(r, (mask8)k1, r, mask52);
-   r = and_i64(r, mask52);
-
-   return r;
-}
-
-IPP_OWN_DEFN(void, ifma_lnorm52_dual_p256, (m512 * r1, const m512 a1, m512 *r2, const m512 a2))
-{
-   m512 tmp1 = a1;
-   m512 tmp2 = a2;
-
-   tmp1 = ifma_lnorm52_p256(tmp1);
-   tmp2 = ifma_lnorm52_p256(tmp2);
-
-   *r1 = tmp1;
-   *r2 = tmp2;
-}
-
-IPP_OWN_DEFN(void, ifma_norm52_dual_p256, (m512 * r1, const m512 a1, m512 *r2, const m512 a2))
-{
-   m512 tmp1 = a1;
-   m512 tmp2 = a2;
-
-   tmp1 = ifma_norm52_p256(tmp1);
-   tmp2 = ifma_norm52_p256(tmp2);
-
-   *r1 = tmp1;
-   *r2 = tmp2;
-}
-
 #define MUL_RED_ROUND(R, A, B, IDX)                                      \
    {                                                                     \
       const m512 Bi = permutexvar_i8(idx_b##IDX, (B));                   \
@@ -245,7 +174,7 @@ IPP_OWN_DEFN(void, ifma_amm52_dual_p256, (m512 * r1, const m512 a1, const m512 b
 __INLINE m512 ifma_amm52_p256_norm(const m512 a, const m512 b)
 {
    m512 r = ifma_amm52_p256(a, b);
-   return ifma_lnorm52_p256(r);
+   return ifma_lnorm52(r);
 }
 
 /* R = (A*A) with norm */
@@ -275,7 +204,7 @@ IPP_OWN_DEFN(m512, ifma_half52_p256, (const m512 a))
                                   0x0f0e0d0c0b0a0908); // 15, 14, 13, 12, 11, 10, 9, 8
 
    m512 r = mask_add_i64(a, mask, a, M);
-   r      = ifma_lnorm52_p256(r);
+   r      = ifma_lnorm52(r);
 
    m512 leftBit = maskz_permutexvar_i8(mask_shift, idx_shift, and_i64(r, one));
    leftBit      = slli_i64(leftBit, DIGIT_SIZE - 1);
@@ -294,7 +223,7 @@ IPP_OWN_DEFN(m512, ifma_neg52_p256, (const m512 a))
 
    /* r = 4*p - a */
    m512 r = mask_sub_i64(a, ~mask_zero, M4, a);
-   r      = ifma_norm52_p256(r);
+   r      = ifma_norm52(r);
    return r;
 }
 
@@ -306,7 +235,7 @@ static m512 mod_reduction_p256(const m512 a)
 
    /* r = a - M */
    m512 r = sub_i64(a, M);
-   r      = ifma_norm52_p256(r);
+   r      = ifma_norm52(r);
 
    /* 1 < 0 */
    const mask8 lt   = cmp_i64_mask(zero, srli_i64(r, DIGIT_SIZE - 1), _MM_CMPINT_LT);

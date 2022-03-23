@@ -58,14 +58,14 @@
 |        ippsGFpAdd        |                                             -                                              |
 |      ippsGFpAdd_PE       |                                             -                                              |
 |       ippsGFpConj        |                                             -                                              |
-|    ippsGFpECAddPoint     |                        Different curves:<br>c256r1, c384r1, c521r1                         |
-|    ippsGFpECMulPoint     |                        Different curves:<br>c224r1, c256r1, c384r1                         |
-|    ippsGFpECNegPoint     |                        Different curves:<br>c256r1, c384r1, c521r1                         |
-|    ippsGFpECPublicKey    |                        Different curves:<br>c256r1, c384r1, c521r1                         |
-| ippsGFpECSharedSecretDH  |                        Different curves:<br>c256r1, c384r1, c521r1                         |
-| ippsGFpECSharedSecretDHC |                        Different curves:<br>c256r1, c384r1, c521r1                         |
-|     ippsGFpECSignDSA     |                            Different curves:<br>c256r1, c384r1                             |
-|     ippsGFpECSignNR      |                            Different curves:<br>c256r1, c384r1                             |
+|    ippsGFpECAddPoint     |                        Different curves:<br>p256r1, p384r1, p521r1                         |
+|    ippsGFpECMulPoint     |                        Different curves:<br>p224r1, p256r1, p384r1                         |
+|    ippsGFpECNegPoint     |                        Different curves:<br>p256r1, p384r1, p521r1                         |
+|    ippsGFpECPublicKey    |                        Different curves:<br>p256r1, p384r1, p521r1                         |
+| ippsGFpECSharedSecretDH  |                        Different curves:<br>p256r1, p384r1, p521r1                         |
+| ippsGFpECSharedSecretDHC |                        Different curves:<br>p256r1, p384r1, p521r1                         |
+|     ippsGFpECSignDSA     |                            Different curves:<br>p256r1, p384r1                             |
+|     ippsGFpECSignNR      |                            Different curves:<br>p256r1, p384r1                             |
 |     ippsGFpECSignSM2     |                                             -                                              |
 |   ippsGFpECESStart_SM2   |                                             -                                              |
 |  ippsGFpECESEncrypt_SM2  |                                             -                                              |

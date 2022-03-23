@@ -1402,57 +1402,91 @@ IPPAPI(IppStatus, ippsGFpECSharedSecretDHC,(const IppsBigNumState* pPrivateA,
                         IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 
 /* sign generation/verification of DSA, NR, SM2 */
-IPPAPI(IppStatus, ippsGFpECSignDSA,(const IppsBigNumState* pMsgDigest,
-                        const IppsBigNumState* pRegPrivate,
-                        IppsBigNumState* pEphPrivate,
-                        IppsBigNumState* pSignR, IppsBigNumState* pSignS,
-                        IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
-IPPAPI(IppStatus, ippsGFpECVerifyDSA,(const IppsBigNumState* pMsgDigest,
-                        const IppsGFpECPoint* pRegPublic,
-                        const IppsBigNumState* pSignR, const IppsBigNumState* pSignS,
-                        IppECResult* pResult,
-                        IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPPAPI(IppStatus, ippsGFpECMessageRepresentationSM2, (IppsBigNumState* pMsgDigest,
+                                                      const Ipp8u* pMsg, int msgLen,
+                                                      const Ipp8u* pUserID, int userIDLen,
+                                                      const IppsGFpECPoint* pRegPublic,
+                                                      IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPPAPI(IppStatus, ippsGFpECSignDSA, (const IppsBigNumState* pMsgDigest,
+                                     const IppsBigNumState* pRegPrivate,
+                                     IppsBigNumState* pEphPrivate,
+                                     IppsBigNumState* pSignR, IppsBigNumState* pSignS,
+                                     IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPPAPI(IppStatus, ippsGFpECVerifyDSA, (const IppsBigNumState* pMsgDigest,
+                                       const IppsGFpECPoint* pRegPublic,
+                                       const IppsBigNumState* pSignR, const IppsBigNumState* pSignS,
+                                       IppECResult* pResult,
+                                       IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 
-IPPAPI(IppStatus, ippsGFpECSignNR,(const IppsBigNumState* pMsgDigest,
-                        const IppsBigNumState* pRegPrivate,
-                        IppsBigNumState* pEphPrivate,
-                        IppsBigNumState* pSignR, IppsBigNumState* pSignS,
-                        IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
-IPPAPI(IppStatus, ippsGFpECVerifyNR,(const IppsBigNumState* pMsgDigest,
-                        const IppsGFpECPoint* pRegPublic,
-                        const IppsBigNumState* pSignR, const IppsBigNumState* pSignS,
-                        IppECResult* pResult,
-                        IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPPAPI(IppStatus, ippsGFpECSignNR, (const IppsBigNumState* pMsgDigest,
+                                    const IppsBigNumState* pRegPrivate,
+                                    IppsBigNumState* pEphPrivate,
+                                    IppsBigNumState* pSignR, IppsBigNumState* pSignS,
+                                    IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPPAPI(IppStatus, ippsGFpECVerifyNR, (const IppsBigNumState* pMsgDigest,
+                                      const IppsGFpECPoint* pRegPublic,
+                                      const IppsBigNumState* pSignR, const IppsBigNumState* pSignS,
+                                      IppECResult* pResult,
+                                      IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
 
-IPPAPI(IppStatus, ippsGFpECSignSM2,(const IppsBigNumState* pMsgDigest,
-                        const IppsBigNumState* pRegPrivate,
-                        IppsBigNumState* pEphPrivate,
-                        IppsBigNumState* pSignR, IppsBigNumState* pSignS,
-                        IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
-IPPAPI(IppStatus, ippsGFpECVerifySM2,(const IppsBigNumState* pMsgDigest,
-                        const IppsGFpECPoint* pRegPublic,
-                        const IppsBigNumState* pSignR, const IppsBigNumState* pSignS,
-                        IppECResult* pResult,
-                        IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPPAPI(IppStatus, ippsGFpECSignSM2, (const IppsBigNumState* pMsgDigest,
+                                     const IppsBigNumState* pRegPrivate,
+                                     IppsBigNumState* pEphPrivate,
+                                     IppsBigNumState* pSignR, IppsBigNumState* pSignS,
+                                     IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+IPPAPI(IppStatus, ippsGFpECVerifySM2, (const IppsBigNumState* pMsgDigest,
+                                       const IppsGFpECPoint* pRegPublic,
+                                       const IppsBigNumState* pSignR, const IppsBigNumState* pSignS,
+                                       IppECResult* pResult,
+                                       IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+
+/* SM2 UserIDHash */
+IPPAPI(IppStatus, ippsGFpECUserIDHashSM2, (Ipp8u* pZaDigest,
+                                           const Ipp8u* pUserID, int userIDLen,
+                                           const IppsGFpECPoint* pPublicKey,
+                                           IppsGFpECState* pEC, Ipp8u* pScratchBuffer))
+
+
+/* SM2 Key Exchange */
+IPPAPI(IppStatus, ippsGFpECKeyExchangeSM2_GetSize, (const IppsGFpECState* pEC, int* pSize))
+IPPAPI(IppStatus, ippsGFpECKeyExchangeSM2_Init, (IppsGFpECKeyExchangeSM2State* pKE, IppsKeyExchangeRoleSM2 role, IppsGFpECState* pEC))
+
+IPPAPI(IppStatus, ippsGFpECKeyExchangeSM2_Setup, (const Ipp8u pZSelf[IPP_SM3_DIGEST_BYTESIZE],
+                                                  const Ipp8u pZPeer[IPP_SM3_DIGEST_BYTESIZE],
+                                                  const IppsGFpECPoint *pPublicKeySelf,
+                                                  const IppsGFpECPoint *pPublicKeyPeer,
+                                                  const IppsGFpECPoint *pEphPublicKeySelf,
+                                                  const IppsGFpECPoint *pEphPublicKeyPeer,
+                                                  IppsGFpECKeyExchangeSM2State *pKE))
+
+IPPAPI(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sharedKeySize,
+                                                      Ipp8u* pSSelf,
+                                                      const IppsBigNumState* pPrvKey,
+                                                      IppsBigNumState* pEphPrvKey,
+                                                      IppsGFpECKeyExchangeSM2State *pKE, Ipp8u* pScratchBuffer))
+
+IPPAPI(IppStatus, ippsGFpECKeyExchangeSM2_Confirmation, (const Ipp8u pSPeer[IPP_SM3_DIGEST_BYTESIZE],
+                                                         int* pStatus,
+                                                         IppsGFpECKeyExchangeSM2State* pKE))
 
 IPPAPI(IppStatus, ippsGFpECGetInfo_GF,(IppsGFpInfo* pInfo, const IppsGFpECState* pEC))
 
 IPPAPI(IppStatus, ippsGFpECESGetSize_SM2, (const IppsGFpECState* pEC, int* pSize))
 IPPAPI(IppStatus, ippsGFpECESInit_SM2, (IppsGFpECState* pEC,
-                        IppsECESState_SM2* pState, int avaliableCtxSize))
+                                        IppsECESState_SM2* pState, int avaliableCtxSize))
 IPPAPI(IppStatus, ippsGFpECESSetKey_SM2, (const IppsBigNumState* pPrivate,
-                        const IppsGFpECPoint* pPublic,
-                        IppsECESState_SM2* pState,
-                        IppsGFpECState* pEC,
-                        Ipp8u* pEcScratchBuffer))
+                                          const IppsGFpECPoint* pPublic,
+                                          IppsECESState_SM2* pState,
+                                          IppsGFpECState* pEC,
+                                          Ipp8u* pEcScratchBuffer))
 IPPAPI(IppStatus, ippsGFpECESStart_SM2, (IppsECESState_SM2* pState))
 IPPAPI(IppStatus, ippsGFpECESEncrypt_SM2, (const Ipp8u* pInput, Ipp8u* pOutput,
-                        int dataLen, IppsECESState_SM2* pState))
+                                           int dataLen, IppsECESState_SM2* pState))
 IPPAPI(IppStatus, ippsGFpECESDecrypt_SM2, (const Ipp8u* pInput, Ipp8u* pOutput,
-                        int dataLen, IppsECESState_SM2* pState))
+                                           int dataLen, IppsECESState_SM2* pState))
 IPPAPI(IppStatus, ippsGFpECESFinal_SM2, (Ipp8u* pTag, int tagLen, IppsECESState_SM2* pState))
 IPPAPI(IppStatus, ippsGFpECESGetBuffersSize_SM2, (int* pPublicKeySize,
-                        int* pMaximumTagSize, const IppsECESState_SM2* pState))
+                                                  int* pMaximumTagSize, const IppsECESState_SM2* pState))
 
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER)
 #pragma warning(pop)

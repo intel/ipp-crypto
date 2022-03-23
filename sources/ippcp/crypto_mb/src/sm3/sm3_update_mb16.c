@@ -26,7 +26,7 @@
 #endif
 
 DLL_PUBLIC
-mbx_status16 mbx_sm3_update_mb16(const int8u* msg_pa[16],
+mbx_status16 mbx_sm3_update_mb16(const int8u* const msg_pa[16],
                                           int len[16],
                                 SM3_CTX_mb16* p_state)
 {
@@ -58,9 +58,9 @@ mbx_status16 mbx_sm3_update_mb16(const int8u* msg_pa[16],
 
     /* handle non empty request */
     if (mb_mask16) {
-        __ALIGN64 int8u* loc_src[SM3_NUM_BUFFERS];
-        _mm512_storeu_si512(loc_src, _mm512_mask_loadu_epi64(_mm512_set1_epi64((long long)&zero_buffer), mb_mask8[0], msg_pa));
-        _mm512_storeu_si512(loc_src + 8, _mm512_mask_loadu_epi64(_mm512_set1_epi64((long long)&zero_buffer), mb_mask8[1], msg_pa + 8));
+        __ALIGN64 const int8u* loc_src[SM3_NUM_BUFFERS];
+        _mm512_storeu_si512((void*)loc_src, _mm512_mask_loadu_epi64(_mm512_set1_epi64((long long)&zero_buffer), mb_mask8[0], msg_pa));
+        _mm512_storeu_si512((void *)(loc_src + 8), _mm512_mask_loadu_epi64(_mm512_set1_epi64((long long)&zero_buffer), mb_mask8[1], msg_pa + 8));
 
         __m512i proc_len;
         __m512i idx = _mm512_loadu_si512(HASH_BUFFIDX(p_state));
@@ -111,7 +111,7 @@ mbx_status16 mbx_sm3_update_mb16(const int8u* msg_pa[16],
 
             /* update digest if at least one buffer is full */
             if (processed_mask) {
-                sm3_avx512_mb16(HASH_VALUE(p_state), (const int8u**)p_buffer, p_proc_len);
+                sm3_avx512_mb16(HASH_VALUE(p_state), (const int8u **)p_buffer, p_proc_len);
                 idx = _mm512_mask_set1_epi32(idx, ~_mm512_cmp_epi32_mask(proc_len, zero_buffer, _MM_CMPINT_LE), 0);
             }
         }
@@ -121,7 +121,7 @@ mbx_status16 mbx_sm3_update_mb16(const int8u* msg_pa[16],
         processed_mask = _mm512_cmp_epi32_mask(proc_len, zero_buffer, _MM_CMPINT_NLT);
 
         if (processed_mask)
-            sm3_avx512_mb16(HASH_VALUE(p_state), (const int8u**)loc_src, p_proc_len);
+            sm3_avx512_mb16(HASH_VALUE(p_state), loc_src, p_proc_len);
 
         loc_len = _mm512_sub_epi32(loc_len, proc_len);
 

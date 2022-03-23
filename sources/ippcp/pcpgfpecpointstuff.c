@@ -54,8 +54,43 @@ IPP_OWN_DEFN (int, gfec_IsPointOnCurve, (const IppsGFpECPoint* pPoint, IppsGFpEC
       BNU_CHUNK_T* pY = ECP_POINT_Y(pPoint);
       BNU_CHUNK_T* pZ = ECP_POINT_Z(pPoint);
 
-      BNU_CHUNK_T* pR = cpGFpGetPool(1, pGFE);
-      BNU_CHUNK_T* pT = cpGFpGetPool(1, pGFE);
+      BNU_CHUNK_T* pR = NULL;
+      BNU_CHUNK_T* pT = NULL;
+
+      BNU_CHUNK_T* pZ4 = NULL;
+      BNU_CHUNK_T* pZ6 = NULL;
+
+#if (_IPP32E >= _IPP32E_K1)
+      if (IsFeatureEnabled(ippCPUID_AVX512IFMA)) {
+         switch (ECP_MODULUS_ID(pEC)) {
+         case cpID_PrimeP256r1: {
+            isOnCurve = gfec_point_on_curve_nistp256_avx512(pPoint, pEC);
+            goto exit;
+            break;
+         }
+         case cpID_PrimeP384r1: {
+            isOnCurve = gfec_point_on_curve_nistp384_avx512(pPoint, pEC);
+            goto exit;
+            break;
+         }
+         case cpID_PrimeP521r1: {
+            isOnCurve = gfec_point_on_curve_nistp521_avx512(pPoint, pEC);
+            goto exit;
+            break;
+         }
+         case cpID_PrimeTPM_SM2: {
+            isOnCurve = gfec_point_on_curve_sm2_avx512(pPoint, pEC);
+            goto exit;
+            break;
+         }
+         default:
+            /* Go to default implementation below */
+            break;
+         }
+      }
+#endif // (_IPP32E >= _IPP32E_K1)
+      pR = cpGFpGetPool(1, pGFE);
+      pT = cpGFpGetPool(1, pGFE);
 
       sqrF(pR, pY, pGFE);       /* R = Y^2 */
       sqrF(pT, pX, pGFE);       /* T = X^3 */
@@ -68,8 +103,8 @@ IPP_OWN_DEFN (int, gfec_IsPointOnCurve, (const IppsGFpECPoint* pPoint, IppsGFpEC
          subF(pR, pR, ECP_B(pEC), pGFE);       /* R -= B */
       }
       else {
-         BNU_CHUNK_T* pZ4 = cpGFpGetPool(1, pGFE);
-         BNU_CHUNK_T* pZ6 = cpGFpGetPool(1, pGFE);
+         pZ4 = cpGFpGetPool(1, pGFE);
+         pZ6 = cpGFpGetPool(1, pGFE);
 
          sqrF(pZ6, pZ, pGFE);         /* Z^2 */
          sqrF(pZ4, pZ6, pGFE);        /* Z^4 */
@@ -86,7 +121,11 @@ IPP_OWN_DEFN (int, gfec_IsPointOnCurve, (const IppsGFpECPoint* pPoint, IppsGFpEC
       }
 
       isOnCurve = GFP_IS_ZERO(pR, GFP_FELEN(pGFE));
+
       cpGFpReleasePool(2, pGFE);
+#if (_IPP32E >= _IPP32E_K1)
+      exit:
+#endif // (_IPP32E >= _IPP32E_K1)
       return isOnCurve;
    }
 }

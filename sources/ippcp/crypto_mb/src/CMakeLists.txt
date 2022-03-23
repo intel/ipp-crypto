@@ -14,7 +14,7 @@
 # limitations under the License.
 #===============================================================================
 
-# Define defaults for every supported compiler  
+# Define defaults for every supported compiler
 set(DEFAULT_GNU_COMPILER_VER 8.2.0)
 set(DEFAULT_CLANG_COMPILER_VER 9.0.0)
 set(DEFAULT_Intel_COMPILER_VER 19.0.0)
@@ -43,7 +43,12 @@ file(GLOB X25519_SOURCES        "${CRYPTO_MB_SOURCES_DIR}/x25519/*.c")
 file(GLOB ECNIST_SOURCES        "${CRYPTO_MB_SOURCES_DIR}/ecnist/*.c")
 file(GLOB SM2_SOURCES           "${CRYPTO_MB_SOURCES_DIR}/sm2/*.c")
 file(GLOB SM3_SOURCES           "${CRYPTO_MB_SOURCES_DIR}/sm3/*.c")
+
+# SM4 Sources
 file(GLOB SM4_SOURCES           "${CRYPTO_MB_SOURCES_DIR}/sm4/*.c")
+file(GLOB SM4_SOURCES           ${SM4_SOURCES} "${CRYPTO_MB_SOURCES_DIR}/sm4/gcm/*.c")
+file(GLOB SM4_SOURCES           ${SM4_SOURCES} "${CRYPTO_MB_SOURCES_DIR}/sm4/gcm/internal/*.c")
+
 file(GLOB ED25519_SOURCES       "${CRYPTO_MB_SOURCES_DIR}/ed25519/*.c")
 file(GLOB EXP_SOURCES           "${CRYPTO_MB_SOURCES_DIR}/exp/*.c")
 
@@ -77,7 +82,7 @@ endif()
 if(BN_OPENSSL_PATCH) # Off by default
     list(APPEND AVX512_LIBRARY_DEFINES "BN_OPENSSL_PATCH")
 endif()
-                                      
+
 set(MB_LIB_TARGET ${MB_DYN_LIB_TARGET})
 
 set_source_files_properties(${CRYPTO_MB_SOURCES} PROPERTIES COMPILE_DEFINITIONS  "${AVX512_LIBRARY_DEFINES}"

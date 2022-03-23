@@ -39,136 +39,6 @@ static const __ALIGN64 Ipp64u psm2_rr[PSM2_LEN52] = {
 static const __ALIGN64 Ipp64u ones[PSM2_LEN52] = {
     0x1, 0x0, 0x0, 0x0, 0x0};
 
-/* enhanced Montgomery */
-#define NORM_ROUND(R)                                                                              \
-    {                                                                                              \
-        const fesm2 carry       = srai_i64((R), DIGIT_SIZE_52);                         /* O(1) */ \
-        const fesm2 shift_carry = maskz_permutexvar_i8(mask_shift_carry, idxi8, carry); /* O(1) */ \
-        const fesm2 radix52     = and_i64((R), mask52radix);                            /* O(1) */ \
-        (R)                     = add_i64(radix52, shift_carry);                        /* O(1) */ \
-    }
-
-IPP_OWN_DEFN(fesm2, fesm2_norm, (const fesm2 a)) {
-    const fesm2 mask52radix       = set1_i64(DIGIT_MASK_52);
-    const mask64 mask_shift_carry = 0xFFFFFFFFFFFFFF00;
-
-    const fesm2 idxi8 = set_i64(0x3736353433323130, // 55, 54, 53, 52, 51, 50, 49, 48
-                                0x2f2e2d2c2b2a2928, // 47, 46, 45, 44, 43, 42, 41, 40
-                                0x2726252423222120, // 39, 38, 37, 36, 35, 34, 33, 32
-                                0x1f1e1d1c1b1a1918, // 31, 30, 29, 28, 27, 26, 25, 24
-                                0x1716151413121110, // 23, 22, 21, 20, 19, 18, 17, 16
-                                0x0f0e0d0c0b0a0908, // 15, 14, 13, 12, 11, 10,  9,  8
-                                0x0706050403020100, //  7,  6,  5,  4,  3,  2,  1,  0
-                                0x0);               //  0,  0,  0,  0,  0,  0,  0,  0
-
-    fesm2 r = a;
-    /* reduction */
-    NORM_ROUND(r)
-    NORM_ROUND(r)
-    NORM_ROUND(r)
-    NORM_ROUND(r)
-    NORM_ROUND(r)
-
-    return r;
-}
-
-IPP_OWN_DEFN(void, fesm2_norm_dual,
-             (fesm2 pr1[], const fesm2 a1,
-              fesm2 pr2[], const fesm2 a2)) {
-    const fesm2 mask52radix       = set1_i64(DIGIT_MASK_52);
-    const mask64 mask_shift_carry = 0xFFFFFFFFFFFFFF00;
-
-    const fesm2 idxi8 = set_i64(0x3736353433323130, // 55, 54, 53, 52, 51, 50, 49, 48
-                                0x2f2e2d2c2b2a2928, // 47, 46, 45, 44, 43, 42, 41, 40
-                                0x2726252423222120, // 39, 38, 37, 36, 35, 34, 33, 32
-                                0x1f1e1d1c1b1a1918, // 31, 30, 29, 28, 27, 26, 25, 24
-                                0x1716151413121110, // 23, 22, 21, 20, 19, 18, 17, 16
-                                0x0f0e0d0c0b0a0908, // 15, 14, 13, 12, 11, 10,  9,  8
-                                0x0706050403020100, //  7,  6,  5,  4,  3,  2,  1,  0
-                                0x0);               //  0,  0,  0,  0,  0,  0,  0,  0
-
-    fesm2 r1 = a1;
-    fesm2 r2 = a2;
-    /* reduction */
-    NORM_ROUND(r1)
-    NORM_ROUND(r2)
-    NORM_ROUND(r1)
-    NORM_ROUND(r2)
-    NORM_ROUND(r1)
-    NORM_ROUND(r2)
-    NORM_ROUND(r1)
-    NORM_ROUND(r2)
-    NORM_ROUND(r1)
-    NORM_ROUND(r2)
-
-    *pr1 = r1;
-    *pr2 = r2;
-    return;
-}
-
-#define ROUND_LIGHT_NORM(R)                                                 \
-    {                                                                       \
-        fesm2 carry = srai_i64((R), DIGIT_SIZE_52);                         \
-        carry       = maskz_permutexvar_i8(mask_shift_carry, idxi8, carry); \
-                                                                            \
-        (R) = and_i64((R), mask52);                                         \
-        (R) = add_i64((R), carry);                                          \
-                                                                            \
-        Ipp16u k2 = (Ipp16u)(cmp_i64_mask(mask52, (R), _MM_CMPINT_EQ));     \
-        Ipp16u k1 = (Ipp16u)(cmp_i64_mask(mask52, (R), _MM_CMPINT_LT));     \
-                                                                            \
-        k1 = k2 + 2 * k1;                                                   \
-        k1 ^= k2;                                                           \
-                                                                            \
-        (R) = mask_add_i64((R), (mask8)(k1), (R), one);                     \
-        (R) = and_i64((R), mask52);                                         \
-    }
-
-IPP_OWN_DEFN(fesm2, fesm2_lnorm, (const fesm2 a)) {
-    const fesm2 mask52            = set1_i64(DIGIT_MASK_52);
-    const fesm2 one               = set1_i64(1ULL);
-    const mask64 mask_shift_carry = 0xFFFFFFFFFFFFFF00;
-
-    const fesm2 idxi8 = set_i64(0x3736353433323130, // 55, 54, 53, 52, 51, 50, 49, 48
-                                0x2f2e2d2c2b2a2928, // 47, 46, 45, 44, 43, 42, 41, 40
-                                0x2726252423222120, // 39, 38, 37, 36, 35, 34, 33, 32
-                                0x1f1e1d1c1b1a1918, // 31, 30, 29, 28, 27, 26, 25, 24
-                                0x1716151413121110, // 23, 22, 21, 20, 19, 18, 17, 16
-                                0x0f0e0d0c0b0a0908, // 15, 14, 13, 12, 11, 10,  9,  8
-                                0x0706050403020100, //  7,  6,  5,  4,  3,  2,  1,  0
-                                0x0);               //  0,  0,  0,  0,  0,  0,  0,  0
-
-    fesm2 r = a;
-    ROUND_LIGHT_NORM(r)
-    return r;
-}
-
-IPP_OWN_DEFN(void, fesm2_lnorm_dual,
-             (fesm2 pr1[], const fesm2 a1,
-              fesm2 pr2[], const fesm2 a2)) {
-    const fesm2 mask52            = set1_i64(DIGIT_MASK_52);
-    const fesm2 one               = set1_i64(1ULL);
-    const mask64 mask_shift_carry = 0xFFFFFFFFFFFFFF00;
-
-    const fesm2 idxi8 = set_i64(0x3736353433323130, // 55, 54, 53, 52, 51, 50, 49, 48
-                                0x2f2e2d2c2b2a2928, // 47, 46, 45, 44, 43, 42, 41, 40
-                                0x2726252423222120, // 39, 38, 37, 36, 35, 34, 33, 32
-                                0x1f1e1d1c1b1a1918, // 31, 30, 29, 28, 27, 26, 25, 24
-                                0x1716151413121110, // 23, 22, 21, 20, 19, 18, 17, 16
-                                0x0f0e0d0c0b0a0908, // 15, 14, 13, 12, 11, 10,  9,  8
-                                0x0706050403020100, //  7,  6,  5,  4,  3,  2,  1,  0
-                                0x0);               //  0,  0,  0,  0,  0,  0,  0,  0
-
-    fesm2 r1 = a1;
-    fesm2 r2 = a2;
-
-    ROUND_LIGHT_NORM(r1)
-    ROUND_LIGHT_NORM(r2)
-
-    *pr1 = r1;
-    *pr2 = r2;
-    return;
-}
 
 /* R = (A/2) mod M */
 IPP_OWN_DEFN(fesm2, fesm2_div2_norm, (const fesm2 a)) {
@@ -180,7 +50,7 @@ IPP_OWN_DEFN(fesm2, fesm2_div2_norm, (const fesm2 a)) {
     const mask8 mask        = (mask8)((is_last_one & 1) - 1);
 
     fesm2 r = mask_add_i64(a, mask, a, M);
-    r       = fesm2_lnorm(r);
+    r       = ifma_lnorm52(r);
 
     /* 1-bit shift right */
     /* extract last bite + >> 64 */
@@ -212,7 +82,7 @@ IPP_OWN_DEFN(fesm2, fesm2_neg_norm, (const fesm2 a)) {
 
     /* r = 4*p - a */
     fesm2 r = mask_sub_i64(a, (mask8)(~mask_zero), M4, a);
-    r       = fesm2_norm(r);
+    r       = ifma_norm52(r);
     return r;
 }
 
@@ -346,7 +216,7 @@ IPP_OWN_DEFN(fesm2, fesm2_to_mont, (const fesm2 a)) {
     const fesm2 RR = FESM2_LOADU(psm2_rr);
 
     fesm2 r = fesm2_mul(a, RR);
-    return fesm2_lnorm(r);
+    return ifma_lnorm52(r);
 }
 
 static fesm2 fesm2_fast_reduction(const fesm2 a) {
@@ -355,7 +225,7 @@ static fesm2 fesm2_fast_reduction(const fesm2 a) {
 
     /* r = a - M */
     fesm2 r = sub_i64(a, M);
-    r       = fesm2_norm(r);
+    r       = ifma_norm52(r);
 
     /* 1 < 0 */
     const mask8 lt   = cmp_i64_mask(zero, srli_i64(r, DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
@@ -371,26 +241,26 @@ IPP_OWN_DEFN(fesm2, fesm2_from_mont, (const fesm2 a)) {
 
     /* from mont */
     fesm2 r = fesm2_mul(a, ONE);
-    r       = fesm2_lnorm(r);
+    r       = ifma_lnorm52(r);
     r       = fesm2_fast_reduction(r);
     return r;
 }
 
 __INLINE fesm2 fesm2_mul_norm(const fesm2 a, const fesm2 b) {
     fesm2 r = fesm2_mul(a, b);
-    return fesm2_lnorm(r);
+    return ifma_lnorm52(r);
 }
 
 __INLINE fesm2 fesm2_sqr_norm(const fesm2 a) {
     fesm2 r = fesm2_sqr(a);
-    return fesm2_lnorm(r);
+    return ifma_lnorm52(r);
 }
 
 #define mul(R, A, B) (R) = fesm2_mul_norm((A), (B))
 #define sqr(R, A)    (R) = fesm2_sqr_norm((A))
 #define mul_dual(R1, A1, B1, R2, A2, B2)                  \
     fesm2_mul_dual(&(R1), (A1), (B1), &(R2), (A2), (B2)); \
-    fesm2_lnorm_dual(&(R1), (R1), &(R2), (R2));
+    ifma_lnorm52_dual(&(R1), (R1), &(R2), (R2));
 
 __INLINE fesm2 fesm2_sqr_ntimes(const fesm2 a, int n) {
     fesm2 r = a;

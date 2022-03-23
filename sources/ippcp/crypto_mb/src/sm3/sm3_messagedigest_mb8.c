@@ -20,7 +20,7 @@
 #include <internal/sm3/sm3_mb8.h>
 #include <internal/common/ifma_defs.h>
 
-mbx_status sm3_msg_digest_mb8(const int8u* msg_pa[8], int len[8], int8u* hash_pa[8])
+mbx_status sm3_msg_digest_mb8(const int8u* const msg_pa[8], int len[8], int8u* hash_pa[8])
 {
     int buf_no;
     mbx_status status = 0;
@@ -43,7 +43,7 @@ mbx_status sm3_msg_digest_mb8(const int8u* msg_pa[8], int len[8], int8u* hash_pa
     sm3_init_mb8(&p_state);
 
     /* process main part of the message */
-    status = sm3_update_mb8((const int8u**)msg_pa, len, &p_state);
+    status = sm3_update_mb8(msg_pa, len, &p_state);
 
     if(MBX_IS_ANY_OK_STS(status)) {
         /* finalize message processing */

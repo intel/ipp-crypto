@@ -120,11 +120,11 @@ IPP_OWN_DEFN(fesm2, fesm2_add_norder_norm, (const fesm2 a, const fesm2 b)) {
 
     /* r = a + b */
     fesm2 r = add_i64(a, b);
-    r       = fesm2_lnorm(r);
+    r       = ifma_lnorm52(r);
 
     /* t = r - N */
     fesm2 t = sub_i64(r, N);
-    t       = fesm2_norm(t);
+    t       = ifma_norm52(t);
 
     /* lt = t < 0 */
     const mask8 lt   = cmp_i64_mask(zero, srli_i64(t, DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
@@ -139,11 +139,11 @@ IPP_OWN_DEFN(fesm2, fesm2_sub_norder_norm, (const fesm2 a, const fesm2 b)) {
     const fesm2 N    = FESM2_LOADU(nsm2_x1);
     /* r = a - b */
     fesm2 r = sub_i64(a, b);
-    r       = fesm2_norm(r);
+    r       = ifma_norm52(r);
 
     /* t = r + M */
     fesm2 t = add_i64(r, N);
-    t       = fesm2_lnorm(t);
+    t       = ifma_lnorm52(t);
 
     /* lt = r < 0 */
     const mask8 lt   = cmp_i64_mask(zero, srli_i64(r, DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
@@ -159,7 +159,7 @@ IPP_OWN_DEFN(fesm2, fesm2_fast_reduction_norder, (const fesm2 a)) {
     const fesm2 N    = FESM2_LOADU(nsm2_x1);
 
     fesm2 r = sub_i64(a, N);
-    r       = fesm2_norm(r);
+    r       = ifma_norm52(r);
 
     const mask8 lt   = cmp_i64_mask(zero, srli_i64(r, DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
     const mask8 mask = (mask8)((mask8)0 - ((lt >> 4) & 1));
@@ -172,25 +172,25 @@ IPP_OWN_DEFN(fesm2, fesm2_fast_reduction_norder, (const fesm2 a)) {
 IPP_OWN_DEFN(fesm2, fesm2_to_mont_norder, (const fesm2 a)) {
     const fesm2 RR = FESM2_LOADU(nsm2_rr);
     const fesm2 r  = fesm2_mul_norder(a, RR);
-    return fesm2_lnorm(r);
+    return ifma_lnorm52(r);
 }
 
 IPP_OWN_DEFN(fesm2, fesm2_from_mont_norder, (const fesm2 a)) {
     const fesm2 ONE = FESM2_LOADU(ones);
     fesm2 r         = fesm2_mul_norder(a, ONE);
-    r               = fesm2_lnorm(r);
+    r               = ifma_lnorm52(r);
     r               = fesm2_fast_reduction_norder(r);
     return r;
 }
 
 __INLINE fesm2 mul_norder_norm(const fesm2 a, const fesm2 b) {
     const fesm2 r = fesm2_mul_norder(a, b);
-    return fesm2_lnorm(r);
+    return ifma_lnorm52(r);
 }
 
 __INLINE fesm2 sqr_norder_norm(const fesm2 a) {
     const fesm2 r = fesm2_mul_norder(a, a);
-    return fesm2_lnorm(r);
+    return ifma_lnorm52(r);
 }
 
 #define SIZE_TBL (16)
