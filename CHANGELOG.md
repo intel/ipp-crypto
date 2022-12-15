@@ -2,6 +2,13 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## Intel(R) IPP Cryptography 2021.7
+- Mitigation for Frequency Throttling Side-Channel Attack ([Frequency Throttling Side Channel Software Guidance for Cryptography Implementations](https://www.intel.com/content/www/us/en/developer/articles/technical/software-security-guidance/technical-documentation/frequency-throttling-side-channel-guidance.html)) was added for ECB, CMAC and GCM modes of AES (for more details refer to ippsAESSetupNoise, ippsAES_GCMSetupNoise and ippsAES_CMACSetupNoise).
+- Crypto Multi-buffer library was extended with CCM and GCM modes of SM4 algorithm.
+- In Crypto Multi-buffer library in-place mode of executing (when pa_out == pa_inp) was fixed for SM4 CBC and CFB modes.
+- New API that updates pointer to IppsHashMethod context inside the IppsHashState_rmf state was added (please, refer to ippsHashStateMethodSet_ API).
+- ippsHMAC_Pack(_rmf), ippsHMAC_Unpack(_rmf) APIs were fixed - context id is set up properly now during the packing-unpacking process.
+
 ## Intel(R) IPP Cryptography 2021.6
 - EC cryptography functionality for the NIST curves p256r1, p384r1, p521r1 and SM2 curve was enabled with Intel® Advanced Vector Extensions 512 (Intel® AVX-512) IFMA instructions.
 - EC cryptography functionality input parameters checking was improved by adding keys boundaries check.

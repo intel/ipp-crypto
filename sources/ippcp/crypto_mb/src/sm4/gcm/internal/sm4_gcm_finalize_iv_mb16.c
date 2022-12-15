@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include <internal/common/ifma_defs.h>
@@ -25,7 +26,7 @@
 // 0^s means the bit string that consists of s '0' bits here
 // [x] means the least integer that is not less than the real number x here
 //
-// This function also encrypts J0 to use it later for tag computation
+// This function also encrypts J0 by calling sm4_encrypt_j0_mb16(), to use it later for tag computation
 */
 
 void sm4_gcm_finalize_iv_mb16(const int8u *const pa_iv[SM4_LINES], __mmask16 mb_mask, SM4_GCM_CTX_mb16 *p_context)
@@ -75,41 +76,40 @@ void sm4_gcm_finalize_iv_mb16(const int8u *const pa_iv[SM4_LINES], __mmask16 mb_
       */
 
       /* Begin of explicitly unrolled loop */
-
-      __m128i input_block_0 = _mm_maskz_set1_epi64(1, *(iv_len + (0 + 4 * 0)) * 8);
-      __m128i input_block_1 = _mm_maskz_set1_epi64(1, *(iv_len + (0 + 4 * 1)) * 8);
-      __m128i input_block_2 = _mm_maskz_set1_epi64(1, *(iv_len + (0 + 4 * 2)) * 8);
-      __m128i input_block_3 = _mm_maskz_set1_epi64(1, *(iv_len + (0 + 4 * 3)) * 8);
+      __m128i input_block_0 = _mm_maskz_set1_epi64(1, *(iv_len + (0 + 4 * 0)) << 3);
+      __m128i input_block_1 = _mm_maskz_set1_epi64(1, *(iv_len + (0 + 4 * 1)) << 3);
+      __m128i input_block_2 = _mm_maskz_set1_epi64(1, *(iv_len + (0 + 4 * 2)) << 3);
+      __m128i input_block_3 = _mm_maskz_set1_epi64(1, *(iv_len + (0 + 4 * 3)) << 3);
 
       iv_blocks_4_0 = insert32x4(iv_blocks_4_0, input_block_0, 0);
       iv_blocks_4_1 = insert32x4(iv_blocks_4_1, input_block_1, 0);
       iv_blocks_4_2 = insert32x4(iv_blocks_4_2, input_block_2, 0);
       iv_blocks_4_3 = insert32x4(iv_blocks_4_3, input_block_3, 0);
 
-      input_block_0 = _mm_maskz_set1_epi64(1, *(iv_len + (1 + 4 * 0)) * 8);
-      input_block_1 = _mm_maskz_set1_epi64(1, *(iv_len + (1 + 4 * 1)) * 8);
-      input_block_2 = _mm_maskz_set1_epi64(1, *(iv_len + (1 + 4 * 2)) * 8);
-      input_block_3 = _mm_maskz_set1_epi64(1, *(iv_len + (1 + 4 * 3)) * 8);
+      input_block_0 = _mm_maskz_set1_epi64(1, *(iv_len + (1 + 4 * 0)) << 3);
+      input_block_1 = _mm_maskz_set1_epi64(1, *(iv_len + (1 + 4 * 1)) << 3);
+      input_block_2 = _mm_maskz_set1_epi64(1, *(iv_len + (1 + 4 * 2)) << 3);
+      input_block_3 = _mm_maskz_set1_epi64(1, *(iv_len + (1 + 4 * 3)) << 3);
 
       iv_blocks_4_0 = insert32x4(iv_blocks_4_0, input_block_0, 1);
       iv_blocks_4_1 = insert32x4(iv_blocks_4_1, input_block_1, 1);
       iv_blocks_4_2 = insert32x4(iv_blocks_4_2, input_block_2, 1);
       iv_blocks_4_3 = insert32x4(iv_blocks_4_3, input_block_3, 1);
 
-      input_block_0 = _mm_maskz_set1_epi64(1, *(iv_len + (2 + 4 * 0)) * 8);
-      input_block_1 = _mm_maskz_set1_epi64(1, *(iv_len + (2 + 4 * 1)) * 8);
-      input_block_2 = _mm_maskz_set1_epi64(1, *(iv_len + (2 + 4 * 2)) * 8);
-      input_block_3 = _mm_maskz_set1_epi64(1, *(iv_len + (2 + 4 * 3)) * 8);
+      input_block_0 = _mm_maskz_set1_epi64(1, *(iv_len + (2 + 4 * 0)) << 3);
+      input_block_1 = _mm_maskz_set1_epi64(1, *(iv_len + (2 + 4 * 1)) << 3);
+      input_block_2 = _mm_maskz_set1_epi64(1, *(iv_len + (2 + 4 * 2)) << 3);
+      input_block_3 = _mm_maskz_set1_epi64(1, *(iv_len + (2 + 4 * 3)) << 3);
 
       iv_blocks_4_0 = insert32x4(iv_blocks_4_0, input_block_0, 2);
       iv_blocks_4_1 = insert32x4(iv_blocks_4_1, input_block_1, 2);
       iv_blocks_4_2 = insert32x4(iv_blocks_4_2, input_block_2, 2);
       iv_blocks_4_3 = insert32x4(iv_blocks_4_3, input_block_3, 2);
 
-      input_block_0 = _mm_maskz_set1_epi64(1, *(iv_len + (3 + 4 * 0)) * 8);
-      input_block_1 = _mm_maskz_set1_epi64(1, *(iv_len + (3 + 4 * 1)) * 8);
-      input_block_2 = _mm_maskz_set1_epi64(1, *(iv_len + (3 + 4 * 2)) * 8);
-      input_block_3 = _mm_maskz_set1_epi64(1, *(iv_len + (3 + 4 * 3)) * 8);
+      input_block_0 = _mm_maskz_set1_epi64(1, *(iv_len + (3 + 4 * 0)) << 3);
+      input_block_1 = _mm_maskz_set1_epi64(1, *(iv_len + (3 + 4 * 1)) << 3);
+      input_block_2 = _mm_maskz_set1_epi64(1, *(iv_len + (3 + 4 * 2)) << 3);
+      input_block_3 = _mm_maskz_set1_epi64(1, *(iv_len + (3 + 4 * 3)) << 3);
 
       iv_blocks_4_0 = insert32x4(iv_blocks_4_0, input_block_0, 3);
       iv_blocks_4_1 = insert32x4(iv_blocks_4_1, input_block_1, 3);

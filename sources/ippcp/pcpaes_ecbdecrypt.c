@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2013 Intel Corporation
+* Copyright (C) 2013 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -33,7 +34,6 @@
 #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
 #  include "pcprijtables.h"
 #endif
-
 
 /*
 // AES-ECB denryption
@@ -70,6 +70,19 @@ void cpDecryptAES_ecb(const Ipp8u* pSrc, Ipp8u* pDst, int nBlocks, const IppsAES
          pDst += MBS_RIJ128;
          nBlocks--;
       }
+   }
+}
+
+static void cpDecryptAES_ecb_dispatch(const Ipp8u *pSrc, Ipp8u *pDst, int len, const IppsAESSpec *pCtx)
+{
+#if (_IPP32E >= _IPP32E_K1)
+   if (IsFeatureEnabled(ippCPUID_AVX512VAES))
+      DecryptECB_RIJ128pipe_VAES_NI(pSrc, pDst, len, pCtx);
+   else
+#endif
+   {
+      int nBlocks = len / MBS_RIJ128;
+      cpDecryptAES_ecb(pSrc, pDst, nBlocks, pCtx);
    }
 }
 
@@ -110,16 +123,35 @@ IPPFUN(IppStatus, ippsAESDecryptECB,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
    IPP_BADARG_RET((len&(MBS_RIJ128-1)), ippStsUnderRunErr);
 
    /* do encryption */
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+   cpAESNoiseParams *params = (cpAESNoiseParams*)&RIJ_NOISE_PARAMS(pCtx);
+   /* Mistletoe3 mitigation */
+   if (AES_NOISE_LEVEL(params) > 0) {
+      /* Number of bytes allowed for operation without adding noise */
+      int chunk_size;
+      /* Number of bytes remaining for operation */
+      int remaining_size = len;
+
+      while (remaining_size > 0) {
+         /* How many bytes to encrypt in this operation */
+         chunk_size = (remaining_size >= MISTLETOE3_MAX_CHUNK_SIZE) ? MISTLETOE3_MAX_CHUNK_SIZE : remaining_size;
+
+         cpDecryptAES_ecb_dispatch(pSrc, pDst, chunk_size, pCtx);
+
+         cpAESRandomNoise(NULL,
+               MISTLETOE3_BASE_NOISE_LEVEL + AES_NOISE_LEVEL(params),
+               MISTLETOE3_NOISE_RATE,
+               &AES_NOISE_RAND(params));
+
+         pSrc += chunk_size;
+         pDst += chunk_size;
+         remaining_size -= chunk_size;
+      }
+   } else
+#endif
    {
-      int nBlocks = len / MBS_RIJ128;
-
-      #if(_IPP32E>=_IPP32E_K1)
-      if (IsFeatureEnabled(ippCPUID_AVX512VAES))
-         DecryptECB_RIJ128pipe_VAES_NI(pSrc, pDst, len, pCtx);
-      else
-      #endif
-      cpDecryptAES_ecb(pSrc, pDst, nBlocks, pCtx);
-
-      return ippStsNoErr;
+      cpDecryptAES_ecb_dispatch(pSrc, pDst, len, pCtx);
    }
+
+   return ippStsNoErr;
 }

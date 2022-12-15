@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright (C) 2020 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /*
@@ -1118,7 +1119,7 @@ int cpSMS4_CTR_gfni128x12(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u*
       _mm_storeu_si128((__m128i*)pCtr, TMP[15]);
 
       /* clear secret data */
-      for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
+      for(Ipp32u i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
          TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
       }
    }
@@ -1294,7 +1295,7 @@ int cpSMS4_CTR_gfni128x8(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* 
       _mm_storeu_si128((__m128i*)pCtr, TMP[11]);
 
       /* clear secret data */
-      for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
+      for(Ipp32u i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
          TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
       }
    }
@@ -1414,7 +1415,7 @@ int cpSMS4_ECB_gfni128x4(Ipp8u* pOut, const Ipp8u* pInp, int len, const Ipp32u* 
    _mm_storeu_si128((__m128i*)pCtr, TMP[7]);
 
    /* clear secret data */
-   for(int i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
+   for(Ipp32u i = 0; i < sizeof(TMP)/sizeof(TMP[0]); i++){
       TMP[i] = _mm_xor_si128(TMP[i],TMP[i]);
    }
 

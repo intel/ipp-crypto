@@ -1,17 +1,18 @@
 #===============================================================================
-# Copyright 2017 Intel Corporation
+# Copyright (C) 2017 Intel Corporation
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+# 
 #===============================================================================
 
 #
@@ -101,7 +102,7 @@ endif(NOT MERGED_BLD)
 set(DEFAULT_Intel_COMPILER_VER 19.0.0)
 set(DEFAULT_MSVC_COMPILER_VER 19.14)
 set(DEFAULT_GNU_COMPILER_VER 8.2.0)
-set(DEFAULT_APPLE_CLANG_COMPILER_VER 11.0.0)
+set(DEFAULT_APPLE_CLANG_COMPILER_VER 12.0.0)
 set(DEFAULT_Clang_COMPILER_VER 9.0.0)
 
 set(DEFAULT_Intel18_COMPILER_VER 18.0.0)
@@ -133,7 +134,7 @@ if(("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") AND (CMAKE_C_COMPILER_VERSION VERSI
 endif()
 
 if(("${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang") AND (CMAKE_C_COMPILER_VERSION VERSION_LESS DEFAULT_APPLE_CLANG_COMPILER_VER))
-  message(FATAL_ERROR "Apple Clang C Compiler version must be 11.0 or higher")
+  message(FATAL_ERROR "Apple Clang C Compiler version must be 12.0 or higher")
 endif()
 
 if(("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang") AND (CMAKE_C_COMPILER_VERSION VERSION_LESS DEFAULT_CLANG_COMPILER_VER))
@@ -268,6 +269,7 @@ foreach(opt ${PLATFORM_LIST})
         ${asm_cache_dir}/*.asm
     )
     set_source_files_properties(${LIBRARY_ASM_SOURCES_${opt}} PROPERTIES COMPILE_DEFINITIONS "$<$<BOOL:${MERGED_BLD}>:_MERGED_BLD>;${${opt}_def}"
+                                                                         COMPILE_OPTIONS "$<$<CONFIG:Debug>:${CMAKE_ASM_NASM_DEBUG_OPTIONS}>"
                                                                          INCLUDE_DIRECTORIES "${ASM_INCLUDE_DIRECTORIES}")
 
     #########################################################################################

@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 /*
@@ -57,21 +58,18 @@ IPPFUN(IppStatus, ippsGFpECMessageRepresentationSM2, (IppsBigNumState * pMsgDige
    /* check Message */
    IPP_BAD_PTR1_RET(pMsg);
    /* check border (msgLen > 0) */
-   IPP_BADARG_RET(!(msgLen > 0), ippStsBadArgErr);
+   IPP_BADARG_RET(!(msgLen > 0), ippStsOutOfRangeErr);
 
    /* check message digest */
    IPP_BAD_PTR1_RET(pMsgDigest);
    IPP_BADARG_RET(!BN_VALID_ID(pMsgDigest), ippStsContextMatchErr);
    /* make sure bitsize(pMsgDigest) <= bitsize(order) */
-   /* clang-format off */
-   IPP_BADARG_RET(!(cpBN_bitsize(pMsgDigest) <= ECP_ORDBITSIZE(pEC)) ||
-                  !(cpBN_bitsize(pMsgDigest) == IPP_SM3_DIGEST_BITSIZE), ippStsMessageErr);
-   /* clang-format on */
+   IPP_BADARG_RET(!(cpBN_bitsize(pMsgDigest) <= ECP_ORDBITSIZE(pEC)), ippStsMessageErr);
 
    /* check User ID */
    IPP_BAD_PTR1_RET(pUserID);
    /* check border (userIDLen > 0) */
-   IPP_BADARG_RET(!(userIDLen > 0), ippStsBadArgErr);
+   IPP_BADARG_RET(!(userIDLen > 0), ippStsOutOfRangeErr);
 
    pGF  = ECP_GFP(pEC);
    pGFE = GFP_PMA(pGF);
@@ -84,7 +82,10 @@ IPPFUN(IppStatus, ippsGFpECMessageRepresentationSM2, (IppsBigNumState * pMsgDige
 
    Ipp8u Za[IPP_SM3_DIGEST_BYTESIZE];
    /* compute Za = SM3( ENTL || ID || a || b || xG || yG || xA || yA ) */
-   ippsGFpECUserIDHashSM2((Ipp8u *)Za, pUserID, userIDLen, pRegPublic, pEC, pScratchBuffer);
+   const IppStatus sts = ippsGFpECUserIDHashSM2((Ipp8u *)Za, pUserID, userIDLen, pRegPublic, pEC, pScratchBuffer);
+   if(ippStsNoErr != sts){
+      return sts;
+   }
 
    /* e = SM3(Za || M) */
    static IppsHashState_rmf ctx;

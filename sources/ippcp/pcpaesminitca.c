@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2013 Intel Corporation
+* Copyright (C) 2013 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -85,6 +86,14 @@ IPPFUN(IppStatus, ippsAESInit,(const Ipp8u* pKey, int keyLen,
       RIJ_NK(pCtx) = keyWords;
       RIJ_NR(pCtx) = nRounds;
       RIJ_SAFE_INIT(pCtx) = 1;
+
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+      /* Reset AES noise parameters */
+      cpAESNoiseParams *params = (cpAESNoiseParams *)&RIJ_NOISE_PARAMS(pCtx);
+
+      AES_NOISE_RAND(params)       = 0;
+      AES_NOISE_LEVEL(params)      = 0;
+#endif
 
       /* align addresses of keys buffer */
       RIJ_EKEYS(pCtx) = (Ipp8u*)(IPP_ALIGNED_PTR(RIJ_KEYS_BUFFER(pCtx), AES_ALIGNMENT));

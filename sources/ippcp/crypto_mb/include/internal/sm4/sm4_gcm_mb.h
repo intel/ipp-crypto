@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include <crypto_mb/sm4_gcm.h>
@@ -21,60 +22,13 @@
 #ifndef SM4_GCM_MB_H
 #define SM4_GCM_MB_H
 
-#include <stdio.h>
-
-#define loadu _mm512_loadu_si512
-#define storeu _mm512_storeu_si512
-
-#define mask_storeu_epi64 _mm512_mask_storeu_epi64
-#define maskz_expandloadu_epi32 _mm512_maskz_expandloadu_epi32
-
-#define mask_storeu_epi8 _mm512_mask_storeu_epi8
-#define maskz_loadu_epi8 _mm512_maskz_loadu_epi8
-
-#define srli_epi64 _mm512_srli_epi64
-#define slli_epi64 _mm512_slli_epi64
-#define bsrli_epi128 _mm512_bsrli_epi128
-#define bslli_epi128 _mm512_bslli_epi128
-
-#define shuffle_epi8 _mm512_shuffle_epi8
-#define shuffle_epi32 _mm512_shuffle_epi32
-
-#define set1_epi32 _mm512_set1_epi32
-#define set1_epi64 _mm512_set1_epi64
-#define setzero _mm512_setzero_si512
-
-#define cmpeq_epi32_mask _mm512_cmpeq_epi32_mask
-#define cmp_epi32_mask _mm512_cmp_epi32_mask
-#define cmp_epi64_mask _mm512_cmp_epi64_mask
-
-#define mask_set1_epi32 _mm512_mask_set1_epi32
-
-#define mask_sub_epi32 _mm512_mask_sub_epi32
-#define mask_add_epi32 _mm512_mask_add_epi32
-#define mask_add_epi64 _mm512_mask_add_epi64
-#define add_epi32 _mm512_add_epi32
-#define sub_epi32 _mm512_sub_epi32
-#define add_epi64 _mm512_add_epi64
-
-#define or _mm512_or_si512
-#define and _mm512_and_si512
-#define xor _mm512_xor_si512
-
-#define clmul _mm512_clmulepi64_epi128
-
-#define unpacklo_epi32 _mm512_unpacklo_epi32
-#define unpackhi_epi32 _mm512_unpackhi_epi32
-#define unpacklo_epi64 _mm512_unpacklo_epi64
-#define unpackhi_epi64 _mm512_unpackhi_epi64
-
-#define insert32x4 _mm512_inserti32x4
-#define sll_epi32 _mm512_sll_epi32
-#define srli_epi32 _mm512_srli_epi32
-#define mask_cmp_epi32_mask _mm512_mask_cmp_epi32_mask
-#define broadcast_i64x2 _mm512_broadcast_i64x2
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* 
+// Constant from NIST Special Publication 800-38D 
+// (Recommendation for GCMmode, p.5.2.1.1 Input Data)
+// len(P) <= 2^39-256 bits
+*/
+static const int64u MAX_TXT_LEN = ((int64u)1 << 36) - 32; // length in bytes 
 
 /*
 // Internal functions

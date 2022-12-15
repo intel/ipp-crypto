@@ -1,17 +1,18 @@
 #===============================================================================
-# Copyright 2019 Intel Corporation
+# Copyright (C) 2019 Intel Corporation
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+# 
 #===============================================================================
 
 # Security Linker flags
@@ -47,7 +48,7 @@ set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -Werror")
 # Add export files
 set(LINK_FLAGS_DYNAMIC "-exported_symbols_list ${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb.macosx.lib-export")
 # Add mininmum version support macOS
-set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} -mmacosx-version-min=11.0")
+set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} -mmacosx-version-min=12.0")
 
 # Compiler flags
 

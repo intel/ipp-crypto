@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 #ifndef _SM2_KEY_EXCHANGE_METHOD_H_
 #define _SM2_KEY_EXCHANGE_METHOD_H_
@@ -24,6 +25,7 @@
 // EC over GF(p) Key Exchange SM2 context
 */
 typedef struct _GFpECKeyExchangeSM2 {
+   Ipp32u idCtx;                    /* context identifier */
    IppsKeyExchangeRoleSM2 role;     /* role User A(request) or B(response) */
    IppsGFpECState *pEC;             /* Elliptic Curve data context */
    IppsGFpECPoint *pPubKeyReqA;     /* Pa[User A] - Public Key */
@@ -41,6 +43,9 @@ typedef struct _GFpECKeyExchangeSM2 {
 // Context Access Macros
 */
 /* clang-format off */
+#define EC_SM2_KEY_EXCH_ID(ctx)                  ((ctx)->idCtx)
+#define EC_SM2_KEY_EXCH_SET_ID(ctx)              (EC_SM2_KEY_EXCH_ID(ctx) = (Ipp32u)idCtxGFPECKE ^ (Ipp32u)IPP_UINT_PTR(ctx))
+#define EC_SM2_KEY_EXCH_VALID_ID(ctx)            ((EC_SM2_KEY_EXCH_ID(ctx) ^ (Ipp32u)IPP_UINT_PTR(ctx)) == (Ipp32u)idCtxGFPECKE)
 #define EC_SM2_KEY_EXCH_ROLE(ctx)                ((ctx)->role)
 #define EC_SM2_KEY_EXCH_EC(ctx)                  ((ctx)->pEC)
 #define EC_SM2_KEY_EXCH_PUB_KEY_USER_A(ctx)      ((ctx)->pPubKeyReqA)

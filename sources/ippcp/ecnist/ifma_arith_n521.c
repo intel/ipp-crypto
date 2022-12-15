@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2021 Intel Corporation
+ * Copyright (C) 2021 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include "owndefs.h"
@@ -252,7 +253,7 @@ __INLINE IPP_OWN_DEFN(void, ifma_ams52_p521_ntimes, (fe521 pr[], const fe521 a, 
 
 IPP_OWN_DEFN(void, ifma_aminv52_n521, (fe521 pr[], const fe521 z))
 {
-   int i;
+   Ipp32u i;
    fe521 n521r1_r;
 
    FE521_LOADU(n521r1_r, n521_r);
@@ -264,9 +265,9 @@ IPP_OWN_DEFN(void, ifma_aminv52_n521, (fe521 pr[], const fe521 z))
    FE521_COPY(pwr_z_Tbl[0], n521r1_r);
    FE521_COPY(pwr_z_Tbl[1], z);
 
-   for (i = 2; i < 16; i += 2) {
-      sqr(pwr_z_Tbl[i], pwr_z_Tbl[i / 2]);
-      mul(pwr_z_Tbl[i + 1], pwr_z_Tbl[i], z);
+   for (i = 2u; i < 16u; i += 2u) {
+      sqr(pwr_z_Tbl[i], pwr_z_Tbl[i / 2u]);
+      mul(pwr_z_Tbl[i + 1u], pwr_z_Tbl[i], z);
    }
 
    // pwr = (n521-2) in big endian
@@ -286,7 +287,7 @@ IPP_OWN_DEFN(void, ifma_aminv52_n521, (fe521 pr[], const fe521 z))
    /* init result */
    FE521_COPY(lexp, n521r1_r);
 
-   for (i = 33; i < sizeof(pwr) - 1; i++) {
+   for (i = 33u; i < sizeof(pwr) - 1u; ++i) {
       const int v  = pwr[i];
       const int hi = (v >> 4) & 0xF;
       const int lo = v & 0xF;

@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2002 Intel Corporation
+* Copyright (C) 2002 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /*
@@ -208,6 +209,10 @@ IPPAPI(IppStatus, ippsAESDecryptXTS_Direct,(const Ipp8u* pSrc, Ipp8u* pDst, int 
                                      const Ipp8u* pTweakPT,
                                      const Ipp8u* pKey, int keyBitsize,
                                      int dataUnitBitsize))
+
+IPPAPI(IppStatus, ippsAESSetupNoise,(Ipp32u noiseLevel, IppsAESSpec* pCtx))
+IPPAPI(IppStatus, ippsAES_GCMSetupNoise,(Ipp32u noiseLevel, IppsAES_GCMState* pState))
+IPPAPI(IppStatus, ippsAES_CMACSetupNoise,(Ipp32u noiseLevel, IppsAES_CMACState* pState))
 
 /* AES multi-buffer functions */
 IPPAPI(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], int len[],
@@ -611,6 +616,8 @@ IPP_DEPRECATED(MD5_DEPRECATED) \
 IPPAPI( IppStatus, ippsHashMethodSet_MD5, (IppsHashMethod* pMethod) )
 IPPAPI( IppStatus, ippsHashMethodSet_SM3, (IppsHashMethod* pMethod) )
 
+IPPAPI( IppStatus, ippsHashStateMethodSet_SM3, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
+
 IPP_DEPRECATED(SHA1_DEPRECATED) \
 IPPAPI( IppStatus, ippsHashMethodSet_SHA1, (IppsHashMethod* pMethod) )
 IPP_DEPRECATED(SHA1_DEPRECATED) \
@@ -622,14 +629,27 @@ IPPAPI( IppStatus, ippsHashMethodSet_SHA256, (IppsHashMethod* pMethod) )
 IPPAPI( IppStatus, ippsHashMethodSet_SHA256_NI, (IppsHashMethod* pMethod) )
 IPPAPI( IppStatus, ippsHashMethodSet_SHA256_TT, (IppsHashMethod* pMethod) )
 
+IPPAPI( IppStatus, ippsHashStateMethodSet_SHA256, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashStateMethodSet_SHA256_NI, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashStateMethodSet_SHA256_TT, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
+
 IPPAPI( IppStatus, ippsHashMethodSet_SHA224, (IppsHashMethod* pMethod) )
 IPPAPI( IppStatus, ippsHashMethodSet_SHA224_NI, (IppsHashMethod* pMethod) )
 IPPAPI( IppStatus, ippsHashMethodSet_SHA224_TT, (IppsHashMethod* pMethod) )
+
+IPPAPI( IppStatus, ippsHashStateMethodSet_SHA224, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashStateMethodSet_SHA224_NI, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashStateMethodSet_SHA224_TT, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
 
 IPPAPI( IppStatus, ippsHashMethodSet_SHA512, (IppsHashMethod* pMethod) )
 IPPAPI( IppStatus, ippsHashMethodSet_SHA384, (IppsHashMethod* pMethod) )
 IPPAPI( IppStatus, ippsHashMethodSet_SHA512_256, (IppsHashMethod* pMethod) )
 IPPAPI( IppStatus, ippsHashMethodSet_SHA512_224, (IppsHashMethod* pMethod) )
+
+IPPAPI( IppStatus, ippsHashStateMethodSet_SHA512, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashStateMethodSet_SHA384, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashStateMethodSet_SHA512_256, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
+IPPAPI( IppStatus, ippsHashStateMethodSet_SHA512_224, (IppsHashState_rmf* pState, IppsHashMethod* pMethod) )
 
 IPPAPI(IppStatus, ippsHashGetSize_rmf,(int* pSize))
 IPPAPI(IppStatus, ippsHashInit_rmf,(IppsHashState_rmf* pState, const IppsHashMethod* pMethod))
@@ -1465,10 +1485,11 @@ IPPAPI(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sha
                                                       IppsBigNumState* pEphPrvKey,
                                                       IppsGFpECKeyExchangeSM2State *pKE, Ipp8u* pScratchBuffer))
 
-IPPAPI(IppStatus, ippsGFpECKeyExchangeSM2_Confirmation, (const Ipp8u pSPeer[IPP_SM3_DIGEST_BYTESIZE],
-                                                         int* pStatus,
-                                                         IppsGFpECKeyExchangeSM2State* pKE))
+IPPAPI(IppStatus, ippsGFpECKeyExchangeSM2_Confirm, (const Ipp8u pSPeer[IPP_SM3_DIGEST_BYTESIZE],
+                                                    int* pStatus,
+                                                    IppsGFpECKeyExchangeSM2State* pKE))
 
+/* SM2 Encryption/Decryption */
 IPPAPI(IppStatus, ippsGFpECGetInfo_GF,(IppsGFpInfo* pInfo, const IppsGFpECState* pEC))
 
 IPPAPI(IppStatus, ippsGFpECESGetSize_SM2, (const IppsGFpECState* pEC, int* pSize))
@@ -1487,6 +1508,26 @@ IPPAPI(IppStatus, ippsGFpECESDecrypt_SM2, (const Ipp8u* pInput, Ipp8u* pOutput,
 IPPAPI(IppStatus, ippsGFpECESFinal_SM2, (Ipp8u* pTag, int tagLen, IppsECESState_SM2* pState))
 IPPAPI(IppStatus, ippsGFpECESGetBuffersSize_SM2, (int* pPublicKeySize,
                                                   int* pMaximumTagSize, const IppsECESState_SM2* pState))
+
+/* SM2 Encryption/Decryption Extended API */
+/* Encryption */
+IPPAPI(IppStatus, ippsGFpECEncryptSM2_Ext_EncMsgSize, (const IppsGFpECState *pEC, int ptMsgSize, int *pSize))
+
+IPPAPI(IppStatus, ippsGFpECEncryptSM2_Ext, (Ipp8u *pOut, int maxOutLen,
+                                            int *pOutSize,
+                                            const Ipp8u *pInp, int inpLen,
+                                            const IppsGFpECPoint *pPublicKey,
+                                            IppsGFpECPoint *pEhpPublicKey, IppsBigNumState *pEphPrvKey,
+                                            IppsGFpECState *pEC, Ipp8u *pScratchBuffer))
+
+/* Decryption */
+IPPAPI(IppStatus, ippsGFpECDecryptSM2_Ext_DecMsgSize, (const IppsGFpECState *pEC, int ctMsgSize, int *pSize))
+
+IPPAPI(IppStatus, ippsGFpECDecryptSM2_Ext, (Ipp8u *pOut, int maxOutLen,
+                                            int *pOutSize,
+                                            const Ipp8u *pInp, int inpLen,
+                                            const IppsBigNumState *pPrvKey,
+                                            IppsGFpECState *pEC, Ipp8u *pScratchBuffer))
 
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER)
 #pragma warning(pop)

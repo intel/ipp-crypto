@@ -1,17 +1,18 @@
 #===============================================================================
-# Copyright 2017 Intel Corporation
+# Copyright (C) 2017 Intel Corporation
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+# 
 #===============================================================================
 
 #
@@ -181,6 +182,38 @@ if(BUILD_EXAMPLES)
 else()
   message (STATUS "BUILD_EXAMPLES ........................ off")
 endif()
+
+# Build with sanitizers
+set(SANITIZERS OFF)
+if(BUILD_WITH_SANITIZERS AND UNIX AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL "12.0.0")
+  set(ASAN OFF)
+  set(UBSAN OFF)
+  set(MSAN OFF)
+  if("${BUILD_WITH_SANITIZERS}" MATCHES "address")
+    set(ASAN ON)
+    list(APPEND PRINT_TYPES_OF_SANITIZERS_LIST "address")
+  endif()
+  if("${BUILD_WITH_SANITIZERS}" MATCHES "undefined")
+    set(UBSAN ON)
+    list(APPEND PRINT_TYPES_OF_SANITIZERS_LIST "undefined")
+  endif()
+  if("${BUILD_WITH_SANITIZERS}" MATCHES "memory")
+    set(MSAN ON)
+    list(APPEND PRINT_TYPES_OF_SANITIZERS_LIST "memory")
+  endif()
+  if((ASAN OR UBSAN) AND MSAN)
+    message (FATAL_ERROR "Can not use address | undefined sanitizers with memory sanitizer")
+  endif()
+  if(ASAN OR UBSAN OR MSAN)
+    set(SANITIZERS ON)
+  endif()
+endif()
+if(SANITIZERS)
+  list(JOIN PRINT_TYPES_OF_SANITIZERS_LIST "," PRINT_TYPES_OF_SANITIZERS_STRING)
+  message (STATUS "BUILD_WITH_SANITIZERS ................. on (${PRINT_TYPES_OF_SANITIZERS_STRING})")
+else()
+  message (STATUS "BUILD_WITH_SANITIZERS ................. off - use -DBUILD_WITH_SANITIZERS=[memory,address,undefined] with CLANG compiler to enable this option")
+endif(SANITIZERS)
 
 if((UNIX) AND (NOT APPLE))
   set(LINUX ON)

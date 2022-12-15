@@ -35,6 +35,9 @@ EXTERN (ippsAESInit)
 EXTERN (ippsAESSetKey)
 EXTERN (ippsAESPack)
 EXTERN (ippsAESUnpack)
+EXTERN (ippsAESSetupNoise)
+EXTERN (ippsAES_GCMSetupNoise)
+EXTERN (ippsAES_CMACSetupNoise)
 EXTERN (ippsAESEncryptECB)
 EXTERN (ippsAESDecryptECB)
 EXTERN (ippsAESEncryptCBC)
@@ -206,6 +209,17 @@ EXTERN (ippsHashMethodSet_SHA512)
 EXTERN (ippsHashMethodSet_SHA384)
 EXTERN (ippsHashMethodSet_SHA512_256)
 EXTERN (ippsHashMethodSet_SHA512_224)
+EXTERN (ippsHashStateMethodSet_SM3)
+EXTERN (ippsHashStateMethodSet_SHA256)
+EXTERN (ippsHashStateMethodSet_SHA256_NI)
+EXTERN (ippsHashStateMethodSet_SHA256_TT)
+EXTERN (ippsHashStateMethodSet_SHA224)
+EXTERN (ippsHashStateMethodSet_SHA224_NI)
+EXTERN (ippsHashStateMethodSet_SHA224_TT)
+EXTERN (ippsHashStateMethodSet_SHA512)
+EXTERN (ippsHashStateMethodSet_SHA384)
+EXTERN (ippsHashStateMethodSet_SHA512_256)
+EXTERN (ippsHashStateMethodSet_SHA512_224)
 EXTERN (ippsHashMethod_MD5)
 EXTERN (ippsHashMethod_SM3)
 EXTERN (ippsHashMethod_SHA1)
@@ -526,7 +540,11 @@ EXTERN (ippsGFpECKeyExchangeSM2_GetSize)
 EXTERN (ippsGFpECKeyExchangeSM2_Init)
 EXTERN (ippsGFpECKeyExchangeSM2_Setup)
 EXTERN (ippsGFpECKeyExchangeSM2_SharedKey)
-EXTERN (ippsGFpECKeyExchangeSM2_Confirmation)
+EXTERN (ippsGFpECKeyExchangeSM2_Confirm)
+EXTERN (ippsGFpECEncryptSM2_Ext_EncMsgSize)
+EXTERN (ippsGFpECEncryptSM2_Ext)
+EXTERN (ippsGFpECDecryptSM2_Ext_DecMsgSize)
+EXTERN (ippsGFpECDecryptSM2_Ext)
 EXTERN (ippsGFpECESGetSize_SM2)
 EXTERN (ippsGFpECESInit_SM2)
 EXTERN (ippsGFpECESSetKey_SM2)
@@ -578,6 +596,9 @@ VERSION {
    ippsAESSetKey;
    ippsAESPack;
    ippsAESUnpack;
+   ippsAESSetupNoise;
+   ippsAES_GCMSetupNoise;
+   ippsAES_CMACSetupNoise;
    ippsAESEncryptECB;
    ippsAESDecryptECB;
    ippsAESEncryptCBC;
@@ -749,6 +770,17 @@ VERSION {
    ippsHashMethodSet_SHA384;
    ippsHashMethodSet_SHA512_256;
    ippsHashMethodSet_SHA512_224;
+   ippsHashStateMethodSet_SM3;
+   ippsHashStateMethodSet_SHA256;
+   ippsHashStateMethodSet_SHA256_NI;
+   ippsHashStateMethodSet_SHA256_TT;
+   ippsHashStateMethodSet_SHA224;
+   ippsHashStateMethodSet_SHA224_NI;
+   ippsHashStateMethodSet_SHA224_TT;
+   ippsHashStateMethodSet_SHA512;
+   ippsHashStateMethodSet_SHA384;
+   ippsHashStateMethodSet_SHA512_256;
+   ippsHashStateMethodSet_SHA512_224;
    ippsHashMethod_MD5;
    ippsHashMethod_SM3;
    ippsHashMethod_SHA1;
@@ -1069,7 +1101,11 @@ VERSION {
    ippsGFpECKeyExchangeSM2_Init;
    ippsGFpECKeyExchangeSM2_Setup;
    ippsGFpECKeyExchangeSM2_SharedKey;
-   ippsGFpECKeyExchangeSM2_Confirmation;
+   ippsGFpECKeyExchangeSM2_Confirm;
+   ippsGFpECEncryptSM2_Ext_EncMsgSize;
+   ippsGFpECEncryptSM2_Ext;
+   ippsGFpECDecryptSM2_Ext_DecMsgSize;
+   ippsGFpECDecryptSM2_Ext;
    ippsGFpECESGetSize_SM2;
    ippsGFpECESInit_SM2;
    ippsGFpECESSetKey_SM2;

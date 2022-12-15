@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include <internal/common/ifma_defs.h>
@@ -25,17 +26,17 @@ mbx_sm4_gcm_encrypt_mb16(int8u *pa_out[SM4_LINES], const int8u *const pa_in[SM4_
    mbx_status16 status = 0;
    __mmask16 mb_mask   = 0xFFFF;
 
+   /* Test input pointers */
+   if (NULL == pa_out || NULL == pa_in || NULL == in_len || NULL == p_context) {
+      status = MBX_SET_STS16_ALL(MBX_STATUS_NULL_PARAM_ERR);
+      return status;
+   }
+
    /* Check state */
    if (sm4_gcm_update_iv != SM4_GCM_CONTEXT_STATE(p_context) && sm4_gcm_update_aad != SM4_GCM_CONTEXT_STATE(p_context) &&
        sm4_gcm_start_encdec != SM4_GCM_CONTEXT_STATE(p_context) && sm4_gcm_enc != SM4_GCM_CONTEXT_STATE(p_context)) {
 
       status = MBX_SET_STS16_ALL(MBX_STATUS_MISMATCH_PARAM_ERR);
-      return status;
-   }
-
-   /* Test input pointers */
-   if (NULL == pa_out || NULL == pa_in || NULL == in_len || NULL == p_context) {
-      status = MBX_SET_STS16_ALL(MBX_STATUS_NULL_PARAM_ERR);
       return status;
    }
 
@@ -46,6 +47,16 @@ mbx_sm4_gcm_encrypt_mb16(int8u *pa_out[SM4_LINES], const int8u *const pa_in[SM4_
          mb_mask &= ~(0x1 << rearrangeOrder[buf_no]);
       }
       if (in_len[buf_no] < 0) {
+         status = MBX_SET_STS16(status, buf_no, MBX_STATUS_MISMATCH_PARAM_ERR);
+         mb_mask &= ~(0x1 << rearrangeOrder[buf_no]);
+      }
+      /* We take elements from the SM4_GCM_CONTEXT_LEN(p_context) array by the formula [1+buf_no*2], because of the 
+      layout of length data in the context. Refer to sources/ippcp/crypto_mb/include/crypto_mb/sm4_gcm.h file for details. */
+      int length_data_position = 1+buf_no*2;
+      if( ((int64u)in_len[buf_no] >= MAX_TXT_LEN) ||
+          (SM4_GCM_CONTEXT_LEN(p_context)[length_data_position] >= MAX_TXT_LEN - (int64u)in_len[buf_no]) ||
+          ((SM4_GCM_CONTEXT_LEN(p_context)[length_data_position] + (int64u)in_len[buf_no]) < (int64u)in_len[buf_no])) {
+         
          status = MBX_SET_STS16(status, buf_no, MBX_STATUS_MISMATCH_PARAM_ERR);
          mb_mask &= ~(0x1 << rearrangeOrder[buf_no]);
       }

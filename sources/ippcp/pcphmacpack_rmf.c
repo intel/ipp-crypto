@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2016 Intel Corporation
+* Copyright (C) 2016 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -61,8 +62,13 @@ IPPFUN(IppStatus, ippsHMACPack_rmf,(const IppsHMACState_rmf* pCtx, Ipp8u* pBuffe
       IPP_BADARG_RET(ctxSize>bufSize, ippStsNoMemErr);
 
       CopyBlock(pCtx, pBuffer, ctxSize);
+      
+      /* Reset IppsHMACState_rmf context id */
       IppsHMACState_rmf* pCopy = (IppsHMACState_rmf*)pBuffer;
       HMAC_RESET_CTX_ID(pCopy);
+      /* Reset context id for IppsHashState_rmf, which is the part of IppsHMACState_rmf */
+      IppsHashState_rmf* pHashCopy = (IppsHashState_rmf*)&HASH_CTX(pCopy);
+      HASH_RESET_ID(pHashCopy,idCtxHash);
 
       return ippStsNoErr;
    }

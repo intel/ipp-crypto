@@ -1,23 +1,31 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include "owncp.h"
 #include "owndefs.h"
 #include "sm2/sm2_key_exchange_method.h"
 #include "sm2/sm2_stuff.h"
+
+#define CHECK_PRIVATE_KEY(KEY)                                 \
+   IPP_BAD_PTR1_RET((KEY))                                     \
+   IPP_BADARG_RET(!BN_VALID_ID((KEY)), ippStsContextMatchErr)  \
+   IPP_BADARG_RET(BN_NEGATIVE((KEY)), ippStsInvalidPrivateKey) \
+   /* test if 0 < pPrivateA < Order */                         \
+   IPP_BADARG_RET(0 == gfec_CheckPrivateKey((KEY), pEC), ippStsInvalidPrivateKey)
 
 /**
  * @brief ippsGFpECKeyExchangeSM2_SharedKey
@@ -39,7 +47,7 @@
  * @param [in]  sharedKeySize  length shared key
  * @param [out] pSSelf         (may be == NULL) self data confirmation
  * @param [in]  pPrvKey        private key
- * @param [in]  pEphPrvKey     ephemeral private key
+ * @param [in]  pEphPrvKey     ephemeral private key (!) will be cleared at the end if function successfully competed (!)
  * @param [out] pKE            context Key Exchange (save x(u/v) | y(u/v) | precompHash )
  * @param [in]  pScratchBuffer supported buffer
  * @return
@@ -50,6 +58,8 @@
  * ippStsRangeErr            - if BitSize(pEC) < IPP_SM3_DIGEST_BITSIZE
  * ippStsBadArgErr           - if role(pKE) no equal ippKESM2Requester|ippKESM2Responder or sharedKeySize <= 0
  * ippStsInvalidPrivateKey   - if test is failed 0 < pPrvKey|pEphPrvKey < Order
+ * ippStsEphemeralKeyErr     - if test is failed pEphPrvKey == pEphPublicKeySelf*G or if calculated U(V) is an 
+ *                             infinity point, U/V = [h*t(a/b)]( P(b/a) + [x(b/a)`]R(b/a) ) = ( x(u/v), y(u/v) )
  */
 /* clang-format off */
 IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sharedKeySize,
@@ -61,6 +71,8 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sha
 {
    /* check Key Exchange */
    IPP_BAD_PTR1_RET(pKE);
+   /* check id */
+   IPP_BADARG_RET(!EC_SM2_KEY_EXCH_VALID_ID(pKE), ippStsContextMatchErr);
    /* check User Role */
    const IppsKeyExchangeRoleSM2 role = EC_SM2_KEY_EXCH_ROLE(pKE);
    IPP_BADARG_RET(((ippKESM2Requester != role) && (ippKESM2Responder != role)), ippStsBadArgErr);
@@ -79,6 +91,13 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sha
    /* check bitsize >= SM3_DIGSET */
    IPP_BADARG_RET(!(ECP_ORDBITSIZE(pEC) >= IPP_SM3_DIGEST_BITSIZE), ippStsRangeErr);
 
+   /* check call Setup */
+   /* check init Public Key | Ephemeral  Public Key */
+   IPP_BADARG_RET( NULL == EC_SM2_KEY_EXCH_PUB_KEY_USER_A(pKE)     ||
+                   NULL == EC_SM2_KEY_EXCH_PUB_KEY_USER_B(pKE)     ||
+                   NULL == EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_A(pKE) ||
+                   NULL == EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_B(pKE), ippStsContextMatchErr)
+
    /* check Shared Key */
    IPP_BAD_PTR1_RET(pSharedKey);
    /* [GBT.32918.3-2016] Public Key cryptographic algorithm SM2 based on elliptic curves
@@ -87,31 +106,16 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sha
     * (0 < sharedKeySize) - (+) check
     * (sharedKeySize < (2^32 - 1)*log2(n) ) - NO NEED if use INT input data type
     */
-   IPP_BADARG_RET(!(sharedKeySize > 0), ippStsBadArgErr);
-
-   /* check init Public Key | Ephemeral  Public Key */
-   IPP_BAD_PTR2_RET(EC_SM2_KEY_EXCH_PUB_KEY_USER_A(pKE), EC_SM2_KEY_EXCH_PUB_KEY_USER_B(pKE));
-   IPP_BAD_PTR2_RET(EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_A(pKE), EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_B(pKE));
+   IPP_BADARG_RET(!(sharedKeySize > 0), ippStsOutOfRangeErr);
 
    /* check buffer */
    IPP_BAD_PTR1_RET(pScratchBuffer);
 
    /* check Private Key */
-   IPP_BAD_PTR1_RET(pPrvKey);
-   IPP_BADARG_RET(!BN_VALID_ID(pPrvKey), ippStsContextMatchErr);
-   /* test if 0 < pPrivateA < Order */
-   IPP_BADARG_RET(0 == gfec_CheckPrivateKey(pPrvKey, pEC), ippStsInvalidPrivateKey);
+   CHECK_PRIVATE_KEY(pPrvKey)
 
    /* check Ephemeral  Private Key */
-   IPP_BAD_PTR1_RET(pEphPrvKey);
-   IPP_BADARG_RET(!BN_VALID_ID(pEphPrvKey), ippStsContextMatchErr);
-   /* test if 0 < pPrivateA < Order */
-   IPP_BADARG_RET(0 == gfec_CheckPrivateKey(pEphPrvKey, pEC), ippStsInvalidPrivateKey);
-
-   /* setup Public | Ephemeral  Public */
-   const IppsGFpECPoint *pPubKey    = (ippKESM2Requester == role) ? EC_SM2_KEY_EXCH_PUB_KEY_USER_B(pKE) : EC_SM2_KEY_EXCH_PUB_KEY_USER_A(pKE);
-   const IppsGFpECPoint *pEphPubKey = (ippKESM2Requester == role) ? EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_B(pKE) : EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_A(pKE);
-   const Ipp8u firstNum             = (ippKESM2Requester == role) ? 0x03 : 0x02;
+   CHECK_PRIVATE_KEY(pEphPrvKey)
 
 #if (_IPP32E >= _IPP32E_K1)
    if (IsFeatureEnabled(ippCPUID_AVX512IFMA) && (cpID_PrimeTPM_SM2 == ECP_MODULUS_ID(pEC))) {
@@ -120,6 +124,23 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sha
    }
 #endif // (_IPP32E >= _IPP32E_K1)
    {
+      IppStatus sts = ippStsNoErr;
+
+      /* setup Public | Ephemeral  Public */
+      const IppsGFpECPoint *pPubKey            = (ippKESM2Requester == role) ? EC_SM2_KEY_EXCH_PUB_KEY_USER_B(pKE) : EC_SM2_KEY_EXCH_PUB_KEY_USER_A(pKE);
+      const IppsGFpECPoint *pEphPubKey         = (ippKESM2Requester == role) ? EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_B(pKE) : EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_A(pKE);
+      const IppsGFpECPoint *pSelfEphPubKey     = (ippKESM2Requester == role) ? EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_A(pKE) : EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_B(pKE);
+      const Ipp8u firstNum                     = (ippKESM2Requester == role) ? 0x03 : 0x02;
+
+      /* check that Ephemeral Public and Private Keys are related (R(a/b)=r(a/b)G) */
+      IppsGFpECPoint pTmpPoint;
+      cpEcGFpInitPoint(&pTmpPoint, cpEcGFpGetPool(1, pEC), 0, pEC);
+      BNU_CHUNK_T *pDataEphPrv = BN_NUMBER(pEphPrvKey); // Ephemeral Private Key -> r(a/b)
+      gfec_MulBasePoint(&pTmpPoint, pDataEphPrv, BN_SIZE(pEphPrvKey), pEC, pScratchBuffer); // r(a/b)*G
+      int result = gfec_ComparePoint(&pTmpPoint, pSelfEphPubKey, pEC); // R(a/b) == r(a/b)G ?
+      cpEcGFpReleasePool(1, pEC); // Release pool before the possible exit
+      IPP_BADARG_RET(!result, ippStsEphemeralKeyErr);
+
       /* extract data Elliptic Curve */
       BNU_CHUNK_T *pOrder = MOD_MODULUS(nME); /* data oreder */
       const int ordLen    = MOD_LEN(nME);     /* len order */
@@ -164,7 +185,6 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sha
       cpGFpElementCopy(pTmpPrv, BN_NUMBER(pPrvKey), elemSize);
       GFP_METHOD(nME)->encode(pTmpPrv, pTmpPrv, nME);
       /* Ephemeral Private Key -> r(a/b) */
-      BNU_CHUNK_T *pDataEphPrv = BN_NUMBER(pEphPrvKey);
       GFP_METHOD(nME)->encode(pDataEphPrv, pDataEphPrv, nME);
       /* x(a/b)` */
       GFP_METHOD(nME)->encode(_xf_, _xf_, nME);
@@ -174,10 +194,9 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sha
       cpModAdd_BNU(t, pDataEphPrv, pTmpPrv, pOrder, ordLen, pBuffTmp); /* (d(a/b) + x(a/b)`*r(a/b) ) mod n */
 
       /* 5) U/V = [h*t(a/b)]( P(b/a) + [x(b/a)`]R(b/a) ) = ( x(u/v), y(u/v) ) */
-      IppsGFpECPoint pTmpPoint;
-      cpEcGFpInitPoint(&pTmpPoint, cpEcGFpGetPool(1, pEC), 0, pEC);
       /* [x(b/a)`]R(b/a) */
       const int scalarBits = ((elemBits + 1) / 2);
+      cpEcGFpInitPoint(&pTmpPoint, cpEcGFpGetPool(1, pEC), 0, pEC);
       gfec_point_mul(ECP_POINT_X(&pTmpPoint), ECP_POINT_X(pEphPubKey), (Ipp8u *)_xs_, scalarBits, pEC, pScratchBuffer);
       /* P(b/a) + [x(b/a)`]R(b/a) */
       gfec_point_add(ECP_POINT_X(&pTmpPoint), ECP_POINT_X(&pTmpPoint), ECP_POINT_X(pPubKey), pEC);
@@ -196,6 +215,9 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sha
       gfec_point_mul(ECP_POINT_X(&pTmpPoint), ECP_POINT_X(&pTmpPoint), (Ipp8u *)t, elemBits, pEC, pScratchBuffer);
       /* check U/V == 0 */
       ECP_POINT_FLAGS(&pTmpPoint) = gfec_IsPointAtInfinity(&pTmpPoint) ? 0 : ECP_FINITE_POINT;
+      if(ECP_POINT_FLAGS(&pTmpPoint) == 0) {
+         sts = ippStsEphemeralKeyErr;
+      }
 
       /* extract Affine Coordinate X|Y */
       /* save x(u/v), y(u/v) */
@@ -281,6 +303,8 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_SharedKey, (Ipp8u* pSharedKey, int sha
       /* clear Ephemeral  Private Key */
       cpBN_zero(pEphPrvKey);
 
-      return ippStsNoErr;
+      return sts;
    }
 }
+
+#undef CHECK_PRIVATE_KEY
