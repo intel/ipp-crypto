@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2001 Intel Corporation
+* Copyright (C) 2001 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 //
@@ -61,11 +62,24 @@ IPPFUN( IppStatus, ippcpGetCpuFeatures, ( Ipp64u* pFeaturesMask ))
 
 int cpGetFeature( Ipp64u Feature )
 {
-  if(( cpFeaturesMask & Feature ) == Feature ){
-    return 1;
-  } else {
-    return 0;
-  }
+   // We provide users the ability to build their own custom build of 1cpu IPP Crypto library 
+   // and turn CPU features on at compile-time if they are sure these features available on the target systems.
+   #if (!defined(_MERGED_BLD) && defined(IPPCP_CUSTOM_BUILD))
+      int if_feature_enabled = ((IPP_CUSTOM_ENABLED_FEATURES & Feature) == Feature);
+      return if_feature_enabled;
+   #else
+      if( 0 == cpFeaturesMask ) {
+         Ipp64u loc_features;
+         // set up cpFeaturesMask and cpFeatures for the proper work of tick-tok in 1cpu libraries
+         ippcpGetCpuFeatures(&loc_features); 
+      }
+
+      if((cpFeaturesMask & Feature) == Feature) {
+         return 1;
+      } else {
+         return 0;
+      }
+   #endif
 }
 
 /*===================================================================*/

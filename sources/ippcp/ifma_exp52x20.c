@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2019 Intel Corporation
+* Copyright (C) 2019 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 #include "owncp.h"
@@ -44,7 +45,7 @@ __INLINE void extract_multiplier(Ipp64u *red_Y,
     U64 t0, t1, t2, t3, t4;
     t0 = t1 = t2 = t3 = t4 = get_zero64();
 
-    for (int t = 0; t < (1U << EXP_WIN_SIZE); ++t, cur_idx = add64(cur_idx, set64(1))) {
+    for (Ipp32u t = 0; t < (1U << EXP_WIN_SIZE); ++t, cur_idx = add64(cur_idx, set64(1))) {
         __mmask8 m = _mm256_cmp_epi64_mask(idx, cur_idx, _MM_CMPINT_EQ);
 
         t0 = _mm256_mask_xor_epi64(t0, m, t0, loadu64(&red_table[t][4*0]));
@@ -84,10 +85,10 @@ IPP_OWN_DEFN (void, ifma256_exp52x20, (Ipp64u *out,
 
    /* zero all temp buffers (due to zero padding) */
    ZEXPAND_BNU(red_Y, 0, LEN52);
-   ZEXPAND_BNU((Ipp64u*)red_table, 0, LEN52 * (1U << EXP_WIN_SIZE));
+   ZEXPAND_BNU((Ipp64u*)red_table, 0, (cpSize)(LEN52 * (1U << EXP_WIN_SIZE)));
    ZEXPAND_BNU(red_X, 0, LEN52); /* table[0] = mont(x^0) = mont(1) */
 
-   int idx;
+   Ipp32u idx;
 
    /*
    // compute table of powers base^i, i=0, ..., (2^EXP_WIN_SIZE) -1

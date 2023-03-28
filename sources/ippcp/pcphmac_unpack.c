@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright (C) 2014 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -51,6 +52,9 @@ IPPFUN(IppStatus, ippsHMAC_Unpack,(const Ipp8u* pBuffer, IppsHMACState* pCtx))
    IPP_BAD_PTR2_RET(pCtx, pBuffer);
 
    CopyBlock(pBuffer, pCtx, sizeof(IppsHMACState));
+   /* Set IppsHMACState context id */
    HMAC_SET_CTX_ID(pCtx);
+   /* Set context id for IppsHashState, which is the part of IppsHMACState */
+   HASH_SET_ID(&HASH_CTX(pCtx),idCtxHash);
    return ippStsNoErr;
 }

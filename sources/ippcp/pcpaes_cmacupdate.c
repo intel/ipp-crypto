@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2013 Intel Corporation
+* Copyright (C) 2013 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /*
@@ -139,17 +140,45 @@ IPPFUN(IppStatus, ippsAES_CMACUpdate,(const Ipp8u* pSrc, int len, IppsAES_CMACSt
       /*
       // main part
       */
+
       processedLen = len & ~(MBS_RIJ128-1);
       if(!(len & (MBS_RIJ128-1)))
          processedLen -= MBS_RIJ128;
-      if(processedLen) {
-         const IppsAESSpec* pAES = &CMAC_CIPHER(pState);
+      if (processedLen) {
+         const IppsAESSpec *pAES = &CMAC_CIPHER(pState);
 
-         AES_CMAC_processing(CMAC_MAC(pState), pSrc, processedLen, pAES);
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+         /* Mistletoe3 mitigation */
+         cpAESNoiseParams *params = (cpAESNoiseParams *)&AESCMAC_NOISE_PARAMS(pState);
+         if (AES_NOISE_LEVEL(params) > 0) {
+            /* Number of bytes allowed for operation without adding noise */
+            int chunk_size;
+            /* Number of bytes remaining for operation */
+            int remaining_size = processedLen;
 
-         /* update message pointer and length */
-         pSrc += processedLen;
-         len  -= processedLen;
+            while (remaining_size > 0) {
+               /* How many bytes to encrypt in this operation */
+               chunk_size = (remaining_size >= MISTLETOE3_MAX_CHUNK_SIZE) ? MISTLETOE3_MAX_CHUNK_SIZE : remaining_size;
+
+               AES_CMAC_processing(CMAC_MAC(pState), pSrc, chunk_size, pAES);
+
+               cpAESRandomNoise(NULL,
+                        MISTLETOE3_BASE_NOISE_LEVEL + AES_NOISE_LEVEL(params),
+                        MISTLETOE3_NOISE_RATE,
+                        &AES_NOISE_RAND(params));
+
+               pSrc += chunk_size;
+               remaining_size -= chunk_size;
+            }
+         } else
+#endif
+         {
+            AES_CMAC_processing(CMAC_MAC(pState), pSrc, processedLen, pAES);
+            /* update message pointer and length */
+            pSrc += processedLen;
+         }
+
+         len -= processedLen;
       }
 
       /*

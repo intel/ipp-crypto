@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2017 Intel Corporation
+* Copyright (C) 2017 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -46,7 +47,9 @@ IPP_OWN_DEFN (int, alm_mont_inv_ct, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsM
 
    const int polLength  = 6;
    BNU_CHUNK_T* pBuffer = gsModPoolAlloc(pME, polLength);
-
+   if(NULL == pBuffer)
+      return 0; // zero return value is handled by the calling function
+      
    BNU_CHUNK_T* pu = pBuffer;
    BNU_CHUNK_T* ps = pu+mLen;
    BNU_CHUNK_T* pv = ps+mLen;
@@ -58,8 +61,6 @@ IPP_OWN_DEFN (int, alm_mont_inv_ct, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa, gsM
    int k = 0;
    int i;
    BNU_CHUNK_T ext = 0;
-
-   //tbcd: temporary excluded: assert(NULL!=pBuffer);
 
    // u=modulus, s=1 and v=a, t=0,
    COPY_BNU(pu, pm, mLen);

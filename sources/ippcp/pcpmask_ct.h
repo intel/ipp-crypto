@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2018 Intel Corporation
+* Copyright (C) 2018 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /*
@@ -48,11 +49,38 @@
 //    cpIs_msb_ct(       sgn_char)     tests  7 bit of sgn_char
 */
 
+
+/* Disable optimization for Clang compiler to produce constant execution time code */
+#if defined( __clang__ ) && !defined (__INTEL_COMPILER)
+   #pragma clang optimize off
+#endif
+
+/* replace under mask: dst[] = replaceFlag? src[] : dst[] */
+__INLINE void cpMaskedReplace_ct(BNU_CHUNK_T* dst, const BNU_CHUNK_T* src, int len, BNU_CHUNK_T replaceMask)
+{
+   BNU_CHUNK_T dstMask = ~replaceMask;
+   int n;
+   for(n=0; n<len; n++)
+      dst[n] = (src[n] & replaceMask) ^  (dst[n] & dstMask);
+}
+
+/* copy under mask: dst[] = src1[] & mask) ^ src2[] & ~mask  */
+__INLINE void cpMaskedCopyBNU_ct(BNU_CHUNK_T* dst, BNU_CHUNK_T mask, const BNU_CHUNK_T* src1, const BNU_CHUNK_T* src2, int len)
+{
+   int i;
+   for(i=0; i<len; i++)
+      dst[i] = (src1[i] & mask) ^ (src2[i] & ~mask);
+}
+
 /* tests if MSB(a)==1 */
 __INLINE BNU_CHUNK_T cpIsMsb_ct(BNU_CHUNK_T a)
 {
    return (BNU_CHUNK_T)0 - (a >> (sizeof(a) * 8 - 1));
 }
+
+#if defined( __clang__ ) && !defined (__INTEL_COMPILER)
+   #pragma clang optimize on
+#endif
 
 /* tests if LSB(a)==1 */
 __INLINE BNU_CHUNK_T cpIsLsb_ct(BNU_CHUNK_T a)
@@ -89,32 +117,6 @@ __INLINE BNU_CHUNK_T cpIsLt_ct(BNU_CHUNK_T a, BNU_CHUNK_T b)
 {
    return cpIsMsb_ct(a ^ ((a ^ b) | ((a - b) ^ b)));
 }
-
-/* Disable optimization for Clang compiler to produce constant execution time code */
-#if defined( __clang__ ) && !defined (__INTEL_COMPILER)
-   #pragma clang optimize off
-#endif
-
-/* replace under mask: dst[] = replaceFlag? src[] : dst[] */
-__INLINE void cpMaskedReplace_ct(BNU_CHUNK_T* dst, const BNU_CHUNK_T* src, int len, BNU_CHUNK_T replaceMask)
-{
-   BNU_CHUNK_T dstMask = ~replaceMask;
-   int n;
-   for(n=0; n<len; n++)
-      dst[n] = (src[n] & replaceMask) ^  (dst[n] & dstMask);
-}
-
-/* copy under mask: dst[] = src1[] & mask) ^ src2[] & ~mask  */
-__INLINE void cpMaskedCopyBNU_ct(BNU_CHUNK_T* dst, BNU_CHUNK_T mask, const BNU_CHUNK_T* src1, const BNU_CHUNK_T* src2, int len)
-{
-   int i;
-   for(i=0; i<(len); i++)
-      dst[i] = (src1[i] & mask) ^ (src2[i] & ~mask);
-}
-
-#if defined( __clang__ ) && !defined (__INTEL_COMPILER)
-   #pragma clang optimize on
-#endif
 
 /* test if GF element is equal to x chunk */
 __INLINE BNU_CHUNK_T cpIsGFpElemEquChunk_ct(const BNU_CHUNK_T* pE, int nsE, BNU_CHUNK_T x)

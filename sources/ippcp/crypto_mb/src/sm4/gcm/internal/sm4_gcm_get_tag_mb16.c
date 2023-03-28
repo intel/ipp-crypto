@@ -1,21 +1,23 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include <internal/common/ifma_defs.h>
 #include <internal/sm4/sm4_gcm_mb.h>
+#include <internal/rsa/ifma_rsa_arith.h> /* for zero_mb8 */
 
 /*
 // This function performs tag computation as follow:
@@ -90,4 +92,7 @@ void sm4_gcm_get_tag_mb16(int8u *pa_out[SM4_LINES], const int tag_len[SM4_LINES]
       __mmask16 tagMask = ~(0xFFFF << (tag_len[rearrangeOrder[i]])) * ((mb_mask >> i) & 0x1);
       _mm_mask_storeu_epi8((void *)(pa_out[rearrangeOrder[i]]), tagMask, one_block);
    }
+
+   /* clear local copy of sensitive data */
+   zero_mb8((int64u(*)[8])tag_blocks, sizeof(tag_blocks) / sizeof(tag_blocks[0]));
 }

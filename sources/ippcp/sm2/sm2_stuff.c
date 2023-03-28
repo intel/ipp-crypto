@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include "owndefs.h"
@@ -49,8 +50,11 @@ IPP_OWN_DEFN(IppStatus, computeZa_user_id_hash_sm2, (Ipp8u * pZa_digest,
 {
    /* check pointer Za Digest | user id */
    IPP_BAD_PTR2_RET(pZa_digest, p_user_id);
-   /*  check border (user_id_len > 0) | (elem_len > 0) */
+   /* check border (user_id_len > 0) | (elem_len > 0) */
    IPP_BADARG_RET(!(user_id_len > 0) || !(elem_len > 0), ippStsBadArgErr);
+   /* check (user_id_len*8 <= 0xFFFF) ~ (user_id_len <= 0x1FFF) for two bytes overflow. 
+      user_id_len*8 operation will be executed in algorithm's flow */
+   IPP_BADARG_RET(user_id_len > 0x1FFF, ippStsBadArgErr);
    /* param curve: a, b, Gx, Gy */
    IPP_BAD_PTR2_RET(a, b);
    IPP_BAD_PTR2_RET(Gx, Gy);
@@ -121,50 +125,53 @@ IPP_OWN_DEFN(IppStatus, KDF_sm3, (Ipp8u * pKDF, int kdf_len, const Ipp8u *pZ, co
     * kdf_len < (2^32 - 1) * 2^5 = 2^37 - 32 [bytes]
     * BUT if input INT type - NO NEED check this border
     */
-   /* check border (kdf_len > 0) */
-   IPP_BADARG_RET(!(kdf_len > 0), ippStsBadArgErr);
+   /* check border (kdf_len >= 0) */
+   IPP_BADARG_RET(!(kdf_len >= 0), ippStsBadArgErr);
    /* check border (z_len > 0) */
    IPP_BADARG_RET(!(z_len > 0), ippStsBadArgErr);
 
-   /* buffer */
-   Ipp8u buff[IPP_SM3_DIGEST_BYTESIZE];
+   /* if kdf > 0 */
+   if (kdf_len > 0) {
+      /* buffer */
+      Ipp8u buff[IPP_SM3_DIGEST_BYTESIZE];
 
-   // step (a)
-   Ipp8u pCt[SIZE_CT];
+      // step (a)
+      Ipp8u pCt[SIZE_CT];
 
-   const Ipp32u n = (Ipp32u)((kdf_len + IPP_SM3_DIGEST_BYTESIZE - 1) / IPP_SM3_DIGEST_BYTESIZE) + 1u; /* add 1 - loop start 1 */
+      const Ipp32u n = (Ipp32u)((kdf_len + IPP_SM3_DIGEST_BYTESIZE - 1) / IPP_SM3_DIGEST_BYTESIZE) + 1u; /* add 1 - loop start 1 */
 
-   /* init copy output len */
-   int num_copy = IPP_SM3_DIGEST_BYTESIZE;
+      /* init copy output len */
+      int num_copy = IPP_SM3_DIGEST_BYTESIZE;
 
-   static IppsHashState_rmf ctx;
-   ippsHashInit_rmf(&ctx, ippsHashMethod_SM3());
+      static IppsHashState_rmf ctx;
+      ippsHashInit_rmf(&ctx, ippsHashMethod_SM3());
 
-   /* compute length K = Ha1 || Ha2 || ... */
-   // step (b)
-   for (Ipp32u i = 1u; i < n; ++i) {
-      // step (b.1) -> Hai = H(Z || ct)
-      /* Z */
-      ippsHashUpdate_rmf(pZ, z_len, &ctx);
-      /* ct */
-      convert_ct_to_big_endian(pCt, i);
-      ippsHashUpdate_rmf(pCt, sizeof(pCt), &ctx);
-      /* auto init of end function - no need call in start loop */
-      ippsHashFinal_rmf(buff, &ctx);
-      /* copy result */
-      if ((i == n - 1) && (0 != kdf_len % IPP_SM3_DIGEST_BYTESIZE)) {
-         num_copy = kdf_len % IPP_SM3_DIGEST_BYTESIZE;
+      /* compute length K = Ha1 || Ha2 || ... */
+      // step (b)
+      for (Ipp32u i = 1u; i < n; ++i) {
+         // step (b.1) -> Hai = H(Z || ct)
+         /* Z */
+         ippsHashUpdate_rmf(pZ, z_len, &ctx);
+         /* ct */
+         convert_ct_to_big_endian(pCt, i);
+         ippsHashUpdate_rmf(pCt, sizeof(pCt), &ctx);
+         /* auto init of end function - no need call in start loop */
+         ippsHashFinal_rmf(buff, &ctx);
+         /* copy result */
+         if ((i == n - 1u) && (0 != kdf_len % IPP_SM3_DIGEST_BYTESIZE)) {
+            num_copy = kdf_len % IPP_SM3_DIGEST_BYTESIZE;
+         }
+         cpSM2_CopyBlock(pKDF, buff, num_copy);
+
+         /* update copy next reult */
+         pKDF += num_copy;
+         kdf_len -= num_copy;
       }
-      cpSM2_CopyBlock(pKDF, buff, num_copy);
 
-      /* update copy next reult */
-      pKDF += num_copy;
-      kdf_len -= num_copy;
+      /* clear stack data */
+      PurgeBlock(buff, sizeof(buff));
+      PurgeBlock(pCt, sizeof(pCt));
    }
-
-   /* clear stack data */
-   PurgeBlock(buff, sizeof(buff));
-   PurgeBlock(pCt, sizeof(pCt));
 
    return ippStsNoErr;
 }

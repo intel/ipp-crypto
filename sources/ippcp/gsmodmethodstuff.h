@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2017 Intel Corporation
+* Copyright (C) 2017 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 #if !defined(_GS_MOD_METHOD_STUFF_H)
@@ -26,8 +27,6 @@
 #include "gsmodmethod.h"
 #include "pcpmontred.h"
 #include "pcpmask_ct.h"
-
-//tbcd: temporary excluded: #include <assert.h>
 
 /* r = (a+m) mod m */
 /*
@@ -44,7 +43,9 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_add, (BNU_CHUNK_T* pr, const BNU_CHUN
 
    const int polLength  = 1;
    BNU_CHUNK_T* pBuffer = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pBuffer);
+   if(NULL == pBuffer)
+      return NULL;
+
    {
       BNU_CHUNK_T extension = cpAdd_BNU(pr, pa, pb, mLen);
       extension -= cpSub_BNU(pBuffer, pr, pm, mLen);
@@ -69,7 +70,9 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_sub, (BNU_CHUNK_T* pr, const BNU_CHUN
 
    const int polLength  = 1;
    BNU_CHUNK_T* pBuffer = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pBuffer);
+   if(NULL == pBuffer)
+      return NULL;
+
    {
       BNU_CHUNK_T extension = cpSub_BNU(pr, pa, pb, mLen);
       cpAdd_BNU(pBuffer, pr, pm, mLen);
@@ -93,7 +96,9 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_neg, (BNU_CHUNK_T* pr, const BNU_CHUN
 
    const int polLength  = 1;
    BNU_CHUNK_T* pBuffer = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pBuffer);
+   if(NULL == pBuffer)
+      return NULL;
+
    {
       BNU_CHUNK_T extension = cpSub_BNU(pr, pm, pa, mLen);
       extension -= cpSub_BNU(pBuffer, pr, pm, mLen);
@@ -117,7 +122,9 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_div2, (BNU_CHUNK_T* pr, const BNU_CHU
 
    const int polLength  = 1;
    BNU_CHUNK_T* pBuffer = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pBuffer);
+   if(NULL == pBuffer)
+      return NULL;
+
    {
       cpSize i;
       BNU_CHUNK_T mask = 0 - (pa[0]&1);
@@ -155,7 +162,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_mul3, (BNU_CHUNK_T* pr, const BNU_CHU
 {
    const int polLength  = 1;
    BNU_CHUNK_T* pBuffer = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pBuffer);
+   if(NULL == pBuffer)
+      return NULL;
 
    gs_mont_add(pBuffer, pa, pa, pME);
    gs_mont_add(pr, pa, pBuffer, pME);
@@ -257,7 +265,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_mul, (BNU_CHUNK_T* pr, const BNU_CHUN
 
    const int polLength  = 1;
    BNU_CHUNK_T* pBuffer = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pBuffer);
+   if(NULL == pBuffer)
+      return NULL;
 
    {
       BNU_CHUNK_T carry = 0;
@@ -322,7 +331,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_mul, (BNU_CHUNK_T* pr, const BNU_CHUN
 
    const int polLength  = 2;
    BNU_CHUNK_T* pProduct = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pProduct);
+   if(NULL == pProduct)
+      return NULL;
 
    cpMulAdc_BNU_school(pProduct, pa,mLen, pb,mLen);
    cpMontRedAdc_BNU(pr, pProduct, pm, mLen, m0);
@@ -340,7 +350,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_mulX, (BNU_CHUNK_T* pr, const BNU_CHU
 
    const int polLength  = 2;
    BNU_CHUNK_T* pProduct = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pProduct);
+   if(NULL == pProduct)
+      return NULL;
 
    cpMulAdx_BNU_school(pProduct, pa,mLen, pb,mLen);
    cpMontRedAdx_BNU(pr, pProduct, pm, mLen, m0);
@@ -367,7 +378,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_sqr, (BNU_CHUNK_T* pr, const BNU_CHUN
 
    const int polLength  = 2;
    BNU_CHUNK_T* pProduct = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pProduct);
+   if(NULL == pProduct)
+      return NULL;
 
    cpSqrAdc_BNU_school(pProduct, pa,mLen);
    cpMontRedAdc_BNU(pr, pProduct, pm, mLen, m0);
@@ -385,7 +397,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_sqrX, (BNU_CHUNK_T* pr, const BNU_CHU
 
    const int polLength  = 2;
    BNU_CHUNK_T* pProduct = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pProduct);
+   if(NULL == pProduct)
+      return NULL;
 
    cpSqrAdx_BNU_school(pProduct, pa,mLen);
    cpMontRedAdx_BNU(pr, pProduct, pm, mLen, m0);
@@ -411,7 +424,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_encode, (BNU_CHUNK_T* pr, const BNU_C
 
    const int polLength  = 2;
    BNU_CHUNK_T* pProduct = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pProduct);
+   if(NULL == pProduct)
+      return NULL;
 
    cpMulAdc_BNU_school(pProduct, pa,mLen, MOD_MNT_R2(pME),mLen);
    cpMontRedAdc_BNU(pr, pProduct, pm, mLen, m0);
@@ -430,7 +444,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_encodeX, (BNU_CHUNK_T* pr, const BNU_
 
    const int polLength  = 2;
    BNU_CHUNK_T* pProduct = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pProduct);
+   if(NULL == pProduct)
+      return NULL;
 
    cpMulAdx_BNU_school(pProduct, pa,mLen, MOD_MNT_R2(pME),mLen);
    cpMontRedAdx_BNU(pr, pProduct, pm, mLen, m0);
@@ -453,7 +468,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_decode, (BNU_CHUNK_T* pr, const BNU_C
 
    const int polLength  = 2;
    BNU_CHUNK_T* pProduct = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pProduct);
+   if(NULL == pProduct)
+      return NULL;
 
    ZEXPAND_COPY_BNU(pProduct, 2*mLen, pa, mLen);
    cpMontRedAdc_BNU(pr, pProduct, MOD_MODULUS(pME), mLen, MOD_MNT_FACTOR(pME));
@@ -469,7 +485,8 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, gs_mont_decodeX, (BNU_CHUNK_T* pr, const BNU_
 
    const int polLength  = 2;
    BNU_CHUNK_T* pProduct = gsModPoolAlloc(pME, polLength);
-   //tbcd: temporary excluded: assert(NULL!=pProduct);
+   if(NULL == pProduct)
+      return NULL;
 
    ZEXPAND_COPY_BNU(pProduct, 2*mLen, pa, mLen);
    cpMontRedAdx_BNU(pr, pProduct, MOD_MODULUS(pME), mLen, MOD_MNT_FACTOR(pME));

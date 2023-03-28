@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include "owndefs.h"
@@ -78,8 +79,9 @@ IPP_OWN_DEFN(IppStatus, gfec_key_exchange_sm2_shared_key_avx512, (Ipp8u* pShared
 
    const IppsKeyExchangeRoleSM2 role = EC_SM2_KEY_EXCH_ROLE(pKE);
 
-   const IppsGFpECPoint *pPubKey = (ippKESM2Requester == role) ? EC_SM2_KEY_EXCH_PUB_KEY_USER_B(pKE) : EC_SM2_KEY_EXCH_PUB_KEY_USER_A(pKE);
-   const Ipp8u firstNum          = (ippKESM2Requester == role) ? 0x03 : 0x02;
+   const IppsGFpECPoint *pPubKey            = (ippKESM2Requester == role) ? EC_SM2_KEY_EXCH_PUB_KEY_USER_B(pKE) : EC_SM2_KEY_EXCH_PUB_KEY_USER_A(pKE);
+   const IppsGFpECPoint *pSelfEphPubKey     = (ippKESM2Requester == role) ? EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_A(pKE) : EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_B(pKE);
+   const Ipp8u firstNum                     = (ippKESM2Requester == role) ? 0x03 : 0x02;
 
    IppStatus sts = ippStsNoErr;
 
@@ -103,6 +105,16 @@ IPP_OWN_DEFN(IppStatus, gfec_key_exchange_sm2_shared_key_avx512, (Ipp8u* pShared
    ifma_decode n_from_mont = nmeth->decode;
    ifma_mul n_mul          = nmeth->mul;
    ifma_add n_add          = nmeth->add;
+
+   /* check that Ephemeral Public and Private Keys are related (R(a/b)=r(a/b)G) */
+   /* Ephemeral Private Key -> r(a/b) */
+   IppsGFpECPoint pTmpPoint;
+   cpEcGFpInitPoint(&pTmpPoint, cpEcGFpGetPool(1, pEC), 0, pEC);
+   BNU_CHUNK_T *pDataEphPrv = BN_NUMBER(pEphPrvKey);
+   gfec_PubKey_sm2_avx512(&pTmpPoint, pDataEphPrv, BN_SIZE(pEphPrvKey), pEC, pScratchBuffer); // r(a/b)*G
+   int result = gfec_ComparePoint(&pTmpPoint, pSelfEphPubKey, pEC); // R(a/b) == r(a/b)G
+   cpEcGFpReleasePool(1, pEC);
+   IPP_BADARG_RET(!result, ippStsEphemeralKeyErr);
 
    /* create buffer data (it needes further use compute tmp_p)
     * -> SM3( x(u/v)(0) || Za(1) || Zb(2) || xa(3) || ya(4) || xb(5) || yb(6) )
@@ -159,7 +171,7 @@ IPP_OWN_DEFN(IppStatus, gfec_key_exchange_sm2_shared_key_avx512, (Ipp8u* pShared
    d = to_radix52((const Ipp64u *)BN_NUMBER(pPrvKey));
    d = n_to_mont(d);
    /* preparation r(a/b) */
-   r = to_radix52((const Ipp64u *)BN_NUMBER(pEphPrvKey));
+   r = to_radix52((const Ipp64u *)pDataEphPrv);
    r = n_to_mont(r);
    /* preparation x(a/b)` */
    x1 = to_radix52((const Ipp64u *)_xf_);

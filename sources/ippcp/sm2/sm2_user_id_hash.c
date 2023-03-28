@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include "owndefs.h"
@@ -36,7 +37,9 @@
  * ippStsContextMatchErr     - if pEC no valid ID | pEC | ID pPublic Key no exists SUBGROUP
  * ippStsNotSupportedModeErr - if pEC no supported (n|p) modulus arithmetic
  * ippStsInvalidPoint        - if no in curve Pub Key
- * ippStsBadArgErr           - if userIDLen <= 0
+ * ippStsBadArgErr           - if userIDLen <= 0 or the number representing the userIDLen in bits 
+ *                             exceed two bytes (user_id_len*8 > 0xFFFF)
+ * ippStsOutOfRangeErr       - if userIDLen <= 0 or public key length is out of range
  */
 /* clang-format off */
 IPPFUN(IppStatus, ippsGFpECUserIDHashSM2, (Ipp8u * pZaDigest,
@@ -61,13 +64,15 @@ IPPFUN(IppStatus, ippsGFpECUserIDHashSM2, (Ipp8u * pZaDigest,
    /* check User ID */
    IPP_BAD_PTR1_RET(pUserID)
    /* check border (userIDLen > 0) */
-   IPP_BADARG_RET(!(userIDLen > 0), ippStsBadArgErr);
+   IPP_BADARG_RET(!(userIDLen > 0), ippStsOutOfRangeErr);
 
    /* check Public Key */
    IPP_BAD_PTR1_RET(pPublicKey)
    IPP_BADARG_RET(!ECP_POINT_VALID_ID(pPublicKey), ippStsContextMatchErr)
    IPP_BADARG_RET(ECP_POINT_FELEN(pPublicKey) != GFP_FELEN(pME), ippStsOutOfRangeErr)
    IPP_BADARG_RET(0 == gfec_IsPointOnCurve(pPublicKey, pEC), ippStsInvalidPoint);
+
+   IppStatus ret = ippStsNoErr;
 
    const int elemBits  = GFP_FEBITLEN(pME);  /* size Bits */
    const int elemBytes = (elemBits + 7) / 8; /* size Bytes */
@@ -103,18 +108,18 @@ IPPFUN(IppStatus, ippsGFpECUserIDHashSM2, (Ipp8u * pZaDigest,
    cpSM2KE_reverse_inplace((Ipp8u *)pGy, elemBytes); /* Gy */
 
    /* create hash */
-   computeZa_user_id_hash_sm2(pZaDigest,
-                              /* p_user_id = */ pUserID,
-                              /* user_id_len = */ userIDLen,
-                              /* elem_len = */ elemBytes,
-                              /* a = */ (Ipp8u *)pA,
-                              /* b = */ (Ipp8u *)pB,
-                              /* Gx = */ (Ipp8u *)pGx,
-                              /* Gy = */ (Ipp8u *)pGy,
-                              /* px = */ (Ipp8u *)pX,
-                              /* py = */ (Ipp8u *)pY);
+   ret = computeZa_user_id_hash_sm2(pZaDigest,
+                                    /* p_user_id = */ pUserID,
+                                    /* user_id_len = */ userIDLen,
+                                    /* elem_len = */ elemBytes,
+                                    /* a = */ (Ipp8u *)pA,
+                                    /* b = */ (Ipp8u *)pB,
+                                    /* Gx = */ (Ipp8u *)pGx,
+                                    /* Gy = */ (Ipp8u *)pGy,
+                                    /* px = */ (Ipp8u *)pX,
+                                    /* py = */ (Ipp8u *)pY);
 
    cpGFpReleasePool(6, pME);
 
-   return ippStsNoErr;
+   return ret;
 }

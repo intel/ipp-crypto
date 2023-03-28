@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2004 Intel Corporation
+* Copyright (C) 2004 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -30,6 +31,7 @@
 #include "pcptool.h"
 
 /* Rabin-Miller test */
+/* -1 is returned when pBuffer cannot be allocated */
 static int RabinMiller(int a, BNU_CHUNK_T* pZ, BNU_CHUNK_T* pR, cpSize nsR, BNU_CHUNK_T* pM, cpSize nsM, gsModEngine* pModEngine)
 {
    /* modulus and it length and other parameters */
@@ -48,7 +50,8 @@ static int RabinMiller(int a, BNU_CHUNK_T* pZ, BNU_CHUNK_T* pR, cpSize nsR, BNU_
       return 1;
 
    pBuffer = gsModPoolAlloc(pModEngine, usedPoolLen);
-   //tbcd: temporary excluded: assert(NULL!=pBuffer);
+   if(NULL == pBuffer)
+      return -1;
 
    /* if z==prime-1 => probably prime */
    cpSub_BNU(pBuffer, pModulus, MOD_MNT_R(pModEngine), modLen);
@@ -171,7 +174,10 @@ IPP_OWN_DEFN (int, cpPrimeTest, (const BNU_CHUNK_T* pPrime, cpSize primeLen, cpS
             FIX_BNU(pRdata, lenR);
 
             /* Rabin-Miller test */
-            if(0==RabinMiller(a, pZdata, pRdata,primeLen, pMdata,lenM, pModEngine))
+            int result = RabinMiller(a, pZdata, pRdata,primeLen, pMdata,lenM, pModEngine);
+            if(-1 == result) //internal error
+               return -1; 
+            if(0 == result)
                return 0;
          }
 

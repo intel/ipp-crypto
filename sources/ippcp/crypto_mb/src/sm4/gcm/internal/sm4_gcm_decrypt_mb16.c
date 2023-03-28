@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include <internal/common/ifma_defs.h>
@@ -35,11 +36,6 @@ __mmask16 sm4_gcm_decrypt_mb16(int8u *pa_out[SM4_LINES],
 
    /* Switch context state to decryption */
    SM4_GCM_CONTEXT_STATE(p_context) = sm4_gcm_dec;
-
-   const mbx_sm4_key_schedule *key_sched = (const mbx_sm4_key_schedule *)SM4_GCM_CONTEXT_KEY(p_context);
-
-   /* Decrypt */
-   sm4_gctr_kernel_mb16(pa_out, pa_in, in_len, (const int32u **)key_sched, mb_mask, p_context);
 
    const int8u *loc_pa_in[SM4_LINES];
    int in_len_rearranged[SM4_LINES];
@@ -95,6 +91,11 @@ __mmask16 sm4_gcm_decrypt_mb16(int8u *pa_out[SM4_LINES],
       /* Switch context state to tag computation to prevent decryption after any partial blocks are processed */
       SM4_GCM_CONTEXT_STATE(p_context) = sm4_gcm_get_tag;
    }
+
+   const mbx_sm4_key_schedule *key_sched = (const mbx_sm4_key_schedule *)SM4_GCM_CONTEXT_KEY(p_context);
+
+   /* Decrypt */
+   sm4_gctr_kernel_mb16(pa_out, pa_in, in_len, (const int32u **)key_sched, mb_mask, p_context);
 
    return overflow_mask;
 }

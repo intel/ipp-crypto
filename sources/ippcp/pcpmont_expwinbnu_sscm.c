@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2003 Intel Corporation
+* Copyright (C) 2003 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /*
@@ -24,8 +25,6 @@
 #include "pcpbn.h"
 #include "pcpmontgomery.h"
 #include "gsscramble.h"
-
-//tbcd: temporary excluded: #include <assert.h>
 
 #if defined(_USE_WINDOW_EXP_)
 
@@ -86,6 +85,8 @@ IPP_OWN_DEFN (void, cpMontExpWin_BN_sscm, (IppsBigNumState* pY, const IppsBigNum
       /* Montgomery engine buffers */
       const int usedPoolLen = 2;
       BNU_CHUNK_T* pBuffer  = gsModPoolAlloc(pMont, usedPoolLen);
+      if(NULL == pBuffer) 
+         return;
 
       BNU_CHUNK_T* pKBuffer = pBuffer + nsM;
 
@@ -107,8 +108,6 @@ IPP_OWN_DEFN (void, cpMontExpWin_BN_sscm, (IppsBigNumState* pY, const IppsBigNum
 
       /* initialize recource */
       pResource = (BNU_CHUNK_T*)(IPP_ALIGNED_PTR(pResource, CACHE_LINE_SIZE));
-
-      //tbcd: temporary excluded: assert(NULL!=pBuffer);
 
       //cpScramblePut(((Ipp8u*)pResource)+0, chunkSize, (Ipp32u*)MOD_MNT_R(pMont), nsM*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
       gsScramblePut(pResource, 0, MOD_MNT_R(pMont), nsM, window);

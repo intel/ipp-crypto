@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2003 Intel Corporation
+* Copyright (C) 2003 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -29,9 +30,6 @@
 #include "pcpbn.h"
 #include "pcpmontgomery.h"
 #include "pcpmask_ct.h"
-
-//tbcd: temporary excluded: #include <assert.h>
-
 
 #if defined(_USE_IPP_OWN_CBA_MITIGATION_)
 /*
@@ -84,8 +82,10 @@ IPP_OWN_DEFN (cpSize, cpMontExpBin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUN
       /* Montgomery engine buffers */
       const int usedPoolLen = 2;
       BNU_CHUNK_T* dataT = gsModPoolAlloc(pMont, usedPoolLen);
+      if(NULL == dataT)
+         return -1;
+      
       BNU_CHUNK_T* sscmB = dataT + nsM;
-      //tbcd: temporary excluded: assert(NULL!=dataT);
 
       /* mont(1) */
       BNU_CHUNK_T* pR = MOD_MNT_R(pMont);

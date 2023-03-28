@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright (C) 2020 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /*
@@ -98,6 +99,11 @@ struct _cpAES_GCM {
    EncryptUpdate_   encryptUpdateFunc;    // Encryption-authentication
    DecryptUpdate_   decryptUpdateFunc;    // Decryption-verification
    GetTag_          getTagFunc;           // Get tag
+   
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+   __ALIGN16
+   cpAESNoiseParams noiseParams; 
+#endif
 };
 
 // Alignment
@@ -130,6 +136,10 @@ struct _cpAES_GCM {
 #define AESGCM_TXT_LEN(context)            (AES_GCM_CONTEXT_DATA(context).in_length)
 #define AESGCM_AAD_LEN(context)            (AES_GCM_CONTEXT_DATA(context).aad_length)
 #define AESGCM_BUFLEN(context)             (AES_GCM_CONTEXT_DATA(context).partial_block_length)
+
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+#define AESGCM_NOISE_PARAMS(ctx)           ((ctx)->noiseParams)
+#endif
 
 #define AESGCM_VALID_ID(context)     ((((context)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((context))) == (Ipp32u)idCtxAESGCM)
 

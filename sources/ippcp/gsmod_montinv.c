@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2017 Intel Corporation
+* Copyright (C) 2017 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -55,7 +56,7 @@ IPP_OWN_DEFN (BNU_CHUNK_T*, gs_mont_inv, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa
 {
    int k = alm_inversion(pr, pa, pME);
 
-   if(0==k)
+   if(0 == k)
       return NULL;
 
    {
@@ -64,9 +65,10 @@ IPP_OWN_DEFN (BNU_CHUNK_T*, gs_mont_inv, (BNU_CHUNK_T* pr, const BNU_CHUNK_T* pa
       mod_mul mon_mul = MOD_METHOD(pME)->mul;
 
       BNU_CHUNK_T* t = gsModPoolAlloc(pME, 1);
-      //tbcd: temporary excluded: assert(NULL!=t);
+      if(NULL == t)
+         return NULL;
 
-      if(k<=m) {
+      if(k <= m) {
          mon_mul(pr, pr, MOD_MNT_R2(pME), pME);
          k += m;
       }

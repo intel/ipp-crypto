@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright (C) 2020 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /*
@@ -83,7 +84,6 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
 
     // Sequential check of all input buffers
     int isAllBuffersValid = 1;
-    int numRounds = 0;
     for (i = 0; i < numBuffers; i++) {
         // Test source, target buffers and initialization pointers
         if (pSrc[i] == NULL || pDst[i] == NULL || pIV[i] == NULL || pCtx[i] == NULL) {
@@ -113,7 +113,6 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
             continue;
         }
 
-        numRounds = RIJ_NR(pCtx[i]);
         status[i] = ippStsNoErr;
     }
 
@@ -133,6 +132,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
     Ipp8u const* loc_iv[AES_MB_MAX_KERNEL_SIZE];
     int loc_len[AES_MB_MAX_KERNEL_SIZE];
     int buffersProcessed = 0;
+    int numRounds = 0;
     #endif
 
     #if(_IPP32E>=_IPP32E_K1)
@@ -162,6 +162,8 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
                 loc_iv[i]       = pIV[i + buffersProcessed];
                 loc_enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
                 loc_len[i]      = len[i + buffersProcessed];
+                /* As numRounds is the same for all buffers, get it from the last one */
+                numRounds = RIJ_NR(pCtx[i + buffersProcessed]);
             }
 
             /* choosing a core for filled buffers */
@@ -203,6 +205,8 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
                 loc_iv[i]       = pIV[i + buffersProcessed];
                 loc_enc_keys[i] = (Ipp32u*)RIJ_EKEYS(pCtx[i + buffersProcessed]);
                 loc_len[i]      = len[i + buffersProcessed];
+                /* As numRounds is the same for all buffers, get it from the last one */
+                numRounds = RIJ_NR(pCtx[i + buffersProcessed]);
             }
 
             aes_cfb16_enc_aesni_mb4(loc_src, loc_dst, loc_len, numRounds, loc_enc_keys, loc_iv);

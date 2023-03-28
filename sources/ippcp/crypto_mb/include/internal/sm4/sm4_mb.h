@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright (C) 2021 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 #if !defined(_SM4_GFNI_MB_H)
@@ -31,6 +32,57 @@
 #ifndef M512
 #define M512(mem)   (*((__m512i*)(mem)))
 #endif
+
+#define loadu _mm512_loadu_si512
+#define storeu _mm512_storeu_si512
+
+#define mask_storeu_epi64 _mm512_mask_storeu_epi64
+#define maskz_expandloadu_epi32 _mm512_maskz_expandloadu_epi32
+
+#define mask_storeu_epi8 _mm512_mask_storeu_epi8
+#define maskz_loadu_epi8 _mm512_maskz_loadu_epi8
+
+#define srli_epi64 _mm512_srli_epi64
+#define slli_epi64 _mm512_slli_epi64
+#define bsrli_epi128 _mm512_bsrli_epi128
+#define bslli_epi128 _mm512_bslli_epi128
+
+#define shuffle_epi8 _mm512_shuffle_epi8
+#define shuffle_epi32 _mm512_shuffle_epi32
+
+#define set1_epi32 _mm512_set1_epi32
+#define set1_epi64 _mm512_set1_epi64
+#define setzero _mm512_setzero_si512
+
+#define cmpeq_epi32_mask _mm512_cmpeq_epi32_mask
+#define cmp_epi32_mask _mm512_cmp_epi32_mask
+#define cmp_epi64_mask _mm512_cmp_epi64_mask
+
+#define mask_set1_epi32 _mm512_mask_set1_epi32
+
+#define mask_sub_epi32 _mm512_mask_sub_epi32
+#define mask_add_epi32 _mm512_mask_add_epi32
+#define mask_add_epi64 _mm512_mask_add_epi64
+#define add_epi32 _mm512_add_epi32
+#define sub_epi32 _mm512_sub_epi32
+#define add_epi64 _mm512_add_epi64
+
+#define or _mm512_or_si512
+#define and _mm512_and_si512
+#define xor _mm512_xor_si512
+
+#define clmul _mm512_clmulepi64_epi128
+
+#define unpacklo_epi32 _mm512_unpacklo_epi32
+#define unpackhi_epi32 _mm512_unpackhi_epi32
+#define unpacklo_epi64 _mm512_unpacklo_epi64
+#define unpackhi_epi64 _mm512_unpackhi_epi64
+
+#define insert32x4 _mm512_inserti32x4
+#define sll_epi32 _mm512_sll_epi32
+#define srli_epi32 _mm512_srli_epi32
+#define mask_cmp_epi32_mask _mm512_mask_cmp_epi32_mask
+#define broadcast_i64x2 _mm512_broadcast_i64x2
 
 /*
 // Constants
@@ -117,14 +169,24 @@ static __ALIGN64 const int8u  nextInc[] = {
     4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
+static __ALIGN64 const int8u shuf8[] = {
+    0x01, 0x02, 0x03, 0x00, 0x05, 0x06, 0x07, 0x04,
+    0x09, 0x0A, 0x0B, 0x08, 0x0D, 0x0E, 0x0F, 0x0C,
+    0x01, 0x02, 0x03, 0x00, 0x05, 0x06, 0x07, 0x04,
+    0x09, 0x0A, 0x0B, 0x08, 0x0D, 0x0E, 0x0F, 0x0C,
+    0x01, 0x02, 0x03, 0x00, 0x05, 0x06, 0x07, 0x04,
+    0x09, 0x0A, 0x0B, 0x08, 0x0D, 0x0E, 0x0F, 0x0C,
+    0x01, 0x02, 0x03, 0x00, 0x05, 0x06, 0x07, 0x04,
+    0x09, 0x0A, 0x0B, 0x08, 0x0D, 0x0E, 0x0F, 0x0C,
+};
+
 #define SM4_ONE_ROUND(X0, X1, X2, X3, TMP, RK) {    \
     /* (Xi+1 ^ Xi+2 ^ Xi+3 ^ rki) */                \
-    TMP = _mm512_xor_epi32(_mm512_xor_epi32(_mm512_xor_epi32(X1, X2), X3), _mm512_loadu_si512(RK)); \
+    TMP = _mm512_ternarylogic_epi32 (X1, X2, X3, 0x96); \
+    TMP = _mm512_xor_epi32(TMP,  _mm512_loadu_si512(RK)); \
     /* T(Xi+1 ^ Xi+2 ^ Xi+3 ^ rki) */               \
     TMP = sBox512(TMP);                             \
-    TMP = _mm512_xor_epi32(TMP, Lblock512(TMP));    \
-    /* Xi+4 = Xi ^ T(Xi+1 ^ Xi+2 ^ Xi+3 ^ rki) */   \
-    X0 = _mm512_xor_epi32(X0, TMP);                 \
+    X0 = _mm512_ternarylogic_epi64 (X0, TMP, Lblock512(TMP), 0x96); \
 }
 
 #define SM4_FOUR_ROUNDS(X0, X1, X2, X3, TMP, RK, sign) {           \
@@ -132,6 +194,23 @@ static __ALIGN64 const int8u  nextInc[] = {
     SM4_ONE_ROUND(X1, X2, X3, X0, TMP, (RK + sign * 1));     \
     SM4_ONE_ROUND(X2, X3, X0, X1, TMP, (RK + sign * 2));     \
     SM4_ONE_ROUND(X3, X0, X1, X2, TMP, (RK + sign * 3));     \
+}
+
+#define SM4_ONE_ROUND_MASKED(X0, X1, X2, X3, TMP, MASK, RK) {    \
+    /* (Xi+1 ^ Xi+2 ^ Xi+3 ^ rki) */                \
+    TMP = _mm512_xor_epi32(_mm512_xor_epi32(_mm512_xor_epi32(X1, X2), X3), _mm512_loadu_si512(RK)); \
+    /* T(Xi+1 ^ Xi+2 ^ Xi+3 ^ rki) */               \
+    TMP = sBox512(TMP);                             \
+    TMP = _mm512_xor_epi32(TMP, Lblock512(TMP));    \
+    /* Xi+4 = Xi ^ T(Xi+1 ^ Xi+2 ^ Xi+3 ^ rki) */   \
+    X0 = _mm512_mask_xor_epi32(X0, MASK, X0, TMP);                 \
+}
+
+#define SM4_FOUR_ROUNDS_MASKED(X0, X1, X2, X3, TMP, MASK, RK, sign) {           \
+    SM4_ONE_ROUND_MASKED(X0, X1, X2, X3, TMP, MASK, RK);                  \
+    SM4_ONE_ROUND_MASKED(X1, X2, X3, X0, TMP, MASK, (RK + sign * 1));     \
+    SM4_ONE_ROUND_MASKED(X2, X3, X0, X1, TMP, MASK, (RK + sign * 2));     \
+    SM4_ONE_ROUND_MASKED(X3, X0, X1, X2, TMP, MASK, (RK + sign * 3));     \
 }
 
 #define EXPAND_ONE_RKEY(X, p_rk) { \
@@ -171,6 +250,7 @@ static __ALIGN64 const int8u  nextInc[] = {
 EXTERN_C void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int operation);
 EXTERN_C void sm4_cbc_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, const int8u* pa_iv[SM4_LINES]);
 EXTERN_C void sm4_cbc_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, const int8u* pa_iv[SM4_LINES]);
+EXTERN_C void sm4_cbc_mac_kernel_mb16(__m128i pa_out[SM4_LINES], const int8u *const pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, const int8u* pa_iv[SM4_LINES]);
 EXTERN_C void sm4_ctr128_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int8u* pa_ctr[SM4_LINES]);
 EXTERN_C void sm4_ofb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], __mmask16 mb_mask, int8u* pa_iv[SM4_LINES]);
 EXTERN_C void sm4_cfb128_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask);
@@ -187,7 +267,8 @@ __INLINE __m512i sBox512(__m512i block)
 
 __INLINE __m512i Lblock512(__m512i x)
 {
-    return _mm512_ternarylogic_epi32(_mm512_xor_si512(_mm512_rol_epi32(x, 2), _mm512_rol_epi32(x, 10)), _mm512_rol_epi32(x, 18), _mm512_rol_epi32(x, 24), 0x96);
+    return _mm512_ternarylogic_epi32(_mm512_xor_si512(_mm512_rol_epi32(x, 2), _mm512_rol_epi32(x, 10)), _mm512_rol_epi32(x, 18),
+                                     _mm512_shuffle_epi8 (x, _mm512_loadu_si512(shuf8)), 0x96);
 }
 
 __INLINE __m512i Lkey512(__m512i x)
@@ -209,17 +290,13 @@ __INLINE __m512i IncBlock512(__m512i x, const int8u* increment)
     for (int itr = 0, j = 0; itr < 8; itr++, j++) {    \
         /* initial xors */                             \
         EXPAND_ONE_RKEY(TMP, p_rk);  p_rk+=iterator;   \
-        TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);     \
-        TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);     \
+        TMP[0] = _mm512_ternarylogic_epi32 (TMP[0], TMP[5], TMP[6], 0x96); \
         TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);     \
-        TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);     \
-        TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);    \
+        TMP[1] = _mm512_ternarylogic_epi32 (TMP[1], TMP[9], TMP[10], 0x96); \
         TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);    \
-        TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);    \
-        TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);    \
+        TMP[2] = _mm512_ternarylogic_epi32 (TMP[2], TMP[13], TMP[14], 0x96); \
         TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);    \
-        TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);    \
-        TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);    \
+        TMP[3] = _mm512_ternarylogic_epi32 (TMP[3], TMP[17], TMP[18], 0x96); \
         TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);    \
         /* Sbox */                                     \
         TMP[0] = sBox512(TMP[0]);                      \
@@ -227,23 +304,19 @@ __INLINE __m512i IncBlock512(__m512i x, const int8u* increment)
         TMP[2] = sBox512(TMP[2]);                      \
         TMP[3] = sBox512(TMP[3]);                      \
         /* Sbox done, now L */                         \
-        TMP[4] = _mm512_xor_si512(_mm512_xor_si512(TMP[4], TMP[0]), Lblock512(TMP[0]));    \
-        TMP[8] = _mm512_xor_si512(_mm512_xor_si512(TMP[8], TMP[1]), Lblock512(TMP[1]));    \
-        TMP[12] = _mm512_xor_si512(_mm512_xor_si512(TMP[12], TMP[2]), Lblock512(TMP[2]));  \
-        TMP[16] = _mm512_xor_si512(_mm512_xor_si512(TMP[16], TMP[3]), Lblock512(TMP[3]));  \
+        TMP[4] = _mm512_ternarylogic_epi32(TMP[4], TMP[0], Lblock512(TMP[0]), 0x96);    \
+        TMP[8] = _mm512_ternarylogic_epi32(TMP[8], TMP[1], Lblock512(TMP[1]), 0x96);    \
+        TMP[12] = _mm512_ternarylogic_epi32(TMP[12], TMP[2], Lblock512(TMP[2]), 0x96);    \
+        TMP[16] = _mm512_ternarylogic_epi32(TMP[16], TMP[3], Lblock512(TMP[3]), 0x96);    \
         /* initial xors */                             \
         EXPAND_ONE_RKEY(TMP, p_rk);   p_rk+=iterator;  \
-        TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);     \
-        TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);     \
+        TMP[0] = _mm512_ternarylogic_epi32 (TMP[0], TMP[6], TMP[7], 0x96); \
         TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);     \
-        TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);    \
-        TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);    \
+        TMP[1] = _mm512_ternarylogic_epi32 (TMP[1], TMP[10], TMP[11], 0x96); \
         TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);     \
-        TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);    \
-        TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);    \
+        TMP[2] = _mm512_ternarylogic_epi32 (TMP[2], TMP[14], TMP[15], 0x96); \
         TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);    \
-        TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);    \
-        TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);    \
+        TMP[3] = _mm512_ternarylogic_epi32 (TMP[3], TMP[18], TMP[19], 0x96); \
         TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);    \
         /* Sbox */                                     \
         TMP[0] = sBox512(TMP[0]);         \
@@ -251,49 +324,41 @@ __INLINE __m512i IncBlock512(__m512i x, const int8u* increment)
         TMP[2] = sBox512(TMP[2]);      \
         TMP[3] = sBox512(TMP[3]);      \
         /* Sbox done, now L */     \
-        TMP[5] = _mm512_xor_si512(_mm512_xor_si512(TMP[5], TMP[0]), Lblock512(TMP[0]));     \
-        TMP[9] = _mm512_xor_si512(_mm512_xor_si512(TMP[9], TMP[1]), Lblock512(TMP[1]));      \
-        TMP[13] = _mm512_xor_si512(_mm512_xor_si512(TMP[13], TMP[2]), Lblock512(TMP[2]));   \
-        TMP[17] = _mm512_xor_si512(_mm512_xor_si512(TMP[17], TMP[3]), Lblock512(TMP[3]));   \
+        TMP[5] = _mm512_ternarylogic_epi32(TMP[5], TMP[0], Lblock512(TMP[0]), 0x96);    \
+        TMP[9] = _mm512_ternarylogic_epi32(TMP[9], TMP[1], Lblock512(TMP[1]), 0x96);    \
+        TMP[13] = _mm512_ternarylogic_epi32(TMP[13], TMP[2], Lblock512(TMP[2]), 0x96);    \
+        TMP[17] = _mm512_ternarylogic_epi32(TMP[17], TMP[3], Lblock512(TMP[3]), 0x96);    \
                                                            \
         /* initial xors */                   \
         EXPAND_ONE_RKEY(TMP, p_rk);   p_rk+=iterator;  \
-        TMP[0] = _mm512_xor_si512(TMP[0], TMP[7]);  \
-        TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);  \
-        TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);  \
-        TMP[1] = _mm512_xor_si512(TMP[1], TMP[11]);  \
-        TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);   \
-        TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);   \
-        TMP[2] = _mm512_xor_si512(TMP[2], TMP[15]);   \
-        TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);   \
-        TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);   \
-        TMP[3] = _mm512_xor_si512(TMP[3], TMP[19]);   \
-        TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);    \
-        TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);  \
+        TMP[0] = _mm512_ternarylogic_epi32 (TMP[0], TMP[7], TMP[4], 0x96); \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);     \
+        TMP[1] = _mm512_ternarylogic_epi32 (TMP[1], TMP[11], TMP[8], 0x96); \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);     \
+        TMP[2] = _mm512_ternarylogic_epi32 (TMP[2], TMP[15], TMP[12], 0x96); \
+        TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);    \
+        TMP[3] = _mm512_ternarylogic_epi32 (TMP[3], TMP[19], TMP[16], 0x96); \
+        TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);    \
         /* Sbox */                           \
         TMP[0] = sBox512(TMP[0]);   \
         TMP[1] = sBox512(TMP[1]);    \
         TMP[2] = sBox512(TMP[2]);   \
         TMP[3] = sBox512(TMP[3]);   \
         /* Sbox done, now L */     \
-        TMP[6] = _mm512_xor_si512(_mm512_xor_si512(TMP[6], TMP[0]), Lblock512(TMP[0]));   \
-        TMP[10] = _mm512_xor_si512(_mm512_xor_si512(TMP[10], TMP[1]), Lblock512(TMP[1])); \
-        TMP[14] = _mm512_xor_si512(_mm512_xor_si512(TMP[14], TMP[2]), Lblock512(TMP[2])); \
-        TMP[18] = _mm512_xor_si512(_mm512_xor_si512(TMP[18], TMP[3]), Lblock512(TMP[3])); \
+        TMP[6] = _mm512_ternarylogic_epi32(TMP[6], TMP[0], Lblock512(TMP[0]), 0x96);    \
+        TMP[10] = _mm512_ternarylogic_epi32(TMP[10], TMP[1], Lblock512(TMP[1]), 0x96);    \
+        TMP[14] = _mm512_ternarylogic_epi32(TMP[14], TMP[2], Lblock512(TMP[2]), 0x96);    \
+        TMP[18] = _mm512_ternarylogic_epi32(TMP[18], TMP[3], Lblock512(TMP[3]), 0x96);    \
                                                               \
         /* initial xors */        \
         EXPAND_ONE_RKEY(TMP, p_rk);   p_rk+=iterator;  \
-        TMP[0] = _mm512_xor_si512(TMP[0], TMP[4]);      \
-        TMP[0] = _mm512_xor_si512(TMP[0], TMP[5]);     \
-        TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);      \
-        TMP[1] = _mm512_xor_si512(TMP[1], TMP[8]);       \
-        TMP[1] = _mm512_xor_si512(TMP[1], TMP[9]);    \
-        TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);      \
-        TMP[2] = _mm512_xor_si512(TMP[2], TMP[12]);     \
-        TMP[2] = _mm512_xor_si512(TMP[2], TMP[13]);    \
+        TMP[0] = _mm512_ternarylogic_epi32 (TMP[0], TMP[4], TMP[5], 0x96); \
+        TMP[0] = _mm512_xor_si512(TMP[0], TMP[6]);     \
+        TMP[1] = _mm512_ternarylogic_epi32 (TMP[1], TMP[8], TMP[9], 0x96); \
+        TMP[1] = _mm512_xor_si512(TMP[1], TMP[10]);    \
+        TMP[2] = _mm512_ternarylogic_epi32 (TMP[2], TMP[12], TMP[13], 0x96); \
         TMP[2] = _mm512_xor_si512(TMP[2], TMP[14]);    \
-        TMP[3] = _mm512_xor_si512(TMP[3], TMP[16]);    \
-        TMP[3] = _mm512_xor_si512(TMP[3], TMP[17]);    \
+        TMP[3] = _mm512_ternarylogic_epi32 (TMP[3], TMP[16], TMP[17], 0x96); \
         TMP[3] = _mm512_xor_si512(TMP[3], TMP[18]);    \
         /* Sbox */                                   \
         TMP[0] = sBox512(TMP[0]);    \
@@ -301,10 +366,10 @@ __INLINE __m512i IncBlock512(__m512i x, const int8u* increment)
         TMP[2] = sBox512(TMP[2]);    \
         TMP[3] = sBox512(TMP[3]);    \
         /* Sbox done, now L */                                      \
-        TMP[7] = _mm512_xor_si512(_mm512_xor_si512(TMP[7], TMP[0]), Lblock512(TMP[0]));  \
-        TMP[11] = _mm512_xor_si512(_mm512_xor_si512(TMP[11], TMP[1]), Lblock512(TMP[1])); \
-        TMP[15] = _mm512_xor_si512(_mm512_xor_si512(TMP[15], TMP[2]), Lblock512(TMP[2]));  \
-        TMP[19] = _mm512_xor_si512(_mm512_xor_si512(TMP[19], TMP[3]), Lblock512(TMP[3]));  \
+        TMP[7] = _mm512_ternarylogic_epi32(TMP[7], TMP[0], Lblock512(TMP[0]), 0x96);    \
+        TMP[11] = _mm512_ternarylogic_epi32(TMP[11], TMP[1], Lblock512(TMP[1]), 0x96);    \
+        TMP[15] = _mm512_ternarylogic_epi32(TMP[15], TMP[2], Lblock512(TMP[2]), 0x96);    \
+        TMP[19] = _mm512_ternarylogic_epi32(TMP[19], TMP[3], Lblock512(TMP[3]), 0x96);    \
         }
 
 /*
@@ -425,6 +490,51 @@ __INLINE void TRANSPOSE_4x16_I32_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __
     STORE_RESULT((__m128i*)p_out[13] - 3, 0xF000, loc_mb_mask, *t1);
     STORE_RESULT((__m128i*)p_out[14] - 3, 0xF000, loc_mb_mask, *t2);
     STORE_RESULT((__m128i*)p_out[15] - 3, 0xF000, loc_mb_mask, *t3);
+
+}
+
+__INLINE void TRANSPOSE_4x16_I32_O128_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __m512i* t3, __m128i p_out[16], __mmask16 mb_mask) {
+
+    #define STORE_RESULT(OUT, store_mask, loc_mb_mask, Ti)                              \
+            _mm512_mask_storeu_epi32(OUT, store_mask * (0x1&loc_mb_mask), Ti);    \
+            loc_mb_mask >>= 1;
+
+    __mmask16 loc_mb_mask = mb_mask;
+
+    __m512i z0 = _mm512_unpacklo_epi32(*t0, *t1);
+    __m512i z1 = _mm512_unpackhi_epi32(*t0, *t1);
+    __m512i z2 = _mm512_unpacklo_epi32(*t2, *t3);
+    __m512i z3 = _mm512_unpackhi_epi32(*t2, *t3);
+
+    /* Get the right endianness and do (Y0, Y1, Y2, Y3) = R(X32, X33, X34, X35) = (X35, X34, X33, X32) */
+    *t0 = CHANGE_ORDER_BLOCKS(_mm512_unpacklo_epi64(z0, z2));
+    *t1 = CHANGE_ORDER_BLOCKS(_mm512_unpackhi_epi64(z0, z2));
+    *t2 = CHANGE_ORDER_BLOCKS(_mm512_unpacklo_epi64(z1, z3));
+    *t3 = CHANGE_ORDER_BLOCKS(_mm512_unpackhi_epi64(z1, z3));
+
+    // L0 - L3
+    STORE_RESULT(&p_out[0], 0x000F, loc_mb_mask, *t0);
+    STORE_RESULT(&p_out[1], 0x000F, loc_mb_mask, *t1);
+    STORE_RESULT(&p_out[2], 0x000F, loc_mb_mask, *t2);
+    STORE_RESULT(&p_out[3], 0x000F, loc_mb_mask, *t3);
+
+    // L4 - L7
+    STORE_RESULT(&p_out[4] - 1, 0x00F0, loc_mb_mask, *t0);
+    STORE_RESULT(&p_out[5] - 1, 0x00F0, loc_mb_mask, *t1);
+    STORE_RESULT(&p_out[6] - 1, 0x00F0, loc_mb_mask, *t2);
+    STORE_RESULT(&p_out[7] - 1, 0x00F0, loc_mb_mask, *t3);
+
+    // L8 - Lb
+    STORE_RESULT(&p_out[8] - 2, 0x0F00, loc_mb_mask, *t0);
+    STORE_RESULT(&p_out[9] - 2, 0x0F00, loc_mb_mask, *t1);
+    STORE_RESULT(&p_out[10] - 2, 0x0F00, loc_mb_mask, *t2);
+    STORE_RESULT(&p_out[11] - 2, 0x0F00, loc_mb_mask, *t3);
+
+    // Lc - Lf
+    STORE_RESULT(&p_out[12] - 3, 0xF000, loc_mb_mask, *t0);
+    STORE_RESULT(&p_out[13] - 3, 0xF000, loc_mb_mask, *t1);
+    STORE_RESULT(&p_out[14] - 3, 0xF000, loc_mb_mask, *t2);
+    STORE_RESULT(&p_out[15] - 3, 0xF000, loc_mb_mask, *t3);
 
 }
 

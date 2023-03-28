@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include "owncp.h"
@@ -19,6 +20,12 @@
 #include "pcpgfpecstuff.h"
 #include "sm2/sm2_key_exchange_method.h"
 #include "sm2/sm2_stuff.h"
+
+#define CHECK_PUBLIC_KEY(KEY)                                                    \
+   IPP_BAD_PTR1_RET((KEY))                                                       \
+   IPP_BADARG_RET(!ECP_POINT_VALID_ID((KEY)), ippStsContextMatchErr)             \
+   IPP_BADARG_RET(ECP_POINT_FELEN((KEY)) != GFP_FELEN(pME), ippStsOutOfRangeErr) \
+   IPP_BADARG_RET(0 == gfec_IsPointOnCurve((KEY), pEC), ippStsInvalidPoint)
 
 
 /**
@@ -55,6 +62,8 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_Setup, (const Ipp8u pZSelf[IPP_SM3_DIG
 {
    /* check Key Exchange */
    IPP_BAD_PTR1_RET(pKE);
+   /* check id */
+   IPP_BADARG_RET(!EC_SM2_KEY_EXCH_VALID_ID(pKE), ippStsContextMatchErr);
    /* check User Role */
    const IppsKeyExchangeRoleSM2 role = EC_SM2_KEY_EXCH_ROLE(pKE);
    IPP_BADARG_RET(((ippKESM2Requester != role) && (ippKESM2Responder != role)), ippStsBadArgErr);
@@ -77,16 +86,14 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_Setup, (const Ipp8u pZSelf[IPP_SM3_DIG
    IPP_BADARG_RET(!(ECP_ORDBITSIZE(pEC) >= IPP_SM3_DIGEST_BITSIZE), ippStsRangeErr);
 
    /* check data User A */
-   IPP_BAD_PTR2_RET(pPublicKeySelf, pEphPublicKeySelf);
-   /* check point in curve */
-   IPP_BADARG_RET(0 == gfec_IsPointOnCurve(pPublicKeySelf, pEC), ippStsInvalidPoint);
-   IPP_BADARG_RET(0 == gfec_IsPointOnCurve(pEphPublicKeySelf, pEC), ippStsInvalidPoint);
+   /* public and ephemeral public key */
+   CHECK_PUBLIC_KEY(pPublicKeySelf)
+   CHECK_PUBLIC_KEY(pEphPublicKeySelf)
 
    /* check data User B */
-   IPP_BAD_PTR2_RET(pPublicKeyPeer, pEphPublicKeyPeer);
-   /* check point in curve */
-   IPP_BADARG_RET(0 == gfec_IsPointOnCurve(pPublicKeyPeer, pEC), ippStsInvalidPoint);
-   IPP_BADARG_RET(0 == gfec_IsPointOnCurve(pEphPublicKeyPeer, pEC), ippStsInvalidPoint);
+   /* public and ephemeral public key */
+   CHECK_PUBLIC_KEY(pPublicKeyPeer)
+   CHECK_PUBLIC_KEY(pEphPublicKeyPeer)
 
    {
       const int elemSize = GFP_FELEN(pME); /* size BNU_CHUNK */
@@ -134,3 +141,5 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_Setup, (const Ipp8u pZSelf[IPP_SM3_DIG
       return ippStsNoErr;
    }
 }
+
+#undef CHECK_PUBLIC_KEY

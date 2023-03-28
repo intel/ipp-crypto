@@ -1,17 +1,18 @@
 /*******************************************************************************
- * Copyright 2022 Intel Corporation
+ * Copyright (C) 2022 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
+ * 
  *******************************************************************************/
 
 #include "owncp.h"
@@ -20,7 +21,7 @@
 #include "sm2/sm2_stuff.h"
 
 /**
- * @brief ippsGFpECKeyExchangeSM2_Confirmation
+ * @brief ippsGFpECKeyExchangeSM2_Confirm
  * this step Optional in protocol SM2 Key Exchange - Confirmation Peer data
  * see standart:
  * [GBT.32918.3-2016] Public Key cryptographic algorithm SM2 based on elliptic curves
@@ -43,13 +44,18 @@
  * ippStsBadArgErr           - if role(pKE) no equal ippKESM2Requester|ippKESM2Responder
  */
 /* clang-format off */
-IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_Confirmation, (const Ipp8u pSPeer[IPP_SM3_DIGEST_BYTESIZE],
-                                                         int* pStatus,
-                                                         IppsGFpECKeyExchangeSM2State* pKE))
+IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_Confirm, (const Ipp8u pSPeer[IPP_SM3_DIGEST_BYTESIZE],
+                                                    int* pStatus,
+                                                    IppsGFpECKeyExchangeSM2State* pKE))
 /* clang-format on */
 {
    /* check Key Exchange */
    IPP_BAD_PTR1_RET(pKE);
+   /* check id */
+   IPP_BADARG_RET(!EC_SM2_KEY_EXCH_VALID_ID(pKE), ippStsContextMatchErr);
+   /* check User Role */
+   const IppsKeyExchangeRoleSM2 role = EC_SM2_KEY_EXCH_ROLE(pKE);
+   IPP_BADARG_RET(((ippKESM2Requester != role) && (ippKESM2Responder != role)), ippStsBadArgErr);
 
    /* check Elliptic Curve */
    IppsGFpECState *pEC = EC_SM2_KEY_EXCH_EC(pKE);
@@ -65,15 +71,19 @@ IPPFUN(IppStatus, ippsGFpECKeyExchangeSM2_Confirmation, (const Ipp8u pSPeer[IPP_
    /* check bitsize >= SM3_DIGSET */
    IPP_BADARG_RET(!(ECP_ORDBITSIZE(pEC) >= IPP_SM3_DIGEST_BITSIZE), ippStsRangeErr);
 
-   /* check User Role */
-   const IppsKeyExchangeRoleSM2 role = EC_SM2_KEY_EXCH_ROLE(pKE);
-   IPP_BADARG_RET(((ippKESM2Requester != role) && (ippKESM2Responder != role)), ippStsBadArgErr);
+   /* check call Setup */
+   /* check init Public Key | Ephemeral  Public Key */
+   IPP_BADARG_RET( NULL == EC_SM2_KEY_EXCH_PUB_KEY_USER_A(pKE)     ||
+                   NULL == EC_SM2_KEY_EXCH_PUB_KEY_USER_B(pKE)     ||
+                   NULL == EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_A(pKE) ||
+                   NULL == EC_SM2_KEY_EXCH_EPH_PUB_KEY_USER_B(pKE), ippStsContextMatchErr)
 
    /* check pSPeer */
    IPP_BAD_PTR1_RET(pSPeer);
 
    /* check status */
    IPP_BAD_PTR1_RET(pStatus);
+
 
    const Ipp8u firstNum = (ippKESM2Requester == role) ? 0x02 : 0x03;
 

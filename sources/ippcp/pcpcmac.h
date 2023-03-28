@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2007 Intel Corporation
+* Copyright (C) 2007 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /*
@@ -56,6 +57,10 @@ struct _cpAES_CMAC {
 #define CMAC_BUFF(stt)    ((stt)->mBuffer)
 #define CMAC_MAC(stt)     ((stt)->mMAC)
 #define CMAC_CIPHER(stt)  ((stt)->mCipherCtx)
+
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+#define AESCMAC_NOISE_PARAMS(ctx)        (CMAC_CIPHER(ctx).noiseParams)
+#endif
 
 /* valid context ID */
 #define VALID_AESCMAC_ID(ctx) ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxCMAC)

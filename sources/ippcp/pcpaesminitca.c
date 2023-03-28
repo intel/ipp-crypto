@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2013 Intel Corporation
+* Copyright (C) 2013 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -30,6 +31,7 @@
 #include "pcpaesm.h"
 #include "pcprij128safe.h"
 #include "pcptool.h"
+#include "pcpaesminit_internal.h"
 
 /*F*
 //    Name: ippsAESInit
@@ -86,22 +88,21 @@ IPPFUN(IppStatus, ippsAESInit,(const Ipp8u* pKey, int keyLen,
       RIJ_NR(pCtx) = nRounds;
       RIJ_SAFE_INIT(pCtx) = 1;
 
-      /* align addresses of keys buffer */
-      RIJ_EKEYS(pCtx) = (Ipp8u*)(IPP_ALIGNED_PTR(RIJ_KEYS_BUFFER(pCtx), AES_ALIGNMENT));
-      RIJ_DKEYS(pCtx) = (Ipp8u*)((Ipp32u*)RIJ_EKEYS(pCtx) + nExpKeys);
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+      /* Reset AES noise parameters */
+      cpAESNoiseParams *params = (cpAESNoiseParams *)&RIJ_NOISE_PARAMS(pCtx);
+
+      AES_NOISE_RAND(params)       = 0;
+      AES_NOISE_LEVEL(params)      = 0;
+#endif
+
+      cpAes_setup_ptrs_and_methods(pCtx);
 
       #if (_AES_NI_ENABLING_==_FEATURE_ON_)
-         RIJ_AESNI(pCtx) = AES_NI_ENABLED;
-         RIJ_ENCODER(pCtx) = Encrypt_RIJ128_AES_NI; /* AES_NI based encoder */
-         RIJ_DECODER(pCtx) = Decrypt_RIJ128_AES_NI; /* AES_NI based decoder */
          cpExpandAesKey_NI(pActualKey, pCtx);       /* AES_NI based key expansion */
-
       #else
          #if (_AES_NI_ENABLING_==_FEATURE_TICKTOCK_)
          if( IsFeatureEnabled(ippCPUID_AES) ) {
-            RIJ_AESNI(pCtx) = AES_NI_ENABLED;
-            RIJ_ENCODER(pCtx) = Encrypt_RIJ128_AES_NI; /* AES_NI based encoder */
-            RIJ_DECODER(pCtx) = Decrypt_RIJ128_AES_NI; /* AES_NI based decoder */
             cpExpandAesKey_NI(pActualKey, pCtx);       /* AES_NI based key expansion */
          }
          else
@@ -121,8 +122,6 @@ IPPFUN(IppStatus, ippsAESInit,(const Ipp8u* pKey, int keyLen,
                 TransformNative2Composite(pEnc_key+16*nr, pEnc_key+16*nr);
                 TransformNative2Composite(pDec_key+16*nr, pDec_key+16*nr);
                 }
-               RIJ_ENCODER(pCtx) = SafeEncrypt_RIJ128; /* safe encoder (composite GF) */
-               RIJ_DECODER(pCtx) = SafeDecrypt_RIJ128; /* safe decoder (composite GF)*/
             }
             #else
             {
@@ -137,8 +136,6 @@ IPPFUN(IppStatus, ippsAESInit,(const Ipp8u* pKey, int keyLen,
                   SWAP(pEnc_key[ 7], pEnc_key[13]);
                   SWAP(pEnc_key[11], pEnc_key[14]);
                }
-               RIJ_ENCODER(pCtx) = Safe2Encrypt_RIJ128; /* safe encoder (compact Sbox)) */
-               RIJ_DECODER(pCtx) = Safe2Decrypt_RIJ128; /* safe decoder (compact Sbox)) */
             }
             #endif
          }

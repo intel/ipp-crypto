@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2005 Intel Corporation
+* Copyright (C) 2005 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -63,6 +64,25 @@
    #endif
 #endif
 
+/*
+// AES Noise
+// Enable mitigation when dispatching available to
+// Intel® Advanced Encryption Standard New Instructions (Intel® AES-NI) - _AES_NI_ENABLING_ != _FEATURE_OFF_
+// or vector extensions of Intel® AES-NI - _IPP32E >=_IPP32E_K1
+*/
+#ifndef IPP_AES_PROB_NOISE
+#define IPP_AES_PROB_NOISE _FEATURE_ON_
+#endif
+
+#if (IPP_AES_PROB_NOISE == _FEATURE_ON_)
+   #if ((_AES_NI_ENABLING_ != _FEATURE_OFF_) || (_IPP32E >=_IPP32E_K1))
+       #define _AES_PROB_NOISE _FEATURE_ON_
+   #else
+       #define _AES_PROB_NOISE _FEATURE_OFF_
+   #endif
+#else
+   #define _AES_PROB_NOISE _FEATURE_OFF_
+#endif
 
 /*
 // if there is no outside assignment

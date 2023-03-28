@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2002 Intel Corporation
+* Copyright (C) 2002 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /*
@@ -27,6 +28,7 @@
 #if !defined(_PCP_RIJ_H)
 #define _PCP_RIJ_H
 
+#include "pcpaesnoise.h"
 
 /*
 // The GF(256) modular polynomial and elements
@@ -59,6 +61,8 @@
 #define RIJ_ALIGNMENT (16)
 /* alignment in words */
 #define RIJ_ALIGNMENT_WORD (16/4)
+/* Assuming word is 4 bytes in rij calculations */
+#define RIJ_BYTES_IN_WORD (4)           
 
 #define MBS_RIJ128   (128/8)  /* message block size (bytes) */
 #define MBS_RIJ192   (192/8)
@@ -112,6 +116,9 @@ struct _cpRijndael128 {
    Ipp32u      aesNI;                      /* AES instruction available     */
    Ipp32u      safeInit;                   /* SafeInit performed            */
    Ipp32u      keys[2*NSK128_256 + RIJ_ALIGNMENT_WORD]; /* array of keys for encryption/decryption  */
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+   cpAESNoiseParams noiseParams; 
+#endif
 };
 
 struct _cpRijndael192 {
@@ -128,6 +135,9 @@ struct _cpRijndael192 {
    Ipp32u      aesNI;                      /* AES instruction available     */
    Ipp32u      safeInit;                   /* SafeInit performed            */
    Ipp32u      keys[2*NSK192_256 + RIJ_ALIGNMENT_WORD]; /* array of keys for encryption/decryption  */
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+   cpAESNoiseParams noiseParams; 
+#endif
 };
 
  struct _cpRijndael256 {
@@ -144,6 +154,9 @@ struct _cpRijndael192 {
    Ipp32u      aesNI;                        /* AES instruction available     */
    Ipp32u      safeInit;                     /* SafeInit performed            */
    Ipp32u      keys[2*NSK256_256 + RIJ_ALIGNMENT_WORD];   /* array of keys for encryption/decryption  */
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+   cpAESNoiseParams noiseParams; 
+#endif
 };
 
 #define AES_MB_MAX_KERNEL_SIZE (16) /* max number of buffers in multi buffer */
@@ -166,6 +179,10 @@ struct _cpRijndael192 {
 #define RIJ_AESNI(ctx)     ((ctx)->aesNI)
 #define RIJ_SAFE_INIT(ctx) ((ctx)->safeInit)
 #define RIJ_KEYS_BUFFER(ctx) ((ctx)->keys)
+
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+#define RIJ_NOISE_PARAMS(ctx)        ((ctx)->noiseParams)
+#endif
 
 #define VALID_RIJ_ID(ctx)  ((((ctx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((ctx))) == (Ipp32u)idCtxRijndael)
 

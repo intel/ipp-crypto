@@ -1,17 +1,18 @@
 /*******************************************************************************
-* Copyright 2002 Intel Corporation
+* Copyright (C) 2002 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
+* Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
+* 
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* See the License for the specific language governing permissions
+* and limitations under the License.
+* 
 *******************************************************************************/
 
 /* 
@@ -67,7 +68,7 @@ IPPFUN(IppStatus, ippsMontForm,(const IppsBigNumState* pA, IppsMontState* pCtx, 
       const int usedPoolLen = 1;
       cpSize nsM = MOD_LEN( MNT_ENGINE(pCtx) );
       BNU_CHUNK_T* pDataA  = gsModPoolAlloc(MNT_ENGINE(pCtx), usedPoolLen);
-      //tbcd: temporary excluded: assert(NULL!=pDataA);
+      IPP_BAD_PTR1_RET(pDataA); // pDataA can be NULL, stop processing
 
       ZEXPAND_COPY_BNU(pDataA, nsM, BN_NUMBER(pA), BN_SIZE(pA));
 
