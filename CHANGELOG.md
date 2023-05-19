@@ -2,6 +2,9 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## Intel(R) IPP Cryptography 2021.8
+- Crypto Multi-buffer library was extended with XTS mode of SM4 algorithm.
+
 ## Intel(R) IPP Cryptography 2021.7.1
 - Added re-initialization API for AES-GCM context - ippsAES_GCMReinit. The use-case of this function is very specific, please, refer to the documentation for more details.
 

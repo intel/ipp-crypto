@@ -40,9 +40,7 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
     _mm512_storeu_si512(loc_out, _mm512_loadu_si512(pa_out));
     _mm512_storeu_si512(loc_out + 8, _mm512_loadu_si512(pa_out + 8));
 
-    /* Depending on the operation(enc or dec): sign allows to go up and down on the key schedule */
     /* p_rk set to the beginning or to the end of the key schedule */
-    const int sign = (operation == SM4_ENC) ? 1 : -1;
     const __m512i* p_rk = (operation == SM4_ENC) ? (const __m512i*)key_sched : ((const __m512i*)key_sched + (SM4_ROUNDS - 1));
 
     __ALIGN64 __m512i TMP[20];
@@ -92,8 +90,8 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
         TMP[3] = _mm512_shuffle_epi8(TMP[3], M512(swapBytes));
         TRANSPOSE_INP_512(TMP[16], TMP[17], TMP[18], TMP[19], TMP[0], TMP[1], TMP[2], TMP[3]);
 
-        SM4_KERNEL(TMP, p_rk, sign);
-        p_rk -= sign*SM4_ROUNDS;
+        SM4_KERNEL(TMP, p_rk, operation);
+        p_rk -= operation*SM4_ROUNDS;
 
         TRANSPOSE_OUT_512(TMP[0], TMP[1], TMP[2], TMP[3], TMP[4], TMP[5], TMP[6], TMP[7]);
         TMP[0] = _mm512_shuffle_epi8(TMP[0], M512(swapBytes));
@@ -149,7 +147,7 @@ void sm4_ecb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
 
     /* compute incomplete buffer loading */
     sm4_ecb_incomplete_buff_mb16(loc_inp, loc_out,
-                                 num_blocks, p_rk, sign,
+                                 num_blocks, p_rk, operation,
                                  mb_mask,
                                  TMP);
     /* clear local copy of sensitive data */

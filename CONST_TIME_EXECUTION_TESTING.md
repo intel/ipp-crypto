@@ -7,14 +7,14 @@
 ## General information <div id = 'general'>
 - Testing is conducted under Linux for 64-bit Intel® IPP Cryptography built with the following compilers:
   -  Intel® C++ Compiler 19.1
-  -  Intel® C++ Compiler Classic 2021.3
+  -  Intel® C++ Compiler Classic 2021.9
   -  GCC 8.3 
   -  GCC 9.1 
   -  GCC 10.1 
   -  GCC 11.1
   -  Clang 9.0 
   -  Clang 12.0 
-- Tested platforms: w7, n8, y8, e9, l9, n0, k0 (see the supported platforms list [here](./OVERVIEW.md#target-optimization-codes-in-function-names)).
+- Tested platforms: w7, n8, y8, e9, l9, k0 (see the supported platforms list [here](./OVERVIEW.md#target-optimization-codes-in-function-names)).
 - Testing scope described below is guaranteed to pass for **`release`** branches. This is not guaranteed for the **`develop`** branch ([branches description](./OVERVIEW.md#branches-description))
 - Information about Pin-Based Constant Execution Checker can be found [here](https://github.com/intel/pin_based_cec) 
 

@@ -77,16 +77,17 @@ By default, the dispatcher chooses the most appropriate optimization for the cur
 
 #### Target Optimization Codes in Function Names
 
-| IA-32 Intel® architecture | Intel® 64 architecture | Meaning                                                                              |
-| ------------------------- | ---------------------- | ------------------------------------------------------------------------------------ |
-| px                        | mx                     | Generic code without hardware specific optimizations suitable for any CPU            |
-| w7                        | -                      | Optimized for processors with Intel® Streaming SIMD Extensions 2 (Intel® SSE2)       |
-| -                         | m7                     | Optimized for processors with Intel® SSE3                                            |
-| s8                        | n8                     | Optimized for processors with Supplemental Streaming SIMD Extensions 3 (SSSE3)       |
-| p8                        | y8                     | Optimized for processors with Intel® SSE4.2                                          |
-| g9                        | e9                     | Optimized for processors with Intel® Advanced Vector Extensions (Intel® AVX)         |
-| h9                        | l9                     | Optimized for processors with Intel® Advanced Vector Extensions 2 (Intel® AVX2)      |
-| -                         | k0                     | Optimized for processors with Intel® Advanced Vector Extensions 512 (Intel® AVX-512) |
+| IA-32 Intel® architecture | Intel® 64 architecture | Meaning                                                                                                            |
+| ------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| px                        | mx                     | Generic code without hardware specific optimizations suitable for any CPU                                          |
+| w7                        | -                      | Optimized for processors with Intel® Streaming SIMD Extensions 2 (Intel® SSE2)                                     |
+| -                         | m7                     | Optimized for processors with Intel® SSE3                                                                          |
+| s8                        | n8                     | Optimized for processors with Supplemental Streaming SIMD Extensions 3 (SSSE3)                                     |
+| p8                        | y8                     | Optimized for processors with Intel® SSE4.2                                                                        |
+| g9                        | e9                     | Optimized for processors with Intel® Advanced Vector Extensions (Intel® AVX)                                       |
+| h9                        | l9                     | Optimized for processors with Intel® Advanced Vector Extensions 2 (Intel® AVX2)                                    |
+| -                         | k0                     | Optimized for processors with Intel® Advanced Vector Extensions 512 (Intel® AVX-512) (formerly codenamed SkyLake)  |
+| -                         | k1                     | Optimized for processors with Intel® Advanced Vector Extensions 512 (Intel® AVX-512) (formerly codenamed IceLake)  |
 
 ### CPU Feature Dispatching
 
@@ -103,6 +104,8 @@ List of CPU feature subsets that the library has special optimizations for:
 - Intel AVX-512 VAES
 - Intel AVX-512 IFMA
 - Intel AVX-512 GFNI
+
+ > **NOTE:** For some features there is also an opportunity to force their dispatching inside the 1CPU libraries manually during the compile time. For more information please, refer to [common for all operating systems CMake build options](./BUILD.md/#common-for-all-operating-systems).
 
 ### How to Avoid Dispatcher in All CPUs Static Library
 
@@ -202,4 +205,4 @@ To build your own dynamic library containing only the functionality that is nece
 
 The tool is located in the `tools/ipp_custom_library_tool_python` directory.
 
-Please refer to the [tool documentation](https://software.intel.com/en-us/ipp-dev-guide-building-a-custom-dll-with-custom-library-tool) for more information.
+Please refer to the [tool documentation](https://www.intel.com/content/www/us/en/docs/ipp/developer-guide-oneapi/current/ipp-custom-library-tool.html) for more information.

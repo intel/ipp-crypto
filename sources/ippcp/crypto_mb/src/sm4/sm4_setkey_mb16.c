@@ -112,3 +112,40 @@ mbx_status16 mbx_sm4_set_key_mb16(mbx_sm4_key_schedule* key_sched, const sm4_key
 
     return status;
 }
+
+DLL_PUBLIC
+mbx_status16 mbx_sm4_xts_set_keys_mb16(mbx_sm4_key_schedule* key_sched1,
+                                       mbx_sm4_key_schedule* key_sched2,
+                                       const sm4_xts_key* pa_key[SM4_LINES])
+{
+    int buf_no;
+    mbx_status16 status = 0;
+    __mmask16 mb_mask = 0xFFFF;
+
+    /* Test input pointers */
+    if (NULL == key_sched1 || NULL == key_sched2 || NULL == pa_key)
+        return MBX_SET_STS16_ALL(MBX_STATUS_NULL_PARAM_ERR);
+
+    /* Don't process buffers with input pointers equal to zero */
+    for (buf_no = 0; buf_no < SM4_LINES; buf_no++) {
+        if (pa_key[buf_no] == NULL) {
+            status = MBX_SET_STS16(status, buf_no, MBX_STATUS_NULL_PARAM_ERR);
+            mb_mask &= ~(0x1 << buf_no);
+        }
+    }
+
+    if (MBX_IS_ANY_OK_STS16(status)) {
+        /* Generate round keys for key1 */
+        sm4_set_round_keys_mb16((int32u**)key_sched1, (const int8u**)pa_key, mb_mask);
+
+        const sm4_key* pa_key2[SM4_LINES];
+
+        for (int i = 0; i < SM4_LINES; i++)
+            pa_key2[i] = (const sm4_key*)&((int8u*)pa_key[i])[16];
+
+        /* Generate round keys for key2 */
+        sm4_set_round_keys_mb16((int32u**)key_sched2, (const int8u**)pa_key2, mb_mask);
+    }
+
+    return status;
+}

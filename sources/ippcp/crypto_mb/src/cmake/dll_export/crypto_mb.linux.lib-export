@@ -123,3 +123,7 @@ EXTERN (mbx_sm4_ccm_update_aad_mb16)
 EXTERN (mbx_sm4_ccm_encrypt_mb16)
 EXTERN (mbx_sm4_ccm_decrypt_mb16)
 EXTERN (mbx_sm4_ccm_get_tag_mb16)
+
+EXTERN (mbx_sm4_xts_set_keys_mb16)
+EXTERN (mbx_sm4_xts_encrypt_mb16)
+EXTERN (mbx_sm4_xts_decrypt_mb16)

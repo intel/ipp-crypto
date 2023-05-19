@@ -29,7 +29,7 @@
 
 ### Linux* OS
 - [Common tools](#common-tools)
-- Intel® C++ Compiler Classic 2021.3 for Linux\* OS
+- Intel® C++ Compiler Classic 2021.9 for Linux\* OS
 - GCC 8.3
 - GCC 9.1
 - GCC 10.1
@@ -39,7 +39,7 @@
 - GNU binutils 2.32
 ### Windows* OS
 - [Common tools](#common-tools)
-- Intel® C++ Compiler Classic 2021.3 for Windows\* OS
+- Intel® C++ Compiler Classic 2021.9 for Windows\* OS
 - Microsoft Visual C++ Compiler\* version 19.16 provided by Microsoft Visual Studio\* 2017 version 15.9
 > **NOTE:** Support for this compiler version will be removed from Intel IPP Cryptography starting 2021.4 release. If you use it for building Intel IPP Cryptography library, please plan on migrating to a newer supported version of Microsoft Visual C++ Compiler\*.
 - Microsoft Visual C++ Compiler\* version 19.24 provided by Microsoft Visual Studio\* 2019 version 16.4
@@ -47,12 +47,12 @@
 > **NOTE:** [CMake\*](https://cmake.org/download) 3.21 or higher is required to build using Microsoft Visual Studio\* 2022.
 ### macOS*
 - [Common tools](#common-tools)
-- Intel® C++ Compiler Classic 2021.3 for macOS\*
+- Intel® C++ Compiler Classic 2021.9 for macOS\*
 ## Building Intel IPP Cryptography on Linux\* OS
 
 The software was validated on:
 
-- Red Hat\* Enterprise Linux\* 7
+- Red Hat\* Enterprise Linux\* 8
 
 To build the Intel IPP Cryptography library on Linux\* OS, complete the following steps:
 1. Clone the source code from GitHub\* as follows:
@@ -102,7 +102,7 @@ To build the Intel IPP Cryptography library on Linux\* OS, complete the followin
 
 The software was validated on:
 
-- Windows Server\* 2016
+- Windows Server\* 2019
 
 To build the Intel IPP Cryptography library on Windows* OS, complete the following steps:
 
@@ -214,7 +214,16 @@ To build the Intel IPP Cryptography library on macOS*, complete the following st
         `-DPLATFORM_LIST="m7;s8;p8;g9;h9"`
 
     - Example for Linux\* OS and the Intel® 64 architecture:
-        `-DPLATFORM_LIST="w7;n8;y8;e9;l9;n0;k0"`
+        `-DPLATFORM_LIST="w7;n8;y8;e9;l9;k0"`
+- `-DIPPCP_CUSTOM_BUILD="<CPU features list>"` - optional, works only if `-DMERGED_BLD:BOOL=off` is set, i.e. only for 1CPU libraries. Enables the CPU feature dispatching mask at compile-time based on the provided list.
+
+   - Currently supported by the library custom features dispatching: 
+        1. Intel® Advanced Encryption Standard New Instructions (Intel® AES-NI) code-path enabling: `IPPCP_AES_ON;IPPCP_CLMUL_ON`
+        2. Intel® Advanced Vector Extensions 512 (Intel(R) AVX-512) and vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI) code-path enabling: `IPPCP_VAES_ON;IPPCP_VCLMUL_ON`
+    - Example:
+        `-DPLATFORM_LIST="IPPCP_AES_ON;IPPCP_CLMUL_ON"` - this combination enables Intel® AES-NI in all 1CPU libraries, which contains this code path.
+    - Example of using a combination of CPU features:
+        `-DPLATFORM_LIST="IPPCP_AES_ON;IPPCP_CLMUL_ON;IPPCP_VAES_ON;IPPCP_VCLMUL_ON"` - in this combination the highest available feature in each 1CPU library will be enabled (e.g. for `"y8"` it’s Intel® AES-NI and for `"k1"` - Intel AVX-512 VAES)
 
 ### Windows\* OS
 

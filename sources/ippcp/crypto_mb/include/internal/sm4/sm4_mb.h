@@ -180,6 +180,66 @@ static __ALIGN64 const int8u shuf8[] = {
     0x09, 0x0A, 0x0B, 0x08, 0x0D, 0x0E, 0x0F, 0x0C,
 };
 
+/* For SM4-XTS */
+static __ALIGN64 const int64u xts_poly[] = {
+    0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87, 0x87
+};
+
+static __ALIGN64 const int8u xts_shuf_mask[] = {
+    15, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 7, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    15, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 7, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    15, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 7, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    15, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 7, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+};
+
+static __ALIGN64 const int64u xts_const_dq3210[] = {
+    0, 0, 1, 1, 2, 2, 3, 3
+};
+
+static __ALIGN64 const int64u xts_const_dq5678[] = {
+    8, 8, 7, 7, 6, 6, 5, 5
+};
+
+static __ALIGN64 const int32u xts_full_block_mask[] = {
+    0xfffffff0, 0xfffffff0, 0xfffffff0, 0xfffffff0, 0xfffffff0, 0xfffffff0, 0xfffffff0, 0xfffffff0,
+    0xfffffff0, 0xfffffff0, 0xfffffff0, 0xfffffff0, 0xfffffff0, 0xfffffff0, 0xfffffff0, 0xfffffff0
+};
+
+static __ALIGN64 const int32u xts_partial_block_mask[] = {
+    0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f,
+    0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f, 0x0000000f
+};
+
+static __ALIGN64 const int32u xts_dw0_7_to_qw_idx[] = {
+    0, 0xFF, 1, 0xFF, 2, 0xFF, 3, 0xFF,
+    4, 0xFF, 5, 0xFF, 6, 0xFF, 7, 0xFF
+};
+
+static __ALIGN64 const int32u xts_dw8_15_to_qw_idx[] = {
+    8, 0xFF, 9, 0xFF, 10, 0xFF, 11, 0xFF,
+    12, 0xFF, 13, 0xFF, 14, 0xFF, 15, 0xFF
+};
+
+static __ALIGN64 const int64u xts_tweak_permq[] = {
+    2, 3, 0, 1, 0xFF, 0xFF, 0xFF, 0xFF,
+    0, 1, 4, 5, 2, 3, 0xFF, 0xFF,
+    0, 1, 2, 3, 6, 7, 4, 5,
+    0, 1, 2, 3, 4, 5, 10, 11 /* for vpermi2q */
+};
+
+static __ALIGN64 const int64u xts_next_tweak_permq[] = {
+    0, 1, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    2, 3, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    4, 5, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    14, 15, 0, 1, 0xFF, 0xFF, 0xFF, 0xFF  /* for vpermi2q */
+};
+
+static __ALIGN64 const int64u xts_next_tweak_permq_enc[] = {
+    2, 3, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    4, 5, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    6, 7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+};
+
 #define SM4_ONE_ROUND(X0, X1, X2, X3, TMP, RK) {    \
     /* (Xi+1 ^ Xi+2 ^ Xi+3 ^ rki) */                \
     TMP = _mm512_ternarylogic_epi32 (X1, X2, X3, 0x96); \
@@ -241,7 +301,7 @@ static __ALIGN64 const int8u shuf8[] = {
 #define UPDATE_STREAM_MASK_64(MASK, p_len) MASK = *p_len < (4 * 16) ? (*p_len <= 0 ? 0 : ((int64u)1 << *p_len) - 1) : (__mmask64)(-1); p_len++;
 
 #define SM4_ENC (1)
-#define SM4_DEC (2)
+#define SM4_DEC (-1)
 
 /*
 // Internal functions
@@ -256,6 +316,9 @@ EXTERN_C void sm4_ofb_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[
 EXTERN_C void sm4_cfb128_enc_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask);
 EXTERN_C void sm4_cfb128_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const int32u* key_sched[SM4_ROUNDS], const int8u* pa_iv[SM4_LINES], __mmask16 mb_mask);
 EXTERN_C void sm4_set_round_keys_mb16(int32u* key_sched[SM4_ROUNDS], const int8u* pa_inp_key[SM4_LINES], __mmask16 mb_mask);
+EXTERN_C void sm4_xts_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES],
+                                  const int32u* key_sched1[SM4_ROUNDS], const int32u* key_sched2[SM4_ROUNDS],
+                                  const int8u* pa_tweak[SM4_LINES], __mmask16 mb_mask, const int dir);
 
 // The transformation based on SM4 sbox algebraic structure, parameters were computed manually
 __INLINE __m512i sBox512(__m512i block)
@@ -448,6 +511,42 @@ __INLINE void TRANSPOSE_16x4_I32_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __
     *t3 = _mm512_unpackhi_epi64(z1, z3);
 }
 
+__INLINE void TRANSPOSE_16x4_I32_XMM_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __m512i* t3, const __m128i in[16]) {
+    // L0 - L3
+    __m512i z0 = _mm512_castsi128_si512(in[0]);
+    __m512i z1 = _mm512_castsi128_si512(in[1]);
+    __m512i z2 = _mm512_castsi128_si512(in[2]);
+    __m512i z3 = _mm512_castsi128_si512(in[3]);
+
+    // L4 - L7
+    z0 = _mm512_inserti64x2(z0, in[4], 1);
+    z1 = _mm512_inserti64x2(z1, in[5], 1);
+    z2 = _mm512_inserti64x2(z2, in[6], 1);
+    z3 = _mm512_inserti64x2(z3, in[7], 1);
+
+    // L8 - Lb
+    z0 = _mm512_inserti64x2(z0, in[8], 2);
+    z1 = _mm512_inserti64x2(z1, in[9], 2);
+    z2 = _mm512_inserti64x2(z2, in[10], 2);
+    z3 = _mm512_inserti64x2(z3, in[11], 2);
+
+    // Lc - Lf
+    *t0 = ENDIANNESS_16x32(_mm512_inserti64x2(z0, in[12], 3));
+    *t1 = ENDIANNESS_16x32(_mm512_inserti64x2(z1, in[13], 3));
+    *t2 = ENDIANNESS_16x32(_mm512_inserti64x2(z2, in[14], 3));
+    *t3 = ENDIANNESS_16x32(_mm512_inserti64x2(z3, in[15], 3));
+
+    z0 = _mm512_unpacklo_epi32(*t0, *t1);
+    z1 = _mm512_unpackhi_epi32(*t0, *t1);
+    z2 = _mm512_unpacklo_epi32(*t2, *t3);
+    z3 = _mm512_unpackhi_epi32(*t2, *t3);
+
+    *t0 = _mm512_unpacklo_epi64(z0, z2);
+    *t1 = _mm512_unpackhi_epi64(z0, z2);
+    *t2 = _mm512_unpacklo_epi64(z1, z3);
+    *t3 = _mm512_unpackhi_epi64(z1, z3);
+}
+
 __INLINE void TRANSPOSE_4x16_I32_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __m512i* t3, int8u* p_out[16], __mmask16 mb_mask) {
 
     #define STORE_RESULT(OUT, store_mask, loc_mb_mask, Ti)                              \
@@ -490,6 +589,45 @@ __INLINE void TRANSPOSE_4x16_I32_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __
     STORE_RESULT((__m128i*)p_out[13] - 3, 0xF000, loc_mb_mask, *t1);
     STORE_RESULT((__m128i*)p_out[14] - 3, 0xF000, loc_mb_mask, *t2);
     STORE_RESULT((__m128i*)p_out[15] - 3, 0xF000, loc_mb_mask, *t3);
+
+}
+
+__INLINE void TRANSPOSE_4x16_I32_XMM_EPI32(__m512i* t0, __m512i* t1, __m512i* t2, __m512i* t3, __m128i out[16]) {
+
+    __m512i z0 = _mm512_unpacklo_epi32(*t0, *t1);
+    __m512i z1 = _mm512_unpackhi_epi32(*t0, *t1);
+    __m512i z2 = _mm512_unpacklo_epi32(*t2, *t3);
+    __m512i z3 = _mm512_unpackhi_epi32(*t2, *t3);
+
+    /* Get the right endianness and do (Y0, Y1, Y2, Y3) = R(X32, X33, X34, X35) = (X35, X34, X33, X32) */
+    *t0 = CHANGE_ORDER_BLOCKS(_mm512_unpacklo_epi64(z0, z2));
+    *t1 = CHANGE_ORDER_BLOCKS(_mm512_unpackhi_epi64(z0, z2));
+    *t2 = CHANGE_ORDER_BLOCKS(_mm512_unpacklo_epi64(z1, z3));
+    *t3 = CHANGE_ORDER_BLOCKS(_mm512_unpackhi_epi64(z1, z3));
+
+    // L0 - L3
+    out[0] = _mm512_extracti64x2_epi64(*t0, 0);
+    out[1] = _mm512_extracti64x2_epi64(*t1, 0);
+    out[2] = _mm512_extracti64x2_epi64(*t2, 0);
+    out[3] = _mm512_extracti64x2_epi64(*t3, 0);
+
+    // L4 - L7
+    out[4] = _mm512_extracti64x2_epi64(*t0, 1);
+    out[5] = _mm512_extracti64x2_epi64(*t1, 1);
+    out[6] = _mm512_extracti64x2_epi64(*t2, 1);
+    out[7] = _mm512_extracti64x2_epi64(*t3, 1);
+
+    // L8 - Lb
+    out[8] = _mm512_extracti64x2_epi64(*t0, 2);
+    out[9] = _mm512_extracti64x2_epi64(*t1, 2);
+    out[10] = _mm512_extracti64x2_epi64(*t2, 2);
+    out[11] = _mm512_extracti64x2_epi64(*t3, 2);
+
+    // Lc - Lf
+    out[12] = _mm512_extracti64x2_epi64(*t0, 3);
+    out[13] = _mm512_extracti64x2_epi64(*t1, 3);
+    out[14] = _mm512_extracti64x2_epi64(*t2, 3);
+    out[15] = _mm512_extracti64x2_epi64(*t3, 3);
 
 }
 

@@ -28,9 +28,11 @@
 #define SM4_ROUNDS      (32)        /*    SM4 number of rounds     */
 
 typedef int8u  sm4_key[SM4_KEY_SIZE];
+typedef int8u  sm4_xts_key[SM4_KEY_SIZE*2];
 typedef int32u mbx_sm4_key_schedule[SM4_ROUNDS][SM4_LINES];
 
 EXTERN_C mbx_status16 mbx_sm4_set_key_mb16(mbx_sm4_key_schedule* key_sched, const sm4_key* pa_key[SM4_LINES]);
+EXTERN_C mbx_status16 mbx_sm4_xts_set_keys_mb16(mbx_sm4_key_schedule* key_sched1, mbx_sm4_key_schedule* key_sched2, const sm4_xts_key* pa_key[SM4_LINES]);
 
 EXTERN_C mbx_status16 mbx_sm4_encrypt_ecb_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const mbx_sm4_key_schedule* key_sched);
 EXTERN_C mbx_status16 mbx_sm4_decrypt_ecb_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const mbx_sm4_key_schedule* key_sched);
@@ -47,4 +49,10 @@ EXTERN_C mbx_status16 mbx_sm4_decrypt_ofb_mb16(int8u* pa_out[SM4_LINES], const i
 EXTERN_C mbx_status16 mbx_sm4_encrypt_cfb128_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const mbx_sm4_key_schedule* key_sched, const int8u* pa_iv[SM4_LINES]);
 EXTERN_C mbx_status16 mbx_sm4_decrypt_cfb128_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES], const mbx_sm4_key_schedule* key_sched, const int8u* pa_iv[SM4_LINES]);
 
+EXTERN_C mbx_status16 mbx_sm4_xts_encrypt_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES],
+                                               const mbx_sm4_key_schedule* key_sched1, const mbx_sm4_key_schedule* key_sched2,
+                                               const int8u* pa_tweak[SM4_LINES]);
+EXTERN_C mbx_status16 mbx_sm4_xts_decrypt_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES], const int len[SM4_LINES],
+                                               const mbx_sm4_key_schedule* key_sched1, const mbx_sm4_key_schedule* key_sched2,
+                                               const int8u* pa_tweak[SM4_LINES]);
 #endif /* SM4_H */
