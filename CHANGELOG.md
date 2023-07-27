@@ -2,6 +2,10 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## Intel(R) IPP Cryptography 2021.9
+- Added optimized RSA-2048 code for multi-buffer (8 buffers) Intel® AVX-512 implementation.
+- Added Intel® Advanced Vector Extensions 2 (Intel® AVX2) vector extensions of Intel® AES New Instructions (Intel® AES-NI) optimization for AES-GCM algorithm.
+
 ## Intel(R) IPP Cryptography 2021.8
 - Crypto Multi-buffer library was extended with XTS mode of SM4 algorithm.
 

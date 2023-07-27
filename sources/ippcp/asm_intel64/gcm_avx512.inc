@@ -3185,7 +3185,7 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 
 ;; IPPCP: disabled clearing of context fields, as in IPPCP case GetTag may be called
 ;; several times and it should not stop GCM processing. Context zeroing is done by user.
-;; https://software.intel.com/content/www/us/en/develop/documentation/ipp-crypto-reference/top/symmetric-cryptography-primitive-functions/aes-gcm-functions.html
+;; https://www.intel.com/content/www/us/en/docs/ipp-crypto/developer-reference/current/aes-gcm-functions.html
 ;; %ifdef SAFE_DATA
 ;;         ;; Clear sensitive data from context structure
 ;;         vpxor   xmm0, xmm0

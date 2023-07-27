@@ -49,27 +49,9 @@ __INLINE void CopyBlock8(const void* pSrc, void* pDst)
       ((Ipp8u*)pDst)[k] = ((Ipp8u*)pSrc)[k];
 }
 
-#if defined(_NEW_COPY16_)
-__INLINE void CopyBlock16(const void* pSrc, void* pDst)
-{
-#if (_IPP_ARCH ==_IPP_ARCH_EM64T)
-   ((Ipp64u*)pDst)[0] = ((Ipp64u*)pSrc)[0];
-   ((Ipp64u*)pDst)[1] = ((Ipp64u*)pSrc)[1];
-#else
-   ((Ipp32u*)pDst)[0] = ((Ipp32u*)pSrc)[0];
-   ((Ipp32u*)pDst)[1] = ((Ipp32u*)pSrc)[1];
-   ((Ipp32u*)pDst)[2] = ((Ipp32u*)pSrc)[2];
-   ((Ipp32u*)pDst)[3] = ((Ipp32u*)pSrc)[3];
-#endif
-}
-#else
-__INLINE void CopyBlock16(const void* pSrc, void* pDst)
-{
-   int k;
-   for(k=0; k<16; k++ )
-      ((Ipp8u*)pDst)[k] = ((Ipp8u*)pSrc)[k];
-}
-#endif
+/* Because of the incorrect inlining with ICX compiler definition of CopyBlock16 function was moved to pcptool.c */ 
+#define CopyBlock16 OWNAPI(CopyBlock16)
+IPP_OWN_DECL (void, CopyBlock16, (const void* pSrc, void* pDst)) 
 
 __INLINE void CopyBlock24(const void* pSrc, void* pDst)
 {

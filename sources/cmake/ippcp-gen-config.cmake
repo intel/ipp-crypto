@@ -15,8 +15,10 @@
 # 
 #===============================================================================
 
-set(IPPCP_LIB_REL_PATH    "lib")
-set(IPPCP_REDIST_REL_PATH "redist")
+set(IPPCP_LIB64_REL_PATH  "lib")
+set(IPPCP_LIB32_REL_PATH  "lib32")
+set(IPPCP_BIN64_REL_PATH  "bin")
+set(IPPCP_BIN32_REL_PATH  "bin32")
 set(IPPCP_INC_REL_PATH    "include")
 
 configure_file("${IPP_CRYPTO_DIR}/sources/cmake/ippcp-config.cmake.in" "${CMAKE_BINARY_DIR}/ippcp-config.cmake" @ONLY)

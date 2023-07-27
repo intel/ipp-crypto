@@ -355,11 +355,13 @@ typedef enum {
  #define   ippCPUID_AVX512VBMI2  INT64_SUFFIX(0x2000000000)       /* Intel® Advanced Vector Extensions 512 Bit Manipulation instructions 2                */
  #define   ippCPUID_AVX512_FP16  INT64_SUFFIX(0x1000000000)       /* Intel(R) Advanced Vector Extensions 512 16-bit floating point (FP16) instruction set */
 
+ #define   ippCPUID_AVX2VAES   INT64_SUFFIX(0x4000000000)         /* Intel® Advanced Vector Extensions 256 Bit Vector AES instructions                    */
+ #define   ippCPUID_AVX2VCLMUL  INT64_SUFFIX(0x8000000000)        /* Intel® instruction VPCLMULQDQ                                                        */
 
 #endif /* IPP_CPU_FEATURES__ */
 
-/* Macros are necessary to build custom IPP Crypto static 1cpu library (enable specific features at compile-time) */
-#if (!defined(_MERGED_BLD) && defined(IPPCP_CUSTOM_BUILD)) 
+/* Macros are necessary to build custom Intel® IPP Cryptography static 1cpu library (enable specific features at compile-time) */
+#if (!defined(_MERGED_BLD) && defined(IPPCP_CUSTOM_BUILD))
 
 #ifndef IPP_CUSTOM_CPU_FEATURES__
 #define IPP_CUSTOM_CPU_FEATURES__

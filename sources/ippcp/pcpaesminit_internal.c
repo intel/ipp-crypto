@@ -55,7 +55,7 @@ IPP_OWN_DEFN(void, cpAes_setup_ptrs_and_methods, (IppsAESSpec * pCtx))
    RIJ_DECODER(pCtx) = Decrypt_RIJ128_AES_NI; /* AES_NI based decoder */
 #else
 #if (_AES_NI_ENABLING_ == _FEATURE_TICKTOCK_)
-   if (IsFeatureEnabled(ippCPUID_AES)) {
+   if (IsFeatureEnabled(ippCPUID_AES) || IsFeatureEnabled(ippCPUID_AVX2VAES)) {
       RIJ_AESNI(pCtx)   = AES_NI_ENABLED;
       RIJ_ENCODER(pCtx) = Encrypt_RIJ128_AES_NI; /* AES_NI based encoder */
       RIJ_DECODER(pCtx) = Decrypt_RIJ128_AES_NI; /* AES_NI based decoder */
@@ -142,22 +142,31 @@ IPP_OWN_DEFN(void, cpAesGCM_setup_ptrs_and_methods, (IppsAES_GCMState * pState, 
    AESGCM_ENC(pState)  = wrpAesGcmEnc_table2K;
    AESGCM_DEC(pState)  = wrpAesGcmDec_table2K;
 
-#if (_IPP >= _IPP_P8) || (_IPP32E >= _IPP32E_Y8)
-#if (_IPP32E >= _IPP32E_K0)
-   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
-      AESGCM_HASH(pState) = AesGcmMulGcm_vaes;
-      AESGCM_AUTH(pState) = AesGcmAuth_vaes;
-      AESGCM_ENC(pState)  = AesGcmEnc_vaes;
-      AESGCM_DEC(pState)  = AesGcmDec_vaes;
-   } else
-#endif /* #if(_IPP32E>=_IPP32E_K0) */
+#if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
+// the dead code that currently is unused
+//#if (_IPP32E >= _IPP32E_K0)
+//   if (IsFeatureEnabled(ippCPUID_AVX512VAES)) {
+//      AESGCM_HASH(pState) = AesGcmMulGcm_vaes;
+//      AESGCM_AUTH(pState) = AesGcmAuth_vaes;
+//      AESGCM_ENC(pState)  = AesGcmEnc_vaes;
+//      AESGCM_DEC(pState)  = AesGcmDec_vaes;
+//   } else
+//#endif /* #if(_IPP32E>=_IPP32E_K0) */
       if (IsFeatureEnabled(ippCPUID_AES | ippCPUID_CLMUL)) {
-      AESGCM_HASH(pState) = AesGcmMulGcm_avx;
-      AESGCM_AUTH(pState) = AesGcmAuth_avx;
-      AESGCM_ENC(pState)  = wrpAesGcmEnc_avx;
-      AESGCM_DEC(pState)  = wrpAesGcmDec_avx;
-   }
-#endif
+         AESGCM_HASH(pState) = AesGcmMulGcm_avx;
+         AESGCM_AUTH(pState) = AesGcmAuth_avx;
+         AESGCM_ENC(pState)  = wrpAesGcmEnc_avx;
+         AESGCM_DEC(pState)  = wrpAesGcmDec_avx;
+      }
+#if (_IPP==_IPP_H9) || (_IPP32E==_IPP32E_L9)
+      if (IsFeatureEnabled(ippCPUID_AVX2VAES | ippCPUID_AVX2VCLMUL)) {
+         AESGCM_HASH(pState) = AesGcmMulGcm_avx;
+         AESGCM_AUTH(pState) = AesGcmAuth_avx;
+         AESGCM_ENC(pState)  =  AesGcmEnc_vaes_avx2;
+         AESGCM_DEC(pState)  = AesGcmDec_vaes_avx2;
+      }
+#endif /* #if(_IPP==_IPP_H9) || (_IPP32E==_IPP32E_L9) */
+#endif /* #if(_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8) */
 
 #endif /* #if(_IPP32E>=_IPP32E_K0) */
 }

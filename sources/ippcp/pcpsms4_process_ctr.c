@@ -137,7 +137,7 @@ IPP_OWN_DEFN (IppStatus, cpProcessSMS4_ctr, (const Ipp8u* pSrc, Ipp8u* pDst, int
          else
          #endif /* #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
          #endif /* (_IPP32E>=_IPP32E_K1) */
-         if(IsFeatureEnabled(ippCPUID_AES)) {
+         if(IsFeatureEnabled(ippCPUID_AES) || IsFeatureEnabled(ippCPUID_AVX2VAES)) {
             processedLen = cpSMS4_CTR_aesni(pDst, pSrc, dataLen, SMS4_RK(pCtx), maskIV, counter);
          }
 

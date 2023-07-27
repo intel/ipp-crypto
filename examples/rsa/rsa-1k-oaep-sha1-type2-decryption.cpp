@@ -90,7 +90,7 @@ int main(void)
      * There are two types of private keys that are supported: Type1 and Type2.
      * You can choose any of them, depending on your private key representation.
      * This example uses Type2 key.
-     * For more information, see https://software.intel.com/en-us/ipp-crypto-reference-2019-rsa-getsizepublickey-rsa-getsizeprivatekeytype1-rsa-getsizeprivatekeytype2
+     * For more information, see https://www.intel.com/content/www/us/en/docs/ipp-crypto/developer-reference/current/crypto-ref-getsize-public-private1-private2.html
      */
     int keySize = 0;
     ippsRSA_GetSizePrivateKeyType2(bitSizeP, bitSizeQ, &keySize);

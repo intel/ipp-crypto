@@ -1,7 +1,19 @@
 """
-Copyright (C) 2022 Intel Corporation
+Copyright 2018-2021 Intel Corporation.
 
-SPDX-License-Identifier: MIT
+This software and the related documents are Intel copyrighted  materials,  and
+your use of  them is  governed by the  express license  under which  they were
+provided to you (License).  Unless the License provides otherwise, you may not
+use, modify, copy, publish, distribute,  disclose or transmit this software or
+the related documents without Intel's prior written permission.
+
+This software and the related documents  are provided as  is,  with no express
+or implied  warranties,  other  than those  that are  expressly stated  in the
+License.
+
+License:
+http://software.intel.com/en-us/articles/intel-sample-source-code-license-agr
+eement/
 """
 
 import os
@@ -57,7 +69,7 @@ def generate_script():
     script_path = os.path.join(output_path, configs[utils.BUILD_SCRIPT_NAME])
     with open(script_path, 'w') as build_script:
         build_script.write(build_script_generator())
-    os.chmod(script_path, 0o745)
+    os.chmod(script_path, 0o744)
 
     return os.path.exists(script_path)
 

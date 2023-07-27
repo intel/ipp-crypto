@@ -1,13 +1,54 @@
 """
-Copyright (C) 2022 Intel Corporation
+Copyright 2018-2021 Intel Corporation.
 
-SPDX-License-Identifier: MIT
+This software and the related documents are Intel copyrighted  materials,  and
+your use of  them is  governed by the  express license  under which  they were
+provided to you (License).  Unless the License provides otherwise, you may not
+use, modify, copy, publish, distribute,  disclose or transmit this software or
+the related documents without Intel's prior written permission.
+
+This software and the related documents  are provided as  is,  with no express
+or implied  warranties,  other  than those  that are  expressly stated  in the
+License.
+
+License:
+http://software.intel.com/en-us/articles/intel-sample-source-code-license-agr
+eement/
 """
 import os
 import sys
 import re
 from platform import system
 from collections import defaultdict
+
+WINDOWS = 'Windows'
+LINUX   = 'Linux'
+MACOSX  = 'MacOS'
+HOST_SYSTEM = None
+SUPPORTED_SYSTEMS = [WINDOWS, LINUX, MACOSX]
+
+IA32    = 'ia32'
+INTEL64 = 'intel64'
+ARCHITECTURES = [IA32, INTEL64]
+
+SINGLE_THREADED = 'single-threaded'
+MULTI_THREADED  = 'multi-threaded'
+THREAD_MODES = [SINGLE_THREADED, MULTI_THREADED]
+
+TBB    = 'tbb'
+OPENMP = 'openmp'
+TL_TYPES = [TBB, OPENMP]
+
+PATH_TO_PACKAGE_REGEX        = '(?P<path>.*)\Wtools\W.*'
+COMPONENTS_INSTALL_DIR_REGEX = '(?P<path>.*)\Wipp.*'
+VERSION_REGEX                = '.*VERSION_STR\s*(?P<ver>.*)\s*'
+STR_MACROS_REGEX             = '.*STR\((?P<macros>\S*)\).*'
+C_STRING_REGEX               = '.*(\S|^)(?P<string>\s*".*"\s*)(\S|$).*'
+C_STRING_VALUE_REGEX         = '.*"(?P<value>.*)".*'
+FUNCTION_NAME_REGEX          = 'IPPAPI\s*\(\s*(?P<ret_type>.*?)\s*,' \
+                               '\s*(?P<function_name>\S*)\s*,' \
+                               '\s*\(?(?P<args>.*?)\s*\)?\s*\)?\s*$'
+ARGUMENT_REGEX               = '.*\W*\w+\W*\s+\W*(?P<arg>[^\W\d]+\w*)\W*?'
 
 CUSTOM_LIBRARY_NAME = 'Custom library name'
 BUILD_SCRIPT_NAME   = 'Build script name'
@@ -33,169 +74,37 @@ CONFIGS = {
     PREFIX              : ''
 }
 
-WINDOWS = 'Windows'
-LINUX   = 'Linux'
-MACOSX  = 'MacOS'
-HOST_SYSTEM = None
-SUPPORTED_SYSTEMS = [WINDOWS, LINUX, MACOSX]
-
-IA32    = 'ia32'
-INTEL64 = 'intel64'
-ARCHITECTURES = [IA32, INTEL64]
-
-SINGLE_THREADED = 'single-threaded'
-MULTI_THREADED  = 'multi-threaded'
-THREAD_MODES = [SINGLE_THREADED, MULTI_THREADED]
-
-TBB    = 'tbb'
-OPENMP = 'openmp'
-TL_TYPES = [TBB, OPENMP]
-
-COMMON       = 'common'
-THREAD_TYPES = {
-    COMMON          : THREAD_MODES,
-    THREADING_LAYER : TL_TYPES
-}
-
-PATH_TO_PACKAGE_REGEX               = '(?P<path>.*)\Wtools\W.*'
-COMPONENTS_INSTALL_DIR_REGEX_FORMAT = '(?P<path>.*)\W{component_name}\W.*'
-VERSION_REGEX                       = '.*VERSION_STR\s*(?P<ver>.*)\s*'
-STR_MACROS_REGEX                    = '.*STR\((?P<macros>\S*)\).*'
-C_STRING_REGEX                      = '.*(\S|^)(?P<string>\s*".*"\s*)(\S|$).*'
-C_STRING_VALUE_REGEX                = '.*"(?P<value>.*)".*'
-FUNCTION_NAME_REGEX                 = 'IPPAPI\s*\(\s*(?P<ret_type>.*?)\s*,' \
-                                      '\s*(?P<function_name>\S*)\s*,' \
-                                      '\s*\(?(?P<args>.*?)\s*\)?\s*\)?\s*$'
-ARGUMENT_REGEX                      = '.*\W*\w+\W*\s+\W*(?P<arg>[^\W\d]+\w*)\W*?'
-
-NONE  = 'None'
 IPP   = 'IPP'
 IPPCP = 'IPPCP'
-SPL   = 'oneSPL'
-IPL   = 'oneIPL'
-DTL   = 'oneDTL'
 
-PRODUCT_FULL_NAME = {
+IPPROOT       = 'IPPROOT'
+IPPCRYPTOROOT = 'IPPCRYPTOROOT'
+
+PACKAGE_NAME = {
     IPP   : 'Intel(R) Integrated Performance Primitives',
-    IPPCP : 'Intel(R) Integrated Performance Primitives Cryptography',
-    SPL   : 'Intel(R) oneSPL',
-    IPL   : 'Intel(R) oneIPL',
-    DTL   : 'Intel(R) oneDTL',
-    NONE  : NONE
-}
-
-PRODUCT_SHORT_NAME = {
-    IPP   : 'ipp',
-    IPPCP : 'ippcp',
-    SPL   : 'spl',
-    IPL   : 'ipl',
-    DTL   : 'dtl',
-    NONE  : NONE
-}
-
-ROOT_ENV_VAR = {
-    IPP   : 'IPPROOT',
-    IPPCP : 'IPPCRYPTOROOT',
-    SPL   : 'SPLROOT',
-    IPL   : 'IPLROOT',
-    DTL   : 'DTLROOT',
-    NONE  : NONE
-}
-
-FUNCTIONS_PREFIX = {
-    IPP   : 'ipp',
-    IPPCP : 'ippcp',
-    SPL   : 'ippsp',
-    IPL   : 'ippip',
-    DTL   : 'ippdt',
-    NONE  : NONE
-}
-
-PRODUCT_PREFIX = {
-    IPP   : '',
-    IPPCP : '',
-    SPL   : '',
-    IPL   : 'ipl_',
-    DTL   : '',
-    NONE  : NONE
+    IPPCP : 'Intel(R) Integrated Performance Primitives Cryptography'
 }
 
 DOMAINS = {
     IPP: {
-        COMMON: {
-            'ippcc'   : 'Color Conversion',
-            'ippch'   : 'String Operations',
-            'ippcv'   : 'Computer Vision',
-            'ippdc'   : 'Data Compression',
-            'ippe'    : 'Embedded Functionality',
-            'ippi'    : 'Image Processing',
-            'ipps'    : 'Signal Processing',
-            'ippvm'   : 'Vector Math',
-            'ippcore' : 'Core'
-        },
-        THREADING_LAYER: {
-            'ippcc'   : 'Color Conversion TL',
-            'ippcv'   : 'Computer Vision TL',
-            'ippi'    : 'Image Processing TL',
-            'ippcore' : 'Core TL'
-        }
+        'ippcc'   : 'Color Conversion',
+        'ippch'   : 'String Operations',
+        'ippcv'   : 'Computer Vision',
+        'ippdc'   : 'Data Compression',
+        'ippe'    : 'Embedded Functionality',
+        'ippi'    : 'Image Processing',
+        'ipps'    : 'Signal Processing',
+        'ippvm'   : 'Vector Math',
+        'ippcore' : 'Core'
     },
     IPPCP: {
-        COMMON: {
-            'ippcp'   : 'Cryptography'
-        },
-        THREADING_LAYER: {}
+        'ippcp'   : 'Cryptography'
     },
-    SPL: {
-        COMMON: {
-            'onespls'    : 'Signal Processing',
-            'onesplvm'   : 'Vector Math',
-            'onesplcore' : 'Core'
-        },
-        THREADING_LAYER: {}
-    },
-    IPL: {
-        COMMON: {
-            'oneiplcc'   : 'Color Conversion',
-            'oneiplcv'   : 'Computer Vision',
-            'oneipli'    : 'Image Processing',
-            'oneiplcore' : 'Core'
-        },
-        THREADING_LAYER: {
-            'oneiplcc'   : 'Color Conversion TL',
-            'oneiplcv'   : 'Computer Vision TL',
-            'oneipli'    : 'Image Processing TL'
-        }
-    },
-    DTL: {
-        COMMON: {
-            'onedtldc'   : 'Data Compression',
-            'onedtlcore' : 'Core'
-        },
-        THREADING_LAYER: {}
-    }
-}
-
-LIBRARIES = {
-    IPP : {
-        COMMON          : ['ippcc', 'ippch', 'ippcv', 'ippdc', 'ippe', 'ippi', 'ipps', 'ippvm', 'ippcore'],
-        THREADING_LAYER : ['ippcc', 'ippcv', 'ippi', 'ippcore']
-    },
-    IPPCP : {
-        COMMON          : ['ippcp'],
-        THREADING_LAYER : []
-    },
-    SPL : {
-        COMMON          : ['onespl'],
-        THREADING_LAYER : []
-    },
-    IPL : {
-        COMMON          : ['oneipl'],
-        THREADING_LAYER : ['oneipl']
-    },
-    DTL : {
-        COMMON          : ['onedtl'],
-        THREADING_LAYER : []
+    THREADING_LAYER: {
+        'ippcc'   : 'Color Conversion TL',
+        'ippcv'   : 'Computer Vision TL',
+        'ippi'    : 'Image Processing TL',
+        'ippcore' : 'Core TL'
     }
 }
 
@@ -272,55 +181,7 @@ SUPPORTED_CPUS = {
             LINUX   : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512F, AVX512BW, AVX512IFMA],
             MACOSX  : [SSE42, AVX, AVX2, AVX512BW, AVX512IFMA]
         }
-    },
-    SPL : {
-        IA32: {
-            WINDOWS : [SSE2, SSSE3, SSE42, AVX, AVX2],
-            LINUX   : [SSE2, SSSE3, SSE42, AVX, AVX2],
-            MACOSX  : []
-        },
-        INTEL64: {
-            WINDOWS : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512BW],
-            LINUX   : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512F, AVX512BW],
-            MACOSX  : [SSE42, AVX, AVX2, AVX512BW]
-        }
-    },
-    IPL : {
-        IA32: {
-            WINDOWS : [SSE2, SSSE3, SSE42, AVX, AVX2],
-            LINUX   : [SSE2, SSSE3, SSE42, AVX, AVX2],
-            MACOSX  : []
-        },
-        INTEL64: {
-            WINDOWS : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512BW],
-            LINUX   : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512F, AVX512BW],
-            MACOSX  : [SSE42, AVX, AVX2, AVX512BW]
-        }
-    },
-    DTL : {
-        IA32: {
-            WINDOWS : [SSE2, SSSE3, SSE42, AVX, AVX2],
-            LINUX   : [SSE2, SSSE3, SSE42, AVX, AVX2],
-            MACOSX  : []
-        },
-        INTEL64: {
-            WINDOWS : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512BW],
-            LINUX   : [SSE3, SSSE3, SSE42, AVX, AVX2, AVX512F, AVX512BW],
-            MACOSX  : [SSE42, AVX, AVX2, AVX512BW]
-        }
-    },
-    NONE   : {
-        IA32: {
-            WINDOWS : [],
-            LINUX   : [],
-            MACOSX  : []
-        },
-        INTEL64: {
-            WINDOWS : [],
-            LINUX   : [],
-            MACOSX  : []
-        }
-    },
+    }
 }
 
 CPUID = {
@@ -356,31 +217,9 @@ LIB_POSTFIX = {
 }
 
 STATIC_LIB_POSTFIX = {
-    IPP: {
-        WINDOWS : 'mt',
-        LINUX   : '',
-        MACOSX  : ''
-    },
-    IPPCP: {
-        WINDOWS : 'mt',
-        LINUX   : '',
-        MACOSX  : ''
-    },
-    SPL: {
-        WINDOWS : '',
-        LINUX   : '',
-        MACOSX  : ''
-    },
-    IPL: {
-        WINDOWS : '',
-        LINUX   : '',
-        MACOSX  : ''
-    },
-    DTL: {
-        WINDOWS : '',
-        LINUX   : '',
-        MACOSX  : ''
-    },
+    WINDOWS : 'mt',
+    LINUX   : '',
+    MACOSX  : ''
 }
 
 STATIC_LIB_EXTENSION = {

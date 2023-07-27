@@ -1,6 +1,6 @@
 # Intel® Integrated Performance Primitives Cryptography
 
-[Build Instructions](./BUILD.md) | [Contributing Guide](#how-to-contribute) | [Documentation](#documentation) | [Get Help](#get-help) | [Intel IPP Product Page](https://software.intel.com/en-us/intel-ipp)
+[Build Instructions](./BUILD.md) | [Contributing Guide](#how-to-contribute) | [Documentation](#documentation) | [Get Help](#get-help) | [Intel IPP Product Page](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ipp.html)
 
 Intel® Integrated Performance Primitives (Intel® IPP) Cryptography is a secure, fast and lightweight library of building blocks for cryptography, highly-optimized for various Intel® CPUs.
 
@@ -50,9 +50,9 @@ The library provides a comprehensive set of routines commonly used for cryptogra
 - [Introduction to Intel IPP Cryptography Library](./OVERVIEW.md)
 - [Introduction to Crypto Multi-buffer Library](./sources/ippcp/crypto_mb/Readme.md)
 - [Intel IPP Cryptography Build Instructions](./BUILD.md)
-- [Intel IPP Release Notes](https://software.intel.com/en-us/articles/intel-ipp-release-notes-and-new-features)
-- [Intel IPP Cryptography Developer Reference](https://software.intel.com/en-us/ipp-crypto-reference)
-- [Intel IPP Documentation](https://software.intel.com/en-us/intel-ipp/documentation)
+- [Intel IPP Release Notes](https://www.intel.com/content/www/us/en/developer/articles/release-notes/release-notes-for-oneapi-integrated-performance-primitives.html)
+- [Intel IPP Cryptography Developer Reference](https://www.intel.com/content/www/us/en/docs/ipp-crypto/developer-reference/current/overview.html)
+- [Intel IPP Documentation](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ipp-documentation.html)
 
 ## Branches Description
 

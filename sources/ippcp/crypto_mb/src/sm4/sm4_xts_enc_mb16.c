@@ -48,6 +48,11 @@ mbx_status16 mbx_sm4_xts_encrypt_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_
             /* Do not process non-valid buffers */
             mb_mask &= ~(0x1 << buf_no);
         }
+        if (len[buf_no] > SM4_XTS_MAX_SIZE) {
+            status = MBX_SET_STS16(status, buf_no, MBX_STATUS_MISMATCH_PARAM_ERR);
+            /* Do not process non-valid buffers */
+            mb_mask &= ~(0x1 << buf_no);
+        }
     }
 
     if (MBX_IS_ANY_OK_STS16(status))

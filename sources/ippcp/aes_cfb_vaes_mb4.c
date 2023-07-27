@@ -4,15 +4,15 @@
 * Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
+*
 * http://www.apache.org/licenses/LICENSE-2.0
-* 
+*
 * Unless required by applicable law or agreed to in writing,
 * software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions
 * and limitations under the License.
-* 
+*
 *******************************************************************************/
 
 #include "owndefs.h"
@@ -55,33 +55,35 @@
 IPP_OWN_DEFN (void, aes_cfb16_enc_vaes_mb4, (const Ipp8u* const source_pa[4], Ipp8u* const dst_pa[4], const int arr_len[4], const int num_rounds, const Ipp32u* enc_keys[4], const Ipp8u* iv_pa[4]))
 {
     int i;
-	int maxLen = 0;
-	int loc_len64[4];
-	Ipp8u* loc_src[4];
-	Ipp8u* loc_dst[4];
+    int maxLen = 0;
+    int loc_len64[4];
+    Ipp8u* loc_src[4];
+    Ipp8u* loc_dst[4];
 
-	__mmask8 mbMask128[4] = { 0x03, 0x0C, 0x30, 0xC0 };
-	__mmask8 mbMask[4]    = { 0xFF, 0xFF, 0xFF, 0xFF };
+    __mmask8 mbMask128[4] = { 0x03, 0x0C, 0x30, 0xC0 };
+    __mmask8 mbMask[4]    = { 0xFF, 0xFF, 0xFF, 0xFF };
 
-	for (i = 0; i < 4; i++) {
-		// The case of the empty input buffer
-		if (arr_len[i] == 0)
-		{
-			mbMask128[i] = 0;
-			mbMask[i]    = 0;
-			loc_len64[i] = 0;
-			continue;
-		}
-		loc_src[i] = (Ipp8u*)source_pa[i];
-		loc_dst[i] = (Ipp8u*)dst_pa[i];
-		int len64 = arr_len[i] / (Ipp32s)sizeof(Ipp64u); // length in 64-bit chunks
-		loc_len64[i] = len64;
+    for (i = 0; i < 4; i++) {
+        // The case of the empty input buffer
+        if (arr_len[i] == 0)
+        {
+            mbMask128[i] = 0;
+            mbMask[i]    = 0;
+            loc_len64[i] = 0;
+            loc_src[i] = NULL;
+            loc_dst[i] = NULL;
+            continue;
+        }
+        loc_src[i] = (Ipp8u*)source_pa[i];
+        loc_dst[i] = (Ipp8u*)dst_pa[i];
+        int len64 = arr_len[i] / (Ipp32s)sizeof(Ipp64u); // length in 64-bit chunks
+        loc_len64[i] = len64;
 
-		if (len64 < 8)
-			mbMask[i] = (__mmask8)(((1 << len64) - 1) & 0xFF);
-		if (len64 > maxLen)
-			maxLen = len64;
-	}
+        if (len64 < 8)
+            mbMask[i] = (__mmask8)(((1 << len64) - 1) & 0xFF);
+        if (len64 > maxLen)
+            maxLen = len64;
+    }
 
     // Load the necessary number of 128-bit IV
     __m512i iv512 = _mm512_setzero_si512();
@@ -90,8 +92,8 @@ IPP_OWN_DEFN (void, aes_cfb16_enc_vaes_mb4, (const Ipp8u* const source_pa[4], Ip
     iv512 = _mm512_mask_expandloadu_epi64(iv512, mbMask128[2], iv_pa[2]); //  0  IV3  0   0
     iv512 = _mm512_mask_expandloadu_epi64(iv512, mbMask128[3], iv_pa[3]); // IV4  0   0   0
 
-    // Temporary block to left IV unchanged to use it on the next round 
-	__m512i chip0 = iv512;
+    // Temporary block to left IV unchanged to use it on the next round
+    __m512i chip0 = iv512;
 
     // Prepare array with key schedule
     __m512i keySchedule[15];
@@ -106,34 +108,34 @@ IPP_OWN_DEFN (void, aes_cfb16_enc_vaes_mb4, (const Ipp8u* const source_pa[4], Ip
         keySchedule[i] = _mm512_loadu_si512(&tmpKeyMb);
     }
 
-	for (; maxLen >= 0; maxLen -= 8)
-	{
-		// Load plain text from the different buffers
-		__m512i b0 = _mm512_maskz_loadu_epi64(mbMask[0], loc_src[0]);  loc_src[0] += CFB16_BLOCK_SIZE * 4;
-		__m512i b1 = _mm512_maskz_loadu_epi64(mbMask[1], loc_src[1]);  loc_src[1] += CFB16_BLOCK_SIZE * 4;
-		__m512i b2 = _mm512_maskz_loadu_epi64(mbMask[2], loc_src[2]);  loc_src[2] += CFB16_BLOCK_SIZE * 4;
-		__m512i b3 = _mm512_maskz_loadu_epi64(mbMask[3], loc_src[3]);  loc_src[3] += CFB16_BLOCK_SIZE * 4;
+    for (; maxLen >= 0; maxLen -= 8)
+    {
+        // Load plain text from the different buffers
+        __m512i b0 = _mm512_maskz_loadu_epi64(mbMask[0], loc_src[0]);  loc_src[0] += CFB16_BLOCK_SIZE * 4;
+        __m512i b1 = _mm512_maskz_loadu_epi64(mbMask[1], loc_src[1]);  loc_src[1] += CFB16_BLOCK_SIZE * 4;
+        __m512i b2 = _mm512_maskz_loadu_epi64(mbMask[2], loc_src[2]);  loc_src[2] += CFB16_BLOCK_SIZE * 4;
+        __m512i b3 = _mm512_maskz_loadu_epi64(mbMask[3], loc_src[3]);  loc_src[3] += CFB16_BLOCK_SIZE * 4;
 
-		TRANSPOSE_4x4_I128(b0, b1, b2, b3);       // {0,0,0,0}, {1,1,1,1}, {2,2,2,2}, {3,3,3,3}
+        TRANSPOSE_4x4_I128(b0, b1, b2, b3);       // {0,0,0,0}, {1,1,1,1}, {2,2,2,2}, {3,3,3,3}
 
-		AES_ENCRYPT_VAES_MB16(chip0, keySchedule, num_rounds);
-		chip0 = b0 = _mm512_xor_si512(b0, chip0);
+        AES_ENCRYPT_VAES_MB16(chip0, keySchedule, num_rounds);
+        chip0 = b0 = _mm512_xor_si512(b0, chip0);
 
-		AES_ENCRYPT_VAES_MB16(chip0, keySchedule, num_rounds);
-		chip0 = b1 = _mm512_xor_si512(b1, chip0);
+        AES_ENCRYPT_VAES_MB16(chip0, keySchedule, num_rounds);
+        chip0 = b1 = _mm512_xor_si512(b1, chip0);
 
-		AES_ENCRYPT_VAES_MB16(chip0, keySchedule, num_rounds);
-		chip0 = b2 = _mm512_xor_si512(b2, chip0);
+        AES_ENCRYPT_VAES_MB16(chip0, keySchedule, num_rounds);
+        chip0 = b2 = _mm512_xor_si512(b2, chip0);
 
-		AES_ENCRYPT_VAES_MB16(chip0, keySchedule, num_rounds);
-		chip0 = b3 = _mm512_xor_si512(b3, chip0);
+        AES_ENCRYPT_VAES_MB16(chip0, keySchedule, num_rounds);
+        chip0 = b3 = _mm512_xor_si512(b3, chip0);
 
-		TRANSPOSE_4x4_I128(b0, b1, b2, b3);
+        TRANSPOSE_4x4_I128(b0, b1, b2, b3);
 
-		_mm512_mask_storeu_epi64(loc_dst[0], mbMask[0], b0);  loc_dst[0] += CFB16_BLOCK_SIZE * 4;  loc_len64[0] -= 2 * 4; UPDATE_MASK(loc_len64[0], mbMask[0]);
-		_mm512_mask_storeu_epi64(loc_dst[1], mbMask[1], b1);  loc_dst[1] += CFB16_BLOCK_SIZE * 4;  loc_len64[1] -= 2 * 4; UPDATE_MASK(loc_len64[1], mbMask[1]);
-		_mm512_mask_storeu_epi64(loc_dst[2], mbMask[2], b2);  loc_dst[2] += CFB16_BLOCK_SIZE * 4;  loc_len64[2] -= 2 * 4; UPDATE_MASK(loc_len64[2], mbMask[2]);
-		_mm512_mask_storeu_epi64(loc_dst[3], mbMask[3], b3);  loc_dst[3] += CFB16_BLOCK_SIZE * 4;  loc_len64[3] -= 2 * 4; UPDATE_MASK(loc_len64[3], mbMask[3]);
+        _mm512_mask_storeu_epi64(loc_dst[0], mbMask[0], b0);  loc_dst[0] += CFB16_BLOCK_SIZE * 4;  loc_len64[0] -= 2 * 4; UPDATE_MASK(loc_len64[0], mbMask[0]);
+        _mm512_mask_storeu_epi64(loc_dst[1], mbMask[1], b1);  loc_dst[1] += CFB16_BLOCK_SIZE * 4;  loc_len64[1] -= 2 * 4; UPDATE_MASK(loc_len64[1], mbMask[1]);
+        _mm512_mask_storeu_epi64(loc_dst[2], mbMask[2], b2);  loc_dst[2] += CFB16_BLOCK_SIZE * 4;  loc_len64[2] -= 2 * 4; UPDATE_MASK(loc_len64[2], mbMask[2]);
+        _mm512_mask_storeu_epi64(loc_dst[3], mbMask[3], b3);  loc_dst[3] += CFB16_BLOCK_SIZE * 4;  loc_len64[3] -= 2 * 4; UPDATE_MASK(loc_len64[3], mbMask[3]);
     }
 }
 

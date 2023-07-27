@@ -240,6 +240,8 @@ IPPFUN(IppStatus, ippsGcd_BN, (IppsBigNumState* pA, IppsBigNumState* pB, IppsBig
                   }
                }
 
+               IPP_UNREFERENCED_PARAMETER(carry);
+
                /* y = u; x = T; */
                COPY_BNU(yBuffer, u, nsY);
                COPY_BNU(xBuffer, T, nsY);

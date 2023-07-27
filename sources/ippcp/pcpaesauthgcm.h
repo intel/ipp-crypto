@@ -204,6 +204,13 @@ __INLINE void IncrementCounter32(Ipp8u* pCtr)
 #define wrpAesGcmDec_table2K OWNAPI(wrpAesGcmDec_table2K)
    IPP_OWN_DECL (void, wrpAesGcmDec_table2K, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
 
+#if (_IPP==_IPP_H9) || (_IPP32E==_IPP32E_L9)
+#define AesGcmEnc_vaes_avx2 OWNAPI(AesGcmEnc_vaes_avx2)
+   IPP_OWN_DECL (void, AesGcmEnc_vaes_avx2, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
+#define AesGcmDec_vaes_avx2 OWNAPI(AesGcmDec_vaes_avx2)
+   IPP_OWN_DECL (void, AesGcmDec_vaes_avx2, (Ipp8u* pDst, const Ipp8u* pSrc, int len, IppsAES_GCMState* pCtx))
+#endif /* #if (_IPP==_IPP_H9) || (_IPP32E==_IPP32E_L9) */
+
 extern const Ipp16u AesGcmConst_table[256];            /* precomputed reduction table */
 
 static int cpSizeofCtx_AESGCM(void)
@@ -211,7 +218,7 @@ static int cpSizeofCtx_AESGCM(void)
    int precomp_size;
 
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
-   if( IsFeatureEnabled(ippCPUID_AES|ippCPUID_CLMUL) )
+   if(IsFeatureEnabled(ippCPUID_AES|ippCPUID_CLMUL) || IsFeatureEnabled(ippCPUID_AVX2VAES|ippCPUID_AVX2VCLMUL))
       precomp_size = PRECOMP_DATA_SIZE_AES_NI_AESGCM;
    else
    #endif

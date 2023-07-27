@@ -183,7 +183,7 @@ __INLINE Ipp32u IsFeatureEnabled(Ipp64u niMmask)
    for(i=0; i<(len); i++) (dst)[i] = ((mask) & (src1)[i]) | (~(mask) & (src2)[i]); \
 }
 
-#if (_IPP > _IPP_PX || _IPP32E > _IPP32E_PX) && !defined(__INTEL_COMPILER)
+#if (_IPP > _IPP_PX || _IPP32E > _IPP32E_PX) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER)
 #if !defined( _M_X64 ) && defined ( _MSC_VER )
 __inline __m128i
 _mm_cvtsi64_si128(__int64 a)

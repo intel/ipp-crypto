@@ -66,7 +66,7 @@ mbx_status16 mbx_sm4_ccm_init_mb16(const sm4_key *const pa_key[SM4_LINES],
         int q = 15 - iv_len[buf_no];
         int64u max_len = (q == 8) ? 0xFFFFFFFFFFFFFFFF : ((1ULL << (q << 3)) - 1); /* (2^(q * 8) - 1 */
 
-        if (msg_len[buf_no] < 0 || msg_len[buf_no] > max_len) {
+        if (msg_len[buf_no] > max_len) {
             status = MBX_SET_STS16(status, buf_no, MBX_STATUS_MISMATCH_PARAM_ERR);
             mb_mask &= ~(0x1 << buf_no);
         }

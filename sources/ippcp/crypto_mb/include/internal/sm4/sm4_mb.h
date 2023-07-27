@@ -284,7 +284,7 @@ static __ALIGN64 const int64u xts_next_tweak_permq_enc[] = {
 #define CHANGE_ORDER_BLOCKS(x)  _mm512_shuffle_epi8((x), M512(swapEndianness));
 
 /* Workaround for gcc91, got the error: implicit declaration of function ‘_mm512_div_epi32’ */
-#if defined(__GNUC__) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER)
+#if defined(__GNUC__) && !defined(__INTEL_COMPILER)
 #define GET_NUM_BLOCKS(OUT, LEN, BLOCK_SIZE)  \
    {                                          \
       int32u blocks[SM4_LINES];               \

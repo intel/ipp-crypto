@@ -25,7 +25,7 @@
 - [CMake\*](https://cmake.org/download) 3.15 or higher
 - Python 3.8.1
 - The Netwide Assembler (NASM) 2.15
-- OpenSSL\* 1.1.0 or higher
+- OpenSSL\* 3.0.8 or higher
 
 ### Linux* OS
 - [Common tools](#common-tools)
@@ -69,7 +69,7 @@ To build the Intel IPP Cryptography library on Linux\* OS, complete the followin
     source /opt/intel/bin/compilervars.sh intel64
     ```
 
-    For details, refer to the [Intel® C++ Compiler Developer Guide and Reference](https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference-specifying-the-location-of-compiler-components-with-compilervars).
+    For details, refer to the [Intel® C++ Compiler Developer Guide and Reference](https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/current/specifying-the-location-of-compiler-components.html).
 
 3. Run CMake\* in the command line.
 
@@ -113,7 +113,7 @@ To build the Intel IPP Cryptography library on Windows* OS, complete the followi
     ```
 
 2. Set the environment variables for one of the supported C/C++ compilers.
-    For Intel® Compiler instructions, refer to the [Intel® C++ Compiler Developer Guide and Reference](https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference).
+    For Intel® Compiler instructions, refer to the [Intel® C++ Compiler Developer Guide and Reference](https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/current/overview.html).
     For MSVC* Compiler, refer to [Use the MSVC toolset from the command line](https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=vs-2017).
 
 3. Run CMake\* in the command line.
@@ -167,7 +167,7 @@ To build the Intel IPP Cryptography library on macOS*, complete the following st
     source /opt/intel/bin/compilervars.sh intel64
     ```
 
-    For details, refer to the [Intel® C++ Compiler Developer Guide and Reference](https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference-specifying-the-location-of-compiler-components-with-compilervars)
+    For details, refer to the [Intel® C++ Compiler Developer Guide and Reference](https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/current/specifying-the-location-of-compiler-components.html)
 
 3. Run CMake\* in the command line.
 

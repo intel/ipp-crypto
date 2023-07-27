@@ -82,6 +82,8 @@ IPP_OWN_DEFN (cpSize, cpToOctStr_BNU, (Ipp8u* pStr, cpSize strLen, const BNU_CHU
                *pStr++ = EBYTE(x,0);
             }
          }
+         IPP_UNREFERENCED_PARAMETER(cnvLen);
+
          return strLen;
       }
       else

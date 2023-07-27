@@ -102,7 +102,7 @@ IPPFUN(IppStatus, ippsAESInit,(const Ipp8u* pKey, int keyLen,
          cpExpandAesKey_NI(pActualKey, pCtx);       /* AES_NI based key expansion */
       #else
          #if (_AES_NI_ENABLING_==_FEATURE_TICKTOCK_)
-         if( IsFeatureEnabled(ippCPUID_AES) ) {
+         if(IsFeatureEnabled(ippCPUID_AES) || IsFeatureEnabled(ippCPUID_AVX2VAES)) {
             cpExpandAesKey_NI(pActualKey, pCtx);       /* AES_NI based key expansion */
          }
          else

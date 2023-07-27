@@ -159,6 +159,8 @@ IPPFUN(IppStatus, ippsECCPVerifySM2,(const IppsBigNumState* pMsgDigest,
 
             if(GFP_EQ(t, r, orderLen))
                vResult = ippECValid;
+            
+            IPP_UNREFERENCED_PARAMETER(ns);
          }
 
          cpGFpReleasePool(4, pGFE);

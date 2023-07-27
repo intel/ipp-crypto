@@ -95,7 +95,7 @@ IPPFUN(IppStatus, ippsSMS4SetKey,(const Ipp8u* pKey, int keyLen, IppsSMS4Spec* p
 
       /* set encryption round keys */
       #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
-      if(IsFeatureEnabled(ippCPUID_AES))
+      if(IsFeatureEnabled(ippCPUID_AES) || IsFeatureEnabled(ippCPUID_AVX2VAES))
          cpSMS4_SetRoundKeys_aesni(SMS4_RK(pCtx), pSecretKey);
       else
       #endif

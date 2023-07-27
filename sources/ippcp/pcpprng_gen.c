@@ -141,6 +141,8 @@ IPP_OWN_DEFN (int, cpPRNGen, (Ipp32u* pRand, cpSize nBits, IppsPRNGState* pRnd))
 
       pRand  += len;
       genlen -= len;
+      
+      IPP_UNREFERENCED_PARAMETER(carry);
    }
 
    return nBits;

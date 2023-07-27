@@ -4,15 +4,15 @@
 * Licensed under the Apache License, Version 2.0 (the 'License');
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
+*
 * http://www.apache.org/licenses/LICENSE-2.0
-* 
+*
 * Unless required by applicable law or agreed to in writing,
 * software distributed under the License is distributed on an 'AS IS' BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions
 * and limitations under the License.
-* 
+*
 *******************************************************************************/
 
 //
@@ -62,7 +62,7 @@ IPPFUN( IppStatus, ippcpGetCpuFeatures, ( Ipp64u* pFeaturesMask ))
 
 int cpGetFeature( Ipp64u Feature )
 {
-   // We provide users the ability to build their own custom build of 1cpu IPP Crypto library 
+   // We provide users the ability to build their own custom build of 1cpu Intel® IPP Cryptography library
    // and turn CPU features on at compile-time if they are sure these features available on the target systems.
    #if (!defined(_MERGED_BLD) && defined(IPPCP_CUSTOM_BUILD))
       int if_feature_enabled = ((IPP_CUSTOM_ENABLED_FEATURES & Feature) == Feature);
@@ -71,7 +71,7 @@ int cpGetFeature( Ipp64u Feature )
       if( 0 == cpFeaturesMask ) {
          Ipp64u loc_features;
          // set up cpFeaturesMask and cpFeatures for the proper work of tick-tok in 1cpu libraries
-         ippcpGetCpuFeatures(&loc_features); 
+         ippcpGetCpuFeatures(&loc_features);
       }
 
       if((cpFeaturesMask & Feature) == Feature) {
@@ -164,12 +164,15 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
        else flgINT = 0;                               //ebx[5], Intel® Advanced Vector Extensions 2 (Intel® AVX2) (int 256bits)
            // ebx[3] - enabled ANDN, BEXTR, BLSI, BLSMK, BLSR, TZCNT
            // ebx[8] - enabled BZHI, MULX, PDEP, PEXT, RORX, SARX, SHLX, SHRX
-       if(( ebx_ & BIT03 )&&( ebx_ & BIT08 )) flgGPR = 1; 
+       if(( ebx_ & BIT03 )&&( ebx_ & BIT08 )) flgGPR = 1;
        else flgGPR = 0;                               // VEX-encoded GPR instructions (GPR BMI)
            // Intel® architecture formerly codenamed Broadwell instructions extention
        if( ebx_ & BIT19 ) mask |= ippCPUID_ADCOX;     // eax[0x7] -->> ebx:: Bit 19: Intel® instructions ADOX/ADCX
        if( ebx_ & BIT18 ) mask |= ippCPUID_RDSEED;    // eax[0x7] -->> ebx:: Bit 18: Intel® instruction RDSEED
        if( ebx_ & BIT29 ) mask |= ippCPUID_SHA;       // eax[0x7] -->> ebx:: Bit 29: Intel® Secure Hash Algorithm Extensions
+
+       if( ecx_ & BIT09 ) mask |= ippCPUID_AVX2VAES;  // ecx[09] - Intel® Vector AES instruction set
+       if( ecx_ & BIT10 ) mask |= ippCPUID_AVX2VCLMUL;  // ecx[10] - Intel® instruction VPCLMULQDQ
 
        // Intel® Advanced Vector Extensions 512 (Intel® AVX-512) extention
        if( ebx_ & BIT16 ) mask |= ippCPUID_AVX512F;   // ebx[16] - Intel® AVX-512 Foundation
@@ -260,67 +263,60 @@ IppStatus owncpFeaturesToIdx(  Ipp64u* cpuFeatures, int* index )
       ( ippAVX512_ENABLEDBYOS & cpFeatures )){                         /* Intel® architecture formerly codenamed Skylake ia32=S0, x64=K0 */
          mask = AVX3X_MSK;
          *index = LIB_AVX3X;
-   } else 
+   } else
    if(( AVX3M_FEATURES  == ( *cpuFeatures & AVX3M_FEATURES  ))&&
       ( ippAVX512_ENABLEDBYOS & cpFeatures )){                         /* Intel® architecture formerly codenamed Knights Landing ia32=i0, x64=N0 */
        mask = AVX3M_MSK;
        *index = LIB_AVX3M;
-   } else 
+   } else
    if(( ippCPUID_AVX2  == ( *cpuFeatures & ippCPUID_AVX2  ))&&
       ( ippAVX_ENABLEDBYOS & cpFeatures )){                            /* Intel® architecture formerly codenamed Haswell ia32=H9, x64=L9 */
        mask = AVX2_MSK;
        *index = LIB_AVX2;
-   } else 
+   } else
    if(( ippCPUID_AVX   == ( *cpuFeatures & ippCPUID_AVX   ))&&
       ( ippAVX_ENABLEDBYOS & cpFeatures )){                            /* Intel® architecture formerly codenamed Sandy Bridge ia32=G9, x64=E9 */
        mask = AVX_MSK;
        *index = LIB_AVX;
-   } else 
-   if( ippCPUID_SSE42 == ( *cpuFeatures & ippCPUID_SSE42 )){           /* Intel® microarchitecture code name Nehalem or Intel® architecture formerly codenamed Westmer = Intel® architecture formerly codenamed Penryn + Intel® SSE4.2 + ?Intel® instruction PCLMULQDQ + ?(Intel® AES New Instructions) + ?(Intel® Secure Hash Algorithm Extensions) */ 
+   } else
+   if( ippCPUID_SSE42 == ( *cpuFeatures & ippCPUID_SSE42 )){           /* Intel® microarchitecture code name Nehalem or Intel® architecture formerly codenamed Westmer = Intel® architecture formerly codenamed Penryn + Intel® SSE4.2 + ?Intel® instruction PCLMULQDQ + ?(Intel® AES New Instructions) + ?(Intel® Secure Hash Algorithm Extensions) */
        mask = SSE42_MSK;                                               /* or new Intel Atom® processor formerly codenamed Silvermont */
        *index = LIB_SSE42;
-   } else 
+   } else
    if( ippCPUID_SSE41 == ( *cpuFeatures & ippCPUID_SSE41 )){           /* Intel® architecture formerly codenamed Penryn ia32=P8, x64=Y8 */
        mask = SSE41_MSK;
        *index = LIB_SSE41;
-   } else 
+   } else
    if( ippCPUID_MOVBE == ( *cpuFeatures & ippCPUID_MOVBE )) {          /* Intel Atom® processor formerly codenamed Silverthorne ia32=S8, x64=N8 */
        mask = ATOM_MSK;
        *index = LIB_ATOM;
-   } else 
+   } else
    if( ippCPUID_SSSE3 == ( *cpuFeatures & ippCPUID_SSSE3 )) {          /* Intel® architecture formerly codenamed Merom ia32=V8, x64=U8 (letters etymology is unknown) */
        mask = SSSE3_MSK;
        *index = LIB_SSSE3;
-   } else 
+   } else
    if( ippCPUID_SSE3  == ( *cpuFeatures & ippCPUID_SSE3  )) {          /* Intel® architecture formerly codenamed Prescott ia32=W7, x64=M7 */
        mask = SSE3_MSK;
        *index = LIB_SSE3;
-   } else 
+   } else
    if( ippCPUID_SSE2  == ( *cpuFeatures & ippCPUID_SSE2  )) {          /* Intel® architecture formerly codenamed Willamette ia32=W7, x64=PX */
        mask = SSE2_MSK;
        *index = LIB_SSE2;
-   } else 
+   } else
    if( ippCPUID_SSE   == ( *cpuFeatures & ippCPUID_SSE   )) {          /* Intel® Pentium® processor III ia32=PX only */
        mask = SSE_MSK;
        *index = LIB_SSE;
 #if (defined( WIN32E ) || defined( LINUX32E ) || defined( OSXEM64T )) && !(defined( _ARCH_LRB2 ))
        ownStatus = ippStsNotSupportedCpu;                              /* the lowest CPU supported by Intel IPP Cryptography must at least support Intel® SSE2 for x64 */
 #endif
-   } else 
-   if( ippCPUID_MMX   >= ( *cpuFeatures & ippCPUID_MMX   )) {          /* not supported, PX dispatched */
+   } else                                                              /* not supported, PX dispatched */
+   {
        mask = MMX_MSK;
        *index = LIB_MMX;
        ownStatus = ippStsNotSupportedCpu; /* the lowest CPU supported by Intel IPP Cryptography must at least support Intel® SSE for ia32 or Intel® SSE2 for x64 */
-   } 
-#if defined ( _IPP_QUARK)
-     else {
-       mask = PX_MSK;
-       *index = LIB_PX;
-       ownStatus = ippStsNoErr; /* the lowest CPU supported by Intel IPP Cryptography must at least support Intel® SSE for ia32 or Intel® SSE2 for x64 */
    }
-#endif
 
-    if(( mask != ( *cpuFeatures & mask ))&&( ownStatus == ippStsNoErr )) 
+    if(( mask != ( *cpuFeatures & mask ))&&( ownStatus == ippStsNoErr ))
         ownStatus = ippStsFeaturesCombination; /* warning if combination of features is incomplete */
    *cpuFeatures |= mask;
    return ownStatus;
@@ -363,7 +359,7 @@ IPPFUN( IppStatus, ippcpSetCpuFeatures,( Ipp64u cpuFeatures ))
    int       index = 0;
 
     ownStatus = owncpSetCpuFeaturesAndIdx( cpuFeatures, &index );
-    ippcpJumpIndexForMergedLibs = index; 
+    ippcpJumpIndexForMergedLibs = index;
     cpFeaturesMask = cpuFeatures;
     return ownStatus;
 }
@@ -406,9 +402,9 @@ static struct {
 /* -1014 */ ippStsOFBSizeErr, "ippStsOFBSizeErr: Incorrect value for crypto OFB block size",
 /* -1013 */ ippStsIncompleteContextErr, "ippStsIncompleteContextErr: Crypto: set up of context is not complete",
 /* -1012 */ ippStsCTRSizeErr, "ippStsCTRSizeErr: Incorrect value for crypto CTR block size",
-/* -1011 */ ippStsEphemeralKeyErr, "ippStsEphemeralKeyErr: ECC: Invalid ephemeral key", 
+/* -1011 */ ippStsEphemeralKeyErr, "ippStsEphemeralKeyErr: ECC: Invalid ephemeral key",
 /* -1010 */ ippStsMessageErr, "ippStsMessageErr: ECC: Invalid message digest",
-/* -1009 */ ippStsShareKeyErr, "ippStsShareKeyErr: ECC: Invalid share key", 
+/* -1009 */ ippStsShareKeyErr, "ippStsShareKeyErr: ECC: Invalid share key",
 /* -1008 */ ippStsInvalidPrivateKey, "ippStsInvalidPrivateKey ECC: Invalid private key",
 /* -1007 */ ippStsOutOfECErr, "ippStsOutOfECErr: ECC: Point out of EC",
 /* -1006 */ ippStsECCInvalidFlagErr, "ippStsECCInvalidFlagErr: ECC: Invalid Flag",
@@ -454,7 +450,7 @@ IPPFUN( const char*, ippcpGetStatusString, ( IppStatus StsCode ) )
 {
    unsigned int i;
    for( i=0; i<IPP_COUNT_OF( ippcpMsg ); i++ ) {
-      if( StsCode == ippcpMsg[i].sts ) { 
+      if( StsCode == ippcpMsg[i].sts ) {
          return ippcpMsg[i].msg;
       }
    }

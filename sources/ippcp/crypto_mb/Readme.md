@@ -23,7 +23,7 @@ This library consists of highly-optimized kernels taking advantage of Intel’s 
 
 - CMake\* 3.10 or higher
 - The Netwide Assembler (NASM) 2.14\*
-- OpenSSL\* 1.1.0 or higher
+- OpenSSL\* 3.0.8 or higher
 
 ### Linux* OS
 
@@ -112,7 +112,7 @@ You can find the installed files in:
    source /opt/intel/bin/compilervars.sh intel64
    ```
 
-   For details, refer to the [Intel® C++ Compiler Developer Guide and Reference](https://software.intel.com/en-us/cpp-compiler-developer-guide-and-reference-specifying-the-location-of-compiler-components-with-compilervars)
+   For details, refer to the [Intel® C++ Compiler Developer Guide and Reference](https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/current/specifying-the-location-of-compiler-components.html)
 
 3. Run CMake on the command line. Use `-B` to specify path to the resulting project.
 4. Go to the project folder that was specified with `-B` and run `make` to build the library  (`crypto_mb` target).

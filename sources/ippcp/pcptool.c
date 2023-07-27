@@ -41,3 +41,25 @@ IPP_OWN_DEFN(void, XorBlock16, (const void* pSrc1, const void* pSrc2, void* pDst
       d[k] = (Ipp8u)(p1[k] ^p2[k]);
 }
 #endif
+
+#if defined(_NEW_COPY16_)
+IPP_OWN_DEFN(void, CopyBlock16, (const void* pSrc, void* pDst)) 
+{
+#if (_IPP_ARCH ==_IPP_ARCH_EM64T)
+   ((Ipp64u*)pDst)[0] = ((Ipp64u*)pSrc)[0];
+   ((Ipp64u*)pDst)[1] = ((Ipp64u*)pSrc)[1];
+#else
+   ((Ipp32u*)pDst)[0] = ((Ipp32u*)pSrc)[0];
+   ((Ipp32u*)pDst)[1] = ((Ipp32u*)pSrc)[1];
+   ((Ipp32u*)pDst)[2] = ((Ipp32u*)pSrc)[2];
+   ((Ipp32u*)pDst)[3] = ((Ipp32u*)pSrc)[3];
+#endif
+}
+#else
+IPP_OWN_DEFN(void, CopyBlock16, (const void* pSrc, void* pDst)) 
+{
+   int k;
+   for(k=0; k<16; k++ )
+      ((Ipp8u*)pDst)[k] = ((Ipp8u*)pSrc)[k];
+}
+#endif

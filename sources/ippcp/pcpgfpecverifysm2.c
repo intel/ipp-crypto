@@ -160,6 +160,7 @@ IPPFUN(IppStatus, ippsGFpECVerifySM2,(const IppsBigNumState* pMsgDigest,
                ns = cpMod_BNU(t, elmLen, pOrder, orderLen);
 
                cpEcGFpReleasePool(1, pEC);
+               IPP_UNREFERENCED_PARAMETER(ns);
             }
 
             /* t = (msg+t) mod order */

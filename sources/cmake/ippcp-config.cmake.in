@@ -30,7 +30,7 @@
 # Configuration variables available:
 #       IPPCP_SHARED     - set this to True before find_package() to search for shared library.
 #       IPPCP_ARCH       - set this to 'ia32' or 'intel64' before find_package() to use library of particular arch
-#                              (this variable can be auto-defined)
+#                          (this variable can be auto-defined)
 #
 
 # Initialize to default values
@@ -54,7 +54,13 @@ if (NOT IPPCP_FIND_COMPONENTS)
     
     # crypto_mb library is only for intel64
     if(${IPPCP_ARCH} MATCHES "intel64")
+        set(IPPCP_BIN_REL_PATH    @IPPCP_BIN64_REL_PATH@)
+        set(IPPCP_LIB_REL_PATH    @IPPCP_LIB64_REL_PATH@)
+
         set(IPPCP_FIND_COMPONENTS "${IPPCP_FIND_COMPONENTS}" "crypto_mb")
+    else()
+        set(IPPCP_BIN_REL_PATH    @IPPCP_BIN32_REL_PATH@)
+        set(IPPCP_LIB_REL_PATH    @IPPCP_LIB32_REL_PATH@)
     endif()
 
     foreach (_component ${IPPCP_FIND_COMPONENTS})
@@ -122,10 +128,10 @@ foreach (_component ${IPPCP_FIND_COMPONENTS})
     endif()
 
     if (WIN32 AND ${_linkage_type} MATCHES "SHARED")
-        get_filename_component(_lib     "${_ippcrypto_root}/@IPPCP_REDIST_REL_PATH@/${IPPCP_ARCH}/${_ippcp_library_prefix}${_component}${_ippcp_library_suffix}" REALPATH)
-        get_filename_component(_imp_lib "${_ippcrypto_root}/@IPPCP_LIB_REL_PATH@/${IPPCP_ARCH}/${_ippcp_library_prefix}${_component}${_ippcp_import_library_suffix}" REALPATH)
+        get_filename_component(_lib     "${_ippcrypto_root}/${IPPCP_BIN_REL_PATH}/${_ippcp_library_prefix}${_component}${_ippcp_library_suffix}" REALPATH)
+        get_filename_component(_imp_lib "${_ippcrypto_root}/${PPCP_LIB_REL_PATH}/${_ippcp_library_prefix}${_component}${_ippcp_import_library_suffix}" REALPATH)
     else()
-        get_filename_component(_lib     "${_ippcrypto_root}/@IPPCP_LIB_REL_PATH@/${IPPCP_ARCH}/${_ippcp_library_prefix}${_component}${_ippcp_library_suffix}" REALPATH)
+        get_filename_component(_lib     "${_ippcrypto_root}/${IPPCP_LIB_REL_PATH}/${_ippcp_library_prefix}${_component}${_ippcp_library_suffix}" REALPATH)
         set(_imp_lib "")
     endif()
 

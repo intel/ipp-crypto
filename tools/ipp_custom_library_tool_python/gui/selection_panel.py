@@ -1,7 +1,19 @@
 """
-Copyright (C) 2022 Intel Corporation
+Copyright 2018-2021 Intel Corporation.
 
-SPDX-License-Identifier: MIT
+This software and the related documents are Intel copyrighted  materials,  and
+your use of  them is  governed by the  express license  under which  they were
+provided to you (License).  Unless the License provides otherwise, you may not
+use, modify, copy, publish, distribute,  disclose or transmit this software or
+the related documents without Intel's prior written permission.
+
+This software and the related documents  are provided as  is,  with no express
+or implied  warranties,  other  than those  that are  expressly stated  in the
+License.
+
+License:
+http://software.intel.com/en-us/articles/intel-sample-source-code-license-agr
+eement/
 """
 import copy
 
@@ -52,7 +64,7 @@ class SelectionPanel(QWidget):
             self.reset()
 
     def refresh(self):
-        self.domains_type = (utils.COMMON if not self.settings.tl_group.isChecked()
+        self.domains_type = (self.settings.package.type if not self.settings.tl_group.isChecked()
                              else utils.THREADING_LAYER)
         domains_list = self.functions_dict[self.domains_type].keys()
         self.set_widget_items(self.domains_list, domains_list)

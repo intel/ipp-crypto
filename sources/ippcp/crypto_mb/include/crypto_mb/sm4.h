@@ -22,10 +22,11 @@
 #include <crypto_mb/defs.h>
 #include <crypto_mb/status.h>
 
-#define SM4_LINES       (16)        /*    Max number of buffers    */
-#define SM4_BLOCK_SIZE  (16)        /* SM4 data block size (bytes) */
-#define SM4_KEY_SIZE    (16)        /*    SM4 key size (bytes)     */
-#define SM4_ROUNDS      (32)        /*    SM4 number of rounds     */
+#define SM4_LINES        (16)                         /* Max number of buffers       */
+#define SM4_BLOCK_SIZE   (16)                         /* SM4 data block size (bytes) */
+#define SM4_KEY_SIZE     (16)                         /* SM4 key size (bytes)        */
+#define SM4_ROUNDS       (32)                         /* SM4 number of rounds        */
+#define SM4_XTS_MAX_SIZE ((1 << 20) * SM4_BLOCK_SIZE) /* SM4 max buffer size (bytes) */
 
 typedef int8u  sm4_key[SM4_KEY_SIZE];
 typedef int8u  sm4_xts_key[SM4_KEY_SIZE*2];

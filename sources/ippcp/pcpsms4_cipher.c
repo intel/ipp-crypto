@@ -66,7 +66,7 @@ IPP_OWN_DEFN (void, cpSMS4_Cipher, (Ipp8u* otxt, const Ipp8u* itxt, const Ipp32u
    #endif /* #if defined (__INTEL_COMPILER) || defined (__INTEL_LLVM_COMPILER) || !defined (_MSC_VER) || (_MSC_VER >= 1920) */
    #endif
    #if (_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8)
-   if(IsFeatureEnabled(ippCPUID_AES)){
+   if(IsFeatureEnabled(ippCPUID_AES) || IsFeatureEnabled(ippCPUID_AVX2VAES)){
       cpSMS4_ECB_aesni_x1(otxt, itxt, pRoundKeys);
       return;
    }  

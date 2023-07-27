@@ -4,15 +4,15 @@
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 # http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-# 
+#
 #===============================================================================
 
 cmake_minimum_required(VERSION 3.10)
@@ -24,7 +24,7 @@ mbx_getlibversion("${CMAKE_CURRENT_SOURCE_DIR}/include/crypto_mb/version.h")
 
 if ((NOT DEFINED MBX_VER_MAJOR) OR
     (NOT DEFINED MBX_VER_MINOR) OR
-    (NOT DEFINED MBX_VER_REV)   OR 
+    (NOT DEFINED MBX_VER_REV)   OR
     (NOT DEFINED MBX_INTERFACE_VERSION_MAJOR) OR
     (NOT DEFINED MBX_INTERFACE_VERSION_MINOR))
     message(WARNING "Cannot parse version from crypto_mb/version.h file. The project might be corrupted.")
@@ -66,12 +66,13 @@ else()
     set(MB_STATIC_LIB_TARGET "${MB_STATIC_LIB_TARGET}" PARENT_SCOPE)
 endif()
 
-if(BORINGSSL) # off by default
+if(BORINGSSL OR BABASSL) # off by default
     # BoringSSL doesn't appear to have version information found
+    # BabaSSL hasn't been migrated to 3.0 version yet
     # by find_package(OpenSSL)
     find_package(OpenSSL REQUIRED)
 else()
-    find_package(OpenSSL 1.1.0 REQUIRED) # set -DOPENSSL_INCLUDE_DIR= -DOPENSSL_LIBRARIES= -DOPENSSL_ROOT_DIR= to use patched
+    find_package(OpenSSL 3.0.8 REQUIRED) # set -DOPENSSL_INCLUDE_DIR= -DOPENSSL_LIBRARIES= -DOPENSSL_ROOT_DIR= to use patched
 endif()
 
 if(BN_OPENSSL_PATCH)
