@@ -62,7 +62,7 @@ static int DecodeEME_PKCSv15(const Ipp8u* pEM, int emLen,
 
 
 /*
-// returns 0 decription error
+// returns 0 decryption error
 /          1 OK
 */
 static int Decryption(const Ipp8u* pCipherTxt,
@@ -103,7 +103,7 @@ static int Decryption(const Ipp8u* pCipherTxt,
 /*F*
 // Name: ippsRSADecrypt_PKCSv15
 //
-// Purpose: Performs Decrption according to RSA-ES-PKCS1_v1.5
+// Purpose: Performs Decryption according to RSA-ES-PKCS1_v1.5
 //
 // Returns:                   Reason:
 //    ippStsNullPtrErr           NULL == pSrc

@@ -127,7 +127,7 @@
 
 ;;
 ;; SHA1 update round:
-;;    - F1 magic is used (and imbedded into the macros directly)
+;;    - F1 magic is used (and embedded into the macros directly)
 ;;    - 16 bytes of input are swapped
 ;;
 %macro SHA1_UPDATE_RND_F1_BSWAP 7.nolist
@@ -158,7 +158,7 @@
 
 ;;
 ;; SHA1 update round:
-;;    - F1 magic is used (and imbedded into the macros directly)
+;;    - F1 magic is used (and embedded into the macros directly)
 ;;
 %macro SHA1_UPDATE_RND_F1 6.nolist
   %xdefine %%A %1

@@ -99,7 +99,7 @@ EXTERN_C void sm4_ccm_get_tag_mb16(int8u *pa_out[SM4_LINES], const int tag_len[S
 #define SM4_CCM_CONTEXT_KEY(context) (&((context)->key_sched))
 #define SM4_CCM_CONTEXT_STATE(context) ((context)->state)
 
-/* Calculate offsets for acessing blocks in buffers */
+/* Calculate offsets for accessing blocks in buffers */
 
 #define REG_SIZE_BITS (512)
 #define REG_SIZE_BYTES (REG_SIZE_BITS / 8) /* Register size in bytes */
@@ -110,7 +110,7 @@ EXTERN_C void sm4_ccm_get_tag_mb16(int8u *pa_out[SM4_LINES], const int tag_len[S
 #define BUFFER_BLOCK_NUM(buffer, n) (buffer + SLOTS_PER_BLOCK * n)
 #define BUFFER_REG_NUM(buffer, n) (buffer + SLOTS_PER_BLOCK * BLOCKS_PER_REG * n)
 
-/* Internal macroses */
+/* Internal macros */
 
 #define sm4_ccm_clear_buffer(p_buffer) storeu((void *)(p_buffer), setzero());
 

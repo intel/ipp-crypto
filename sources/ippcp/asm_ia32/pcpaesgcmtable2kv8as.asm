@@ -45,8 +45,8 @@ segment .text align=IPP_ALIGN_FACTOR
 ;  output:
 ;  eax
 ;
-;  register  ecx destoyed
-;  registers mmx2, mmx3, mmx6, and mmx7 destoyed
+;  register  ecx destroyed
+;  registers mmx2, mmx3, mmx6, and mmx7 destroyed
 ;
 align IPP_ALIGN_FACTOR
 _CONST_DATA:

@@ -35,7 +35,7 @@
 
 IPP_OWN_DEFN (void, cpFinalize_rmf, (DigestSHA512 pHash, const Ipp8u* inpBuffer, int inpLen, Ipp64u lenLo, Ipp64u lenHi, const IppsHashMethod* method))
 {
-   int mbs = method->msgBlkSize;    /* messge block size */
+   int mbs = method->msgBlkSize;    /* message block size */
    int mrl = method->msgLenRepSize; /* processed length representation size */
 
    /* local buffer and it length */
@@ -45,7 +45,7 @@ IPP_OWN_DEFN (void, cpFinalize_rmf, (DigestSHA512 pHash, const Ipp8u* inpBuffer,
    /* copy rest of message into internal buffer */
    CopyBlock(inpBuffer, buffer, inpLen);
 
-   /* padd message */
+   /* pad message */
    buffer[inpLen++] = 0x80;
    PadBlock(0, buffer+inpLen, bufferLen-inpLen-mrl);
 

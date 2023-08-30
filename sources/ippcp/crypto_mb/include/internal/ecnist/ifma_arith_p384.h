@@ -83,7 +83,7 @@ __INLINE void MB_FUNC_NAME(mov_FE384_)(U64 r[], const U64 a[])
    r[7] = a[7];
 }
 
-/* move coodinate using mask: R = k? A : B */
+/* move coordinate using mask: R = k? A : B */
 __INLINE void MB_FUNC_NAME(mask_mov_FE384_)(U64 R[], const U64 B[], __mb_mask k, const U64 A[])
 {
    R[0] = mask_mov64(B[0], k, A[0]);

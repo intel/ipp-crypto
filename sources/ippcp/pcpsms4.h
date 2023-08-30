@@ -106,7 +106,7 @@ __INLINE Ipp32u cpSboxT_SMS4(Ipp32u x)
 
 /* key expansion transformation:
    - linear Linear
-   - mixer Mix (permutation T in the SMS4 standart phraseology)
+   - mixer Mix (permutation T in the SMS4 standard phraseology)
 */
 __INLINE Ipp32u cpExpKeyLinear_SMS4(Ipp32u x)
 {
@@ -120,7 +120,7 @@ __INLINE Ipp32u cpExpKeyMix_SMS4(Ipp32u x)
 
 /* cipher transformations:
    - linear Linear
-   - mixer Mix (permutation T in the SMS4 standart phraseology)
+   - mixer Mix (permutation T in the SMS4 standard phraseology)
 */
 __INLINE Ipp32u cpCipherLinear_SMS4(Ipp32u x)
 {

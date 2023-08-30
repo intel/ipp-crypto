@@ -39,7 +39,7 @@ static void AMM52(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m
 {
    #define NUM64  ((Ipp32s)(sizeof(__m512i)/sizeof(Ipp64u)))
 
-   __mmask8 k1 = (__mmask8)_mm512_kmov(0x02);   /* mask of the 2-nd elment */
+   __mmask8 k1 = (__mmask8)_mm512_kmov(0x02);   /* mask of the 2-nd element */
 
    __m512i zero = _mm512_setzero_si512(); /* zeros */
 
@@ -122,7 +122,7 @@ static void AMM52(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m
 
 static void AMM52x20(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
-   __mmask8 k2 = (__mmask8)_mm512_kmov(0x0f);   /* mask of the 0-3 elments */
+   __mmask8 k2 = (__mmask8)_mm512_kmov(0x0f);   /* mask of the 0-3 elements */
 
    /* load a */
    __m512i A0 = _mm512_loadu_si512(a);
@@ -145,7 +145,7 @@ static void AMM52x20(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    IPP_UNREFERENCED_PARAMETER(len);
    IPP_UNREFERENCED_PARAMETER(res);
 
-   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 elment */
+   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 element */
    int i;
    for(i=0; i<20; i++) {
       __m512i Bi = _mm512_set1_epi64((Ipp64s)b[i]);     /* bloadcast(b[i]) */
@@ -187,7 +187,7 @@ static void AMM52x20(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    /* normalize result */
    {
       Ipp64u acc = 0;
-      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unkonwn for msvc
+      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unknown for msvc
       #pragma nounroll
       #endif
       for(i=0; i<20; i++) {
@@ -227,7 +227,7 @@ static void AMM52x40(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    IPP_UNREFERENCED_PARAMETER(len);
    IPP_UNREFERENCED_PARAMETER(res);
 
-   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 elment */
+   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 element */
    int i;
    for(i=0; i<40; i++) {
       __m512i Bi = _mm512_set1_epi64((Ipp64s)b[i]);     /* bloadcast(b[i]) */
@@ -281,7 +281,7 @@ static void AMM52x40(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    /* normalize result */
    {
       Ipp64u acc = 0;
-      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unkonwn for msvc
+      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unknown for msvc
       #pragma nounroll
       #endif
       for(i=0; i<40; i++) {
@@ -294,7 +294,7 @@ static void AMM52x40(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
 
 static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
-   __mmask8 k2 = (__mmask8)_mm512_kmov(0x0f);   /* mask of the 0-3 elments */
+   __mmask8 k2 = (__mmask8)_mm512_kmov(0x0f);   /* mask of the 0-3 elements */
 
    /* load a */
    __m512i A0 = _mm512_loadu_si512(a);
@@ -332,7 +332,7 @@ static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    IPP_UNREFERENCED_PARAMETER(len);
    IPP_UNREFERENCED_PARAMETER(res);
 
-   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 elment */
+   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 element */
    int i;
    for(i=0; i<60; i++) {
       __m512i Bi = _mm512_set1_epi64((Ipp64s)b[i]);     /* bloadcast(b[i]) */
@@ -404,7 +404,7 @@ static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    /* normalize result */
    {
       Ipp64u acc = 0;
-      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unkonwn for msvc
+      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unknown for msvc
       #pragma nounroll
       #endif
       for(i=0; i<60; i++) {
@@ -417,7 +417,7 @@ static void AMM52x60(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
 
 static void AMM52x79(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u* m, Ipp64u k0, int len, Ipp64u* res)
 {
-   __mmask8 k2 = (__mmask8)_mm512_kmov(0x7f);   /* mask of the 0-7 elments */
+   __mmask8 k2 = (__mmask8)_mm512_kmov(0x7f);   /* mask of the 0-7 elements */
 
    /* load a */
    __m512i A0 = _mm512_loadu_si512(a);
@@ -461,7 +461,7 @@ static void AMM52x79(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    IPP_UNREFERENCED_PARAMETER(len);
    IPP_UNREFERENCED_PARAMETER(res);
 
-   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 elment */
+   __mmask8 k1 = (__mmask8)_mm512_kmov(0x01);   /* mask of the 0 element */
    int i;
    for(i=0; i<79; i++) {
       __m512i Bi = _mm512_set1_epi64((Ipp64s)b[i]);     /* bloadcast(b[i]) */
@@ -545,7 +545,7 @@ static void AMM52x79(Ipp64u* out, const Ipp64u* a, const Ipp64u* b, const Ipp64u
    /* normalize result */
    {
       Ipp64u acc = 0;
-      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unkonwn for msvc
+      #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) // unknown for msvc
       #pragma nounroll
       #endif
       for(i=0; i<79; i++) {
@@ -651,7 +651,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_avx512, (BNU_CHUNK_T* dataY, const BNU_CH
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
    regular_dig52(redM, redBufferLen, redBuffer, almMM_bitsize);
 
-   /* compute taget domain Montgomery converter RR' */
+   /* compute target domain Montgomery converter RR' */
    ZEXPAND_BNU(redBuffer, 0, redBufferLen);
    SET_BIT(redBuffer, (4*redLen*EXP_DIGIT_SIZE_AVX512- 4*cnvMM_bitsize));
    regular_dig52(redY, redBufferLen, redBuffer, almMM_bitsize);
@@ -755,7 +755,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_sscm_avx512, (BNU_CHUNK_T* dataY, const B
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
    regular_dig52(redM, redBufferLen, redBuffer, almMM_bitsize);
 
-   /* compute taget domain Montgomery converter RR' */
+   /* compute target domain Montgomery converter RR' */
    ZEXPAND_BNU(redBuffer, 0, redBufferLen);
    SET_BIT(redBuffer, (4*redLen*EXP_DIGIT_SIZE_AVX512- 4*cnvMM_bitsize));
    regular_dig52(redY, redBufferLen, redBuffer, almMM_bitsize);
@@ -858,7 +858,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_avx512, (BNU_CHUNK_T* dataY, const BNU_CH
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
    regular_dig52(redM, redBufferLen, redBuffer, almMM_bitsize);
 
-   /* compute taget domain Montgomery converter RR' */
+   /* compute target domain Montgomery converter RR' */
    ZEXPAND_BNU(redBuffer, 0, redBufferLen);
    SET_BIT(redBuffer, (4*redLen*EXP_DIGIT_SIZE_AVX512- 4*cnvMM_bitsize));
    regular_dig52(redY, redBufferLen, redBuffer, almMM_bitsize);
@@ -924,7 +924,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_avx512, (BNU_CHUNK_T* dataY, const BNU_CH
          shift = eBit & 0xF;
          windowVal = (cpSize)((eChunk>>shift) &wmask);
 
-         /* extract precomputed value and muptiply */
+         /* extract precomputed value and multiply */
          if(windowVal) {
             ammFunc(redY, redY, redTable+windowVal*redLen, redM, k0, redLen, redBuffer);
          }
@@ -995,7 +995,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sscm_avx512, (BNU_CHUNK_T* dataY, const B
    ZEXPAND_COPY_BNU(redBuffer, redBufferLen, dataM, nsM);
    regular_dig52(redM, redBufferLen, redBuffer, almMM_bitsize);
 
-   /* compute taget domain Montgomery converter RR' */
+   /* compute target domain Montgomery converter RR' */
    ZEXPAND_BNU(redBuffer, 0, redBufferLen);
    SET_BIT(redBuffer, (4*redLen*EXP_DIGIT_SIZE_AVX512- 4*cnvMM_bitsize));
    regular_dig52(redY, redBufferLen, redBuffer, almMM_bitsize);
@@ -1069,9 +1069,9 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sscm_avx512, (BNU_CHUNK_T* dataY, const B
          shift = eBit & 0xF;
          windowVal = (cpSize)((eChunk>>shift) &wmask);
 
-         /* exptact precomputed value and muptiply */
+         /* exptact precomputed value and multiply */
          gsScrambleGet_sscm(redT, redLen, redTable, windowVal, window);
-         /* muptiply */
+         /* multiply */
          ammFunc(redY, redY, redT, redM, k0, redLen, redBuffer);
       }
    }

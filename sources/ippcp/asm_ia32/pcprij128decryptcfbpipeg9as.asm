@@ -280,7 +280,7 @@ IPPASM DecryptCFB32_RIJ128pipe_AES_NI,PUBLIC
 %xdefine nr      [ebp + ARG_1 + 2*sizeof(dword)] ; number of rounds
 %xdefine pKey    [ebp + ARG_1 + 3*sizeof(dword)] ; key material address
 %xdefine cfbBlks [ebp + ARG_1 + 4*sizeof(dword)] ; length of stream in cfbSize
-%xdefine cfbSize [ebp + ARG_1 + 5*sizeof(dword)] ; cfb blk size (4 bytes multible)
+%xdefine cfbSize [ebp + ARG_1 + 5*sizeof(dword)] ; cfb blk size (4 bytes multiple)
 %xdefine pIV     [ebp + ARG_1 + 6*sizeof(dword)] ; IV
 
 %xdefine SC  (4)

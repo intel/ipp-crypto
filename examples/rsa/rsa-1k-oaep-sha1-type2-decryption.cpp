@@ -118,7 +118,7 @@ int main(void)
 
         /* Decrypt message */
        status = ippsRSADecrypt_OAEP_rmf(cipherText,
-                                        0  /* optional label to be assotiated with the message */,
+                                        0  /* optional label to be associated with the message */,
                                         0, /* label length */
                                         pPlainText, &plainTextLen,
                                         pPrvKeyType2,

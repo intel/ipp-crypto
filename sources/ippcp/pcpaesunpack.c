@@ -40,7 +40,7 @@
 // Returns:                Reason:
 //    ippStsNullPtrErr        pBuffer== NULL
 //                            pCtx == NULL
-//    ippStsLengthErr         avaliable size of buffer is not enough for operation
+//    ippStsLengthErr         available size of buffer is not enough for operation
 //    ippStsNoErr             no errors
 //
 // Parameters:

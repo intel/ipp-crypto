@@ -28,7 +28,7 @@
 //tbcd: temporary excluded: #include <assert.h>
 
 /*
-// Multiplication in GF(p^d), if field polynomial: g(x) = x^d + beta  => binominal
+// Multiplication in GF(p^d), if field polynomial: g(x) = x^d + beta  => binomial
 */
 IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_pd_binom, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx))
 {
@@ -64,7 +64,7 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_pd_binom, (BNU_CHUNK_T* pR, const B
 }
 
 /*
-// Squaring in GF(p^d), if field polynomial: g(x) = x^d + beta  => binominal
+// Squaring in GF(p^d), if field polynomial: g(x) = x^d + beta  => binomial
 */
 IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxSqr_pd_binom, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx))
 {

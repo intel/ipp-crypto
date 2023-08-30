@@ -113,7 +113,7 @@ __INLINE void convert_ct_to_big_endian(Ipp8u pCt[SIZE_CT], const Ipp32u ct)
  * @param [in]  kdf_len length KDF
  * @param [in]  pZ      data Z to create KDF
  * @param [in]  z_len   length Z data
- * bound kdf_len in standart:
+ * bound kdf_len in standard:
  *
  */
 IPP_OWN_DEFN(IppStatus, KDF_sm3, (Ipp8u * pKDF, int kdf_len, const Ipp8u *pZ, const int z_len))

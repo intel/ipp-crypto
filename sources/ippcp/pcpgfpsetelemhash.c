@@ -82,7 +82,7 @@ IPPFUN(IppStatus, ippsGFpSetElementHash,(const Ipp8u* pMsg, int msgLen, IppsGFpE
 
       {
          Ipp8u md[MAX_HASH_SIZE];
-         BNU_CHUNK_T hashVal[(MAX_HASH_SIZE*8)/BITSIZE(BNU_CHUNK_T)+1]; /* +1 to meet cpMod_BNU() implementtaion specific */
+         BNU_CHUNK_T hashVal[(MAX_HASH_SIZE*8)/BITSIZE(BNU_CHUNK_T)+1]; /* +1 to meet cpMod_BNU() implementation specific */
          IppStatus sts = ippsHashMessage(pMsg, msgLen, md, hashID);
 
          if(ippStsNoErr==sts) {

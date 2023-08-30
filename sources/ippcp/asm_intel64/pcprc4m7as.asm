@@ -101,7 +101,7 @@ align IPP_ALIGN_FACTOR
 
    sub      rax, 1                  ; actual new x counter
    movzx    rax, al
-   mov      dword [rbp+4], eax   ; update x conter
+   mov      dword [rbp+4], eax   ; update x counter
    mov      dword [rbp+8], ebx   ; updtae y counter
 
 .quit:

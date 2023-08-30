@@ -56,7 +56,7 @@ IPPFUN(IppStatus, ippsGFpGetInfo,(IppsGFpInfo* pInfo, const IppsGFpState* pGFp))
       gsModEngine* pGFpx = GFP_PMA(pGFp);     /* current */
       gsModEngine* pGFpBasic = cpGFpBasic(pGFpx); /* basic */
       pInfo->parentGFdegree = MOD_EXTDEG(pGFpx);               /* parent extension */
-      pInfo->basicGFdegree = cpGFpBasicDegreeExtension(pGFpx); /* total basic extention */
+      pInfo->basicGFdegree = cpGFpBasicDegreeExtension(pGFpx); /* total basic extension */
       pInfo->basicElmBitSize = GFP_FEBITLEN(pGFpBasic);             /* basic bitsise */
 
       return ippStsNoErr;

@@ -37,7 +37,7 @@ static const __ALIGN64 Ipp64u p256_x4[LEN52] = {
 /* To Montgomery domain conversion constant
  *
  * The extended Montgomery domain here with R = 2^(6*52) instead of 2^(5*62) is
- * choosen to use NRMM field multiplication routine in the sequence of EC group
+ * chosen to use NRMM field multiplication routine in the sequence of EC group
  * operations  (point multiplication on scalar / addition) without modulo
  * reductions in the field addition (see Chapter 4 in "Enhanced Montgomery
  * Multiplication" DOI:10.1155/2008/583926).  According to the paper the chosen
@@ -242,7 +242,7 @@ static m512 mod_reduction_p256(const m512 a)
    const mask8 lt   = cmp_i64_mask(zero, srli_i64(r, DIGIT_SIZE - 1), _MM_CMPINT_LT);
    const mask8 mask = check_bit(lt, 4); // check sign in 5th digit
 
-   /* maks != 0 ? a : r */
+   /* mask != 0 ? a : r */
    r = mask_mov_i64(r, mask, a);
    return r;
 }

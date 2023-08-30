@@ -43,7 +43,7 @@
 
 /*!
  * Helper function to compare expected and actual function return statuses and display
- * an error mesage if those are different.
+ * an error message if those are different.
  *
  * \param[in] Function name to display
  * \param[in] Expected status

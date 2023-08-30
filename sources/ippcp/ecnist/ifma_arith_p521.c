@@ -160,7 +160,7 @@ IPP_OWN_DEFN(void, ifma_lnorm52_p521, (fe521 pr[], const fe521 a))
    fe521 r;
    FE521_COPY(r, a);
 
-   /* standart step - first round normalization */
+   /* standard step - first round normalization */
    /* low */
    ROUND_LOW_MID_LNORM(FE521_LO(r), FE521_MID(r))
    /* mid */
@@ -197,7 +197,7 @@ IPP_OWN_DEFN(void, ifma_lnorm52_dual_p521, (fe521 pr1[], const fe521 a1, fe521 p
    FE521_COPY(r1, a1);
    FE521_COPY(r2, a2);
 
-   /* standart step - first round normalization */
+   /* standard step - first round normalization */
    /* low */
    ROUND_LOW_MID_LNORM(FE521_LO(r1), FE521_MID(r1))
    ROUND_LOW_MID_LNORM(FE521_LO(r2), FE521_MID(r2))
@@ -925,7 +925,7 @@ static IPP_OWN_DEFN(void, ifma_fastred52_p521, (fe521 pr[], const fe521 a))
    const mask8 lt   = m256_cmp_i64_mask(zero, m256_srli_i64(FE521_HI(r), DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
    const mask8 mask = (mask8)((mask8)0 - ((lt >> 2) & 1));
 
-   /* maks != 0 ? a : r */
+   /* mask != 0 ? a : r */
    FE521_MASK_MOV(r, r, mask, a);
    FE521_COPY(*pr, r);
    return;

@@ -352,7 +352,7 @@ __INLINE void MB_FUNC_NAME(booth_recode_)(__mb_mask* sign, U64* dvalue, U64 wval
 /* extract point */
 static void MB_FUNC_NAME(extract_point_)(P521_POINT* r, const P521_POINT tbl[], U64 idx)
 {
-   /* decrenent index (the table noes not contain [0]*P */
+   /* decrenent index (the table does not contain [0]*P */
    U64 idx_target = sub64(idx, set1(1));
 
    /* assume the point at infinity is what need */
@@ -453,7 +453,7 @@ void MB_FUNC_NAME(ifma_ec_nistp521_mul_point_)(P521_POINT* r, const P521_POINT* 
       MB_FUNC_NAME(ifma_neg52_p521_)(Ty, T.Y);
       MB_FUNC_NAME(secure_mask_mov_FE521_)(T.Y, T.Y, dsign, Ty);
 
-      /* acumulate T */
+      /* accumulate T */
       MB_FUNC_NAME(ifma_ec_nistp521_add_point_)(&R, &R, &T);
    }
 
@@ -515,7 +515,7 @@ __INLINE void MB_FUNC_NAME(booth_recode_bp_)(__mb_mask* sign, U64* dvalue, U64 w
 /* extract affine affine point */
 __INLINE void MB_FUNC_NAME(extract_point_affine_)(P521_POINT_AFFINE* r, const SINGLE_P521_POINT_AFFINE* tbl, U64 idx)
 {
-   /* decrement index (the table noes not contain [0]*P */
+   /* decrement index (the table does not contain [0]*P */
    U64 targIdx = sub64(idx, set1(1));
 
    U64 ax0, ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8, ax9, ax10;

@@ -310,7 +310,7 @@ IPPASM AesGcmEnc_avx,PUBLIC
 %assign BLKS       (BLKS4+sizeof(dword))
 %assign STACK_SIZE (BLKS+sizeof(dword)+sizeof_oword_)
 
-   sub      esp, STACK_SIZE             ; alocate stack
+   sub      esp, STACK_SIZE             ; allocate stack
    lea      ebx, [esp+sizeof_oword_]    ; align stack
    and      ebx, -sizeof_oword_
    mov      eax, cipher                 ; due to bug in ml12 - dummy instruction
@@ -620,7 +620,7 @@ IPPASM AesGcmDec_avx,PUBLIC
 %assign BLKS       (BLKS4+sizeof(dword))
 %assign STACK_SIZE (BLKS+sizeof(dword)+sizeof_oword_)
 
-   sub      esp, STACK_SIZE            ; alocate stack
+   sub      esp, STACK_SIZE            ; allocate stack
    lea      ebx, [esp+sizeof_oword_]   ; align stack
    and      ebx, -sizeof_oword_
    mov      eax, cipher                 ; due to bug in ml12 - dummy instruction

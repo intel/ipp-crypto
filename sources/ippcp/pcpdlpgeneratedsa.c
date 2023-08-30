@@ -56,7 +56,7 @@
 //    ippStsBadArgErr         nTrials <=0
 //
 //    ippStsInsufficientEntropy
-//                            genration failure due to poor random generator
+//                            generation failure due to poor random generator
 //
 //    ippStsNoErr             no errors
 //

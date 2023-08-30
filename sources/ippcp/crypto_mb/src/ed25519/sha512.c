@@ -94,7 +94,7 @@ static void sha512_final(DigestSHA512 pHash, const int8u* inpBuffer, int inpLen,
     /* copy rest of message into internal buffer */
     CopyBlock(inpBuffer, buffer, inpLen);
 
-    /* padd message */
+    /* pad message */
     buffer[inpLen++] = 0x80;
     PadBlock(0, buffer + inpLen, (int)(bufferLen - inpLen - (int)MLR_SHA512));
 

@@ -176,7 +176,7 @@ static int BN_bn2lebinpad(const BIGNUM *a, unsigned char *to, int tolen) {
 
 #ifndef BN_OPENSSL_DISABLE
 // Convert BIGNUM into MB8(Radix=2^52) format
-// Returns bitmask of succesfully converted values
+// Returns bitmask of successfully converted values
 // Accepts NULLs as BIGNUM inputs
 //    Null or wrong length
 int8u ifma_BN_to_mb8(int64u out_mb8[][8], const BIGNUM* const bn[8], int bitLen)

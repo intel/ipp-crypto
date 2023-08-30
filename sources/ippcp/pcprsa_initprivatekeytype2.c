@@ -55,7 +55,7 @@
 //    factorPbitSize       bitsize of RSA modulus (bitsize of P)
 //    factorQbitSize       bitsize of private exponent (bitsize of Q)
 //    pKey                 pointer to the key context
-//    keyCtxSize           size of memmory accosizted with key comtext
+//    keyCtxSize           size of memory accosizted with key comtext
 *F*/
 
 IPPFUN(IppStatus, ippsRSA_InitPrivateKeyType2,(int factorPbitSize, int factorQbitSize,

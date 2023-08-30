@@ -37,7 +37,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWinBuffer, (int modulusBits))
    cpSize bufferNum = CACHE_LINE_SIZE/((Ipp32s)sizeof(BNU_CHUNK_T))
                     + gsGetScrambleBufferSize(nsM, w) /* pre-computed table */
                     + nsM                             /* tmp unscrambled table entry */
-                    + nsM;                            /* zero expanded exponent | "masked" multipler (X|1) */
+                    + nsM;                            /* zero expanded exponent | "masked" multiplier (X|1) */
    return bufferNum;
 }
 
@@ -83,7 +83,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* 
       /* copy and expand base to the modulus length */
       ZEXPAND_COPY_BNU(dataTT, nsM, dataX, nsX);
 
-      /* initialize recource */
+      /* initialize resource */
       COPY_BNU(pTable, MOD_MNT_R(pMont), nsM);
       COPY_BNU(pTable+nsM, dataTT, nsM);
       for(n=2; n<nPrecomute; n++) {
@@ -125,7 +125,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* 
             shift = eBit & 0xF;
             winVal = (eChunk>>shift) &mask;
 
-            /* muptiply precomputed value  */
+            /* multiply precomputed value  */
             MOD_METHOD( pMont )->mul(dataY, dataY, pTable+winVal*(Ipp32u)nsM, pMont);
          }
 

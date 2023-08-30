@@ -162,7 +162,7 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys,(const IppsBigNumState* pSrcPublicExp,
             ret = cpPRNGenPattern(pFactorP, factorPbitSize, (BNU_CHUNK_T)1, topPattern, rndFunc, pRndParam);
             if(1!=ret) break; /* internal error */;
 
-            /* chek if E and (P-1) co-prime */
+            /* check if E and (P-1) co-prime */
             cpDec_BNU(pFactorP, pFactorP, nsP, 1);
             if(0 == cpIsCoPrime(BN_NUMBER(pPublicExp), BN_SIZE(pPublicExp), pFactorP, nsP, pFreeBuffer)) continue;
 
@@ -215,7 +215,7 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys,(const IppsBigNumState* pSrcPublicExp,
             cpMul_BNU_school(pProdN, pFactorP, nsP, pFactorQ, nsQ);
             if(rsaModulusBitSize != BITSIZE_BNU(pProdN, nsN)) continue;
 
-            /* chek if E and (Q-1) co-prime */
+            /* check if E and (Q-1) co-prime */
             cpDec_BNU(pFactorQ, pFactorQ, nsQ, 1);
             if(0 == cpIsCoPrime(BN_NUMBER(pPublicExp), BN_SIZE(pPublicExp), pFactorQ, nsQ, pFreeBuffer)) continue;
 

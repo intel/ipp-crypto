@@ -40,7 +40,7 @@ def readNextFunction(header, curLine, headerID):    ## read next function with a
       FunStr= header[curLine];
       FunStr= re.sub('\n','',FunStr)   ## remove EOL symbols
   
-      while not re.match('.*\)\s*\)\s*$', FunStr):   ## concatinate strinng if string is not completed
+      while not re.match('.*\)\s*\)\s*$', FunStr):   ## concatenate string if string is not completed
         curLine= curLine+1
         FunStr= FunStr+header[curLine]
         FunStr= re.sub('\n','',FunStr)   ## remove EOL symbols
@@ -49,7 +49,7 @@ def readNextFunction(header, curLine, headerID):    ## read next function with a
     
       s= FunStr.split(',')
     
-      ## Extract funtion name
+      ## Extract function name
       FunName= s[1]
       FunName= re.sub('\s', '', FunName)
     

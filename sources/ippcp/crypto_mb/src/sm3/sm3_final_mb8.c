@@ -66,7 +66,7 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
         mb_mask64 = ~(0xFFFFFFFFFFFFFFFF << input_len[i]);
         M512(loc_buffer[i]) = _mm512_maskz_loadu_epi8(mb_mask64, HASH_BUFF(p_state)[i]);
 
-        /* Padd message */
+        /* Pad message */
         loc_buffer[i][input_len[i]++] = 0x80;
         pad_block(0, loc_buffer[i] + input_len[i], (int)(buffer_len[i] - input_len[i] - (int)SM3_MSG_LEN_REPR));
         ((int64u*)(loc_buffer[i] + buffer_len[i]))[-1] = sum_msg_len[i];

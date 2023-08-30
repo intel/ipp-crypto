@@ -59,7 +59,7 @@
 //    pRndParam   Pointer to Random Generator context.
 //
 // Note
-//    Validation Domain Parameters folowing by P1363 recommendation
+//    Validation Domain Parameters following by P1363 recommendation
 //    (reference A.16.8)
 //
 *F*/

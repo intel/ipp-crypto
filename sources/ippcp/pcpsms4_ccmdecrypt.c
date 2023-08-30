@@ -42,7 +42,7 @@
 //    ippStsNoErr             no errors
 //
 // Parameters:
-//    pSrc        pointer to the cipher text beffer
+//    pSrc        pointer to the cipher text buffer
 //    pDst        pointer to the plane text bubber
 //    len         length of the bugger
 //    pCtx        pointer to the CCM context
@@ -53,11 +53,11 @@
 //
 // NOTE
 //
-// We consider to not spend time for further optimizing of this algoritm because it is not widely using.
+// We consider to not spend time for further optimizing of this algorithm because it is not widely using.
 // There is two ways for further optimization:
 // - Add parallel processing of CTR cipher. Performance advantages can be achieved by parallel processing of a big number of blocks.
-// - Try to decreace the memory reading/writing operation number, eg combine two calls of one block encryption 
-// function to single call that procees two blocks with the same key. Performance advantages can be achieved by 
+// - Try to decrease the memory reading/writing operation number, eg combine two calls of one block encryption 
+// function to single call that processes two blocks with the same key. Performance advantages can be achieved by 
 // reducing of reading/writing operations number, because we do not need to read the key twice in single loop.
 //
 */

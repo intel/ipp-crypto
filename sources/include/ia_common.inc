@@ -156,7 +156,7 @@ ALIGNMODE p6,16
   CALL_FUNC %%func_name,%%visibility
 %endmacro
 
-; End function macro - required to be called after IPPASM or DECLARE_FUNC macro invokation.
+; End function macro - required to be called after IPPASM or DECLARE_FUNC macro invocation.
 %macro ENDFUNC 1.nolist
   %xdefine %%func_name %1
   %ifnctx _DECLARE_FUNC_CTX_

@@ -224,7 +224,7 @@
 
 %if (_IPP32E <= _IPP32E_Y8)
 ;;
-;; Pre- Sandy Brige specific code
+;; Pre- Sandy Bridge specific code
 ;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -425,7 +425,7 @@
 
 %if (_IPP32E >= _IPP32E_E9)
 ;;
-;; Sandy Brige specific code
+;; Sandy Bridge specific code
 ;;
 %macro MLAx1 8.nolist
   %xdefine %%rDst %1
@@ -655,7 +655,7 @@
 
 %if (_IPP32E <= _IPP32E_Y8)
 ;;
-;; Pre- Sandy Brige specific code
+;; Pre- Sandy Bridge specific code
 ;;
 %macro MM_MLAx2_4N_1_ELOG 9.nolist
   %xdefine %%rDst %1
@@ -873,7 +873,7 @@
 
 %if (_IPP32E >= _IPP32E_E9)
 ;;
-;; Sandy Brige specific code
+;; Sandy Bridge specific code
 ;;
 %macro MM_MLAx2_4N_1_ELOG 9.nolist
   %xdefine %%rDst %1

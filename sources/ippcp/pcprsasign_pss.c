@@ -81,7 +81,7 @@ IPPFUN(IppStatus, ippsRSASign_PSS,(const Ipp8u* pMsg,  int msgLen,
                                          IppHashAlgId hashAlg,
                                          Ipp8u* pScratchBuffer))
 {
-   /* test hash algorith ID */
+   /* test hash algorithm ID */
    hashAlg = cpValidHashAlg(hashAlg);
    IPP_BADARG_RET(ippHashAlg_Unknown==hashAlg, ippStsNotSupportedModeErr);
 

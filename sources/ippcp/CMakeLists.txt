@@ -258,7 +258,7 @@ set (ASM_INCLUDE_DIRECTORIES
 # The same trick is used for C sources, but it aims a different purpose: to rename object files in the library archive,
 # so that they do not intersect in a 'merged' library.
 foreach(opt ${PLATFORM_LIST})
-    # Popullate ASM source files in to corresponding folders per library 'letter'
+    # Populate ASM source files in to corresponding folders per library 'letter'
     set(asm_cache_dir "${CMAKE_BINARY_DIR}/asm_sources/${opt}/asm_${ARCH}")
     file(MAKE_DIRECTORY ${asm_cache_dir})
     # Prefer configure_file() over simple file(COPY) as it creates dependencies, so that cmake project
@@ -275,7 +275,7 @@ foreach(opt ${PLATFORM_LIST})
                                                                          INCLUDE_DIRECTORIES "${ASM_INCLUDE_DIRECTORIES}")
 
     #########################################################################################
-    # Popullate C source files in to corresponding folders per library 'letter'
+    # Populate C source files in to corresponding folders per library 'letter'
     if (NOT CODE_COVERAGE)
         set(c_cache_dir "${CMAKE_BINARY_DIR}/c_sources/${opt}/c_${ARCH}")
         file(MAKE_DIRECTORY ${c_cache_dir})

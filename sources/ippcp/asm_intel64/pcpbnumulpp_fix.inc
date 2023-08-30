@@ -102,8 +102,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;; Inputs: pDst: Destination  (upto 1024 bits, 16 qwords)
-;;;         pA:   Multiplicand (upto 512 bits, 8 qwords)
+;;; Inputs: pDst: Destination  (up to 1024 bits, 16 qwords)
+;;;         pA:   Multiplicand (up to 512 bits, 8 qwords)
 ;;;
 ;;;
 ;;; Uses registers:
@@ -309,9 +309,9 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Inputs: pDst: Destination  (upto 1024 bits, 16 qwords)
-;;;         pA:   Multiplicand (upto 512 bits, 8 qwords)
-;;;         pB:   Multiplicand (upto 512 bits, 8 qwords)
+;;; Inputs: pDst: Destination  (up to 1024 bits, 16 qwords)
+;;;         pA:   Multiplicand (up to 512 bits, 8 qwords)
+;;;         pB:   Multiplicand (up to 512 bits, 8 qwords)
 ;;;
 ;;;
 ;;; Uses registers:

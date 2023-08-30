@@ -95,7 +95,7 @@ static __mb_mask nistp384_ecdsa_sign_s_mb8(U64 sign_s[],
 {
    __ALIGN64 U64 tmp[P384_LEN52];
 
-   /* conver to Montgomery over n384 domain */
+   /* convert to Montgomery over n384 domain */
    MB_FUNC_NAME(ifma_tomont52_n384_)(inv_eph_skey, inv_eph_skey);
    MB_FUNC_NAME(ifma_tomont52_n384_)(tmp, sign_r);
    MB_FUNC_NAME(ifma_tomont52_n384_)(msg, msg);
@@ -397,7 +397,7 @@ mbx_status mbx_nistp384_ecdsa_sign_mb8(int8u* pa_sign_r[8],
 
    /* convert ephemeral keys into FE */
    ifma_BNU_to_mb8((int64u (*)[8])inv_eph_key, pa_eph_skey, P384_BITSIZE);
-   /* convert epphemeral keys into sclar*/
+   /* convert epphemeral keys into scalar */
    ifma_BNU_transpose_copy((int64u (*)[8])scalar, pa_eph_skey, P384_BITSIZE);
    scalar[P384_LEN64] = get_zero64();
    /* convert reg_skey*/
@@ -755,7 +755,7 @@ mbx_status mbx_nistp384_ecdsa_sign_ssl_mb8(int8u* pa_sign_r[8],
 
    /* convert ephemeral keys into FE */
    ifma_BN_to_mb8((int64u (*)[8])inv_eph_key, pa_eph_skey, P384_BITSIZE);
-   /* convert epphemeral keys into sclar*/
+   /* convert epphemeral keys into scalar */
    ifma_BN_transpose_copy((int64u (*)[8])scalar, pa_eph_skey, P384_BITSIZE);
    scalar[P384_LEN64] = get_zero64();
    /* convert reg_skey*/

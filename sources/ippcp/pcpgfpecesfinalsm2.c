@@ -66,7 +66,7 @@ IPPFUN(IppStatus, ippsGFpECESFinal_SM2, (Ipp8u* pTag, int tagLen, IppsECESState_
       }
    }
 
-   pState->state = ECESAlgoFinished; /* cannot proceed futher due to closing ippsSM3Update */
+   pState->state = ECESAlgoFinished; /* cannot proceed further due to closing ippsSM3Update */
 
    /* do the operation, but return an error code in 0-case */
    return pState->wasNonZero ? ippStsNoErr : ippStsShareKeyErr;

@@ -57,7 +57,7 @@ static void LogicalLeftSift16(const Ipp8u* pSrc, Ipp8u* pDst)
 //
 // Returns:                Reason:
 //    ippStsNullPtrErr        pState == NULL
-//    ippStsMemAllocErr       size of buffer is not match fro operation
+//    ippStsMemAllocErr       size of buffer is not match for operation
 //    ippStsLengthErr         keyLen != 16
 //                            keyLen != 24
 //                            keyLen != 32

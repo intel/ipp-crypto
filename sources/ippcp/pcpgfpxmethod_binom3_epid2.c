@@ -54,7 +54,7 @@
 // ~~~~~~~~~~~~~~~
 //
 // Multiplication over GF((p^2)^3)
-//    - field polynomial: g(v) = v^3 - xi  => binominal with specific value of "xi"
+//    - field polynomial: g(v) = v^3 - xi  => binomial with specific value of "xi"
 //    - xi = x+2
 */
 IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_p3_binom_epid2, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx))
@@ -139,7 +139,7 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_p3_binom_epid2, (BNU_CHUNK_T* pR, c
 // ~~~~~~~~~~~~~~~
 //
 // Squaring over GF((p^2)^3)
-//    - field polynomial: g(v) = v^3 - xi  => binominal with specific value of "xi"
+//    - field polynomial: g(v) = v^3 - xi  => binomial with specific value of "xi"
 //    - xi = x+2
 */
 IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxSqr_p3_binom_epid2, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx))

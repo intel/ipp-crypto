@@ -46,7 +46,7 @@
 //    ippStsNoErr             no errors
 //
 // Parameters:
-//    pSrc        pointer to the cipher text beffer
+//    pSrc        pointer to the cipher text buffer
 //    pDst        pointer to the plane text bubber
 //    len         length of the bugger
 //    pState      pointer to the CCM context

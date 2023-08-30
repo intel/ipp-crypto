@@ -36,7 +36,7 @@
 // Purpose: Multiply 2 BigNums.
 //
 // Returns:
-//    extention of result of multiply 2 BigNums
+//    extension of result of multiply 2 BigNums
 // Parameters:
 //    pA    source BigNum
 //    pB    source BigNum

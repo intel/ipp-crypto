@@ -43,7 +43,7 @@
 //                      range [0,m-1]
 //      pE           big number exponent
 //      pMont        Montgomery modulus of IppsMontState.
-/       pY           the Montgomery exponentation result.
+/       pY           the Montgomery exponentiation result.
 //
 *F*/
 
@@ -194,7 +194,7 @@ void cpSafeMontExp_Binary(IppsBigNumState* pY,
 //                      range [0,m-1]
 //      pE           big number exponent
 //      pMont        Montgomery modulus of IppsMontState.
-/       pY           the Montgomery exponentation result.
+/       pY           the Montgomery exponentiation result.
 //
 *F*/
 

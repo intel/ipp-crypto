@@ -80,10 +80,10 @@ static void SHA1_G(Ipp32u* xBNU, const Ipp32u* T, Ipp8u* pHexStr, int hexStrLen)
 /*F*
 // Name: cpPRNGen
 //
-// Purpose: Returns bitsize of the bitstring has beed added
+// Purpose: Returns bitsize of the bitstring has been added
 //
 // Returns:
-//    bitsize of the bitstring has beed added
+//    bitsize of the bitstring has been added
 //
 // Parameters:
 //    pRand    pointer to the buffer

@@ -324,7 +324,7 @@ IPP_OWN_DEFN(void, gesm2_add_affine, (PSM2_POINT_IFMA * r, const PSM2_POINT_IFMA
     const fesm2* z1      = &p->z;
     const mask8 p_is_inf = FESM2_IS_ZERO(p->z);
 
-    /* coodinate of q (affine) */
+    /* coordinate of q (affine) */
     const fesm2* x2      = &q->x;
     const fesm2* y2      = &q->y;
     const mask8 q_is_inf = (FESM2_IS_ZERO(q->x) & FESM2_IS_ZERO(q->y));
@@ -415,7 +415,7 @@ IPP_OWN_DEFN(int, gesm2_is_on_curve, (const PSM2_POINT_IFMA* p, const int use_jp
      *
      * if input
      * * Jacobian projection coordinate (x,y,z) - represent by (x/z^2,y/z^3,1)
-     * * Affine coodinate (x/z^2,y/z^3,z/z=1)
+     * * Affine coordinate (x/z^2,y/z^3,z/z=1)
      *
      * mult formala (1) by z^6
      *

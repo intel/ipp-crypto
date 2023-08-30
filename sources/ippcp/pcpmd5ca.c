@@ -49,7 +49,7 @@ IPP_OWN_DEFN (void, cpFinalizeMD5, (DigestMD5 pHash, const Ipp8u* inpBuffer, int
    /* copy rest of message into internal buffer */
    CopyBlock(inpBuffer, buffer, (cpSize)inpLen);
 
-   /* padd message */
+   /* pad message */
    buffer[inpLen++] = 0x80;
    PadBlock(0, buffer+inpLen, (cpSize)(bufferLen-inpLen-(int)MLR_MD5));
 

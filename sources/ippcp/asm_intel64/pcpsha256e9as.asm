@@ -222,7 +222,7 @@
 ;; W[2] <= W[18] = Sigma1(W[ 0]) + W[11] + Sigma0(W[3]) + W[2]
 ;; W[3] <= W[19] = Sigma1(W[ 1]) + W[12] + Sigma0(W[4]) + W[3]
 ;;
-;; the process is repeated exactly because texual round of W[]
+;; the process is repeated exactly because textual round of W[]
 ;;
 ;; Sigma1() and Sigma0() functions are defined as following:
 ;; Sigma1(X) = ROR(X,17)^ROR(X,19)^SHR(X,10)
@@ -269,7 +269,7 @@
    vpaddd   %%xS0, %%xS0, %%SIGMA      ;; {???,???,new W01,new W00} = {??,??,W17,W16}
 %endif
 %if %%phase == 3
-   ;; SIGMA1 (hight)
+   ;; SIGMA1 (high)
    vpshufd  %%xS, %%xS0, 01010000b   ;; xS = {W17,W17,W16,W16}
    vpsrld   %%SIGMA, %%xS, 10        ;; SIGMA1 = SHR({W[17],W[17],W[16],W[16]},10)
    vpsrlq   %%xT, %%xS, 17           ;; xT = ROTR({W[17],W[17],W[16],W[16]},17)- low 32 rotation in fact

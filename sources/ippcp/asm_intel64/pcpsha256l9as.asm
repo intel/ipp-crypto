@@ -227,7 +227,7 @@
 
 ;;
 ;; does 4 regular rounds and computes next 4 W values
-;; (just 4 instances of SHA256_ROUND merged together woth UPDATE_W)
+;; (just 4 instances of SHA256_ROUND merged together worth UPDATE_W)
 ;;
 %macro SHA256_4ROUND_SHED 1.nolist
   %xdefine %%round %1
@@ -519,7 +519,7 @@ align IPP_ALIGN_FACTOR
    mov      T1, hF   ; T1 = f
    xor      T5, hC
 
-   mov   qword [rsp+_block], rsi ; store block addres
+   mov   qword [rsp+_block], rsi ; store block address
    lea   rsi, [rsp+_dataW]       ; use rsi as stack pointer
 
 align IPP_ALIGN_FACTOR
@@ -610,7 +610,7 @@ align IPP_ALIGN_FACTOR
    UPDATE_HASH    dword [rdi+6*sizeof(dword)], hG
    UPDATE_HASH    dword [rdi+7*sizeof(dword)], hH
 
-   mov      rsi, qword [rsp+_block]   ; restore block addres
+   mov      rsi, qword [rsp+_block]   ; restore block address
    add      rsi, MBS_SHA256*2                ; move data pointer
    sub      r14, MBS_SHA256*2                ; update data length
    mov      qword [rsp+_len], r14

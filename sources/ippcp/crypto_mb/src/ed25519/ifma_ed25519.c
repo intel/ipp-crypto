@@ -87,7 +87,7 @@ mbx_status MB_FUNC_NAME(mbx_ed25519_public_key_)(ed25519_public_key* pa_public_k
       /* expand secret keys */
       ed25519_expand_key((int8u**)pa_sha512_digest, pa_private_key);
 
-      /* convert into mb fromat */
+      /* convert into mb format */
       U64 scalar[FE_LEN64];
       ifma_BNU_transpose_copy((int64u(*)[8])scalar, (const int64u**)pa_sha512_digest, SHA512_HASH_BITLENGTH/2);
 

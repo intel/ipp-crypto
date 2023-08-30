@@ -167,7 +167,7 @@ void sm4_ctr128_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LI
     int32u loc_blks[SM4_LINES];
     _mm512_storeu_si512(loc_blks, _mm512_srli_epi32(_mm512_add_epi32(loc_len, _mm512_set1_epi32(SM4_BLOCK_SIZE - 1)), 4));
 
-    /* Local copies of the pointers to input and otput buffers */
+    /* Local copies of the pointers to input and output buffers */
     _mm512_storeu_si512((void*)loc_inp, _mm512_loadu_si512(pa_inp));
     _mm512_storeu_si512((void*)(loc_inp + 8), _mm512_loadu_si512(pa_inp + 8));
 

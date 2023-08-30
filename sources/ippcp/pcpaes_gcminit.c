@@ -51,7 +51,7 @@
 //
 // Returns:                Reason:
 //    ippStsNullPtrErr        pState == NULL
-//    ippStsMemAllocErr       size of buffer is not match fro operation
+//    ippStsMemAllocErr       size of buffer is not match for operation
 //    ippStsLengthErr         keyLen != 16 &&
 //                                   != 24 &&
 //                                   != 32

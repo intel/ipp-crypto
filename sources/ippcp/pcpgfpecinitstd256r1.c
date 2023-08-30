@@ -49,7 +49,7 @@ static void cpGFpECSetStd(int aLen, const BNU_CHUNK_T* pA,
    __ALIGN8 IppsBigNumState R;
    __ALIGN8 IppsBigNumState H;
 
-   /* convert A ans B coeffs into GF elements */
+   /* convert A and B coeffs into GF elements */
    cpGFpElementConstruct(&elmA, cpGFpGetPool(1, pGFE), elemLen);
    cpGFpElementConstruct(&elmB, cpGFpGetPool(1, pGFE), elemLen);
    ippsGFpSetElement((Ipp32u*)pA, BITS2WORD32_SIZE(BITSIZE_BNU(pA,aLen)), &elmA, pGF);
@@ -60,7 +60,7 @@ static void cpGFpECSetStd(int aLen, const BNU_CHUNK_T* pA,
    /* construct R and H */
    cpConstructBN(&R, rLen, (BNU_CHUNK_T*)pR, NULL);
    cpConstructBN(&H, 1, &h, NULL);
-   /* convert GX ans GY coeffs into GF elements */
+   /* convert GX and GY coeffs into GF elements */
    ippsGFpSetElement((Ipp32u*)pX, BITS2WORD32_SIZE(BITSIZE_BNU(pX,xLen)), &elmA, pGF);
    ippsGFpSetElement((Ipp32u*)pY, BITS2WORD32_SIZE(BITSIZE_BNU(pY,yLen)), &elmB, pGF);
    /* and init EC subgroup */

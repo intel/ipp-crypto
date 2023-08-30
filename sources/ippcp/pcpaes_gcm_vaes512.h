@@ -19,7 +19,7 @@
 //
 //  Purpose:
 //     Cryptography Primitive.
-//     AES-GCM auxilary
+//     AES-GCM auxiliary
 //
 //  Contents:
 //

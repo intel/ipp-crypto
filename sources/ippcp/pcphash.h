@@ -29,7 +29,7 @@
 #define _PCP_HASH_H
 
 
-/* messge block size */
+/* message block size */
 #define MBS_SHA1     (64)           /* SHA1 message block size (bytes) */
 #define MBS_SHA256   (64)           /* SHA256 and SHA224               */
 #define MBS_SHA224   (64)           /* SHA224                          */

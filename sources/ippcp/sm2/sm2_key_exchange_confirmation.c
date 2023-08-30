@@ -23,18 +23,18 @@
 /**
  * @brief ippsGFpECKeyExchangeSM2_Confirm
  * this step Optional in protocol SM2 Key Exchange - Confirmation Peer data
- * see standart:
+ * see standard:
  * [GBT.32918.3-2016] Public Key cryptographic algorithm SM2 based on elliptic curves
  * Part 3: Key exchange protocol
  * 6.2 Process of key exchange protocol
- * stack compute[standart link]:
+ * stack compute[standard link]:
  *                                                                       [user  A| user  B]
  * 8) S(1/2) = SM3( 0x0(2/3) || y(u/v) || tmp_p )                        [step  9| step 10]
  * when tmp_p - precomute in SharedKey step
  * @param [in]  pSPeer  S(b/a) peer data confirmation
  * @param [out] pStatus status confirmation
- * 1 is succsessfull or 0 is bad confirmation
- * @param [in]  pKE     constrex Key Excange
+ * 1 is successful or 0 is bad confirmation
+ * @param [in]  pKE     constrex Key Exchange
  * @return
  * ippStsNoErr               - successful
  * ippStsNullPtrErr          - if pEC | pKE | pSPeer | pStatus is NULL

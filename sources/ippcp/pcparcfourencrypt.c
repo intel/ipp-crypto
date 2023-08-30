@@ -45,7 +45,7 @@
 //    pSrc        pointer to the source byte data block stream
 //    pDst        pointer to the destination byte data block stream
 //    length      stream length (bytes)
-//    pCtx        ponter to the ARCFOUR context
+//    pCtx        pointer to the ARCFOUR context
 //
 // Note:
 //    Convenience function only

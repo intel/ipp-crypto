@@ -305,7 +305,7 @@ IPP_OWN_DEFN(void, ifma_ec_nistp521_add_point_affine, (P521_POINT_IFMA * r, cons
    const fe521 *z1      = &p->z;
    const mask8 p_is_inf = FE521_IS_ZERO(p->z);
 
-   /* coodinate of q (affine) */
+   /* coordinate of q (affine) */
    const fe521 *x2      = &q->x;
    const fe521 *y2      = &q->y;
    const mask8 q_is_inf = (FE521_IS_ZERO(q->x) & FE521_IS_ZERO(q->y));
@@ -427,7 +427,7 @@ IPP_OWN_DEFN(int, ifma_ec_nistp521_is_on_curve, (const P521_POINT_IFMA *p, const
      *
      * if input
      * * Jacobian projection coordinate (x,y,z) - represent by (x/z^2,y/z^3,1)
-     * * Affine coodinate (x/z^2,y/z^3,z/z=1)
+     * * Affine coordinate (x/z^2,y/z^3,z/z=1)
      *
      * mult formala (1) by z^6
      *

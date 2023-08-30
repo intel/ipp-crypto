@@ -47,7 +47,7 @@
 //
 // Parameters:
 //    primeBitSize   length of prime in bits
-//    pGFpMethod     pointer to the basic arithmetic metods
+//    pGFpMethod     pointer to the basic arithmetic methods
 //    pGFp           pointer to Finite Field context is being initialized
 *F*/
 IPPFUN(IppStatus, ippsGFpInitFixed,(int primeBitSize, const IppsGFpMethod* pGFpMethod, IppsGFpState* pGFp))

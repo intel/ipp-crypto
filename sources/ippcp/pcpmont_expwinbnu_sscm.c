@@ -53,7 +53,7 @@ IPP_OWN_FUNPTR (void, gsSqr, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pX, cpSize len
 //                      range [0,m-1]
 //      pE           big number exponent
 //      pMont        Montgomery modulus of IppsMontState.
-/       pY           the Montgomery exponentation result.
+/       pY           the Montgomery exponentiation  result.
 //
 *F*/
 
@@ -106,7 +106,7 @@ IPP_OWN_DEFN (void, cpMontExpWin_BN_sscm, (IppsBigNumState* pY, const IppsBigNum
       BNU_CHUNK_T* dataT = BN_BUFFER(pY);
       ZEXPAND_COPY_BNU(dataY, nsM, dataX, nsX);
 
-      /* initialize recource */
+      /* initialize resource */
       pResource = (BNU_CHUNK_T*)(IPP_ALIGNED_PTR(pResource, CACHE_LINE_SIZE));
 
       //cpScramblePut(((Ipp8u*)pResource)+0, chunkSize, (Ipp32u*)MOD_MNT_R(pMont), nsM*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
@@ -151,7 +151,7 @@ IPP_OWN_DEFN (void, cpMontExpWin_BN_sscm, (IppsBigNumState* pY, const IppsBigNum
             shift = eBit & 0xF;
             windowVal = (cpSize)((eChunk>>shift) &mask);
 
-            /* exptact precomputed value and muptiply */
+            /* exptact precomputed value and multiply */
             //cpScrambleGet((Ipp32u*)dataT, nsM*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u), ((Ipp8u*)pResource)+windowVal*chunkSize, chunkSize);
             gsScrambleGet_sscm(dataT, nsM, pResource, windowVal, window);
 

@@ -47,7 +47,7 @@
 // Magic functions defined in RFC 1321
 //
 */
-#define F(X,Y,Z)  ((Z) ^ ((X) & ((Y) ^ (Z))))   /* sightly optimized form of (((X) & (Y)) | ((~(X) & (Z)))*/
+#define F(X,Y,Z)  ((Z) ^ ((X) & ((Y) ^ (Z))))   /* slightly optimized form of (((X) & (Y)) | ((~(X) & (Z)))*/
 #define G(X,Y,Z)  F((Z),(X),(Y))                /* replace the original      (((X) & (Z)) | ((Y) & ~(Z))) */
 #define H(X,Y,Z)  ((X) ^ (Y) ^ (Z))
 #define I(X,Y,Z)  ((Y) ^ ((X) | ~(Z)))

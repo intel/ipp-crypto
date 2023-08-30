@@ -34,7 +34,7 @@
 /**
  * @brief
  * Encryption message text based SM2 elliptic curve
- * Implemenation based on standart:
+ * Implementation based on standard:
  * GM/T 0003.4-2012 SM2
  * Public key cryptographic algorithm SM2 based on elliptic curves
  * Part 4: Public key encryption algorithm
@@ -93,7 +93,7 @@ IPPFUN(IppStatus, ippsGFpECEncryptSM2_Ext, (Ipp8u *pOut, int maxOutLen,
    /* check size */
    IPP_BADARG_RET(!(inpLen >= 0), ippStsOutOfRangeErr)
 
-   /* chiper text */
+   /* cipher text */
    IPP_BAD_PTR2_RET(pOut, pOutSize)
    /* init zeros out cipher text */
    *pOutSize = 0;

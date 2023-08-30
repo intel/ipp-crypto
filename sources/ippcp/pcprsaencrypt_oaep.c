@@ -19,7 +19,7 @@
 // 
 //  Purpose:
 //     Cryptography Primitive.
-//     RSAES-OAEP Encryption/Decription Functions
+//     RSAES-OAEP Encryption/Description Functions
 // 
 //  Contents:
 //        ippsRSAEncrypt_OAEP()
@@ -79,7 +79,7 @@ IPPFUN(IppStatus, ippsRSAEncrypt_OAEP,(const Ipp8u* pSrc, int srcLen,
 {
    int hashLen;
 
-   /* test hash algorith ID */
+   /* test hash algorithm ID */
    hashAlg = cpValidHashAlg(hashAlg);
    IPP_BADARG_RET(ippHashAlg_Unknown==hashAlg, ippStsNotSupportedModeErr);
 

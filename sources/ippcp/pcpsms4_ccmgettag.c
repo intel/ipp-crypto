@@ -34,7 +34,7 @@
 //    Name: ippsSMS4_CCMGetTag
 //
 // Purpose: Compute message auth tag and return one.
-//          Note, that futher encryption/decryption and auth tag update is possible
+//          Note, that further encryption/decryption and auth tag update is possible
 //
 // Returns:                Reason:
 //    ippStsNullPtrErr        pTag == NULL

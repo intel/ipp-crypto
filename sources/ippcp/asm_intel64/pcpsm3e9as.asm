@@ -725,7 +725,7 @@ IPPASM UpdateSM3,PUBLIC
    movsxd   rdx, edx
 
    movdqa   xT0, oword [rel bswap128]    ; swap byte
-   movdqa   xWZZZ, oword [rel wzzz]      ; shufle constant
+   movdqa   xWZZZ, oword [rel wzzz]      ; shuffle constant
    movdqa   xBCAST, oword [rel bcast]
    movdqa   xROL8, oword [rel rol_32_8]
 

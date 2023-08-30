@@ -111,7 +111,7 @@ align IPP_ALIGN_FACTOR
 
    dec      eax                     ; actual new x counter
    and      eax, 0FFh
-   mov      dword [ebp+4], eax   ; update x conter
+   mov      dword [ebp+4], eax   ; update x counter
    mov      dword [ebp+8], ebx   ; updtae y counter
 
 .quit:

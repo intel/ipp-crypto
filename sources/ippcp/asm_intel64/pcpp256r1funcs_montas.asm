@@ -891,8 +891,8 @@ ENDFUNC p256r1_mul_montx
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; on entry e = expasion (previous step)
-; on exit  p0= expasion (next step)
+; on entry e = expansion (previous step)
+; on exit  p0= expansion (next step)
 ;
 %macro p256r1_prod_redstep 6.nolist
   %xdefine %%e %1

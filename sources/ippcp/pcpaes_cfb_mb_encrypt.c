@@ -116,7 +116,7 @@ IPPFUN(IppStatus, ippsAES_EncryptCFB16_MB, (const Ipp8u* pSrc[], Ipp8u* pDst[], 
         status[i] = ippStsNoErr;
     }
 
-    // If any of the input buffer is not valid stop the processig
+    // If any of the input buffer is not valid stop the processing
     IPP_BADARG_RET(!isAllBuffersValid, ippStsErr)
 
     // Check compatibility of the keys

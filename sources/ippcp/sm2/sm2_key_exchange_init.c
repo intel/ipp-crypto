@@ -23,12 +23,12 @@
 /**
  * @brief ippsGFpECKeyExchangeSM2_Init
  * initial Key Exchange Context
- * see standart:
+ * see standard:
  * [GBT.32918.3-2016] Public Key cryptographic algorithm SM2 based on elliptic curves
  * Part 3: Key exchange protocol
  * @param [out] pKE  context Key Exchange
  * @param [in]  role User(A|B) role (ippKESM2Requester|ippKESM2Responder)
- * @param [in]  pEC  conext Elliptic Curve
+ * @param [in]  pEC  context Elliptic Curve
  * @return
  * ippStsNoErr               - successful
  * ippStsNullPtrErr          - if pEC | pKE is NULL

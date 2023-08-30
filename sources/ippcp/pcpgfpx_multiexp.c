@@ -104,7 +104,7 @@ static void cpPrecomputeMultiExp(BNU_CHUNK_T* pTable, const BNU_CHUNK_T* ppA[], 
       }
    }
 
-   /* release resourse */
+   /* release resource */
    cpGFpReleasePool(1, pGFEx);
 }
 
@@ -172,11 +172,11 @@ IPP_OWN_DEFN (BNU_CHUNK_T*, cpGFpxMultiExp, (BNU_CHUNK_T* pR, const BNU_CHUNK_T*
             mulF(pR, pR, pT, pGFEx);
          }
 
-         /* release resourse */
+         /* release resource */
          cpGFpReleasePool(1, pGFEx);
       }
 
-      /* release resourse */
+      /* release resource */
       cpGFpReleasePool(nItems, pGFEx);
 
       return pR;

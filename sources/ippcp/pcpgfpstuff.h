@@ -49,7 +49,7 @@ typedef struct _cpGFpElement {
 typedef struct _cpGFp {
    Ipp32u         idCtx;   /* GFp spec ident     */
    cpModulusID    modulusID;
-   gsModEngine*   pGFE;    /* arithmethic engine */
+   gsModEngine*   pGFE;    /* arithmetic engine */
 } cpGFp;
 
 #define GFP_ALIGNMENT   ((int)(sizeof(void*)))

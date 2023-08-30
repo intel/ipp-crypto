@@ -36,7 +36,7 @@
 //
 // The result is suitable for boolean and masked operations.
 //
-// Inspite of operation below are using BNU_CHUNK_T operand(s) it can be applied to Ipp32u, Ipp32s, Ipp16u, Ipp16s, Ipp8u and Ipp8s too.
+// In spite of operation below are using BNU_CHUNK_T operand(s) it can be applied to Ipp32u, Ipp32s, Ipp16u, Ipp16s, Ipp8u and Ipp8s too.
 // For example, if
 //    Ipp32u uns_int;
 //    Ipp32s sgn_int;

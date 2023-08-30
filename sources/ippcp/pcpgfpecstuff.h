@@ -45,7 +45,7 @@ typedef struct _cpGFpECPoint {
 } cpGFPECPoint;
 
 /*
-// Contet Access Macros
+// Content Access Macros
 */
 #define ECP_POINT_SET_ID(ctx)   ((ctx)->idCtx = (Ipp32u)idCtxGFPPoint ^ (Ipp32u)IPP_UINT_PTR(ctx))
 #define ECP_POINT_FLAGS(ctx)    ((ctx)->flags)
@@ -155,7 +155,7 @@ typedef struct _cpGFpEC {
 #define VALID_ECP_ID(pCtx)     ((((pCtx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((pCtx))) == (Ipp32u)idCtxGFPEC)
 
 /* EC curve specific (a-parameter) */
-#define ECP_Acom    (0) /* commont case */
+#define ECP_Acom    (0) /* common case */
 #define ECP_Ami3    (1) /* a=-3 NIST's and SM2 curve */
 #define ECP_Aeq0    (2) /* a=0  EPIDv2.0 curve */
 
@@ -200,7 +200,7 @@ __INLINE void cpEcGFpReleasePool(int n, IppsGFpECState* pEC)
    int chunk_size = n*GFP_FELEN(GFP_PMA(ECP_GFP(pEC)))*3;
    ECP_POOL(pEC) -= chunk_size;
    // Clean the pool for the security reasons 
-   // (intermediate sensetive data may be stored here)
+   // (intermediate sensitive data may be stored here)
    ZEXPAND_BNU(ECP_POOL(pEC), 0, chunk_size);   
 }
 

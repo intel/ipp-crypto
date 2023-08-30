@@ -89,7 +89,7 @@ static int Encryption(const Ipp8u* pMsg,  int msgLen,
 /*F*
 // Name: ippsRSAEncrypt_PKCSv15
 //
-// Purpose: Performs Encrption according to RSA-ES-PKCS1_v1.5
+// Purpose: Performs Encryption according to RSA-ES-PKCS1_v1.5
 //
 // Returns:                   Reason:
 //    ippStsNullPtrErr           NULL == pSrc

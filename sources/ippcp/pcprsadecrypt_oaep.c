@@ -19,7 +19,7 @@
 // 
 //  Purpose:
 //     Cryptography Primitive.
-//     RSAES-OAEP Encryption/Decription Functions
+//     RSAES-OAEP Encryption/Description Functions
 // 
 //  Contents:
 //        ippsRSADecrypt_OAEP()
@@ -68,7 +68,7 @@
 //    pDst        pointer to the plaintext
 //    pDstLen     pointer to the plaintext length
 //                assumed that length of the recovered message is at least k-hashLen*2-2 bytes;
-//                maximum message length is (k-hashLen*2-2) bytes and is for choosen RSA and Hash-function
+//                maximum message length is (k-hashLen*2-2) bytes and is for chosen RSA and Hash-function
 //    pKey        pointer to the RSA private key context
 //    hashAlg     hash alg ID
 //    pBuffer     pointer to scratch buffer
@@ -82,7 +82,7 @@ IPPFUN(IppStatus, ippsRSADecrypt_OAEP, (const Ipp8u* pSrc,
 {
    int hashLen;
 
-   /* test hash algorith ID */
+   /* test hash algorithm ID */
    hashAlg = cpValidHashAlg(hashAlg);
    IPP_BADARG_RET(ippHashAlg_Unknown == hashAlg, ippStsNotSupportedModeErr);
 

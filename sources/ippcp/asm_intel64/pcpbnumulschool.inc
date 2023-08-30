@@ -31,7 +31,7 @@
 ;;
 ;; uses rax, rdx
 ;;      OP=SRC1[i] should to be preloaded
-;;      TMP is destoyed
+;;      TMP is destroyed
 ;;
 %macro MLA_FIX 6-13.nolist
   %xdefine %%N %1

@@ -253,7 +253,7 @@ void sm4_cfb128_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM
     _mm512_storeu_si512(loc_out, _mm512_loadu_si512(pa_out));
     _mm512_storeu_si512(loc_out + 8, _mm512_loadu_si512(pa_out + 8));
 
-    /* Set p_rk pointer to the beginnig of the key schedule */
+    /* Set p_rk pointer to the beginning of the key schedule */
     const __m512i* p_rk = (const __m512i*)key_sched;
 
     __m512i TMP[20];

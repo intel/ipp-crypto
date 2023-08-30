@@ -59,7 +59,7 @@
 //    pGroundGF      pointer to the context of the finite field is being extension
 //    extDeg         degree of extension
 //    pGroundElm     pointer to the IppsGFpElement context containing the trailing coefficient of the field binomial.
-//    pGFpMethod     pointer to the basic arithmetic metods
+//    pGFpMethod     pointer to the basic arithmetic methods
 //    pGFpx          pointer to Finite Field context is being initialized
 *F*/
 IPPFUN(IppStatus, ippsGFpxInitBinomial,(const IppsGFpState* pGroundGF, int extDeg,
@@ -79,7 +79,7 @@ IPPFUN(IppStatus, ippsGFpxInitBinomial,(const IppsGFpState* pGroundGF, int extDe
    /* test method is binomial based */
    IPP_BADARG_RET(cpID_Binom != (pGFpMethod->modulusID & cpID_Binom), ippStsBadArgErr);
 
-   /* test if method assums fixed degree extension */
+   /* test if method assumes fixed degree extension */
    IPP_BADARG_RET(pGFpMethod->modulusBitDeg && (extDeg!=pGFpMethod->modulusBitDeg), ippStsBadArgErr);
 
    /* init context */

@@ -252,7 +252,7 @@
 
 ;;
 ;; does 2 regular rounds and computes next 2 W values
-;; (just 2 instances of SHA512_ROUND merged together woth UPDATE_W)
+;; (just 2 instances of SHA512_ROUND merged together worth UPDATE_W)
 ;;
 %macro SHA512_2ROUND_SHED 1.nolist
   %xdefine %%round %1
@@ -521,7 +521,7 @@ align IPP_ALIGN_FACTOR
    mov      T1, hF   ; T1 = f
    xor      T5, hC
 
-   mov   qword [rsp+_block], rsi   ; store block addres
+   mov   qword [rsp+_block], rsi   ; store block address
    lea   rsi, [rsp+_dataW]         ; use rsi as stack pointer
 
 align IPP_ALIGN_FACTOR
@@ -616,7 +616,7 @@ align IPP_ALIGN_FACTOR
    UPDATE_HASH    qword [rdi+6*sizeof(qword)], hG
    UPDATE_HASH    qword [rdi+7*sizeof(qword)], hH
 
-   mov      rsi, qword [rsp+_block]   ; restore block addres
+   mov      rsi, qword [rsp+_block]   ; restore block address
    add      rsi, MBS_SHA512*2                ; move data pointer
    sub      r14, MBS_SHA512*2                ; update data length
    mov      qword [rsp+_len], r14

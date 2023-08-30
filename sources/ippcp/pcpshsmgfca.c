@@ -58,7 +58,7 @@
 // Parameters:
 //    pSeed       pointer to the input stream
 //    seedLen     input stream length (bytes)
-//    pMask       pointer to the ouput mask
+//    pMask       pointer to the output mask
 //    maskLen     desired length of mask (bytes)
 //    hashAlg     identifier of the hash algorithm
 //

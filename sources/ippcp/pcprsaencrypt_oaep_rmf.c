@@ -18,7 +18,7 @@
 /*
 //  Purpose:
 //     Cryptography Primitive.
-//     RSAES-OAEP Encryption/Decription Functions
+//     RSAES-OAEP Encryption/Decryption Functions
 //
 //  Contents:
 //        ippsRSAEncrypt_OAEP_rmf()

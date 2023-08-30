@@ -188,7 +188,7 @@ IPP_OWN_DEFN(void, ifma_add52_n521, (fe521 pr[], const fe521 a, const fe521 b))
    const mask8 lt   = m256_cmp_i64_mask(zero, m256_srli_i64(FE521_HI(t), DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
    const mask8 mask = (mask8)((mask8)0 - ((lt >> 2) & 1));
 
-   /* maks != 0 ? a : r */
+   /* mask != 0 ? a : r */
    FE521_MASK_MOV(r, t, mask, r);
    FE521_COPY(*pr, r);
    return;
@@ -215,7 +215,7 @@ IPP_OWN_DEFN(void, ifma_fastred52_n521, (fe521 pr[], const fe521 a))
    const mask8 lt   = m256_cmp_i64_mask(zero, m256_srli_i64(FE521_HI(r), DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
    const mask8 mask = (mask8)((mask8)0 - ((lt >> 2) & 1));
 
-   /* maks != 0 ? a : r */
+   /* mask != 0 ? a : r */
    FE521_MASK_MOV(r, r, mask, a);
    FE521_COPY(*pr, r);
    return;

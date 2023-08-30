@@ -44,7 +44,7 @@
 // Parameters:
 //    pEC              Pointer to an EC to calculate a shared secret size
 //    pState           Pointer to a SM2 algorithm state buffer
-//    avaliableCtxSize Count of avaliable bytes in the context allocation
+//    avaliableCtxSize Count of available bytes in the context allocation
 //
 *F*/
 IPPFUN(IppStatus, ippsGFpECESInit_SM2, (IppsGFpECState* pEC, IppsECESState_SM2* pState, int avaliableCtxSize)) {

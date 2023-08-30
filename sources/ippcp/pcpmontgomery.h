@@ -47,7 +47,7 @@ struct _cpMontgomery
 
 #define MNT_VALID_ID(eng) ((((eng)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((eng))) == (Ipp32u)idCtxMontgomery)
 
-/* default methos */
+/* default methods */
 #define EXPONENT_METHOD    (ippBinaryMethod)
 
 /* alignment */

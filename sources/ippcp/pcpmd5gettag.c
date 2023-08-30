@@ -40,7 +40,7 @@
 //    Name: ippsMD5GetTag
 //
 // Purpose: Compute digest based on current state.
-//          Note, that futher digest update is possible
+//          Note, that further digest update is possible
 //
 // Returns:                Reason:
 //    ippStsNullPtrErr        pTag == NULL

@@ -67,7 +67,7 @@ __ALIGN32 static const Ipp8u _mask_hi_256[] = {0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xF
 /*
 // sse_clmul_gcm performs clmul with 128-bit registers; is used in the combine hash step
 // input:
-//    const __m128i *HK - containts hashed keys
+//    const __m128i *HK - contains hashed keys
 // input/output:
 //    __m128i *GH - contains GHASH. Will be overwritten in this function
 */
@@ -118,8 +118,8 @@ __INLINE void sse_clmul_gcm(__m128i *GH, const __m128i *HK) {
 /*
 // avx2_clmul_gcm performs clmul with 256-bit registers; is used in the hash calculation step
 // input:
-//    const __m128i *HK - containts hashed keys
-//    const __m256i *HKeyKaratsuba - countains temporary data for Karatsuba method
+//    const __m128i *HK - contains hashed keys
+//    const __m256i *HKeyKaratsuba - contains temporary data for Karatsuba method
 //    const __m256i *mask_lo - contains mask for taking lower bits
 //    const __m256i *mask_hi - contains mask for taking higher bits
 // input/output:

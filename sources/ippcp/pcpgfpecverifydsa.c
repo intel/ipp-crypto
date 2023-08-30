@@ -116,7 +116,7 @@ IPPFUN(IppStatus, ippsGFpECVerifyDSA,(const IppsBigNumState* pMsgDigest,
        BNU_CHUNK_T *pOrder = MOD_MODULUS(pMontR);
        int orderLen        = MOD_LEN(pMontR);
 
-       /* test mesage: msg<order */
+       /* test message: msg<order */
        // IPP_BADARG_RET((0<=cpCmp_BNU(BN_NUMBER(pMsgDigest), BN_SIZE(pMsgDigest), pOrder, orderLen)), ippStsMessageErr);
 
        /* test signature value */

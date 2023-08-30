@@ -94,14 +94,14 @@ IPPFUN(IppStatus, ippsHashMessage,(const Ipp8u* pMsg, int len, Ipp8u* pMD, IppHa
       const Ipp8u* iv = cpHashIV[hashAlg];
       CopyBlock(iv, hash, ivSize);
 
-      /*construct last messge block(s) */
+      /*construct last message block(s) */
       #define MSG_LEN_REP  (sizeof(Ipp64u))
 
       /* copy end of message */
       CopyBlock(pMsg+len-msgLenRest, buffer, msgLenRest);
       /* end of message bit */
       buffer[msgLenRest++] = 0x80;
-      /* padd buffer */
+      /* pad buffer */
       PadBlock(0, buffer+msgLenRest, (cpSize)(bufferLen-msgLenRest-(int)MSG_LEN_REP));
       /* copy message bitlength representation */
       if(ippHashAlg_MD5!=hashAlg)

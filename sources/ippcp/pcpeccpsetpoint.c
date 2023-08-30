@@ -60,7 +60,7 @@
 // Note:
 //    if B==0 and (x,y)=(0,y) then point at Infinity will be set up
 //    if B!=0 and (x,y)=(0,0) then point at Infinity will be set up
-//    else point with requested coordinates (x,y) wil be set up
+//    else point with requested coordinates (x,y) will be set up
 //    There are no check validation inside!
 //
 *F*/

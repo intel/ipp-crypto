@@ -53,7 +53,7 @@ IPPFUN(IppStatus, ippsRSAVerifyHash_PKCS1v15_rmf,(const Ipp8u* md,
    IPP_BADARG_RET(!RSA_PUB_KEY_VALID_ID(pKey), ippStsContextMatchErr);
    IPP_BADARG_RET(!RSA_PUB_KEY_IS_SET(pKey), ippStsIncompleteContextErr);
 
-   /* test hash algorith ID */
+   /* test hash algorithm ID */
    hashAlg = pMethod->hashAlgId;
    IPP_BADARG_RET(ippHashAlg_SM3==hashAlg, ippStsNotSupportedModeErr);
 

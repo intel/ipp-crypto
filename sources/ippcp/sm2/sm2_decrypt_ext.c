@@ -28,7 +28,7 @@
 /**
  * @brief
  * Decryption message text based SM2 elliptic curve
- * Implemenation based on standart:
+ * Implementation based on standard:
  * GM/T 0003.4-2012 SM2
  * Public key cryptographic algorithm SM2 based on elliptic curves
  * Part 4: Public key encryption algorithm
@@ -127,13 +127,13 @@ IPPFUN(IppStatus, ippsGFpECDecryptSM2_Ext, (Ipp8u *pOut, int maxOutLen,
       GFP_METHOD(pME)->encode(pC1_x, pC1_x, pME);
       GFP_METHOD(pME)->encode(pC1_y, pC1_y, pME);
 
-      /* step 2 (standart) - check valid input coordinate x|y */
+      /* step 2 (standard) - check valid input coordinate x|y */
       finitPoint          = gfec_SetPoint(ECP_POINT_DATA(&R), pC1_x, pC1_y, pEC);
       ECP_POINT_FLAGS(&R) = finitPoint ? (ECP_AFFINE_POINT | ECP_FINITE_POINT) : 0;
 
       if (finitPoint && (0 != gfec_IsPointOnCurve(&R, pEC))) {
          sts = ippStsNoErr;
-         /* step 3 (standart): [db]C1 = (x2,y2) */
+         /* step 3 (standard): [db]C1 = (x2,y2) */
          ippsGFpECMulPoint(&R, pPrvKey, &R, pEC, pScratchBuffer);
 
          BNU_CHUNK_T *pX = pBuff;
@@ -146,15 +146,15 @@ IPPFUN(IppStatus, ippsGFpECDecryptSM2_Ext, (Ipp8u *pOut, int maxOutLen,
          cpSM2KE_reverse_inplace((Ipp8u *)pX, elemBytes);
          cpSM2KE_reverse_inplace((Ipp8u *)pY, elemBytes);
 
-         /* step 4 (standart): t = KDF(x2 || y2, klen) */
+         /* step 4 (standard): t = KDF(x2 || y2, klen) */
          KDF_sm3(pOut, ciph_msg_size, (Ipp8u *)pBuff, 2 * elemBytes);
 
-         /* step 5 (standart): M` = C2 (x) t */
+         /* step 5 (standard): M` = C2 (x) t */
          for (int i = 0; i < ciph_msg_size; ++i) {
             pOut[i] = pOut[i] ^ pC2[i];
          }
 
-         /* step 6 (standart): u = Hash(x2 || M` || y2) */
+         /* step 6 (standard): u = Hash(x2 || M` || y2) */
          static IppsHashState_rmf ctx;
 
          Ipp8u u[IPP_SM3_DIGEST_BYTESIZE];

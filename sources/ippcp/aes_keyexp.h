@@ -33,7 +33,7 @@
 #include "pcpaesauthgcm_avx512.h"
 
 // These functions for key expansion are used only with AVX512 and AVX512-VAES optimizations for AES GCM
-// TODO: replase AVX2 keyexp with AVX512 keyexp
+// TODO: replace AVX2 keyexp with AVX512 keyexp
 #if(_IPP32E>=_IPP32E_K0)
 
 #define aes_keyexp_128_enc OWNAPI(aes_keyexp_128_enc)

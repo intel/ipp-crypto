@@ -38,7 +38,7 @@
 */
 
 /*
-// Pure Decription S-boxes
+// Pure Description S-boxes
 */
 #if defined( _IPP_DATA )
 

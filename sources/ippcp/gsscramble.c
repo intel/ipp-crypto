@@ -34,7 +34,7 @@ IPP_OWN_DEFN (int, gsGetScrambleBufferSize, (int modulusLen, int w))
 {
    /* size of resource to store 2^w values of modulusLen*sizeof(BNU_CHUNK_T) each */
    int size = (1<<w) * modulusLen * (Ipp32s)sizeof(BNU_CHUNK_T);
-   /* padd it up to CACHE_LINE_SIZE */
+   /* pad it up to CACHE_LINE_SIZE */
    size += (CACHE_LINE_SIZE - (size % CACHE_LINE_SIZE)) %CACHE_LINE_SIZE;
    return size/(Ipp32s)sizeof(BNU_CHUNK_T);
 }

@@ -216,7 +216,7 @@ DECLARE_FUNC mul_NxM,PRIVATE
 ;
 %assign nsB_cnt   0                      ; rest of B operand
 %assign ptrR      nsB_cnt+sizeof(qword)  ; current product pointer
-%assign ptrA      ptrR+sizeof(qword)     ; ponter to A operand (pA)
+%assign ptrA      ptrR+sizeof(qword)     ; pointer to A operand (pA)
 %assign nsA       ptrA+sizeof(qword)     ; length of A operand (nsA)
 %assign nsA_cnt   nsA+sizeof(qword)      ; rest of A operand
 %assign carry     nsA_cnt+sizeof(qword)  ; carry
@@ -388,7 +388,7 @@ DECLARE_FUNC mul_NxM,PRIVATE
 ;; regular mla passes
 ;;
 .mla_loopB:
-   mov      [rsp+nsB_cnt], rbx   ; update B conter
+   mov      [rsp+nsB_cnt], rbx   ; update B counter
    mov      [rsp+ptrR], rdi        ; update current product pointer
 
    xor      rax, rax             ; init carry

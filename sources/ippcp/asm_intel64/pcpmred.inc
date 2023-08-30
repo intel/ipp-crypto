@@ -32,7 +32,7 @@
 ;  r15 - reduction
 ;  rdi - buffer
 ;  rsi - modulus
-;  rdx - modulus legth
+;  rdx - modulus length
 ;  r8  - m'
 align IPP_ALIGN_FACTOR
 DECLARE_FUNC mred_8N,PRIVATE
@@ -177,7 +177,7 @@ ENDFUNC mred_8N
 ;  r15 - reduction
 ;  rdi - buffer
 ;  rsi - modulus
-;  rdx - modulus legth
+;  rdx - modulus length
 ;  r8  - m'
 align IPP_ALIGN_FACTOR
 DECLARE_FUNC mred_N,PRIVATE

@@ -142,7 +142,7 @@ IPPFUN(IppStatus, ippsGFpECSignNR,(const IppsBigNumState* pMsgDigest,
       IPP_BADARG_RET(cpEqu_BNU_CHUNK(pEphData, ephLen, 0) ||
                   0<=cpCmp_BNU(pEphData, ephLen, pOrder, ordLen), ippStsEphemeralKeyErr);
 
-      /* test mesage: msg < order */
+      /* test message: msg < order */
       IPP_BADARG_RET(0<=cpCmp_BNU(pMsgData, msgLen, pOrder, ordLen), ippStsMessageErr);
 
       {

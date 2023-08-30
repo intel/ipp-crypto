@@ -126,7 +126,7 @@ IPP_OWN_DEFN(m512, ifma_norm52, (const m512 a))
 
    m512 r = a;
 
-   /* standart step - first round normalization */
+   /* standard step - first round normalization */
    m512 carry = srai_i64(r, DIGIT_SIZE);
    carry      = maskz_permutexvar_i8(mask_shift_carry, idxi8, carry);
 

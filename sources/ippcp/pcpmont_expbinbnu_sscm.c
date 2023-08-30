@@ -58,7 +58,7 @@
 //                      range [0,m-1]
 //      dataE        big number exponent
 //      pMont        Montgomery modulus of IppsMontState.
-/       dataY        the Montgomery exponentation result.
+/       dataY        the Montgomery exponentiation result.
 //
 *F*/
 IPP_OWN_DEFN (cpSize, cpMontExpBin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUNK_T* dataX, cpSize nsX, const BNU_CHUNK_T* dataE, cpSize nsE, gsModEngine* pMont))

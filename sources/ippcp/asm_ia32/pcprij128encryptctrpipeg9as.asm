@@ -170,7 +170,7 @@ IPPASM EncryptCTR_RIJ128pipe_AES_NI,PUBLIC
    adc      ebx, 0
    adc      ecx, 0
    adc      edx, 0
-   mov      dword [esp], eax        ; and store for next itteration
+   mov      dword [esp], eax        ; and store for next iteration
    mov      dword [esp+4], ebx
    mov      dword [esp+8], ecx
    mov      dword [esp+12], edx

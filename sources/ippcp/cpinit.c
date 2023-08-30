@@ -152,7 +152,7 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
     if( ecx_ & BIT01 ) mask |= ippCPUID_CLMUL;        // ecx[1]  - Intel® instruction PCLMULQDQ
     if( ecx_ & BIT30 ) mask |= ippCPUID_RDRAND;       // ecx[30] - Intel® instruction RDRRAND
     if( ecx_ & BIT29 ) mask |= ippCPUID_F16C;         // ecx[29] - Intel® instruction F16C
-         // Intel® AVX2 instructions extention: only if 3 features are enabled at once:
+         // Intel® AVX2 instructions extension: only if 3 features are enabled at once:
          // FMA, Intel® AVX 256 int & GPR BMI (bit-manipulation);
     if( ecx_ & BIT12 ) flgFMA = 1; else flgFMA = 0;   // ecx[12] - FMA 128 & 256 bit
     if( idBaseMax >= 7 ){                             // get CPUID.eax = 7
@@ -166,7 +166,7 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
            // ebx[8] - enabled BZHI, MULX, PDEP, PEXT, RORX, SARX, SHLX, SHRX
        if(( ebx_ & BIT03 )&&( ebx_ & BIT08 )) flgGPR = 1;
        else flgGPR = 0;                               // VEX-encoded GPR instructions (GPR BMI)
-           // Intel® architecture formerly codenamed Broadwell instructions extention
+           // Intel® architecture formerly codenamed Broadwell instructions extension
        if( ebx_ & BIT19 ) mask |= ippCPUID_ADCOX;     // eax[0x7] -->> ebx:: Bit 19: Intel® instructions ADOX/ADCX
        if( ebx_ & BIT18 ) mask |= ippCPUID_RDSEED;    // eax[0x7] -->> ebx:: Bit 18: Intel® instruction RDSEED
        if( ebx_ & BIT29 ) mask |= ippCPUID_SHA;       // eax[0x7] -->> ebx:: Bit 29: Intel® Secure Hash Algorithm Extensions
@@ -174,7 +174,7 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
        if( ecx_ & BIT09 ) mask |= ippCPUID_AVX2VAES;  // ecx[09] - Intel® Vector AES instruction set
        if( ecx_ & BIT10 ) mask |= ippCPUID_AVX2VCLMUL;  // ecx[10] - Intel® instruction VPCLMULQDQ
 
-       // Intel® Advanced Vector Extensions 512 (Intel® AVX-512) extention
+       // Intel® Advanced Vector Extensions 512 (Intel® AVX-512) extension
        if( ebx_ & BIT16 ) mask |= ippCPUID_AVX512F;   // ebx[16] - Intel® AVX-512 Foundation
        if( ebx_ & BIT26 ) mask |= ippCPUID_AVX512PF;  // ebx[26] - Intel® AVX-512 Pre Fetch Instructions (PFI)
        if( ebx_ & BIT27 ) mask |= ippCPUID_AVX512ER;  // ebx[27] - Intel® AVX-512 Exponential and Reciprocal Instructions (ERI)
@@ -215,7 +215,7 @@ static int cpGetFeatures( Ipp64u* pFeaturesMask )
     if( idExtdMax >= 0x80000001 ){ // get CPUID.eax=0x80000001
        cpGetReg( (int*)buf, (Ipp32s)0x80000001, 0 );
        ecx_ = (Ipp32u)buf[2];
-           // Intel® architecture formerly codenamed Broadwell instructions extention
+           // Intel® architecture formerly codenamed Broadwell instructions extension
        if( ecx_ & BIT08 ) mask |= ippCPUID_PREFETCHW; // eax[0x80000001] -->> ecx:: Bit 8: Intel® instruction PREFETCHW
     }
        // Intel® architecture formerly codenamed Knights Corner

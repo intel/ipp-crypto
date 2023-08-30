@@ -55,7 +55,7 @@
 // Parameters:
 //    pSrc        pointer to the source byte data stream
 //    pDst        pointer to the target byte data stream
-//    length      plaintext strem length (bytes)
+//    length      plaintext stream length (bytes)
 //    pCtx1-3     pointers to the DES context
 //    pIV         pointer to the init vector
 //    padding     the padding scheme indicator

@@ -57,7 +57,7 @@ IPP_OWN_DEFN (IppStatus, gsModEngineGetSize, (int modulusBitSize, int numpe, int
    IPP_BADARG_RET(modulusBitSize<1, ippStsLengthErr);
    IPP_BADARG_RET(numpe<MOD_ENGINE_MIN_POOL_SIZE, ippStsLengthErr);
 
-   /* allocates mimimal necessary to Montgomery based methods */
+   /* allocates minimal necessary to Montgomery based methods */
    *pSize = (Ipp32s)sizeof(gsModEngine)
            + modLen*(Ipp32s)(sizeof(BNU_CHUNK_T))        /* modulus  */
            + modLen*(Ipp32s)(sizeof(BNU_CHUNK_T))         /* mont_R   */

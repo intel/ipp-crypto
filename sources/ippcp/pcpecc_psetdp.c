@@ -94,7 +94,7 @@ IPP_OWN_DEFN (IppStatus, ECCPSetDP, (const IppsGFpMethod* method, int pLen, cons
             int elemLen = GFP_FELEN(pGFE);
             IppsGFpElement elmA, elmB;
 
-            /* convert A ans B coeffs into GF elements */
+            /* convert A and B coeffs into GF elements */
             cpGFpElementConstruct(&elmA, cpGFpGetPool(1, pGFE), elemLen);
             cpGFpElementConstruct(&elmB, cpGFpGetPool(1, pGFE), elemLen);
             sts = ippsGFpSetElement((Ipp32u*)pA, BITS2WORD32_SIZE(BITSIZE_BNU(pA,aLen)), &elmA, pGF);
@@ -105,7 +105,7 @@ IPP_OWN_DEFN (IppStatus, ECCPSetDP, (const IppsGFpMethod* method, int pLen, cons
             sts = ippsGFpECSet(&elmA, &elmB, pEC);
             if(ippStsNoErr!=sts) break;
 
-            /* convert GX ans GY coeffs into GF elements */
+            /* convert GX and GY coeffs into GF elements */
             cpConstructBN(&P, rLen, (BNU_CHUNK_T*)pR, NULL);
             cpConstructBN(&H, 1, &h, NULL);
             sts = ippsGFpSetElement((Ipp32u*)pX, BITS2WORD32_SIZE(BITSIZE_BNU(pX,xLen)), &elmA, pGF);

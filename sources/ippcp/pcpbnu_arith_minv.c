@@ -35,7 +35,7 @@
 //
 // Multiply with ACcumulation
 // Computes r <- r + a * b, returns real size of the r in the size_r variable
-// Returns 0 if there are no enought buffer size to write to r[MAX(size_r + 1, size_a + size_b) - 1]
+// Returns 0 if there are no enough buffer size to write to r[MAX(size_r + 1, size_a + size_b) - 1]
 // Returns 1 if no error
 //
 // Note:

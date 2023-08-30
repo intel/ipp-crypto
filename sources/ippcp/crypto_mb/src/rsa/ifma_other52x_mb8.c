@@ -2154,7 +2154,7 @@ void ifma_amred52x40_mb8(int64u res[][8],
 // out[] = inp[] <<nbit
 //
 // nbits < DIGIT_SIZE
-// out occupied enouhg mem (at least ns+1)
+// out occupied enough mem (at least ns+1)
 */
 static void lshift52x_mb8(int64u pOut[][8], int64u pInp[][8], int ns, __m512i sbiL)
 {

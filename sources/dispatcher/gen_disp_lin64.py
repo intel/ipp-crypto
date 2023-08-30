@@ -26,7 +26,7 @@ import hashlib
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--header', action='store', required=True, help='Intel IPP Cryptography dispatcher will be generated for fucntions in Header')
+parser.add_argument('-i', '--header', action='store', required=True, help='Intel IPP Cryptography dispatcher will be generated for functions in Header')
 parser.add_argument('-o', '--out-directory', action='store', required=True, help='Output folder for generated files')
 parser.add_argument('-l', '--cpu-list', action='store', required=True, help='Actual CPU list: semicolon separated string')
 parser.add_argument('-c', '--compiler', action='store', required=True, help='Compiler')

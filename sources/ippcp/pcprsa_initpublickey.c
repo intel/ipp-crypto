@@ -53,7 +53,7 @@
 //    rsaModulusBitSize    bitsize of RSA modulus (bitsize of N)
 //    publicExpBitSize     bitsize of public exponent (bitsize of E)
 //    pKey                 pointer to the key context
-//    keyCtxSize           size of memmory accosizted with key comtext
+//    keyCtxSize           size of memory accosizted with key comtext
 *F*/
 IPPFUN(IppStatus, ippsRSA_InitPublicKey,(int rsaModulusBitSize, int publicExpBitSize,
                                          IppsRSAPublicKeyState* pKey, int keyCtxSize))

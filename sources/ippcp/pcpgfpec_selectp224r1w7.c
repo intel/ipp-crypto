@@ -49,7 +49,7 @@ IPP_OWN_DEFN (void, p224r1_select_ap_w7, (BNU_CHUNK_T* pVal, const BNU_CHUNK_T* 
    for(n=0; n<LEN_P224_APOINT; n++)
       pVal[n] = 0;
 
-   /* select poiint */
+   /* select point */
    for(i=1; i<=tblLen; i++) {
       BNU_CHUNK_T mask = cpIsEqu_ct((BNU_CHUNK_T)i, (BNU_CHUNK_T)idx);
       for(n=0; n<LEN_P224_APOINT; n++)

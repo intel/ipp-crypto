@@ -75,7 +75,7 @@ IPPFUN(IppStatus, ippsRSAVerify_PSS,(const Ipp8u* pMsg,  int msgLen,
                                            IppHashAlgId hashAlg,
                                            Ipp8u* pScratchBuffer))
 {
-   /* test hash algorith ID */
+   /* test hash algorithm ID */
    hashAlg = cpValidHashAlg(hashAlg);
    IPP_BADARG_RET(ippHashAlg_Unknown==hashAlg, ippStsNotSupportedModeErr);
 
@@ -161,7 +161,7 @@ IPPFUN(IppStatus, ippsRSAVerify_PSS,(const Ipp8u* pMsg,  int msgLen,
             /* make sure that top 8*emLen-emBits bits are clear */
             pDB[0] &= MAKEMASK32(8-8*emLen+emBits);
 
-            /* skip over padding sring (PS) */
+            /* skip over padding string (PS) */
             for(psLen=0; psLen<dbLen; psLen++)
                if(pDB[psLen])
                   break;

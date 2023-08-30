@@ -87,7 +87,7 @@ EXTERN_C void sm4_gcm_get_tag_mb16(int8u *pa_out[SM4_LINES], const int tag_len[S
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* Context acessors */
+/* Context accessors */
 
 #define SM4_GCM_CONTEXT_HASHKEY(context) ((p_context)->hashkey)
 #define SM4_GCM_CONTEXT_J0(context) ((p_context)->j0)
@@ -100,7 +100,7 @@ EXTERN_C void sm4_gcm_get_tag_mb16(int8u *pa_out[SM4_LINES], const int tag_len[S
 
 #define SM4_GCM_CONTEXT_STATE(context) ((p_context)->state)
 
-/* Calculate offsets for acessing blocks in buffers */
+/* Calculate offsets for accessing blocks in buffers */
 
 #define REG_SIZE_BITS (512)
 #define REG_SIZE_BYTES (REG_SIZE_BITS / 8) /* Register size in bytes */
@@ -111,7 +111,7 @@ EXTERN_C void sm4_gcm_get_tag_mb16(int8u *pa_out[SM4_LINES], const int tag_len[S
 #define BUFFER_BLOCK_NUM(buffer, n) (buffer + SLOTS_PER_BLOCK * n)
 #define BUFFER_REG_NUM(buffer, n) (buffer + SLOTS_PER_BLOCK * BLOCKS_PER_REG * n)
 
-/* Internal macroses */
+/* Internal macros */
 
 #define sm4_gcm_clear_buffer(p_buffer) storeu((void *)(p_buffer), setzero());
 

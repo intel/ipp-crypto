@@ -369,7 +369,7 @@ const mbx_RSA_Method* mbx_RSA_private_crt_Method(int rsaBitsize)
    }
 }
 
-/* size of scratch bufer */
+/* size of scratch buffer */
 DLL_PUBLIC
 int mbx_RSA_Method_BufSize(const mbx_RSA_Method* m)
 {

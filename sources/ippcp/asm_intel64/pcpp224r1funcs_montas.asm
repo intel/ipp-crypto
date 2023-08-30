@@ -453,7 +453,7 @@ ENDFUNC p224r1_neg
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; was working on GFp functionality the problem (in reduction spep) has been found
-;; 1) "sqr" impementation has been changed by "mul"
+;; 1) "sqr" implementation has been changed by "mul"
 ;; 2) fortunately "mont_back" stay as is because of operand zero extensioned
 
 ; on entry p5=0

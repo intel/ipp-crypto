@@ -38,7 +38,7 @@
 ; sse_clmul_gcm MACRO to implement: Data*HashKey mod (128,127,126,121,0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-%assign REFLECTED_IN_OUT  1   ; GCM input and output are represented in reflected form naturaly
+%assign REFLECTED_IN_OUT  1   ; GCM input and output are represented in reflected form naturally
 ;USE_BYTE_REFLECTED   = 0   ; set to 1 %if input data is byte-reflected
 
 
@@ -382,7 +382,7 @@ IPPASM AesGcmEnc_avx,PUBLIC
 %xdefine pDst         rdi         ; pointer to the encrypted data
 %xdefine pSrc         rsi         ; pointer to the plane data
 %xdefine len          rdx         ; data length in bytes (multiple by BYTES_PER_BLK)
-%xdefine cipher       rcx         ; ciper function (don't need in fact)
+%xdefine cipher       rcx         ; cipher function (don't need in fact)
 %xdefine nr           r8d         ; number of cipher's rounds
 %xdefine pRKey        r9          ; pointer to the cipher's round keys
 %xdefine pGhash       [rsp+ARG_7] ; pointer to the Hash value
@@ -632,7 +632,7 @@ my_aesenclast  xmm1, xmm0
 
    movdqu   oword [rbx], xmm1      ; store encrypted counter into the context
 
-   pshufb   xmm2, [rel SHUF_CONST] ; convert hach value back
+   pshufb   xmm2, [rel SHUF_CONST] ; convert hash value back
    movdqu   oword [rcx], xmm2      ; store hash into the context
 
    REST_XMM
@@ -669,7 +669,7 @@ IPPASM AesGcmDec_avx,PUBLIC
 %xdefine pDst         rdi         ; pointer to the encrypted data
 %xdefine pSrc         rsi         ; pointer to the plane data
 %xdefine len          rdx         ; data length in bytes (multiple by BYTES_PER_BLK)
-%xdefine cipher       rcx         ; ciper function (don't need in fact)
+%xdefine cipher       rcx         ; cipher function (don't need in fact)
 %xdefine nr           r8d         ; number of cipher's rounds
 %xdefine pRKey        r9          ; pointer to the cipher's round keys
 %xdefine pGhash       [rsp+ARG_7] ; pointer to the Hash value
@@ -919,7 +919,7 @@ my_aesenclast  xmm1, xmm0
 
    movdqu   oword [rbx], xmm1      ; store encrypted counter into the context
 
-   pshufb   xmm2, [rel SHUF_CONST] ; convert hach value back
+   pshufb   xmm2, [rel SHUF_CONST] ; convert hash value back
    movdqu   oword [rcx], xmm2      ; store hash into the context
 
    REST_XMM

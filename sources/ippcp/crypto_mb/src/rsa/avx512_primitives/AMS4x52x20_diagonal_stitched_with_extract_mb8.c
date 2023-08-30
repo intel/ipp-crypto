@@ -25,7 +25,7 @@
 #endif
 
 /*
-Two independant functions are stitched:
+Two independent functions are stitched:
 - 4 squarings
 - Extracting values from the precomputed tables MulTbl and MulTblx
 

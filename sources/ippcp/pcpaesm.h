@@ -57,8 +57,8 @@ static int rij128nRounds[3] = {NR128_128, NR128_192, NR128_256};
 //       where NK - key length (words)
 //             NB - data block size (word)
 //             NR - number of rounds (depend on NB and keyLen)
-//             nKeys - accurate numner of keys
-// is more convinient when calculates key extension
+//             nKeys - accurate number of keys
+// is more convenient when calculates key extension
 */
 static int rij128nKeys[3] = {44,  52,  60 };
 

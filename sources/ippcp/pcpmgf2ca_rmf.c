@@ -33,7 +33,7 @@
 /*F*
 //    Name: ippsMGF2
 //
-// Purpose: Mask Generation Functios.
+// Purpose: Mask Generation Functions.
 //
 // Returns:                Reason:
 //    ippStsNullPtrErr           pMask == NULL
@@ -45,7 +45,7 @@
 // Parameters:
 //    pSeed       pointer to the input stream
 //    seedLen     input stream length (bytes)
-//    pMaske      pointer to the ouput mask
+//    pMaske      pointer to the output mask
 //    maskLen     desired length of mask (bytes)
 //    pMethod     hash method
 //

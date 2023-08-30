@@ -43,8 +43,8 @@ segment .text align=IPP_ALIGN_FACTOR
 ;  output:
 ;  rax
 ;
-;  register  rcx destoyed
-;  registers mmx2, mmx3, mmx6, and mmx7 destoyed
+;  register  rcx destroyed
+;  registers mmx2, mmx3, mmx6, and mmx7 destroyed
 ;
 align IPP_ALIGN_FACTOR
 INIT_IDX    dw    000h,001h,002h,003h,004h,005h,006h,007h   ;; initial search inx = {0:1:2:3:4:5:6:7}

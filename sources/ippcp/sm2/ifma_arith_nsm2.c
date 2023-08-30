@@ -131,7 +131,7 @@ IPP_OWN_DEFN(fesm2, fesm2_add_norder_norm, (const fesm2 a, const fesm2 b)) {
     const mask8 lt   = cmp_i64_mask(zero, srli_i64(t, DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
     const mask8 mask = (mask8)((mask8)0 - ((lt >> 4) & 1));
 
-    /* maks != 0 ? a : r */
+    /* mask != 0 ? a : r */
     r = mask_mov_i64(t, mask, r);
     return r;
 }
@@ -165,7 +165,7 @@ IPP_OWN_DEFN(fesm2, fesm2_fast_reduction_norder, (const fesm2 a)) {
     const mask8 lt   = cmp_i64_mask(zero, srli_i64(r, DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
     const mask8 mask = (mask8)((mask8)0 - ((lt >> 4) & 1));
 
-    /* maks != 0 ? a : r */
+    /* mask != 0 ? a : r */
     r = mask_mov_i64(r, mask, a);
     return r;
 }

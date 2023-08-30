@@ -18,7 +18,7 @@
 #define _PCP_AES_NOISE_H
 
 /* 
- * The parameters below are empirical and choosen in advance to guarantee
+ * The parameters below are empirical and chosen in advance to guarantee
  * the high level of security protection against Mistletoe3 attack. 
  */
 #define MISTLETOE3_MAX_CHUNK_SIZE   (16000)     /* maximum chunks size allowed to be processed without noise injection (in bytes) \

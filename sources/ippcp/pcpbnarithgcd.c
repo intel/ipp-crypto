@@ -86,7 +86,7 @@ IPPFUN(IppStatus, ippsGcd_BN, (IppsBigNumState* pA, IppsBigNumState* pB, IppsBig
       }
 
       /*
-      // Lehmer's algorithm requres that first number must be greater than second
+      // Lehmer's algorithm requires that first number must be greater than second
       // x is the first, y is the second
       */
       {

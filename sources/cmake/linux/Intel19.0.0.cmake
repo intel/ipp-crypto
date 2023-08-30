@@ -108,7 +108,7 @@ set (CMAKE_C_FLAGS_DEBUG " -O0 -g3")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-sox")
 # Alignment for structures on byte boundaries (= 16)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Zp16")
-# Defines the GNU macroses (__GNUC__, __GNUC_MINOR__, and __GNUC_PATCHLEVEL__)
+# Defines the GNU macros (__GNUC__, __GNUC_MINOR__, and __GNUC_PATCHLEVEL__)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -gcc")
 if(${ARCH} MATCHES "ia32")
   # Tells the compiler to not assume any specific stack alignment, but attempt to maintain alignment in case the stack is already aligned.

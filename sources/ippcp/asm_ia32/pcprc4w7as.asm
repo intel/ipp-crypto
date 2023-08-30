@@ -106,7 +106,7 @@ align IPP_ALIGN_FACTOR
    pop      edx            ; remove local variable
 
    dec      eax                  ; actual new x counter
-   mov      byte [ebp+4], al  ; update x conter
+   mov      byte [ebp+4], al  ; update x counter
    mov      byte [ebp+8], bl  ; updtae y counter
 
 .quit:

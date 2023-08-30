@@ -64,7 +64,7 @@ IPPFUN(IppStatus, ippsHashUpdate_rmf,(const Ipp8u* pSrc, int len, IppsHashState_
    if(len) {
       const IppsHashMethod* method = HASH_METHOD(pState);
       hashUpdateF hashFunc = method->hashUpdate;   /* processing function */
-      int msgBlkSize = method->msgBlkSize;         /* messge block size */
+      int msgBlkSize = method->msgBlkSize;         /* message block size */
 
       int procLen;
 

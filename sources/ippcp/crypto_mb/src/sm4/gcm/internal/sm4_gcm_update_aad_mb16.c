@@ -49,7 +49,7 @@ __mmask16 sm4_gcm_update_aad_mb16(const int8u *const pa_aad[SM4_LINES], const in
    // Update aad len
    //
    // AAD length is passed as 32 bit integer
-   // AAD lenght is used to construct last block for ghahs computation as follow:
+   // AAD length is used to construct last block for ghahs computation as follow:
    // 64 bits with AAD length | 64 bits with TXT length
    // Length of AAD and TXT is stored in context in this form
    //

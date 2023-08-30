@@ -19,7 +19,7 @@
 // 
 //  Purpose:
 //     Cryptography Primitive.
-//     DES Cipher function (MemJam mitigation incuded)
+//     DES Cipher function (MemJam mitigation included)
 // 
 //  Contents:
 //     initial permutation: ip()

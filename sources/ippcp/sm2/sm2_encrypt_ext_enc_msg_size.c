@@ -20,7 +20,7 @@
 
 /**
  * @brief ippsGFpECEncryptSM2_Ext_EncMsgSize
- * Implemenation based on standart:
+ * Implementation based on standard:
  * GM/T 0003.4-2012 SM2
  * Public key cryptographic algorithm SM2 based on elliptic curves
  * Part 4: Public key encryption algorithm

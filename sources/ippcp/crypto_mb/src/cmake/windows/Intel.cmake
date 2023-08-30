@@ -51,7 +51,7 @@ set(LINK_FLAGS_DYNAMIC "/DEF:${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb
 
 # Tells the compiler to align functions and loops
 set(CMAKE_C_FLAGS "/Qfnalign:32 /Qalign-loops:32")
-# Supress warning #10120: overriding '/O2' with '/O3' 
+# Suppress warning #10120: overriding '/O2' with '/O3' 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -wd10120")
 # Ensures that compilation takes place in a freestanding environment
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qfreestanding")

@@ -102,7 +102,7 @@ IPPFUN(IppStatus, ippsRSA_SetPrivateKeyType2,(const IppsBigNumState* pFactorP,
    IPP_BADARG_RET(!(0 < cpBN_tst(pInverseQ)), ippStsOutOfRangeErr);
    IPP_BADARG_RET(BITSIZE_BNU(BN_NUMBER(pInverseQ), BN_SIZE(pInverseQ)) > RSA_PRV_KEY_BITSIZE_P(pKey), ippStsSizeErr);
 
-   /* set bitsize(N) = 0, so the key contex is not ready */
+   /* set bitsize(N) = 0, so the key context is not ready */
    RSA_PRV_KEY_BITSIZE_N(pKey) = 0;
    RSA_PRV_KEY_BITSIZE_D(pKey) = 0;
 

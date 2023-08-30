@@ -31,7 +31,7 @@
 /**
  * @brief ippsGFpECKeyExchangeSM2_Setup
  * setup Key Exchange Context (add Za | Zb | Pa | Pb | Ra | Rb)
- * see standart:
+ * see standard:
  * [GBT.32918.3-2016] Public Key cryptographic algorithm SM2 based on elliptic curves
  * Part 3: Key exchange protocol
  * @param [in]  pZSelf            (self) user ID hash Z       (copy)
@@ -40,7 +40,7 @@
  * @param [in]  pPublicKeyPeer    (peer) public key           (copy)
  * @param [in]  pEphPublicKeySelf (self) ephemeral public key (copy)
  * @param [in]  pEphPublicKeyPeer (peer) ephemeral public key (copy)
- * @param [out] pKE               constext
+ * @param [out] pKE               context
  * @return
  * ippStsNoErr               - successful
  * ippStsNullPtrErr          - if pEC | pKE is NULL

@@ -189,7 +189,7 @@
 #endif
 
 /*
-// Because of performane reason hash algorithms are implemented in form
+// Because of performance reason hash algorithms are implemented in form
 // of unroller cycle and therefore these implementations are big enough.
 // Intel IPP Cryptography supports "compact" implementation of some basic hash algorithms:
 //    SHA-1
@@ -227,7 +227,7 @@
 //    - do/don't use special implementation of sqr instead of usual multication
 //    - do/don't use Karatsuba multiplication alg
 */
-#define _USE_SQR_          /*     use implementaton of sqr */
+#define _USE_SQR_          /*     use implementation of sqr */
 #if !defined(_DISABLE_WINDOW_EXP_)
    #define _USE_WINDOW_EXP_   /*     use fixed window exponentiation */
 #endif
@@ -253,10 +253,10 @@
 //    P-384 (IppECCPStd384r1)
 //    P-521 (IppECCPStd521r1)
 //
-// If one need replace the particular implementation by abritrary one
+// If one need replace the particular implementation by arbitrary one
 // assign _ECP_IMP_ARBIRTRARY_ to suitable symbol
 //
-// _ECP_IMPL_ARBIRTRARY_   means that implementtaion does not use any curve specific,
+// _ECP_IMPL_ARBIRTRARY_   means that implementation does not use any curve specific,
 //                         provide the same (single) code for any type curve
 //
 // _ECP_IMPL_SPECIFIC_     means that implementation uses specific modular reduction

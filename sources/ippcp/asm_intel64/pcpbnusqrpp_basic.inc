@@ -968,7 +968,7 @@ gsadox   %%HEAD_X, rax
 
 ;; rdi = dst
 ;; rsi = src
-;; rcx = src lengh
+;; rcx = src length
 %macro FINALIZE_FIX 3.nolist
   %xdefine %%N %1
   %xdefine %%pDst %2

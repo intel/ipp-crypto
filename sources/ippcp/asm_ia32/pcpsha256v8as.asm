@@ -203,7 +203,7 @@
 ;; W[2] <= W[18] = Sigma1(W[ 0]) + W[11] + Sigma0(W[3]) + W[1]
 ;; W[3] <= W[19] = Sigma1(W[ 1]) + W[12] + Sigma0(W[4]) + W[2]
 ;;
-;; the process is repeated exactly because texual round of W[]
+;; the process is repeated exactly because textual round of W[]
 ;;
 ;; Sigma1() and Sigma0() functions are defined as following:
 ;; Sigma1(X) = ROR(X,17)^ROR(X,19)^SHR(X,10)

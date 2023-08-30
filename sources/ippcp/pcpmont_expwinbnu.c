@@ -53,7 +53,7 @@ IPP_OWN_FUNPTR (void, gsSqr, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pX, cpSize len
 //                      range [0,m-1]
 //      pE           big number exponent
 //      pMont        Montgomery modulus of IppsMontState.
-/       pY           the Montgomery exponentation result.
+/       pY           the Montgomery exponentiation result.
 //      pResource    pointer to resource
 //
 *F*/
@@ -106,7 +106,7 @@ IPP_OWN_DEFN (void, cpMontExpWin_BN, (IppsBigNumState* pY, const IppsBigNumState
       /* expand base */
       ZEXPAND_COPY_BNU(dataY, nsM, dataX, nsX);
 
-      /* initialize recource */
+      /* initialize resource */
       COPY_BNU(pResource+0, MOD_MNT_R(pMont), nsM);
       COPY_BNU(pResource+nsM, dataY, nsM);
       for(n=2; n<nPrecomute; n++) {
@@ -144,7 +144,7 @@ IPP_OWN_DEFN (void, cpMontExpWin_BN, (IppsBigNumState* pY, const IppsBigNumState
             windowVal = (eChunk>>shift) &mask;
 
             if(windowVal) {
-               /* extract precomputed value and muptiply */
+               /* extract precomputed value and multiply */
                mulFun(pBuffer, dataY, pResource+windowVal*(BNU_CHUNK_T)nsM, nsM, pKBuffer);
                cpMontRed_BNU(dataY, pBuffer, pMont);
             }

@@ -40,7 +40,7 @@
 */
 #define _FEATURE_OFF_      (0)   /* feature is OFF */
 #define _FEATURE_ON_       (1)   /* feature is ON  */
-#define _FEATURE_TICKTOCK_ (2)   /* dectect if feature is OFF/ON */
+#define _FEATURE_TICKTOCK_ (2)   /* detect if feature is OFF/ON */
 
 #include "pcpvariant.h"
 
@@ -155,7 +155,7 @@ typedef int cpSize;
    #define CONST_64(x)  (x##LL)
 #endif
 
-/* define 64-bit constant or pair of 32-bit dependding on architecture */
+/* define 64-bit constant or pair of 32-bit depending on architecture */
 #if ((_IPP_ARCH == _IPP_ARCH_EM64T) || (_IPP_ARCH == _IPP_ARCH_LP64) || (_IPP_ARCH == _IPP_ARCH_LRB) || (_IPP_ARCH == _IPP_ARCH_LRB2))
 #define LL(lo,hi) (((Ipp64u)(lo)) | ((Ipp64u)(hi) << 32))
 #define L_(lo)    ((Ipp64u)(lo))

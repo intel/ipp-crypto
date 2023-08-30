@@ -1180,7 +1180,7 @@ align IPP_ALIGN_FACTOR
 %xdefine T2    r14
 %xdefine T3    r15
 
-%xdefine idx   rcx   ; indexs
+%xdefine idx   rcx   ; indexes
 %xdefine idxt  rbx
 
 %xdefine rSrc  rsi

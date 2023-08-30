@@ -58,7 +58,7 @@ IPPASM cpAESCMAC_Update_AES_NI,PUBLIC
         COMP_ABI 5
 ;; rdi:     pDigest:  DWORD,    ; input  blocks address
 ;; rsi:     pInput:   DWORD,    ; output blocks address
-;; rdx:     length:       DWORD,    ; lenght in bytes (multiple 16)
+;; rdx:     length:       DWORD,    ; length in bytes (multiple 16)
 ;; rcx:     nr:           DWORD     ; number of rounds
 ;; r8:      pRKey:    DWORD     ; pointer to keys
 

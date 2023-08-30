@@ -38,7 +38,7 @@ int bits_range(int modulusBits)
    }
 }
 
-/* size of scratch bufer */
+/* size of scratch buffer */
 DLL_PUBLIC
 int mbx_exp_BufferSize(int modulusBits)
 {

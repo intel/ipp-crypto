@@ -858,7 +858,7 @@ align IPP_ALIGN_FACTOR
 
    ; final reduction
    mov      edi, pR           ; result
-   LD_ADDR  ebx, p256r1_data  ; addres of the modulus
+   LD_ADDR  ebx, p256r1_data  ; addresss of the modulus
    lea      ebx, [ebx+(_prime256r1-p256r1_data)]
    CALL_IPPASM  sub_256
 

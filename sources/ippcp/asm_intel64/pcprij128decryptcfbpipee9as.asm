@@ -270,7 +270,7 @@ IPPASM DecryptCFB32_RIJ128pipe_AES_NI,PUBLIC
 ;; rdx:        nr:           DWORD,    ; number of rounds
 ;; rcx         pKey:     DWORD     ; key material address
 ;; r8d         cfbBlks:      DWORD     ; length of stream in cfbSize
-;; r9d         cfbSize:      DWORD     ; cfb blk size (4 bytes multible)
+;; r9d         cfbSize:      DWORD     ; cfb blk size (4 bytes multiple)
 ;; [rsp+ARG_7] pIV       BYTE      ; pointer to the IV
 
 %xdefine SC  (4)

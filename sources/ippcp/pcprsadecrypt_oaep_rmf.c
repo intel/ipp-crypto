@@ -18,7 +18,7 @@
 /*
 //  Purpose:
 //     Cryptography Primitive.
-//     RSAES-OAEP Encryption/Decription Functions
+//     RSAES-OAEP Encryption/Description Functions
 //
 //  Contents:
 //        ippsRSADecrypt_OAEP_rmf()
@@ -67,7 +67,7 @@
 //    labLen      label length (bytes)
 //    pDst        pointer to the encoded plaintext
 //                assumed that length of the recovered message is at least k-hashLen*2-2 bytes;
-//                maximum message length is (k-hashLen*2-2) bytes and is for choosen RSA and Hash-function
+//                maximum message length is (k-hashLen*2-2) bytes and is for chosen RSA and Hash-function
 //    pDstLen     pointer to the plaintext length
 //    pKey        pointer to the RSA private key context
 //    pMethod     hash methods

@@ -354,7 +354,7 @@ void sm4_xts_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
     loc_len = _mm512_loadu_si512(len);
     loc_len = _mm512_mask_set1_epi32(loc_len, ~mb_mask, 0);
 
-    /* Local copies of the pointers to input and otput buffers */
+    /* Local copies of the pointers to input and output buffers */
     _mm512_storeu_si512((void*)loc_inp, _mm512_loadu_si512(pa_inp));
     _mm512_storeu_si512((void*)(loc_inp + 8), _mm512_loadu_si512(pa_inp + 8));
 

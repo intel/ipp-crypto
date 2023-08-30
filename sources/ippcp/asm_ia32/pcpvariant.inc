@@ -30,7 +30,7 @@
 ;;
 %assign _FEATURE_OFF_      0   ;; feature is OFF
 %assign _FEATURE_ON_       1   ;; feature is ON
-%assign _FEATURE_TICKTOCK_ 2   ;; dectect is feature OFF/ON
+%assign _FEATURE_TICKTOCK_ 2   ;; detect is feature OFF/ON
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;_XMM7560_ = 1

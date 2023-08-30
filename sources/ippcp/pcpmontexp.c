@@ -53,7 +53,7 @@
 //                      range [0,m-1]
 //      pE      big number exponent
 //      pCtx    Montgomery modulus of IppsMontState
-/       pR      the Montgomery exponentation result.
+/       pR      the Montgomery exponentiation result.
 //
 // Notes: IppsBigNumState *r should possess enough memory space as to hold the result
 //        of the operation. i.e. both pointers r->d and r->buffer should possess

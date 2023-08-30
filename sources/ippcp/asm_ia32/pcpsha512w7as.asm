@@ -320,7 +320,7 @@ IPPASM UpdateSHA512,PUBLIC
    mov      ecx,esp
    and      esp,-16              ; 16-byte aligned stack
    sub      ecx,esp
-   add      ecx,stackSize        ; acual stack size (bytes)
+   add      ecx,stackSize        ; actual stack size (bytes)
    mov      [esp+acualOffset],ecx
 
    movq     xmm0,qword [edi+sizeof(qword)*0]    ; A = digest[0]

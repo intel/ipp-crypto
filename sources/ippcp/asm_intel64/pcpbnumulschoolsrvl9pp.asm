@@ -218,7 +218,7 @@ IPPASM cpMontRedAdx_BNU,PUBLIC
 
    mov      r15, rdi    ; store reduction address
 
-   ; reload parameters for future convinience:
+   ; reload parameters for future convenience:
    mov      rdi, rsi    ; rdi = temporary product buffer
    mov      rsi, rdx    ; rsi = modulus
    movsxd   rdx, ecx    ; rdx = length of modulus

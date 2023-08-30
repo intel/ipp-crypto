@@ -59,7 +59,7 @@ IPP_OWN_DEFN (void, cpComputeDigest, (Ipp8u* pHashTag, int hashTagLen, const Ipp
    CopyBlock(HASH_BUFF(pCtx), buffer, n);
    /* end of message bit */
    buffer[n++] = 0x80;
-   /* padd buffer */
+   /* pad buffer */
    PadBlock(0, buffer+n, bufferLen-n-msgLenRepSize);
 
    /* message length representation in bits (remember about big endian) */

@@ -74,7 +74,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUN
       /* copy and expand base to the modulus length */
       ZEXPAND_COPY_BNU(dataTT, nsM, dataX, nsX);
 
-      /* initialize recource */
+      /* initialize resource */
       gsScramblePut(pTable, 0, MOD_MNT_R(pMont), nsM, winSize);
       COPY_BNU(dataRR, dataTT, nsM);
       gsScramblePut(pTable, 1, dataTT, nsM, winSize);
@@ -111,7 +111,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sscm, (BNU_CHUNK_T* dataY, const BNU_CHUN
             shift = eBit & 0xF;
             winVal = (eChunk>>shift) &mask;
 
-            /* exptact precomputed value and muptiply */
+            /* exptact precomputed value and multiply */
             gsScrambleGet_sscm(dataTT, nsM, pTable, (int)winVal, winSize);
 
             MOD_METHOD( pMont )->mul(dataY, dataY, dataTT, pMont);

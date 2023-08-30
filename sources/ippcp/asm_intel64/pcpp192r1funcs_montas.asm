@@ -703,8 +703,8 @@ ENDFUNC p192r1_to_mont
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; on entry e = expasion (previous step)
-; on exit  p0= expasion (next step)
+; on entry e = expansion (previous step)
+; on exit  p0= expansion (next step)
 ;
 %macro p192r1_prod_redstep 5.nolist
   %xdefine %%e %1

@@ -77,7 +77,7 @@ static __ALIGN64 Ipp8u affineOut[] = { 0x19,0x8b,0x6c,0x1e,0x51,0x8e,0x2d,0xd7, 
 // GF(256) is isomorfic.
 // Encoding/decoding data of SM4 and AES are elements of GF(256).
 // The difference in representation only.
-// (It happend due to using different generating polynomials in SM4 and AES representations).
+// (It happened due to using different generating polynomials in SM4 and AES representations).
 // Doing data conversion from SM4 to AES domain
 // lets use AES specific intrinsics to perform less expensive SMS4 S-box computation.
 //

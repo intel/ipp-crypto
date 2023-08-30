@@ -28,7 +28,7 @@
 //tbcd: temporary excluded: #include <assert.h>
 
 /*
-// Multiplication in GF(p^3), if field polynomial: g(x) = x^3 + beta  => binominal
+// Multiplication in GF(p^3), if field polynomial: g(x) = x^3 + beta  => binomial
 */
 IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_p3_binom, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx))
 {
@@ -94,7 +94,7 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_p3_binom, (BNU_CHUNK_T* pR, const B
 }
 
 /*
-// Squaring in GF(p^3), if field polynomial: g(x) = x^3 + beta  => binominal
+// Squaring in GF(p^3), if field polynomial: g(x) = x^3 + beta  => binomial
 */
 IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxSqr_p3_binom, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx))
 {

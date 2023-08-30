@@ -276,7 +276,7 @@ static m512 mod_reduction_p384(const m512 a)
    const mask8 lt   = cmp_i64_mask(zero, srli_i64(r, DIGIT_SIZE - 1), _MM_CMPINT_LT);
    const mask8 mask = check_bit(lt, 7);
 
-   /* maks != 0 ? a : r */
+   /* mask != 0 ? a : r */
    r = mask_mov_i64(r, mask, a);
    return r;
 }

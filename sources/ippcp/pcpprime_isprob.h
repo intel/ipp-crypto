@@ -84,7 +84,7 @@ static int cpIsProbablyPrime(BNU_CHUNK_T* pPrime, int bitSize,
     /* if test for trivial divisors passed*/
     int ret = cpMimimalPrimeTest((Ipp32u*)pPrime, BITS2WORD32_SIZE(bitSize));
 
-    /* appy Miller-Rabin test */
+    /* apply Miller-Rabin test */
     if (ret) {
         int ns = BITS_BNU_CHUNK(bitSize);
         BNU_CHUNK_T* pPrime1 = pBuffer;

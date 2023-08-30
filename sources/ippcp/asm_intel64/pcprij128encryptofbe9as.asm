@@ -147,7 +147,7 @@ align IPP_ALIGN_FACTOR
    pxor        xmm1, xmm0                    ; xor src
    movdqu      oword [rsp+2*16+r11],xmm1  ;and store into the stack
 
-   movdqu      xmm0, oword [rsp+r9]       ; update chiper input (IV)
+   movdqu      xmm0, oword [rsp+r9]       ; update cipher input (IV)
    movdqa      oword [rsp], xmm0
 
    add         r11, r9                       ; advance index

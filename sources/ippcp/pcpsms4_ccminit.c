@@ -37,7 +37,7 @@
 //
 // Returns:                Reason:
 //    ippStsNullPtrErr        pCtx == NULL
-//    ippStsMemAllocErr       size of buffer is not match fro operation
+//    ippStsMemAllocErr       size of buffer is not match for operation
 //    ippStsLengthErr         keyLen < 16
 //    ippStsNoErr             no errors
 //

@@ -24,7 +24,7 @@
 
 #define SM3_SIZE_IN_BITS                       (256)                      /*                  sm3 size in bits                       */
 #define SM3_SIZE_IN_WORDS       (SM3_SIZE_IN_BITS/(sizeof(int32u)*8))     /*                sm3 hash size in words                   */
-#define SM3_MSG_BLOCK_SIZE                     (64)                       /*                  messge block size                      */
+#define SM3_MSG_BLOCK_SIZE                     (64)                       /*                  message block size                     */
 
 #define SM3_NUM_BUFFERS                      (16)                         /*        max number of buffers in sm3 multi-buffer        */
 

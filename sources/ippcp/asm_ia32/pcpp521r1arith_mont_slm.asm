@@ -1053,7 +1053,7 @@ align IPP_ALIGN_FACTOR
 
    ; final reduction
    mov      edi, pR           ; result
-   LD_ADDR  ebx, p521r1_data  ; addres of the modulus
+   LD_ADDR  ebx, p521r1_data  ; address of the modulus
    lea      ebx, [ebx+(_prime521r1-p521r1_data)]
    CALL_IPPASM  sub_521
 

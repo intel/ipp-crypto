@@ -76,7 +76,7 @@
 
 
 /*
-// Just sequence of byte, beginning 0x00 upto 0xff
+// Just sequence of byte, beginning 0x00 up to 0xff
 // (be parametrized by any transformation 't')
 */
 #define LINE(t) \

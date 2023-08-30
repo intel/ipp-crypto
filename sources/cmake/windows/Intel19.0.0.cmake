@@ -43,7 +43,7 @@ else()
   set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /HIGHENTROPYVA")
 endif(${ARCH} MATCHES "ia32")
 
-# supress warning LNK4221:
+# suppress warning LNK4221:
 # "This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library"
 set(LINK_FLAG_STATIC_WINDOWS  "${LINK_FLAG_STATIC_WINDOWS} /ignore:4221")
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /ignore:4221")
@@ -121,7 +121,7 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O3") # /Ob2 is included in 
 # No-debug macro
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /DNDEBUG")
 
-# supress warning #10120: overriding '/O2' with '/O3' 
+# suppress warning #10120: overriding '/O2' with '/O3' 
 # CMake bug: cmake cannot change the property "Optimization" to /O3 in MSVC project
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -wd10120")
 

@@ -41,7 +41,7 @@
 //    ippStsNullPtrErr        pCtx == NULL
 //                            pBuffer == NULL
 //    ippStsContextMatchErr   RIJ_ID(pCtx) != idCtxRijndael
-//    ippStsLengthErr         avaliable size of buffer is not enough for operation
+//    ippStsLengthErr         available size of buffer is not enough for operation
 //    ippStsNoErr             no errors
 //
 // Parameters:

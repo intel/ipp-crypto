@@ -69,7 +69,7 @@ IPPASM UpdateSHA256ni,PUBLIC
 %xdefine HASH_PTR   edi  ; 1st arg
 %xdefine MSG_PTR    esi  ; 2nd arg
 %xdefine MSG_LEN    edx  ; 3rd arg
-%xdefine K256_PTR   ebx  ; 4rd arg
+%xdefine K256_PTR   ebx  ; 4th arg
 
 %xdefine MSG        xmm0
 %xdefine STATE0     xmm1
@@ -350,7 +350,7 @@ IPPASM UpdateSHA256ni,PUBLIC
 %xdefine HASH_PTR   edi  ; 1st arg
 %xdefine MSG_PTR    esi  ; 2nd arg
 %xdefine MSG_LEN    edx  ; 3rd arg
-%xdefine K256_PTR   ebx  ; 4rd arg
+%xdefine K256_PTR   ebx  ; 4th arg
 
 %xdefine MSG        xmm0
 %xdefine STATE0     xmm1

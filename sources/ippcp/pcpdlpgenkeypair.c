@@ -56,7 +56,7 @@
 //
 // Parameters:
 //    pPrvKey     pointer to the new privatea key
-//    pPubKey     pointer to the corrsponding public key
+//    pPubKey     pointer to the corresponding public key
 //    pDL         pointer to the DL context
 //    rndFunc     external random generator
 //    pRndParam   pointer to the external random generator params

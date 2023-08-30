@@ -60,7 +60,7 @@
 %xdefine W24L  xmm8
 %xdefine W28L  xmm9
 
-%xdefine WTMP1  ymm0    ;; msg schedulling computation (temporary)
+%xdefine WTMP1  ymm0    ;; msg scheduling computation (temporary)
 %xdefine WTMP2  ymm1
 %xdefine WTMP3  ymm10
 
@@ -88,7 +88,7 @@
 %endmacro
 
 ;;
-;; msg schedulling for initial 00-15 sha1 rounds:
+;; msg scheduling for initial 00-15 sha1 rounds:
 ;;    - byte swap input
 ;;    - add sha1 round constant
 %macro W_CALC_00_15 2.nolist
@@ -103,7 +103,7 @@
 %endmacro
 
 ;;
-;; msg schedulling for other 16-79 sha1 rounds:
+;; msg scheduling for other 16-79 sha1 rounds:
 ;;
 %macro W_CALC 1.nolist
   %xdefine %%rndw %1

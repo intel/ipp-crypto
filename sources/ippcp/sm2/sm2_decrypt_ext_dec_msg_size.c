@@ -21,7 +21,7 @@
 /**
  * @brief ippsGFpECDecryptSM2_Ext_DecMsgSize
  * Get Message Size data by Decrypt SM2
- * Implemenation based on standart:
+ * Implementation based on standard:
  * GM/T 0003.4-2012 SM2
  * Public key cryptographic algorithm SM2 based on elliptic curves
  * Part 4: Public key encryption algorithm
@@ -48,7 +48,7 @@ IPPFUN(IppStatus, ippsGFpECDecryptSM2_Ext_DecMsgSize, (const IppsGFpECState *pEC
 
    const int elemSize = GFP_FELEN(pME); /* size BNU_CHUNK */
 
-   /* check chiper size */
+   /* check cipher size */
    IPP_BADARG_RET(!(ctMsgSize >= 0), ippStsOutOfRangeErr)
    const int ciph_PC_size   = 1;
    const int ciph_xy_size   = 2 * (Ipp32s)sizeof(BNU_CHUNK_T) * elemSize;

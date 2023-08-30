@@ -36,7 +36,7 @@ typedef struct {
    int64u y[PSM2_LEN52];
 } SINGLE_SM2_POINT_AFFINE;
 
-/* check if coodinate is zero */
+/* check if coordinate is zero */
 __INLINE __mb_mask MB_FUNC_NAME(is_zero_point_cordinate_)(const U64 T[])
 {
    return MB_FUNC_NAME(is_zero_FESM2_)(T);

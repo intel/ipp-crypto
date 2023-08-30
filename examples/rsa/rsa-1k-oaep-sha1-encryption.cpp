@@ -104,7 +104,7 @@ int main(void)
 
         /* Encrypt message */
         status = ippsRSAEncrypt_OAEP_rmf(sourceMessage, sizeof(sourceMessage)-1,
-                                         0  /* optional label assotiated with the sourceMessage */,
+                                         0  /* optional label associated with the sourceMessage */,
                                          0, /* label length */
                                          seed, pCipherText, pPubKey,
                                          ippsHashMethod_SHA1(),

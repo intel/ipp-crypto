@@ -53,7 +53,7 @@
 //    pIV         pointer to the initialization vector
 //
 // Note:
-// - CS3 correponds to definitions spcified for Kerberos 3 in RFC2040 and RFC3962
+// - CS3 corresponds to definitions specified for Kerberos 3 in RFC2040 and RFC3962
 // - C*[n-2] and C[n-1] are unconditionally swapped, even if C*[n-2] is a complete block
 // - Therefore, CBC-CS3 is not strictly an extensioin of usual CBC mode
 //

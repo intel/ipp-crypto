@@ -46,7 +46,7 @@ void ifma_ssl_rsa1K_prv2_layer_mb8(const int8u* const from_pa[8],
    __ALIGN64 int64u   d_mb8[LEN64][8];
    __ALIGN64 int64u  rr_mb8[LEN52][8];
    __ALIGN64 int64u inout_mb8[LEN52][8];
-   /* MULTIPLE_OF_10 because of AMS5x52x79_diagonal_mb8() implementaion specific */
+   /* MULTIPLE_OF_10 because of AMS5x52x79_diagonal_mb8() implementation specific */
    __ALIGN64 int64u   n_mb8[MULTIPLE_OF(LEN52, 10)][8];
    /* allocate stack for red(undant) result, multiplier, for exponent X and for pre-computed table of base powers */
    __ALIGN64 int64u work_buffer[LEN52*2 + 1 + (LEN64 + 1) + (1 << EXP_WIN_SIZE)*LEN52][8];
@@ -102,7 +102,7 @@ void ifma_ssl_rsa2K_prv2_layer_mb8(const int8u* const from_pa[8],
    __ALIGN64 int64u   d_mb8[LEN64][8];
    __ALIGN64 int64u  rr_mb8[LEN52][8];
    __ALIGN64 int64u inout_mb8[LEN52][8];
-   /* MULTIPLE_OF_10 because of AMS5x52x79_diagonal_mb8() implementaion specific */
+   /* MULTIPLE_OF_10 because of AMS5x52x79_diagonal_mb8() implementation specific */
    __ALIGN64 int64u   n_mb8[MULTIPLE_OF(LEN52, 10)][8];
    /* allocate stack for red(undant) result, multiplier, for exponent X and for pre-computed table of base powers */
    __ALIGN64 int64u work_buffer[LEN52*2 + 1 + (LEN64 + 1) + (1 << EXP_WIN_SIZE)*LEN52][8];
@@ -158,7 +158,7 @@ void ifma_ssl_rsa3K_prv2_layer_mb8(const int8u* const from_pa[8],
    __ALIGN64 int64u   d_mb8[LEN64][8];
    __ALIGN64 int64u  rr_mb8[LEN52][8];
    __ALIGN64 int64u inout_mb8[LEN52][8];
-   /* MULTIPLE_OF_10 because of AMS5x52x79_diagonal_mb8() implementaion specific */
+   /* MULTIPLE_OF_10 because of AMS5x52x79_diagonal_mb8() implementation specific */
    __ALIGN64 int64u   n_mb8[MULTIPLE_OF(LEN52, 10)][8];
    /* allocate stack for red(undant) result, multiplier, for exponent X and for pre-computed table of base powers */
    __ALIGN64 int64u work_buffer[LEN52*2 + 1 + (LEN64 + 1) + (1 << EXP_WIN_SIZE)*LEN52][8];
@@ -214,7 +214,7 @@ void ifma_ssl_rsa4K_prv2_layer_mb8(const int8u* const from_pa[8],
    __ALIGN64 int64u   d_mb8[LEN64][8];
    __ALIGN64 int64u  rr_mb8[LEN52][8];
    __ALIGN64 int64u inout_mb8[LEN52][8];
-   /* MULTIPLE_OF_10 because of AMS5x52x79_diagonal_mb8() implementaion specific */
+   /* MULTIPLE_OF_10 because of AMS5x52x79_diagonal_mb8() implementation specific */
    __ALIGN64 int64u   n_mb8[MULTIPLE_OF(LEN52, 10)][8];
    /* allocate stack for red(undant) result, multiplier, for exponent X and for pre-computed table of base powers */
    __ALIGN64 int64u work_buffer[LEN52*2 + 1 + (LEN64 + 1) + (1 << EXP_WIN_SIZE)*LEN52][8];

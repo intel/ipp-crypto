@@ -88,11 +88,11 @@ __INLINE BNU_CHUNK_T* cpFq6Mul_vi(BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngi
 // ~~~~~~~~~~~~~~~
 //
 // Multiplication over GF(p^2)
-//    - field polynomial: g(x) = x^2 - beta  => binominal with specific value of "beta"
+//    - field polynomial: g(x) = x^2 - beta  => binomial with specific value of "beta"
 //    - beta = p-1
 //
 // Multiplication over GF(((p^2)^3)^2)    ~ GF(p^12)
-//    - field polynomial: g(w) = w^2 - vi   => binominal with specific value of "vi"
+//    - field polynomial: g(w) = w^2 - vi   => binomial with specific value of "vi"
 //    - vi = 0*v^2 + 1*v + 0 - i.e vi={0,1,0} belongs to GF((p^2)^3)
 */
 IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_p2_binom_epid2, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, const BNU_CHUNK_T* pB, gsEngine* pGFEx))
@@ -157,11 +157,11 @@ IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxMul_p2_binom_epid2, (BNU_CHUNK_T* pR, c
 // ~~~~~~~~~~~~~~~
 //
 // Squaring over GF(p^2)
-//    - field polynomial: g(x) = x^2 - beta  => binominal with specific value of "beta"
+//    - field polynomial: g(x) = x^2 - beta  => binomial with specific value of "beta"
 //    - beta = p-1
 //
 // Squaring in GF(((p^2)^3)^2)      ~ GF(p^12)
-//    - field polynomial: g(w) = w^2 - vi   => binominal with specific value of "vi"
+//    - field polynomial: g(w) = w^2 - vi   => binomial with specific value of "vi"
 //    - vi = 0*v^2 + 1*v + 0 - i.e vi={0,1,0} belongs to GF((p^2)^3)
 */
 IPP_OWN_DEFN (static BNU_CHUNK_T*, cpGFpxSqr_p2_binom_epid2, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pA, gsEngine* pGFEx))

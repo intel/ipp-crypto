@@ -183,7 +183,7 @@ IPP_OWN_DEFN (static void, cpFinalizeSHA512, (DigestSHA512 pHash, const Ipp8u* i
    /* copy rest of message into internal buffer */
    CopyBlock(inpBuffer, buffer, inpLen);
 
-   /* padd message */
+   /* pad message */
    buffer[inpLen++] = 0x80;
    PadBlock(0, buffer+inpLen, (cpSize)(bufferLen-inpLen-(int)MLR_SHA512));
 
