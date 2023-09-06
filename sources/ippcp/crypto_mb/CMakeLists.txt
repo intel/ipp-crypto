@@ -15,7 +15,7 @@
 #
 #===============================================================================
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.18)
 
 project("crypto_mb" C)
 

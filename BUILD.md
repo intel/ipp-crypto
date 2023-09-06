@@ -22,7 +22,7 @@
 
 ## Software Requirements
 ### Common tools
-- [CMake\*](https://cmake.org/download) 3.15 or higher
+- [CMake\*](https://cmake.org/download) 3.18 or higher
 - Python 3.8.1
 - The Netwide Assembler (NASM) 2.15
 - OpenSSL\* 3.0.8 or higher
@@ -273,7 +273,7 @@ You can include Intel IPP Cryptography sources into some arbitrary project's CMa
 Here is the minimal working example:
 
 ``` bash
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.18)
 
 project("test_proj")
 

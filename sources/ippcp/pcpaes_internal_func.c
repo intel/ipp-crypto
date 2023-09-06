@@ -19,13 +19,13 @@
 //
 //  Purpose:
 //     Cryptography Primitive.
-//     Initialization functions for internal methods and pointers
-//     AES cipher context
-//     AES-GCM context
+//        * Initialization functions for internal methods and pointers inside 
+//          AES cipher context and AES-GCM context;
+//        * AES-GCM encryption kernels with the conditional noise injections mechanism;
 //
 */
 
-#include "pcpaesminit_internal.h"
+#include "pcpaes_internal_func.h"
 #include "aes_gcm_avx512.h"
 #include "owndefs.h"
 #include "owncp.h"
@@ -169,4 +169,133 @@ IPP_OWN_DEFN(void, cpAesGCM_setup_ptrs_and_methods, (IppsAES_GCMState * pState, 
 #endif /* #if(_IPP>=_IPP_P8) || (_IPP32E>=_IPP32E_Y8) */
 
 #endif /* #if(_IPP32E>=_IPP32E_K0) */
+}
+
+
+
+/*!
+ * This function computes AES-GCM encryption kernel with the the conditional noise injections mechanism (Mistletoe3 
+ * attack mitigation).
+ *
+ * Parameters:
+ *    \param[in] pSrc      Pointer to plaintext.
+ *    \param[in] pDst      Pointer to ciphertext.
+ *    \param[in] ptxt_len  Length of the plaintext in bytes.
+ *    \param[in] pState    Pointer to the AES-GCM context.
+ */
+IPP_OWN_DEFN(void, condNoisedGCMEncryption, (const Ipp8u* pSrc, Ipp8u* pDst, int ptxt_len,
+                                                      IppsAES_GCMState* pState))
+{
+/* Identify the encryption method. It's different for different platforms */
+#if(_IPP32E>=_IPP32E_K0)
+   EncryptUpdate_ encFunc = AES_GCM_ENCRYPT_UPDATE(pState);
+#else
+   Encrypt_ encFunc = AESGCM_ENC(pState);
+#endif
+
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+   /* Mistletoe3 mitigation */
+   cpAESNoiseParams *params = (cpAESNoiseParams*)&AESGCM_NOISE_PARAMS(pState);
+   if (AES_NOISE_LEVEL(params) > 0) {
+      /* Number of bytes allowed for operation without adding noise */
+      int chunk_size;
+      /* Number of bytes remaining for operation */
+      int remaining_size = ptxt_len;
+
+      while (remaining_size > 0) {
+         /* How many bytes to encrypt in this operation */
+         chunk_size = (remaining_size >= MISTLETOE3_MAX_CHUNK_SIZE) ? 
+                      MISTLETOE3_MAX_CHUNK_SIZE : 
+                      remaining_size;
+
+      #if(_IPP32E>=_IPP32E_K0)
+         encFunc(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), 
+                 pDst, pSrc, (Ipp64u)chunk_size);
+      #else
+         encFunc(pDst, pSrc, chunk_size, pState);
+      #endif
+
+         cpAESRandomNoise(NULL,
+                  MISTLETOE3_BASE_NOISE_LEVEL + AES_NOISE_LEVEL(params),
+                  MISTLETOE3_NOISE_RATE,
+                  &AES_NOISE_RAND(params));
+
+         pSrc += chunk_size;
+         pDst += chunk_size;
+         remaining_size -= chunk_size;
+      }
+   } else
+#endif
+   { /* Process without noise injection */
+   #if(_IPP32E>=_IPP32E_K0)
+      encFunc(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), 
+              pDst, pSrc, (Ipp64u)ptxt_len);
+   #else
+      encFunc(pDst, pSrc, ptxt_len, pState);
+   #endif
+   }
+}
+
+
+/*!
+ * This function computes AES-GCM decryption kernel with the the conditional noise injections mechanism (Mistletoe3 
+ * attack mitigation).
+ *
+ * Parameters:
+ *    \param[in] pSrc      Pointer to ciphertext.
+ *    \param[in] pDst      Pointer to deciphered text.
+ *    \param[in] ctxt_len  Length of the ciphertext in bytes.
+ *    \param[in] pState    Pointer to the AES-GCM context.
+ */
+IPP_OWN_DEFN(void, condNoisedGCMDecryption, (const Ipp8u* pSrc, Ipp8u* pDst, int ctxt_len, 
+                                                      IppsAES_GCMState* pState))
+{
+/* Identify the decryption method. It's different for different platforms */
+#if(_IPP32E>=_IPP32E_K0)
+   DecryptUpdate_ decFunc = AES_GCM_DECRYPT_UPDATE(pState);
+#else
+   Decrypt_ decFunc = AESGCM_DEC(pState);
+#endif
+
+#if (_AES_PROB_NOISE == _FEATURE_ON_)
+   /* Mistletoe3 mitigation */
+   cpAESNoiseParams *params = (cpAESNoiseParams*)&AESGCM_NOISE_PARAMS(pState);
+   if (AES_NOISE_LEVEL(params) > 0) {
+      /* Number of bytes allowed for operation without adding noise */
+      int chunk_size;
+      /* Number of bytes remaining for operation */
+      int remaining_size = ctxt_len;
+
+      while (remaining_size > 0) {
+         /* How many bytes to decrypt in this operation */
+         chunk_size = (remaining_size >= MISTLETOE3_MAX_CHUNK_SIZE) ?
+                       MISTLETOE3_MAX_CHUNK_SIZE : 
+                       remaining_size;
+
+      #if(_IPP32E>=_IPP32E_K0)
+         decFunc(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), 
+                 pDst, pSrc, (Ipp64u)chunk_size);
+      #else
+         decFunc(pDst, pSrc, chunk_size, pState);
+      #endif
+
+         cpAESRandomNoise(NULL,
+                  MISTLETOE3_BASE_NOISE_LEVEL + AES_NOISE_LEVEL(params),
+                  MISTLETOE3_NOISE_RATE,
+                  &AES_NOISE_RAND(params));
+
+         pSrc += chunk_size;
+         pDst += chunk_size;
+         remaining_size -= chunk_size;
+      }
+   } else
+#endif
+   { /* Process without noise injection */
+   #if(_IPP32E>=_IPP32E_K0)
+      decFunc(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), 
+              pDst, pSrc, (Ipp64u)ctxt_len);
+   #else
+      decFunc(pDst, pSrc, ctxt_len, pState);
+   #endif
+   }
 }

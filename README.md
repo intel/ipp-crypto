@@ -7,7 +7,7 @@ Intel® Integrated Performance Primitives (Intel® IPP) Cryptography is a secure
 ## Key Features
 The library provides a comprehensive set of routines commonly used for cryptographic operations, including:
  - Symmetric Cryptography Primitive Functions:
-    - AES (ECB, CBC, CTR, OFB, CFB, XTS, GCM, CCM, SIV) 
+    - AES (ECB, CBC, CTR, OFB, CFB, XTS, GCM, CCM, SIV)
     - SM4 (ECB, CBC, CTR, OFB, CFB, CCM)
     - TDES (ECB, CBC, CTR, OFB, CFB)
     - RC4
@@ -19,7 +19,7 @@ The library provides a comprehensive set of routines commonly used for cryptogra
    - HMAC
    - AES-CMAC
 - Public Key Cryptography Functions:
-   - RSA, RSA-OAEP, RSA-PKCS_v15, RSA-PSS 
+   - RSA, RSA-OAEP, RSA-PKCS_v15, RSA-PSS
    - DLP, DLP-DSA, DLP-DH
    - ECC (NIST curves), ECDSA, ECDH, EC-SM2
 - Multi-buffer RSA, ECDSA, SM3, x25519
@@ -62,7 +62,7 @@ Contains code that may not be fully functional and that Intel may substantially 
 
 ## How to Contribute
 
-We welcome community contributions to Intel IPP Cryptography. If you have an idea how to improve the product, let us know about your proposal via the Intel IPP Forum or GitHub* Issues.
+See [Contributing](./CONTRIBUTING.md) document for details about contribution process.
 
 ### License
 Intel IPP Cryptography is licensed under Apache License, Version 2.0. By contributing to the project, you agree to the license and copyright terms therein and release your contribution under these terms.

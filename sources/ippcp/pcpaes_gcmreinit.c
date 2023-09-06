@@ -29,7 +29,7 @@
 #include "owndefs.h"
 #include "owncp.h"
 #include "pcpaesm.h"
-#include "pcpaesminit_internal.h"
+#include "pcpaes_internal_func.h"
 #include "pcptool.h"
 
 #if (_IPP32E >= _IPP32E_K0)

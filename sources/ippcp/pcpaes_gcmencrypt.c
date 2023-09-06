@@ -30,6 +30,7 @@
 #include "owncp.h"
 #include "pcpaesm.h"
 #include "pcptool.h"
+#include "pcpaes_internal_func.h"
 
 #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
 #  include "pcprijtables.h"
@@ -61,6 +62,7 @@
 //    pState      pointer to the context
 //
 *F*/
+
 IPPFUN(IppStatus, ippsAES_GCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
                                       IppsAES_GCMState* pState))
 {
@@ -120,37 +122,8 @@ IPPFUN(IppStatus, ippsAES_GCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
    }
 
    /* execute encryption with code from Intel IPsec if possible */
-#if(_IPP32E>=_IPP32E_K0)
-   EncryptUpdate_ enc = AES_GCM_ENCRYPT_UPDATE(pState);
-#if (_AES_PROB_NOISE == _FEATURE_ON_)
-   /* Mistletoe3 mitigation */
-   cpAESNoiseParams *params = (cpAESNoiseParams*)&AESGCM_NOISE_PARAMS(pState);
-   if (AES_NOISE_LEVEL(params) > 0) {
-      /* Number of bytes allowed for operation without adding noise */
-      int chunk_size;
-      /* Number of bytes remaining for operation */
-      int remaining_size = len;
-
-      while (remaining_size > 0) {
-         /* How many bytes to encrypt in this operation */
-         chunk_size = (remaining_size >= MISTLETOE3_MAX_CHUNK_SIZE) ? MISTLETOE3_MAX_CHUNK_SIZE : remaining_size;
-
-         enc(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), pDst, pSrc, (Ipp64u)chunk_size);
-
-         cpAESRandomNoise(NULL,
-                  MISTLETOE3_BASE_NOISE_LEVEL + AES_NOISE_LEVEL(params),
-                  MISTLETOE3_NOISE_RATE,
-                  &AES_NOISE_RAND(params));
-
-         pSrc += chunk_size;
-         pDst += chunk_size;
-         remaining_size -= chunk_size;
-      }
-   } else
-#endif
-   {
-      enc(&AES_GCM_KEY_DATA(pState), &AES_GCM_CONTEXT_DATA(pState), pDst, pSrc, (Ipp64u)len);
-   }
+#if(_IPP32E>=_IPP32E_K0)   
+   condNoisedGCMEncryption(pSrc, pDst, len, pState);
 #else
    /*
    // process text (encrypt and authenticate)
@@ -176,6 +149,16 @@ IPPFUN(IppStatus, ippsAES_GCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
          hashFunc(AESGCM_GHASH(pState), AESGCM_HKEY(pState), AesGcmConst_table);
          AESGCM_BUFLEN(pState) = 0;
 
+         /* Inject the noise for the case of partial blocks processing */
+      #if (_AES_PROB_NOISE == _FEATURE_ON_)
+         cpAESNoiseParams *params = (cpAESNoiseParams*)&AESGCM_NOISE_PARAMS(pState);
+         if (AES_NOISE_LEVEL(params) > 0)
+            cpAESRandomNoise(NULL,
+                     MISTLETOE3_BASE_NOISE_LEVEL + AES_NOISE_LEVEL(params),
+                     MISTLETOE3_NOISE_RATE,
+                     &AES_NOISE_RAND(params));
+      #endif
+
          /* increment counter block */
          IncrementCounter32(AESGCM_COUNTER(pState));
          /* and encrypt counter */
@@ -191,9 +174,7 @@ IPPFUN(IppStatus, ippsAES_GCMEncrypt,(const Ipp8u* pSrc, Ipp8u* pDst, int len,
    {
       int lenBlks = len & (-BLOCK_SIZE);
       if(lenBlks) {
-         Encrypt_ encFunc = AESGCM_ENC(pState);
-
-         encFunc(pDst, pSrc, lenBlks, pState);
+         condNoisedGCMEncryption(pSrc, pDst, lenBlks, pState);
 
          AESGCM_TXT_LEN(pState) += (Ipp64u)lenBlks;
          pSrc += lenBlks;

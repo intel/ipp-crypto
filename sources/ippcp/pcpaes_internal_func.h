@@ -19,14 +19,14 @@
 //
 //  Purpose:
 //     Cryptography Primitive.
-//     Initialization functions for internal methods and pointers
-//     AES cipher context
-//     AES-GCM context
+//        Initialization functions for internal methods and pointers inside AES cipher context
+//        and AES-GCM context;
+//        AES-GCM encryption kernels with the conditional noise injections mechanism;
 //
 */
 
-#if !defined(_PCP_AES_INIT_INTERNAL_H)
-#define _PCP_AES_INIT_INTERNAL_H
+#if !defined(_PCP_AES_INTERNAL_FUNC_H)
+#define _PCP_AES_INTERNAL_FUNC_H
 
 #include "owndefs.h"
 
@@ -36,4 +36,10 @@ IPP_OWN_DECL(void, cpAes_setup_ptrs_and_methods, (IppsAESSpec * pCtx))
 #define cpAesGCM_setup_ptrs_and_methods OWNAPI(cpAesGCM_setup_ptrs_and_methods)
 IPP_OWN_DECL(void, cpAesGCM_setup_ptrs_and_methods, (IppsAES_GCMState * pCtx, Ipp64u keyByteLen))
 
-#endif /* _PCP_AES_INIT_INTERNAL_H */
+#define condNoisedGCMEncryption OWNAPI(condNoisedGCMEncryption)
+IPP_OWN_DECL(void, condNoisedGCMEncryption, (const Ipp8u* pSrc, Ipp8u* pDst, int ptxt_len, IppsAES_GCMState* pState))
+
+#define condNoisedGCMDecryption OWNAPI(condNoisedGCMDecryption)
+IPP_OWN_DECL(void, condNoisedGCMDecryption, (const Ipp8u* pSrc, Ipp8u* pDst, int ptxt_len, IppsAES_GCMState* pState))
+
+#endif /* _PCP_AES_INTERNAL_FUNC_H */

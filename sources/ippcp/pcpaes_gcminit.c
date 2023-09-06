@@ -31,7 +31,7 @@
 #include "owncp.h"
 #include "pcpaesm.h"
 #include "pcptool.h"
-#include "pcpaesminit_internal.h"
+#include "pcpaes_internal_func.h"
 
 #if (_ALG_AES_SAFE_==_ALG_AES_SAFE_COMPACT_SBOX_)
 #  include "pcprijtables.h"

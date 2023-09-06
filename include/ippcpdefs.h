@@ -31,9 +31,9 @@
 extern "C" {
 #endif
 #if defined (_WIN64)
-#define INTEL_PLATFORM "intel64/"
+#define IPPCP_INTEL_LIBS_DIR "lib/"
 #elif defined (_WIN32)
-#define INTEL_PLATFORM "ia32/"
+#define IPPCP_INTEL_LIBS_DIR "lib32/"
 #endif
 
 #if !defined( IPPAPI )

@@ -34,11 +34,12 @@
 extern "C" {
 #endif
 
+/* Block of code supporting Visual Studio integration */
 #if !defined( IPP_NO_DEFAULT_LIB )
   #if defined( _IPP_SEQUENTIAL_DYNAMIC )
-    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcp" )
+    #pragma comment( lib, __FILE__ "/../../../" IPPCP_INTEL_LIBS_DIR "ippcp" )
   #elif defined( _IPP_SEQUENTIAL_STATIC )
-    #pragma comment( lib, __FILE__ "/../../lib/" INTEL_PLATFORM "ippcpmt" )
+    #pragma comment( lib, __FILE__ "/../../../" IPPCP_INTEL_LIBS_DIR "ippcpmt" )
   #endif
 #endif
 

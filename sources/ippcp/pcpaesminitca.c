@@ -31,7 +31,7 @@
 #include "pcpaesm.h"
 #include "pcprij128safe.h"
 #include "pcptool.h"
-#include "pcpaesminit_internal.h"
+#include "pcpaes_internal_func.h"
 
 /*F*
 //    Name: ippsAESInit

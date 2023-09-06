@@ -5,6 +5,8 @@ This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chron
 ## Intel(R) IPP Cryptography 2021.9
 - Added optimized RSA-2048 code for multi-buffer (8 buffers) Intel® AVX-512 implementation.
 - Added Intel® Advanced Vector Extensions 2 (Intel® AVX2) vector extensions of Intel® AES New Instructions (Intel® AES-NI) optimization for AES-GCM algorithm.
+- Changed the minimal supported OpenSSL version to 3.0.8 since 1.1.1 is not supported since September 2023.
+- Raised the minimal CMake version to 3.18 since this is the minimal version that supports OpenSSL 3.0.8: https://cmake.org/cmake/help/latest/module/FindOpenSSL.html.
 
 ## Intel(R) IPP Cryptography 2021.8
 - Crypto Multi-buffer library was extended with XTS mode of SM4 algorithm.
