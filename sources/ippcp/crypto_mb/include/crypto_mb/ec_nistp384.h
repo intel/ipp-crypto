@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2019 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #ifndef EC_NISTP384_H
 #define EC_NISTP384_H
@@ -104,10 +103,10 @@ EXTERN_C mbx_status mbx_nistp384_ecdsa_sign_setup_mb8(int64u* pa_inv_eph_skey[8]
 /*
 // computes ECDSA signature
 //
-// pa_sign_pr[]      array of pointers to the r-components of the signatures 
-// pa_sign_ps[]      array of pointers to the s-components of the signatures 
+// pa_sign_r[]      array of pointers to the r-components of the signatures 
+// pa_sign_s[]      array of pointers to the s-components of the signatures 
 // pa_msg[]          array of pointers to the messages are being signed
-// pa_sign_rp[]      array of pointers to the pre-computed r-components of the signatures 
+// pa_sgn_rp[]      array of pointers to the pre-computed r-components of the signatures 
 // pa_inv_eph_skey[] array of pointers to the inversion of signer's ephemeral private keys
 // pa_reg_skey[]     array of pointers to the regular signer's ephemeral private keys
 // pBuffer           pointer to the scratch buffer

@@ -44,7 +44,11 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
 # Linker flags
 
 # Add export files
-set(LINK_FLAGS_DYNAMIC "/DEF:${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb.defs")
+if(MBX_FIPS_MODE)
+  set(LINK_FLAGS_DYNAMIC "/DEF:${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb_fips_selftests.defs")
+else()
+  set(LINK_FLAGS_DYNAMIC "/DEF:${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb.defs")
+endif()
 
 # Compiler flags
 

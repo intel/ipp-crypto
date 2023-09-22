@@ -54,21 +54,26 @@ file(GLOB SM4_SOURCES           ${SM4_SOURCES} "${CRYPTO_MB_SOURCES_DIR}/sm4/ccm
 
 file(GLOB ED25519_SOURCES       "${CRYPTO_MB_SOURCES_DIR}/ed25519/*.c")
 file(GLOB EXP_SOURCES           "${CRYPTO_MB_SOURCES_DIR}/exp/*.c")
+file(GLOB FIPS_CERT_SOURCES     "${CRYPTO_MB_SOURCES_DIR}/fips_cert/*.c")
 
 # Headers
-file(GLOB PUBLIC_HEADERS    "${CRYPTO_MB_INCLUDE_DIR}/crypto_mb/*.h")
-file(GLOB PRIVATE_HEADERS   "${CRYPTO_MB_INCLUDE_DIR}/internal/common/*.h"
-                            "${CRYPTO_MB_INCLUDE_DIR}/internal/ecnist/*.h"
-                            "${CRYPTO_MB_INCLUDE_DIR}/internal/rsa/*.h"
-                            "${CRYPTO_MB_INCLUDE_DIR}/internal/sm2/*.h"
-                            "${CRYPTO_MB_INCLUDE_DIR}/internal/sm3/*.h"
-                            "${CRYPTO_MB_INCLUDE_DIR}/internal/sm4/*.h"
-                            "${CRYPTO_MB_INCLUDE_DIR}/internal/ed25519/*.h"
-                            "${CRYPTO_MB_INCLUDE_DIR}/internal/exp/*.h")
-file(GLOB OPENSSL_HEADERS   "${OPENSSL_INCLUDE_DIR}/openssl/*.h")
+file(GLOB MB_PRIVATE_HEADERS   "${CRYPTO_MB_INCLUDE_DIR}/internal/common/*.h"
+                               "${CRYPTO_MB_INCLUDE_DIR}/internal/ecnist/*.h"
+                               "${CRYPTO_MB_INCLUDE_DIR}/internal/rsa/*.h"
+                               "${CRYPTO_MB_INCLUDE_DIR}/internal/sm2/*.h"
+                               "${CRYPTO_MB_INCLUDE_DIR}/internal/sm3/*.h"
+                               "${CRYPTO_MB_INCLUDE_DIR}/internal/sm4/*.h"
+                               "${CRYPTO_MB_INCLUDE_DIR}/internal/ed25519/*.h"
+                               "${CRYPTO_MB_INCLUDE_DIR}/internal/exp/*.h"
+                               "${CRYPTO_MB_INCLUDE_DIR}/internal/fips_cert/*.h")
+file(GLOB OPENSSL_HEADERS      "${OPENSSL_INCLUDE_DIR}/openssl/*.h")
 
 set(CRYPTO_MB_SOURCES ${RSA_AVX512_SOURCES} ${COMMON_SOURCES} ${X25519_SOURCES} ${ECNIST_SOURCES} ${SM2_SOURCES} ${SM3_SOURCES} ${SM4_SOURCES} ${ED25519_SOURCES} ${EXP_SOURCES})
-set(CRYPTO_MB_HEADERS ${PUBLIC_HEADERS} ${PRIVATE_HEADERS} ${OPENSSL_HEADERS})
+if(MBX_FIPS_MODE)
+    set(CRYPTO_MB_SOURCES ${CRYPTO_MB_SOURCES} ${FIPS_CERT_SOURCES})
+    list(APPEND AVX512_LIBRARY_DEFINES "MBX_FIPS_MODE")
+endif()
+set(CRYPTO_MB_HEADERS ${MB_PUBLIC_HEADERS} ${MB_PRIVATE_HEADERS} ${OPENSSL_HEADERS})
 
 set(WIN_RESOURCE_FILE ${CRYPTO_MB_SOURCES_DIR}/common/crypto_mb_ver.rc)
 set(CPU_FEATURES_FILE ${CRYPTO_MB_SOURCES_DIR}/common/cpu_features.c)
@@ -109,7 +114,7 @@ if(DYNAMIC_LIB OR MB_STANDALONE)
     set_target_properties(${MB_DYN_LIB_TARGET} PROPERTIES C_VISIBILITY_PRESET hidden
                                                           VISIBILITY_INLINES_HIDDEN ON
                                                           LINK_FLAGS "${LINK_FLAGS_DYNAMIC} ${LINK_FLAG_SECURITY}"
-                                                          PUBLIC_HEADER "${PUBLIC_HEADERS}"
+                                                          PUBLIC_HEADER "${MB_PUBLIC_HEADERS}"
                                                           )
 
     if(UNIX)
@@ -142,7 +147,7 @@ endif()
 
 set_target_properties(${MB_STATIC_LIB_TARGET} PROPERTIES C_VISIBILITY_PRESET hidden
                                                          VISIBILITY_INLINES_HIDDEN ON
-                                                         PUBLIC_HEADER "${PUBLIC_HEADERS}")
+                                                         PUBLIC_HEADER "${MB_PUBLIC_HEADERS}")
 
 target_link_libraries(${MB_STATIC_LIB_TARGET} OpenSSL::Crypto)
 if(WIN32)

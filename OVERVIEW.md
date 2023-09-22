@@ -89,6 +89,8 @@ By default, the dispatcher chooses the most appropriate optimization for the cur
 | -                         | k0                     | Optimized for processors with Intel® Advanced Vector Extensions 512 (Intel® AVX-512) (formerly codenamed SkyLake)  |
 | -                         | k1                     | Optimized for processors with Intel® Advanced Vector Extensions 512 (Intel® AVX-512) (formerly codenamed IceLake)  |
 
+> **NOTE:** Due to the significant shift in the industry towards 64-bit architecture, the support of 32-bit libraries is deprecated in the Intel IPP Cryptography 2021.9 release and targeted to be removed after one year deprecation notice period.
+
 ### CPU Feature Dispatching
 
 Besides CPU dispatching that lets the library choose the general instruction set targeted implementation (for example, Intel SSE4.2, Intel AVX-512, and others), there is more granular dispatching that allows configuring usage of particular CPU features within a single instruction set. For example, Intel AVX-512 instruction set contains a VAES (AES Vector Extensions) feature subset, but not all CPUs that have Intel AVX-512 on board support VAES, so the library can automatically detect it in a runtime and enable corresponding optimizations if the feature subset is available.

@@ -46,12 +46,16 @@ set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -Werror")
 # Linker flags
 
 # Add export files
-set(LINK_FLAGS_DYNAMIC "-exported_symbols_list ${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb.macosx.lib-export")
+set(DLL_EXPORT_DIR "${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/")
+set(LINK_FLAGS_DYNAMIC "-exported_symbols_list ${DLL_EXPORT_DIR}/crypto_mb.macosx.lib-export")
+if(MBX_FIPS_MODE)
+  set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} -exported_symbols_list ${DLL_EXPORT_DIR}/crypto_mb.macosx.selftests-export")
+endif()
+
 # Add mininmum version support macOS
 set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} -mmacosx-version-min=12.0")
 
 # Compiler flags
-
 # Tells the compiler to align functions and loops
 set(CMAKE_C_FLAGS " -falign-functions=32")
 # Ensures that compilation takes place in a freestanding environment
