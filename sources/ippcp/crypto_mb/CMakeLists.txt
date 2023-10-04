@@ -46,13 +46,6 @@ set(CRYPTO_MB_SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(MB_DYN_LIB_TARGET    "crypto_mb")   # Dynamic library
 set(MB_STATIC_LIB_TARGET "crypto_mb_s") # Static library
 
-# Define public headers
-file(GLOB MB_PUBLIC_HEADERS "${CRYPTO_MB_INCLUDE_DIR}/crypto_mb/*.h*")
-# remove fips_cert.h header if fips-mode is not chosen
-if(NOT DEFINED MBX_FIPS_MODE)
-    list(REMOVE_ITEM MB_PUBLIC_HEADERS "${CRYPTO_MB_INCLUDE_DIR}/crypto_mb/fips_cert.h")
-endif()
-
 if(MB_STANDALONE)
     foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
         string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
@@ -64,6 +57,8 @@ if(MB_STANDALONE)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 else()
+    file(GLOB MB_PUBLIC_HEADERS "${CRYPTO_MB_INCLUDE_DIR}/crypto_mb/*.h*")
+
     # Make variables below accessible in parent CMakeLists.txt
     set(MBX_INTERFACE_VERSION ${MBX_INTERFACE_VERSION} PARENT_SCOPE)
     set(MB_PUBLIC_HEADERS ${MB_PUBLIC_HEADERS} PARENT_SCOPE)

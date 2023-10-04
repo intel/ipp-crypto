@@ -23,12 +23,12 @@
 #define MBX_LIB_NAME()    "crypto_mb"
 #define MBX_VER_MAJOR  1
 #define MBX_VER_MINOR  0
-#define MBX_VER_REV    10
+#define MBX_VER_REV    9
 
 /* major interface version */
 #define MBX_INTERFACE_VERSION_MAJOR 11
 /* minor interface version */
-#define MBX_INTERFACE_VERSION_MINOR 10
+#define MBX_INTERFACE_VERSION_MINOR 9
 
 typedef struct {
    int    major;          /* e.g. 1               */

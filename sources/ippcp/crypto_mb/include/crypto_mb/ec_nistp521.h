@@ -103,10 +103,10 @@ EXTERN_C mbx_status mbx_nistp521_ecdsa_sign_setup_mb8(int64u* pa_inv_eph_skey[8]
 /*
 // computes ECDSA signature
 //
-// pa_sign_r[]      array of pointers to the r-components of the signatures 
-// pa_sign_s[]      array of pointers to the s-components of the signatures 
+// pa_sign_pr[]      array of pointers to the r-components of the signatures 
+// pa_sign_ps[]      array of pointers to the s-components of the signatures 
 // pa_msg[]          array of pointers to the messages are being signed
-// pa_sgn_rp[]      array of pointers to the pre-computed r-components of the signatures 
+// pa_sign_rp[]      array of pointers to the pre-computed r-components of the signatures 
 // pa_inv_eph_skey[] array of pointers to the inversion of signer's ephemeral private keys
 // pa_reg_skey[]     array of pointers to the regular signer's ephemeral private keys
 // pBuffer           pointer to the scratch buffer

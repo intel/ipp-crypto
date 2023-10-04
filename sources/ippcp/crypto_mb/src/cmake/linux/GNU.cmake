@@ -54,11 +54,8 @@ set(CMAKE_C_FLAGS_SECURITY "${CMAKE_C_FLAGS_SECURITY} -Werror")
 # Create shared library
 set(LINK_FLAGS_DYNAMIC " -Wl,-shared")
 # Add export files
-set(DLL_EXPORT_DIR "${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/")
-set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} ${DLL_EXPORT_DIR}/crypto_mb.linux.lib-export")
-if (MBX_FIPS_MODE)
-  set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} ${DLL_EXPORT_DIR}/fips_selftests.linux.lib-export")
-endif()
+set(LINK_FLAGS_DYNAMIC "${LINK_FLAGS_DYNAMIC} ${CRYPTO_MB_SOURCES_DIR}/cmake/dll_export/crypto_mb.linux.lib-export")
+
 # Compiler flags
 
 # Tells the compiler to align functions and loops
