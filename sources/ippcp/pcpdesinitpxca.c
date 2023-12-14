@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2002 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* 
 // 
@@ -62,7 +61,7 @@ static int rotations[] = {
     1,2,4,6,8,10,12,14,15,17,19,21,23,25,27,28
 };
 
-/* PC-2 table (for round key constuction) */
+/* PC-2 table (for round key construction) */
 static Ipp8u pc2[] = {
     14, 17, 11, 24,  1,  5,
      3, 28, 15,  6, 21, 10,
@@ -152,7 +151,7 @@ IPP_OWN_DEFN (void, SetKey_DES, (const Ipp8u* pKey, IppsDESSpec* pCtx))
    }
 
    /*
-   // key schedule for decription (just copy in reverse order)
+   // key schedule for decryption (just copy in reverse order)
    */
    for(nkey=0; nkey<16; nkey++)
       pDecRoundKey[nkey] = pEncRoundKey[16-nkey-1];

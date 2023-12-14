@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2002 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <internal/ecnist/ifma_ecpoint_p256.h>
 #include <internal/rsa/ifma_rsa_arith.h>
@@ -349,7 +348,7 @@ __INLINE void MB_FUNC_NAME(booth_recode_)(__mb_mask* sign, U64* dvalue, U64 wval
 /* extract point */
 static void MB_FUNC_NAME(extract_point_)(P256_POINT* r, const P256_POINT tbl[], U64 idx)
 {
-   /* decrenent index (the table noes not contain [0]*P */
+   /* decrenent index (the table does not contain [0]*P */
    U64 idx_target = sub64(idx, set1(1));
 
    /* assume the point at infinity is what need */
@@ -450,7 +449,7 @@ void MB_FUNC_NAME(ifma_ec_nistp256_mul_point_)(P256_POINT* r, const P256_POINT* 
       MB_FUNC_NAME(ifma_neg52_p256_)(Ty, T.Y);
       MB_FUNC_NAME(secure_mask_mov_FE256_)(T.Y, T.Y, dsign, Ty);
 
-      /* acumulate T */
+      /* accumulate T */
       MB_FUNC_NAME(ifma_ec_nistp256_add_point_)(&R, &R, &T);
    }
 
@@ -512,7 +511,7 @@ __INLINE void MB_FUNC_NAME(booth_recode_bp_)(__mb_mask* sign, U64* dvalue, U64 w
 /* extract affine affine point */
 __INLINE void MB_FUNC_NAME(extract_point_affine_)(P256_POINT_AFFINE* r, const SINGLE_P256_POINT_AFFINE* tbl, U64 idx)
 {
-   /* decrement index (the table noes not contain [0]*P */
+   /* decrement index (the table does not contain [0]*P */
    U64 targIdx = sub64(idx, set1(1));
 
    U64 ax0, ax1, ax2, ax3, ax4, ay0, ay1, ay2, ay3, ay4;

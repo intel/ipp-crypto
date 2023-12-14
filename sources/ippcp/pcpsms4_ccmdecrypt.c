@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2017 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /*
 //     Intel(R) Integrated Performance Primitives. Cryptography Primitives.
@@ -42,7 +41,7 @@
 //    ippStsNoErr             no errors
 //
 // Parameters:
-//    pSrc        pointer to the cipher text beffer
+//    pSrc        pointer to the cipher text buffer
 //    pDst        pointer to the plane text bubber
 //    len         length of the bugger
 //    pCtx        pointer to the CCM context
@@ -53,11 +52,11 @@
 //
 // NOTE
 //
-// We consider to not spend time for further optimizing of this algoritm because it is not widely using.
+// We consider to not spend time for further optimizing of this algorithm because it is not widely using.
 // There is two ways for further optimization:
 // - Add parallel processing of CTR cipher. Performance advantages can be achieved by parallel processing of a big number of blocks.
-// - Try to decreace the memory reading/writing operation number, eg combine two calls of one block encryption 
-// function to single call that procees two blocks with the same key. Performance advantages can be achieved by 
+// - Try to decrease the memory reading/writing operation number, eg combine two calls of one block encryption 
+// function to single call that processes two blocks with the same key. Performance advantages can be achieved by 
 // reducing of reading/writing operations number, because we do not need to read the key twice in single loop.
 //
 */

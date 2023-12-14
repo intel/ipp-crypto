@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2002 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <crypto_mb/status.h>
 
@@ -95,7 +94,7 @@ static __mb_mask nistp521_ecdsa_sign_s_mb8(U64 sign_s[],
 {
    __ALIGN64 U64 tmp[P521_LEN52];
 
-   /* conver to Montgomery over n521 domain */
+   /* convert to Montgomery over n521 domain */
    MB_FUNC_NAME(ifma_tomont52_n521_)(inv_eph_skey, inv_eph_skey);
    MB_FUNC_NAME(ifma_tomont52_n521_)(tmp, sign_r);
    MB_FUNC_NAME(ifma_tomont52_n521_)(msg, msg);
@@ -397,7 +396,7 @@ mbx_status mbx_nistp521_ecdsa_sign_mb8(int8u* pa_sign_r[8],
 
    /* convert ephemeral keys into FE */
    ifma_BNU_to_mb8((int64u (*)[8])inv_eph_key, pa_eph_skey, P521_BITSIZE);
-   /* convert epphemeral keys into sclar*/
+   /* convert epphemeral keys into scalar */
    ifma_BNU_transpose_copy((int64u (*)[8])scalar, pa_eph_skey, P521_BITSIZE);
    scalar[P521_LEN64] = get_zero64();
    /* convert reg_skey*/
@@ -751,7 +750,7 @@ mbx_status mbx_nistp521_ecdsa_sign_ssl_mb8(int8u* pa_sign_r[8],
 
    /* convert ephemeral keys into FE */
    ifma_BN_to_mb8((int64u (*)[8])inv_eph_key, pa_eph_skey, P521_BITSIZE);
-   /* convert epphemeral keys into sclar*/
+   /* convert epphemeral keys into scalar */
    ifma_BN_transpose_copy((int64u (*)[8])scalar, pa_eph_skey, P521_BITSIZE);
    scalar[P521_LEN64] = get_zero64();
    /* convert reg_skey*/

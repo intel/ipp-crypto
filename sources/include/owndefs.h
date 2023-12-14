@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 1999 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 //
 //  Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
@@ -103,7 +102,6 @@
 #define _IPP32E_Y8 128     /* Intel® Streaming SIMD Extensions 4.2 (Intel® SSE4.2)                                                              */
 #define _IPP32E_E9 256     /* Intel® Advanced Vector Extensions (Intel® AVX)                                                                    */
 #define _IPP32E_L9 512     /* Intel® Advanced Vector Extensions 2 (Intel® AVX2)                                                                 */
-#define _IPP32E_N0 1024    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Phi(TM) Processor (formerly Knights Landing) */
 #define _IPP32E_K0 2048    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Skylake)       */
 #define _IPP32E_K1 4096    /* Intel® Advanced Vector Extensions 512 (Intel® AVX512) - Intel® Xeon® Processor (formerly codenamed Icelake)       */
 
@@ -197,11 +195,6 @@
   #define _IPP    _IPP_PX
   #define _IPP32E _IPP32E_L9
   #define OWNAPI(name) l9_##name
-
-#elif defined( _N0 ) /* Intel® AVX512 - formerly Knights Landing */
-  #define _IPP    _IPP_PX
-  #define _IPP32E _IPP32E_N0
-  #define OWNAPI(name) n0_##name
 
 #elif defined( _K0 ) /* Intel® AVX512 - formerly codenamed Skylake */
   #define _IPP    _IPP_PX

@@ -1,19 +1,18 @@
-﻿/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2021 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <internal/sm4/sm4_mb.h>
 #include <internal/rsa/ifma_rsa_arith.h>
@@ -253,7 +252,7 @@ void sm4_cfb128_dec_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM
     _mm512_storeu_si512(loc_out, _mm512_loadu_si512(pa_out));
     _mm512_storeu_si512(loc_out + 8, _mm512_loadu_si512(pa_out + 8));
 
-    /* Set p_rk pointer to the beginnig of the key schedule */
+    /* Set p_rk pointer to the beginning of the key schedule */
     const __m512i* p_rk = (const __m512i*)key_sched;
 
     __m512i TMP[20];

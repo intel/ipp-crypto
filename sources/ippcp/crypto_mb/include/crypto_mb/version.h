@@ -28,7 +28,7 @@
 /* major interface version */
 #define MBX_INTERFACE_VERSION_MAJOR 11
 /* minor interface version */
-#define MBX_INTERFACE_VERSION_MINOR 10
+#define MBX_INTERFACE_VERSION_MINOR 11
 
 typedef struct {
    int    major;          /* e.g. 1               */

@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2023 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* 
 // 
@@ -67,7 +66,7 @@ __ALIGN32 static const Ipp8u _mask_hi_256[] = {0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xF
 /*
 // sse_clmul_gcm performs clmul with 128-bit registers; is used in the combine hash step
 // input:
-//    const __m128i *HK - containts hashed keys
+//    const __m128i *HK - contains hashed keys
 // input/output:
 //    __m128i *GH - contains GHASH. Will be overwritten in this function
 */
@@ -118,8 +117,8 @@ __INLINE void sse_clmul_gcm(__m128i *GH, const __m128i *HK) {
 /*
 // avx2_clmul_gcm performs clmul with 256-bit registers; is used in the hash calculation step
 // input:
-//    const __m128i *HK - containts hashed keys
-//    const __m256i *HKeyKaratsuba - countains temporary data for Karatsuba method
+//    const __m128i *HK - contains hashed keys
+//    const __m256i *HKeyKaratsuba - contains temporary data for Karatsuba method
 //    const __m256i *mask_lo - contains mask for taking lower bits
 //    const __m256i *mask_hi - contains mask for taking higher bits
 // input/output:

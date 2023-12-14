@@ -1,25 +1,24 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2013 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* 
 // 
 //  Purpose:
 //     Cryptography Primitive.
-//     RSAES-OAEP Encryption/Decription Functions
+//     RSAES-OAEP Encryption/Description Functions
 // 
 //  Contents:
 //        ippsRSAEncrypt_OAEP()
@@ -79,7 +78,7 @@ IPPFUN(IppStatus, ippsRSAEncrypt_OAEP,(const Ipp8u* pSrc, int srcLen,
 {
    int hashLen;
 
-   /* test hash algorith ID */
+   /* test hash algorithm ID */
    hashAlg = cpValidHashAlg(hashAlg);
    IPP_BADARG_RET(ippHashAlg_Unknown==hashAlg, ippStsNotSupportedModeErr);
 

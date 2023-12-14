@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2010 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /*
 //
@@ -45,7 +44,7 @@ typedef struct _cpGFpECPoint {
 } cpGFPECPoint;
 
 /*
-// Contet Access Macros
+// Content Access Macros
 */
 #define ECP_POINT_SET_ID(ctx)   ((ctx)->idCtx = (Ipp32u)idCtxGFPPoint ^ (Ipp32u)IPP_UINT_PTR(ctx))
 #define ECP_POINT_FLAGS(ctx)    ((ctx)->flags)
@@ -155,7 +154,7 @@ typedef struct _cpGFpEC {
 #define VALID_ECP_ID(pCtx)     ((((pCtx)->idCtx) ^ (Ipp32u)IPP_UINT_PTR((pCtx))) == (Ipp32u)idCtxGFPEC)
 
 /* EC curve specific (a-parameter) */
-#define ECP_Acom    (0) /* commont case */
+#define ECP_Acom    (0) /* common case */
 #define ECP_Ami3    (1) /* a=-3 NIST's and SM2 curve */
 #define ECP_Aeq0    (2) /* a=0  EPIDv2.0 curve */
 
@@ -200,7 +199,7 @@ __INLINE void cpEcGFpReleasePool(int n, IppsGFpECState* pEC)
    int chunk_size = n*GFP_FELEN(GFP_PMA(ECP_GFP(pEC)))*3;
    ECP_POOL(pEC) -= chunk_size;
    // Clean the pool for the security reasons 
-   // (intermediate sensetive data may be stored here)
+   // (intermediate sensitive data may be stored here)
    ZEXPAND_BNU(ECP_POOL(pEC), 0, chunk_size);   
 }
 

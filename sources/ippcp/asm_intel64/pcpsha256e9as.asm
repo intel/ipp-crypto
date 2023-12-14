@@ -1,19 +1,18 @@
-;===============================================================================
+;=========================================================================
 ; Copyright (C) 2015 Intel Corporation
 ;
-; Licensed under the Apache License, Version 2.0 (the 'License');
+; Licensed under the Apache License,  Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
 ; You may obtain a copy of the License at
-; 
-; http://www.apache.org/licenses/LICENSE-2.0
-; 
-; Unless required by applicable law or agreed to in writing,
-; software distributed under the License is distributed on an 'AS IS' BASIS,
+;
+; 	http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law  or agreed  to  in  writing,  software
+; distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; See the License for the specific language governing permissions
-; and limitations under the License.
-; 
-;===============================================================================
+; See the License for the  specific  language  governing  permissions  and
+; limitations under the License.
+;=========================================================================
 
 ;
 ;
@@ -222,7 +221,7 @@
 ;; W[2] <= W[18] = Sigma1(W[ 0]) + W[11] + Sigma0(W[3]) + W[2]
 ;; W[3] <= W[19] = Sigma1(W[ 1]) + W[12] + Sigma0(W[4]) + W[3]
 ;;
-;; the process is repeated exactly because texual round of W[]
+;; the process is repeated exactly because textual round of W[]
 ;;
 ;; Sigma1() and Sigma0() functions are defined as following:
 ;; Sigma1(X) = ROR(X,17)^ROR(X,19)^SHR(X,10)
@@ -269,7 +268,7 @@
    vpaddd   %%xS0, %%xS0, %%SIGMA      ;; {???,???,new W01,new W00} = {??,??,W17,W16}
 %endif
 %if %%phase == 3
-   ;; SIGMA1 (hight)
+   ;; SIGMA1 (high)
    vpshufd  %%xS, %%xS0, 01010000b   ;; xS = {W17,W17,W16,W16}
    vpsrld   %%SIGMA, %%xS, 10        ;; SIGMA1 = SHR({W[17],W[17],W[16],W[16]},10)
    vpsrlq   %%xT, %%xS, 17           ;; xT = ROTR({W[17],W[17],W[16],W[16]},17)- low 32 rotation in fact

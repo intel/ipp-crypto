@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2021 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <internal/ed25519/sha512.h>
 #include <internal/common/mem_fns.h>
@@ -94,7 +93,7 @@ static void sha512_final(DigestSHA512 pHash, const int8u* inpBuffer, int inpLen,
     /* copy rest of message into internal buffer */
     CopyBlock(inpBuffer, buffer, inpLen);
 
-    /* padd message */
+    /* pad message */
     buffer[inpLen++] = 0x80;
     PadBlock(0, buffer + inpLen, (int)(bufferLen - inpLen - (int)MLR_SHA512));
 

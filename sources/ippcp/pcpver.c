@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2002 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /*
 //               Intel® Integrated Performance Primitives
@@ -62,8 +61,6 @@ static const IppLibraryVersion ippcpLibVer = {
         GET_LIBRARY_NAME( k1, "AVX-512F/CD/BW/DQ/VL/SHA/VBMI/VBMI2/IFMA/GFNI/VAES/VCLMUL" )
     #elif ( _IPP32E == _IPP32E_K0 )       /* Intel® Advanced Vector Extensions 512 (formerly Skylake) - intel64 */
         GET_LIBRARY_NAME( k0, "AVX-512F/CD/BW/DQ/VL" )
-    #elif ( _IPP32E == _IPP32E_N0 )     /* Intel® Advanced Vector Extensions 512 (formerly codenamed Knights Landing) - intel64 */
-        GET_LIBRARY_NAME( n0, "AVX-512F/CD/ER/PF" )
     #elif ( _IPP32E == _IPP32E_E9 )     /* Intel® Advanced Vector Extensions - intel64 */
         GET_LIBRARY_NAME( e9, "AVX" )
     #elif ( _IPP32E == _IPP32E_L9 )     /* Intel® Advanced Vector Extensions 2 - intel64 */

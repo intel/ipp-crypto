@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2019 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /*
 //
@@ -94,22 +93,17 @@ IPP_OWN_DEFN (void, cpAESEncryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
 
    int tailTweaksConsumedCount = 0;
 
-   __m512i tweakBlk0 = M512(pInitialTweaks);
-   __m512i tweakBlk1 = M512(pInitialTweaks + 1);
-   __m512i tweakBlk2 = M512(pInitialTweaks + 2);
-   __m512i tweakBlk3 = M512(pInitialTweaks + 3);
-   __m512i tweakBlk4 = M512(pInitialTweaks + 4);
-   __m512i tweakBlk5 = M512(pInitialTweaks + 5);
-   __m512i tweakBlk6 = M512(pInitialTweaks + 6);
-   __m512i tweakBlk7 = M512(pInitialTweaks + 7);
+   __m512i tweaks[8];
 
    // generate other 24 tweaks
-   tweakBlk2 = nextTweaks_x8(tweakBlk0);
-   tweakBlk3 = nextTweaks_x8(tweakBlk1);
-   tweakBlk4 = nextTweaks_x8(tweakBlk2);
-   tweakBlk5 = nextTweaks_x8(tweakBlk3);
-   tweakBlk6 = nextTweaks_x8(tweakBlk4);
-   tweakBlk7 = nextTweaks_x8(tweakBlk5);
+   tweaks[0] = M512(pInitialTweaks);
+   tweaks[1] = M512(pInitialTweaks + 1);
+   tweaks[2] = nextTweaks_x8(tweaks[0]);
+   tweaks[3] = nextTweaks_x8(tweaks[1]);
+   tweaks[4] = nextTweaks_x8(tweaks[2]);
+   tweaks[5] = nextTweaks_x8(tweaks[3]);
+   tweaks[6] = nextTweaks_x8(tweaks[4]);
+   tweaks[7] = nextTweaks_x8(tweaks[5]);
 
    int blocks;
    for (blocks = nBlks; blocks >= (4 * 8); blocks -= (4 * 8)) {
@@ -122,38 +116,38 @@ IPP_OWN_DEFN (void, cpAESEncryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
       __m512i blk6 = _mm512_loadu_si512(pInp512 + 6);
       __m512i blk7 = _mm512_loadu_si512(pInp512 + 7);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
-      blk3 = _mm512_xor_epi64(tweakBlk3, blk3);
-      blk4 = _mm512_xor_epi64(tweakBlk4, blk4);
-      blk5 = _mm512_xor_epi64(tweakBlk5, blk5);
-      blk6 = _mm512_xor_epi64(tweakBlk6, blk6);
-      blk7 = _mm512_xor_epi64(tweakBlk7, blk7);
+      blk0 = _mm512_xor_epi64(tweaks[0], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2], blk2);
+      blk3 = _mm512_xor_epi64(tweaks[3], blk3);
+      blk4 = _mm512_xor_epi64(tweaks[4], blk4);
+      blk5 = _mm512_xor_epi64(tweaks[5], blk5);
+      blk6 = _mm512_xor_epi64(tweaks[6], blk6);
+      blk7 = _mm512_xor_epi64(tweaks[7], blk7);
 
       cpAESEncrypt4_VAES_NI(&blk0, &blk1, &blk2, &blk3, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
-      blk3 = _mm512_xor_epi64(tweakBlk3, blk3);
+      blk0 = _mm512_xor_epi64(tweaks[0], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2], blk2);
+      blk3 = _mm512_xor_epi64(tweaks[3], blk3);
 
-      tweakBlk0 = nextTweaks_x32(tweakBlk0);
-      tweakBlk1 = nextTweaks_x32(tweakBlk1);
-      tweakBlk2 = nextTweaks_x32(tweakBlk2);
-      tweakBlk3 = nextTweaks_x32(tweakBlk3);
+      tweaks[0] = nextTweaks_x32(tweaks[0]);
+      tweaks[1] = nextTweaks_x32(tweaks[1]);
+      tweaks[2] = nextTweaks_x32(tweaks[2]);
+      tweaks[3] = nextTweaks_x32(tweaks[3]);
 
       cpAESEncrypt4_VAES_NI(&blk4, &blk5, &blk6, &blk7, pRkey, cipherRounds);
 
-      blk4 = _mm512_xor_epi64(tweakBlk4, blk4);
-      blk5 = _mm512_xor_epi64(tweakBlk5, blk5);
-      blk6 = _mm512_xor_epi64(tweakBlk6, blk6);
-      blk7 = _mm512_xor_epi64(tweakBlk7, blk7);
+      blk4 = _mm512_xor_epi64(tweaks[4], blk4);
+      blk5 = _mm512_xor_epi64(tweaks[5], blk5);
+      blk6 = _mm512_xor_epi64(tweaks[6], blk6);
+      blk7 = _mm512_xor_epi64(tweaks[7], blk7);
 
-      tweakBlk4 = nextTweaks_x32(tweakBlk4);
-      tweakBlk5 = nextTweaks_x32(tweakBlk5);
-      tweakBlk6 = nextTweaks_x32(tweakBlk6);
-      tweakBlk7 = nextTweaks_x32(tweakBlk7);
+      tweaks[4] = nextTweaks_x32(tweaks[4]);
+      tweaks[5] = nextTweaks_x32(tweaks[5]);
+      tweaks[6] = nextTweaks_x32(tweaks[6]);
+      tweaks[7] = nextTweaks_x32(tweaks[7]);
 
       _mm512_storeu_si512(pOut512, blk0);
       _mm512_storeu_si512(pOut512 + 1, blk1);
@@ -174,17 +168,17 @@ IPP_OWN_DEFN (void, cpAESEncryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
       __m512i blk2 = _mm512_loadu_si512(pInp512 + 2);
       __m512i blk3 = _mm512_loadu_si512(pInp512 + 3);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
-      blk3 = _mm512_xor_epi64(tweakBlk3, blk3);
+      blk0 = _mm512_xor_epi64(tweaks[0], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2], blk2);
+      blk3 = _mm512_xor_epi64(tweaks[3], blk3);
 
       cpAESEncrypt4_VAES_NI(&blk0, &blk1, &blk2, &blk3, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
-      blk3 = _mm512_xor_epi64(tweakBlk3, blk3);
+      blk0 = _mm512_xor_epi64(tweaks[0], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2], blk2);
+      blk3 = _mm512_xor_epi64(tweaks[3], blk3);
 
       _mm512_storeu_si512(pOut512, blk0);
       _mm512_storeu_si512(pOut512 + 1, blk1);
@@ -202,19 +196,15 @@ IPP_OWN_DEFN (void, cpAESEncryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
       __m512i blk1 = _mm512_loadu_si512(pInp512 + 1);
       __m512i blk2 = _mm512_loadu_si512(pInp512 + 2);
 
-      tweakBlk0 = M512(pInitialTweaks + tailTweaksConsumedCount);
-      tweakBlk1 = M512(pInitialTweaks + tailTweaksConsumedCount + 1);
-      tweakBlk2 = M512(pInitialTweaks + tailTweaksConsumedCount + 2);
-
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1 + tailTweaksConsumedCount], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2 + tailTweaksConsumedCount], blk2);
 
       cpAESEncrypt3_VAES_NI(&blk0, &blk1, &blk2, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1 + tailTweaksConsumedCount], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2 + tailTweaksConsumedCount], blk2);
 
       _mm512_storeu_si512(pOut512, blk0);
       _mm512_storeu_si512(pOut512 + 1, blk1);
@@ -229,16 +219,13 @@ IPP_OWN_DEFN (void, cpAESEncryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
       __m512i blk0 = _mm512_loadu_si512(pInp512);
       __m512i blk1 = _mm512_loadu_si512(pInp512 + 1);
 
-      tweakBlk0 = M512(pInitialTweaks + tailTweaksConsumedCount);
-      tweakBlk1 = M512(pInitialTweaks + tailTweaksConsumedCount + 1);
-
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1 + tailTweaksConsumedCount], blk1);
 
       cpAESEncrypt2_VAES_NI(&blk0, &blk1, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1 + tailTweaksConsumedCount], blk1);
 
       _mm512_storeu_si512(pOut512, blk0);
       _mm512_storeu_si512(pOut512 + 1, blk1);
@@ -251,13 +238,11 @@ IPP_OWN_DEFN (void, cpAESEncryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
    else if ((1 * 4) <= blocks) {
       __m512i blk0 = _mm512_loadu_si512(pInp512);
 
-      tweakBlk0 = M512(pInitialTweaks + tailTweaksConsumedCount);
-
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
 
       cpAESEncrypt1_VAES_NI(&blk0, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
 
       _mm512_storeu_si512(pOut512, blk0);
 
@@ -271,20 +256,18 @@ IPP_OWN_DEFN (void, cpAESEncryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
       __mmask8 k = (__mmask8)((1 << (blocks + blocks)) - 1);
       __m512i blk0 = _mm512_maskz_loadu_epi64(k, pInp512);
 
-      tweakBlk0 = M512(pInitialTweaks + tailTweaksConsumedCount);
-
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
 
       cpAESEncrypt1_VAES_NI(&blk0, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
 
       _mm512_mask_storeu_epi64(pOut512, k, blk0);
    }
 
    {
       __mmask8 maskTweakToReturn = (__mmask8)(((Ipp8u)0x03u << (blocks << 1)));
-      _mm512_mask_compressstoreu_epi64(pTweak, maskTweakToReturn /* the first unused tweak */, tweakBlk0);
+      _mm512_mask_compressstoreu_epi64(pTweak, maskTweakToReturn /* the first unused tweak */, tweaks[0 + tailTweaksConsumedCount]);
    }
 
 }
@@ -309,22 +292,17 @@ IPP_OWN_DEFN (void, cpAESDecryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
 
    int tailTweaksConsumedCount = 0;
 
-   __m512i tweakBlk0 = M512(pInitialTweaks);
-   __m512i tweakBlk1 = M512(pInitialTweaks + 1);
-   __m512i tweakBlk2 = M512(pInitialTweaks + 2);
-   __m512i tweakBlk3 = M512(pInitialTweaks + 3);
-   __m512i tweakBlk4 = M512(pInitialTweaks + 4);
-   __m512i tweakBlk5 = M512(pInitialTweaks + 5);
-   __m512i tweakBlk6 = M512(pInitialTweaks + 6);
-   __m512i tweakBlk7 = M512(pInitialTweaks + 7);
+   __m512i tweaks[8];
 
    // generate other 24 tweaks
-   tweakBlk2 = nextTweaks_x8(tweakBlk0);
-   tweakBlk3 = nextTweaks_x8(tweakBlk1);
-   tweakBlk4 = nextTweaks_x8(tweakBlk2);
-   tweakBlk5 = nextTweaks_x8(tweakBlk3);
-   tweakBlk6 = nextTweaks_x8(tweakBlk4);
-   tweakBlk7 = nextTweaks_x8(tweakBlk5);
+   tweaks[0] = M512(pInitialTweaks);
+   tweaks[1] = M512(pInitialTweaks + 1);
+   tweaks[2] = nextTweaks_x8(tweaks[0]);
+   tweaks[3] = nextTweaks_x8(tweaks[1]);
+   tweaks[4] = nextTweaks_x8(tweaks[2]);
+   tweaks[5] = nextTweaks_x8(tweaks[3]);
+   tweaks[6] = nextTweaks_x8(tweaks[4]);
+   tweaks[7] = nextTweaks_x8(tweaks[5]);
 
    int blocks;
    for (blocks = nBlks; blocks >= (4 * 8); blocks -= (4 * 8)) {
@@ -337,38 +315,38 @@ IPP_OWN_DEFN (void, cpAESDecryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
       __m512i blk6 = _mm512_loadu_si512(pInp512 + 6);
       __m512i blk7 = _mm512_loadu_si512(pInp512 + 7);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
-      blk3 = _mm512_xor_epi64(tweakBlk3, blk3);
-      blk4 = _mm512_xor_epi64(tweakBlk4, blk4);
-      blk5 = _mm512_xor_epi64(tweakBlk5, blk5);
-      blk6 = _mm512_xor_epi64(tweakBlk6, blk6);
-      blk7 = _mm512_xor_epi64(tweakBlk7, blk7);
+      blk0 = _mm512_xor_epi64(tweaks[0], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2], blk2);
+      blk3 = _mm512_xor_epi64(tweaks[3], blk3);
+      blk4 = _mm512_xor_epi64(tweaks[4], blk4);
+      blk5 = _mm512_xor_epi64(tweaks[5], blk5);
+      blk6 = _mm512_xor_epi64(tweaks[6], blk6);
+      blk7 = _mm512_xor_epi64(tweaks[7], blk7);
 
       cpAESDecrypt4_VAES_NI(&blk0, &blk1, &blk2, &blk3, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
-      blk3 = _mm512_xor_epi64(tweakBlk3, blk3);
+      blk0 = _mm512_xor_epi64(tweaks[0], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2], blk2);
+      blk3 = _mm512_xor_epi64(tweaks[3], blk3);
 
-      tweakBlk0 = nextTweaks_x32(tweakBlk0);
-      tweakBlk1 = nextTweaks_x32(tweakBlk1);
-      tweakBlk2 = nextTweaks_x32(tweakBlk2);
-      tweakBlk3 = nextTweaks_x32(tweakBlk3);
+      tweaks[0] = nextTweaks_x32(tweaks[0]);
+      tweaks[1] = nextTweaks_x32(tweaks[1]);
+      tweaks[2] = nextTweaks_x32(tweaks[2]);
+      tweaks[3] = nextTweaks_x32(tweaks[3]);
 
       cpAESDecrypt4_VAES_NI(&blk4, &blk5, &blk6, &blk7, pRkey, cipherRounds);
 
-      blk4 = _mm512_xor_epi64(tweakBlk4, blk4);
-      blk5 = _mm512_xor_epi64(tweakBlk5, blk5);
-      blk6 = _mm512_xor_epi64(tweakBlk6, blk6);
-      blk7 = _mm512_xor_epi64(tweakBlk7, blk7);
+      blk4 = _mm512_xor_epi64(tweaks[4], blk4);
+      blk5 = _mm512_xor_epi64(tweaks[5], blk5);
+      blk6 = _mm512_xor_epi64(tweaks[6], blk6);
+      blk7 = _mm512_xor_epi64(tweaks[7], blk7);
 
-      tweakBlk4 = nextTweaks_x32(tweakBlk4);
-      tweakBlk5 = nextTweaks_x32(tweakBlk5);
-      tweakBlk6 = nextTweaks_x32(tweakBlk6);
-      tweakBlk7 = nextTweaks_x32(tweakBlk7);
+      tweaks[4] = nextTweaks_x32(tweaks[4]);
+      tweaks[5] = nextTweaks_x32(tweaks[5]);
+      tweaks[6] = nextTweaks_x32(tweaks[6]);
+      tweaks[7] = nextTweaks_x32(tweaks[7]);
 
       _mm512_storeu_si512(pOut512, blk0);
       _mm512_storeu_si512(pOut512 + 1, blk1);
@@ -389,17 +367,17 @@ IPP_OWN_DEFN (void, cpAESDecryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
       __m512i blk2 = _mm512_loadu_si512(pInp512 + 2);
       __m512i blk3 = _mm512_loadu_si512(pInp512 + 3);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
-      blk3 = _mm512_xor_epi64(tweakBlk3, blk3);
+      blk0 = _mm512_xor_epi64(tweaks[0], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2], blk2);
+      blk3 = _mm512_xor_epi64(tweaks[3], blk3);
 
       cpAESDecrypt4_VAES_NI(&blk0, &blk1, &blk2, &blk3, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
-      blk3 = _mm512_xor_epi64(tweakBlk3, blk3);
+      blk0 = _mm512_xor_epi64(tweaks[0], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2], blk2);
+      blk3 = _mm512_xor_epi64(tweaks[3], blk3);
 
       _mm512_storeu_si512(pOut512, blk0);
       _mm512_storeu_si512(pOut512 + 1, blk1);
@@ -417,19 +395,15 @@ IPP_OWN_DEFN (void, cpAESDecryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
       __m512i blk1 = _mm512_loadu_si512(pInp512 + 1);
       __m512i blk2 = _mm512_loadu_si512(pInp512 + 2);
 
-      tweakBlk0 = M512(pInitialTweaks + tailTweaksConsumedCount);
-      tweakBlk1 = M512(pInitialTweaks + tailTweaksConsumedCount + 1);
-      tweakBlk2 = M512(pInitialTweaks + tailTweaksConsumedCount + 2);
-
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1 + tailTweaksConsumedCount], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2 + tailTweaksConsumedCount], blk2);
 
       cpAESDecrypt3_VAES_NI(&blk0, &blk1, &blk2, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
-      blk2 = _mm512_xor_epi64(tweakBlk2, blk2);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1 + tailTweaksConsumedCount], blk1);
+      blk2 = _mm512_xor_epi64(tweaks[2 + tailTweaksConsumedCount], blk2);
 
       _mm512_storeu_si512(pOut512, blk0);
       _mm512_storeu_si512(pOut512 + 1, blk1);
@@ -444,16 +418,13 @@ IPP_OWN_DEFN (void, cpAESDecryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
       __m512i blk0 = _mm512_loadu_si512(pInp512);
       __m512i blk1 = _mm512_loadu_si512(pInp512 + 1);
 
-      tweakBlk0 = M512(pInitialTweaks + tailTweaksConsumedCount);
-      tweakBlk1 = M512(pInitialTweaks + tailTweaksConsumedCount + 1);
-
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1 + tailTweaksConsumedCount], blk1);
 
       cpAESDecrypt2_VAES_NI(&blk0, &blk1, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
-      blk1 = _mm512_xor_epi64(tweakBlk1, blk1);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
+      blk1 = _mm512_xor_epi64(tweaks[1 + tailTweaksConsumedCount], blk1);
 
       _mm512_storeu_si512(pOut512, blk0);
       _mm512_storeu_si512(pOut512 + 1, blk1);
@@ -466,13 +437,11 @@ IPP_OWN_DEFN (void, cpAESDecryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
    else if ((1 * 4) <= blocks) {
       __m512i blk0 = _mm512_loadu_si512(pInp512);
 
-      tweakBlk0 = M512(pInitialTweaks + tailTweaksConsumedCount);
-
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
 
       cpAESDecrypt1_VAES_NI(&blk0, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
 
       _mm512_storeu_si512(pOut512, blk0);
 
@@ -486,20 +455,18 @@ IPP_OWN_DEFN (void, cpAESDecryptXTS_VAES, (Ipp8u* outBlk, const Ipp8u* inpBlk, i
       __mmask8 k = (__mmask8)((1 << (blocks + blocks)) - 1);
       __m512i blk0 = _mm512_maskz_loadu_epi64(k, pInp512);
 
-      tweakBlk0 = M512(pInitialTweaks + tailTweaksConsumedCount);
-
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
 
       cpAESDecrypt1_VAES_NI(&blk0, pRkey, cipherRounds);
 
-      blk0 = _mm512_xor_epi64(tweakBlk0, blk0);
+      blk0 = _mm512_xor_epi64(tweaks[0 + tailTweaksConsumedCount], blk0);
 
       _mm512_mask_storeu_epi64(pOut512, k, blk0);
    }
 
    {
       __mmask8 maskTweakToReturn = (__mmask8)(((Ipp8u)0x03u << (blocks << 1)));
-      _mm512_mask_compressstoreu_epi64(pTweak, maskTweakToReturn /* the first unused tweak */, tweakBlk0);
+      _mm512_mask_compressstoreu_epi64(pTweak, maskTweakToReturn /* the first unused tweak */, tweaks[0 + tailTweaksConsumedCount]);
    }
 }
 

@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2010 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* 
 //     Intel(R) Integrated Performance Primitives. Cryptography Primitives.
@@ -62,7 +61,7 @@
 //    extDeg         degree  of extension
 //    ppGroundElm[]  pointer to the array of extension field polynomial
 //    nElm           number  of coefficients above
-//    pGFpMethod     pointer to the basic arithmetic metods
+//    pGFpMethod     pointer to the basic arithmetic methods
 //    pGFpx          pointer to Finite Field context is being initialized
 *F*/
 IPPFUN(IppStatus, ippsGFpxInit,(const IppsGFpState* pGroundGF, int extDeg,
@@ -75,7 +74,7 @@ IPPFUN(IppStatus, ippsGFpxInit,(const IppsGFpState* pGroundGF, int extDeg,
 
    /* test extension degree */
    IPP_BADARG_RET( extDeg<IPP_MIN_GF_EXTDEG || extDeg>IPP_MAX_GF_EXTDEG, ippStsBadArgErr);
-   /* coeffs at (x^0), (x^1), ..., (x^(deg-1)) passed acually */
+   /* coeffs at (x^0), (x^1), ..., (x^(deg-1)) passed actually */
    /* considering normilized f(x), the coeff at (x^deg) is 1 and so could neither stored no passed */
    /* test if 1<=nElm<=extDeg */
    IPP_BADARG_RET( 1>nElm || nElm>extDeg, ippStsBadArgErr);

@@ -1,19 +1,18 @@
-;===============================================================================
+;=========================================================================
 ; Copyright (C) 2016 Intel Corporation
 ;
-; Licensed under the Apache License, Version 2.0 (the 'License');
+; Licensed under the Apache License,  Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
 ; You may obtain a copy of the License at
-; 
-; http://www.apache.org/licenses/LICENSE-2.0
-; 
-; Unless required by applicable law or agreed to in writing,
-; software distributed under the License is distributed on an 'AS IS' BASIS,
+;
+; 	http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law  or agreed  to  in  writing,  software
+; distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; See the License for the specific language governing permissions
-; and limitations under the License.
-; 
-;===============================================================================
+; See the License for the  specific  language  governing  permissions  and
+; limitations under the License.
+;=========================================================================
 
 ;
 ;
@@ -56,7 +55,7 @@ ALPHA_MUL_CNT  dq 00000000000000087h, 00000000000000001h
 ;; returns:
 ;;    ktwk = twk^key
 ;;    twk = twk*alpha
-;;    twk2= twk2 *2     - auxillary
+;;    twk2= twk2 *2     - auxiliary
 ;;
 %macro OUTER_MUL_X 6.nolist
   %xdefine %%ktwk %1
@@ -133,7 +132,7 @@ IPPASM cpAESDecryptXTS_AES_NI,PUBLIC
 ;; edx:        nBlocks          DWORD     ; number of blocks
 ;; rcx:        pKey:        BYTE      ; key material address
 ;; r8d:        nr:              DWORD     ; number of rounds
-;; r9          pTweak:      BYTE      ; pointer to the input/outpout (ciphertext) tweak
+;; r9          pTweak:      BYTE      ; pointer to the input/output (ciphertext) tweak
 
 %assign AES_BLOCK  (16)
 
@@ -146,7 +145,7 @@ IPPASM cpAESDecryptXTS_AES_NI,PUBLIC
    movdqa   xmm0, xmmword [rcx+r8]        ; key[0]
    movdqa   xmm8, xmmword [rel ALPHA_MUL_CNT]  ; mul constant
 
-   pshufd   xmm9, xmm15, 5Fh                 ; {twk[1]:twk[1]:twk[3]:twk[3]} - auxillary value
+   pshufd   xmm9, xmm15, 5Fh                 ; {twk[1]:twk[1]:twk[3]:twk[3]} - auxiliary value
 
    movsxd   rdx, edx                         ; number of blocks being processing
 
@@ -229,7 +228,7 @@ align IPP_ALIGN_FACTOR
    movdqa   xmm10, xmmword [rcx+r8] ; key[0]
 
    movdqa   xmm15, xmm8             ; restore tweak value
-   pshufd   xmm9,  xmm8, 5Fh        ; {twk[1]:twk[1]:twk[3]:twk[3]} - auxillary value
+   pshufd   xmm9,  xmm8, 5Fh        ; {twk[1]:twk[1]:twk[3]:twk[3]} - auxiliary value
    movdqa   xmm8, xmmword [rel ALPHA_MUL_CNT]     ; mul constant
 
    ;

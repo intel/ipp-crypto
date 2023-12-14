@@ -1,19 +1,18 @@
-;===============================================================================
+;=========================================================================
 ; Copyright (C) 2017 Intel Corporation
 ;
-; Licensed under the Apache License, Version 2.0 (the 'License');
+; Licensed under the Apache License,  Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
 ; You may obtain a copy of the License at
-; 
-; http://www.apache.org/licenses/LICENSE-2.0
-; 
-; Unless required by applicable law or agreed to in writing,
-; software distributed under the License is distributed on an 'AS IS' BASIS,
+;
+; 	http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law  or agreed  to  in  writing,  software
+; distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; See the License for the specific language governing permissions
-; and limitations under the License.
-; 
-;===============================================================================
+; See the License for the  specific  language  governing  permissions  and
+; limitations under the License.
+;=========================================================================
 
 ;
 ;
@@ -60,7 +59,7 @@
 %xdefine W24L  xmm8
 %xdefine W28L  xmm9
 
-%xdefine WTMP1  ymm0    ;; msg schedulling computation (temporary)
+%xdefine WTMP1  ymm0    ;; msg scheduling computation (temporary)
 %xdefine WTMP2  ymm1
 %xdefine WTMP3  ymm10
 
@@ -88,7 +87,7 @@
 %endmacro
 
 ;;
-;; msg schedulling for initial 00-15 sha1 rounds:
+;; msg scheduling for initial 00-15 sha1 rounds:
 ;;    - byte swap input
 ;;    - add sha1 round constant
 %macro W_CALC_00_15 2.nolist
@@ -103,7 +102,7 @@
 %endmacro
 
 ;;
-;; msg schedulling for other 16-79 sha1 rounds:
+;; msg scheduling for other 16-79 sha1 rounds:
 ;;
 %macro W_CALC 1.nolist
   %xdefine %%rndw %1

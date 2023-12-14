@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2019 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #ifndef IFMA_RSA_METHOD_H
 #define IFMA_RSA_METHOD_H
@@ -38,7 +37,7 @@ typedef void(*EXP52x_mb8)(int64u out[][8],
 
 
 /*
-// auxiliary mb8 arithmethic
+// auxiliary mb8 arithmetic
 */
 /* Mont reduction */
 typedef void (*amred52x_mb8)(int64u res[][8], const int64u inpA[][8], const int64u inpM[][8], const int64u k0[8]);
@@ -73,7 +72,7 @@ struct _ifma_rsa_method {
    int          id;             /* exponentiation's id (=1/2/5 -- public(fixed)/private/private_crt */
    int          rsaBitsize;     /* size of rsa modulus (bits) */
    int          buffSize;       /* size of scratch buffer */
-   //cvt52BN_to_mb8   cvt52;      /* convert non-contiguos BN to radix 2^52 and strore in mb8 forman */
+   //cvt52BN_to_mb8   cvt52;      /* convert non-contiguous BN to radix 2^52 and store in mb8 forman */
    //tcopyBN_to_mb8   tcopy;      /* copy non-contiguos BN into mb8 format */
    EXP52x_65537_mb8 expfunc65537;   /* "exp52x_fix_mb8" fixed exponentiation */
    EXP52x_mb8       expfun;         /* "exp52x_arb_mb8" exponentiation */

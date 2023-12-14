@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2002 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /*
 //               Intel(R) Integrated Performance Primitives
@@ -40,7 +39,7 @@
 */
 #define _FEATURE_OFF_      (0)   /* feature is OFF */
 #define _FEATURE_ON_       (1)   /* feature is ON  */
-#define _FEATURE_TICKTOCK_ (2)   /* dectect if feature is OFF/ON */
+#define _FEATURE_TICKTOCK_ (2)   /* detect if feature is OFF/ON */
 
 #include "pcpvariant.h"
 
@@ -155,7 +154,7 @@ typedef int cpSize;
    #define CONST_64(x)  (x##LL)
 #endif
 
-/* define 64-bit constant or pair of 32-bit dependding on architecture */
+/* define 64-bit constant or pair of 32-bit depending on architecture */
 #if ((_IPP_ARCH == _IPP_ARCH_EM64T) || (_IPP_ARCH == _IPP_ARCH_LP64) || (_IPP_ARCH == _IPP_ARCH_LRB) || (_IPP_ARCH == _IPP_ARCH_LRB2))
 #define LL(lo,hi) (((Ipp64u)(lo)) | ((Ipp64u)(hi) << 32))
 #define L_(lo)    ((Ipp64u)(lo))

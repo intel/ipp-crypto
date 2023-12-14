@@ -1,19 +1,18 @@
-#===============================================================================
+#=========================================================================
 # Copyright (C) 2020 Intel Corporation
 #
-# Licensed under the Apache License, Version 2.0 (the 'License');
+# Licensed under the Apache License,  Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-# http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an 'AS IS' BASIS,
+#
+# 	http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law  or agreed  to  in  writing,  software
+# distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions
-# and limitations under the License.
-# 
-#===============================================================================
+# See the License for the  specific  language  governing  permissions  and
+# limitations under the License.
+#=========================================================================
 
 #
 # Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
@@ -113,6 +112,5 @@ set(n8_opt "${n8_opt} -march=core2 -mssse3")
 set(y8_opt "${y8_opt} -march=nehalem -msse4.2 -maes -mpclmul -msha")
 set(e9_opt "${e9_opt} -march=sandybridge -mavx -maes -mpclmul -msha -mrdrnd -mrdseed")
 set(l9_opt "${l9_opt} -march=haswell -mavx2 -maes -mpclmul -msha -mrdrnd -mrdseed")
-set(n0_opt "${n0_opt} -march=knl -mavx2 -maes -mavx512f -mavx512cd -mavx512pf -mavx512er -mpclmul -msha -mrdrnd -mrdseed")
 set(k0_opt "${k0_opt} -march=skylake-avx512")
 set(k0_opt "${k0_opt} -maes -mavx512f -mavx512cd -mavx512vl -mavx512bw -mavx512dq -mavx512ifma -mpclmul -msha -mrdrnd -mrdseed -madx -mgfni -mvaes -mvpclmulqdq -mavx512vbmi -mavx512vbmi2")

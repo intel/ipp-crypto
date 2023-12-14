@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2013 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* 
 // 
@@ -162,7 +161,7 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys,(const IppsBigNumState* pSrcPublicExp,
             ret = cpPRNGenPattern(pFactorP, factorPbitSize, (BNU_CHUNK_T)1, topPattern, rndFunc, pRndParam);
             if(1!=ret) break; /* internal error */;
 
-            /* chek if E and (P-1) co-prime */
+            /* check if E and (P-1) co-prime */
             cpDec_BNU(pFactorP, pFactorP, nsP, 1);
             if(0 == cpIsCoPrime(BN_NUMBER(pPublicExp), BN_SIZE(pPublicExp), pFactorP, nsP, pFreeBuffer)) continue;
 
@@ -215,7 +214,7 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys,(const IppsBigNumState* pSrcPublicExp,
             cpMul_BNU_school(pProdN, pFactorP, nsP, pFactorQ, nsQ);
             if(rsaModulusBitSize != BITSIZE_BNU(pProdN, nsN)) continue;
 
-            /* chek if E and (Q-1) co-prime */
+            /* check if E and (Q-1) co-prime */
             cpDec_BNU(pFactorQ, pFactorQ, nsQ, 1);
             if(0 == cpIsCoPrime(BN_NUMBER(pPublicExp), BN_SIZE(pPublicExp), pFactorQ, nsQ, pFreeBuffer)) continue;
 

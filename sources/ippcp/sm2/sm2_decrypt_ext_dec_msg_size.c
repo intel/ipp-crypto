@@ -1,18 +1,18 @@
-/*******************************************************************************
- * Copyright (C) 2022 Intel Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *******************************************************************************/
+/*************************************************************************
+* Copyright (C) 2022 Intel Corporation
+*
+* Licensed under the Apache License,  Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include "owncp.h"
 #include "owndefs.h"
@@ -21,7 +21,7 @@
 /**
  * @brief ippsGFpECDecryptSM2_Ext_DecMsgSize
  * Get Message Size data by Decrypt SM2
- * Implemenation based on standart:
+ * Implementation based on standard:
  * GM/T 0003.4-2012 SM2
  * Public key cryptographic algorithm SM2 based on elliptic curves
  * Part 4: Public key encryption algorithm
@@ -48,7 +48,7 @@ IPPFUN(IppStatus, ippsGFpECDecryptSM2_Ext_DecMsgSize, (const IppsGFpECState *pEC
 
    const int elemSize = GFP_FELEN(pME); /* size BNU_CHUNK */
 
-   /* check chiper size */
+   /* check cipher size */
    IPP_BADARG_RET(!(ctMsgSize >= 0), ippStsOutOfRangeErr)
    const int ciph_PC_size   = 1;
    const int ciph_xy_size   = 2 * (Ipp32s)sizeof(BNU_CHUNK_T) * elemSize;

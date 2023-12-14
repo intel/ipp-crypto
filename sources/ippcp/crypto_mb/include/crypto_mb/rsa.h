@@ -51,21 +51,21 @@ EXTERN_C mbx_status mbx_rsa_private_crt_ssl_mb8(const int8u*  const from_pa[8],
 */
 typedef struct _ifma_rsa_method mbx_RSA_Method;
 
-/* rsa public key opertaion */
+/* rsa public key operation */
 EXTERN_C const mbx_RSA_Method* mbx_RSA1K_pub65537_Method(void);
 EXTERN_C const mbx_RSA_Method* mbx_RSA2K_pub65537_Method(void);
 EXTERN_C const mbx_RSA_Method* mbx_RSA3K_pub65537_Method(void);
 EXTERN_C const mbx_RSA_Method* mbx_RSA4K_pub65537_Method(void);
 EXTERN_C const mbx_RSA_Method* mbx_RSA_pub65537_Method(int rsaBitsize);
 
-/* rsa private key opertaion */
+/* rsa private key operation */
 EXTERN_C const mbx_RSA_Method* mbx_RSA1K_private_Method(void);
 EXTERN_C const mbx_RSA_Method* mbx_RSA2K_private_Method(void);
 EXTERN_C const mbx_RSA_Method* mbx_RSA3K_private_Method(void);
 EXTERN_C const mbx_RSA_Method* mbx_RSA4K_private_Method(void);
 EXTERN_C const mbx_RSA_Method* mbx_RSA_private_Method(int rsaBitsize);
 
-/* rsa private key opertaion (ctr) */
+/* rsa private key operation (ctr) */
 EXTERN_C const mbx_RSA_Method* mbx_RSA1K_private_crt_Method(void);
 EXTERN_C const mbx_RSA_Method* mbx_RSA2K_private_crt_Method(void);
 EXTERN_C const mbx_RSA_Method* mbx_RSA3K_private_crt_Method(void);

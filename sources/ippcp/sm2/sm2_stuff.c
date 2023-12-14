@@ -1,19 +1,18 @@
-/*******************************************************************************
- * Copyright (C) 2022 Intel Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the 'License');
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an 'AS IS' BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions
- * and limitations under the License.
- * 
- *******************************************************************************/
+/*************************************************************************
+* Copyright (C) 2022 Intel Corporation
+*
+* Licensed under the Apache License,  Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include "owndefs.h"
 #include "owncp.h"
@@ -113,7 +112,7 @@ __INLINE void convert_ct_to_big_endian(Ipp8u pCt[SIZE_CT], const Ipp32u ct)
  * @param [in]  kdf_len length KDF
  * @param [in]  pZ      data Z to create KDF
  * @param [in]  z_len   length Z data
- * bound kdf_len in standart:
+ * bound kdf_len in standard:
  *
  */
 IPP_OWN_DEFN(IppStatus, KDF_sm3, (Ipp8u * pKDF, int kdf_len, const Ipp8u *pZ, const int z_len))

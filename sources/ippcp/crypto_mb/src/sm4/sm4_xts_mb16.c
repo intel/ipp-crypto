@@ -1,19 +1,18 @@
-﻿/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2023 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-* http://www.apache.org/licenses/LICENSE-2.0
+* 	http://www.apache.org/licenses/LICENSE-2.0
 *
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-*
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <internal/sm4/sm4_mb.h>
 #include <internal/rsa/ifma_rsa_arith.h>
@@ -354,7 +353,7 @@ void sm4_xts_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LINES
     loc_len = _mm512_loadu_si512(len);
     loc_len = _mm512_mask_set1_epi32(loc_len, ~mb_mask, 0);
 
-    /* Local copies of the pointers to input and otput buffers */
+    /* Local copies of the pointers to input and output buffers */
     _mm512_storeu_si512((void*)loc_inp, _mm512_loadu_si512(pa_inp));
     _mm512_storeu_si512((void*)(loc_inp + 8), _mm512_loadu_si512(pa_inp + 8));
 

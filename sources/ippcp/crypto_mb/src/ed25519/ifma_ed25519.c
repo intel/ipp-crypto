@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2021 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <crypto_mb/status.h>
 
@@ -87,7 +86,7 @@ mbx_status MB_FUNC_NAME(mbx_ed25519_public_key_)(ed25519_public_key* pa_public_k
       /* expand secret keys */
       ed25519_expand_key((int8u**)pa_sha512_digest, pa_private_key);
 
-      /* convert into mb fromat */
+      /* convert into mb format */
       U64 scalar[FE_LEN64];
       ifma_BNU_transpose_copy((int64u(*)[8])scalar, (const int64u**)pa_sha512_digest, SHA512_HASH_BITLENGTH/2);
 

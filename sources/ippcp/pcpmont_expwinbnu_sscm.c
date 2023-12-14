@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2003 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /*
 //  Contents:
@@ -53,7 +52,7 @@ IPP_OWN_FUNPTR (void, gsSqr, (BNU_CHUNK_T* pR, const BNU_CHUNK_T* pX, cpSize len
 //                      range [0,m-1]
 //      pE           big number exponent
 //      pMont        Montgomery modulus of IppsMontState.
-/       pY           the Montgomery exponentation result.
+/       pY           the Montgomery exponentiation  result.
 //
 *F*/
 
@@ -106,7 +105,7 @@ IPP_OWN_DEFN (void, cpMontExpWin_BN_sscm, (IppsBigNumState* pY, const IppsBigNum
       BNU_CHUNK_T* dataT = BN_BUFFER(pY);
       ZEXPAND_COPY_BNU(dataY, nsM, dataX, nsX);
 
-      /* initialize recource */
+      /* initialize resource */
       pResource = (BNU_CHUNK_T*)(IPP_ALIGNED_PTR(pResource, CACHE_LINE_SIZE));
 
       //cpScramblePut(((Ipp8u*)pResource)+0, chunkSize, (Ipp32u*)MOD_MNT_R(pMont), nsM*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u));
@@ -151,7 +150,7 @@ IPP_OWN_DEFN (void, cpMontExpWin_BN_sscm, (IppsBigNumState* pY, const IppsBigNum
             shift = eBit & 0xF;
             windowVal = (cpSize)((eChunk>>shift) &mask);
 
-            /* exptact precomputed value and muptiply */
+            /* exptact precomputed value and multiply */
             //cpScrambleGet((Ipp32u*)dataT, nsM*sizeof(BNU_CHUNK_T)/sizeof(Ipp32u), ((Ipp8u*)pResource)+windowVal*chunkSize, chunkSize);
             gsScrambleGet_sscm(dataT, nsM, pResource, windowVal, window);
 

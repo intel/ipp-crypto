@@ -1,19 +1,18 @@
-;===============================================================================
+;=========================================================================
 ; Copyright (C) 2015 Intel Corporation
 ;
-; Licensed under the Apache License, Version 2.0 (the 'License');
+; Licensed under the Apache License,  Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
 ; You may obtain a copy of the License at
-; 
-; http://www.apache.org/licenses/LICENSE-2.0
-; 
-; Unless required by applicable law or agreed to in writing,
-; software distributed under the License is distributed on an 'AS IS' BASIS,
+;
+; 	http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law  or agreed  to  in  writing,  software
+; distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; See the License for the specific language governing permissions
-; and limitations under the License.
-; 
-;===============================================================================
+; See the License for the  specific  language  governing  permissions  and
+; limitations under the License.
+;=========================================================================
 
 %ifndef __ASMDEFS_INC__
 %define __ASMDEFS_INC__ 1
@@ -37,7 +36,6 @@
 %assign _IPP32E_Y8 128  ; Intel(R) Streaming SIMD Extensions 4.2 - intel64
 %assign _IPP32E_E9 256  ; Intel(R) Advanced Vector Extensions - intel64
 %assign _IPP32E_L9 512  ; Intel(R) Advanced Vector Extensions 2 - intel64
-%assign _IPP32E_N0 1024 ; Intel(R) Advanced Vector Extensions 512 - Intel(R) Xeon Phi(TM) processor (formerly Knight Landing) - intel64
 %assign _IPP32E_K0 2048 ; Intel(R) Advanced Vector Extensions 512 - Intel(R) Xeon(R) processor (formerly Skylake) - intel64
 %assign _IPP32E_K1 4096 ; Intel(R) Advanced Vector Extensions 512 - Intel(R) Xeon(R) processor (formerly Icelake) - intel64
 
@@ -85,10 +83,6 @@
   %assign IPP_ALIGN_FACTOR 32
   %assign _IPP _IPP_PX
   %assign _IPP32E _IPP32E_L9
-%elifdef _N0 ; Intel(R) Advanced Vector Extensions 512 (formerly Knights Landing) - intel64
-  %assign IPP_ALIGN_FACTOR 64
-  %assign _IPP _IPP_PX
-  %assign _IPP32E _IPP32E_N0
 %elifdef _K0 ; Intel(R) Advanced Vector Extensions 512 - Intel(R) Xeon(R) processor (formerly Skylake) - intel64
   %assign IPP_ALIGN_FACTOR 64
   %assign _IPP _IPP_PX

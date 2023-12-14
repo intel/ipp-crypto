@@ -1,19 +1,18 @@
-#===============================================================================
+#=========================================================================
 # Copyright (C) 2017 Intel Corporation
 #
-# Licensed under the Apache License, Version 2.0 (the 'License');
+# Licensed under the Apache License,  Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-# http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an 'AS IS' BASIS,
+#
+# 	http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law  or agreed  to  in  writing,  software
+# distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions
-# and limitations under the License.
-# 
-#===============================================================================
+# See the License for the  specific  language  governing  permissions  and
+# limitations under the License.
+#=========================================================================
 
 #
 # Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
@@ -45,7 +44,7 @@ if(UNIX)
     if (${ARCH} MATCHES "ia32")
       set(BASE_PLATFORM_LIST ${BASE_PLATFORM_LIST} w7 s8 p8 g9 h9)
     else()
-      set(BASE_PLATFORM_LIST ${BASE_PLATFORM_LIST} m7 n8 y8 e9 l9 n0 k0 k1)
+      set(BASE_PLATFORM_LIST ${BASE_PLATFORM_LIST} m7 n8 y8 e9 l9 k0 k1)
     endif(${ARCH} MATCHES "ia32")
   endif(APPLE)
 endif(UNIX)
@@ -86,7 +85,6 @@ set(n8_def "_N8")
 set(y8_def "_Y8")
 set(e9_def "_E9")
 set(l9_def "_L9")
-set(n0_def "_N0")
 set(k0_def "_K0")
 set(k1_def "_K1")
 
@@ -185,12 +183,22 @@ if(IPP_REVISION)
   set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPP_REVISION=${IPP_REVISION}")
 endif()
 
+# Enable tech-preview feature in the library
+set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPPCP_PREVIEW_XMSS")
+
 set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -D_NO_IPP_DEPRECATED") # do not warn about ippcp deprecated functions
 # set BN_OPENSSL_DISABLE for Intel IPP Cryptography
 # set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DBN_OPENSSL_DISABLE")
 
-include(${COMPILER_OPTIONS_FILE}) # uses ${CMAKE_C_FLAGS} ${LIBRARY_DEFINES} ${<letter>opt} from the scope
+if(IPPCP_FIPS_MODE)
+  set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPPCP_FIPS_MODE")
+  # Internal memory management in FIPS Selftests
+  if(IPPCP_SELFTEST_USE_MALLOC)
+    set(LIBRARY_DEFINES "${LIBRARY_DEFINES} -DIPPCP_SELFTEST_USE_MALLOC")
+  endif()
+endif()
 
+include(${COMPILER_OPTIONS_FILE}) # uses ${CMAKE_C_FLAGS} ${LIBRARY_DEFINES} ${<letter>opt} from the scope
 if(UNIX)
   set(CMAKE_C_CREATE_SHARED_LIBRARY "<CMAKE_C_COMPILER> <CMAKE_SHARED_LIBRARY_C_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> ${LIB_EXPORT_FILE} <CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
   set(CMAKE_CXX_CREATE_SHARED_LIBRARY "<CMAKE_CXX_COMPILER> <CMAKE_SHARED_LIBRARY_CXX_FLAGS> <LANGUAGE_COMPILE_FLAGS> <LINK_FLAGS> ${LIB_EXPORT_FILE} <CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS> <SONAME_FLAG><TARGET_SONAME> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
@@ -208,6 +216,7 @@ endif(NOT MERGED_BLD)
 file(GLOB IPPCP_PUBLIC_HEADERS
     ${IPP_CRYPTO_INCLUDE_DIR}/*.h)
 
+
 file(GLOB LIBRARY_HEADERS
     ${IPP_CRYPTO_SOURCES_DIR}/*.h
     ${IPP_CRYPTO_SOURCES_DIR}/ecnist/*.h
@@ -216,14 +225,14 @@ file(GLOB LIBRARY_HEADERS
     ${IPP_CRYPTO_INCLUDE_DIR}/ippcp*.h
     # RSA_SB (ifma) uses crypto_mb headers
     ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/crypto_mb/*.h
-    ${IPP_CRYPTO_SOURCES_DIR}/crypto_mb/include/internal/*.h
    )
 
 file(GLOB LIBRARY_C_SOURCES_ORIGINAL
     ${IPP_CRYPTO_SOURCES_DIR}/*.c
     ${IPP_CRYPTO_SOURCES_DIR}/ecnist/*.c
     ${IPP_CRYPTO_SOURCES_DIR}/sm2/*.c
-   )
+    ${IPP_CRYPTO_SOURCES_DIR}/xmss/*.c
+)
 
 file(GLOB LIBRARY_ASM_SOURCES_ORIGINAL
         ${IPP_CRYPTO_SOURCES_DIR}/asm_${ARCH}/*.asm
@@ -250,6 +259,22 @@ set (ASM_INCLUDE_DIRECTORIES
     ${IPP_CRYPTO_SOURCES_DIR}/asm_${ARCH}
     )
 
+if(IPPCP_FIPS_MODE)
+  file(GLOB IPPCP_FIPS_CERT_PUBLIC_HEADERS
+      ${IPP_CRYPTO_INCLUDE_DIR}/ippcp/*.h
+   )
+  file(GLOB IPPCP_FIPS_CERT_INTERNAL_HEADERS
+      ${IPPCP_FIPS_CERT_PUBLIC_HEADERS}
+      ${IPP_CRYPTO_SOURCE_INCLUDE_DIR}/fips_cert_internal/*.h
+   )
+  file(GLOB IPPCP_FIPS_CERT_LIBRARY_C_SOURCES
+      ${IPP_CRYPTO_SOURCES_DIR}/fips_cert/*.c
+   )
+  list(APPEND IPPCP_PUBLIC_HEADERS "${IPPCP_FIPS_CERT_PUBLIC_HEADERS}")
+  list(APPEND LIBRARY_HEADERS "${IPPCP_FIPS_CERT_INTERNAL_HEADERS}")
+  list(APPEND LIBRARY_C_SOURCES_ORIGINAL "${IPPCP_FIPS_CERT_LIBRARY_C_SOURCES}")
+endif()
+
 # Because of CMake bug (https://gitlab.kitware.com/cmake/cmake/issues/19178) it is impossible to add
 # target specific NASM compiler options/definitions when using VS generator, but it is possible to specify
 # them based on source files. So, here is the workaround - we spawn same assembler sources across different
@@ -258,7 +283,7 @@ set (ASM_INCLUDE_DIRECTORIES
 # The same trick is used for C sources, but it aims a different purpose: to rename object files in the library archive,
 # so that they do not intersect in a 'merged' library.
 foreach(opt ${PLATFORM_LIST})
-    # Popullate ASM source files in to corresponding folders per library 'letter'
+    # Populate ASM source files in to corresponding folders per library 'letter'
     set(asm_cache_dir "${CMAKE_BINARY_DIR}/asm_sources/${opt}/asm_${ARCH}")
     file(MAKE_DIRECTORY ${asm_cache_dir})
     # Prefer configure_file() over simple file(COPY) as it creates dependencies, so that cmake project
@@ -275,7 +300,7 @@ foreach(opt ${PLATFORM_LIST})
                                                                          INCLUDE_DIRECTORIES "${ASM_INCLUDE_DIRECTORIES}")
 
     #########################################################################################
-    # Popullate C source files in to corresponding folders per library 'letter'
+    # Populate C source files in to corresponding folders per library 'letter'
     if (NOT CODE_COVERAGE)
         set(c_cache_dir "${CMAKE_BINARY_DIR}/c_sources/${opt}/c_${ARCH}")
         file(MAKE_DIRECTORY ${c_cache_dir})
@@ -319,7 +344,18 @@ foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
              ${IPP_CRYPTO_INCLUDE_DIR}/ippversion.h
              ${ONE_CPU_FOLDER}
         DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include")
+   if(IPPCP_FIPS_MODE)
+     file(COPY ${IPP_CRYPTO_INCLUDE_DIR}/ippcp/fips_cert.h
+          DESTINATION "${CMAKE_OUTPUT_DIR}/${OUTPUTCONFIG}/include/ippcp")
+   endif()
 endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+
+# Different def files depending on the build type
+if(IPPCP_FIPS_MODE)
+    set(IPPCP_WIN_DEF_FILE ippcp_fips_selftests.def)
+else()
+    set(IPPCP_WIN_DEF_FILE ippcp.def)
+endif()
 
 foreach(opt ${PLATFORM_LIST})
   set(OPT_FLAGS_${opt} ${${opt}_opt})
@@ -329,7 +365,7 @@ foreach(opt ${PLATFORM_LIST})
     set(IPPCP_DYN_ITER_ASMOBJS ${TARGET_NAME}_dyn_${opt}-asmobjs)
     if(WIN32)
       add_library(${IPPCP_DYN_ITER_ASMOBJS} OBJECT ${LIBRARY_ASM_SOURCES_${opt}})
-      add_library(${IPPCP_DYN_ITER} SHARED ippcp.def
+      add_library(${IPPCP_DYN_ITER} SHARED ${IPPCP_WIN_DEF_FILE}
                                            pcpver.rc
                                            ${LIBRARY_HEADERS}
                                            ${LIBRARY_C_SOURCES_${opt}}
@@ -352,6 +388,9 @@ foreach(opt ${PLATFORM_LIST})
         set(LINK_FLAGS ${LINK_FLAG_DYNAMIC_MACOSX})
         ## add export file
         set(LINK_FLAGS "${LINK_FLAGS} -exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.lib-export")
+        if (IPPCP_FIPS_MODE)
+          set(LINK_FLAGS "${LINK_FLAGS} -exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.selftests-export")
+        endif()
         set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS "${LINK_FLAGS}")
         add_custom_command(TARGET ${IPPCP_DYN_ITER} POST_BUILD COMMAND
                            ${CMAKE_INSTALL_NAME_TOOL} -id @rpath/lib${TARGET_NAME}${opt}.dylib $<TARGET_FILE:${IPPCP_DYN_ITER}>)
@@ -359,7 +398,11 @@ foreach(opt ${PLATFORM_LIST})
         ## gres: copy LINK_FLAG_DYNAMIC_LINUX
         set(LINK_FLAGS ${LINK_FLAG_DYNAMIC_LINUX})
         ## add export file
-        set(LINK_FLAGS "${LINK_FLAGS} ${IPP_CRYPTO_SOURCES_DIR}/exports.linux.lib-export")
+        if (IPPCP_FIPS_MODE)
+          set(LINK_FLAGS "${LINK_FLAGS} ${IPP_CRYPTO_SOURCES_DIR}/exports.linux.selftests-export")
+        else()
+          set(LINK_FLAGS "${LINK_FLAGS} ${IPP_CRYPTO_SOURCES_DIR}/exports.linux.lib-export")
+        endif()
         set_target_properties(${IPPCP_DYN_ITER} PROPERTIES LINK_FLAGS ${LINK_FLAGS})
       endif()
       if(NOT APPLE)
@@ -505,7 +548,7 @@ if(MERGED_BLD)
     set(IPPCP_LIB_PCS ${IPPCP_LIB_PCS} PARENT_SCOPE)
 
     if(WIN32)
-      add_library(${IPPCP_LIB_PCS} SHARED ippcp.def emptyfile.c pcpver.rc) # emptyfile.c - Visual Studio does not produce a .dll without source files
+      add_library(${IPPCP_LIB_PCS} SHARED ${IPPCP_WIN_DEF_FILE} emptyfile.c pcpver.rc) # emptyfile.c - Visual Studio does not produce a .dll without source files
     else()
       add_library(${IPPCP_LIB_PCS} SHARED emptyfile.c) # emptyfile.c to suppress the cmake warning
     endif()
@@ -541,13 +584,20 @@ if(MERGED_BLD)
         set(LINK_FLAGS ${LINK_FLAG_PCS_MACOSX})
         ## add export file
         set(LINK_FLAGS "${LINK_FLAGS} -exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.lib-export")
+        if (IPPCP_FIPS_MODE)
+          set(LINK_FLAGS "${LINK_FLAGS} -exported_symbols_list ${IPP_CRYPTO_SOURCES_DIR}/exports.macosx.selftests-export")
+        endif()
         set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINK_FLAGS "${LINK_FLAGS}")
         add_custom_command(TARGET ${IPPCP_LIB_PCS} POST_BUILD COMMAND
                            ${CMAKE_INSTALL_NAME_TOOL} -id @rpath/lib${TARGET_NAME}.dylib $<TARGET_FILE:${IPPCP_LIB_PCS}>)
       else()
         set(LINK_FLAGS ${LINK_FLAG_PCS_LINUX})
         ## add export file
-        set(LINK_FLAGS "${LINK_FLAGS} ${IPP_CRYPTO_SOURCES_DIR}/exports.linux.lib-export")
+        if (IPPCP_FIPS_MODE)
+          set(LINK_FLAGS "${LINK_FLAGS} ${IPP_CRYPTO_SOURCES_DIR}/exports.linux.selftests-export")
+        else()
+          set(LINK_FLAGS "${LINK_FLAGS} ${IPP_CRYPTO_SOURCES_DIR}/exports.linux.lib-export")
+        endif()
         set_target_properties(${IPPCP_LIB_PCS} PROPERTIES LINK_FLAGS ${LINK_FLAGS})
         if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
             target_link_libraries(${IPPCP_LIB_PCS} gcc) # gcc is because of -nostdlib

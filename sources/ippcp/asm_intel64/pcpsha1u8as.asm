@@ -1,19 +1,18 @@
-;===============================================================================
+;=========================================================================
 ; Copyright (C) 2015 Intel Corporation
 ;
-; Licensed under the Apache License, Version 2.0 (the 'License');
+; Licensed under the Apache License,  Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
 ; You may obtain a copy of the License at
-; 
-; http://www.apache.org/licenses/LICENSE-2.0
-; 
-; Unless required by applicable law or agreed to in writing,
-; software distributed under the License is distributed on an 'AS IS' BASIS,
+;
+; 	http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law  or agreed  to  in  writing,  software
+; distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; See the License for the specific language governing permissions
-; and limitations under the License.
-; 
-;===============================================================================
+; See the License for the  specific  language  governing  permissions  and
+; limitations under the License.
+;=========================================================================
 
 ;
 ;
@@ -126,7 +125,7 @@
 
 ;;
 ;; SHA1 update round:
-;;    - F1 magic is used (and imbedded into the macros directly)
+;;    - F1 magic is used (and embedded into the macros directly)
 ;;    - 16 bytes of input are swapped
 ;;
 %macro SHA1_UPDATE_RND_F1_BSWAP 7.nolist
@@ -158,7 +157,7 @@
 
 ;;
 ;; SHA1 update round:
-;;    - F1 magic is used (and imbedded into the macros directly)
+;;    - F1 magic is used (and embedded into the macros directly)
 ;;
 %macro SHA1_UPDATE_RND_F1 6.nolist
   %xdefine %%A %1

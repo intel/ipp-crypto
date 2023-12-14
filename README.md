@@ -2,7 +2,7 @@
 
 [Build Instructions](./BUILD.md) | [Contributing Guide](#how-to-contribute) | [Documentation](#documentation) | [Get Help](#get-help) | [Intel IPP Product Page](https://www.intel.com/content/www/us/en/developer/tools/oneapi/ipp.html)
 
-Intel® Integrated Performance Primitives (Intel® IPP) Cryptography is a secure, fast and lightweight library of building blocks for cryptography, highly-optimized for various Intel® CPUs.
+Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography) is a secure, fast and lightweight library of building blocks for cryptography, highly-optimized for various Intel® CPUs.
 
 ## Key Features
 The library provides a comprehensive set of routines commonly used for cryptographic operations, including:
@@ -40,6 +40,11 @@ The library provides a comprehensive set of routines commonly used for cryptogra
 - Configurable CPU dispatching for the best performance
 - Kernel mode compatibility
 - Thread-safe design
+
+## FIPS 140 Compliance
+
+Intel IPP Cryptography supports building blocks (self-tests, services) for FIPS 140-3 compliance.
+See [FIPS] (./README_FIPS.md) document for details.
 
 ## Installation
 

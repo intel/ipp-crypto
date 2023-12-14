@@ -556,6 +556,12 @@ EXTERN (ippsGFpECESFinal_SM2)
 EXTERN (ippsGFpECESGetBuffersSize_SM2)
 EXTERN (ippsGFpECSetPointOctString)
 EXTERN (ippsGFpECGetPointOctString)
+EXTERN (ippsXMSSVerify)
+EXTERN (ippsXMSSSetPublicKeyState)
+EXTERN (ippsXMSSSetSignatureState)
+EXTERN (ippsXMSSSignatureStateGetSize)
+EXTERN (ippsXMSSPublicKeyStateGetSize)
+EXTERN (ippsXMSSBufferGetSize)
 
 VERSION {
  {
@@ -1118,6 +1124,12 @@ VERSION {
    ippsGFpECESGetBuffersSize_SM2;
    ippsGFpECSetPointOctString;
    ippsGFpECGetPointOctString;
+   ippsXMSSVerify;
+   ippsXMSSSetPublicKeyState;
+   ippsXMSSSetSignatureState;
+   ippsXMSSSignatureStateGetSize;
+   ippsXMSSPublicKeyStateGetSize;
+   ippsXMSSBufferGetSize;
   local: *;
  };
 }

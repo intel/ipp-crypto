@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2003 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* 
 // 
@@ -94,7 +93,7 @@ IPP_OWN_DEFN (IppStatus, ECCPSetDP, (const IppsGFpMethod* method, int pLen, cons
             int elemLen = GFP_FELEN(pGFE);
             IppsGFpElement elmA, elmB;
 
-            /* convert A ans B coeffs into GF elements */
+            /* convert A and B coeffs into GF elements */
             cpGFpElementConstruct(&elmA, cpGFpGetPool(1, pGFE), elemLen);
             cpGFpElementConstruct(&elmB, cpGFpGetPool(1, pGFE), elemLen);
             sts = ippsGFpSetElement((Ipp32u*)pA, BITS2WORD32_SIZE(BITSIZE_BNU(pA,aLen)), &elmA, pGF);
@@ -105,7 +104,7 @@ IPP_OWN_DEFN (IppStatus, ECCPSetDP, (const IppsGFpMethod* method, int pLen, cons
             sts = ippsGFpECSet(&elmA, &elmB, pEC);
             if(ippStsNoErr!=sts) break;
 
-            /* convert GX ans GY coeffs into GF elements */
+            /* convert GX and GY coeffs into GF elements */
             cpConstructBN(&P, rLen, (BNU_CHUNK_T*)pR, NULL);
             cpConstructBN(&H, 1, &h, NULL);
             sts = ippsGFpSetElement((Ipp32u*)pX, BITS2WORD32_SIZE(BITSIZE_BNU(pX,xLen)), &elmA, pGF);
