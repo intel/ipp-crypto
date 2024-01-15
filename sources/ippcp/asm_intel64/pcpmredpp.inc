@@ -1,19 +1,18 @@
-;===============================================================================
+;=========================================================================
 ; Copyright (C) 2014 Intel Corporation
 ;
-; Licensed under the Apache License, Version 2.0 (the 'License');
+; Licensed under the Apache License,  Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
 ; You may obtain a copy of the License at
-; 
-; http://www.apache.org/licenses/LICENSE-2.0
-; 
-; Unless required by applicable law or agreed to in writing,
-; software distributed under the License is distributed on an 'AS IS' BASIS,
+;
+; 	http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law  or agreed  to  in  writing,  software
+; distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; See the License for the specific language governing permissions
-; and limitations under the License.
-; 
-;===============================================================================
+; See the License for the  specific  language  governing  permissions  and
+; limitations under the License.
+;=========================================================================
 
 ;
 ;
@@ -31,7 +30,7 @@
 ;  r15 - reduction
 ;  rdi - buffer
 ;  rsi - modulus
-;  rdx - modulus legth
+;  rdx - modulus length
 ;  r8  - m'
 align IPP_ALIGN_FACTOR
 DECLARE_FUNC mred_8N_adcox,PRIVATE
@@ -176,7 +175,7 @@ ENDFUNC mred_8N_adcox
 ;  r15 - reduction
 ;  rdi - buffer
 ;  rsi - modulus
-;  rdx - modulus legth
+;  rdx - modulus length
 ;  r8  - m'
 align IPP_ALIGN_FACTOR
 DECLARE_FUNC mred_N_adcox,PRIVATE
@@ -474,7 +473,7 @@ DECLARE_FUNC mred_N_adcox,PRIVATE
 
    lea      rdi, [rdi+rdx*sizeof(qword)]
 
-   ; accumulate carryLCL and update hight product above
+   ; accumulate carryLCL and update high product above
    pop      rax
    shr      rax, 1
    mov      rbx, rdx
@@ -502,7 +501,7 @@ DECLARE_FUNC mred_N_adcox,PRIVATE
 
    pop      rbp         ; mul_8xn procedure
 
-   ; accumulate carryGBL and store hight product above
+   ; accumulate carryGBL and store high product above
    pop      rbx         ; carryGBL
    add      r8,  rbx
    mov      qword [rdi+sizeof(qword)*0], r8

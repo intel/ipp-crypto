@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2009 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 //
 // Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
@@ -55,7 +54,6 @@ extern "C" {
 #define Y8_FM ( U8_FM | ippCPUID_SSE41 | ippCPUID_SSE42 | ippCPUID_AES | ippCPUID_CLMUL | ippCPUID_SHA )
 #define E9_FM ( Y8_FM | ippCPUID_AVX | ippAVX_ENABLEDBYOS | ippCPUID_RDRAND | ippCPUID_F16C )
 #define L9_FM ( E9_FM | ippCPUID_MOVBE | ippCPUID_AVX2 | ippCPUID_ADCOX | ippCPUID_RDSEED | ippCPUID_PREFETCHW )
-#define N0_FM ( L9_FM | ippCPUID_AVX512F | ippCPUID_AVX512CD | ippCPUID_AVX512PF | ippCPUID_AVX512ER | ippAVX512_ENABLEDBYOS )
 #define K0_FM ( L9_FM | ippCPUID_AVX512F | ippCPUID_AVX512CD | ippCPUID_AVX512VL | ippCPUID_AVX512BW | ippCPUID_AVX512DQ | ippAVX512_ENABLEDBYOS )
 
 #elif defined (_ARCH_LRB2)
@@ -90,17 +88,11 @@ extern "C" {
   };
   #define LIB_PX LIB_S8
   #define LIB_W7 LIB_S8
-#elif defined( _ARCH_EM64T ) && !defined( OSXEM64T ) && !defined( WIN32E ) /* Linux* OS Intel64 supports N0 */
-  enum lib_enum {
-     LIB_M7=0, LIB_N8=1, LIB_Y8=2, LIB_E9=3, LIB_L9=4, LIB_N0=5, LIB_K0=6, LIB_K1=7,LIB_NOMORE
-  };
-  #define LIB_PX LIB_M7
-#elif defined( _ARCH_EM64T ) && !defined( OSXEM64T ) /* Windows* OS Intel64 doesn't support N0 */
+#elif defined( _ARCH_EM64T ) && !defined( OSXEM64T )
   enum lib_enum {
      LIB_M7=0, LIB_N8=1, LIB_Y8=2, LIB_E9=3, LIB_L9=4, LIB_K0=5, LIB_K1=6, LIB_NOMORE
   };
   #define LIB_PX LIB_M7
-  #define LIB_N0 LIB_L9
 #elif defined( OSXEM64T )
   enum lib_enum {
      LIB_Y8=0, LIB_E9=1, LIB_L9=2, LIB_K0=3, LIB_K1=4, LIB_NOMORE
@@ -108,7 +100,6 @@ extern "C" {
   #define LIB_PX LIB_Y8
   #define LIB_M7 LIB_Y8
   #define LIB_N8 LIB_Y8
-  #define LIB_N0 LIB_L9
 #elif defined( _ARCH_LRB2 )
   enum lib_enum {
      LIB_PX=0, LIB_B2=1, LIB_NOMORE
@@ -160,7 +151,7 @@ extern "C" {
     #define LIB_SSE42 LIB_Y8
     #define LIB_AVX   LIB_E9
     #define LIB_AVX2  LIB_L9
-    #define LIB_AVX3M LIB_L9
+    #define LIB_AVX3M LIB_L9 /* AVX2 code branch is used for Intel® Xeon® Phi(TM) processor (formerly Knight Landing) */
     #define LIB_AVX3X LIB_K0
     #define LIB_AVX3I LIB_K1
 #else
@@ -174,7 +165,7 @@ extern "C" {
     #define LIB_SSE42 LIB_Y8
     #define LIB_AVX   LIB_E9
     #define LIB_AVX2  LIB_L9
-    #define LIB_AVX3M LIB_N0
+    #define LIB_AVX3M LIB_L9 /* AVX2 code branch is used for Intel® Xeon® Phi(TM) processor (formerly Knight Landing) */
     #define LIB_AVX3X LIB_K0
     #define LIB_AVX3I LIB_K1
 #endif
@@ -202,20 +193,19 @@ static const dll_enum dllUsage[][DLL_NOMORE+1] = {
 
 #elif defined (_ARCH_EM64T)
 /* Describe Intel CPUs and libraries */
-typedef enum{CPU_M7=0, CPU_N8, CPU_Y8, CPU_E9, CPU_L9, CPU_N0, CPU_K0, CPU_K1, CPU_NOMORE} cpu_enum;
-typedef enum{DLL_M7=0, DLL_N8, DLL_Y8, DLL_E9, DLL_L9, DLL_N0, DLL_K0, DLL_K1, DLL_NOMORE} dll_enum;
+typedef enum{CPU_M7=0, CPU_N8, CPU_Y8, CPU_E9, CPU_L9, CPU_K0, CPU_K1, CPU_NOMORE} cpu_enum;
+typedef enum{DLL_M7=0, DLL_N8, DLL_Y8, DLL_E9, DLL_L9, DLL_K0, DLL_K1, DLL_NOMORE} dll_enum;
 
 /* New cpu can use some libraries for old cpu */
 static const dll_enum dllUsage[][DLL_NOMORE+1] = {
-         /*  DLL_K1, DLL_K0, DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE */
-/*CPU_M7*/ {                                                         DLL_M7, DLL_NOMORE },
-/*CPU_N8*/ {                                                 DLL_N8, DLL_M7, DLL_NOMORE },
-/*CPU_Y8*/ {                                         DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
-/*CPU_E9*/ {                                 DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
-/*CPU_L9*/ {                         DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
-/*CPU_N0*/ {                 DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
-/*CPU_K0*/ {         DLL_K0, DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE }
-/*CPU_K1*/ { DLL_K1, DLL_K0, DLL_N0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE }
+         /*  DLL_K1, DLL_K0, DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE */
+/*CPU_M7*/ {                                                  DLL_M7, DLL_NOMORE },
+/*CPU_N8*/ {                                          DLL_N8, DLL_M7, DLL_NOMORE },
+/*CPU_Y8*/ {                                  DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
+/*CPU_E9*/ {                          DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
+/*CPU_L9*/ {                  DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
+/*CPU_K0*/ {         DLL_K0,  DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE },
+/*CPU_K1*/ { DLL_K1, DLL_K0,  DLL_L9, DLL_E9, DLL_Y8, DLL_N8, DLL_M7, DLL_NOMORE }
 };
 
 #endif
@@ -252,7 +242,7 @@ static const _TCHAR* dllNames[DLL_NOMORE] = {
     _T(IPP_LIB_PREFIX()) _T("n8") _T(".dll"),
     _T(IPP_LIB_PREFIX()) _T("y8") _T(".dll"),
     _T(IPP_LIB_PREFIX()) _T("e9") _T(".dll"),
-    _T(IPP_LIB_PREFIX()) _T("l9") _T(".dll"), /* no support for N0 on win */
+    _T(IPP_LIB_PREFIX()) _T("l9") _T(".dll"),
     _T(IPP_LIB_PREFIX()) _T("k0") _T(".dll"),
     _T(IPP_LIB_PREFIX()) _T("k1") _T(".dll")
 };
@@ -272,7 +262,6 @@ static const _TCHAR* dllNames[DLL_NOMORE] = {
     _T("lib") _T(IPP_LIB_PREFIX()) _T("y8.so"),
     _T("lib") _T(IPP_LIB_PREFIX()) _T("e9.so"),
     _T("lib") _T(IPP_LIB_PREFIX()) _T("l9.so"),
-    _T("lib") _T(IPP_LIB_PREFIX()) _T("n0.so"),
     _T("lib") _T(IPP_LIB_PREFIX()) _T("k0.so"),
     _T("lib") _T(IPP_LIB_PREFIX()) _T("k1.so")
 };

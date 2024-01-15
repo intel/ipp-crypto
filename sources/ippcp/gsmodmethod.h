@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2017 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #if !defined(_GS_MOD_METHOD_H)
 #define _GS_MOD_METHOD_H
@@ -75,23 +74,23 @@ __INLINE void cpMaskMove_gs(BNU_CHUNK_T* dst, const BNU_CHUNK_T* src, int len, B
 }
 #endif
 
-/* common available pre-defined methos */
+/* common available pre-defined methods */
 #define gsModArith OWNAPI(gsModArith)
    IPP_OWN_DECL (gsModMethod*, gsModArith, (void))
 
-/* available pre-defined methos for RSA */
+/* available pre-defined methods for RSA */
 #define gsModArithRSA OWNAPI(gsModArithRSA)
    IPP_OWN_DECL (gsModMethod*, gsModArithRSA, (void))
 
-/* available pre-defined methos for ippsMont* */
+/* available pre-defined methods for ippsMont* */
 #define gsModArithMont OWNAPI(gsModArithMont)
    IPP_OWN_DECL (gsModMethod*, gsModArithMont, (void))
 
-/* available pre-defined methos for DLP * */
+/* available pre-defined methods for DLP * */
 #define gsModArithDLP OWNAPI(gsModArithDLP)
    IPP_OWN_DECL (gsModMethod*, gsModArithDLP, (void))
 
-/* available pre-defined common methos for GF over prime * */
+/* available pre-defined common methods for GF over prime * */
 #define gsArithGFp OWNAPI(gsArithGFp)
    IPP_OWN_DECL (gsModMethod*, gsArithGFp, (void))
 

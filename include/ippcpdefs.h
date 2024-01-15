@@ -337,7 +337,7 @@ typedef enum {
 #define   ippCPUID_MPX             0x10000000   /* Intel® Memory Protection Extensions                                       */
 #define   ippCPUID_AVX512_4FMADDPS 0x20000000   /* Intel® Advanced Vector Extensions 512 DL floating-point single precision  */
 #define   ippCPUID_AVX512_4VNNIW   0x40000000   /* Intel® Advanced Vector Extensions 512 DL enhanced word variable precision */
-#define   ippCPUID_KNC             0x80000000   /* Intel® Xeon® Phi(TM) Coprocessor                                           */
+#define   ippCPUID_KNC             0x80000000   /* Intel® Xeon Phi(TM) coprocessor                                           */
 #if defined( _WIN32 ) || defined ( _WIN64 )
   #define INT64_SUFFIX(name) name##L
 #else
@@ -377,7 +377,8 @@ typedef enum {
 #ifndef IPPCP_VCLMUL_ON
 #define IPPCP_VCLMUL_ON (0)
 #endif
-#define IPP_CUSTOM_ENABLED_FEATURES (ippCPUID_AES*IPPCP_AES_ON | ippCPUID_CLMUL*IPPCP_CLMUL_ON | ippCPUID_AVX512VAES*IPPCP_VAES_ON | ippCPUID_AVX512VCLMUL*IPPCP_VCLMUL_ON)
+#define IPP_CUSTOM_ENABLED_FEATURES (ippCPUID_AES*IPPCP_AES_ON | ippCPUID_CLMUL*IPPCP_CLMUL_ON | ippCPUID_AVX512VAES*IPPCP_VAES_ON | ippCPUID_AVX512VCLMUL*IPPCP_VCLMUL_ON \
+                                      | ippCPUID_AVX2VAES*IPPCP_VAES_ON | ippCPUID_AVX2VCLMUL*IPPCP_VCLMUL_ON)
 
 #endif /* IPP_CUSTOM_CPU_FEATURES__ */
 #endif /* !defined(_MERGED_BLD) && defined(IPPCP_CUSTOM_BUILD) */
@@ -851,6 +852,29 @@ IPPAPI( IppStatus, ippcpGetNumThreads, (int* pNumThr) )
 IPPAPI( const char*, ippcpGetStatusString, ( IppStatus StsCode ))
 IPPAPI( int, ippcpGetEnabledNumThreads, ( void ) )
 IPPAPI( Ipp64u, ippcpGetCpuClocks, (void) )
+
+#ifdef IPPCP_PREVIEW_XMSS
+/*
+// =========================================================
+// XMSS Algo
+// =========================================================
+*/
+
+typedef enum
+{
+    reserved = 0,
+    XMSS_SHA2_10_256 = 1,
+    XMSS_SHA2_16_256 = 2,
+    XMSS_SHA2_20_256 = 3,
+    XMSS_SHA2_10_512 = 4,
+    XMSS_SHA2_16_512 = 5,
+    XMSS_SHA2_20_512 = 6
+} IppsXMSSAlgo;
+
+typedef struct _cpXMSSSignatureState IppsXMSSSignatureState;
+typedef struct _cpXMSSPublicKeyState IppsXMSSPublicKeyState;
+
+#endif // IPPCP_PREVIEW_XMSS
 
 #ifdef __cplusplus
 }

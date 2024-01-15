@@ -1,19 +1,18 @@
-/*******************************************************************************
- * Copyright (C) 2021 Intel Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the 'License');
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an 'AS IS' BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions
- * and limitations under the License.
- * 
- *******************************************************************************/
+/*************************************************************************
+* Copyright (C) 2021 Intel Corporation
+*
+* Licensed under the Apache License,  Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include "owndefs.h"
 
@@ -131,7 +130,7 @@ IPP_OWN_DEFN(fesm2, fesm2_add_norder_norm, (const fesm2 a, const fesm2 b)) {
     const mask8 lt   = cmp_i64_mask(zero, srli_i64(t, DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
     const mask8 mask = (mask8)((mask8)0 - ((lt >> 4) & 1));
 
-    /* maks != 0 ? a : r */
+    /* mask != 0 ? a : r */
     r = mask_mov_i64(t, mask, r);
     return r;
 }
@@ -165,7 +164,7 @@ IPP_OWN_DEFN(fesm2, fesm2_fast_reduction_norder, (const fesm2 a)) {
     const mask8 lt   = cmp_i64_mask(zero, srli_i64(r, DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
     const mask8 mask = (mask8)((mask8)0 - ((lt >> 4) & 1));
 
-    /* maks != 0 ? a : r */
+    /* mask != 0 ? a : r */
     r = mask_mov_i64(r, mask, a);
     return r;
 }

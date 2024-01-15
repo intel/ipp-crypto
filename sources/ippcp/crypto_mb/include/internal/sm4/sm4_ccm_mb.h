@@ -1,19 +1,18 @@
-/*******************************************************************************
- * Copyright (C) 2022 Intel Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the 'License');
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an 'AS IS' BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions
- * and limitations under the License.
- *
- *******************************************************************************/
+/*************************************************************************
+* Copyright (C) 2022 Intel Corporation
+*
+* Licensed under the Apache License,  Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <crypto_mb/sm4_ccm.h>
 
@@ -99,7 +98,7 @@ EXTERN_C void sm4_ccm_get_tag_mb16(int8u *pa_out[SM4_LINES], const int tag_len[S
 #define SM4_CCM_CONTEXT_KEY(context) (&((context)->key_sched))
 #define SM4_CCM_CONTEXT_STATE(context) ((context)->state)
 
-/* Calculate offsets for acessing blocks in buffers */
+/* Calculate offsets for accessing blocks in buffers */
 
 #define REG_SIZE_BITS (512)
 #define REG_SIZE_BYTES (REG_SIZE_BITS / 8) /* Register size in bytes */
@@ -110,7 +109,7 @@ EXTERN_C void sm4_ccm_get_tag_mb16(int8u *pa_out[SM4_LINES], const int tag_len[S
 #define BUFFER_BLOCK_NUM(buffer, n) (buffer + SLOTS_PER_BLOCK * n)
 #define BUFFER_REG_NUM(buffer, n) (buffer + SLOTS_PER_BLOCK * BLOCKS_PER_REG * n)
 
-/* Internal macroses */
+/* Internal macros */
 
 #define sm4_ccm_clear_buffer(p_buffer) storeu((void *)(p_buffer), setzero());
 

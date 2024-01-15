@@ -1,0 +1,33 @@
+# Common certs and secrets
+
+*.pem
+*.pgp
+*.gpg
+*.key
+*.crt
+
+## Common Linux files ##
+# Backup or temp files
+*~
+*.pyc
+*.obj
+.idea
+__pycache__/
+
+# temporary files if a process still has a handle open of a deleted file
+.fuse_hidden*
+
+## Common Mac files ##
+
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+## Common Windows files ##
+
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.lnk

@@ -28,6 +28,17 @@ Existing automation guarantees regular synchronization of repositories.
   +-------------+                     +------------+
 </pre>
 
+## License
+Intel® IPP Cryptography is licensed under the terms in LICENSE <https://github.com/intel/ipp-crypto/blob/develop/LICENSE>. By contributing to the project, you agree to the license and copyright terms therein and release your contribution under these terms.
+
+## Developer Certification of Origin (DCO)
+We encourage you to use Signed-off-by feature to comply with [Developer Certification of Origin (DCO)](https://developercertificate.org/).  
+The name in the commit message Signed-off-by line and your email must match the change authorship information.  Make sure your .gitconfig is set up correctly so you can use `git commit -s` for signing your commits: 
+
+`git config --global user.name "Kris Smith"`
+
+`git config --global user.email Kris.Smith@company.com`
+
 ## Contribution Flow
 
 - Contributor creates fork from develop, commits the changes into the created branch, opens a PR and requests a review.

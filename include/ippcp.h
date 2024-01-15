@@ -1530,6 +1530,31 @@ IPPAPI(IppStatus, ippsGFpECDecryptSM2_Ext, (Ipp8u *pOut, int maxOutLen,
                                             const IppsBigNumState *pPrvKey,
                                             IppsGFpECState *pEC, Ipp8u *pScratchBuffer))
 
+#ifdef IPPCP_PREVIEW_XMSS
+
+/* XMSS */
+IPPAPI(IppStatus, ippsXMSSBufferGetSize, (Ipp32s* pSize, Ipp32s maxMessageLength, IppsXMSSAlgo OIDAlgo))
+IPPAPI(IppStatus, ippsXMSSPublicKeyStateGetSize, (Ipp32s* pSize, IppsXMSSAlgo OIDAlgo))
+IPPAPI(IppStatus, ippsXMSSSignatureStateGetSize, (Ipp32s* pSize, IppsXMSSAlgo OIDAlgo))
+IPPAPI(IppStatus, ippsXMSSSetPublicKeyState, (IppsXMSSAlgo OIDAlgo,
+                                              const Ipp8u* pRoot,
+                                              const Ipp8u* pSeed,
+                                              IppsXMSSPublicKeyState* pState))
+IPPAPI(IppStatus, ippsXMSSSetSignatureState, (IppsXMSSAlgo OIDAlgo,
+                                              Ipp32u idx,
+                                              const Ipp8u* r,
+                                              const Ipp8u* pOTSSign,
+                                              const Ipp8u* pAuthPath,
+                                              IppsXMSSSignatureState* pState))
+IPPAPI(IppStatus, ippsXMSSVerify, (const Ipp8u* pMsg,
+                                   const Ipp32s msgLen,
+                                   const IppsXMSSSignatureState* pSign,
+                                   int* pIsSignValid,
+                                   const IppsXMSSPublicKeyState* pKey,
+                                   Ipp8u* pBuffer))
+
+#endif // IPPCP_PREVIEW_XMSS
+
 #if defined(_MSC_VER) && !defined(__INTEL_COMPILER) && !defined(__INTEL_LLVM_COMPILER)
 #pragma warning(pop)
 #endif

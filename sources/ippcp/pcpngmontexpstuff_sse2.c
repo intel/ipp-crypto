@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2016 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include "owncp.h"
 
@@ -39,7 +38,7 @@
    1) repLen >= (bitsize +DIGIT_SIZE-1)/DIGIT_SIZE for complete conversion
    2) regular representation should expanded by at least one zero value,
       pre-requisite: pRegular[regLen] == 0 to make conversion correct
-   3) caller must provide suitable lengths of regular and redundant respresentations
+   3) caller must provide suitable lengths of regular and redundant representations
       so, conversion does correct
 */
 static int regular_dig27(Ipp64u* pRep27, int repLen, const Ipp32u* pRegular, int regLen)
@@ -74,7 +73,7 @@ static int regular_dig27(Ipp64u* pRep27, int repLen, const Ipp32u* pRegular, int
    into regular (base = 2^32) representation (pRegular, regLen)
 
    note:
-   caller must provide suitable lengths of regular and redundant respresentations
+   caller must provide suitable lengths of regular and redundant representations
    so, conversion does correct
 */
 static int dig27_regular(Ipp32u* pRegular, int regLen, const Ipp64u* pRep27, int repLen)
@@ -319,7 +318,7 @@ static void cpMontSqr_sse2(Ipp64u* pR, const Ipp64u* pA, const Ipp64u* pModulus,
 
    __m128i zero = _mm_setzero_si128();
 
-   /* expand operand - it's possible, because of buffer has 2 addition entrys */
+   /* expand operand - it's possible, because of buffer has 2 addition entries */
    _mm_storeu_si128((__m128i*)(pA+mLen), zero);
 
    /* double input operand and clean buffer */
@@ -419,7 +418,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpBinBuffer_sse2, (int modulusBits))
    cpSize redNum = numofVariable_sse2(modulusBits);      /* "sizeof" variable */
    cpSize redBufferNum = numofVariableBuff_sse2(redNum); /* "sizeof" variable  buffer */
    redBufferNum *= sizeof(Ipp64u)/sizeof(BNU_CHUNK_T);
-   return redBufferNum *8           /* 7 vaiables (maybe 6 enough?) */
+   return redBufferNum *8           /* 7 variables */
         + (cpSize)(16/sizeof(BNU_CHUNK_T)); /* and 16-byte alignment */
 }
 
@@ -480,7 +479,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_sse2, (BNU_CHUNK_T* dataY, const BNU_CHUN
    ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redT, nsM+1, dataM, nsM);
    regular_dig27(redM, redBufferLen, (Ipp32u*)redT,  modulusLen32);
 
-   /* compute taget domain Montgomery converter RR' */
+   /* compute target domain Montgomery converter RR' */
    ZEXPAND_BNU(redT, 0, redBufferLen);
    SET_BIT(redT, (4*redLen*EXP_DIGIT_SIZE_SSE2 - 4*convModulusBitSize));
    regular_dig27(redX, redBufferLen, (Ipp32u*)redT,  modulusLen32);
@@ -588,7 +587,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpBin_BNU_sscm_sse2, (BNU_CHUNK_T* dataY, const BNU
    ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redT, nsM+1, dataM, nsM);
    regular_dig27(redM, redBufferLen, (Ipp32u*)redT,  modulusLen32);
 
-   /* compute taget domain Montgomery converter RR' */
+   /* compute target domain Montgomery converter RR' */
    ZEXPAND_BNU(redT, 0, redBufferLen);
    SET_BIT(redT, (4*redLen*EXP_DIGIT_SIZE_SSE2 - 4*convModulusBitSize));
    regular_dig27(redX, redBufferLen, (Ipp32u*)redT,  modulusLen32);
@@ -682,7 +681,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sse2, (BNU_CHUNK_T* dataY, const BNU_CHUN
    ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redE, nsM+1, dataM, nsM);
    regular_dig27(redM, redBufferLen, (Ipp32u*)redE,  modulusLen32);
 
-   /* compute taget domain Montgomery converter RR' */
+   /* compute target domain Montgomery converter RR' */
    ZEXPAND_BNU(redT, 0, redBufferLen);
    SET_BIT(redT, (4*redLen*EXP_DIGIT_SIZE_SSE2 - 4*convModulusBitSize));
    regular_dig27(redY, redBufferLen, (Ipp32u*)redT,  modulusLen32);
@@ -802,7 +801,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sscm_sse2, (BNU_CHUNK_T* dataY, const BNU
    ZEXPAND_COPY_BNU((BNU_CHUNK_T*)redE, nsM+1, dataM, nsM);
    regular_dig27(redM, redBufferLen, (Ipp32u*)redE,  modulusLen32);
 
-   /* compute taget domain Montgomery converter RR' */
+   /* compute target domain Montgomery converter RR' */
    ZEXPAND_BNU(redT, 0, redBufferLen);
    SET_BIT(redT, (4*redLen*EXP_DIGIT_SIZE_SSE2 - 4*convModulusBitSize));
    regular_dig27(redY, redBufferLen, (Ipp32u*)redT,  modulusLen32);
@@ -860,7 +859,7 @@ IPP_OWN_DEFN (cpSize, gsMontExpWin_BNU_sscm_sse2, (BNU_CHUNK_T* dataY, const BNU
          eChunk = *((Ipp32u*)((Ipp16u*)redE+ eBit/BITSIZE(Ipp16u)));
          shift = eBit & 0xF;
          windowVal = (cpSize)((eChunk>>shift) &wmask);
-         /* exptact precomputed value and muptiply */
+         /* exptact precomputed value and multiply */
          gsScrambleGet_sscm((BNU_CHUNK_T*)redT, redLen*(Ipp32s)(sizeof(Ipp64u)/sizeof(BNU_CHUNK_T)), (BNU_CHUNK_T*)redTable, windowVal, window);
          cpMontMul_sse2(redY, redY, redT, redM, redLen, k0, redBuffer);
       }

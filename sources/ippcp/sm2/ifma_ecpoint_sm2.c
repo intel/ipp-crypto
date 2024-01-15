@@ -1,19 +1,18 @@
-/*******************************************************************************
- * Copyright (C) 2021 Intel Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the 'License');
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an 'AS IS' BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions
- * and limitations under the License.
- * 
- *******************************************************************************/
+/*************************************************************************
+* Copyright (C) 2021 Intel Corporation
+*
+* Licensed under the Apache License,  Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include "owndefs.h"
 
@@ -324,7 +323,7 @@ IPP_OWN_DEFN(void, gesm2_add_affine, (PSM2_POINT_IFMA * r, const PSM2_POINT_IFMA
     const fesm2* z1      = &p->z;
     const mask8 p_is_inf = FESM2_IS_ZERO(p->z);
 
-    /* coodinate of q (affine) */
+    /* coordinate of q (affine) */
     const fesm2* x2      = &q->x;
     const fesm2* y2      = &q->y;
     const mask8 q_is_inf = (FESM2_IS_ZERO(q->x) & FESM2_IS_ZERO(q->y));
@@ -415,7 +414,7 @@ IPP_OWN_DEFN(int, gesm2_is_on_curve, (const PSM2_POINT_IFMA* p, const int use_jp
      *
      * if input
      * * Jacobian projection coordinate (x,y,z) - represent by (x/z^2,y/z^3,1)
-     * * Affine coodinate (x/z^2,y/z^3,z/z=1)
+     * * Affine coordinate (x/z^2,y/z^3,z/z=1)
      *
      * mult formala (1) by z^6
      *

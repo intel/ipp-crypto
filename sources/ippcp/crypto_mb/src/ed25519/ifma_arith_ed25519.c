@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2002 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <internal/common/ifma_defs.h>
 #include <internal/common/ifma_math.h>
@@ -154,7 +153,7 @@ __mb_mask ge52_ext_decompress(ge52_ext_mb* r, const fe52_mb compressed_point)
    fe52_mb v3;
    fe52_mb vxx;
 
-   /* inital values are neutral */
+   /* initial values are neutral */
    neutral_ge52_ext_mb(r);
 
    /* y = fe and clear "x-sign" bit */
@@ -298,14 +297,14 @@ void ifma_ed25519_mul_basepoint(ge52_ext_mb* r, const U64 scalar[])
    __ALIGN64 ge52_p1p1_mb t;
    __ALIGN64 ge52_homo_mb s;
 
-   /* inital values are nuetral */
+   /* initial values are nuetral */
    neutral_ge52_ext_mb(&r0);
    neutral_ge52_ext_mb(&r1);
 
    /* pre-computed basepoint table  */
    ge52_precomp* tbl = &ifma_ed25519_bp_precomp[0][0];
 
-   __mb_mask carry = 0;    /* used in convertion to signed value */
+   __mb_mask carry = 0;    /* used in conversion to signed value */
 
    for(int n=0; n< FE_LEN64; n++) {
       /* scalar value*/
@@ -494,7 +493,7 @@ void ifma_ed25519_mul_point(ge52_ext_mb* r, const ge52_ext_mb* p, const U64 scal
       booth_recode(&dsign, &dvalue, wvalue);
       extract_cached_point(&cached, tbl, dvalue, dsign);
 
-      /* acumulate ext += cached */
+      /* accumulate ext += cached */
       ge_add(&p1p1, &ext, &cached);
       ge52_p1p1_to_ext_mb(&ext, &p1p1);
    }
@@ -518,7 +517,7 @@ void ifma_ed25519_mul_point(ge52_ext_mb* r, const ge52_ext_mb* p, const U64 scal
    booth_recode(&dsign, &dvalue, wvalue);
    extract_cached_point(&cached, tbl, dvalue, dsign);
 
-   /* acumulate ext += cached */
+   /* accumulate ext += cached */
    ge_add(&p1p1, &ext, &cached);
    ge52_p1p1_to_ext_mb(r, &p1p1);
 }

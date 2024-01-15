@@ -558,3 +558,9 @@ ippsGFpECESEncrypt_SM2
 ippsGFpECESDecrypt_SM2
 ippsGFpECESFinal_SM2
 ippsGFpECESGetBuffersSize_SM2
+ippsXMSSVerify
+ippsXMSSSetPublicKeyState
+ippsXMSSSetSignatureState
+ippsXMSSSignatureStateGetSize
+ippsXMSSPublicKeyStateGetSize
+ippsXMSSBufferGetSize

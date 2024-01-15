@@ -1,19 +1,18 @@
-;===============================================================================
+;=========================================================================
 ; Copyright (C) 2020 Intel Corporation
 ;
-; Licensed under the Apache License, Version 2.0 (the 'License');
+; Licensed under the Apache License,  Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
 ; You may obtain a copy of the License at
-; 
-; http://www.apache.org/licenses/LICENSE-2.0
-; 
-; Unless required by applicable law or agreed to in writing,
-; software distributed under the License is distributed on an 'AS IS' BASIS,
+;
+; 	http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law  or agreed  to  in  writing,  software
+; distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; See the License for the specific language governing permissions
-; and limitations under the License.
-; 
-;===============================================================================
+; See the License for the  specific  language  governing  permissions  and
+; limitations under the License.
+;=========================================================================
 
 ;
 ; Authors:
@@ -509,7 +508,7 @@ default rel
 %ifidn  %%ENC_DEC, DEC
         vmovdqa xmm3, xmm1
 %endif
-        vpxor   xmm9, xmm1                      ; Cyphertext XOR E(K, Yn)
+        vpxor   xmm9, xmm1                      ; Ciphertext XOR E(K, Yn)
 
         mov     r15, %%PLAIN_CYPH_LEN
         add     r15, r13
@@ -1111,7 +1110,7 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 
 %if %%num_initial_blocks > 0
                 ;; NOTE: 'jl' is never taken for %%num_initial_blocks = 0
-                ;;      This macro is executed for lenght 128 and up,
+                ;;      This macro is executed for length 128 and up,
                 ;;      zero length is checked in GCM_ENC_DEC.
                 ;; If the last block is partial then the xor will be done later
                 ;; in ENCRYPT_FINAL_PARTIAL_BLOCK.
@@ -2667,7 +2666,7 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 %define %%XTMP3         %11 ;; [clobbered] Temporary XMM reg
 %define %%XTMP4         %12 ;; [clobbered] Temporary XMM reg
 %define %%XTMP5         %13 ;; [clobbered] Temporary XMM reg
-%define %%IV_GEN_LEN    %14 ;; [in] IV general length 
+%define %%IV_GEN_LEN    %14 ;; [in] IV general length
 
         ;; J0 = GHASH(IV || 0s+64 || len(IV)64)
         ;; s = 16 * RoundUp(len(IV)/16) -  len(IV) */
@@ -2828,7 +2827,7 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 ; calculate the number of 16byte blocks in the message
 ; process (number of 16byte blocks) mod 8 '%%_initial_num_blocks_is_# .. %%_initial_blocks_encrypted'
 ; process 8 16 byte blocks at a time until all are done '%%_encrypt_by_8_new .. %%_eight_cipher_left'
-; if there is a block of less tahn 16 bytes process it '%%_zero_cipher_left .. %%_multiple_of_16_bytes'
+; if there is a block of less than 16 bytes process it '%%_zero_cipher_left .. %%_multiple_of_16_bytes'
 
 %ifidn __OUTPUT_FORMAT__, win64
         cmp     %%PLAIN_CYPH_LEN, 0
@@ -3128,7 +3127,8 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 	je %%_partial_done
 
 	GHASH_MUL xmm14, xmm13, xmm0, xmm10, xmm11, xmm5, xmm6 ;GHASH computation for the last <16 Byte block
-	vmovdqu [%%GDATA_CTX + AadHash], xmm14
+	;; The next code line has been removed due to incorrect work in case of two calls of GetTag - tags were not identical
+        ;; vmovdqu [%%GDATA_CTX + AadHash], xmm14
 
 %%_partial_done:
 
@@ -3210,7 +3210,7 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 %define %%GPR3                %7      ; temp GPR
 
 %define %%AAD_HASH      xmm14
-        
+
         vmovdqu64       %%AAD_HASH, [%%GDATA_CTX + AadHash]   ; load current hash
 
         UPDATE_HASH     %%A_IN, %%A_LEN, %%AAD_HASH, %%GDATA_KEY, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, %%GPR1, %%GPR2, %%GPR3
@@ -3235,7 +3235,7 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 %define %%GPR3                %7      ; temp GPR
 
 %define %%IV_HASH       xmm14
-        
+
         vmovdqu64       %%IV_HASH, [%%GDATA_CTX + OrigIV]   ; load current hash
 
         UPDATE_HASH     %%IV, %%IV_LEN, %%IV_HASH, %%GDATA_KEY, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, %%GPR1, %%GPR2, %%GPR3
@@ -3245,7 +3245,7 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 %endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; GCM_FINALIZE_IV_HASH finalize updating of AadHash value in gcm_context_data struct 
+;;; GCM_FINALIZE_IV_HASH finalize updating of AadHash value in gcm_context_data struct
 ;;; to prepare for encoding/decoding.
 ;;; Input: gcm_key_data * (GDATA_KEY), gcm_context_data *(GDATA_CTX),
 ;;; Initialization Vector (IV), Initialization Vector length (IV_LEN).
@@ -3261,8 +3261,8 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
 %define %%GPR3                %7      ; temp GPR
 %define %%IV_GEN_LEN          %8    ; [in] IV general length in bytes
 
-        
-%if %0 == 7 ;; IV is 12 bytes 
+
+%if %0 == 7 ;; IV is 12 bytes
 
         ;; read 12 IV bytes and pad with 0x00000001
         mov     %%GPR2, %%IV
@@ -3271,7 +3271,7 @@ vmovdqu  %%T_key, [%%GDATA_KEY+16*j]
         vmovq   xmm2, [%%GPR2]
         vmovdqa xmm4, [rel ONEf]
         vpternlogq xmm2, xmm3, xmm4, 0xfe     ; xmm2 = xmm2 or xmm3 or xmm4
-                
+
 %else ;; IV is not 12 bytes
 
         vmovdqu xmm2, [%%GDATA_CTX + OrigIV]
@@ -3464,7 +3464,7 @@ ENDFUNC FN_NAME(dec,_update_)
 IPPASM FN_NAME(gettag,_), PUBLIC
 
         FUNC_SAVE
-        
+
 ;; All parameters are passed through registers
 %ifdef SAFE_PARAM
         ;; Check key_data != NULL
@@ -3496,7 +3496,7 @@ IPPASM FN_NAME(gettag,_), PUBLIC
 ENDFUNC FN_NAME(gettag,_)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; IV and AAD in disconnected buffers processing 
+;; IV and AAD in disconnected buffers processing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 %ifdef GCM128_MODE

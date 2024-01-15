@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2017 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* 
 // 
@@ -36,7 +35,7 @@ struct _cpSMS4_CCM {
    Ipp64u   msgLen;           /* length of message to be processed */
    Ipp64u   lenProcessed;     /* message length has been processed */
    Ipp32u   tagLen;           /* length of authentication tag      */
-   Ipp32u   counterVal;       /* currnt couter value */
+   Ipp32u   counterVal;       /* current counter value */
    Ipp8u   ctr0[MBS_SMS4];    /* counter value */
    Ipp8u     s0[MBS_SMS4];    /* S0 = ENC(CTR0) content */
    Ipp8u     si[MBS_SMS4];    /* Si = ENC(CTRi) content */

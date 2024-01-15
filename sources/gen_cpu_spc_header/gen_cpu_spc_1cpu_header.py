@@ -1,19 +1,18 @@
-#===============================================================================
+#=========================================================================
 # Copyright (C) 2017 Intel Corporation
 #
-# Licensed under the Apache License, Version 2.0 (the 'License');
+# Licensed under the Apache License,  Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-# http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an 'AS IS' BASIS,
+#
+# 	http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law  or agreed  to  in  writing,  software
+# distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions
-# and limitations under the License.
-# 
-#===============================================================================
+# See the License for the  specific  language  governing  permissions  and
+# limitations under the License.
+#=========================================================================
 
 #
 # Intel(R) Integrated Performance Primitives Cryptography (Intel(R) IPP Cryptography)
@@ -46,7 +45,7 @@ if not os.path.exists(OutDir):
 
 
 Filename="ippcp"
-Filenames=["h9", "p8", "s8", "w7", "e9", "k0", "k1", "l9", "m7", "n0", "n8", "y8", "g9"]
+Filenames=["h9", "p8", "s8", "w7", "e9", "k0", "k1", "l9", "m7", "n8", "y8", "g9"]
 
 for name in Filenames:
   OutFile  = os.sep.join([OutDir, Filename + "_"+ name + ".h"])

@@ -103,7 +103,7 @@ List of CPU feature subsets that the library has special optimizations for:
 - RDRAND
 - RDSEED
 - CLMUL
-- Intel AVX-512 VAES
+- Intel AVX-512/AVX2 VAES
 - Intel AVX-512 IFMA
 - Intel AVX-512 GFNI
 

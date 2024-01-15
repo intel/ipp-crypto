@@ -147,11 +147,11 @@ To build the Intel IPP Cryptography library on Windows* OS, complete the followi
 
 ## Building Intel IPP Cryptography on macOS\*
 
-The software was validated on:
+> **NOTE:** Intel IPP Cryptography stopped macOS\* validation and maintenance based on the announcement in the [Intel IPP Cryptography 2021.9 release notes](https://www.intel.com/content/www/us/en/developer/articles/release-notes/release-notes-for-oneapi-integrated-performance-primitives.html#inpage-nav-3-1).\
+The Intel IPP Cryptography 2021.10 release is the last release validated on macOS\* 12.0.\
+For further macOS\* testing and maintenance we are relying on contributions from the community. For more details, see [Contributing Rules](./CONTRIBUTING.md).
 
-- macOS\* 12.0
-
-To build the Intel IPP Cryptography library on macOS*, complete the following steps:
+To build the Intel IPP Cryptography library on macOS\*, complete the following steps:
 
 1. Clone the source code from GitHub\* as follows:
 
@@ -219,14 +219,24 @@ To build the Intel IPP Cryptography library on macOS*, complete the following st
         `-DPLATFORM_LIST="w7;n8;y8;e9;l9;k0"`
 - `-DIPPCP_CUSTOM_BUILD="<CPU features list>"` - optional, works only if `-DMERGED_BLD:BOOL=off` is set, i.e. only for 1CPU libraries. Enables the CPU feature dispatching mask at compile-time based on the provided list.
 
-   - Currently supported by the library custom features dispatching: 
+   - Currently supported by the library custom features dispatching:
         1. Intel® Advanced Encryption Standard New Instructions (Intel® AES-NI) code-path enabling: `IPPCP_AES_ON;IPPCP_CLMUL_ON`
-        2. Intel® Advanced Vector Extensions 512 (Intel(R) AVX-512) and vector extensions of Intel(R) AES New Instructions (Intel(R) AES-NI) code-path enabling: `IPPCP_VAES_ON;IPPCP_VCLMUL_ON`
+        2. Intel® Advanced Vector Extensions 512 (Intel® AVX-512) / Intel® Advanced Vector Extensions 2 (Intel® AVX2) vector extensions of Intel® AES New Instructions (Intel® AES-NI) code-paths enabling: `IPPCP_VAES_ON;IPPCP_VCLMUL_ON`.
     - Example:
-        `-DPLATFORM_LIST="IPPCP_AES_ON;IPPCP_CLMUL_ON"` - this combination enables Intel® AES-NI in all 1CPU libraries, which contains this code path.
+        `-DIPPCP_CUSTOM_BUILD="IPPCP_AES_ON;IPPCP_CLMUL_ON"` - this combination enables Intel® AES-NI in all 1CPU libraries, which contains this code path.
     - Example of using a combination of CPU features:
-        `-DPLATFORM_LIST="IPPCP_AES_ON;IPPCP_CLMUL_ON;IPPCP_VAES_ON;IPPCP_VCLMUL_ON"` - in this combination the highest available feature in each 1CPU library will be enabled (e.g. for `"y8"` it’s Intel® AES-NI and for `"k1"` - Intel AVX-512 VAES)
+        `-DIPPCP_CUSTOM_BUILD="IPPCP_AES_ON;IPPCP_CLMUL_ON;IPPCP_VAES_ON;IPPCP_VCLMUL_ON"` - in this combination the highest available feature in each 1CPU library will be enabled (e.g. for `"y8"` it’s Intel® AES-NI, for `"l9"` it's Intel® AVX2 VAES, and for `"k1"` - Intel® AVX-512 VAES)
+- `-DIPPCP_FIPS_MODE:BOOL=<on|off>` - optional. Regulates the build of FIPS-compliant Intel IPP Cryptography library.
 
+  - `-DIPPCP_FIPS_MODE:BOOL=on`: enables all FIPS-compliance changes in Intel IPP Cryptography library.
+  - `-DIPPCP_FIPS_MODE:BOOL=off`: default configuration. Intel IPP Cryptography library build with such option is not FIPS-compliant.
+- `-DIPPCP_SELFTEST_USE_MALLOC:BOOL=<on|off>` - optional. Enables internal memory allocation and release using `malloc()` and `free()` functions inside Intel IPP Cryptography library selftests.
+  - `-DIPPCP_SELFTEST_USE_MALLOC:BOOL=on`: memory management is held by FIPS selftests, all processing APIs should be called with input parameters equal to `NULL`.
+  - `-DIPPCP_SELFTEST_USE_MALLOC:BOOL=off`: default configuration. Memory management is held by customer's application, all processing APIs should be called with work buffers of the valid length.
+- `-DMBX_FIPS_MODE:BOOL=<on|off>` - optional. Regulates the build of FIPS-compliant  Crypto Multi-buffer Library.
+
+  - `-DMBX_FIPS_MODE:BOOL=on`: enables all FIPS-compliance changes in Crypto Multi-buffer Library.
+  - `-DMBX_FIPS_MODE:BOOL=off`: default configuration. Crypto Multi-buffer Library build with such option is not FIPS-compliant.
 ### Windows\* OS
 
 - `-G"<tool-chain-generator>"` - defines the native build system CMake will generate from the input files.

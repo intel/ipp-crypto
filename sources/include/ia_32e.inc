@@ -1,19 +1,18 @@
-;===============================================================================
+;=========================================================================
 ; Copyright (C) 2015 Intel Corporation
 ;
-; Licensed under the Apache License, Version 2.0 (the 'License');
+; Licensed under the Apache License,  Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
 ; You may obtain a copy of the License at
-; 
-; http://www.apache.org/licenses/LICENSE-2.0
-; 
-; Unless required by applicable law or agreed to in writing,
-; software distributed under the License is distributed on an 'AS IS' BASIS,
+;
+; 	http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law  or agreed  to  in  writing,  software
+; distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; See the License for the specific language governing permissions
-; and limitations under the License.
-; 
-;===============================================================================
+; See the License for the  specific  language  governing  permissions  and
+; limitations under the License.
+;=========================================================================
 
 
 %include "asmdefs.inc"
@@ -85,10 +84,6 @@
     %endif
     %if (_IPP32E == _IPP32E_L9)
       %xdefine %%func_name l9_%1
-      %assign %%decoration_length 3
-    %endif
-    %if (_IPP32E == _IPP32E_N0)
-      %xdefine %%func_name n0_%1
       %assign %%decoration_length 3
     %endif
     %if (_IPP32E == _IPP32E_K0)
@@ -250,9 +245,7 @@
     add rsp, S_FRAME
   %endif
   %if (_IPP32E >= _IPP32E_E9)
-    %if (_IPP32E != _IPP32E_N0)
-      vzeroupper
-    %endif
+    vzeroupper
   %endif
 %endmacro
 
@@ -386,9 +379,7 @@
   %if (S_FRAME > 0)
     add rsp, S_FRAME
   %endif
-  %if (_IPP32E != _IPP32E_N0)
-    vzeroupper
-  %endif
+  vzeroupper
 %endmacro
 
 ; Helper macro to align different ABIs parameters for uniform usage

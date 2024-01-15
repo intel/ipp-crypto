@@ -54,20 +54,18 @@ EXTERN_C fips_test_status fips_selftest_mbx_ed25519_public_key_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_ed25519_sign_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_ed25519_verify_mb8(void);
 
-EXTERN_C fips_test_status fips_selftest_mbx_x25519_public_key_mb8(void);
-EXTERN_C fips_test_status fips_selftest_mbx_x25519_mb8(void);
+/* x25519 scheme is not yet FIPS-approved */
+// EXTERN_C fips_test_status fips_selftest_mbx_x25519_public_key_mb8(void);
+// EXTERN_C fips_test_status fips_selftest_mbx_x25519_mb8(void);
 
-EXTERN_C fips_test_status fips_selftest_mbx_rsa1k_public_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa2k_public_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa3k_public_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa4k_public_mb8(void);
 
-EXTERN_C fips_test_status fips_selftest_mbx_rsa1k_private_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa2k_private_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa3k_private_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa4k_private_mb8(void);
 
-EXTERN_C fips_test_status fips_selftest_mbx_rsa1k_private_crt_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa2k_private_crt_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa3k_private_crt_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa4k_private_crt_mb8(void);
@@ -97,17 +95,14 @@ EXTERN_C fips_test_status fips_selftest_mbx_nistp256_ecdsa_verify_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_nistp384_ecdsa_verify_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_nistp521_ecdsa_verify_ssl_mb8(void);
 
-EXTERN_C fips_test_status fips_selftest_mbx_rsa1k_public_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa2k_public_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa3k_public_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa4k_public_ssl_mb8(void);
 
-EXTERN_C fips_test_status fips_selftest_mbx_rsa1k_private_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa2k_private_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa3k_private_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa4k_private_ssl_mb8(void);
 
-EXTERN_C fips_test_status fips_selftest_mbx_rsa1k_private_crt_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa2k_private_crt_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa3k_private_crt_ssl_mb8(void);
 EXTERN_C fips_test_status fips_selftest_mbx_rsa4k_private_crt_ssl_mb8(void);
@@ -148,9 +143,6 @@ enum FIPS_CRYPTO_MB_FUNC {
   ed25519_sign_mb8,
   ed25519_verify_mb8,
   
-  x25519_public_key_mb8,
-  x25519_mb8,
-  
   rsa_public_mb8,
   rsa_private_mb8,
   rsa_private_crt_mb8,
@@ -189,6 +181,9 @@ enum FIPS_CRYPTO_MB_FUNC {
   exp3072_mb8,
   exp4096_mb8,
   exp_mb8,
+
+  x25519_public_key_mb8,
+  x25519_mb8,
   
   sm2_ecpublic_key_mb8,
   sm2_ecdh_mb8,

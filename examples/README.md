@@ -26,7 +26,7 @@ Only merged library (cmake option `-DMERGED_BLD:BOOL=ON`) builds are supported f
 
 2. On Linux\*/macOS\*, build with `make -j8 <target>`. You can use the following targets:
 
-   - To build an invididual example, use targets started with the *example_* string (like *example_aes-256-ctr-encryption*).
+   - To build an individual example, use targets started with the *example_* string (like *example_aes-256-ctr-encryption*).
 
    - To build all examples of a single specific category, use target *ippcp_examples_\<category\>* (like *ippcp_examples_aes*).
 

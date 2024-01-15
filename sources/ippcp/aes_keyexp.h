@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2020 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* 
 // 
@@ -33,7 +32,7 @@
 #include "pcpaesauthgcm_avx512.h"
 
 // These functions for key expansion are used only with AVX512 and AVX512-VAES optimizations for AES GCM
-// TODO: replase AVX2 keyexp with AVX512 keyexp
+// TODO: replace AVX2 keyexp with AVX512 keyexp
 #if(_IPP32E>=_IPP32E_K0)
 
 #define aes_keyexp_128_enc OWNAPI(aes_keyexp_128_enc)

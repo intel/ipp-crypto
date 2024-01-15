@@ -1,19 +1,18 @@
-#===============================================================================
+#=========================================================================
 # Copyright (C) 2017 Intel Corporation
 #
-# Licensed under the Apache License, Version 2.0 (the 'License');
+# Licensed under the Apache License,  Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-# http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an 'AS IS' BASIS,
+#
+# 	http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law  or agreed  to  in  writing,  software
+# distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions
-# and limitations under the License.
-# 
-#===============================================================================
+# See the License for the  specific  language  governing  permissions  and
+# limitations under the License.
+#=========================================================================
 
 #
 # Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
@@ -108,7 +107,7 @@ set (CMAKE_C_FLAGS_DEBUG " -O0 -g3")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -no-sox")
 # Alignment for structures on byte boundaries (= 16)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Zp16")
-# Defines the GNU macroses (__GNUC__, __GNUC_MINOR__, and __GNUC_PATCHLEVEL__)
+# Defines the GNU macros (__GNUC__, __GNUC_MINOR__, and __GNUC_PATCHLEVEL__)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -gcc")
 if(${ARCH} MATCHES "ia32")
   # Tells the compiler to not assume any specific stack alignment, but attempt to maintain alignment in case the stack is already aligned.
@@ -133,7 +132,6 @@ set(n8_opt "${n8_opt} -xATOM_SSSE3 -minstruction=nomovbe")
 set(y8_opt "${y8_opt} -xATOM_SSE4.2 -minstruction=nomovbe")
 set(e9_opt "${e9_opt} -xAVX")
 set(l9_opt "${l9_opt} -xCORE-AVX2")
-set(n0_opt "${n0_opt} -xMIC-AVX512")
 set(k0_opt "${k0_opt} -xCORE-AVX512")
 set(k0_opt "${k0_opt} -qopt-zmm-usage:high")
 set(k1_opt "${k1_opt} -xCORE-AVX512")

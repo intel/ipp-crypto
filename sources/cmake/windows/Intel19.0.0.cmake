@@ -1,19 +1,18 @@
-#===============================================================================
+#=========================================================================
 # Copyright (C) 2017 Intel Corporation
 #
-# Licensed under the Apache License, Version 2.0 (the 'License');
+# Licensed under the Apache License,  Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-# http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an 'AS IS' BASIS,
+#
+# 	http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law  or agreed  to  in  writing,  software
+# distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions
-# and limitations under the License.
-# 
-#===============================================================================
+# See the License for the  specific  language  governing  permissions  and
+# limitations under the License.
+#=========================================================================
 
 #
 # Intel® Integrated Performance Primitives Cryptography (Intel® IPP Cryptography)
@@ -43,7 +42,7 @@ else()
   set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /HIGHENTROPYVA")
 endif(${ARCH} MATCHES "ia32")
 
-# supress warning LNK4221:
+# suppress warning LNK4221:
 # "This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library"
 set(LINK_FLAG_STATIC_WINDOWS  "${LINK_FLAG_STATIC_WINDOWS} /ignore:4221")
 set(LINK_FLAG_DYNAMIC_WINDOWS "${LINK_FLAG_DYNAMIC_WINDOWS} /ignore:4221")
@@ -121,7 +120,7 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /O3") # /Ob2 is included in 
 # No-debug macro
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /DNDEBUG")
 
-# supress warning #10120: overriding '/O2' with '/O3' 
+# suppress warning #10120: overriding '/O2' with '/O3' 
 # CMake bug: cmake cannot change the property "Optimization" to /O3 in MSVC project
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -wd10120")
 
@@ -135,7 +134,6 @@ set(n8_opt "${n8_opt} -QxATOM_SSSE3 -Qinstruction=nomovbe")
 set(y8_opt "${y8_opt} -QxATOM_SSE4.2 -Qinstruction=nomovbe")
 set(e9_opt "${e9_opt} -QxAVX")
 set(l9_opt "${l9_opt} -QxCORE-AVX2")
-set(n0_opt "${n0_opt} -QxMIC-AVX512")
 set(k0_opt "${k0_opt} -QxCORE-AVX512")
 set(k0_opt "${k0_opt} -Qopt-zmm-usage:high")
 set(k1_opt "${k1_opt} -QxCORE-AVX512")

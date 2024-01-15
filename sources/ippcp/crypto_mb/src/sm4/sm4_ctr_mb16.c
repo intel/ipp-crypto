@@ -1,19 +1,18 @@
-﻿/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2021 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <internal/sm4/sm4_mb.h>
 #include <internal/rsa/ifma_rsa_arith.h>
@@ -167,7 +166,7 @@ void sm4_ctr128_kernel_mb16(int8u* pa_out[SM4_LINES], const int8u* pa_inp[SM4_LI
     int32u loc_blks[SM4_LINES];
     _mm512_storeu_si512(loc_blks, _mm512_srli_epi32(_mm512_add_epi32(loc_len, _mm512_set1_epi32(SM4_BLOCK_SIZE - 1)), 4));
 
-    /* Local copies of the pointers to input and otput buffers */
+    /* Local copies of the pointers to input and output buffers */
     _mm512_storeu_si512((void*)loc_inp, _mm512_loadu_si512(pa_inp));
     _mm512_storeu_si512((void*)(loc_inp + 8), _mm512_loadu_si512(pa_inp + 8));
 

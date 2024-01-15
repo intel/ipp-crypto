@@ -1,19 +1,18 @@
-/*******************************************************************************
- * Copyright (C) 2021 Intel Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the 'License');
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an 'AS IS' BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions
- * and limitations under the License.
- * 
- *******************************************************************************/
+/*************************************************************************
+* Copyright (C) 2021 Intel Corporation
+*
+* Licensed under the Apache License,  Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* Paper referenced in this file:
  *
@@ -333,7 +332,7 @@ IPP_OWN_DEFN(void, ifma_ec_nistp256_add_point_affine, (P256_POINT_IFMA * r, cons
    const m512 *z1       = &p->z;
    const mask8 p_is_inf = is_zero_i64(p->z);
 
-   /* Coodinates of q (affine) */
+   /* Coordinates of q (affine) */
    const m512 *x2       = &q->x;
    const m512 *y2       = &q->y;
    const mask8 q_is_inf = (is_zero_i64(q->x) & is_zero_i64(q->y));
@@ -418,7 +417,7 @@ IPP_OWN_DEFN(int, ifma_ec_nistp256_is_on_curve, (const P256_POINT_IFMA *p, const
      *
      * if input
      * * Jacobian projective coordinate (x,y,z) reprepresented by (x/z^2,y/z^3,1)
-     * * Affine coodinate -> (x/z^2,y/z^3,z/z=1)
+     * * Affine coordinate -> (x/z^2,y/z^3,z/z=1)
      *
      * Mult (1) by z^6
      *

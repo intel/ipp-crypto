@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2016 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* 
 // 
@@ -37,9 +36,11 @@
 //
 // Returns:                Reason:
 //    ippStsNullPtrErr        pCtx == NULL
-//    ippStsMemAllocErr       size of buffer is not match fro operation
+//    ippStsMemAllocErr       size of buffer is not match for operation
 //    ippStsLengthErr         keyLen != 16*8*2 &&
 //                                   != 32*8*2
+//    ippStsBadArgErr         [Only in FIPS-compliance mode]: Indicates an error 
+//                            condition if tweak key is equal to the data key
 //    ippStsNoErr             no errors
 //
 // Parameters:
@@ -67,13 +68,18 @@ IPPFUN(IppStatus, ippsAES_XTSInit,(const Ipp8u* pKey, int keyLen,
    /* test context pointer */
    IPP_BADARG_RET((int)sizeof(IppsAES_XTSSpec) > ctxSize, ippStsMemAllocErr);
 
+   int keySize = keyLen/2/BYTESIZE;
+   const Ipp8u* pdatKey = pKey;
+   const Ipp8u* ptwkKey = pKey+keySize;
+#ifdef IPPCP_FIPS_MODE
+   /* test FIPS-compliance requirement pdatKey != ptwkKey */
+   int isEqu = cpIsEquBlock_ct(pdatKey, ptwkKey, keySize) & 1;
+   IPP_BADARG_RET(isEqu, ippStsBadArgErr);
+#endif
+
    {
       IppsAESSpec* pdatAES = &pCtx->datumAES;
       IppsAESSpec* ptwkAES = &pCtx->tweakAES;
-
-      int keySize = keyLen/2/BYTESIZE;
-      const Ipp8u* pdatKey = pKey;
-      const Ipp8u* ptwkKey = pKey+keySize;
 
       IppStatus sts = ippStsNoErr;
       sts = ippsAESInit(pdatKey, keySize, pdatAES, sizeof(IppsAESSpec));

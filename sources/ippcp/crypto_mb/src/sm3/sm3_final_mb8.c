@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2021 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <crypto_mb/status.h>
 #include <crypto_mb/sm3.h>
@@ -66,7 +65,7 @@ mbx_status sm3_final_mb8(int8u* hash_pa[8], SM3_CTX_mb8* p_state)
         mb_mask64 = ~(0xFFFFFFFFFFFFFFFF << input_len[i]);
         M512(loc_buffer[i]) = _mm512_maskz_loadu_epi8(mb_mask64, HASH_BUFF(p_state)[i]);
 
-        /* Padd message */
+        /* Pad message */
         loc_buffer[i][input_len[i]++] = 0x80;
         pad_block(0, loc_buffer[i] + input_len[i], (int)(buffer_len[i] - input_len[i] - (int)SM3_MSG_LEN_REPR));
         ((int64u*)(loc_buffer[i] + buffer_len[i]))[-1] = sum_msg_len[i];

@@ -51,7 +51,7 @@
 #define   mbcpCPUID_MPX             0x10000000LL   /* Intel® Memory Protection Extensions (Intel® MPX)                                              */
 #define   mbcpCPUID_AVX512_4FMADDPS 0x20000000LL   /* Intel® Advanced Vector Extensions 512 (Intel® AVX-512) DL floating-point single precision     */
 #define   mbcpCPUID_AVX512_4VNNIW   0x40000000LL   /* Intel® Advanced Vector Extensions 512 (Intel® AVX-512) DL enhanced word variable precision    */
-#define   mbcpCPUID_KNC             0x80000000LL   /* Intel® Xeon® Phi(TM) Coprocessor                                                              */
+#define   mbcpCPUID_KNC             0x80000000LL   /* Intel® Xeon Phi(TM) coprocessor                                                              */
 #define   mbcpCPUID_AVX512IFMA     0x100000000LL   /* Intel® Advanced Vector Extensions 512 (Intel® AVX-512) IFMA (PMADD52) instruction set         */
 #define   mbcpAVX512_ENABLEDBYOS   0x200000000LL   /* Intel® Advanced Vector Extensions 512 (Intel® AVX-512) is supported by OS                     */
 #define   mbcpCPUID_AVX512GFNI     0x400000000LL   /* GFNI                                                                                          */

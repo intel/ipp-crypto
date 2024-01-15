@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2019 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include <crypto_mb/status.h>
 
@@ -94,7 +93,7 @@ void ifma52_sub_with_borrow(U64 r[], const U64 x[], const U64 y[])
    r[4] = _mm512_sub_epi64(x[4], subtrahend);
    r[4] = _mm512_mask_add_epi64(r[4], lt, r[4], base);
 
-   /* the latest step is not necessary, bcause Barett algorithms guarantee that
+   /* the latest step is not necessary, because Barett algorithms guarantee that
    // 0<= (r = r1-r2) <3*modulus
    // r[0..4] is enough to keep 3*modulus
    */

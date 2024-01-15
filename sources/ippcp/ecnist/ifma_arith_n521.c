@@ -1,19 +1,18 @@
-/*******************************************************************************
- * Copyright (C) 2021 Intel Corporation
- *
- * Licensed under the Apache License, Version 2.0 (the 'License');
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an 'AS IS' BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions
- * and limitations under the License.
- * 
- *******************************************************************************/
+/*************************************************************************
+* Copyright (C) 2021 Intel Corporation
+*
+* Licensed under the Apache License,  Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 #include "owndefs.h"
 
@@ -188,7 +187,7 @@ IPP_OWN_DEFN(void, ifma_add52_n521, (fe521 pr[], const fe521 a, const fe521 b))
    const mask8 lt   = m256_cmp_i64_mask(zero, m256_srli_i64(FE521_HI(t), DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
    const mask8 mask = (mask8)((mask8)0 - ((lt >> 2) & 1));
 
-   /* maks != 0 ? a : r */
+   /* mask != 0 ? a : r */
    FE521_MASK_MOV(r, t, mask, r);
    FE521_COPY(*pr, r);
    return;
@@ -215,7 +214,7 @@ IPP_OWN_DEFN(void, ifma_fastred52_n521, (fe521 pr[], const fe521 a))
    const mask8 lt   = m256_cmp_i64_mask(zero, m256_srli_i64(FE521_HI(r), DIGIT_SIZE_52 - 1), _MM_CMPINT_LT);
    const mask8 mask = (mask8)((mask8)0 - ((lt >> 2) & 1));
 
-   /* maks != 0 ? a : r */
+   /* mask != 0 ? a : r */
    FE521_MASK_MOV(r, r, mask, a);
    FE521_COPY(*pr, r);
    return;

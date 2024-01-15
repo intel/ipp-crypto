@@ -1,19 +1,18 @@
-#===============================================================================
+#=========================================================================
 # Copyright (C) 2017 Intel Corporation
 #
-# Licensed under the Apache License, Version 2.0 (the 'License');
+# Licensed under the Apache License,  Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-# http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an 'AS IS' BASIS,
+#
+# 	http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law  or agreed  to  in  writing,  software
+# distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions
-# and limitations under the License.
-# 
-#===============================================================================
+# See the License for the  specific  language  governing  permissions  and
+# limitations under the License.
+#=========================================================================
 
 #
 # Intel(R) Integrated Performance Primitives Cryptography (Intel(R) IPP Cryptography)
@@ -40,7 +39,7 @@ def readNextFunction(header, curLine, headerID):    ## read next function with a
       FunStr= header[curLine];
       FunStr= re.sub('\n','',FunStr)   ## remove EOL symbols
   
-      while not re.match('.*\)\s*\)\s*$', FunStr):   ## concatinate strinng if string is not completed
+      while not re.match('.*\)\s*\)\s*$', FunStr):   ## concatenate string if string is not completed
         curLine= curLine+1
         FunStr= FunStr+header[curLine]
         FunStr= re.sub('\n','',FunStr)   ## remove EOL symbols
@@ -49,7 +48,7 @@ def readNextFunction(header, curLine, headerID):    ## read next function with a
     
       s= FunStr.split(',')
     
-      ## Extract funtion name
+      ## Extract function name
       FunName= s[1]
       FunName= re.sub('\s', '', FunName)
     

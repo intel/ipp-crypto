@@ -1,19 +1,18 @@
-/*******************************************************************************
+/*************************************************************************
 * Copyright (C) 2013 Intel Corporation
 *
-* Licensed under the Apache License, Version 2.0 (the 'License');
+* Licensed under the Apache License,  Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an 'AS IS' BASIS,
+*
+* 	http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law  or agreed  to  in  writing,  software
+* distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions
-* and limitations under the License.
-* 
-*******************************************************************************/
+* See the License for the  specific  language  governing  permissions  and
+* limitations under the License.
+*************************************************************************/
 
 /* 
 // 
@@ -59,7 +58,7 @@
 //    pIV         pointer to the initialization vector
 //
 // Note:
-// - CS3 correponds to definitions spcified for Kerberos 3 in RFC2040 and RFC3962
+// - CS3 corresponds to definitions specified for Kerberos 3 in RFC2040 and RFC3962
 // - C*[n-2] and C[n-1] are unconditionally swapped, even if C*[n-2] is a complete block
 // - Therefore, CBC-CS3 is not strictly an extensioin of usual CBC mode
 //

@@ -2,6 +2,10 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## Intel(R) IPP Cryptography 2021.10
+- Added the verification part of eXtended Merkle Signature Scheme (XMSS) algorithm.
+- Added FIPS-compliance mode for the library. More information can be found in the [Intel(R) IPP Cryptography FIPS Guide](./README_FIPS.md).
+
 ## Intel(R) IPP Cryptography 2021.9
 - Added optimized RSA-2048 code for multi-buffer (8 buffers) Intel® AVX-512 implementation.
 - Added Intel® Advanced Vector Extensions 2 (Intel® AVX2) vector extensions of Intel® AES New Instructions (Intel® AES-NI) optimization for AES-GCM algorithm.

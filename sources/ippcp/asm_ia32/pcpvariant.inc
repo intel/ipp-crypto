@@ -1,19 +1,18 @@
-;===============================================================================
+;=========================================================================
 ; Copyright (C) 2015 Intel Corporation
 ;
-; Licensed under the Apache License, Version 2.0 (the 'License');
+; Licensed under the Apache License,  Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
 ; You may obtain a copy of the License at
-; 
-; http://www.apache.org/licenses/LICENSE-2.0
-; 
-; Unless required by applicable law or agreed to in writing,
-; software distributed under the License is distributed on an 'AS IS' BASIS,
+;
+; 	http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law  or agreed  to  in  writing,  software
+; distributed under  the License  is  distributed  on  an  "AS IS"  BASIS,
 ; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-; See the License for the specific language governing permissions
-; and limitations under the License.
-; 
-;===============================================================================
+; See the License for the  specific  language  governing  permissions  and
+; limitations under the License.
+;=========================================================================
 
 ;
 ;               Intel(R) Integrated Performance Primitives
@@ -30,7 +29,7 @@
 ;;
 %assign _FEATURE_OFF_      0   ;; feature is OFF
 %assign _FEATURE_ON_       1   ;; feature is ON
-%assign _FEATURE_TICKTOCK_ 2   ;; dectect is feature OFF/ON
+%assign _FEATURE_TICKTOCK_ 2   ;; detect is feature OFF/ON
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;_XMM7560_ = 1
