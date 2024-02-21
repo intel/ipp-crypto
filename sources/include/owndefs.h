@@ -48,7 +48,7 @@
 #if !defined(__NOINLINE)
 #if defined(__INTEL_COMPILER) || defined(_MSC_VER)
   #define __NOINLINE __declspec(noinline)
-#elif defined( __GNUC__ )
+#elif defined( __GNUC__ ) || defined(__INTEL_LLVM_COMPILER)
   #define __NOINLINE __attribute__((noinline))
 #else
   #define __NOINLINE

@@ -45,18 +45,6 @@
 #define MBX_RSA3K_DATA_BYTE_LEN ( (MBX_RSA3K_DATA_BIT_LEN) >> 3 )
 #define MBX_RSA4K_DATA_BYTE_LEN ( (MBX_RSA4K_DATA_BIT_LEN) >> 3 )
 
-#ifdef OPENSSL_IS_BORINGSSL
-
-/**
- * \brief
- *
- *  OpenSSL alias for BoringSSL.
- *
- */
-BIGNUM *BN_lebin2bn(const unsigned char *s, int len, BIGNUM *ret);
-
-#endif
-
 /**
  * \brief
  *

@@ -46,7 +46,7 @@ static const Ipp8u tag[IPPCP_TAG_BYTE_LEN]   = {0x4d,0xac,0x25,0x5d};
 /* additional authenticated data */
 static const Ipp8u ad[IPPCP_AAD_BYTE_LEN]    = {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07};
 
-IPPFUN(fips_test_status, fips_selftest_ippsAESEncryptDecryptCCM_get_size, (int *pBuffSize)) 
+IPPFUN(fips_test_status, fips_selftest_ippsAESEncryptDecryptCCM_get_size, (int *pBuffSize))
 {
   /* return bad status if input pointer is NULL */
   IPP_BADARG_RET((NULL == pBuffSize), IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR);
@@ -55,7 +55,7 @@ IPPFUN(fips_test_status, fips_selftest_ippsAESEncryptDecryptCCM_get_size, (int *
   int ctx_size = 0;
   sts = ippsAES_CCMGetSize(&ctx_size);
   if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
-  
+
   ctx_size += IPPCP_AES_ALIGNMENT;
   *pBuffSize = ctx_size;
 
@@ -66,10 +66,11 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_CCMEncrypt, (Ipp8u *pBuffer))
 {
   IppStatus sts = ippStsNoErr;
 
-  /* check input pointers and allocate memory in "use malloc" mode */ 
+  /* check input pointers and allocate memory in "use malloc" mode */
   int internalMemMgm = 0;
   int ctx_size = 0;
-  fips_selftest_ippsAESEncryptDecryptCCM_get_size(&ctx_size);
+  sts = fips_selftest_ippsAESEncryptDecryptCCM_get_size(&ctx_size);
+  if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
   BUF_CHECK_NULL_AND_ALLOC(pBuffer, internalMemMgm, ctx_size, IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR)
 
   /* output ciphertext */
@@ -80,7 +81,11 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_CCMEncrypt, (Ipp8u *pBuffer))
   IppsAES_CCMState* state = (IppsAES_CCMState*)(IPP_ALIGNED_PTR(pBuffer, IPPCP_AES_ALIGNMENT));
 
   /* context initialization */
-  ippsAES_CCMGetSize(&ctx_size);
+  sts = ippsAES_CCMGetSize(&ctx_size);
+  if (sts != ippStsNoErr) {
+    MEMORY_FREE(pBuffer, internalMemMgm)
+    return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+  }
   sts = ippsAES_CCMInit(key, IPPCP_AES_KEY128_BYTE_LEN, state, ctx_size);
   if (sts != ippStsNoErr) {
     MEMORY_FREE(pBuffer, internalMemMgm)
@@ -138,10 +143,11 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_CCMDecrypt, (Ipp8u *pBuffer))
 {
   IppStatus sts = ippStsNoErr;
 
-  /* check input pointers and allocate memory in "use malloc" mode */ 
+  /* check input pointers and allocate memory in "use malloc" mode */
   int internalMemMgm = 0;
   int ctx_size = 0;
-  fips_selftest_ippsAESEncryptDecryptCCM_get_size(&ctx_size);
+  sts = fips_selftest_ippsAESEncryptDecryptCCM_get_size(&ctx_size);
+  if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
   BUF_CHECK_NULL_AND_ALLOC(pBuffer, internalMemMgm, ctx_size, IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR)
 
   /* output plaintext */
@@ -152,7 +158,11 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_CCMDecrypt, (Ipp8u *pBuffer))
   IppsAES_CCMState* state = (IppsAES_CCMState*)(IPP_ALIGNED_PTR(pBuffer, IPPCP_AES_ALIGNMENT));
 
   /* context initialization */
-  ippsAES_CCMGetSize(&ctx_size);
+  sts = ippsAES_CCMGetSize(&ctx_size);
+  if (sts != ippStsNoErr) {
+    MEMORY_FREE(pBuffer, internalMemMgm)
+    return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+  }
   sts = ippsAES_CCMInit(key, IPPCP_AES_KEY128_BYTE_LEN, state, ctx_size);
   if (sts != ippStsNoErr) {
     MEMORY_FREE(pBuffer, internalMemMgm)

@@ -147,9 +147,10 @@ IPPFUN(IppStatus, ippsAES_GCMProcessIV,(const Ipp8u* pIV, int ivLen, IppsAES_GCM
 
    /* copy the rest of IV into the buffer */
    if(ivLen) {
-      XorBlock(pIV, AESGCM_COUNTER(pState), AESGCM_COUNTER(pState), ivLen);
-      AESGCM_IV_LEN(pState) += (Ipp64u)ivLen;
-      AESGCM_BUFLEN(pState) += ivLen;
+      int locLen = IPP_MIN(ivLen, BLOCK_SIZE);
+      XorBlock(pIV, AESGCM_COUNTER(pState), AESGCM_COUNTER(pState), locLen);
+      AESGCM_IV_LEN(pState) += (Ipp64u)locLen;
+      AESGCM_BUFLEN(pState) += locLen;
    }
 #endif /* #if(_IPP32E>=_IPP32E_K0) */
 

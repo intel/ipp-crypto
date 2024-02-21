@@ -27,6 +27,7 @@ class Package:
 
         self.set_type()
         self.set_env_script()
+        self.headers_subdir = os.path.join(self.headers_dir, self.type.lower())
 
         self.set_headers_functions_declarations_dicts()
         self.set_libraries_features_errors_dicts(self.type,             utils.THREAD_MODES)
@@ -36,8 +37,13 @@ class Package:
         self.set_name()
 
     def set_type(self):
-        header = os.path.join(self.headers_dir, 'ippcp.h')
-        self.type = (utils.IPP if not os.path.exists(header) else utils.IPPCP)
+        header = os.path.join(self.headers_dir, 'ipp/ipp.h')
+        if os.path.exists(header):
+            self.type = utils.IPP
+            return
+        header = os.path.join(self.headers_dir, 'ippcp/ippcp.h')
+        if os.path.exists(header):
+            self.type = utils.IPPCP
 
     def set_name(self):
         self.name = 'None'
@@ -48,7 +54,7 @@ class Package:
 
     def get_version(self):
         version = ''
-        header = os.path.join(self.headers_dir, 'ippversion.h')
+        header = os.path.join(self.headers_subdir, 'ippversion.h')
 
         for line in utils.get_lines_from_file(header):
             version = utils.get_match(utils.VERSION_REGEX, line, 'ver')
@@ -99,10 +105,10 @@ class Package:
         self.env_script = utils.get_first_existing_path_in_list(paths_to_search)
 
     def set_headers_functions_declarations_dicts(self):
-        if not os.path.exists(self.headers_dir):
+        if not os.path.exists(self.headers_subdir):
             return
 
-        headers = [header for header in os.listdir(self.headers_dir) if '.h' in header]
+        headers = [header for header in os.listdir(self.headers_subdir) if '.h' in header]
 
         for header in headers:
             domain_type, domain = self.get_type_and_domain(header)
@@ -111,7 +117,7 @@ class Package:
 
             functions_list = []
             incomplete_function = ''
-            for line in utils.get_lines_from_file(os.path.join(self.headers_dir, header)):
+            for line in utils.get_lines_from_file(os.path.join(self.headers_subdir, header)):
                 if incomplete_function:
                     self.declarations[incomplete_function] += ' ' + " ".join(line.split())
                     incomplete_function = self.get_function_if_incomplete(incomplete_function)
@@ -190,7 +196,8 @@ class Package:
         return ''
 
     def get_path_to_libraries(self, arch, thread_type):
-        paths_to_search = [os.path.join(self.libraries_dir, arch),
+        paths_to_search = [self.libraries_dir + utils.LIB_SUBDIR_ARCH_SUFFIX[arch],
+                           os.path.join(self.libraries_dir, arch),
                            os.path.join(self.libraries_dir, arch + '_' + utils.HOST_SYSTEM[:3].lower()),
                            self.libraries_dir]
         paths_to_search = [utils.PATH_TO_LIBRARIES[thread_type].format(libs_arch_dir=path)

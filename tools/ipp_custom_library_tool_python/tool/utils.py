@@ -18,6 +18,10 @@ SUPPORTED_SYSTEMS = [WINDOWS, LINUX, MACOSX]
 IA32    = 'ia32'
 INTEL64 = 'intel64'
 ARCHITECTURES = [IA32, INTEL64]
+LIB_SUBDIR_ARCH_SUFFIX = {
+    IA32    : '32',
+    INTEL64 : ''
+}
 
 SINGLE_THREADED = 'single-threaded'
 MULTI_THREADED  = 'multi-threaded'
@@ -27,7 +31,7 @@ TBB    = 'tbb'
 OPENMP = 'openmp'
 TL_TYPES = [TBB, OPENMP]
 
-PATH_TO_PACKAGE_REGEX        = '(?P<path>.*)\Wtools\W.*'
+PATH_TO_PACKAGE_REGEX        = '(?P<path>.*)[\\\/]opt[\\\/]ipp(cp)?[\\\/]tools[\\\/].*'
 COMPONENTS_INSTALL_DIR_REGEX = '(?P<path>.*)\Wipp.*'
 VERSION_REGEX                = '.*VERSION_STR\s*(?P<ver>.*)\s*'
 STR_MACROS_REGEX             = '.*STR\((?P<macros>\S*)\).*'
@@ -187,8 +191,8 @@ CPUID = {
 PATH_TO_LIBRARIES = {
     SINGLE_THREADED : '{libs_arch_dir}',
     MULTI_THREADED  : '{libs_arch_dir}/threaded',
-    TBB             : '{libs_arch_dir}/tl/' + TBB,
-    OPENMP          : '{libs_arch_dir}/tl/' + OPENMP
+    TBB             : '{libs_arch_dir}',
+    OPENMP          : '{libs_arch_dir}'
 }
 
 LIB_PREFIX = {
