@@ -66,7 +66,7 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_GCM_get_size, (int *pBufferSize))
     int ctx_size = 0;
     sts = ippsAES_GCMGetSize(&ctx_size);
     if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
-    
+
     ctx_size += IPPCP_AES_ALIGNMENT;
     *pBufferSize = ctx_size;
 
@@ -77,10 +77,11 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_GCMEncrypt, (Ipp8u *pBuffer))
 {
   IppStatus sts = ippStsNoErr;
 
-  /* check input pointers and allocate memory in "use malloc" mode */ 
+  /* check input pointers and allocate memory in "use malloc" mode */
   int internalMemMgm = 0;
   int ctx_size = 0;
-  fips_selftest_ippsAES_GCM_get_size(&ctx_size);
+  sts = fips_selftest_ippsAES_GCM_get_size(&ctx_size);
+  if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
   BUF_CHECK_NULL_AND_ALLOC(pBuffer, internalMemMgm, ctx_size, IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR)
 
   /* output ciphertext */
@@ -136,10 +137,11 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_GCMDecrypt, (Ipp8u *pBuffer))
 {
   IppStatus sts = ippStsNoErr;
 
-  /* check input pointers and allocate memory in "use malloc" mode */ 
+  /* check input pointers and allocate memory in "use malloc" mode */
   int internalMemMgm = 0;
   int ctx_size = 0;
-  fips_selftest_ippsAES_GCM_get_size(&ctx_size);
+  sts = fips_selftest_ippsAES_GCM_get_size(&ctx_size);
+  if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
   BUF_CHECK_NULL_AND_ALLOC(pBuffer, internalMemMgm, ctx_size, IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR)
 
   /* output plaintext */
@@ -150,7 +152,11 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_GCMDecrypt, (Ipp8u *pBuffer))
   IppsAES_GCMState *state = (IppsAES_GCMState *)IPP_ALIGNED_PTR(pBuffer, IPPCP_AES_ALIGNMENT);
 
   /* context initialization */
-  ippsAES_GCMGetSize(&ctx_size);
+  sts = ippsAES_GCMGetSize(&ctx_size);
+  if (sts != ippStsNoErr) {
+    MEMORY_FREE(pBuffer, internalMemMgm)
+    return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+  }
   sts = ippsAES_GCMInit(key, IPPCP_AES_KEY128_BYTE_LEN, state, ctx_size);
   if (sts != ippStsNoErr) {
     MEMORY_FREE(pBuffer, internalMemMgm)

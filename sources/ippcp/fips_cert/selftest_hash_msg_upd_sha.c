@@ -26,7 +26,7 @@
 #include "ippcp/fips_cert.h"
 #include "fips_cert_internal/common.h"
 
-/* 
+/*
  * KAT TEST
  * taken from the regular known-answer testing
  */
@@ -112,10 +112,11 @@ IPPFUN(fips_test_status, fips_selftest_ippsHashUpdate_rmf, (IppHashAlgId hashAlg
     /* Unsupported method was given */
     IPP_BADARG_RET((NULL == locMethod), IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR);
 
-    /* check input pointers and allocate memory in "use malloc" mode */ 
+    /* check input pointers and allocate memory in "use malloc" mode */
     int internalMemMgm = 0;
     int ctx_size = 0;
-    fips_selftest_ippsHash_rmf_get_size(&ctx_size);
+    sts = fips_selftest_ippsHash_rmf_get_size(&ctx_size);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     BUF_CHECK_NULL_AND_ALLOC(pBuffer, internalMemMgm, (ctx_size + IPPCP_HASH_ALIGNMENT), IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR)
 
     /* output hash */
@@ -123,28 +124,28 @@ IPPFUN(fips_test_status, fips_selftest_ippsHashUpdate_rmf, (IppHashAlgId hashAlg
     Ipp8u outTagBuff[IPP_SHA512_DIGEST_BYTESIZE];
     /* context */
     IppsHashState_rmf* hashCtx = (IppsHashState_rmf*)(IPP_ALIGNED_PTR(pBuffer, IPPCP_HASH_ALIGNMENT));
-    
+
     /* context initialization */
     sts = ippsHashInit_rmf(hashCtx, locMethod);
-    if (sts != ippStsNoErr) { 
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
-    }    
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     /* function call */
     sts = ippsHashUpdate_rmf(msg, msgByteLen, hashCtx);
-    if (sts != ippStsNoErr) { 
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
     }
     sts = ippsHashGetTag_rmf(outTagBuff, (int)locHashByteSize, hashCtx);
-    if (sts != ippStsNoErr) { 
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
     }
     sts = ippsHashFinal_rmf(outHashBuff, hashCtx);
-    if (sts != ippStsNoErr) { 
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
     }
     /* compare output to known answer */
     int isEqual;

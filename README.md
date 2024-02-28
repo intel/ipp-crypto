@@ -22,7 +22,7 @@ The library provides a comprehensive set of routines commonly used for cryptogra
    - RSA, RSA-OAEP, RSA-PKCS_v15, RSA-PSS
    - DLP, DLP-DSA, DLP-DH
    - ECC (NIST curves), ECDSA, ECDH, EC-SM2
-- Multi-buffer RSA, ECDSA, SM3, x25519
+- Multi-buffer RSA, ECDSA, ECDH, x25519, SM2, SM3, SM4, etc
 - Finite Field Arithmetic Functions
 - Big Number Integer Arithmetic Functions
 - PRNG/TRNG and Prime Numbers Generation

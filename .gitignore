@@ -14,6 +14,12 @@
 .idea
 __pycache__/
 
+_build
+.vscode
+doc/source/nocp-parameters.xml
+nocp-parameters.xml
+
+
 # temporary files if a process still has a handle open of a deleted file
 .fuse_hidden*
 
@@ -31,3 +37,4 @@ Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
 *.lnk
+

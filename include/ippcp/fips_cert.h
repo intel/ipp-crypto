@@ -93,6 +93,7 @@ IPPAPI(fips_test_status, fips_selftest_ippsRSASignVerify_PSS_rmf_get_size_keys, 
 IPPAPI(fips_test_status, fips_selftest_ippsRSASignVerify_PSS_rmf_get_size, (int *pBufferSize, Ipp8u *pKeysBuffer))
 IPPAPI(fips_test_status, fips_selftest_ippsRSASign_PSS_rmf, (Ipp8u *pBuffer, Ipp8u *pKeysBuffer))
 IPPAPI(fips_test_status, fips_selftest_ippsRSAVerify_PSS_rmf, (Ipp8u *pBuffer, Ipp8u *pKeysBuffer))
+IPPAPI(fips_test_status, fips_selftest_ippsRSA_GenerateKeys, (Ipp8u *pBuffer, Ipp8u *pKeysBuffer))
 
 /* ECDSA sign/verify */
 IPPAPI(fips_test_status, fips_selftest_ippsGFpECSignVerifyDSA_get_size_GFp_buff, (int *pGFpBuffSize))
@@ -100,6 +101,8 @@ IPPAPI(fips_test_status, fips_selftest_ippsGFpECSignVerifyDSA_get_size_GFpEC_buf
 IPPAPI(fips_test_status, fips_selftest_ippsGFpECSignVerifyDSA_get_size_data_buff, (int *pDataBuffSize, Ipp8u *pGFpBuff, Ipp8u *pGFpECBuff))
 IPPAPI(fips_test_status, fips_selftest_ippsGFpECSignDSA, (Ipp8u *pGFpBuff, Ipp8u *pGFpECBuff, Ipp8u *pDataBuff))
 IPPAPI(fips_test_status, fips_selftest_ippsGFpECVerifyDSA, (Ipp8u *pGFpBuff, Ipp8u *pGFpECBuff, Ipp8u *pDataBuff))
+IPPAPI(fips_test_status, fips_selftest_ippsGFpECPublicKey, (Ipp8u *pGFpBuff, Ipp8u *pGFpECBuff, Ipp8u *pDataBuff))
+IPPAPI(fips_test_status, fips_selftest_ippsGFpECSharedSecretDH, (Ipp8u *pGFpBuff, Ipp8u *pGFpECBuff, Ipp8u *pDataBuff))
 
 /*
 // Enumerator that contains information about FIPS-approved
@@ -135,8 +138,11 @@ enum FIPS_IPPCP_FUNC {
     RSAVerify_PKCS1v15_rmf,
     RSASign_PSS_rmf,
     RSAVerify_PSS_rmf,
+    RSA_GenerateKeys,
     GFpECSignDSA,
     GFpECVerifyDSA,
+    GFpECSharedSecretDH,
+    GFpECPublicKey,
     HashUpdate_rmf,
     HashGetTag_rmf,
     HashFinal_rmf,
@@ -151,8 +157,8 @@ enum FIPS_IPPCP_FUNC {
     RSAEncrypt_OAEP_rmf,
     RSADecrypt_OAEP_rmf,
 
-  /* Not approved functions or 
-   * FIPS-mode is not yet implemented, < 0 
+  /* Not approved functions or
+   * FIPS-mode is not yet implemented, < 0
    */
     SMS4EncryptCBC = -0xFFF,
     SMS4EncryptCBC_CS1,
@@ -173,7 +179,7 @@ enum FIPS_IPPCP_FUNC {
     SMS4_CCMDecrypt,
     SMS4_CCMGetTag,
     /* XTS APIs didn't pass CAVP testing */
-    AES_XTSEncrypt, 
+    AES_XTSEncrypt,
     AES_XTSDecrypt,
     AESEncryptXTS_Direct,
     AESDecryptXTS_Direct,
@@ -193,7 +199,6 @@ enum FIPS_IPPCP_FUNC {
     PrimeGen_BN,
     RSA_Encrypt,
     RSA_Decrypt,
-    RSA_GenerateKeys,
     DLPGenKeyPair,
     DLPPublicKey,
     DLPSignDSA,
@@ -203,8 +208,6 @@ enum FIPS_IPPCP_FUNC {
     DLPGenerateDH,
     GFpECVerify,
     GFpECPrivateKey,
-    GFpECPublicKey,
-    GFpECSharedSecretDH,
     GFpECSharedSecretDHC,
     GFpECSignNR,
     GFpECVerifyNR,

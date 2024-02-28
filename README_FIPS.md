@@ -291,6 +291,7 @@ fips_test_status fips_selftest_ippsRSASignVerify_PSS_rmf_get_size_keys (int *pKe
 fips_test_status fips_selftest_ippsRSASignVerify_PSS_rmf_get_size (int *pBufferSize Ipp8u *pKeysBuffer);
 fips_test_status fips_selftest_ippsRSASign_PSS_rmf (Ipp8u *pBuffer Ipp8u *pKeysBuffer);
 fips_test_status fips_selftest_ippsRSAVerify_PSS_rmf (Ipp8u *pBuffer Ipp8u *pKeysBuffer);
+fips_test_status fips_selftest_ippsRSA_GenerateKeys (Ipp8u *pBuffer Ipp8u *pKeysBuffer);
 ```
 
 , where `pBuffer` is the valid buffer for selftest of size indicated by
@@ -305,6 +306,8 @@ fips_test_status fips_selftest_ippsGFpECSignVerifyDSA_get_size_GFpEC_buff (int *
 fips_test_status fips_selftest_ippsGFpECSignVerifyDSA_get_size_data_buff (int *pDataBuffSize Ipp8u *pGFpBuff Ipp8u *pGFpECBuff);
 fips_test_status fips_selftest_ippsGFpECSignDSA (Ipp8u *pGFpBuff Ipp8u *pGFpECBuff Ipp8u *pDataBuff);
 fips_test_status fips_selftest_ippsGFpECVerifyDSA (Ipp8u *pGFpBuff Ipp8u *pGFpECBuff Ipp8u *pDataBuff);
+fips_test_status fips_selftest_ippsGFpECPublicKey (Ipp8u *pGFpBuff Ipp8u *pGFpECBuff Ipp8u *pDataBuff);
+fips_test_status fips_selftest_ippsGFpECSharedSecretDH (Ipp8u *pGFpBuff Ipp8u *pGFpECBuff Ipp8u *pDataBuff);
 ```
 
 , where `pGFpBuff` is the valid buffer for selftest of size indicated by
