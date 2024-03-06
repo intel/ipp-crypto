@@ -48,9 +48,9 @@ __INLINE void CopyBlock8(const void* pSrc, void* pDst)
       ((Ipp8u*)pDst)[k] = ((Ipp8u*)pSrc)[k];
 }
 
-/* Because of the incorrect inlining with ICX compiler definition of CopyBlock16 function was moved to pcptool.c */ 
+/* Because of the incorrect inlining with ICX compiler definition of CopyBlock16 function was moved to pcptool.c */
 #define CopyBlock16 OWNAPI(CopyBlock16)
-IPP_OWN_DECL (void, CopyBlock16, (const void* pSrc, void* pDst)) 
+IPP_OWN_DECL (void, CopyBlock16, (const void* pSrc, void* pDst))
 
 __INLINE void CopyBlock24(const void* pSrc, void* pDst)
 {
@@ -102,8 +102,10 @@ __INLINE void XorBlock(const void* pSrc1, const void* pSrc2, void* pDst, int len
    const Ipp8u* p2 = (const Ipp8u*)pSrc2;
    Ipp8u* d  = (Ipp8u*)pDst;
    int k;
-   for(k=0; k<len; k++)
-      d[k] = (Ipp8u)(p1[k] ^p2[k]);
+   for(k = 0; k < len; k++)
+   {
+        d[k] = (Ipp8u)(p1[k] ^p2[k]);
+   }
 }
 /* Performs operation:
  *      reverse(pSrc1 `xor_len_bytes` reverse(pSrc2))

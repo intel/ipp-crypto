@@ -26,7 +26,7 @@
 #include "ippcp/fips_cert.h"
 #include "fips_cert_internal/common.h"
 
-/* 
+/*
  * KAT TEST
  * taken from Wycheproof testing
  */
@@ -37,7 +37,7 @@ static const Ipp8u key[] = { 0xac,0x68,0x6b,0xa0,0xf1,0xa5,0x1b,0x4e,0xc4,0xf0,0
 // known tag
 static const Ipp8u tag[] = { 0x00,0x85,0x32,0xa5,0x3d,0x0c,0x0a,0xb2,0x20,0x27,0xae,0x24,0x90,0x23,0x37,0x53,
                              0x74,0xe2,0x23,0x9b,0x95,0x96,0x09,0xe8,0x33,0x9b,0x05,0xa1,0x57,0x42,0xa6,0x75 };
-   
+
 static const int msgByteLen  = sizeof(msg);
 static const int keyByteSize = sizeof(key);
 
@@ -62,10 +62,11 @@ IPPFUN(fips_test_status, fips_selftest_ippsHMACUpdate_rmf, (Ipp8u *pBuffer))
 {
     IppStatus sts = ippStsNoErr;
 
-    /* check input pointers and allocate memory in "use malloc" mode */ 
+    /* check input pointers and allocate memory in "use malloc" mode */
     int internalMemMgm = 0;
     int ctx_size = 0;
-    fips_selftest_ippsHMAC_rmf_get_size(&ctx_size);
+    sts = fips_selftest_ippsHMAC_rmf_get_size(&ctx_size);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     BUF_CHECK_NULL_AND_ALLOC(pBuffer, internalMemMgm, ctx_size, IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR)
 
     /* output hash */
@@ -74,28 +75,32 @@ IPPFUN(fips_test_status, fips_selftest_ippsHMACUpdate_rmf, (Ipp8u *pBuffer))
     /* context */
     IppsHMACState_rmf* pCtx = (IppsHMACState_rmf*)(IPP_ALIGNED_PTR(pBuffer, IPPCP_HMAC_ALIGNMENT));
     /* context initialization */
-    ippsHMACGetSize_rmf(&ctx_size);
-    sts = ippsHMACInit_rmf(key, keyByteSize, pCtx, ippsHashMethod_SHA256());
-    if (sts != ippStsNoErr) { 
+    sts = ippsHMACGetSize_rmf(&ctx_size);
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
-    }  
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    sts = ippsHMACInit_rmf(key, keyByteSize, pCtx, ippsHashMethod_SHA256());
+    if (sts != ippStsNoErr) {
+        MEMORY_FREE(pBuffer, internalMemMgm)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     /* function call */
     sts = ippsHMACUpdate_rmf(msg, msgByteLen, pCtx);
-    if (sts != ippStsNoErr) { 
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
     }
     sts = ippsHMACGetTag_rmf(outTagBuff, IPPCP_TAG_BYTE_SIZE, pCtx);
-    if (sts != ippStsNoErr) { 
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
     }
 
     sts = ippsHMACFinal_rmf(outTagFinBuff, IPPCP_TAG_BYTE_SIZE, pCtx);
-    if (sts != ippStsNoErr) { 
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
     }
 
     /* compare output to known answer */
@@ -117,7 +122,7 @@ IPPFUN(fips_test_status, fips_selftest_ippsHMACMessage_rmf, (void))
     IppStatus sts = ippStsNoErr;
     /* output hash */
     Ipp8u outTagBuff[IPPCP_TAG_BYTE_SIZE];
-   
+
     /* function call */
     sts = ippsHMACMessage_rmf(msg, msgByteLen, key, keyByteSize, outTagBuff, IPPCP_TAG_BYTE_SIZE, ippsHashMethod_SHA256());
     if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }

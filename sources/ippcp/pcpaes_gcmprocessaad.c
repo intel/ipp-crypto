@@ -213,9 +213,10 @@ IPPFUN(IppStatus, ippsAES_GCMProcessAAD,(const Ipp8u* pAAD, int aadLen, IppsAES_
 
    /* copy the rest of AAD into the buffer */
    if(aadLen) {
-      XorBlock(pAAD, AESGCM_GHASH(pState), AESGCM_GHASH(pState), aadLen);
-      AESGCM_AAD_LEN(pState) += (Ipp64u)aadLen;
-      AESGCM_BUFLEN(pState) = aadLen;
+      int locLen = IPP_MIN(aadLen, BLOCK_SIZE);
+      XorBlock(pAAD, AESGCM_GHASH(pState), AESGCM_GHASH(pState), locLen);
+      AESGCM_AAD_LEN(pState) += (Ipp64u)locLen;
+      AESGCM_BUFLEN(pState) = locLen;
    }
 #endif /* #if(_IPP32E>=_IPP32E_K0) */
 

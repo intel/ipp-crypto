@@ -17,15 +17,6 @@
 
 #include <internal/fips_cert/common.h>
 
-#ifdef OPENSSL_IS_BORINGSSL
-
-BIGNUM *BN_lebin2bn(const unsigned char *s, int len, BIGNUM *ret)
-{
-    return BN_le2bn(s, len, ret);
-}
-
-#endif
-
 int mbx_is_mem_eq(const int8u *p1, int32u p1_byte_len, const int8u *p2, int32u p2_byte_len)
 {
   if ((p1_byte_len != p2_byte_len) || (p1 == NULL) || (p2 == NULL)) {

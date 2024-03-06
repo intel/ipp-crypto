@@ -108,6 +108,7 @@ static const unsigned int saltByteLen     = sizeof(pSalt);
 static const unsigned int pubExpBitSize   = 24;
 static const unsigned int privExpBitSize  = 2048;
 static const unsigned int modulusBitSize  = 2048;
+static const unsigned int primeBitsize    = 1024;
 
 #define IPPCP_PUB_EXP_WORD_SIZE  (IPPCP_BITSIZE_2_WORDSIZE(pubExpBitSize))
 #define IPPCP_PRIV_EXP_WORD_SIZE (IPPCP_BITSIZE_2_WORDSIZE(privExpBitSize))
@@ -140,9 +141,22 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSASignVerify_PSS_rmf_get_size_keys, 
     if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     total_size += tmp_size; // pPubKey
 
+    sts = ippsPrimeGetSize(primeBitsize,  &tmp_size);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
+    total_size += tmp_size; // pPrimeG
+
+    sts = ippsPRNGGetSize(&tmp_size);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
+    total_size += tmp_size; // pRand
+
     sts = ippsRSA_GetSizePrivateKeyType1(modulusBitSize, privExpBitSize, &tmp_size);
     if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
-    total_size += tmp_size; // pPrvKey
+
+    int tmp_size_2 = 0;
+    sts = ippsRSA_GetSizePrivateKeyType2(primeBitsize, privExpBitSize - primeBitsize, &tmp_size_2);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
+
+    total_size += IPP_MAX(tmp_size, tmp_size_2); // pPrvKey
 
     *pKeysBufferSize = total_size;
 
@@ -162,30 +176,37 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSASignVerify_PSS_rmf_get_size, (int 
     /* Initialize BigNumber-s */
     int dByteSize;
     sts = ippsBigNumGetSize(IPPCP_PRIV_EXP_WORD_SIZE, &dByteSize);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
     IppsBigNumState* bnD = (IppsBigNumState *)pLocKeysBuffer;
     pLocKeysBuffer += dByteSize;
 
     int eByteSize;
     sts = ippsBigNumGetSize(IPPCP_PUB_EXP_WORD_SIZE, &eByteSize);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
     IppsBigNumState* bnE = (IppsBigNumState *)pLocKeysBuffer;
     pLocKeysBuffer += eByteSize;
 
     int nByteSize;
     sts = ippsBigNumGetSize(IPPCP_MODULUS_WORD_SIZE, &nByteSize);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
     IppsBigNumState* bnN = (IppsBigNumState *)pLocKeysBuffer;
     pLocKeysBuffer += nByteSize;
 
     sts = ippcp_init_set_bn(bnD, IPPCP_PRIV_EXP_WORD_SIZE, ippBigNumPOS, (const Ipp32u *)pPrivExp, IPPCP_PRIV_EXP_WORD_SIZE);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     sts = ippcp_init_set_bn(bnE, IPPCP_PUB_EXP_WORD_SIZE,  ippBigNumPOS, (const Ipp32u *)pPubExp,  IPPCP_PUB_EXP_WORD_SIZE);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     sts = ippcp_init_set_bn(bnN, IPPCP_MODULUS_WORD_SIZE,  ippBigNumPOS, (const Ipp32u *)pModulus, IPPCP_MODULUS_WORD_SIZE);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
 
     /* Initialize public and private keys - necessary to obtain signature size */
     // public key
     int pubKeySize;
-    ippsRSA_GetSizePublicKey(modulusBitSize, pubExpBitSize, &pubKeySize);
+    sts = ippsRSA_GetSizePublicKey(modulusBitSize, pubExpBitSize, &pubKeySize);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_RSA_ALIGNMENT));
     IppsRSAPublicKeyState* pPubKey = (IppsRSAPublicKeyState*)pLocKeysBuffer;
     sts = ippsRSA_InitPublicKey(modulusBitSize, pubExpBitSize, pPubKey, pubKeySize);
@@ -193,10 +214,22 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSASignVerify_PSS_rmf_get_size, (int 
     pLocKeysBuffer+=pubKeySize;
     // private key
     int privKeySize;
-    ippsRSA_GetSizePrivateKeyType1(modulusBitSize, privExpBitSize, &privKeySize);
+    sts = ippsRSA_GetSizePrivateKeyType1(modulusBitSize, privExpBitSize, &privKeySize);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_RSA_ALIGNMENT));
     IppsRSAPrivateKeyState* pPrvKey = (IppsRSAPrivateKeyState*)(pLocKeysBuffer);
     sts = ippsRSA_InitPrivateKeyType1(modulusBitSize, privExpBitSize, pPrvKey, privKeySize);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
+    pLocKeysBuffer+=privKeySize;
+
+    sts = ippsRSA_GetSizePrivateKeyType2(primeBitsize, privExpBitSize - primeBitsize, &privKeySize);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
+    IppsRSAPrivateKeyState* pPrvKey2 = (IppsRSAPrivateKeyState*)(pLocKeysBuffer);
+    sts = ippsRSA_InitPrivateKeyType2(primeBitsize, privExpBitSize - primeBitsize, pPrvKey2, privKeySize);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
+
+    int buffSizePrivKey2 = 0;
+    sts = ippsRSA_GetBufferSizePrivateKey(&buffSizePrivKey2, pPrvKey2);
     if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
 
     /* set public and private keys */
@@ -206,16 +239,17 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSASignVerify_PSS_rmf_get_size, (int 
     if(sts != ippStsNoErr) return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
 
     /* RSA signature and verification buffers */
-    int buffSize = 0;
-    sts = ippsRSA_GetBufferSizePublicKey(&buffSize, pPubKey);
+    int buffSizeSignVerify = 0;
+    sts = ippsRSA_GetBufferSizePublicKey(&buffSizeSignVerify, pPubKey);
     if(sts != ippStsNoErr) return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+
     // private
-    int buffSizePrivKey = 0;
-    sts = ippsRSA_GetBufferSizePrivateKey(&buffSizePrivKey, pPrvKey);
+    int buffSizePrivKey1 = 0;
+    sts = ippsRSA_GetBufferSizePrivateKey(&buffSizePrivKey1, pPrvKey);
     if(sts != ippStsNoErr) return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
 
     /* resize buffer */
-    total_size = IPP_MAX(buffSize, buffSizePrivKey) + IPPCP_RSA_ALIGNMENT;
+    total_size = IPP_MAX(IPP_MAX(buffSizeSignVerify, buffSizePrivKey1), buffSizePrivKey2) + IPPCP_RSA_ALIGNMENT;
     *pBufferSize = total_size;
 
     return IPPCP_ALGO_SELFTEST_OK;
@@ -233,11 +267,13 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSASign_PSS_rmf,(Ipp8u *pBuffer, Ipp8
         internalMemMgm = 1;
 
         int keysBuffSize = 0;
-        fips_selftest_ippsRSASignVerify_PSS_rmf_get_size_keys(&keysBuffSize);
+        sts = fips_selftest_ippsRSASignVerify_PSS_rmf_get_size_keys(&keysBuffSize);
+        if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
         pKeysBuffer = malloc((size_t)keysBuffSize);
 
         int dataBuffSize = 0;
-        fips_selftest_ippsRSASignVerify_PSS_rmf_get_size(&dataBuffSize, pKeysBuffer);
+        sts = fips_selftest_ippsRSASignVerify_PSS_rmf_get_size(&dataBuffSize, pKeysBuffer);
+        if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
         pBuffer = malloc((size_t)dataBuffSize);
     }
 #else
@@ -251,30 +287,58 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSASign_PSS_rmf,(Ipp8u *pBuffer, Ipp8
     /* Initialize BigNumber-s */
     int dByteSize;
     sts = ippsBigNumGetSize(IPPCP_PRIV_EXP_WORD_SIZE, &dByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
     IppsBigNumState* bnD = (IppsBigNumState *)pLocKeysBuffer;
     pLocKeysBuffer += dByteSize;
 
     int eByteSize;
     sts = ippsBigNumGetSize(IPPCP_PUB_EXP_WORD_SIZE, &eByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
     IppsBigNumState* bnE = (IppsBigNumState *)pLocKeysBuffer;
     pLocKeysBuffer += eByteSize;
 
     int nByteSize;
     sts = ippsBigNumGetSize(IPPCP_MODULUS_WORD_SIZE, &nByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
     IppsBigNumState* bnN = (IppsBigNumState *)pLocKeysBuffer;
     pLocKeysBuffer += nByteSize;
 
     sts = ippcp_init_set_bn(bnD, IPPCP_PRIV_EXP_WORD_SIZE, ippBigNumPOS, (const Ipp32u *)pPrivExp, IPPCP_PRIV_EXP_WORD_SIZE);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     sts = ippcp_init_set_bn(bnE, IPPCP_PUB_EXP_WORD_SIZE,  ippBigNumPOS, (const Ipp32u *)pPubExp,  IPPCP_PUB_EXP_WORD_SIZE);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     sts = ippcp_init_set_bn(bnN, IPPCP_MODULUS_WORD_SIZE,  ippBigNumPOS, (const Ipp32u *)pModulus, IPPCP_MODULUS_WORD_SIZE);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
 
     /* Initialize key pair */
     // private key
     int privKeyByteSize = 0;
-    ippsRSA_GetSizePrivateKeyType1(modulusBitSize, privExpBitSize, &privKeyByteSize);
+    sts = ippsRSA_GetSizePrivateKeyType1(modulusBitSize, privExpBitSize, &privKeyByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_RSA_ALIGNMENT));
     IppsRSAPrivateKeyState* pPrvKey = (IppsRSAPrivateKeyState*)pLocKeysBuffer;
     sts = ippsRSA_InitPrivateKeyType1(modulusBitSize, privExpBitSize, pPrvKey, privKeyByteSize);
@@ -286,7 +350,11 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSASign_PSS_rmf,(Ipp8u *pBuffer, Ipp8
 
     // public key
     int pubKeyByteSize = 0;
-    ippsRSA_GetSizePublicKey(modulusBitSize, pubExpBitSize, &pubKeyByteSize);
+    sts = ippsRSA_GetSizePublicKey(modulusBitSize, pubExpBitSize, &pubKeyByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_RSA_ALIGNMENT));
     IppsRSAPublicKeyState* pPubKey = (IppsRSAPublicKeyState*)pLocKeysBuffer;
     sts = ippsRSA_InitPublicKey(modulusBitSize, pubExpBitSize, pPubKey, pubKeyByteSize);
@@ -310,7 +378,7 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSASign_PSS_rmf,(Ipp8u *pBuffer, Ipp8
     /* RSA Signature Generation */
     Ipp8u* pLocSignBuffer = (IPP_ALIGNED_PTR(pBuffer, IPPCP_RSA_ALIGNMENT));
 
-    sts = ippsRSASign_PSS_rmf(pMsg, msgByteLen, pSalt, saltByteLen, pOutSig, pPrvKey, 
+    sts = ippsRSASign_PSS_rmf(pMsg, msgByteLen, pSalt, saltByteLen, pOutSig, pPrvKey,
                               pPubKey, ippsHashMethod_SHA256(), pLocSignBuffer);
 
     int sigFlagErr = ippcp_is_mem_eq(pSig, sizeof(pSig), pOutSig, sizeof(pSig));
@@ -334,11 +402,13 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSAVerify_PSS_rmf,(Ipp8u *pBuffer, Ip
         internalMemMgm = 1;
 
         int keysBuffSize = 0;
-        fips_selftest_ippsRSASignVerify_PSS_rmf_get_size_keys(&keysBuffSize);
+        sts = fips_selftest_ippsRSASignVerify_PSS_rmf_get_size_keys(&keysBuffSize);
+        if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
         pKeysBuffer = malloc((size_t)keysBuffSize);
 
         int dataBuffSize = 0;
-        fips_selftest_ippsRSASignVerify_PSS_rmf_get_size(&dataBuffSize, pKeysBuffer);
+        sts = fips_selftest_ippsRSASignVerify_PSS_rmf_get_size(&dataBuffSize, pKeysBuffer);
+        if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
         pBuffer = malloc((size_t)dataBuffSize);
     }
 #else
@@ -350,25 +420,49 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSAVerify_PSS_rmf,(Ipp8u *pBuffer, Ip
     /* Initialize BigNumber-s */
     int eByteSize;
     sts = ippsBigNumGetSize(IPPCP_PUB_EXP_WORD_SIZE, &eByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
     IppsBigNumState* bnE = (IppsBigNumState *)pLocKeysBuffer;
     pLocKeysBuffer += eByteSize;
 
     int nByteSize;
     sts = ippsBigNumGetSize(IPPCP_MODULUS_WORD_SIZE, &nByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
     IppsBigNumState* bnN = (IppsBigNumState *)pLocKeysBuffer;
     pLocKeysBuffer += nByteSize;
 
     sts = ippcp_init_set_bn(bnE, IPPCP_PUB_EXP_WORD_SIZE,  ippBigNumPOS, (const Ipp32u *)pPubExp,  IPPCP_PUB_EXP_WORD_SIZE);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     sts = ippcp_init_set_bn(bnN, IPPCP_MODULUS_WORD_SIZE,  ippBigNumPOS, (const Ipp32u *)pModulus, IPPCP_MODULUS_WORD_SIZE);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
 
     /* Initialize and set public key */
     int pubKeyByteSize = 0;
-    ippsRSA_GetSizePublicKey(modulusBitSize, pubExpBitSize, &pubKeyByteSize);
+    sts = ippsRSA_GetSizePublicKey(modulusBitSize, pubExpBitSize, &pubKeyByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_RSA_ALIGNMENT));
     IppsRSAPublicKeyState* pPubKey = (IppsRSAPublicKeyState*)pLocKeysBuffer;
-    ippsRSA_InitPublicKey(modulusBitSize, pubExpBitSize, pPubKey, pubKeyByteSize);
+    sts = ippsRSA_InitPublicKey(modulusBitSize, pubExpBitSize, pPubKey, pubKeyByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
     sts = ippsRSA_SetPublicKey(bnN, bnE, pPubKey);
     if(sts != ippStsNoErr) {
         MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
@@ -386,6 +480,184 @@ IPPFUN(fips_test_status, fips_selftest_ippsRSAVerify_PSS_rmf,(Ipp8u *pBuffer, Ip
         test_result = IPPCP_ALGO_SELFTEST_KAT_ERR;
     }
 
+    MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+    return test_result;
+}
+
+IPPFUN(fips_test_status, fips_selftest_ippsRSA_GenerateKeys,(Ipp8u *pBuffer, Ipp8u *pKeysBuffer))
+{
+    IppStatus sts = ippStsNoErr;
+    fips_test_status test_result = IPPCP_ALGO_SELFTEST_OK;
+
+    /* Internal memory allocation feature */
+    int internalMemMgm = 0;
+#if IPPCP_SELFTEST_USE_MALLOC
+    if(pBuffer == NULL || pKeysBuffer == NULL) {
+        internalMemMgm = 1;
+
+        int keysBuffSize = 0;
+        sts = fips_selftest_ippsRSASignVerify_PSS_rmf_get_size_keys(&keysBuffSize);
+        if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
+        pKeysBuffer = malloc((size_t)keysBuffSize);
+
+        int dataBuffSize = 0;
+        sts = fips_selftest_ippsRSASignVerify_PSS_rmf_get_size(&dataBuffSize, pKeysBuffer);
+        if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
+        pBuffer = malloc((size_t)dataBuffSize);
+    }
+#else
+    IPP_BADARG_RET((NULL == pBuffer) || (NULL == pKeysBuffer), IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR);
+#endif
+
+    /* buffer for the generated signature */
+    Ipp8u pOutSig[256] = {0};
+    Ipp8u* pLocKeysBuffer = pKeysBuffer;
+
+    /* Initialize BigNumber-s */
+    int dByteSize;
+    sts = ippsBigNumGetSize(IPPCP_PRIV_EXP_WORD_SIZE, &dByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
+    IppsBigNumState* bnD = (IppsBigNumState *)pLocKeysBuffer;
+    pLocKeysBuffer += dByteSize;
+
+    int eByteSize;
+    sts = ippsBigNumGetSize(IPPCP_PUB_EXP_WORD_SIZE, &eByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
+    IppsBigNumState* bnE = (IppsBigNumState *)pLocKeysBuffer;
+    pLocKeysBuffer += eByteSize;
+
+    int nByteSize;
+    sts = ippsBigNumGetSize(IPPCP_MODULUS_WORD_SIZE, &nByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_BN_ALIGNMENT));
+    IppsBigNumState* bnN = (IppsBigNumState *)pLocKeysBuffer;
+    pLocKeysBuffer += nByteSize;
+
+    sts = ippcp_init_set_bn(bnD, IPPCP_PRIV_EXP_WORD_SIZE, ippBigNumPOS, (const Ipp32u *)pPrivExp, IPPCP_PRIV_EXP_WORD_SIZE);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    sts = ippcp_init_set_bn(bnE, IPPCP_PUB_EXP_WORD_SIZE,  ippBigNumPOS, (const Ipp32u *)pPubExp,  IPPCP_PUB_EXP_WORD_SIZE);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    sts = ippcp_init_set_bn(bnN, IPPCP_MODULUS_WORD_SIZE,  ippBigNumPOS, (const Ipp32u *)pModulus, IPPCP_MODULUS_WORD_SIZE);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+
+    // prime generator
+    int size;
+    sts = ippsPrimeGetSize(primeBitsize, &size);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    IppsPrimeState* pPrimeG = (IppsPrimeState*)(IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_GFP_ALIGNMENT));
+    sts = ippsPrimeInit(primeBitsize, pPrimeG);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    pLocKeysBuffer += size;
+
+    int privKey2ByteSize = 0;
+    sts = ippsRSA_GetSizePrivateKeyType2(primeBitsize, privExpBitSize - primeBitsize, &privKey2ByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_RSA_ALIGNMENT));
+    IppsRSAPrivateKeyState* pPrvKey2 = (IppsRSAPrivateKeyState*)pLocKeysBuffer;
+    sts = ippsRSA_InitPrivateKeyType2(primeBitsize, privExpBitSize - primeBitsize, pPrvKey2, privKey2ByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    pLocKeysBuffer += (privKey2ByteSize);
+
+    // initialize RNG
+    int pRandSize;
+    const int seedBitsize = 160;
+    sts = ippsPRNGGetSize(&pRandSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    IppsPRNGState* pRand = (IppsPRNGState*)pLocKeysBuffer;
+    sts = ippsPRNGInit(seedBitsize, pRand);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    pLocKeysBuffer += (pRandSize);
+
+    // generate keys
+    Ipp8u* pLocGenerateKeysBuffer = (IPP_ALIGNED_PTR(pBuffer, IPPCP_RSA_ALIGNMENT));
+    sts = ippStsInsufficientEntropy;
+    for(int loop_count = 0; loop_count < 100 && ippStsInsufficientEntropy == sts; ++loop_count) {
+        sts = ippsRSA_GenerateKeys(bnE, bnN, bnE, bnD, pPrvKey2, pLocGenerateKeysBuffer, 0, pPrimeG, ippsPRNGen, pRand);
+    }
+
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+
+    // public key
+    int pubKeyByteSize = 0;
+    sts = ippsRSA_GetSizePublicKey(modulusBitSize, pubExpBitSize, &pubKeyByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    pLocKeysBuffer = (IPP_ALIGNED_PTR(pLocKeysBuffer, IPPCP_RSA_ALIGNMENT));
+    IppsRSAPublicKeyState* pPubKey = (IppsRSAPublicKeyState*)pLocKeysBuffer;
+    sts = ippsRSA_InitPublicKey(modulusBitSize, pubExpBitSize, pPubKey, pubKeyByteSize);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+
+    /* set public and private keys */
+    sts = ippsRSA_SetPublicKey(bnN, bnE, pPubKey);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+
+    /* RSA Signature Generation */
+    Ipp8u* pLocSignBuffer = (IPP_ALIGNED_PTR(pBuffer, IPPCP_RSA_ALIGNMENT));
+    sts = ippsRSASign_PSS_rmf(pMsg, msgByteLen, pSalt, saltByteLen, pOutSig, pPrvKey2,
+                              pPubKey, ippsHashMethod_SHA256(), pLocSignBuffer);
+    if(sts != ippStsNoErr) {
+        MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+
+    /* RSA Signature Verification */
+    int isValid;
+    Ipp8u* pLocVerifBuffer = (IPP_ALIGNED_PTR(pBuffer, IPPCP_RSA_ALIGNMENT));
+    sts = ippsRSAVerify_PSS_rmf(pMsg,msgByteLen, pOutSig, &isValid, pPubKey,
+                                ippsHashMethod_SHA256(), pLocVerifBuffer);
+
+    if(!isValid || sts != ippStsNoErr) {
+        test_result = IPPCP_ALGO_SELFTEST_KAT_ERR;
+    }
     MEMORY_FREE_2(pKeysBuffer, pBuffer, memMgmFlag)
     return test_result;
 }

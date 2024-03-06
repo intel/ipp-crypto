@@ -26,7 +26,7 @@
 #include "ippcp/fips_cert.h"
 #include "fips_cert_internal/common.h"
 
-/* 
+/*
  * KAT TEST
  * taken from Wycheproof testing
  */
@@ -36,7 +36,7 @@ static const Ipp8u msg[] = { 0x61, 0x23, 0xc5, 0x56, 0xc5, 0xcc };
 static const Ipp8u key[] = { 0x48,0x14,0x40,0x29,0x85,0x25,0xcc,0x26,0x1f,0x81,0x59,0x15,0x9a,0xed,0xf6,0x2d };
 // known tag
 static const Ipp8u tag[] = { 0xa2,0x81,0xe0,0xd2,0xd5,0x37,0x8d,0xfd,0xcc,0x13,0x10,0xfd,0x97,0x82,0xca,0x56 };
-   
+
 static const int msgByteLen = sizeof(msg);
 static const int keyByteSize = sizeof(key);
 
@@ -53,18 +53,19 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_CMAC_get_size, (int *pBuffSize)) 
 
     ctx_size += IPPCP_AES_ALIGNMENT;
     *pBuffSize = ctx_size;
-    
+
     return IPPCP_ALGO_SELFTEST_OK;
 }
 
 IPPFUN(fips_test_status, fips_selftest_ippsAES_CMACUpdate, (Ipp8u *pBuffer))
 {
     IppStatus sts = ippStsNoErr;
-   
-    /* check input pointers and allocate memory in "use malloc" mode */ 
+
+    /* check input pointers and allocate memory in "use malloc" mode */
     int internalMemMgm = 0;
     int ctx_size = 0;
-    fips_selftest_ippsAES_CMAC_get_size(&ctx_size);
+    sts = fips_selftest_ippsAES_CMAC_get_size(&ctx_size);
+    if (sts != ippStsNoErr) { return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; }
     BUF_CHECK_NULL_AND_ALLOC(pBuffer, internalMemMgm, ctx_size, IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR)
 
     /* output hash */
@@ -74,27 +75,31 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_CMACUpdate, (Ipp8u *pBuffer))
     IppsAES_CMACState* pCtx = (IppsAES_CMACState*)(IPP_ALIGNED_PTR(pBuffer, IPPCP_AES_ALIGNMENT));
 
     /* context initialization */
-    ippsAES_CMACGetSize(&ctx_size);
-    sts = ippsAES_CMACInit(key, keyByteSize, pCtx, ctx_size);
-    if (sts != ippStsNoErr) { 
+    sts = ippsAES_CMACGetSize(&ctx_size);
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
+    }
+    sts = ippsAES_CMACInit(key, keyByteSize, pCtx, ctx_size);
+    if (sts != ippStsNoErr) {
+        MEMORY_FREE(pBuffer, internalMemMgm)
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
     }
     /* function call */
     sts = ippsAES_CMACUpdate(msg, msgByteLen, pCtx);
-    if (sts != ippStsNoErr) { 
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
     }
     sts = ippsAES_CMACGetTag(outTagBuff, IPPCP_TAG_BYTE_SIZE, pCtx);
-    if (sts != ippStsNoErr) { 
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
     }
     sts = ippsAES_CMACFinal(outTagFinBuff, IPPCP_TAG_BYTE_SIZE, pCtx);
-    if (sts != ippStsNoErr) { 
+    if (sts != ippStsNoErr) {
         MEMORY_FREE(pBuffer, internalMemMgm)
-        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR; 
+        return IPPCP_ALGO_SELFTEST_BAD_ARGS_ERR;
     }
     /* compare output to known answer */
     int isEqual;
@@ -105,7 +110,7 @@ IPPFUN(fips_test_status, fips_selftest_ippsAES_CMACUpdate, (Ipp8u *pBuffer))
         MEMORY_FREE(pBuffer, internalMemMgm)
         return IPPCP_ALGO_SELFTEST_KAT_ERR;
     }
-    
+
     MEMORY_FREE(pBuffer, internalMemMgm)
     return IPPCP_ALGO_SELFTEST_OK;
 }

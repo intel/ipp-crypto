@@ -25,15 +25,14 @@
 - [CMake\*](https://cmake.org/download) 3.18 or higher
 - Python 3.8.1
 - The Netwide Assembler (NASM) 2.15
-- OpenSSL\* 3.0.8 or higher
+- OpenSSL\* 3.0.8 or higher **OR** BoringSSL* [45cf810d](https://github.com/google/boringssl/archive/45cf810dbdbd767f09f8cb0b0fcccd342c39041f.tar.gz) **OR** Tongsuo* 8.2.1
+
 
 ### Linux* OS
 - [Common tools](#common-tools)
 - Intel® C++ Compiler Classic 2021.9 for Linux\* OS
-- GCC 8.3
-- GCC 9.1
-- GCC 10.1
-- GCC 11.1
+- GCC 8.5
+- GCC 11.4
 - Clang 9.0
 - Clang 12.0
 - GNU binutils 2.32
@@ -217,6 +216,8 @@ To build the Intel IPP Cryptography library on macOS\*, complete the following s
 
     - Example for Linux\* OS and the Intel® 64 architecture:
         `-DPLATFORM_LIST="w7;n8;y8;e9;l9;k0"`
+- `-DNO_CRYPTO_MB:BOOL=TRUE` - optional, turns off the build of [Crypto Multi Buffer library](./sources/ippcp/crypto_mb/Readme.md) and, as a consequence, removes all dependencies on OpenSSL library.
+- `-DBABASSL:BOOL=on`, `-DBORINGSSL:BOOL=on` - required only if forks of OpenSSL library are used to resolve OpenSSL dependencies - Tongsuo and BoringSSL respectively. These flags make sense when [Crypto Multi Buffer library](./sources/ippcp/crypto_mb/Readme.md) is built.
 - `-DIPPCP_CUSTOM_BUILD="<CPU features list>"` - optional, works only if `-DMERGED_BLD:BOOL=off` is set, i.e. only for 1CPU libraries. Enables the CPU feature dispatching mask at compile-time based on the provided list.
 
    - Currently supported by the library custom features dispatching:

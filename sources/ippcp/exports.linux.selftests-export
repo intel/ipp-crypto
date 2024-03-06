@@ -610,6 +610,10 @@ EXTERN (fips_selftest_ippsGFpECSignVerifyDSA_get_size_GFpEC_buff)
 EXTERN (fips_selftest_ippsGFpECSignVerifyDSA_get_size_data_buff)
 EXTERN (fips_selftest_ippsGFpECSignDSA)
 EXTERN (fips_selftest_ippsGFpECVerifyDSA)
+EXTERN (fips_selftest_ippsGFpECPublicKey)
+EXTERN (fips_selftest_ippsGFpECPrivateKey)
+EXTERN (fips_selftest_ippsRSA_GenerateKeys)
+EXTERN (fips_selftest_ippsGFpECSharedSecretDH)
 
 
 VERSION {
@@ -1227,6 +1231,10 @@ VERSION {
    fips_selftest_ippsGFpECSignVerifyDSA_get_size_data_buff;
    fips_selftest_ippsGFpECSignDSA;
    fips_selftest_ippsGFpECVerifyDSA;
+   fips_selftest_ippsGFpECPublicKey;
+   fips_selftest_ippsGFpECPrivateKey;
+   fips_selftest_ippsRSA_GenerateKeys;
+   fips_selftest_ippsGFpECSharedSecretDH;
   local: *;
  };
 }

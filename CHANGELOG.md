@@ -2,6 +2,9 @@
 
 This is a list of notable changes to Intel(R) IPP Cryptography, in reverse chronological order.
 
+## Intel(R) IPP Cryptography 2021.11
+- Minimal supported BoringSSL version was increased to [45cf810d](https://github.com/google/boringssl/archive/45cf810dbdbd767f09f8cb0b0fcccd342c39041f.tar.gz) tag.
+
 ## Intel(R) IPP Cryptography 2021.10
 - Added the verification part of eXtended Merkle Signature Scheme (XMSS) algorithm.
 - Added FIPS-compliance mode for the library. More information can be found in the [Intel(R) IPP Cryptography FIPS Guide](./README_FIPS.md).
