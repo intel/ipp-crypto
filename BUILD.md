@@ -30,7 +30,7 @@
 
 ### Linux* OS
 - [Common tools](#common-tools)
-- Intel® oneAPI DPC++/C++ Compiler 2026.0.0 for Linux\* OS
+- Intel® oneAPI DPC++/C++ Compiler 2026.2.0 for Linux\* OS
 - GCC 8.5
 - GCC 11.5
 - GCC 14.3
@@ -42,9 +42,9 @@
 
 ### Windows* OS
 - [Common tools](#common-tools)
-- Intel® oneAPI DPC++/C++ Compiler 2026.0.0 for Windows\* OS
+- Intel® oneAPI DPC++/C++ Compiler 2026.2.0 for Windows\* OS
 - Microsoft Visual C++ Compiler\* version 19.44 provided by Microsoft Visual Studio\* 2022 version 17.14
-- Microsoft Visual C++ Compiler\* version 19.50 provided by Microsoft Visual Studio\* 2026 version 18.3
+- Microsoft Visual C++ Compiler\* version 19.51 provided by Microsoft Visual Studio\* 2026 version 18.9.2
 > **NOTE:** [CMake\*](https://cmake.org/download) 3.21 or higher is required to build using Microsoft Visual Studio\* 2022.
 
 > **NOTE:** [CMake\*](https://cmake.org/download) 4.2 or higher is required to build using Microsoft Visual Studio\* 2026.
