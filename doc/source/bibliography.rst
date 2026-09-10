@@ -296,7 +296,7 @@ to you in using cryptography functions of Intel® Cryptography Primitives Librar
 
    [SMS4]
       *SMS4 Encryption Algorithm for Wireless Networks.* Available from
-      http://eprint.iacr.org/2008/329.pdf.
+      https://eprint.iacr.org/2008/329.pdf.
 
    .. _x9.42:
 
