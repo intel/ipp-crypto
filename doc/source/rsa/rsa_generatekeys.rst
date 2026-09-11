@@ -49,7 +49,7 @@ Parameters
    * -     nTrials
      -  Security parameter specified for the Miller-Rabin test for probable primality.
    * -     pPrimeGen
-     -  Pointer to the prime number generator.
+     -  Ignored (pass NULL). Prime number generation uses rndFunc directly.
    * -     rndFunc
      -  Pseudorandom number generator.
    * -     pRndParam
@@ -78,15 +78,14 @@ This function sequentially performs the following computations:
 
 #. Based on the generated ``p`` and ``q`` factors, computes all the
    other CRT-related RSA components: ``dP`` = ``d`` mod (``p``-1),
-   ``dQ`` = ``p`` mod (``q``-1) and ``qInv`` = 1/``q`` mod ``p``.
+   ``dQ`` = ``d`` mod (``q``-1) and ``qInv`` = 1/``q`` mod ``p``.
 
 
 To generate RSA keys using the RSA_GenerateKeys function, call it in the
 following sequence of steps:
 
 
-#. Establish the pseudorandom number generator and prime number
-   generator.
+#. Establish the pseudorandom number generator.
 
 
 #. Define the RSA private key type 2 in successive calls to the
@@ -120,11 +119,13 @@ Return Values
    * -     ippStsContextMatchErr
      -      Indicates an error condition if the context parameter does not match the operation.
    * -     ippStsSizeErr
-     -      Indicates an error condition if the bit length of any key component specified by pModulus, pPublicExp or pPrivateExp is not sufficient to hold the value or the prime number generator, specified by pPrimeGen, is not sufficient to generate suitable values.
+     -      Indicates an error condition if the bit length of any key component specified by pModulus, pPublicExp or pPrivateExp is not sufficient to hold the value.
    * -      ippStsOutOfRangeErr
      -      Indicates an error condition if the initial value for searching the public exponent, specified by pSrcPublicExp, is not positive.
    * -     ippStsBadArgErr
-     -      Indicates an error condition in cases not explicitly mentioned above.
+     -      Indicates an error condition if the public exponent specified by pSrcPublicExp is an even value or is less than 3.
+   * -     ippStsErr
+     -      Indicates an internal error condition.
    * -     ippStsInsufficientEntropy
      -      Indicates a warning condition if the prime number generation fails due to a poor choice of entropy.
 

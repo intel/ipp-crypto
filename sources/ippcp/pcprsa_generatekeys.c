@@ -31,6 +31,7 @@
 #include "pcpprimeg.h"
 #include "pcpprng.h"
 #include "pcpngrsa.h"
+#include "pcptool.h"
 
 #include "pcpprime_isco.h"
 #include "pcpprime_isprob.h"
@@ -45,36 +46,42 @@
 //                               NULL == pPublicExp
 //                               NULL == pModulus
 //                               NULL == pPrivateKeyType2
-//                               NULL == pPrimeGen
 //                               NULL == pBuffer
 //                               NULL == rndFunc
 //
 //    ippStsContextMatchErr     !RSA_PRV_KEY2_VALID_ID(pPrivateKeyType2)
-//                              !RSA_PRV_KEY1_VALID_ID(pPrivateKeyType1)
 //                              !BN_VALID_ID(pSrcPublicExp)
 //                              !BN_VALID_ID(pPublicExp)
 //                              !BN_VALID_ID(pModulus)
-//                              !PRIME_VALID_ID(pPrimeGen)
+//                              !BN_VALID_ID(pPrivateExp) (if pPrivateExp != NULL)
 //
 //    ippStsSizeErr              BN_ROOM(pPublicExp) < BN_SIZE(pSrcPublicExp)
 //                               BN_ROOM(pModulus) < SIZE(factorPbitSize+factorQbitSize)
-//                               PRIME_MAXBITSIZE(pPrimeGen) < factorPbitSize
 //
 //    ippStsOutOfRangeErr        0 >= pSrcPublicExp
 //
-//    ippStsBadArgErr            nTrials < 1
+//    ippStsBadArgErr            pSrcPublicExp is even
+//                               pSrcPublicExp < 3
+//
+//    ippStsErr                  internal failure: rndFunc returned an error,
+//                               or a required modular inverse (D = 1/E mod phi,
+//                               or Qinv = 1/Q mod P) does not exist
+//
+//    ippStsInsufficientEntropy  prime generation failed within the maximum
+//                               number of attempts
 //
 //    ippStsNoErr                no error
 //
 // Parameters:
 //    pSrcPublicExp     pointer to the beginning public exponent
-//    pPublicExp        pointer to the resulting public exponent (E)
 //    pModulus          pointer to the resulting modulus (N)
+//    pPublicExp        pointer to the resulting public exponent (E)
+//    pPrivateExp       (optional) pointer to the resulting private exponent (D)
 //    pPrivateKeyType2  pointer to the private key type2 context
-//    pPrivateKeyType1  (optional) pointer to the private key type1 context
 //    pBuffer           pointer to the temporary buffer
-//    nTrials           parameter of Miller-Rabin Test
-//    pPrimeGen         pointer to the Prime generator context
+//    nTrials           number of rounds of the Miller-Rabin Test;
+//                      if < 1, a default security-based value is used
+//    pPrimeGen         deprecated, ignored (pass NULL); prime generation uses rndFunc directly
 //    rndFunc           external PRNG
 //    pRndParam         pointer to the external PRNG parameters
 *F*/
@@ -135,6 +142,10 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys, (const IppsBigNumState* pSrcPublicExp,
             BNU_CHUNK_T* pFreeBuffer =
                 (BNU_CHUNK_T*)(IPP_ALIGNED_PTR(pBuffer, (int)sizeof(BNU_CHUNK_T)));
 
+            /* Used to zeroize the entire pBuffer on every exit */
+            int bufferSize = 0;
+            ippsRSA_GetBufferSizePrivateKey(&bufferSize, pPrivateKeyType2);
+
             /* P, dP, invQ key components */
             gsModEngine* pMontP   = RSA_PRV_KEY_PMONT(pPrivateKeyType2);
             BNU_CHUNK_T* pFactorP = MOD_MODULUS(pMontP);
@@ -154,8 +165,8 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys, (const IppsBigNumState* pSrcPublicExp,
             int ret = -1;
 
             /*
-         // generate prime P
-         */
+            // generate prime P
+            */
             BNU_CHUNK_T topPattern = (BNU_CHUNK_T)1
                                      << ((factorPbitSize - 1) & (BNU_CHUNK_BITS - 1));
             int nRounds = 5 * factorPbitSize;
@@ -210,8 +221,8 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys, (const IppsBigNumState* pSrcPublicExp,
                 goto err; /* internal error or ippStsInsufficientEntropy */
 
             /*
-         // generate prime Q
-         */
+            // generate prime Q
+            */
             topPattern = (BNU_CHUNK_T)1 << ((factorQbitSize - 1) & (BNU_CHUNK_BITS - 1));
             nRounds    = 5 * factorQbitSize;
 
@@ -292,6 +303,10 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys, (const IppsBigNumState* pSrcPublicExp,
                 BNU_CHUNK_T* pExpDBuf = pExpD + nsN + 1;
                 BNU_CHUNK_T* pPhi     = pExpDBuf + nsN + 1;
                 BNU_CHUNK_T* pPhiBuf  = pPhi + nsN + 1;
+                /* dedicated scratch for the Qinv modular inverse so that pExpD
+                   survives intact until every fallible operation has completed
+                   and D can be handed to the caller */
+                BNU_CHUNK_T* pInvQBuf = pPhiBuf + nsN + 1;
                 int nsD, ns;
 
                 /* phi = (P-1) * (Q-1) */
@@ -308,9 +323,13 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys, (const IppsBigNumState* pSrcPublicExp,
                                    pExpDBuf,
                                    BN_BUFFER(pPublicExp),
                                    pPhiBuf);
-                /* if D exp requested */
-                if (pPrivateExp)
-                    BN_Set(pExpD, nsD, pPrivateExp);
+                /* E is verified coprime to (P-1) and (Q-1) above, so
+                   gcd(E,phi)=1 and the inverse must exist; guard defensively
+                   against a zero-length result */
+                if (0 == nsD) {
+                    ret = -1; /* internal error -> ippStsErr */
+                    goto err;
+                }
 
                 /* compute dP = D mod(P-1) */
                 COPY_BNU(pExpDBuf, pExpD, nsD);
@@ -338,9 +357,21 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys, (const IppsBigNumState* pSrcPublicExp,
 
                 /* compute Qinv = 1/Q mod P */
                 COPY_BNU(pPhiBuf, pFactorP, nsP);
-                ns = cpModInv_BNU(pInvQ, pFactorQ, nsQ, pPhiBuf, nsP, pExpD, pExpDBuf, pPhi);
+                ns = cpModInv_BNU(pInvQ, pFactorQ, nsQ, pPhiBuf, nsP, pInvQBuf, pExpDBuf, pPhi);
+                /* P and Q are distinct primes, so gcd(Q,P)=1 and the inverse
+                // must exist; guard defensively against a zero-length result */
+                if (0 == ns) {
+                    ret = -1; /* internal error -> ippStsErr */
+                    goto err;
+                }
                 /* expand invQ */
                 ZEXPAND_BNU(pInvQ, ns, nsP);
+
+                /* Hand the private exponent D to the caller only now that every
+                   fallible operation has succeeded, so a failed keygen never
+                   leaves a valid private exponent in the caller's buffer */
+                if (pPrivateExp)
+                    BN_Set(pExpD, nsD, pPrivateExp);
 
                 cpMul_BNU_school(pProdN, pFactorP, nsP, pFactorQ, nsQ);
                 gsModEngineInit(pMontN,
@@ -354,17 +385,42 @@ IPPFUN(IppStatus, ippsRSA_GenerateKeys, (const IppsBigNumState* pSrcPublicExp,
                 /* actual size of modulus in bits */
                 RSA_PRV_KEY_BITSIZE_N(pPrivateKeyType2) = BITSIZE_BNU(pProdN, nsN);
 
-                ret = 1;
+                /* Purge the whole buffer, measured from the original pBuffer, matching
+                   the size ippsRSA_GetBufferSizePrivateKey() reported to the caller */
+                PurgeBlock(pBuffer, bufferSize);
+
                 return ippStsNoErr;
             }
 
-        err:
-            ZEXPAND_BNU(pFactorP, 0, nsP);
-            ZEXPAND_BNU(pFactorQ, 0, nsQ);
-            ZEXPAND_BNU(pExpDp, 0, nsP);
-            ZEXPAND_BNU(pExpDq, 0, nsQ);
-            ZEXPAND_BNU(pInvQ, 0, nsP);
+        err: {
+            /* scrub the whole caller-owned scratch buffer */
+            PurgeBlock(pBuffer, bufferSize);
+
+            /* Scrub the secret content of each factor engine (P, Q): the
+               modulus, the Montgomery constants R and R^2, and the pool
+               residues form one contiguous run beginning at the modulus, and
+               k0 (the Montgomery factor) */
+            int secSizeP = (int)((MOD_LEN(pMontP) * 3 + MOD_PELEN(pMontP) * MOD_MAXPOOL(pMontP)) *
+                                 (Ipp32s)sizeof(BNU_CHUNK_T));
+            int secSizeQ = (int)((MOD_LEN(pMontQ) * 3 + MOD_PELEN(pMontQ) * MOD_MAXPOOL(pMontQ)) *
+                                 (Ipp32s)sizeof(BNU_CHUNK_T));
+            PurgeBlock(pFactorP, secSizeP);
+            PurgeBlock(pFactorQ, secSizeQ);
+            /* wipe k0 through the secure primitive so the store is not elided */
+            PurgeBlock(&MOD_MNT_FACTOR(pMontP), (int)sizeof(BNU_CHUNK_T));
+            PurgeBlock(&MOD_MNT_FACTOR(pMontQ), (int)sizeof(BNU_CHUNK_T));
+
+            /* CRT private components held in the key context */
+            PurgeBlock(pExpDp, nsP * (int)sizeof(BNU_CHUNK_T));
+            PurgeBlock(pExpDq, nsQ * (int)sizeof(BNU_CHUNK_T));
+            PurgeBlock(pInvQ, nsP * (int)sizeof(BNU_CHUNK_T));
+
+            /* reset the key's "set" state so a failed keygen leaves no usable
+               key (RSA_PRV_KEY2_IS_SET tests bitSizeN > 0) */
+            RSA_PRV_KEY_BITSIZE_N(pPrivateKeyType2) = 0;
+
             return ret < 0 ? ippStsErr : ippStsInsufficientEntropy;
+        }
         }
     }
 }
