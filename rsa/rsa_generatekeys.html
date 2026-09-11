@@ -882,7 +882,7 @@ pPrimeGen, IppBitSupplier rndFunc, void* pRndParam);</p>
 <td><p>Security parameter specified for the Miller-Rabin test for probable primality.</p></td>
 </tr>
 <tr class="row-even"><td><p>pPrimeGen</p></td>
-<td><p>Pointer to the prime number generator.</p></td>
+<td><p>Ignored (pass NULL). Prime number generation uses rndFunc directly.</p></td>
 </tr>
 <tr class="row-odd"><td><p>rndFunc</p></td>
 <td><p>Pseudorandom number generator.</p></td>
@@ -905,13 +905,12 @@ specified pseudorandom number generator rndFunc.</p></li>
 <li><p>Computes the RSA composite modulus <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">=</span> <span class="pre">(p*q)</span></code>.</p></li>
 <li><p>Based on the generated <code class="docutils literal notranslate"><span class="pre">p</span></code> and <code class="docutils literal notranslate"><span class="pre">q</span></code> factors, computes all the
 other CRT-related RSA components: <code class="docutils literal notranslate"><span class="pre">dP</span></code> = <code class="docutils literal notranslate"><span class="pre">d</span></code> mod (<code class="docutils literal notranslate"><span class="pre">p</span></code>-1),
-<code class="docutils literal notranslate"><span class="pre">dQ</span></code> = <code class="docutils literal notranslate"><span class="pre">p</span></code> mod (<code class="docutils literal notranslate"><span class="pre">q</span></code>-1) and <code class="docutils literal notranslate"><span class="pre">qInv</span></code> = 1/<code class="docutils literal notranslate"><span class="pre">q</span></code> mod <code class="docutils literal notranslate"><span class="pre">p</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">dQ</span></code> = <code class="docutils literal notranslate"><span class="pre">d</span></code> mod (<code class="docutils literal notranslate"><span class="pre">q</span></code>-1) and <code class="docutils literal notranslate"><span class="pre">qInv</span></code> = 1/<code class="docutils literal notranslate"><span class="pre">q</span></code> mod <code class="docutils literal notranslate"><span class="pre">p</span></code>.</p></li>
 </ol>
 <p>To generate RSA keys using the RSA_GenerateKeys function, call it in the
 following sequence of steps:</p>
 <ol class="arabic simple">
-<li><p>Establish the pseudorandom number generator and prime number
-generator.</p></li>
+<li><p>Establish the pseudorandom number generator.</p></li>
 <li><p>Define the RSA private key type 2 in successive calls to the
 RSA_GetSizePrivateKeyType2 and RSA_InitPrivateKeyType2 functions with
 desired values of factorPBitSize and factorQBitSize parameters.</p></li>
@@ -939,15 +938,18 @@ desired values of factorPBitSize and factorQBitSize parameters.</p></li>
 <td><p>Indicates an error condition if the context parameter does not match the operation.</p></td>
 </tr>
 <tr class="row-even"><td><p>ippStsSizeErr</p></td>
-<td><p>Indicates an error condition if the bit length of any key component specified by pModulus, pPublicExp or pPrivateExp is not sufficient to hold the value or the prime number generator, specified by pPrimeGen, is not sufficient to generate suitable values.</p></td>
+<td><p>Indicates an error condition if the bit length of any key component specified by pModulus, pPublicExp or pPrivateExp is not sufficient to hold the value.</p></td>
 </tr>
 <tr class="row-odd"><td><p>ippStsOutOfRangeErr</p></td>
 <td><p>Indicates an error condition if the initial value for searching the public exponent, specified by pSrcPublicExp, is not positive.</p></td>
 </tr>
 <tr class="row-even"><td><p>ippStsBadArgErr</p></td>
-<td><p>Indicates an error condition in cases not explicitly mentioned above.</p></td>
+<td><p>Indicates an error condition if the public exponent specified by pSrcPublicExp is an even value or is less than 3.</p></td>
 </tr>
-<tr class="row-odd"><td><p>ippStsInsufficientEntropy</p></td>
+<tr class="row-odd"><td><p>ippStsErr</p></td>
+<td><p>Indicates an internal error condition.</p></td>
+</tr>
+<tr class="row-even"><td><p>ippStsInsufficientEntropy</p></td>
 <td><p>Indicates a warning condition if the prime number generation fails due to a poor choice of entropy.</p></td>
 </tr>
 </tbody>
